@@ -122,6 +122,7 @@ export function reconcileService(config: AppConfig, db: AppDatabase) {
         old?.content_hash &&
         old.mtime_ns === before.mtimeNs.toString() &&
         old.size_bytes === Number(before.size) &&
+        old.active &&
         !old.conflict
       ) {
         db.prepare('UPDATE document_state SET last_checked_at=? WHERE note_id=?').run(
@@ -138,7 +139,7 @@ export function reconcileService(config: AppConfig, db: AppDatabase) {
       } catch {
         fail(503, 'SOURCE_UNAVAILABLE', '原文读取期间变化', true);
       }
-      if (old?.content_hash !== hash) changed++;
+      if (old?.content_hash !== hash || !old?.active || old?.conflict) changed++;
       enqueueSource(db, config, noteId, hash, before.mtimeNs.toString(), Number(before.size));
       db.prepare('UPDATE document_state SET conflict=0 WHERE note_id=?').run(noteId);
     }
@@ -222,15 +223,38 @@ export function reconcileService(config: AppConfig, db: AppDatabase) {
         .get(input.jobId, p.id, p.clientId)
     )
       fail(404, 'OPERATION_NOT_FOUND');
-    const filter=pathFilter({...p,allowedPrefixes:scopes},'n.path');
-    const base=`FROM notes n LEFT JOIN document_state d ON d.note_id=n.id WHERE n.active=1 AND (${filter.sql})`;
-    const notes=db.prepare(`SELECT n.id,n.path,d.* ${base} ORDER BY n.path LIMIT 10`).all(...filter.values) as any[];
-    const counts=db.prepare(`SELECT j.status,count(*) n FROM index_jobs j JOIN notes n ON n.id=j.note_id WHERE n.active=1 AND j.status IN ('pending','leased','ready_to_publish','retry_wait','failed') AND (${filter.sql}) GROUP BY j.status`).all(...filter.values) as {status:string;n:number}[];
-    const count=(statuses:string[])=>counts.filter(row=>statuses.includes(row.status)).reduce((total,row)=>total+row.n,0);
-    const conflicts=(db.prepare(`SELECT coalesce(sum(d.conflict),0) n ${base}`).get(...filter.values) as any).n;
-    const document=input.noteId?db.prepare(`SELECT n.id,n.path,d.* ${base} AND n.id=?`).get(...filter.values,input.noteId) as any:undefined;
-    if(input.noteId&&!document)fail(404,'NOT_FOUND');
-    const summary=(n:any)=>({noteId:n.id,relativePath:n.path,sourceHash:n.content_hash||null,sourceRevision:n.source_revision||0,textIndexedHash:n.text_indexed_hash||null,vectorIndexedHash:n.vector_indexed_hash||null,conflict:!!n.conflict});
+    const filter = pathFilter({ ...p, allowedPrefixes: scopes }, 'n.path');
+    const base = `FROM notes n LEFT JOIN document_state d ON d.note_id=n.id WHERE n.active=1 AND (${filter.sql})`;
+    const notes = db
+      .prepare(`SELECT n.id,n.path,d.* ${base} ORDER BY n.path LIMIT 10`)
+      .all(...filter.values) as any[];
+    const counts = db
+      .prepare(
+        `SELECT j.status,count(*) n FROM index_jobs j JOIN notes n ON n.id=j.note_id WHERE n.active=1 AND j.status IN ('pending','leased','ready_to_publish','retry_wait','failed') AND (${filter.sql}) GROUP BY j.status`,
+      )
+      .all(...filter.values) as { status: string; n: number }[];
+    const count = (statuses: string[]) =>
+      counts
+        .filter((row) => statuses.includes(row.status))
+        .reduce((total, row) => total + row.n, 0);
+    const conflicts = (
+      db.prepare(`SELECT coalesce(sum(d.conflict),0) n ${base}`).get(...filter.values) as any
+    ).n;
+    const document = input.noteId
+      ? (db
+          .prepare(`SELECT n.id,n.path,d.* ${base} AND n.id=?`)
+          .get(...filter.values, input.noteId) as any)
+      : undefined;
+    if (input.noteId && !document) fail(404, 'NOT_FOUND');
+    const summary = (n: any) => ({
+      noteId: n.id,
+      relativePath: n.path,
+      sourceHash: n.content_hash || null,
+      sourceRevision: n.source_revision || 0,
+      textIndexedHash: n.text_indexed_hash || null,
+      vectorIndexedHash: n.vector_indexed_hash || null,
+      conflict: !!n.conflict,
+    });
     const last = getMeta(scopeKey(scopes)) || getMeta('root'),
       meta = last ? JSON.parse(last) : {};
     return {
@@ -243,14 +267,14 @@ export function reconcileService(config: AppConfig, db: AppDatabase) {
         )
         .get() || { status: 'idle' },
       conflicts,
-      pending:count(['pending','leased','ready_to_publish']),
-      retrying:count(['retry_wait']),
-      failed:count(['failed']),
+      pending: count(['pending', 'leased', 'ready_to_publish']),
+      retrying: count(['retry_wait']),
+      failed: count(['failed']),
       activeSpaceId: config.embeddingSpaceId || null,
       generation: getMeta('active_generation'),
       error: getMeta('source_error') || null,
       documents: notes.map(summary),
-      ...(document?{document:summary(document)}:{}),
+      ...(document ? { document: summary(document) } : {}),
     };
   }
   return {

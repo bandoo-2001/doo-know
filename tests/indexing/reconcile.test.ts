@@ -1,11 +1,67 @@
 import { it, expect } from 'vitest';
-import { writeFile, rename, stat, utimes } from 'node:fs/promises';
+import { writeFile, rename, stat, utimes, mkdir, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { createFixture, loginFixtureOwner } from '../support/fixture.js';
 import { agentConfig, agentHeaders } from '../support/agent.js';
 import { openDatabase } from '../../server/db.js';
 const hash = (s: string) => createHash('sha256').update(s).digest('hex');
+it('all listing and document entrances preserve identities when an empty replacement root appears', async () => {
+  const f = await createFixture({ agent: agentConfig }),
+    held = f.knowledgeRoot + '-held',
+    db = openDatabase(f.dataRoot);
+  try {
+    const h = await loginFixtureOwner(f);
+    const n = (
+      await f.app.inject({
+        method: 'POST',
+        url: '/api/notes',
+        headers: h,
+        payload: { folderPath: '00-Inbox', fileName: 'root-fence.md', content: '# Root identity' },
+      })
+    ).json();
+    const share = (
+      await f.app.inject({
+        method: 'POST',
+        url: `/api/notes/${n.id}/share`,
+        headers: h,
+        payload: {},
+      })
+    ).json();
+    await f.app.inject({
+      method: 'POST',
+      url: '/api/agent/v1/index/refresh',
+      headers: agentHeaders(),
+      payload: { requestId: 'bind-root', scope: '00-Inbox' },
+    });
+    expect(db.prepare("SELECT value FROM index_meta WHERE key='root_identity'").get()).toBeTruthy();
+    await rename(f.knowledgeRoot, held);
+    await mkdir(f.knowledgeRoot);
+    for (const request of [
+      { url: '/api/agent/v1/notes', headers: agentHeaders() },
+      { url: '/api/notes', headers: h },
+      { url: '/api/tree', headers: h },
+      { url: `/api/notes/${n.id}`, headers: h },
+      { url: `/api/public/shares/${share.token}/meta` },
+    ]) {
+      const r = await f.app.inject(request);
+      expect(r.statusCode).toBe(503);
+    }
+    expect((db.prepare('SELECT active FROM notes WHERE id=?').get(n.id) as any).active).toBe(1);
+    expect(
+      (db.prepare('SELECT enabled FROM shares WHERE note_id=?').get(n.id) as any).enabled,
+    ).toBe(1);
+    await rm(f.knowledgeRoot, { recursive: true });
+    await rename(held, f.knowledgeRoot);
+    expect(
+      (await f.app.inject({ url: '/api/agent/v1/notes', headers: agentHeaders() })).json().data
+        .items[0].id,
+    ).toBe(n.id);
+  } finally {
+    db.close();
+    await f.close();
+  }
+});
 it('full reconciliation detects equal-size content with identical nanosecond mtime and atomic saves', async () => {
   const f = await createFixture({ agent: agentConfig });
   try {

@@ -65,6 +65,20 @@ it('serves text, real semantic and hybrid search with ACL filtering and explicit
     expect(fallback.statusCode).toBe(200);
     expect(fallback.json().data.degraded).toBe(true);
     expect(fallback.json().data.results.length).toBeGreaterThan(0);
+    const strictOffline = await f.app.inject({
+      method: 'POST',
+      url: '/api/agent/v1/search',
+      headers: agentHeaders(),
+      payload: { query: '知识', mode: 'hybrid', freshness: 'strict' },
+    });
+    expect(strictOffline.statusCode).toBe(503);
+    const textOffline = await f.app.inject({
+      method: 'POST',
+      url: '/api/agent/v1/search',
+      headers: agentHeaders(),
+      payload: { query: '知识', mode: 'text', freshness: 'strict' },
+    });
+    expect(textOffline.statusCode).toBe(200);
     expect(
       (
         await f.app.inject({

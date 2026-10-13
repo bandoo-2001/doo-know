@@ -17,6 +17,7 @@ import { HttpError, text } from './errors.js';
 import { readDocument, safePath, scanFiles, validName } from './files.js';
 import { mutationCore, webPrincipal } from './knowledge/core.js';
 import { KnowledgeError } from './knowledge/errors.js';
+import { assertRoot } from './indexing/reconcile.js';
 export interface NoteRow {
   id: string;
   path: string;
@@ -26,11 +27,13 @@ export interface NoteRow {
 export function noteService(config: AppConfig, db: AppDatabase) {
   const mutations = mutationCore(config, db);
   function scan() {
+    assertRoot(config, db);
     if (
       db.prepare("SELECT 1 FROM sync_runs WHERE status IN ('running','needs_reconciliation')").get()
     )
       throw new KnowledgeError(503, 'SYNC_IN_PROGRESS', '原文同步中', true);
     const files = scanFiles(config.knowledgeRoot);
+    assertRoot(config, db);
     db.transaction(() => {
       const live = new Set(files.notes);
       for (const row of db.prepare('SELECT * FROM notes WHERE active=1').all() as NoteRow[])
@@ -45,6 +48,7 @@ export function noteService(config: AppConfig, db: AppDatabase) {
     return files;
   }
   function row(id: string, deleted = false) {
+    assertRoot(config, db);
     const note = db.prepare('SELECT * FROM notes WHERE id=?').get(id) as NoteRow | undefined;
     if (!note || (!deleted && !note.active)) throw new HttpError(404, '笔记不存在');
     return note;

@@ -763,6 +763,7 @@ onBeforeUnmount(() => {
           v-if="noteInfo && noteInfo.editorMode !== 'full'"
           ref="largeRef"
           :note="noteInfo"
+          :assets="assets"
           :initial-line="note.id === initialNoteId ? initialLine : undefined"
           :key="note.id"
           @dirty="(v) => (largeDirty = v)"

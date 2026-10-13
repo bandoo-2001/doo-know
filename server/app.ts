@@ -306,7 +306,7 @@ export async function createApp(config: AppConfig) {
     });
   });
   app.addHook('onClose', async () => {
-    knowledge.stopWatching();
+    await knowledge.stopWatching();
     await knowledge.worker.close();
     await knowledge.files.close();
     await knowledge.snapshots.close();

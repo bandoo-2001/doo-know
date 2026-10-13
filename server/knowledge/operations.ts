@@ -81,10 +81,19 @@ export function completeOperation(db: AppDatabase, id: string, result: unknown) 
     "UPDATE operations SET status='succeeded',result=?,error=NULL,updated_at=? WHERE id=?",
   ).run(JSON.stringify(result), Date.now(), id);
 }
+export function operationError(raw: string) {
+  try {
+    const value = JSON.parse(raw);
+    if (typeof value?.code === 'string' && Number.isInteger(value.status)) return value;
+  } catch {}
+  return { code: raw, status: 409, retryable: false };
+}
 export function existingResult(op: OperationRow): any {
   if (op.status === 'succeeded') return JSON.parse(op.result!);
-  if (op.status === 'failed' || op.status === 'cancelled')
-    return fail(409, op.error || 'OPERATION_FAILED');
+  if (op.status === 'failed' || op.status === 'cancelled') {
+    const error = operationError(op.error || 'OPERATION_FAILED');
+    return fail(error.status, error.code, error.message, error.retryable, error.details);
+  }
   return fail(409, 'OPERATION_OUTCOME_UNKNOWN', '按原 requestId 核对操作结果', true);
 }
 export function findOperation(
@@ -111,7 +120,12 @@ export function findOperation(
     status: op.status,
     ...(op.result ? { result: JSON.parse(op.result) } : {}),
     ...(op.error
-      ? { error: { code: op.error, retryable: op.status === 'needs_reconciliation' } }
+      ? {
+          error: {
+            code: operationError(op.error).code,
+            retryable: op.status === 'needs_reconciliation',
+          },
+        }
       : {}),
   };
 }

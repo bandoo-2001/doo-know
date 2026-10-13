@@ -69,7 +69,7 @@ npm run typecheck
 npm run build
 ```
 
-接口测试使用临时库与临时 SQLite，浏览器测试另起隔离库与 4179/4180 端口，不作用于真实知识库。Chromium 使用 Playwright；本机缺失的测试库仅解包在忽略的 `.local/browser-deps/`，由测试启动器加载。其他主机若浏览器库齐全，直接 `npx playwright install chromium` 后运行即可；需要系统库时按主机已有管理方式补齐。
+接口测试使用临时库与临时 SQLite，浏览器测试按桌面/手机分别启动独立隔离库与 4179/4180 端口，不作用于真实知识库。Chromium 使用 Playwright；本机缺失的测试库仅解包在忽略的 `.local/browser-deps/`，由测试启动器加载。其他主机若浏览器库齐全，直接 `npx playwright install chromium` 后运行即可；需要系统库时按主机已有管理方式补齐。
 
 测试证据与实际截图见 [验收记录](docs/验收记录.md)。测试运行输出与 trace 在忽略的 test-results 中；不将会话、分享令牌或私人正文放入交付文档。
 

@@ -281,6 +281,31 @@ export async function registerAgentRoutes(
       ? setInterval(() => void worker.drain(), 1000)
       : undefined;
   workerTimer?.unref();
+  let maintenanceRunning: Promise<void> | undefined;
+  const maintenanceTimer =
+    config.fileTasks?.embedded !== false
+      ? setInterval(() => {
+          if (maintenanceRunning) return;
+          maintenanceRunning = (async () => {
+            await core.recover();
+            await snapshots.recover();
+            await files.recover();
+            await files.drain();
+            await snapshots.drain();
+            await snapshots.clean();
+            db.prepare("DELETE FROM index_meta WHERE key='file_maintenance_error'").run();
+          })()
+            .catch(() => {
+              db.prepare(
+                "INSERT INTO index_meta VALUES('file_maintenance_error','FILE_MAINTENANCE_FAILED') ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+              ).run();
+            })
+            .finally(() => {
+              maintenanceRunning = undefined;
+            });
+        }, 1000)
+      : undefined;
+  maintenanceTimer?.unref();
   return {
     snapshots,
     files,
@@ -288,9 +313,11 @@ export async function registerAgentRoutes(
     indexing,
     worker,
     search,
-    stopWatching: () => {
+    stopWatching: async () => {
       stopWatching();
       if (workerTimer) clearInterval(workerTimer);
+      if (maintenanceTimer) clearInterval(maintenanceTimer);
+      await maintenanceRunning;
     },
     info: metadataService(config, db, notes),
   };

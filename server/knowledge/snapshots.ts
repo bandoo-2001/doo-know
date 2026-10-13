@@ -703,9 +703,27 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
     await tail;
   }
   async function recover() {
+    const expired = db
+      .prepare(
+        "UPDATE file_operations SET status='queued',lease_epoch=lease_epoch+1 WHERE kind='prepare_snapshot' AND status='running' AND lease_until<=? RETURNING id,snapshot_id",
+      )
+      .all(Date.now()) as { id: string; snapshot_id: string | null }[];
+    for (const attempt of expired) {
+      if (!attempt.snapshot_id) continue;
+      db.transaction(() => {
+        db.prepare(
+          "UPDATE file_operations SET snapshot_id=NULL WHERE id=? AND status='queued'",
+        ).run(attempt.id);
+        db.prepare(
+          "UPDATE read_snapshots SET refs=0,expires_at=min(expires_at,?) WHERE id=? AND source_hash='preparing' AND refs<=1 AND NOT EXISTS(SELECT 1 FROM file_operations WHERE snapshot_id=read_snapshots.id AND status IN ('queued','running','committing','needs_reconciliation')) AND NOT EXISTS(SELECT 1 FROM read_sessions WHERE snapshot_id=read_snapshots.id AND expires_at>?)",
+        ).run(Date.now(), attempt.snapshot_id, Date.now());
+      })();
+    }
+    // A crash can precede attaching the generated snapshot to its operation.
+    // Wait beyond a lease and exclude any current attempt for this note/principal.
     db.prepare(
-      "UPDATE file_operations SET status='queued',lease_epoch=lease_epoch+1 WHERE kind='prepare_snapshot' AND status='running' AND lease_until<=?",
-    ).run(Date.now());
+      "UPDATE read_snapshots SET refs=0,expires_at=min(expires_at,?) WHERE source_hash='preparing' AND refs<=1 AND created_at<=? AND NOT EXISTS(SELECT 1 FROM file_operations f JOIN operations o ON o.id=f.id WHERE f.kind='prepare_snapshot' AND f.note_id=read_snapshots.note_id AND o.principal=read_snapshots.principal AND f.status IN ('queued','running','committing','needs_reconciliation')) AND NOT EXISTS(SELECT 1 FROM read_sessions WHERE snapshot_id=read_snapshots.id AND expires_at>?)",
+    ).run(Date.now(), Date.now() - 60000, Date.now());
     db.prepare(
       "UPDATE operations SET status='queued' WHERE id IN (SELECT id FROM file_operations WHERE kind='prepare_snapshot' AND status='queued')",
     ).run();

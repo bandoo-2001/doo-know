@@ -153,7 +153,7 @@ export function searchService(
             signal.throwIfAborted();
             return worker.vectors.search(query, p, recall, normalized.filters);
           })().catch((error) => {
-            if (normalized.mode === 'semantic') throw error;
+            if (normalized.mode === 'semantic' || normalized.freshness === 'strict') throw error;
             reasons.push(error instanceof KnowledgeError ? error.code : 'VECTOR_UNAVAILABLE');
             return [];
           });
