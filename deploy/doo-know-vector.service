@@ -1,0 +1,24 @@
+[Unit]
+Description=DooKnow CPU embedding and flat vector service
+After=network.target
+
+[Service]
+Type=simple
+User=bandoo
+Group=bandoo
+WorkingDirectory=/srv/stacks/knowledge/doo-know-web/app
+EnvironmentFile=/srv/secrets/knowledge/doo-know-web/app.env
+ExecStart=/srv/stacks/knowledge/doo-know-web/app/runtime/vector-service/.venv/bin/python /srv/stacks/knowledge/doo-know-web/app/runtime/vector-service/app.py --model-dir ${MODEL_DIR} --index-root /srv/data/knowledge/doo-know-web/indexes --token-file ${VECTOR_SERVICE_TOKEN_FILE} --host 127.0.0.1 --port 3081
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadOnlyPaths=/srv/models
+ReadWritePaths=/srv/data/knowledge/doo-know-web
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

@@ -21,7 +21,9 @@
     "backup:prod": "node dist/server/scripts/backup.js",
     "restore:prod": "node dist/server/scripts/restore.js",
     "git:sync": "tsx scripts/git-sync.ts",
-    "worker:file": "tsx scripts/file-worker.ts"
+    "worker:file": "tsx scripts/file-worker.ts",
+    "worker:index": "tsx scripts/index-worker.ts",
+    "index:maintain": "tsx scripts/index-maintain.ts"
   },
   "dependencies": {
     "@codemirror/commands": "^6.11.1",
@@ -44,7 +46,8 @@
     "sanitize-html": "^2.18.0",
     "typescript": "5.9.3",
     "vite": "^8.3.4",
-    "vue": "^3.5.44"
+    "vue": "^3.5.44",
+    "yaml": "2.9.1"
   },
   "devDependencies": {
     "@playwright/test": "^1.64.0",

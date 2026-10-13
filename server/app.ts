@@ -16,7 +16,6 @@ import { shareService } from './shares.js';
 import { renderMarkdown } from './render.js';
 import { recoveryService } from './recovery.js';
 import { assetService } from './assets.js';
-import { searchNotes } from './search.js';
 import { registerAgentRoutes } from './agent/routes.js';
 import { registerWebKnowledgeRoutes } from './knowledge/web-routes.js';
 import { webPrincipal } from './knowledge/core.js';
@@ -140,9 +139,21 @@ export async function createApp(config: AppConfig) {
       .send(notes.createFolder(text(b?.parent, '目录', 1000), text(b?.name, '名称', 180)));
   });
   const assets = assetService(config, db, notes);
-  app.get('/api/search', async (req) =>
-    searchNotes(notes, db, text((req.query as { q?: unknown }).q || '', '搜索词', 200)),
-  );
+  app.get('/api/search', async (req) => {
+    const q = text((req.query as { q?: unknown }).q || '', '搜索词', 512);
+    if (!q.trim()) return [];
+    const result = await knowledge.search.search(webPrincipal, {
+      query: '\"' + q + '\"',
+      mode: 'text',
+    });
+    return result.results.map((r) => ({
+      id: r.noteId,
+      title: r.title,
+      relativePath: r.relativePath,
+      snippet: r.matches[0]?.snippet || '',
+      updatedAt: new Date().toISOString(),
+    }));
+  });
   app.get<{ Params: { id: string } }>('/api/notes/:id/assets', async (req) =>
     assets.list(req.params.id),
   );
@@ -266,6 +277,7 @@ export async function createApp(config: AppConfig) {
   });
   app.addHook('onClose', async () => {
     knowledge.stopWatching();
+    await knowledge.worker.close();
     await knowledge.files.close();
     await knowledge.snapshots.close();
     await knowledge.indexing.close();

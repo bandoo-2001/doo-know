@@ -10,6 +10,7 @@ import { enqueueSource } from '../knowledge/core.js';
 import { underPrefix, requireScope } from '../agent/auth.js';
 import type { Principal } from '../../shared/knowledge-contracts.js';
 import { gitState } from './git-state.js';
+import { pathFilter } from './text.js';
 import {
   beginOperation,
   completeOperation,
@@ -212,7 +213,7 @@ export function reconcileService(config: AppConfig, db: AppDatabase) {
       throw e;
     }
   }
-  function status(p: Principal, input: { scope?: string; jobId?: string } = {}) {
+  function status(p: Principal, input: { scope?: string; jobId?: string; noteId?: string } = {}) {
     const scopes = scopeFor(p, input.scope);
     if (
       input.jobId &&
@@ -221,19 +222,15 @@ export function reconcileService(config: AppConfig, db: AppDatabase) {
         .get(input.jobId, p.id, p.clientId)
     )
       fail(404, 'OPERATION_NOT_FOUND');
-    const notes = (
-      db
-        .prepare(
-          'SELECT n.id,n.path,d.* FROM notes n LEFT JOIN document_state d ON d.note_id=n.id WHERE n.active=1 ORDER BY n.path',
-        )
-        .all() as any[]
-    ).filter((n) => scopes.some((scope) => underPrefix(n.path, scope)));
-    const ids = new Set(notes.map((n) => n.id));
-    const jobs = (
-      db
-        .prepare("SELECT note_id,status FROM index_jobs WHERE status NOT IN ('done','superseded')")
-        .all() as any[]
-    ).filter((j) => ids.has(j.note_id));
+    const filter=pathFilter({...p,allowedPrefixes:scopes},'n.path');
+    const base=`FROM notes n LEFT JOIN document_state d ON d.note_id=n.id WHERE n.active=1 AND (${filter.sql})`;
+    const notes=db.prepare(`SELECT n.id,n.path,d.* ${base} ORDER BY n.path LIMIT 10`).all(...filter.values) as any[];
+    const counts=db.prepare(`SELECT j.status,count(*) n FROM index_jobs j JOIN notes n ON n.id=j.note_id WHERE n.active=1 AND j.status IN ('pending','leased','ready_to_publish','retry_wait','failed') AND (${filter.sql}) GROUP BY j.status`).all(...filter.values) as {status:string;n:number}[];
+    const count=(statuses:string[])=>counts.filter(row=>statuses.includes(row.status)).reduce((total,row)=>total+row.n,0);
+    const conflicts=(db.prepare(`SELECT coalesce(sum(d.conflict),0) n ${base}`).get(...filter.values) as any).n;
+    const document=input.noteId?db.prepare(`SELECT n.id,n.path,d.* ${base} AND n.id=?`).get(...filter.values,input.noteId) as any:undefined;
+    if(input.noteId&&!document)fail(404,'NOT_FOUND');
+    const summary=(n:any)=>({noteId:n.id,relativePath:n.path,sourceHash:n.content_hash||null,sourceRevision:n.source_revision||0,textIndexedHash:n.text_indexed_hash||null,vectorIndexedHash:n.vector_indexed_hash||null,conflict:!!n.conflict});
     const last = getMeta(scopeKey(scopes)) || getMeta('root'),
       meta = last ? JSON.parse(last) : {};
     return {
@@ -245,25 +242,15 @@ export function reconcileService(config: AppConfig, db: AppDatabase) {
           "SELECT id,status FROM sync_runs WHERE status IN ('running','needs_reconciliation') ORDER BY started_at DESC LIMIT 1",
         )
         .get() || { status: 'idle' },
-      conflicts: notes.filter((n) => n.conflict).length,
-      pending: jobs.filter((j) => ['pending', 'leased', 'ready_to_publish'].includes(j.status))
-        .length,
-      retrying: jobs.filter((j) => j.status === 'retry_wait').length,
-      failed: jobs.filter((j) => j.status === 'failed').length,
+      conflicts,
+      pending:count(['pending','leased','ready_to_publish']),
+      retrying:count(['retry_wait']),
+      failed:count(['failed']),
       activeSpaceId: config.embeddingSpaceId || null,
       generation: getMeta('active_generation'),
       error: getMeta('source_error') || null,
-      documents: notes
-        .slice(0, 10)
-        .map((n) => ({
-          noteId: n.id,
-          relativePath: n.path,
-          sourceHash: n.content_hash || null,
-          sourceRevision: n.source_revision || 0,
-          textIndexedHash: n.text_indexed_hash || null,
-          vectorIndexedHash: n.vector_indexed_hash || null,
-          conflict: !!n.conflict,
-        })),
+      documents: notes.map(summary),
+      ...(document?{document:summary(document)}:{}),
     };
   }
   return {

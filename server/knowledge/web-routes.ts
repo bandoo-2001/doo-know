@@ -17,6 +17,15 @@ export async function registerWebKnowledgeRoutes(
   knowledge: Awaited<ReturnType<typeof registerAgentRoutes>>,
   shares: ReturnType<typeof shareService>,
 ) {
+  app.post('/api/search/advanced', { bodyLimit: 128 * 1024 }, async (req) =>
+    knowledge.search.search(webPrincipal, req.body as any),
+  );
+  app.get('/api/index/status', async (req) =>
+    knowledge.indexing.status(webPrincipal, req.query as any),
+  );
+  app.post('/api/index/refresh', async (req) =>
+    knowledge.indexing.refresh(webPrincipal, req.body as any),
+  );
   app.get<{ Params: { id: string } }>('/api/notes/:id/meta', async (req) =>
     knowledge.info(webPrincipal, req.params.id),
   );

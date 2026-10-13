@@ -6,7 +6,13 @@ import type { Principal, NoteInfo } from '../../shared/knowledge-contracts.js';
 import type { AppDatabase } from '../db.js';
 import type { NoteService } from '../notes.js';
 import { safePath } from '../files.js';
-import { authorizeAgent, authorizePath, requireScope, underPrefix } from './auth.js';
+import {
+  authorizeAgent,
+  authorizePath,
+  requireScope,
+  underPrefix,
+  authorizationCutoff,
+} from './auth.js';
 import { KnowledgeError, fail } from '../knowledge/errors.js';
 import { mutationCore } from '../knowledge/core.js';
 import { findOperation } from '../knowledge/operations.js';
@@ -16,24 +22,32 @@ import { currentAgentConfig } from './config.js';
 import { reconcileService } from '../indexing/reconcile.js';
 import { startWatcher } from '../indexing/watcher.js';
 import { syncService } from '../indexing/sync.js';
+import { indexWorker } from '../indexing/worker.js';
+import { searchService } from '../search/service.js';
+import { researchService } from '../search/research.js';
+import { decodeCursor, signCursor } from './budgets.js';
+import { recallFilter } from '../search/filters.js';
+import { sha256 } from '../knowledge/operations.js';
+import { validateRelative } from '../files.js';
 export function metadataService(config: AppConfig, db: AppDatabase, notes: NoteService) {
   return async function getNoteInfo(p: Principal, id: string): Promise<NoteInfo> {
     const row = notes.row(id);
     authorizePath(p, row.path);
     const s = await stat(safePath(config.knowledgeRoot, row.path, 'note'), { bigint: true });
     const state = db.prepare('SELECT * FROM document_state WHERE note_id=?').get(id) as any;
-    const ready =
-      state?.mtime_ns === s.mtimeNs.toString() &&
-      state?.size_bytes === Number(s.size) &&
-      state?.longest_line_bytes != null;
+    const known = state?.mtime_ns === s.mtimeNs.toString() && state?.size_bytes === Number(s.size);
+    const ready = known && state?.longest_line_bytes != null;
     return {
       id,
-      title: ready && state.title ? state.title : basename(row.path, '.md'),
+      title: [...(ready && state.title ? state.title : basename(row.path, '.md'))]
+        .slice(0, 256)
+        .join(''),
       relativePath: row.path,
       url: `${config.origin}/?note=${encodeURIComponent(id)}`,
       sizeBytes: Number(s.size),
       modifiedAt: s.mtimeNs.toString(),
-      contentHash: ready ? state.content_hash : null,
+      contentHash: known ? state.content_hash : null,
+      sourceRevision: known ? state.source_revision : null,
       longestLineBytes: ready ? state.longest_line_bytes : null,
       editorMode:
         s.size > 20n * 1024n * 1024n
@@ -41,7 +55,15 @@ export function metadataService(config: AppConfig, db: AppDatabase, notes: NoteS
           : !ready || s.size > 1024n * 1024n || state.longest_line_bytes > 32768
             ? 'large'
             : 'full',
-      readState: ready ? 'ready' : 'unknown',
+      readState: ready
+        ? 'ready'
+        : db
+              .prepare(
+                "SELECT 1 FROM file_operations WHERE note_id=? AND kind='prepare_snapshot' AND status IN ('queued','running')",
+              )
+              .get(id)
+          ? 'preparing'
+          : 'unknown',
       shared: !!db.prepare('SELECT 1 FROM shares WHERE note_id=? AND enabled=1').get(id),
     };
   };
@@ -57,6 +79,9 @@ export async function registerAgentRoutes(
   const snapshots = snapshotService(config, db, notes);
   const files = fileJobService(config, db, notes, snapshots);
   const indexing = reconcileService(config, db);
+  const worker = indexWorker(config, db, notes, snapshots),
+    search = searchService(config, db, notes, indexing, worker),
+    research = researchService(config, db, notes);
   await snapshots.recover();
   await files.recover();
   await app.register(
@@ -66,7 +91,11 @@ export async function registerAgentRoutes(
       });
       api.addHook('onRequest', async (req) => {
         try {
-          (req as any).principal = authorizeAgent(req, currentAgentConfig(config));
+          (req as any).principal = authorizeAgent(
+            req,
+            currentAgentConfig(config),
+            authorizationCutoff(db),
+          );
         } catch {
           fail(401, 'UNAUTHORIZED');
         }
@@ -97,23 +126,44 @@ export async function registerAgentRoutes(
         const p = (req as any).principal as Principal;
         requireScope(p, 'knowledge:read');
         notes.scan();
-        const q = req.query as { limit?: string; cursor?: string };
-        const limit = Math.min(50, Math.max(1, Number(q.limit) || 10)),
-          offset = Number(q.cursor) || 0;
-        const rows = (
-          db.prepare('SELECT id,path FROM notes WHERE active=1 ORDER BY path').all() as {
-            id: string;
-            path: string;
-          }[]
-        ).filter((n) => p.allowedPrefixes.some((prefix) => underPrefix(n.path, prefix)));
-        const items = await Promise.all(
-          rows.slice(offset, offset + limit).map((n) => info(p, n.id)),
+        const q = req.query as { limit?: string; cursor?: string; directory?: string };
+        if (q.directory) {
+          try {
+            validateRelative(q.directory, 'folder');
+          } catch {
+            fail(400, 'INVALID_DIRECTORY');
+          }
+        }
+        const limit = Number(q.limit || 10);
+        if (!Number.isInteger(limit) || limit < 1 || limit > 50) fail(400, 'INVALID_LIMIT');
+        const fingerprint = sha256(
+          JSON.stringify([p.id, p.clientId, p.allowedPrefixes, q.directory, limit]),
         );
+        let offset = 0;
+        if (q.cursor) {
+          const c = decodeCursor(config.secret, q.cursor);
+          if (c.fingerprint !== fingerprint) fail(403, 'FORBIDDEN');
+          if (c.expires <= Date.now()) fail(410, 'CURSOR_EXPIRED');
+          offset = c.offset;
+        }
+        const filter = recallFilter(p, { directory: q.directory }, 'n.path');
+        const rows = db
+          .prepare(
+            `SELECT n.id,n.path FROM notes n LEFT JOIN document_state d ON d.note_id=n.id WHERE n.active=1 AND (${filter.sql}) ORDER BY n.path LIMIT ? OFFSET ?`,
+          )
+          .all(...filter.values, limit + 1, offset) as { id: string; path: string }[];
+        const items = await Promise.all(rows.slice(0, limit).map((n) => info(p, n.id)));
         return {
           data: {
             items,
-            ...(offset + items.length < rows.length
-              ? { nextCursor: String(offset + items.length) }
+            ...(rows.length > limit
+              ? {
+                  nextCursor: signCursor(config.secret, {
+                    fingerprint,
+                    offset: offset + items.length,
+                    expires: Date.now() + 15 * 60000,
+                  }),
+                }
               : {}),
           },
         };
@@ -124,6 +174,28 @@ export async function registerAgentRoutes(
       api.post('/index/refresh', async (req) => ({
         data: await indexing.refresh((req as any).principal, req.body as any),
       }));
+      api.post('/search', async (req) => ({
+        data: await search.search((req as any).principal, req.body as any),
+      }));
+      api.get<{ Params: { id: string } }>('/notes/:id/research', async (req) => ({
+        data: await research.fetch(
+          (req as any).principal,
+          req.params.id,
+          undefined,
+          req.query as any,
+        ),
+      }));
+      api.get<{ Params: { id: string; chunkId: string } }>(
+        '/notes/:id/chunks/:chunkId',
+        async (req) => ({
+          data: await research.fetch(
+            (req as any).principal,
+            req.params.id,
+            req.params.chunkId,
+            req.query as any,
+          ),
+        }),
+      );
       api.get('/index/status', async (req) => ({
         data: indexing.status((req as any).principal, req.query as any),
       }));
@@ -195,17 +267,27 @@ export async function registerAgentRoutes(
     { prefix: '/api/agent/v1' },
   );
   let stopWatching = () => {};
-  if (config.indexing?.enabled) {
+  if (config.indexing?.enabled !== false) {
     await syncService(config, db, indexing).recover();
     await indexing.reconcile(undefined, true);
     stopWatching = startWatcher(config, db, indexing);
   }
+  const workerTimer =
+    config.indexing?.enabled !== false && config.indexing?.embedded !== false
+      ? setInterval(() => void worker.drain(), 1000)
+      : undefined;
+  workerTimer?.unref();
   return {
     snapshots,
     files,
     core,
     indexing,
-    stopWatching,
+    worker,
+    search,
+    stopWatching: () => {
+      stopWatching();
+      if (workerTimer) clearInterval(workerTimer);
+    },
     info: metadataService(config, db, notes),
   };
 }

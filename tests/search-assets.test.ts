@@ -20,17 +20,29 @@ function multipart(name: string, mime: string, bytes: Buffer) {
   };
 }
 it('searches current Chinese/English files and refuses anonymous queries', async () => {
-  const f = await createFixture();
+  const f = await createFixture({ indexing: { enabled: true, watch: true } });
   try {
     const h = await loginFixtureOwner(f);
     await writeFile(join(f.knowledgeRoot, '00-Inbox/中文.md'), '# 中文名称\noriginal english');
-    const r = await f.app.inject({ url: '/api/search?q=中文', headers: h });
+    const untilIndexed = async (query: string, count: number) => {
+      for (let i = 0; i < 100; i++) {
+        const r = await f.app.inject({
+          url: '/api/search?q=' + encodeURIComponent(query),
+          headers: h,
+        });
+        if (r.statusCode !== 200 || r.json().length === count) return r;
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      }
+      throw new Error('watcher did not publish searchable content');
+    };
+    const r = await untilIndexed('中文', 1);
     expect(r.statusCode).toBe(200);
     expect(r.json()[0].title).toBe('中文名称');
+    await writeFile(join(f.knowledgeRoot, '00-Inbox/中文-其他.md'), '# 另一个中文\n其他正文');
+    expect((await untilIndexed('中文', 2)).json()).toHaveLength(2);
+    expect((await untilIndexed('中文名称', 1)).json()).toHaveLength(1);
     await writeFile(join(f.knowledgeRoot, '00-Inbox/中文.md'), '# 中文名称\nLATEST external');
-    expect((await f.app.inject({ url: '/api/search?q=latest', headers: h })).json()).toHaveLength(
-      1,
-    );
+    expect((await untilIndexed('latest', 1)).json()).toHaveLength(1);
     expect((await f.app.inject({ url: '/api/search?q=original', headers: h })).json()).toHaveLength(
       0,
     );

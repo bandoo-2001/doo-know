@@ -8,10 +8,13 @@ export interface AppConfig {
   staticRoot?: string;
   agent?: import('./knowledge-contracts.js').AgentConfig;
   agentConfigFile?: string;
+  vectorRuntimeRoot?: string;
+  modelDir?: string;
+  tokenizerPython?: string;
   vectorServiceUrl?: string;
   vectorServiceToken?: string;
   embeddingSpaceId?: string;
-  indexing?: { enabled?: boolean; watch?: boolean };
+  indexing?: { enabled?: boolean; watch?: boolean; embedded?: boolean };
   fileTasks?: { embedded?: boolean };
   gitSyncEnabled?: boolean;
 }

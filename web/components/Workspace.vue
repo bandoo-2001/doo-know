@@ -9,11 +9,13 @@ import Icon from './Icon.vue';
 import TreeBranch from './TreeBranch.vue';
 import MarkdownEditor from './MarkdownEditor.vue';
 import LargeFileWorkspace from './LargeFileWorkspace.vue';
+import IndexStatus from './IndexStatus.vue';
 import type {
   NoteInfo,
   FileReply,
   OutlinePage,
   FileOperation,
+  SearchOutput,
 } from '../../shared/knowledge-contracts';
 const noteInfo = ref<NoteInfo>(),
   largeRef = ref<InstanceType<typeof LargeFileWorkspace>>(),
@@ -526,12 +528,24 @@ watch(query, (q) => {
     results.value = [];
     return;
   }
-  searchTimer = setTimeout(() => {
+  let attempts = 0;
+  const search = () =>
     void run(async () => {
-      const response = await api(`/api/search?q=${encodeURIComponent(q)}`);
-      if (query.value === q) results.value = response;
+      const response = await api<SearchOutput>('/api/search/advanced', 'POST', {
+        query: '"' + q + '"',
+        mode: 'text',
+      });
+      if (query.value !== q) return;
+      results.value = response.results.map((r) => ({
+        id: r.noteId,
+        title: r.title,
+        relativePath: r.relativePath,
+        snippet: r.matches[0]?.snippet || '',
+      }));
+      if (!results.value.length && ++attempts < 15 && (response.index.pending || attempts < 3))
+        searchTimer = setTimeout(search, 1000);
     });
-  }, 220);
+  searchTimer = setTimeout(search, 220);
 });
 function shortcut(e: KeyboardEvent) {
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
@@ -546,7 +560,11 @@ function unload(e: BeforeUnloadEvent) {
   }
 }
 onMounted(() => {
-  void run(refresh);
+  void run(async () => {
+    await refresh();
+    const id = new URLSearchParams(window.location.search).get('note');
+    if (id) await openNote(id);
+  });
   window.addEventListener('keydown', shortcut);
   window.addEventListener('beforeunload', unload);
 });
@@ -579,6 +597,7 @@ onBeforeUnmount(() => {
         >
       </div>
       <button class="nav-action" @click="all"><Icon name="file" />全部笔记</button>
+      <IndexStatus :note-id="note?.id" />
       <div class="tree-heading">
         <span>{{ query ? '搜索结果' : '笔记本' }}</span
         ><button class="icon-button" aria-label="新建文件夹" @click="create('folder')">

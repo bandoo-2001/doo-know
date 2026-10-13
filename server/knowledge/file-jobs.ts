@@ -1,4 +1,5 @@
 import { currentAgentConfig } from '../agent/config.js';
+import { checkTokenCutoff } from '../agent/auth.js';
 import { open, mkdir, stat, rename, unlink } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { createHash, randomUUID } from 'node:crypto';
@@ -34,6 +35,7 @@ export function fileJobService(
     'CREATE TABLE IF NOT EXISTS note_write_leases(note_id TEXT PRIMARY KEY,owner TEXT NOT NULL,lease_until INTEGER NOT NULL)',
   );
   function authorized(p: Principal, id: string) {
+    checkTokenCutoff(db, p);
     const n = notes.row(id, true);
     authorizePath(p, n.path, 'knowledge:write');
     if (p.id !== 'web-owner') {

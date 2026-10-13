@@ -3,6 +3,7 @@ import type { FastifyRequest } from 'fastify';
 import type { AgentConfig, Principal } from '../../shared/knowledge-contracts.js';
 import { fail } from '../knowledge/errors.js';
 import { validateRelative } from '../files.js';
+import type { AppDatabase } from '../db.js';
 const equal = (a: string, b: string) => {
   const x = Buffer.from(a),
     y = Buffer.from(b);
@@ -10,7 +11,11 @@ const equal = (a: string, b: string) => {
 };
 export const underPrefix = (path: string, prefix: string) =>
   path === prefix || path.startsWith(prefix + '/');
-export function authorizeAgent(req: FastifyRequest, config?: AgentConfig): Principal {
+export function authorizeAgent(
+  req: FastifyRequest,
+  config?: AgentConfig,
+  notBefore = 0,
+): Principal {
   if (!config || !equal(String(req.headers.authorization || ''), `Bearer ${config.serviceToken}`))
     return fail(401, 'UNAUTHORIZED');
   try {
@@ -39,6 +44,15 @@ export function authorizeAgent(req: FastifyRequest, config?: AgentConfig): Princ
       claims.exp <= now ||
       claims.iat > now + 5 ||
       claims.exp - claims.iat > 60 ||
+      claims.sub === 'web-owner' ||
+      String(claims.sub).startsWith('share:') ||
+      String(claims.sub).startsWith('system:') ||
+      (claims.tokenIssuedAt != null &&
+        (!Number.isInteger(claims.tokenIssuedAt) ||
+          claims.tokenIssuedAt <= 0 ||
+          claims.tokenIssuedAt > now + 5)) ||
+      (notBefore > 0 &&
+        (!Number.isInteger(claims.tokenIssuedAt) || claims.tokenIssuedAt <= notBefore)) ||
       !Array.isArray(claims.scopes) ||
       !Array.isArray(claims.allowedPrefixes)
     )
@@ -61,10 +75,28 @@ export function authorizeAgent(req: FastifyRequest, config?: AgentConfig): Princ
       clientId: policy.clientId,
       scopes: policy.scopes.filter((s) => claims.scopes.includes(s)),
       allowedPrefixes: [...new Set(prefixes)],
+      ...(claims.tokenIssuedAt != null ? { tokenIssuedAt: claims.tokenIssuedAt } : {}),
     };
   } catch {
     return fail(401, 'UNAUTHORIZED');
   }
+}
+export function authorizationCutoff(db: AppDatabase) {
+  return Number(
+    (db.prepare("SELECT value FROM index_meta WHERE key='remote_auth_not_before'").get() as any)
+      ?.value || 0,
+  );
+}
+export function checkTokenCutoff(db: AppDatabase, p: Principal) {
+  const cutoff = authorizationCutoff(db);
+  if (
+    cutoff &&
+    p.id !== 'web-owner' &&
+    !p.id.startsWith('share:') &&
+    !p.id.startsWith('system:') &&
+    (!p.tokenIssuedAt || p.tokenIssuedAt <= cutoff)
+  )
+    fail(401, 'UNAUTHORIZED');
 }
 export function requireScope(p: Principal, scope: string) {
   if (!p.scopes.includes(scope)) fail(403, 'FORBIDDEN');

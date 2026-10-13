@@ -64,6 +64,9 @@ export async function resetOwnerPassword(config: AppConfig, password: string) {
         .run(hash, Date.now());
       if (!r.changes) throw new Error('尚无账号');
       db.prepare('DELETE FROM session').run();
+      db.prepare(
+        "INSERT INTO index_meta VALUES('remote_auth_not_before',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+      ).run(String(Math.floor(Date.now() / 1000)));
     })();
   } finally {
     db.close();

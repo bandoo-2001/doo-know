@@ -15,6 +15,7 @@ import type {
 } from '../../shared/knowledge-contracts.js';
 import { safePath } from '../files.js';
 import { authorizePath } from '../agent/auth.js';
+import { checkTokenCutoff } from '../agent/auth.js';
 import { fail, KnowledgeError } from './errors.js';
 import { beginOperation, completeOperation, sha256 } from './operations.js';
 import { enqueueSource } from './core.js';
@@ -33,6 +34,7 @@ export interface SnapshotRow {
   expires_at: number;
   refs: number;
   principal: string;
+  source_revision: number | null;
 }
 export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteService) {
   let tail = Promise.resolve();
@@ -55,6 +57,7 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
     };
   };
   const authorizedFile = (p: Principal, id: string) => {
+    checkTokenCutoff(db, p);
     const [noteId, revisionId] = id.split('@');
     const n = notes.row(noteId);
     authorizePath(p, n.path);
@@ -82,11 +85,15 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
     if (!row) fail(404, 'SNAPSHOT_NOT_FOUND');
     if (row.expires_at <= Date.now() && !row.refs) fail(410, 'CURSOR_EXPIRED');
     const s = await stableStat(file),
-      state = db.prepare('SELECT content_hash FROM document_state WHERE note_id=?').get(id) as any;
+      state = db
+        .prepare('SELECT content_hash,source_revision FROM document_state WHERE note_id=?')
+        .get(id) as any;
     if (
       s.mtimeNs.toString() !== row.modified_at ||
       Number(s.size) !== row.size_bytes ||
-      (!historical && state?.content_hash && state.content_hash !== row.source_hash)
+      (!historical &&
+        state?.content_hash &&
+        (state.content_hash !== row.source_hash || state.source_revision !== row.source_revision))
     )
       fail(409, 'STALE_CURSOR');
     return row;
@@ -137,7 +144,9 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
         ordinal = 0,
         title = basename(n.path, '.md'),
         inFence = false;
-      db.prepare('INSERT INTO read_snapshots VALUES(?,?,?,?,?,?,?,?,?,?,?,?)').run(
+      db.prepare(
+        'INSERT INTO read_snapshots(id,note_id,source_hash,modified_at,path,size_bytes,longest_line_bytes,created_at,expires_at,refs,principal,source_key) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)',
+      ).run(
         snapshotId,
         n.id,
         'preparing',
@@ -238,6 +247,9 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
         ).run(sourceHash, longest, snapshotId);
         if (!historical) {
           enqueueSource(db, config, n.id, sourceHash, before.mtimeNs.toString(), byte);
+          db.prepare(
+            'UPDATE read_snapshots SET source_revision=(SELECT source_revision FROM document_state WHERE note_id=?) WHERE id=?',
+          ).run(n.id, snapshotId);
           db.prepare('UPDATE document_state SET longest_line_bytes=?,title=? WHERE note_id=?').run(
             longest,
             title,
@@ -342,7 +354,9 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
       s = await stableStat(file),
       state = historical
         ? null
-        : (db.prepare('SELECT content_hash FROM document_state WHERE note_id=?').get(n.id) as any);
+        : (db
+            .prepare('SELECT content_hash,source_revision FROM document_state WHERE note_id=?')
+            .get(n.id) as any);
     const row = db
       .prepare(
         'SELECT * FROM read_snapshots WHERE note_id=? AND source_key=? AND modified_at=? AND size_bytes=? AND source_hash<>? AND expires_at>? ORDER BY created_at DESC LIMIT 1',
@@ -350,7 +364,12 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
       .get(n.id, id, s.mtimeNs.toString(), Number(s.size), 'preparing', Date.now()) as
       | SnapshotRow
       | undefined;
-    if (row && (!state?.content_hash || row.source_hash === state.content_hash)) return row;
+    if (
+      row &&
+      (!state?.content_hash ||
+        (row.source_hash === state.content_hash && row.source_revision === state.source_revision))
+    )
+      return row;
     return {
       operation: await prepare(
         p,
@@ -432,9 +451,14 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
         )
           fail(400, 'INVALID_RANGE');
         const sessionId = randomUUID();
+        const expiresAt = Date.now() + limits.ttl;
+        db.prepare('UPDATE read_snapshots SET expires_at=max(expires_at,?) WHERE id=?').run(
+          expiresAt,
+          snapshot.id,
+        );
         db.prepare(
           'INSERT INTO read_sessions(id,snapshot_id,principal,client_id,channel,expires_at) VALUES(?,?,?,?,?,?)',
-        ).run(sessionId, snapshot.id, p.id, p.clientId, channel, Date.now() + limits.ttl);
+        ).run(sessionId, snapshot.id, p.id, p.clientId, channel, expiresAt);
         session = db.prepare('SELECT * FROM read_sessions WHERE id=?').get(sessionId);
         cursor = {
           sessionId,
@@ -480,7 +504,7 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
       let data: ReadPage;
       while (true) {
         const part = utf8Prefix(bytes, n),
-          content = new TextDecoder('utf-8', { fatal: true }).decode(part),
+          content = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(part),
           count = part.reduce((a, b) => a + (b === 10 ? 1 : 0), 0),
           end = cursor.startByte + part.length,
           hasMore = end < cursor.endByte;
@@ -595,11 +619,15 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
     return { kind: 'ready', data };
   }
   async function clean() {
+    db.prepare('DELETE FROM read_sessions WHERE expires_at<=?').run(Date.now());
     const rows = db
       .prepare('SELECT * FROM read_snapshots WHERE expires_at<=? AND refs=0')
       .all(Date.now()) as SnapshotRow[];
     for (const r of rows) {
       if (
+        db
+          .prepare('SELECT 1 FROM read_sessions WHERE snapshot_id=? AND expires_at>?')
+          .get(r.id, Date.now()) ||
         db
           .prepare(
             "SELECT 1 FROM file_operations WHERE snapshot_id=? AND status IN ('queued','running','committing','needs_reconciliation')",

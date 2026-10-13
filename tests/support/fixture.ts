@@ -16,6 +16,7 @@ export async function createFixture(overrides: Record<string, unknown> = {}) {
     dataRoot,
     origin,
     secret: 'fixture-only-secret-at-least-thirty-two-characters',
+    indexing:{enabled:false,watch:false},
     ...overrides,
   };
   const app = await createApp(config);

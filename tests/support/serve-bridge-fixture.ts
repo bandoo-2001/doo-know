@@ -1,0 +1,18 @@
+import {writeFile,mkdir} from 'node:fs/promises';
+import {join} from 'node:path';
+import {createFixture} from './fixture.js';
+import {agentConfig} from './agent.js';
+import {startVectorRuntime} from './vector-runtime.js';
+import {createApp} from '../../server/app.js';
+const f=await createFixture({agent:agentConfig});
+await f.app.close();
+const runtime=await startVectorRuntime(f.dataRoot);
+for(const folder of ['allowed','allowed-other'])await mkdir(join(f.knowledgeRoot,'00-Inbox',folder));
+await writeFile(join(f.knowledgeRoot,'00-Inbox/allowed/knowledge.md'),'# 知识库协作\n\n用 Markdown 保存知识与长期经验，支持搜索引用。');
+await writeFile(join(f.knowledgeRoot,'00-Inbox/allowed/large.md'),'# 大文件\n检索分页测试\n'+'完整正文保持不变\n'.repeat(70000));
+await writeFile(join(f.knowledgeRoot,'00-Inbox/allowed-other/private.md'),'# 越权哨兵\n禁止其他目录权限看到这份正文。');
+const app=await createApp({...f.config,embeddingSpaceId:runtime.spaceId,vectorServiceUrl:runtime.url,vectorServiceToken:runtime.token,indexing:{enabled:true,watch:false}});
+const baseUrl=await app.listen({host:'127.0.0.1',port:0});
+console.log(JSON.stringify({baseUrl,backend:{serviceToken:agentConfig.serviceToken,assertionSecret:agentConfig.assertionSecret,issuer:agentConfig.issuer,audience:agentConfig.audience},principal:{id:'owner',clientId:'test-client',scopes:['knowledge:read','knowledge:write','knowledge:index'],allowedPrefixes:['00-Inbox/allowed']},embeddingSpaceId:runtime.spaceId}));
+await new Promise<void>(resolve=>{for(const signal of ['SIGTERM','SIGINT'])process.once(signal,()=>resolve());});
+await app.close();await runtime.close();await f.close();

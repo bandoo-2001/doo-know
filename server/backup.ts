@@ -3,6 +3,7 @@ import { resolve, join, relative } from 'node:path';
 import { createHash } from 'node:crypto';
 import Database from 'better-sqlite3';
 import type { AppConfig } from '../shared/contracts.js';
+import { hashFile } from './knowledge/file-reader.js';
 async function inventory(root: string) {
   const entries: Record<string, string> = {};
   async function walk(dir: string) {
@@ -21,10 +22,7 @@ async function inventory(root: string) {
 async function checksums(root: string) {
   const files = await inventory(root),
     result: Record<string, string> = {};
-  for (const path of Object.keys(files).sort())
-    result[path] = createHash('sha256')
-      .update(await readFile(join(root, path)))
-      .digest('hex');
+  for (const path of Object.keys(files).sort()) result[path] = await hashFile(join(root, path));
   return result;
 }
 function independent(path: string, other: string) {
@@ -112,6 +110,63 @@ export async function restore(source: string, config: AppConfig) {
       db.prepare('DELETE FROM session').run();
       db.prepare('UPDATE shares SET enabled=0').run();
       db.prepare('UPDATE maintenance SET active=0 WHERE id=1').run();
+      const tables = new Set(
+        (
+          db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all() as {
+            name: string;
+          }[]
+        ).map((r) => r.name),
+      );
+      for (const table of [
+        'read_sessions',
+        'read_snapshots',
+        'read_rates',
+        'read_leases',
+        'chunks_fts',
+        'chunk_terms',
+        'chunks',
+        'vector_rows',
+        'generation_segments',
+        'vector_segment_rows',
+        'vector_segments',
+        'vector_generations',
+        'vector_cache',
+        'index_jobs',
+        'note_write_leases',
+        'sync_runs',
+      ])
+        if (tables.has(table)) db.exec(`DELETE FROM ${table}`);
+      if (tables.has('write_intents')) {
+        db.prepare(
+          "UPDATE operations SET status='needs_reconciliation',error='RESTORED_PENDING_WRITE' WHERE id IN (SELECT id FROM write_intents WHERE status='prepared')",
+        ).run();
+        db.prepare("UPDATE write_intents SET status='conflicted' WHERE status='prepared'").run();
+      }
+      if (tables.has('file_operations')) {
+        db.prepare(
+          "UPDATE operations SET status='needs_reconciliation',error='RESTORED_PENDING_TASK' WHERE id IN (SELECT id FROM file_operations WHERE status IN ('queued','running','committing'))",
+        ).run();
+        db.prepare(
+          "UPDATE file_operations SET status='needs_reconciliation',error='RESTORED_PENDING_TASK',snapshot_ref_released=1 WHERE status IN ('queued','running','committing')",
+        ).run();
+      }
+      if (tables.has('document_state'))
+        db.prepare(
+          'UPDATE document_state SET content_hash=NULL,text_indexed_hash=NULL,vector_indexed_hash=NULL,longest_line_bytes=NULL,title=NULL,last_checked_at=NULL,source_revision=source_revision+1,conflict=0',
+        ).run();
+      if (tables.has('index_meta')) {
+        const previous = Number(
+          (
+            db
+              .prepare("SELECT value FROM index_meta WHERE key='remote_auth_not_before'")
+              .get() as any
+          )?.value || 0,
+        );
+        db.prepare('DELETE FROM index_meta').run();
+        db.prepare("INSERT INTO index_meta VALUES('remote_auth_not_before',?)").run(
+          String(Math.max(previous, Math.floor(Date.now() / 1000))),
+        );
+      }
     })();
     if (db.pragma('integrity_check', { simple: true }) !== 'ok')
       throw new Error('恢复数据库校验失败');

@@ -45,6 +45,13 @@ export function loadConfig(): AppConfig {
     port,
     host: process.env.HOST || '127.0.0.1',
     staticRoot: resolve('dist/web'),
+    ...(process.env.VECTOR_RUNTIME_ROOT
+      ? { vectorRuntimeRoot: resolve(process.env.VECTOR_RUNTIME_ROOT) }
+      : {}),
+    ...(process.env.MODEL_DIR ? { modelDir: resolve(process.env.MODEL_DIR) } : {}),
+    ...(process.env.TOKENIZER_PYTHON
+      ? { tokenizerPython: resolve(process.env.TOKENIZER_PYTHON) }
+      : {}),
     ...(process.env.AGENT_CONFIG_FILE
       ? {
           agentConfigFile: resolve(process.env.AGENT_CONFIG_FILE),
@@ -61,6 +68,7 @@ export function loadConfig(): AppConfig {
     indexing: {
       enabled: process.env.INDEXING_ENABLED !== '0',
       watch: process.env.INDEX_WATCH !== '0',
+      embedded: process.env.EMBEDDED_INDEX_WORKER !== '0',
     },
   };
 }

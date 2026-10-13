@@ -27,7 +27,7 @@ it('recovers missed equal-stat edits through the 300-second full hash clock', as
   vi.useFakeTimers({
     toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'Date'],
   });
-  const f = await createFixture({ agent: agentConfig, indexing: { enabled: true, watch: false } });
+  const f = await createFixture({ agent: agentConfig, indexing: { enabled: true, watch: false, embedded: false } });
   try {
     const file = join(f.knowledgeRoot, '00-Inbox/periodic.md');
     await writeFile(file, 'AAAA');

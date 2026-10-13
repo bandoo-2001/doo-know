@@ -3,6 +3,7 @@ export type Principal = {
   clientId: string;
   scopes: string[];
   allowedPrefixes: string[];
+  tokenIssuedAt?: number;
 };
 export type AgentConfig = {
   serviceToken: string;
@@ -19,6 +20,7 @@ export type NoteInfo = {
   sizeBytes: number;
   modifiedAt: string;
   contentHash: string | null;
+  sourceRevision: number | null;
   editorMode: 'full' | 'large' | 'metadata';
   longestLineBytes: number | null;
   readState: 'unknown' | 'preparing' | 'ready';
@@ -124,6 +126,7 @@ export type Hit = {
   snippet: string;
   sourceHash: string;
   matchedBy: ('text' | 'semantic')[];
+  sourceRevision: number;
 };
 export type NoteSearchResult = Pick<Hit, 'noteId' | 'title' | 'relativePath' | 'url'> & {
   matches: Hit[];
