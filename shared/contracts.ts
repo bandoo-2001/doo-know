@@ -6,6 +6,11 @@ export interface AppConfig {
   port?: number;
   host?: string;
   staticRoot?: string;
+  agent?: import('./knowledge-contracts.js').AgentConfig;
+  vectorServiceUrl?: string;
+  vectorServiceToken?: string;
+  embeddingSpaceId?: string;
+  indexing?: { enabled?: boolean; watch?: boolean };
 }
 export interface NoteDocument {
   id: string;

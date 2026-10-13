@@ -10,6 +10,7 @@ import {
 } from 'node:fs';
 import { resolve, join, sep } from 'node:path';
 import { HttpError } from './errors.js';
+import { KnowledgeError } from './knowledge/errors.js';
 export const categories = [
   '00-Inbox',
   '10-Projects',
@@ -85,14 +86,19 @@ export function readDocument(root: string, path: string) {
   const fd = openSync(file, constants.O_RDONLY | constants.O_NOFOLLOW);
   try {
     const before = fstatSync(fd, { bigint: true });
-    if (!before.isFile() || before.size > 2n * 1024n * 1024n)
-      throw new HttpError(400, '笔记过大或不是普通文件');
+    if (!before.isFile()) throw new HttpError(400, '不是普通文件');
+    if (before.size > 20n * 1024n * 1024n)
+      throw new KnowledgeError(413, 'FILE_TOO_LARGE', '笔记超过大小上限');
+    if (before.size > 1024n * 1024n)
+      throw new KnowledgeError(409, 'LARGE_FILE_MODE_REQUIRED', '请使用大文件模式读取');
     const content = readFileSync(fd, 'utf8'),
       after = fstatSync(fd, { bigint: true });
     if (before.mtimeNs !== after.mtimeNs)
       throw new HttpError(409, '文件读取期间更新，请重试', {
         currentModifiedAt: after.mtimeNs.toString(),
       });
+    if (content.split('\n').some((line) => Buffer.byteLength(line) > 32768))
+      throw new KnowledgeError(409, 'LARGE_FILE_MODE_REQUIRED', '请使用大文件模式读取');
     return {
       content,
       modifiedAt: after.mtimeNs.toString(),

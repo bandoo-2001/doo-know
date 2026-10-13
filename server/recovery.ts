@@ -1,6 +1,7 @@
 import {
   mkdirSync,
   lstatSync,
+  statSync,
   linkSync,
   unlinkSync,
   readFileSync,
@@ -14,20 +15,27 @@ import type { AppDatabase } from './db.js';
 import type { NoteService } from './notes.js';
 import { HttpError } from './errors.js';
 import { safePath, validName } from './files.js';
+import { mutationCore, webPrincipal } from './knowledge/core.js';
+import { randomUUID } from 'node:crypto';
 export function recoveryService(config: AppConfig, db: AppDatabase, notes: NoteService) {
-  function history(id: string) {
+  function history(id: string, before?: string) {
     notes.row(id);
     return (
       db
         .prepare(
-          'SELECT id,file,created_at AS createdAt,modified_at AS modifiedAt FROM revisions WHERE note_id=? ORDER BY created_at DESC',
+          'SELECT id,file,created_at AS createdAt,modified_at AS modifiedAt FROM revisions WHERE note_id=? AND (? IS NULL OR rowid<(SELECT rowid FROM revisions WHERE id=? AND note_id=?)) ORDER BY rowid DESC LIMIT 51',
         )
-        .all(id) as { id: string; file: string; createdAt: string; modifiedAt: string }[]
+        .all(id, before || null, before || null, id) as {
+        id: string;
+        file: string;
+        createdAt: string;
+        modifiedAt: string;
+      }[]
     ).map((r) => ({
       id: r.id,
       createdAt: r.createdAt,
       modifiedAt: r.modifiedAt,
-      content: readFileSync(join(config.dataRoot, 'history', r.file), 'utf8'),
+      sizeBytes: statSync(join(config.dataRoot, 'history', r.file)).size,
     }));
   }
   function restoreRevision(id: string, revisionId: string, expected: string) {
@@ -55,30 +63,11 @@ export function recoveryService(config: AppConfig, db: AppDatabase, notes: NoteS
     return path;
   }
   function deleteNote(id: string) {
-    const n = notes.getNote(id),
-      source = safePath(config.knowledgeRoot, n.relativePath, 'note'),
-      trashDir = checkedTrash(id, true),
-      destination = join(trashDir, basename(n.relativePath));
-    linkSync(source, destination);
-    try {
-      db.transaction(() => {
-        db.prepare('UPDATE notes SET active=0,trash_path=? WHERE id=?').run(
-          basename(destination),
-          id,
-        );
-        db.prepare('UPDATE shares SET enabled=0 WHERE note_id=?').run(id);
-      })();
-    } catch (e) {
-      unlinkSync(destination);
-      throw e;
-    }
-    try {
-      unlinkSync(source);
-    } catch (e) {
-      db.prepare('UPDATE notes SET active=1,trash_path=NULL WHERE id=?').run(id);
-      unlinkSync(destination);
-      throw e;
-    }
+    const n = notes.row(id);
+    const version = lstatSync(safePath(config.knowledgeRoot, n.path, 'note'), {
+      bigint: true,
+    }).mtimeNs.toString();
+    mutationCore(config, db).archive(webPrincipal, id, version, randomUUID());
     return { deleted: true };
   }
   function trash() {

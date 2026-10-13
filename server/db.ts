@@ -1,6 +1,7 @@
 import Database from 'better-sqlite3';
 import { mkdirSync, chmodSync } from 'node:fs';
 import { join } from 'node:path';
+import { migrateKnowledge } from './indexing/schema.js';
 export function openDatabase(dataRoot: string) {
   mkdirSync(dataRoot, { recursive: true, mode: 0o700 });
   const path = join(dataRoot, 'app.sqlite');
@@ -16,6 +17,7 @@ export function openDatabase(dataRoot: string) {
  CREATE TABLE IF NOT EXISTS assets(id TEXT PRIMARY KEY,path TEXT UNIQUE NOT NULL);
  CREATE TABLE IF NOT EXISTS maintenance(id INTEGER PRIMARY KEY CHECK(id=1),active INTEGER NOT NULL);
  INSERT OR IGNORE INTO maintenance VALUES(1,0);`);
+  migrateKnowledge(db);
   return db;
 }
 export type AppDatabase = ReturnType<typeof openDatabase>;

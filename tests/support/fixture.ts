@@ -5,7 +5,7 @@ import { createApp } from '../../server/app.js';
 export const origin = 'http://localhost:3010';
 import { testPassword } from './credentials.js';
 export { testPassword };
-export async function createFixture() {
+export async function createFixture(overrides: Record<string, unknown> = {}) {
   const root = await mkdtemp(join(tmpdir(), 'doo-know-test-'));
   const knowledgeRoot = join(root, 'knowledge'),
     dataRoot = join(root, 'data');
@@ -16,6 +16,7 @@ export async function createFixture() {
     dataRoot,
     origin,
     secret: 'fixture-only-secret-at-least-thirty-two-characters',
+    ...overrides,
   };
   const app = await createApp(config);
   return {

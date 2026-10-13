@@ -15,6 +15,7 @@ import type { AppConfig, NoteDocument, TreeEntry } from '../shared/contracts.js'
 import type { AppDatabase } from './db.js';
 import { HttpError, text } from './errors.js';
 import { readDocument, safePath, scanFiles, validName } from './files.js';
+import { mutationCore, webPrincipal } from './knowledge/core.js';
 export interface NoteRow {
   id: string;
   path: string;
@@ -22,6 +23,7 @@ export interface NoteRow {
   trash_path: string | null;
 }
 export function noteService(config: AppConfig, db: AppDatabase) {
+  const mutations = mutationCore(config, db);
   function scan() {
     const files = scanFiles(config.knowledgeRoot);
     db.transaction(() => {
@@ -104,69 +106,12 @@ export function noteService(config: AppConfig, db: AppDatabase) {
     return roots;
   }
   function createNote(folderPath: string, fileName: string, content: string) {
-    if (!validName(fileName) || !fileName.toLowerCase().endsWith('.md'))
-      throw new HttpError(400, '请输入有效的 .md 文件名');
-    const folder = safePath(config.knowledgeRoot, folderPath, 'folder');
-    if (!lstatSync(folder).isDirectory()) throw new HttpError(400, '目标不是目录');
-    const path = `${folderPath}/${fileName}`;
-    const file = safePath(config.knowledgeRoot, path, 'note', true);
-    try {
-      writeFileSync(file, content, { flag: 'wx', mode: 0o600 });
-    } catch (e) {
-      if ((e as NodeJS.ErrnoException).code === 'EEXIST')
-        throw new HttpError(409, '同名文件已存在');
-      throw e;
-    }
-    const id = randomUUID();
-    try {
-      db.prepare('INSERT INTO notes(id,path) VALUES(?,?)').run(id, path);
-    } catch (e) {
-      unlinkSync(file);
-      throw e;
-    }
-    return getNote(id);
+    const result = mutations.create(webPrincipal, folderPath, fileName, content, randomUUID());
+    return getNote(result.id);
   }
   function saveNote(id: string, content: string, expectedModifiedAt: string) {
-    const current = getNote(id);
-    if (current.modifiedAt !== expectedModifiedAt)
-      throw new HttpError(409, '原文件已更新，是否确定覆盖？', {
-        currentModifiedAt: current.modifiedAt,
-      });
-    const file = safePath(config.knowledgeRoot, current.relativePath, 'note'),
-      revisionId = randomUUID();
-    const historyDir = join(config.dataRoot, 'history');
-    mkdirSync(historyDir, { recursive: true, mode: 0o700 });
-    const historyFile = `${revisionId}.md`;
-    const temp = join(dirname(file), `.doo-${randomUUID()}.tmp`);
-    let fd: number | undefined;
-    try {
-      writeFileSync(join(historyDir, historyFile), current.content, { flag: 'wx', mode: 0o600 });
-      fd = openSync(temp, 'wx', Number(statSync(file).mode) & 0o777);
-      writeFileSync(fd, content, 'utf8');
-      fsyncSync(fd);
-      closeSync(fd);
-      fd = undefined;
-      const latest = readDocument(config.knowledgeRoot, current.relativePath);
-      if (latest.modifiedAt !== expectedModifiedAt)
-        throw new HttpError(409, '原文件再次更新', { currentModifiedAt: latest.modifiedAt });
-      db.prepare(
-        'INSERT INTO revisions(id,note_id,file,created_at,modified_at) VALUES(?,?,?,?,?)',
-      ).run(revisionId, id, historyFile, new Date().toISOString(), current.modifiedAt);
-      renameSync(temp, file);
-      const dirFd = openSync(dirname(file), 'r');
-      try {
-        fsyncSync(dirFd);
-      } finally {
-        closeSync(dirFd);
-      }
-      return getNote(id);
-    } catch (e) {
-      if (fd !== undefined) closeSync(fd);
-      try {
-        unlinkSync(temp);
-      } catch {}
-      throw e;
-    }
+    mutations.update(webPrincipal, id, content, expectedModifiedAt, randomUUID());
+    return getNote(id);
   }
   function createFolder(parent: string, name: string) {
     if (!validName(name) || name === 'assets') throw new HttpError(400, '文件夹名不允许');
@@ -182,7 +127,12 @@ export function noteService(config: AppConfig, db: AppDatabase) {
     }
     return tree();
   }
-  return { scan, row, getNote, tree, createNote, saveNote, createFolder };
+  const exists = (id: string) => {
+    const n = row(id);
+    safePath(config.knowledgeRoot, n.path, 'note');
+    return n;
+  };
+  return { scan, row, getNote, tree, createNote, saveNote, createFolder, exists };
 }
 export type NoteService = ReturnType<typeof noteService>;
 export function saveInput(body: unknown) {

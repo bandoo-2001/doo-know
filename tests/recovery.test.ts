@@ -24,10 +24,10 @@ it('keeps old bytes and restores history using checked current version', async (
     expect(saved.statusCode).toBe(200);
     const list = await f.app.inject({ url: `/api/notes/${n.id}/revisions`, headers: h });
     expect(list.statusCode).toBe(200);
-    expect(list.json()[0].content).toBe('PREVIOUS_CONTENT\r\n');
+    expect(list.json().items[0]).not.toHaveProperty('content');
     const r = await f.app.inject({
       method: 'POST',
-      url: `/api/notes/${n.id}/revisions/${list.json()[0].id}/restore`,
+      url: `/api/notes/${n.id}/revisions/${list.json().items[0].id}/restore`,
       headers: h,
       payload: { expectedModifiedAt: saved.json().modifiedAt },
     });

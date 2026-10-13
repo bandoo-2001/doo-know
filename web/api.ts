@@ -4,7 +4,13 @@ export class ApiError extends Error {
     public status: number,
     public data: Record<string, unknown>,
   ) {
-    super(String(data.error || '请求失败'));
+    super(
+      String(
+        typeof data.error === 'object' && data.error
+          ? (data.error as any).message || (data.error as any).code
+          : data.error || '请求失败',
+      ),
+    );
   }
 }
 export async function refreshCsrf() {
@@ -15,7 +21,8 @@ export async function refreshCsrf() {
 export async function api<T = any>(url: string, method = 'GET', body?: unknown): Promise<T> {
   const headers: Record<string, string> = {};
   if (method !== 'GET') {
-    if (!csrfToken && !url.startsWith('/api/auth/')) await refreshCsrf();
+    if (!csrfToken && !url.startsWith('/api/auth/') && !url.startsWith('/api/public/'))
+      await refreshCsrf();
     headers['x-csrf-token'] = csrfToken;
     if (body !== undefined && !(body instanceof FormData))
       headers['Content-Type'] = 'application/json';

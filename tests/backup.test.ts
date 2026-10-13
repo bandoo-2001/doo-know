@@ -62,7 +62,25 @@ it('consistent backup restores note bytes/history/account but revokes sessions a
       expect(login.statusCode).toBe(200);
       const cookie = login.cookies.map((c) => `${c.name}=${c.value}`).join('; ');
       const r = await app.inject({ url: `/api/notes/${n.id}/revisions`, headers: { cookie } });
-      expect(r.json()[0].content).toBe('BACKUP_ORIGINAL\r\n');
+      expect(r.json().items[0]).not.toHaveProperty('content');
+      const csrf = await app.inject({ url: '/api/security/csrf', headers: { cookie } });
+      const readHeaders = {
+        cookie: cookie + '; ' + csrf.cookies.map((c) => `${c.name}=${c.value}`).join('; '),
+        origin,
+        'x-csrf-token': csrf.json().token,
+      };
+      let historyPage: any;
+      for (let i = 0; i < 100; i++) {
+        historyPage = await app.inject({
+          method: 'POST',
+          url: `/api/notes/${n.id}/revisions/${r.json().items[0].id}/read`,
+          headers: readHeaders,
+          payload: {},
+        });
+        if (historyPage.json().kind === 'ready') break;
+        await new Promise((resolve) => setTimeout(resolve, 20));
+      }
+      expect(historyPage.json().data.content).toBe('BACKUP_ORIGINAL\r\n');
       expect(
         (await app.inject({ url: `/api/notes/${n.id}`, headers: { cookie } })).json().content,
       ).toBe('BACKUP_LATEST\r\n');

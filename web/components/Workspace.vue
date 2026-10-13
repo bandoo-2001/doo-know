@@ -8,6 +8,16 @@ import { api, ApiError, resetCsrf } from '../api';
 import Icon from './Icon.vue';
 import TreeBranch from './TreeBranch.vue';
 import MarkdownEditor from './MarkdownEditor.vue';
+import LargeFileWorkspace from './LargeFileWorkspace.vue';
+import type {
+  NoteInfo,
+  FileReply,
+  OutlinePage,
+  FileOperation,
+} from '../../shared/knowledge-contracts';
+const noteInfo = ref<NoteInfo>(),
+  largeRef = ref<InstanceType<typeof LargeFileWorkspace>>(),
+  largeDirty = ref(false);
 const emit = defineEmits<{ logout: [] }>();
 const tree = ref<TreeEntry[]>([]),
   note = ref<NoteDocument>(),
@@ -27,7 +37,9 @@ let viewEpoch = 0;
 const currentView = (id: string, epoch: number) => note.value?.id === id && viewEpoch === epoch;
 let searchTimer: ReturnType<typeof setTimeout>;
 let noticeTimer: ReturnType<typeof setTimeout>;
-const dirty = computed(() => !!note.value && draft.value !== savedContent.value);
+const dirty = computed(
+  () => !!note.value && (largeDirty.value || draft.value !== savedContent.value),
+);
 const md = new MarkdownIt({ html: false, linkify: true });
 const flatten = (items: TreeEntry[]): TreeEntry[] =>
   items.flatMap((x) => [x, ...(x.children ? flatten(x.children) : [])]);
@@ -91,10 +103,36 @@ async function refresh() {
 async function openNote(id: string) {
   await guard(async () => {
     const epoch = ++viewEpoch;
-    const n = await api<NoteDocument>(`/api/notes/${id}`);
+    let meta = await api<NoteInfo>(`/api/notes/${id}/meta`);
+    if (meta.readState === 'unknown' && meta.sizeBytes <= 1024 * 1024) {
+      const prep = await api<FileReply<OutlinePage>>(`/api/notes/${id}/outline`);
+      if (prep.kind === 'accepted') {
+        let op = prep.operation;
+        while (['queued', 'running'].includes(op.status)) {
+          await new Promise((r) => setTimeout(r, 1000));
+          if (epoch !== viewEpoch) return;
+          op = await api<FileOperation>(`/api/operations/${op.operationId}`);
+        }
+      }
+      meta = await api<NoteInfo>(`/api/notes/${id}/meta`);
+    }
+    const n: NoteDocument =
+      meta.editorMode === 'full'
+        ? await api<NoteDocument>(`/api/notes/${id}`)
+        : {
+            id: meta.id,
+            title: meta.title,
+            relativePath: meta.relativePath,
+            content: '',
+            modifiedAt: meta.modifiedAt,
+            updatedAt: new Date().toISOString(),
+            shared: meta.shared,
+          };
     const attachments = await api<any[]>(`/api/notes/${id}/assets`).catch(() => []);
     if (epoch !== viewEpoch) return;
     note.value = n;
+    noteInfo.value = meta;
+    largeDirty.value = false;
     draft.value = n.content;
     savedContent.value = n.content;
     selected.value = n.relativePath;
@@ -151,7 +189,11 @@ async function leave(action: 'save' | 'discard' | 'cancel') {
   if (action === 'save') {
     await save();
     if (dirty.value) return;
-  } else draft.value = savedContent.value;
+  } else {
+    draft.value = savedContent.value;
+    largeRef.value?.discard();
+    largeDirty.value = false;
+  }
   leaveOpen.value = false;
   const fn = pendingNavigation;
   pendingNavigation = undefined;
@@ -162,6 +204,10 @@ const conflict = ref<{ version: string; opened: string; content: string; revisio
   latestOpen = ref(false);
 async function save(expected?: string, content?: string, revisionId?: string) {
   if (!note.value || busy.value) return;
+  if (noteInfo.value?.editorMode !== 'full' && !revisionId) {
+    await largeRef.value?.save();
+    return;
+  }
   busy.value = true;
   error.value = '';
   const target = note.value,
@@ -310,7 +356,7 @@ async function history() {
   await run(async () => {
     const response = await api(`/api/notes/${id}/revisions`);
     if (!currentView(id, epoch)) return;
-    revisions.value = response;
+    revisions.value = response.items;
     revisionsOpen.value = true;
   });
 }
@@ -319,6 +365,25 @@ async function restoreRevision(r: any) {
     await save(note.value!.modifiedAt, r.content, r.id);
     if (!conflict.value) revisionsOpen.value = false;
   });
+}
+async function readRevision(r: any) {
+  let reply = await api<FileReply<import('../../shared/knowledge-contracts').ReadPage>>(
+    `/api/notes/${note.value!.id}/revisions/${r.id}/read`,
+    'POST',
+    r.cursor ? { cursor: r.cursor } : {},
+  );
+  if (reply.kind === 'accepted') {
+    let op = reply.operation;
+    while (['queued', 'running'].includes(op.status)) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      op = await api(`/api/operations/${op.operationId}`);
+    }
+    reply = await api(`/api/notes/${note.value!.id}/revisions/${r.id}/read`, 'POST', {});
+  }
+  if (reply.kind === 'ready') {
+    r.content = reply.data.content;
+    r.cursor = reply.data.nextCursor;
+  }
 }
 async function openTrash() {
   await run(() =>
@@ -549,7 +614,11 @@ onBeforeUnmount(() => {
                 ><Icon name="trash" /></NButton
               ><NButton @click="manageShare"
                 ><template #icon><Icon name="share" /></template>分享</NButton
-              ><NButton type="primary" :loading="busy" @click="save()"
+              ><NButton
+                v-if="noteInfo?.editorMode === 'full'"
+                type="primary"
+                :loading="busy"
+                @click="save()"
                 ><template #icon><Icon name="save" /></template>保存
                 <span class="shortcut">Ctrl+S</span></NButton
               >
@@ -559,7 +628,7 @@ onBeforeUnmount(() => {
           <div v-if="note.shared" class="shared-status">
             <Icon name="share" :size="14" />已分享，保存后的修改将同步公开
           </div>
-          <div class="mode-row">
+          <div v-if="noteInfo?.editorMode === 'full'" class="mode-row">
             <div class="mode-tabs">
               <button :class="{ active: mode === 'edit' }" @click="mode = 'edit'">编辑</button
               ><button :class="{ active: mode === 'preview' }" @click="mode = 'preview'">
@@ -571,7 +640,22 @@ onBeforeUnmount(() => {
             >
           </div>
         </header>
-        <div :class="['editor-panels', mode]">
+        <LargeFileWorkspace
+          v-if="noteInfo && noteInfo.editorMode !== 'full'"
+          ref="largeRef"
+          :note="noteInfo"
+          :key="note.id"
+          @dirty="(v) => (largeDirty = v)"
+          @saved="
+            (n) => {
+              noteInfo = n;
+              if (note) {
+                note.modifiedAt = n.modifiedAt;
+                note.title = n.title;
+              }
+            }
+          " />
+        <div v-else :class="['editor-panels', mode]">
           <section v-if="mode !== 'preview'" class="editor-panel">
             <div class="panel-label">Markdown <span>UTF-8</span></div>
             <MarkdownEditor v-model="draft" :key="note.id" />
@@ -798,6 +882,9 @@ onBeforeUnmount(() => {
         </div>
         <details>
           <summary>查看原文</summary>
+          <NButton @click="run(() => readRevision(r))">{{
+            r.cursor ? '下一片段' : '加载片段'
+          }}</NButton>
           <pre>{{ r.content }}</pre>
         </details>
       </div>

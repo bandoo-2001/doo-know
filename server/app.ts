@@ -14,6 +14,10 @@ import { renderMarkdown } from './render.js';
 import { recoveryService } from './recovery.js';
 import { assetService } from './assets.js';
 import { searchNotes } from './search.js';
+import { registerAgentRoutes } from './agent/routes.js';
+import { registerWebKnowledgeRoutes } from './knowledge/web-routes.js';
+import { webPrincipal } from './knowledge/core.js';
+import { KnowledgeError } from './knowledge/errors.js';
 export async function createApp(config: AppConfig) {
   const app = Fastify({ logger: false, bodyLimit: 2 * 1024 * 1024 });
   const db = openDatabase(config.dataRoot);
@@ -41,6 +45,7 @@ export async function createApp(config: AppConfig) {
       req.url.startsWith('/api/public/')
     )
       return;
+    if (req.url.startsWith('/api/agent/v1/')) return;
     const session = await auth.api.getSession({ headers: fromNodeHeaders(req.headers) });
     if (!session) return reply.code(401).send({ error: '请登录后访问' });
     if (
@@ -90,15 +95,21 @@ export async function createApp(config: AppConfig) {
   });
   app.get('/api/security/csrf', async (_req, reply) => ({ token: reply.generateCsrf() }));
   const notes = noteService(config, db);
+  const knowledge = await registerAgentRoutes(app, config, db, notes);
   app.get('/api/tree', async () => notes.tree());
   app.get('/api/notes', async (req) => {
     notes.scan();
     const folder = (req.query as { folder?: string }).folder;
-    return (
-      db.prepare('SELECT id,path FROM notes WHERE active=1').all() as { id: string; path: string }[]
-    )
-      .filter((n) => !folder || n.path.startsWith(folder + '/'))
-      .map((n) => notes.getNote(n.id));
+    return Promise.all(
+      (
+        db.prepare('SELECT id,path FROM notes WHERE active=1').all() as {
+          id: string;
+          path: string;
+        }[]
+      )
+        .filter((n) => !folder || n.path.startsWith(folder + '/'))
+        .map((n) => knowledge.info(webPrincipal, n.id)),
+    );
   });
   app.get<{ Params: { id: string } }>('/api/notes/:id', async (req) =>
     notes.getNote(req.params.id),
@@ -149,9 +160,10 @@ export async function createApp(config: AppConfig) {
     sendAsset(reply, assets.byId(req.params.id)),
   );
   const recovery = recoveryService(config, db, notes);
-  app.get<{ Params: { id: string } }>('/api/notes/:id/revisions', async (req) =>
-    recovery.history(req.params.id),
-  );
+  app.get<{ Params: { id: string } }>('/api/notes/:id/revisions', async (req) => {
+    const rows = recovery.history(req.params.id, (req.query as any).cursor);
+    return { items: rows.slice(0, 50), ...(rows.length > 50 ? { nextCursor: rows[49].id } : {}) };
+  });
   app.post<{ Params: { id: string; revisionId: string } }>(
     '/api/notes/:id/revisions/:revisionId/restore',
     async (req) => {
@@ -176,6 +188,7 @@ export async function createApp(config: AppConfig) {
     );
   });
   const shares = shareService(db, notes);
+  await registerWebKnowledgeRoutes(app, config, db, knowledge, shares);
   app.get<{ Params: { id: string } }>('/api/notes/:id/share', async (req) =>
     shares.status(req.params.id),
   );
@@ -226,9 +239,12 @@ export async function createApp(config: AppConfig) {
     reply.code(status).send({
       error: status === 500 ? '操作失败，内容未标记为保存' : error.message,
       ...(error instanceof HttpError ? error.details : {}),
+      ...(error instanceof KnowledgeError ? { code: error.code, retryable: error.retryable } : {}),
     });
   });
   app.addHook('onClose', async () => {
+    await knowledge.files.close();
+    await knowledge.snapshots.close();
     db.close();
   });
   return app;
