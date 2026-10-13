@@ -1,0 +1,24 @@
+[Unit]
+Description=DooKnow private Markdown notes
+After=network.target
+
+[Service]
+Type=simple
+User=bandoo
+Group=bandoo
+WorkingDirectory=/srv/stacks/knowledge/doo-know-web/app
+EnvironmentFile=/srv/secrets/knowledge/doo-know-web/app.env
+ExecStart=/usr/bin/node /srv/stacks/knowledge/doo-know-web/app/dist/server/server/main.js
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/srv/data/knowledge/doo-know-web /home/bandoo/workspace/knowledge/doo-konw
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

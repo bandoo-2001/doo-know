@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "outDir": "dist/server",
+    "noEmit": false
+  },
+  "include": [
+    "server/**/*.ts",
+    "shared/**/*.ts",
+    "scripts/account.ts",
+    "scripts/backup.ts",
+    "scripts/restore.ts"
+  ],
+  "exclude": ["web", "tests"]
+}
