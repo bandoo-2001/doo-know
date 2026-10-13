@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type { AppDatabase } from '../db.js';
 import type { SourceVersion } from '../../shared/knowledge-contracts.js';
+import { desiredSpace } from './space.js';
 export interface LeasedIndexJob extends SourceVersion {
   id: string;
   target: 'text' | 'vector';
@@ -30,6 +31,7 @@ export function indexJobService(
   function claim(workerId: string): LeasedIndexJob | null {
     return db
       .transaction(() => {
+        if (desiredSpace(db, options.spaceId || '') !== (options.spaceId || '')) return null;
         if (
           db
             .prepare("SELECT 1 FROM sync_runs WHERE status IN ('running','needs_reconciliation')")
@@ -41,7 +43,13 @@ export function indexJobService(
           .prepare(
             `SELECT j.* FROM index_jobs j JOIN document_state d ON d.note_id=j.note_id JOIN notes n ON n.id=j.note_id WHERE n.active=1 AND d.active=1 AND d.conflict=0 AND j.source_revision=d.source_revision AND j.source_hash=d.content_hash AND j.attempts<10 AND ((j.status IN ('pending','retry_wait') AND j.next_run_at<=?) OR (j.status='leased' AND j.lease_until<=?)) AND (j.target='text' OR j.space_id=?) ORDER BY CASE j.target WHEN 'text' THEN 0 ELSE 1 END,CASE WHEN d.size_bytes<=1048576 THEN 0 ELSE 1 END,j.next_run_at,j.rowid LIMIT 1`,
           )
-          .get(now(), now(), options.spaceId || '') as any;
+          .get(
+            now(),
+            now(),
+            desiredSpace(db, options.spaceId || '') === options.spaceId
+              ? options.spaceId || ''
+              : '__inactive_space__',
+          ) as any;
         if (!row) return null;
         db.prepare(
           "UPDATE index_jobs SET status='leased',worker_id=?,lease_epoch=lease_epoch+1,lease_until=?,attempts=attempts+1 WHERE id=?",
@@ -78,7 +86,10 @@ export function indexJobService(
       !row.conflict &&
       row.current_revision === job.sourceRevision &&
       row.content_hash === job.contentHash &&
-      (job.target === 'text' || row.space_id === options.spaceId)
+      desiredSpace(db, options.spaceId || '') === (options.spaceId || '') &&
+      (job.target === 'text' ||
+        (row.space_id === options.spaceId &&
+          desiredSpace(db, options.spaceId || '') === options.spaceId))
     );
   }
   function heartbeat(job: LeasedIndexJob) {

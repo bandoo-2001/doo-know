@@ -116,12 +116,22 @@ export function noteService(config: AppConfig, db: AppDatabase) {
     sort(roots);
     return roots;
   }
-  function createNote(folderPath: string, fileName: string, content: string) {
-    const result = mutations.create(webPrincipal, folderPath, fileName, content, randomUUID());
+  function createNote(
+    folderPath: string,
+    fileName: string,
+    content: string,
+    requestId: string = randomUUID(),
+  ) {
+    const result = mutations.create(webPrincipal, folderPath, fileName, content, requestId);
     return getNote(result.id);
   }
-  function saveNote(id: string, content: string, expectedModifiedAt: string) {
-    mutations.update(webPrincipal, id, content, expectedModifiedAt, randomUUID());
+  function saveNote(
+    id: string,
+    content: string,
+    expectedModifiedAt: string,
+    requestId: string = randomUUID(),
+  ) {
+    mutations.update(webPrincipal, id, content, expectedModifiedAt, requestId);
     return getNote(id);
   }
   function createFolder(parent: string, name: string) {

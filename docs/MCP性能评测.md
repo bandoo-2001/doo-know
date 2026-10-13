@@ -16,6 +16,8 @@ runtime/vector-service/.venv/bin/python -m pytest tests/benchmarks/test_vector_b
 
 三个命令各自创建独立结果目录，并输出 `resultFile`。`result.json` 包含参数、原始延迟、P50/P95、吞吐、CPU、RSS 和事件循环延迟；检索结果另保留 `labels.json` 与逐题实际路径。可使用 `--output` 在 `.local/benchmarks` 内指定父目录；其他目录及软链接出口会被拒绝。`--validate --counts 128 --queries 5 --warmup 1 --no-background` 可快速验证真实 BGE 检索、权限与消息预算。CLI 不接受真实知识库或外部 DATA_ROOT。
 
+复用前先验证 root/knowledge/data 的真实目录与设备/inode 身份，再启动任何 runtime 或 DB。result/labels 输入拒绝软链接、硬链接和非普通文件，分别限制 8 MiB/1 MiB，使用 `O_NOFOLLOW` 与有界流读取，并复核文件身份；SQLite/WAL/SHM 链接目标和 runtime 索引目录链接也会在启动前拒绝。11 个真实 CLI 失败用例已验证拒绝前不向保护目录写入 token、索引或数据库；测试全部使用自有保护夹具。
+
 ## 测量方法与限制
 
 - 主机：AMD Ryzen 7 255，8 核/16 线程，约 22.3 GiB RAM；Node.js 22.22.1、Python 3.14.4、NumPy 2.5.4、PyTorch 2.14.1+cpu、SentenceTransformers 6.1.0。本机仍承担其他开发工作，结果不是独占硬件测量。
@@ -125,3 +127,11 @@ node_modules/.bin/tsx scripts/search-benchmark.ts --reuse .local/benchmarks/sear
 预加载后的网关单请求额外 RSS 最大约 2.73 MiB，100 次/两并发阶段额外 RSS 最大约 9.29 MiB；文件 worker 单任务最大约 16.11 MiB。在本采样口径下分别通过 16/64 MiB 工程目标。完整消息最大 48,327 字节、正文最大 16,383 字节；密集转义正文被实际预算收缩到 8192 字节，而不是返回 16 KiB 后突破 64 KiB wire。patch 成功仅返回约 1.2 KiB 摘要。20 MiB+1 字节读取实际返回 413 `FILE_TOO_LARGE`。
 
 本基准没有计时 OAuth/MCP 网络传输、浏览器 DOM/编辑器输入或公开分享并发；这些能力不能由本结果替代验收。脚本测试不安装依赖、不提交或推送生成数据。
+
+## 工具验证与剩余验收
+
+最终基准测试 `vitest run tests/benchmarks` 为 17/17，通过 11 个先失败后通过的链接/输入预算 CLI 用例，以及真实离线 BGE 的完整建库、机器检索和复用报告保留测试；Python 数值测试 3/3，独立 `--validate` 返回正确数值真值并明确 `semanticQualityMeasured=false`。`vue-tsc --noEmit`、Prettier 与 Git diff 检查通过。
+
+此前全套 Web 测试的唯一失败是开发中的 `jobs.preempt` 尚未实现；根节点补齐后记录的全套为 87/87、types/build 通过、e2e 14/14、Python runtime 12/12。新增的 11 个隔离拒绝测试在其后交付，最终全分支计数由根节点统一复核。
+
+仍未验收：至少 50 条真实人工问题的质量金标准；干净修复后的 1 万/10 万完整建库与 10 万独立输入生产 rebuild；当前未达标的普通 P95；最新后台任务 preemption 后的性能复测；真实 OAuth/MCP 客户端、浏览器输入与公开分享/索引并发。上述限制不影响本轮实际测得的数据，但不能将相应计划项标为全部完成。

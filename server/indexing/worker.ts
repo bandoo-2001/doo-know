@@ -21,6 +21,10 @@ export function indexWorker(
   notes: NoteService,
   snapshots: SnapshotService,
 ) {
+  if (config.embeddingSpaceId)
+    db.prepare("INSERT OR IGNORE INTO index_meta VALUES('desired_embedding_space',?)").run(
+      config.embeddingSpaceId,
+    );
   const workerId = `index:${process.pid}:${randomUUID()}`,
     tokenizer = new TokenizerClient({
       runtimeRoot: config.vectorRuntimeRoot,
@@ -41,7 +45,7 @@ export function indexWorker(
   const vectors = client
       ? new FlatFileStore(db, join(config.dataRoot, 'indexes'), client, config.embeddingSpaceId!)
       : null,
-    rule = 'bge-320-48-v1';
+    rule = 'bge-320-48-v1:' + (config.embeddingSpaceId || 'jieba-0.42.1-local-bge');
   let lastMaintenance = 0;
   let current: Promise<void> | undefined,
     closing = false;
@@ -49,19 +53,24 @@ export function indexWorker(
     if (closing) fail(503, 'WORKER_STOPPING');
     if (!jobs.valid(job)) fail(409, 'LEASE_LOST');
   };
+  const reader = { ...webPrincipal, id: 'system:index-worker', clientId: 'indexer' };
   async function runJob(job: LeasedIndexJob) {
     const heartbeat = setInterval(() => jobs.heartbeat(job), 15000);
     heartbeat.unref();
     let snapshotId: string | undefined;
     try {
       ensure(job);
-      let snapshot = await snapshots.available(webPrincipal, job.noteId, {});
+      let snapshot = await snapshots.available(reader, job.noteId, {});
       while ('operation' in snapshot) {
         ensure(job);
-        if (!['queued', 'running'].includes(snapshot.operation.status))
-          fail(503, 'SNAPSHOT_FAILED');
         await new Promise((resolve) => setTimeout(resolve, 50));
-        snapshot = await snapshots.available(webPrincipal, job.noteId, {});
+        const op = snapshots.operation(snapshot.operation.operationId);
+        if (op.status === 'succeeded' && op.snapshotId) {
+          snapshot = await snapshots.check(reader, job.noteId, op.snapshotId);
+          break;
+        }
+        if (!['queued', 'running'].includes(op.status))
+          fail(503, op.error?.code || 'SNAPSHOT_FAILED');
       }
       if (snapshot.source_hash !== job.contentHash) fail(409, 'INDEX_VERSION_CONFLICT');
       snapshotId = snapshot.id;
@@ -144,6 +153,7 @@ export function indexWorker(
       clearInterval(heartbeat);
       if (snapshotId)
         db.prepare('UPDATE read_snapshots SET refs=max(0,refs-1) WHERE id=?').run(snapshotId);
+      if (snapshotId) await snapshots.releaseInternal(snapshotId);
     }
   }
   async function drain() {

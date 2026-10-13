@@ -18,6 +18,8 @@ import type { NoteService } from './notes.js';
 import { HttpError } from './errors.js';
 import { safePath } from './files.js';
 import { references, localReference } from './render.js';
+import { hasSavedAssetReference } from './knowledge/asset-references.js';
+import { KnowledgeError } from './knowledge/errors.js';
 const allowed: Record<string, string> = {
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
@@ -90,9 +92,14 @@ export function assetService(config: AppConfig, db: AppDatabase, notes: NoteServ
     }
   }
   function list(id: string) {
-    const n = notes.getNote(id),
-      found = new Set(paths(n));
-    const rel = `${dirname(n.relativePath) === '.' ? '' : dirname(n.relativePath) + '/'}assets`;
+    const n = notes.exists(id),
+      found = new Set<string>();
+    try {
+      for (const path of paths(notes.getNote(id))) found.add(path);
+    } catch (e) {
+      if (!(e instanceof KnowledgeError) || e.code !== 'LARGE_FILE_MODE_REQUIRED') throw e;
+    }
+    const rel = `${dirname(n.path) === '.' ? '' : dirname(n.path) + '/'}assets`;
     try {
       const dir = safePath(config.knowledgeRoot, rel, 'asset');
       for (const entry of readdirSync(dir, { withFileTypes: true }))
@@ -107,12 +114,12 @@ export function assetService(config: AppConfig, db: AppDatabase, notes: NoteServ
     });
   }
   function upload(id: string, name: string, mime: string, bytes: Buffer) {
-    const n = notes.getNote(id);
+    const n = notes.exists(id);
     if (bytes.length > max) throw new HttpError(413, '附件不能超过 10 MiB');
     const ext = extname(name).toLowerCase();
     if (!allowed[ext] || allowed[ext] !== mime || sniff(bytes) !== mime)
       throw new HttpError(400, '仅允许真实 PNG/JPEG/GIF/WebP 图片和 PDF');
-    const folder = dirname(n.relativePath);
+    const folder = dirname(n.path);
     const rel = folder === '.' ? 'assets' : `${folder}/assets`;
     const directory = safePath(config.knowledgeRoot, rel, 'asset', true);
     try {
@@ -133,10 +140,31 @@ export function assetService(config: AppConfig, db: AppDatabase, notes: NoteServ
       throw e;
     }
   }
-  function publicAsset(n: NoteDocument, id: string) {
-    const a = byId(id);
-    if (!paths(n).includes(a.path)) throw new HttpError(404, '附件不存在');
-    return a;
+  async function savedAsset(noteId: string, path: string) {
+    const note = notes.exists(noteId);
+    if (!allowed[extname(path).toLowerCase()]) throw new HttpError(404, '附件不存在');
+    if (
+      !(await hasSavedAssetReference(
+        safePath(config.knowledgeRoot, note.path, 'note'),
+        note.path,
+        path,
+      ))
+    )
+      throw new HttpError(404, '附件不存在');
+    return { path, ...file(path) };
   }
-  return { file, register, byId, mapUrl, list, upload, publicAsset };
+  async function publicAsset(noteId: string, id: string) {
+    const a = db.prepare('SELECT path FROM assets WHERE id=?').get(id) as
+      | { path: string }
+      | undefined;
+    if (!a) throw new HttpError(404, '附件不存在');
+    return savedAsset(noteId, a.path);
+  }
+  async function publicSource(noteId: string, source: string) {
+    const note = notes.exists(noteId),
+      path = localReference(note.path, source);
+    if (!path) throw new HttpError(404, '附件不存在');
+    return savedAsset(noteId, path);
+  }
+  return { file, register, byId, mapUrl, list, upload, publicAsset, publicSource };
 }

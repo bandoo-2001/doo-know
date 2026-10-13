@@ -27,11 +27,35 @@ async function readPage(cursor?: string) {
     if (result.kind !== 'ready') throw new Error();
     const page = result.data,
       md = new MarkdownIt({ html: false, linkify: true });
-    md.renderer.rules.image = (tokens, index) => md.utils.escapeHtml(tokens[index].content);
+    const tokens = md.parse(page.content, {});
+    const visit = (items: typeof tokens) => {
+      for (const token of items) {
+        if (token.type === 'image' || token.type === 'link_open') {
+          const attr = token.type === 'image' ? 'src' : 'href',
+            url = String(token.attrGet(attr) || '');
+          if (
+            !url.startsWith('/') &&
+            !url.includes('\\') &&
+            !/^[a-z][a-z0-9+.-]*:/i.test(url) &&
+            !url.startsWith('#')
+          )
+            token.attrSet(
+              attr,
+              `/api/public/shares/${encodeURIComponent(props.token)}/asset?source=${encodeURIComponent(url)}`,
+            );
+          else if (token.type === 'link_open' && /^https?:\/\//i.test(url)) {
+            token.attrSet('rel', 'noopener noreferrer');
+            token.attrSet('target', '_blank');
+          } else if (!(token.type === 'link_open' && url.startsWith('#'))) token.attrSet(attr, '');
+        }
+        if (token.children) visit(token.children);
+      }
+    };
+    visit(tokens);
     doc.value = {
       title: doc.value?.title || page.content.match(/^#\s+(.+)$/m)?.[1] || '分享笔记',
       updatedAt: new Date(Number(BigInt(page.modifiedAt) / 1000000n)).toISOString(),
-      html: DOMPurify.sanitize(md.render(page.content)),
+      html: DOMPurify.sanitize(md.renderer.render(tokens, md.options, {})),
       headings: [],
     };
     nextCursor.value = page.nextCursor;
@@ -50,6 +74,7 @@ onMounted(async () => {
     const meta = await api(`/api/public/shares/${encodeURIComponent(props.token)}/meta`);
     if (meta.editorMode !== 'full') {
       large.value = true;
+      if (meta.readState === 'ready') doc.value = { title: meta.title };
       await readPage();
     } else doc.value = await api(`/api/public/shares/${encodeURIComponent(props.token)}`);
     doc.value.html = DOMPurify.sanitize(doc.value.html);

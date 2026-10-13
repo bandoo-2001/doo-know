@@ -4,9 +4,11 @@
 
 ## 目录与启动顺序
 
-源码在 `/home/bandoo/workspace/projects/doo-know-web`。发布代码放入 `/srv/stacks/knowledge/doo-know-web` /app 发布目录，运行数据放 `/srv/data/knowledge/doo-know-web`，模型放 `/srv/models/bge-small-zh-v1.5`，凭据放 `/srv/secrets/knowledge/doo-know-web`。原文使用明确的 `KNOWLEDGE_ROOT`。这些是部署模板的路径，当前任务没有创建这些服务目录。
+源码在 `/home/bandoo/workspace/projects/doo-know-web`。发布代码通过 `/srv/stacks/knowledge/doo-know-web/app` 链接选择明确版本，运行数据放 `/srv/data/knowledge/doo-know-web`，模型放 `/srv/models/bge-small-zh-v1.5`，凭据放 `/srv/secrets/knowledge/doo-know-web`。原文使用明确的 `KNOWLEDGE_ROOT`。这些是部署模板的路径，当前任务没有创建这些服务目录。
 
 使用实际运行用户配置目录权限；授权 JSON 和密钥文件需为 600。复制 `.env.example` 为发布版本外的受控环境文件，填写真实路径，不将凭据本身放进环境文件或 Git。先启动 CPU 向量服务，再启动 Web；嵌入 worker 默认开启，也可显式关闭后启动独立 worker。最后启动网关和已有反向代理。Web、向量、网关的建议回环端口分别为 3010、3081、3071，部署前核对端口占用。
+
+本次完整检索提供 native/systemd 模板。原 Web Docker 模板保留纯 Web 运行，明确关闭未包含 Python/model 的后台索引；镜像没有宣称具备完整 CPU 环境。当前主机没有 Docker 命令，未构建或启动容器；需要容器交付时应补齐受控 Python/model 挂载与镜像构建验收。
 
 ## 项目环境和固定模型
 
@@ -16,7 +18,7 @@
 cd /path/to/released/doo-know-web
 python3 -m venv runtime/vector-service/.venv
 runtime/vector-service/.venv/bin/python -m pip install --extra-index-url https://download.pytorch.org/whl/cpu -r runtime/vector-service/requirements.lock.txt
-runtime/vector-service/.venv/bin/python runtime/vector-service/prepare_model.py --help
+runtime/vector-service/.venv/bin/python runtime/vector-service/prepare_model.py /srv/models/bge-small-zh-v1.5
 ```
 
 模型固定为 `BAAI/bge-small-zh-v1.5`，修订 `7999e1d3359715c523056ef9478215996d62a620`。准备脚本下载明确的配置、tokenizer 和 safetensors 文件，记录 SHA-256 清单；运行时核对清单，使用 `local_files_only`、CPU、512 维和 L2 归一化，不联网下载或回退云推理。查询使用模型的中文检索指令。分词是独立 stdio 进程，向量服务退出时全文仍能更新。[BAAI 模型说明](https://huggingface.co/BAAI/bge-small-zh-v1.5)、[PyTorch CPU 安装](https://pytorch.org/get-started/locally/)。
@@ -52,13 +54,17 @@ npm run index:maintain -- --rebuild-text --rebuild-vector
 
 Git 同步默认关闭，只有 `GIT_SYNC_ENABLED=1` 后显式运行 `npm run git:sync`。命令固定为 ff-only，禁用 hooks、fsmonitor 和外部传输，不执行 stash/reset、不覆盖脏工作区。同步期间暂停写入和索引发布，完成后核对；冲突、分叉或根目录身份改变必须由维护者解决，不能误判为删除整个知识库。
 
-改变模型或切片/分词规则前停止相关 worker，保留旧发布和索引目录，在隔离数据目录完成新空间的完整建库、代表性查询及质量检查，再切换环境与发布版本；不要让不同维度共用活动 generation。索引损坏时保留原文和历史，运行重建任务，不能把损坏缓存直接标为 ready。
+改变模型或切片/分词规则前停止相关 worker，保留旧发布和索引目录，在隔离数据目录完成新空间的完整建库、代表性查询及质量检查，再切换环境与发布版本；不要让不同维度共用活动 generation。配置的模型空间变更会持久登记新的目标、撤销旧任务租约并重建两路，迟到旧 worker 不能发布；切片/词典代码变化仍需显式停止与重建。索引损坏时保留原文和历史，运行重建任务，不能把损坏缓存直接标为 ready。
 
 ## 有界文件和结果核对
 
 Markdown 上限 20 MiB；超过 1 MiB 或单行超过 32 KiB 使用 Web 片段模式。Web 正文单页最多 128 KiB；机器默认 8 KiB/100 行、最多 16 KiB/200 行。完整机器请求 128 KiB，完整双份兼容结果 64 KiB，密集转义可能使正文页进一步缩小；拒绝压缩请求。
 
 快照每个身份 64 MiB、全局 256 MiB；机器会话 32 页/256 KiB/15 分钟、2 并发读取和 2 MiB/分钟。游标绑定身份、客户端、版本、位置和预算。UTF-8 BOM、CRLF 和 byte offset 保持原字节；已观察到 A→B→A 后旧游标也失效。历史正文、分享正文和下载同样受认证与版本约束；分享每页验证撤销，分享页不显示内部路径或私人索引状态。
+
+索引 worker 使用外部身份无法取得的内部快照策略，完成任务后释放闲置缓存，不占用普通用户 64 MiB 额度；全局 256 MiB 仍有效。下载按 64 KiB 背压分块，每块复核实时会话和版本，空闲 30 秒/总时长 300 秒。无效 UTF-8 明确拒绝，不以替代字符改写原文。
+
+公开附件仅允许当前已保存 Markdown 引用的图片/PDF，大文件使用两遍有界扫描与版本哈希核对，原始正文不进入整篇 AST。无法在 32 KiB 段落预算内确认的复杂 Markdown 返回 `ASSET_REFERENCE_TOO_COMPLEX`；嵌套容器围栏等不确定语法保守拒绝。代码内引用不能授权附件，移除引用或撤销分享即失效。公开大文件页面把当前片段的本地引用映射到同源授权接口，不请求私人附件 API。
 
 patch 返回后台 operation，仅保存已加载范围，登记 range hash、mtime、全文哈希和原 requestId。文件任务排队和执行各有 300 秒 deadline。提交前可取消；进入 committing 后结果可能未知，此时必须按原 requestId 查询 `/api/operations` 或网关 `operation_status`，不生成新 ID 重做写入。写入与历史摘要不会回传正文。后台恢复确认已替换、未替换或外部冲突，保留幂等和历史证据。
 

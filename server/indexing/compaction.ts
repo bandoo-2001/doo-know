@@ -5,6 +5,7 @@ import type { AppDatabase } from '../db.js';
 import type { VectorRuntimeClient } from './vector-store.js';
 import { writeAll, hashFile } from '../knowledge/file-reader.js';
 import { fail } from '../knowledge/errors.js';
+import { desiredSpace } from './space.js';
 
 export function backfillPoints(db: AppDatabase, space: string) {
   db.prepare(
@@ -23,6 +24,7 @@ export async function compactVectors(
 ) {
   const base = current();
   if (!base) return false;
+  if (desiredSpace(db, space) !== space) return false;
   backfillPoints(db, space);
   if (!db.prepare('SELECT 1 FROM vector_generations WHERE id=? AND space_id=?').get(base, space))
     return false;
@@ -167,6 +169,7 @@ export async function compactVectors(
     published = db.transaction(() => {
       if (
         current() !== base ||
+        desiredSpace(db, space) !== space ||
         (db.prepare('SELECT active FROM maintenance WHERE id=1').get() as any).active ||
         db
           .prepare("SELECT 1 FROM sync_runs WHERE status IN ('running','needs_reconciliation')")

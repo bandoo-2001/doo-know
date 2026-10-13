@@ -1,47 +1,34 @@
 # MCP 与索引开发记录
 
-日期：2026-10-14（Asia/Shanghai）。当前为阶段性开发记录，完整检索、部署和客户端接入验收仍在进行。
+日期：2026-10-14（Asia/Shanghai）。本文件记录源码开发及隔离验证；正式部署和目标客户端接入尚未执行。分支为 `codex/doo-know-mcp`；[接口契约](机器API.md)、[运维与恢复](MCP与索引运维.md)、[性能与质量实测](MCP性能评测.md) 分别维护。
 
-实现位于功能分支 `codex/doo-know-mcp`。机器 API 具有独立服务身份与短期签名声明，权限按目录边界及配置策略取交集，保留浏览器会话、Origin 和 CSRF。增量 SQLite 表延续原 notes/shares/revisions ID 与关系。
+## 已实现的行为
 
-浏览器和机器写入复用 mutationCore；requestId 与身份、操作和参数摘要绑定。持久写入意图用于确认已替换、未替换及外部冲突，成功响应不回传正文。原文件正文仍是权威来源。
+- 独立机器身份/短期签名、scope/目录授权交集，浏览器保留实时会话、Origin 和 CSRF。增量表保持既有 notes/shares/revisions 关系。
+- Web 与机器写入复用持久意图、版本检查、历史和原子替换；客户端可带原 requestId，后台 patch/历史恢复、取消、丢失响应及租约恢复均返回有界摘要。重启不干扰另一活跃 worker，过期意图补偿只执行一次。
+- 20 MiB 原文上限、64 KiB 流式快照/复制、原字节 UTF-8/CRLF/BOM、单调 sourceRevision、正文/outline/metadata/历史分页与完整 JSON 预算。机器身份不能选择 Web 限额，配额包含排队预留及活动引用；内部索引快照完成后释放。
+- Web 先取 metadata、大文件只加载当前片段，CodeMirror 片段增量和无长行换行；失联保留原 ID/草稿并核对。引用可打开指定行。公开正文和附件检查当前分享/原文权限，大文件附件通过两遍有界引用证明；复杂 Markdown 明确拒绝，代码伪引用不授权。下载每 64 KiB 验证会话、版本和速率。
+- 监听/启动/60 秒快核对/300 秒全文哈希核对，根不可用不误删，外部重命名为新私有身份。显式 ff-only Git 同步固定 argv/禁用 hooks/过滤器，不 stash/reset，同步后补偿核对再释放写锁。
+- 原文字节/行/token 有界切片，独立 jieba/BGE tokenizer、FTS/短词/标识符/目录/标签/日期过滤；真实离线 BGE CPU 512 维、不可变 Float32 generation、checksum/空间、预加载/CAS、并发重合并、pin/retire/物理压实。
+- 持久索引 lease/checkpoint/失败重试及模型目标 fencing，迟到旧 worker 不发布；大任务 checkpoint 让出小笔记。text/semantic/hybrid、RRF 聚合、普通 5 秒/strict 10 秒、向量离线全文降级、完整研究 note/chunk fetch、Web 索引状态。
+- SQLite 一致性备份/空目标恢复，原文/历史保留，派生数据重建；撤销旧浏览器会话、分享和原始机器令牌。独立网关已提供 MCP、REST、OpenAPI/Swagger、外部 OAuth/Bearer，真实 SDK HTTP 联调与标准发行者 PKCE/introspection/撤销在隔离环境验证。
 
-新增后台不可变快照、UTF-8 有界分页和局部 patch。受管理上限 20 MiB，Web 大文件编辑每页最多 128 KiB；机器分页最多 16 KiB、完整兼容响应最多 64 KiB。文件复制和恢复哈希使用 64 KiB 流缓冲。历史列表改为最多 50 条摘要，正文通过显式读取接口访问；公开分享逐页检查撤销状态。
+## 提交和验证记录
 
-Web 大文件模式先取元数据，显示章节和当前片段；CodeMirror 只输出片段增量，关闭长行自动折行。保存经过后台任务，不覆盖未加载尾部；超时/取消通过 operationId/requestId 查询。下载使用受认证流式接口。
+三个已推送 Web checkpoint 为 `b0ca1a3`（机器与大文件）、`fd73356`（任务/Git/恢复）、`00ae87e`（本地全文/向量/混合检索）。网关最新已推送 checkpoint 为 `d89fea4`，远端 [doo-know-bridge](https://github.com/bandoo-2001/doo-know-bridge)。用户授权按验证节点推送源码；知识库原有未提交资料不随源码提交。
 
-本次隔离验证：
+第三批完整验证曾为 Web 87 项/44 文件、浏览器 14 项、Python runtime 12 项。补充修复后新增 20 MiB 真实切片、模型空间、内部快照、大文件附件、实时下载撤销、metadata/outline 预算、普通 Web nonce、无效 UTF-8、活跃 worker 恢复和引用行号用例。最终全套结果及独立审查在收尾时追加，不能沿用第三批数量。
 
-| 命令 | 实际结果 |
-| --- | --- |
-| `npm test` | 19 个文件、44 项通过 |
-| `npm run typecheck` | 通过 |
-| `npm run build` | 通过；保留既有 Vite 大 bundle 提示 |
-| `npm run test:e2e` | 桌面/手机共 14 项通过 |
+日志在 Git 忽略的 `.local/mcp-validation/` 和 `.local/benchmarks/`；测试仅使用临时知识库、SQLite、Git 双副本、假身份、回环服务与明确固定模型。没有在真实库上写入、部署常驻服务、改实际 `/etc`、创建定时任务或公开发布。
 
-用例覆盖 1/2/20 MiB 与 20 MiB+1、中文/emoji、CRLF、超长行、密集转义、cursor 重试/过期版本、越权、幂等与版本冲突、原子替换前后中断、外部新版保留、历史及一致性备份、公开分享撤销、手机片段保存。日志在忽略目录 `.local/mcp-validation/`。
+## 当前边界
 
-尚待完整验收：文件任务重启和租约更多失败分支、并发 quota 与清理、后台历史恢复、Git 核对与受管理同步、全文/本地 embedding/文件向量、混合检索、MCP/OAuth/OpenAPI、性能与恢复演练。当前通过数量不代表这些能力已完成。真实知识库、常驻服务、模型和公网客户端未接入。
+普通检索性能未全部达标，准确结果和测试口径见性能报告。72 条 AI 合成标签不是人工金标准；10 万规模为重复真实 embedding 的夹具，不是 10 万独立正文的生产重建。浏览器输入延迟/公开分享并发尚未专项计时。
 
+目标 ChatGPT/其他远程客户端、生产 OAuth 账号和 HTTPS 证书尚未接入验证。完整 CPU 检索使用 native 模板；Node Docker 模板不含 Python/model，当前未构建容器。代码提供可审查部署/恢复说明，不把配置模板当成已运行服务。
 
-## 第二批 checkpoint
+## 收尾统一验证（独立审查前）
 
-2026-10-14：增加文件任务排队重启、取消/deadline、租约失效后的隔离提交与状态保护、并发 cursor 预算、快照预留 quota、大文件历史后台恢复和浏览器状态轮询。授权从外部 600 权限配置/凭据文件加载，提交前重读当前权限。提供独立 file-worker 和显式 git-sync 源码命令。
+2026-10-14 新运行：Web `npm test` 55 文件/126 项通过，typecheck/build 通过；全部桌面/手机 `npm run test:e2e` 16 项通过；Python runtime 与基准数值合计 15 项通过（无模型 skip）。网关全套 9 文件/31 项、typecheck/build/openapi 通过。新增公开标题回归曾因元数据未知时使用文件名盖住当前 H1 失败，按 readState 区分后全浏览器回归通过。依赖弃用、NO_COLOR 和 Vite bundle 提示保留，没有功能失败。
 
-增加根身份核对、流式正文哈希、750 ms 文件事件防抖、60 秒快核对、300 秒完整哈希与启动核对。只在完整成功的扫描后判定删除，根不可用保留笔记/分享；外部重命名使用新私有身份。受管理同步只允许显式配置后的 ff-only 拉取，禁用 hooks/不可信过滤器，脏工作区不 stash/reset；同步中暂停写入与元数据扫描。
-
-第二批实测 `npm test` 28 个文件、59 项通过，typecheck/build 通过，全部桌面/手机 e2e 14 项通过。新增测试使用临时 bare Git 远端、两个隔离副本与可控时钟；不在真实知识库上执行同步或故障实验。CPU Python 项目环境开始准备，中文全文、向量与混合检索尚未验收。
-
-## 第三批检索与恢复 checkpoint
-
-实现 jieba/BGE tokenizer 与原文 byte/line 切片、中文 FTS/短词/标识符、标签/目录/日期过滤，真实本地 BGE CPU 512 维 embedding 与不可变 Float32 文件向量、持久索引租约/checkpoint/重试、RRF 三模式、严格刷新和 Web 索引状态。文本分词进程独立于向量 HTTP 服务；服务离线时原文及全文继续工作。固定模型和依赖在项目 `.local`/`.venv` 准备，权重及依赖不提交。
-
-研究对象 fetch 为完整 note/chunk，绑定递增 sourceRevision 与 hash，整篇超过正文或完整 JSON 预算时拒绝。页保留 UTF-8 BOM，旧 A→B→A 游标失效，活跃阅读会话不会被快照清理。向量版本提供查询引用、预加载、并发重合并、退出后重载、旧矩阵/文件回收以及物理压实后继续增量更新。
-
-恢复演练清除派生数据、保留原文/历史和任务证据、提升版本、重建索引、撤销旧 cookie/share/原始机器 token。密码重置采用同一持久发行时间截止。独立 file/index worker 与维护命令、受控模型配置和 native systemd 模板已提供；常驻服务未安装。
-
-本节点后端测试（排除仍独立开发的 benchmark 测试）42 个文件、80 项通过；Python 12 项通过，包含实际模型与 HTTP 队列优先级。typecheck/build 通过；浏览器回归发现新全文 OR 召回扩大旧 UI 的字面搜索，已通过失败测试恢复旧 API 字面语义并重新运行浏览器回归，结果以本节点日志为准，不沿用上次数量。
-
-独立网关已真实通过 Web+BGE HTTP SDK 联调（读取/权限/搜索与完整引用/版本冲突/同ID重试/大文件patch/归档），并由标准 OAuth 发行者实际验证授权码/S256 PKCE、introspection 与撤销；公开账户的 ChatGPT 接入尚未执行。性能评测已运行 1万/10万片段和大文件，100k 初测未达目标，修复 SQL/权限/向量版本驻留后复测，详见性能报告。合成标签不作为人工评测通过证据。
-
-第三批最终实测：完整 `npm test` 44 个文件、87 项通过（含基准工具）；typecheck/build 通过；桌面/手机 e2e 14 项通过；Python 12 项通过。大文本 worker 在 checkpoint 边界让出小笔记任务，避免一次大文件索引占住新笔记搜索；不计为失败重试，浏览器按未就绪状态重取检索结果。以上是本次命令的实际结果。
+实施裁决：既有设计直接执行，干净原源码分支开发；中文阶段用手工 ledger；后续用户授权验证节点提交推送源码；小 patch 统一异步；网关先客户端 checkpoint 后全部工具；固定 MCP SDK 1.32.1/2025-11-25；分词与向量分进程；独立网关/基准明确所有权并行。未确定的复杂大文件附件语法保守拒绝；按已授权范围保留并推送功能分支，不额外合并或创建 PR。审查裁决与暂缓项在最终收尾追加。

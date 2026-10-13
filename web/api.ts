@@ -31,9 +31,12 @@ export async function api<T = any>(url: string, method = 'GET', body?: unknown):
     method,
     headers,
     cache: 'no-store',
+    signal: AbortSignal.timeout(15000),
     ...(body !== undefined ? { body: body instanceof FormData ? body : JSON.stringify(body) } : {}),
   });
-  const data = await r.json().catch(() => ({ error: '服务暂时不可用' }));
+  const data = await r.json().catch(() => {
+    throw new ApiError(0, { error: '响应未完成，请重试；保存操作请先核对结果' });
+  });
   if (!r.ok) {
     if (r.status === 401 && !url.startsWith('/api/auth/'))
       window.dispatchEvent(new Event('dooknow-session-expired'));

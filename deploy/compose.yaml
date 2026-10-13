@@ -11,6 +11,9 @@ services:
       NODE_ENV: production
       HOST: 0.0.0.0
       PORT: 3010
+      # This web-only image has no Python/model environment. Use the native
+      # CPU runtime templates for full indexing, or build an extended image.
+      INDEXING_ENABLED: "0"
       KNOWLEDGE_ROOT: /knowledge
       DATA_ROOT: /data
       AUTH_SECRET_FILE: /run/secrets/auth.key

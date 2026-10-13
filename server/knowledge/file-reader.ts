@@ -19,8 +19,10 @@ export async function writeAll(fd: FileHandle, bytes: Buffer) {
 }
 export async function* readBlocks(file: string, start = 0, end?: number, signal?: AbortSignal) {
   if (end != null && end <= start) return;
-  const fd = await open(file, constants.O_RDONLY | constants.O_NOFOLLOW);
+  const fd = await open(file, constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK);
   try {
+    const info = await fd.stat();
+    if (!info.isFile() || info.nlink !== 1) fail(400, 'INVALID_PATH');
     for await (const bytes of fd.createReadStream({
       start,
       ...(end != null ? { end: end - 1 } : {}),
@@ -34,7 +36,7 @@ export async function* readBlocks(file: string, start = 0, end?: number, signal?
   }
 }
 export async function stableStat(file: string) {
-  const fd = await open(file, constants.O_RDONLY | constants.O_NOFOLLOW);
+  const fd = await open(file, constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK);
   try {
     const s = await fd.stat({ bigint: true });
     if (!s.isFile() || s.nlink > 1n) fail(400, 'INVALID_PATH');

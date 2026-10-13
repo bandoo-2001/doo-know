@@ -42,7 +42,10 @@ export function acquireRead(db: AppDatabase, p: Principal, channel: ReadChannel)
       channel,
       Date.now() + 30000,
     );
-    return () => db.prepare('DELETE FROM read_leases WHERE id=?').run(id);
+    return Object.assign(() => db.prepare('DELETE FROM read_leases WHERE id=?').run(id), {
+      renew: () =>
+        db.prepare('UPDATE read_leases SET expires_at=? WHERE id=?').run(Date.now() + 30000, id),
+    });
   })();
 }
 export function chargeRate(db: AppDatabase, p: Principal, channel: ReadChannel, bytes: number) {

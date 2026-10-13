@@ -79,4 +79,10 @@ npm run build
 
 生产产物还提供 `account:prod`、`backup:prod`、`restore:prod`，可直接由 Node 运行，容器用法见部署说明。
 
-第一版不包含自动保存、批量移动/重命名、多账号、注册、会员、广告或 AI 功能。外部编辑器不参与应用写入锁，首版按完整 mtimeNs 比较，不能保证跨进程实时协作。
+第一版不包含自动保存、批量移动/重命名、多账号、注册、会员或广告。外部编辑器不参与应用写入锁；应用写入使用 mtimeNs、快照哈希与版本核对，完整哈希周期检测保留 mtime/size 的修改，不能保证不合作的外部编辑器与提交之间实时互斥。
+
+## MCP 与本地检索扩展
+
+功能分支 `codex/doo-know-mcp` 提供中文全文、本地 BGE CPU embedding、`flat_file` 向量与混合检索，持久任务/文件和 Git 核对，以及最大 20 MiB Markdown 的片段编辑、分页分享和恢复。普通查询复用索引；向量服务离线时全文仍可用。独立 [doo-know-bridge](https://github.com/bandoo-2001/doo-know-bridge) 只调用受保护的机器 API，提供 MCP、等价 REST、OpenAPI 与外部 OAuth/Bearer 授权。
+
+入口：[接口契约](docs/机器API.md)、[运维与恢复](docs/MCP与索引运维.md)、[开发验证](docs/MCP与索引开发记录.md)、[实测性能与质量限制](docs/MCP性能评测.md)。模型需要显式准备，运行时纯本地；权重、索引、数据库和真实凭据不提交。完整 CPU 检索采用 native 模板，现有 Node Docker 模板只提供 Web，容器构建尚未验证。当前任务未连接真实知识库、安装常驻服务或接入真实远程客户端。

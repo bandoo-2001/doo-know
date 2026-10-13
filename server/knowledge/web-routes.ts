@@ -1,5 +1,6 @@
 import { Readable } from 'node:stream';
-import type { FastifyInstance } from 'fastify';
+import type { FastifyInstance, FastifyRequest } from 'fastify';
+import { acquireRead, chargeRate } from '../agent/budgets.js';
 import type { AppConfig } from '../../shared/contracts.js';
 import type { AppDatabase } from '../db.js';
 import type { Principal } from '../../shared/knowledge-contracts.js';
@@ -16,6 +17,7 @@ export async function registerWebKnowledgeRoutes(
   db: AppDatabase,
   knowledge: Awaited<ReturnType<typeof registerAgentRoutes>>,
   shares: ReturnType<typeof shareService>,
+  verifySession: (req: FastifyRequest) => Promise<boolean>,
 ) {
   app.post('/api/search/advanced', { bodyLimit: 128 * 1024 }, async (req) =>
     knowledge.search.search(webPrincipal, req.body as any),
@@ -76,6 +78,16 @@ export async function registerWebKnowledgeRoutes(
     });
     if ('operation' in ready)
       return reply.code(202).send({ kind: 'accepted', operation: ready.operation });
+    const release = acquireRead(db, webPrincipal, 'web');
+    db.prepare('UPDATE read_snapshots SET refs=refs+1 WHERE id=?').run(ready.id);
+    let released = false;
+    const finish = () => {
+      if (released) return;
+      released = true;
+      db.prepare('UPDATE read_snapshots SET refs=max(0,refs-1) WHERE id=?').run(ready.id);
+      release();
+    };
+    reply.raw.once('close', finish);
     const controller = new AbortController();
     req.raw.on('aborted', () => controller.abort());
     reply.raw.on('close', () => {
@@ -83,16 +95,26 @@ export async function registerWebKnowledgeRoutes(
     });
     const signal = AbortSignal.any([controller.signal, AbortSignal.timeout(300000)]);
     const iterator = async function* () {
-      for await (const bytes of readBlocks(ready.path, 0, undefined, signal)) {
-        await knowledge.snapshots.check(webPrincipal, req.params.id, ready.id);
-        yield bytes;
+      try {
+        for await (const bytes of readBlocks(ready.path, 0, undefined, signal)) {
+          if (!(await verifySession(req))) fail(401, 'UNAUTHORIZED');
+          if ((db.prepare('SELECT active FROM maintenance WHERE id=1').get() as any).active)
+            fail(503, 'SYNC_IN_PROGRESS');
+          await knowledge.snapshots.check(webPrincipal, req.params.id, ready.id);
+          release.renew();
+          db.transaction(() => chargeRate(db, webPrincipal, 'web', bytes.length))();
+          yield bytes;
+        }
+      } finally {
+        finish();
       }
     };
     reply.raw.setTimeout(30000, () => controller.abort());
     return reply
       .type('text/markdown; charset=utf-8')
       .header('Content-Disposition', 'attachment; filename="note.md"')
-      .send(Readable.from(iterator()));
+      .header('Content-Length', String(ready.size_bytes))
+      .send(Readable.from(iterator(), { objectMode: false, highWaterMark: 65536 }));
   });
   const publicPrincipal = (token: string) => {
     const n = shares.lookup(token);

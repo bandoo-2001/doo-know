@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { once } from 'node:events';
 import { performance } from 'node:perf_hooks';
@@ -23,6 +23,11 @@ import {
   modelDir,
   python,
   assertBenchmarkOutput,
+  assertBenchmarkDirectory,
+  assertDirectoryIdentity,
+  assertBenchmarkFileTarget,
+  readBenchmarkJson,
+  benchmarkArtifactBudgets,
 } from '../tests/benchmarks/support.js';
 import type { AppConfig } from '../shared/contracts.js';
 import type { Principal } from '../shared/knowledge-contracts.js';
@@ -52,7 +57,10 @@ async function runScale(
       : await createRun(`search-${count}`, outputRoot),
     resultRun = fixtureReused ? await createRun(`retest-${count}`, outputRoot) : run;
   const previous = fixtureReused
-    ? JSON.parse(await readFile(join(run.root, 'result.json'), 'utf8'))
+    ? await readBenchmarkJson(join(run.root, 'result.json'), benchmarkArtifactBudgets.result)
+    : null;
+  const reusedFixture = fixtureReused
+    ? await readBenchmarkJson(join(run.root, 'labels.json'), benchmarkArtifactBudgets.labels)
     : null;
   if (!fixtureReused) {
     await mkdir(run.knowledgeRoot);
@@ -62,8 +70,17 @@ async function runScale(
     });
     if ((await once(git, 'exit'))[0] !== 0) throw new Error('Isolated Git initialization failed');
   }
-  const runtime = await startRuntime(run.dataRoot, options.threads),
-    config: AppConfig = {
+  const directoryIdentities = [run.root, run.knowledgeRoot, run.dataRoot].map(
+    assertBenchmarkDirectory,
+  );
+  const databaseTargets = ['app.sqlite', 'app.sqlite-wal', 'app.sqlite-shm'].map((name) =>
+    join(run.dataRoot, name),
+  );
+  databaseTargets.forEach(assertBenchmarkFileTarget);
+  const runtime = await startRuntime(run.dataRoot, options.threads);
+  directoryIdentities.forEach(assertDirectoryIdentity);
+  databaseTargets.forEach(assertBenchmarkFileTarget);
+  const config: AppConfig = {
       ...run,
       secret: 'isolated-benchmark-secret-at-least-thirty-two-characters',
       origin: 'http://127.0.0.1:3010',
@@ -95,7 +112,7 @@ async function runScale(
         !previous.semanticVectorsAreReal
       )
         throw new Error('Existing corpus count/model/provenance mismatch');
-      const fixture = JSON.parse(await readFile(join(run.root, 'labels.json'), 'utf8'));
+      const fixture = reusedFixture;
       if (fixture.labelProvenance !== syntheticFixture().labelProvenance)
         throw new Error('Reuse requires an explicitly synthetic benchmark fixture');
       corpus = { fixture, build: previous.build };
@@ -445,7 +462,10 @@ async function main() {
     results = [];
   const productionJobBuild = options.reuse ? null : await productionBuild(options, root.root);
   if (options.reuse) {
-    const previous = JSON.parse(await readFile(join(options.reuse, 'result.json'), 'utf8'));
+    const previous = await readBenchmarkJson(
+      join(options.reuse, 'result.json'),
+      benchmarkArtifactBudgets.result,
+    );
     if (!options.counts.includes(previous.chunks))
       throw new Error('Reuse count must match the original fixture');
     results.push(await runScale(previous.chunks, options, root.root, options.reuse));

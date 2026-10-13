@@ -2,15 +2,15 @@ import { loadConfig } from '../server/config.js';
 import { openDatabase } from '../server/db.js';
 import { reconcileService } from '../server/indexing/reconcile.js';
 import { indexJobService } from '../server/indexing/jobs.js';
-const config = loadConfig(),
-  db = openDatabase(config.dataRoot),
-  indexing = reconcileService(config, db),
-  jobs = indexJobService(db, { spaceId: config.embeddingSpaceId });
 const allowed = new Set(['--full-hash', '--retry-failed', '--rebuild-text', '--rebuild-vector']);
 if (process.argv.slice(2).some((flag) => !allowed.has(flag)) || process.argv.length < 3)
   throw new Error(
     '用法：index:maintain -- --full-hash|--retry-failed|--rebuild-text|--rebuild-vector',
   );
+const config = loadConfig(),
+  db = openDatabase(config.dataRoot),
+  indexing = reconcileService(config, db),
+  jobs = indexJobService(db, { spaceId: config.embeddingSpaceId });
 try {
   if (process.argv.includes('--full-hash')) await indexing.reconcile(undefined, true);
   if (process.argv.includes('--retry-failed')) jobs.retry();

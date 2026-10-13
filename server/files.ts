@@ -68,6 +68,7 @@ export function safePath(
       if (
         s.isSymbolicLink() ||
         (!s.isDirectory() && i < parts.length - 1) ||
+        (kind === 'note' && i === parts.length - 1 && !s.isFile()) ||
         (s.isFile() && s.nlink > 1n)
       )
         throw new HttpError(400, '不允许软链接或共享硬链接');
@@ -91,8 +92,13 @@ export function readDocument(root: string, path: string) {
       throw new KnowledgeError(413, 'FILE_TOO_LARGE', '笔记超过大小上限');
     if (before.size > 1024n * 1024n)
       throw new KnowledgeError(409, 'LARGE_FILE_MODE_REQUIRED', '请使用大文件模式读取');
-    const content = readFileSync(fd, 'utf8'),
-      after = fstatSync(fd, { bigint: true });
+    let content: string;
+    try {
+      content = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(readFileSync(fd));
+    } catch {
+      throw new KnowledgeError(422, 'INVALID_UTF8', '原文不是有效 UTF-8，请先确认来源编码');
+    }
+    const after = fstatSync(fd, { bigint: true });
     if (before.mtimeNs !== after.mtimeNs)
       throw new HttpError(409, '文件读取期间更新，请重试', {
         currentModifiedAt: after.mtimeNs.toString(),

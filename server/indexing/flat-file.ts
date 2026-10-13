@@ -10,6 +10,7 @@ import { fail } from '../knowledge/errors.js';
 import { recallFilter } from '../search/filters.js';
 import type { Principal, SearchInput } from '../../shared/knowledge-contracts.js';
 import { backfillPoints, compactVectors } from './compaction.js';
+import { desiredSpace } from './space.js';
 interface VectorPoint {
   chunkId: string;
   noteId: string;
@@ -270,6 +271,8 @@ export class FlatFileStore {
           .get(prepared.noteId) as any;
         if (
           !valid() ||
+          desiredSpace(this.db, this.space) !== this.space ||
+          prepared.embeddingSpaceId !== this.space ||
           !state?.active ||
           state.conflict ||
           state.content_hash !== prepared.contentHash ||

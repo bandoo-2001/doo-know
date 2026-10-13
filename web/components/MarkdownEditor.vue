@@ -1,15 +1,24 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import { EditorView } from '@codemirror/view';
+import { Compartment, EditorState } from '@codemirror/state';
 import { basicSetup } from 'codemirror';
 import { markdown } from '@codemirror/lang-markdown';
-const props = defineProps<{ modelValue: string; incremental?: boolean; wrap?: boolean }>();
+const props = defineProps<{
+  modelValue: string;
+  incremental?: boolean;
+  wrap?: boolean;
+  readOnly?: boolean;
+  initialLine?: number;
+}>();
 const emit = defineEmits<{
   'update:modelValue': [value: string];
   changes: [edits: { from: number; to: number; insert: string }[]];
 }>();
 const mount = ref<HTMLElement>();
 let view: EditorView | undefined;
+const editability = new Compartment();
+let programmatic = false;
 onMounted(() => {
   view = new EditorView({
     doc: props.modelValue,
@@ -17,6 +26,10 @@ onMounted(() => {
     extensions: [
       basicSetup,
       markdown(),
+      editability.of([
+        EditorView.editable.of(!props.readOnly),
+        EditorState.readOnly.of(!!props.readOnly),
+      ]),
       ...(props.wrap === false ? [] : [EditorView.lineWrapping]),
       EditorView.contentAttributes.of({ 'aria-label': 'Markdown 正文' }),
       EditorView.theme({
@@ -33,7 +46,7 @@ onMounted(() => {
         },
       }),
       EditorView.updateListener.of((update) => {
-        if (update.docChanged) {
+        if (update.docChanged && !programmatic) {
           if (props.incremental) {
             const edits: { from: number; to: number; insert: string }[] = [];
             update.changes.iterChanges((from, to, _fromB, _toB, insert) =>
@@ -45,13 +58,30 @@ onMounted(() => {
       }),
     ],
   });
+  if (props.initialLine) {
+    const line = view.state.doc.line(Math.min(props.initialLine, view.state.doc.lines));
+    view.dispatch({ selection: { anchor: line.from }, scrollIntoView: true });
+  }
 });
 watch(
   () => props.modelValue,
   (v) => {
-    if (view && view.state.doc.toString() !== v)
-      view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: v } });
+    if (view && view.state.doc.toString() !== v) {
+      programmatic = true;
+      try {
+        view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: v } });
+      } finally {
+        programmatic = false;
+      }
+    }
   },
+);
+watch(
+  () => props.readOnly,
+  (v) =>
+    view?.dispatch({
+      effects: editability.reconfigure([EditorView.editable.of(!v), EditorState.readOnly.of(!!v)]),
+    }),
 );
 onBeforeUnmount(() => view?.destroy());
 </script>

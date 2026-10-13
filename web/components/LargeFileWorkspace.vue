@@ -12,7 +12,7 @@ import { api, ApiError } from '../api';
 import MarkdownEditor from './MarkdownEditor.vue';
 import NoteOutline from './NoteOutline.vue';
 import OperationStatus from './OperationStatus.vue';
-const props = defineProps<{ note: NoteInfo }>();
+const props = defineProps<{ note: NoteInfo; initialLine?: number }>();
 const emit = defineEmits<{ saved: [note: NoteInfo]; dirty: [value: boolean] }>();
 const page = ref<ReadPage>(),
   outline = ref<OutlinePage>(),
@@ -27,6 +27,8 @@ const dirty = computed(() => draft.value !== original.value);
 watch(dirty, (v) => emit('dirty', v));
 let epoch = 0,
   requestId = '',
+  submittedDraft = '',
+  renderEpoch = 0,
   pending: (() => Promise<void>) | undefined;
 async function wait(op: FileOperation, current: number) {
   operation.value = op;
@@ -35,6 +37,8 @@ async function wait(op: FileOperation, current: number) {
     if (current !== epoch) throw new Error('页面已切换');
     operation.value = await api<FileOperation>(`/api/operations/${op.operationId}`);
   }
+  if (operation.value.kind === 'patch' && ['failed', 'cancelled'].includes(operation.value.status))
+    requestId = '';
   if (operation.value.status !== 'succeeded')
     throw new Error(
       operation.value.status === 'needs_reconciliation'
@@ -61,6 +65,7 @@ async function load(input: Record<string, unknown> = {}) {
     if (current !== epoch) return;
     if (r.kind !== 'ready') throw new Error('正文仍在准备');
     page.value = r.data;
+    renderEpoch++;
     draft.value = r.data.content;
     original.value = r.data.content;
   } catch (e) {
@@ -79,6 +84,10 @@ async function loadOutline(cursor?: string) {
 }
 async function save() {
   if (!page.value || busy.value) return;
+  if (requestId) {
+    await check();
+    return;
+  }
   const current = epoch;
   busy.value = true;
   error.value = '';
@@ -88,6 +97,7 @@ async function save() {
       throw new Error('片段超过 128 KiB，请分次修改');
     requestId = requestId || crypto.randomUUID();
     const p = page.value;
+    submittedDraft = draft.value;
     const payload = {
       snapshotId: p.snapshotId,
       expectedModifiedAt: p.modifiedAt,
@@ -113,9 +123,10 @@ async function save() {
     notice.value = '片段已保存';
     emit('saved', await api<NoteInfo>(`/api/notes/${props.note.id}/meta`));
     busy.value = false;
-    await load();
+    await load({ range: { startLine: p.startLine, lineByteOffset: p.lineByteOffset } });
     await loadOutline();
   } catch (e) {
+    if (e instanceof ApiError && e.status >= 400 && e.status < 500) requestId = '';
     if (current === epoch) error.value = (e as Error).message;
   } finally {
     if (current === epoch) busy.value = false;
@@ -123,17 +134,23 @@ async function save() {
 }
 async function check() {
   if (!requestId) return;
+  busy.value = true;
+  error.value = '';
   try {
     const op = await api<FileOperation>(
       `/api/operations?requestId=${encodeURIComponent(requestId)}`,
     );
     await wait(op, epoch);
-    original.value = draft.value;
+    original.value = submittedDraft;
     requestId = '';
     notice.value = '片段已保存';
-    await load();
+    emit('saved', await api<NoteInfo>(`/api/notes/${props.note.id}/meta`));
+    const p = page.value;
+    await load(p ? { range: { startLine: p.startLine, lineByteOffset: p.lineByteOffset } } : {});
   } catch (e) {
     error.value = (e as Error).message;
+  } finally {
+    busy.value = false;
   }
 }
 async function cancel() {
@@ -163,7 +180,7 @@ async function leave(action: 'save' | 'discard' | 'cancel') {
   leaveOpen.value = false;
   const fn = pending;
   pending = undefined;
-  if (action === 'discard' && fn) await fn();
+  if (fn) await fn();
 }
 function applyChanges(edits: { from: number; to: number; insert: string }[]) {
   let value = draft.value;
@@ -185,7 +202,7 @@ watch(
     outline.value = undefined;
     requestId = '';
     if (props.note.editorMode !== 'metadata') {
-      await load();
+      await load(props.initialLine ? { range: { startLine: props.initialLine } } : {});
       await loadOutline();
     }
   },
@@ -211,9 +228,7 @@ defineExpose({ save, discard, reload });
     <template v-else
       ><NoteOutline
         :outline="outline"
-        @select="
-          (line) => navigate(() => load({ range: { startLine: line, endLine: line + 199 } }))
-        "
+        @select="(line) => navigate(() => load({ range: { startLine: line } }))"
         @next="loadOutline"
       />
       <p v-if="page">
@@ -225,8 +240,9 @@ defineExpose({ save, discard, reload });
           :model-value="original"
           :incremental="true"
           :wrap="false"
+          :read-only="busy || !!requestId"
           @changes="applyChanges"
-          :key="`${page.snapshotId}:${page.startByte}`"
+          :key="`${page.snapshotId}:${page.startByte}:${renderEpoch}`"
         />
       </div>
       <div class="large-actions">

@@ -20,6 +20,10 @@ import type {
 const noteInfo = ref<NoteInfo>(),
   largeRef = ref<InstanceType<typeof LargeFileWorkspace>>(),
   largeDirty = ref(false);
+const initialNoteId = new URLSearchParams(window.location.search).get('note');
+const parsedLine = Number(window.location.hash.match(/^#L([1-9]\d*)$/)?.[1]);
+const initialLine =
+  Number.isSafeInteger(parsedLine) && parsedLine <= 20 * 1024 * 1024 ? parsedLine : undefined;
 const emit = defineEmits<{ logout: [] }>();
 const tree = ref<TreeEntry[]>([]),
   note = ref<NoteDocument>(),
@@ -204,6 +208,50 @@ async function leave(action: 'save' | 'discard' | 'cancel') {
 const conflict = ref<{ version: string; opened: string; content: string; revisionId?: string }>(),
   latest = ref(''),
   latestOpen = ref(false);
+const pendingSave = ref<{
+  noteId: string;
+  requestId: string;
+  content: string;
+  expected: string;
+  revisionId?: string;
+}>();
+async function checkSave() {
+  const pending = pendingSave.value;
+  if (!pending) return;
+  const op = await api<FileOperation & { result?: { modifiedAt: string } }>(
+    `/api/operations?requestId=${encodeURIComponent(pending.requestId)}`,
+  );
+  if (op.status === 'succeeded') {
+    if (note.value?.id === pending.noteId) {
+      if (pending.revisionId) {
+        const meta = await api<NoteInfo>(`/api/notes/${pending.noteId}/meta`);
+        noteInfo.value = meta;
+        if (meta.editorMode === 'full') {
+          note.value = await api<NoteDocument>(`/api/notes/${pending.noteId}`);
+          draft.value = note.value.content;
+          savedContent.value = note.value.content;
+        } else {
+          note.value.modifiedAt = meta.modifiedAt;
+          draft.value = '';
+          savedContent.value = '';
+          await nextTick();
+          await largeRef.value?.reload();
+        }
+      } else {
+        note.value.modifiedAt = op.result?.modifiedAt || note.value.modifiedAt;
+        savedContent.value = pending.content;
+      }
+    }
+    pendingSave.value = undefined;
+    tell('保存结果已确认');
+    return;
+  }
+  if (['failed', 'cancelled'].includes(op.status)) {
+    pendingSave.value = undefined;
+    throw new Error('上次操作未完成，草稿已保留');
+  }
+  throw new Error('操作仍在处理，请稍后核对');
+}
 async function save(expected?: string, content?: string, revisionId?: string) {
   if (!note.value || busy.value) return;
   if (noteInfo.value?.editorMode !== 'full' && !revisionId) {
@@ -216,13 +264,27 @@ async function save(expected?: string, content?: string, revisionId?: string) {
     epoch = viewEpoch;
   const text = content ?? draft.value;
   try {
+    if (pendingSave.value) {
+      await checkSave();
+      if (pendingSave.value) return;
+    }
+    const requestId = crypto.randomUUID();
+    pendingSave.value = {
+      noteId: target.id,
+      requestId,
+      content: text,
+      expected: expected || target.modifiedAt,
+      revisionId,
+    };
     let n: any = revisionId
       ? await api<NoteDocument>(`/api/notes/${target.id}/revisions/${revisionId}/restore`, 'POST', {
           expectedModifiedAt: expected || target.modifiedAt,
+          requestId,
         })
       : await api<NoteDocument>(`/api/notes/${target.id}`, 'PUT', {
           content: text,
           expectedModifiedAt: expected || target.modifiedAt,
+          requestId,
         });
     if (n?.kind === 'accepted') {
       let op = n.operation as FileOperation;
@@ -251,6 +313,7 @@ async function save(expected?: string, content?: string, revisionId?: string) {
       await refresh();
       return;
     }
+    pendingSave.value = undefined;
     note.value = n;
     savedContent.value = n.content;
     if (revisionId) draft.value = n.content;
@@ -258,6 +321,7 @@ async function save(expected?: string, content?: string, revisionId?: string) {
     tell(revisionId ? '历史版本已恢复' : '笔记已保存');
     await refresh();
   } catch (e) {
+    if (e instanceof ApiError && e.status >= 400 && e.status < 500) pendingSave.value = undefined;
     if (!currentView(target.id, epoch)) return;
     if (e instanceof ApiError && e.status === 409)
       conflict.value = {
@@ -337,7 +401,9 @@ const createOpen = ref(false),
   createKind = ref<'note' | 'folder'>('note'),
   newName = ref(''),
   newFolder = ref('00-Inbox');
+let createRequestId = crypto.randomUUID();
 function create(kind: 'note' | 'folder') {
+  createRequestId = crypto.randomUUID();
   createKind.value = kind;
   newName.value = '';
   newFolder.value = folder.value || '00-Inbox';
@@ -354,11 +420,19 @@ async function submitCreate() {
       await guard(async () => {
         const name = newName.value.endsWith('.md') ? newName.value : newName.value + '.md';
         const epoch = viewEpoch;
-        const n = await api<NoteDocument>('/api/notes', 'POST', {
-          folderPath: newFolder.value,
-          fileName: name,
-          content: `# ${newName.value.replace(/\.md$/, '')}\n\n`,
-        });
+        let n: NoteDocument;
+        try {
+          n = await api<NoteDocument>('/api/notes', 'POST', {
+            folderPath: newFolder.value,
+            fileName: name,
+            content: `# ${newName.value.replace(/\.md$/, '')}\n\n`,
+            requestId: createRequestId,
+          });
+        } catch (e) {
+          if (e instanceof ApiError && e.status >= 400 && e.status < 500)
+            createRequestId = crypto.randomUUID();
+          throw e;
+        }
         createOpen.value = false;
         await refresh();
         if (epoch !== viewEpoch) {
@@ -645,6 +719,9 @@ onBeforeUnmount(() => {
               note.relativePath.split('/').join('　/　')
             }}</span>
             <div class="toolbar">
+              <NButton v-if="pendingSave?.noteId === note.id" @click="run(checkSave)"
+                >核对保存结果</NButton
+              >
               <NButton title="历史版本" aria-label="历史版本" @click="history"
                 ><Icon name="clock" /></NButton
               ><NButton
@@ -686,6 +763,7 @@ onBeforeUnmount(() => {
           v-if="noteInfo && noteInfo.editorMode !== 'full'"
           ref="largeRef"
           :note="noteInfo"
+          :initial-line="note.id === initialNoteId ? initialLine : undefined"
           :key="note.id"
           @dirty="(v) => (largeDirty = v)"
           @saved="
@@ -700,7 +778,11 @@ onBeforeUnmount(() => {
         <div v-else :class="['editor-panels', mode]">
           <section v-if="mode !== 'preview'" class="editor-panel">
             <div class="panel-label">Markdown <span>UTF-8</span></div>
-            <MarkdownEditor v-model="draft" :key="note.id" />
+            <MarkdownEditor
+              v-model="draft"
+              :key="note.id"
+              :initial-line="note.id === initialNoteId ? initialLine : undefined"
+            />
           </section>
           <section v-if="mode !== 'edit'" class="preview-panel">
             <div class="panel-label">预览 <Icon name="eye" :size="16" /></div>

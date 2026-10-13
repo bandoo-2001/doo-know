@@ -30,7 +30,7 @@ export type ReadInput = {
   snapshotId?: string;
   cursor?: string;
   maxBytes?: number;
-  range?: { startLine: number; endLine: number; lineByteOffset?: number };
+  range?: { startLine: number; endLine?: number; lineByteOffset?: number };
 };
 export type ReadPage = {
   snapshotId: string;
@@ -46,6 +46,7 @@ export type ReadPage = {
   nextCursor?: string;
   budgetRemainingBytes: number;
   rangeHash: string;
+  lineByteOffset: number;
 };
 export type PatchEdit =
   | { type: 'replace_text'; before: string; after: string }

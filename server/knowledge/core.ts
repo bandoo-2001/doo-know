@@ -327,6 +327,14 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     for (const intent of db
       .prepare("SELECT * FROM write_intents WHERE status='prepared'")
       .all() as Intent[]) {
+      if (
+        db
+          .prepare(
+            "SELECT 1 FROM file_operations WHERE id=? AND status IN ('running','committing') AND lease_until>?",
+          )
+          .get(intent.id, Date.now())
+      )
+        continue;
       try {
         if (intent.kind === 'archive') {
           if (
@@ -373,6 +381,10 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
           "UPDATE operations SET status='failed',error='OPERATION_UNAPPLIED' WHERE id=?",
         ).run(intent.id);
         db.prepare("UPDATE write_intents SET status='failed' WHERE id=?").run(intent.id);
+        db.prepare(
+          "UPDATE file_operations SET status='failed',error='OPERATION_UNAPPLIED' WHERE id=?",
+        ).run(intent.id);
+        releaseSnapshotRef(db, intent.id);
         report.unapplied++;
       } catch {
         report.conflicted++;

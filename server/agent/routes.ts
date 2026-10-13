@@ -29,6 +29,8 @@ import { decodeCursor, signCursor } from './budgets.js';
 import { recallFilter } from '../search/filters.js';
 import { sha256 } from '../knowledge/operations.js';
 import { validateRelative } from '../files.js';
+import { messageSize } from '../knowledge/limits.js';
+import { setDesiredEmbeddingSpace } from '../indexing/space.js';
 export function metadataService(config: AppConfig, db: AppDatabase, notes: NoteService) {
   return async function getNoteInfo(p: Principal, id: string): Promise<NoteInfo> {
     const row = notes.row(id);
@@ -79,6 +81,7 @@ export async function registerAgentRoutes(
   const snapshots = snapshotService(config, db, notes);
   const files = fileJobService(config, db, notes, snapshots);
   const indexing = reconcileService(config, db);
+  setDesiredEmbeddingSpace(db, config);
   const worker = indexWorker(config, db, notes, snapshots),
     search = searchService(config, db, notes, indexing, worker),
     research = researchService(config, db, notes);
@@ -152,21 +155,22 @@ export async function registerAgentRoutes(
             `SELECT n.id,n.path FROM notes n LEFT JOIN document_state d ON d.note_id=n.id WHERE n.active=1 AND (${filter.sql}) ORDER BY n.path LIMIT ? OFFSET ?`,
           )
           .all(...filter.values, limit + 1, offset) as { id: string; path: string }[];
-        const items = await Promise.all(rows.slice(0, limit).map((n) => info(p, n.id)));
-        return {
-          data: {
-            items,
-            ...(rows.length > limit
-              ? {
-                  nextCursor: signCursor(config.secret, {
-                    fingerprint,
-                    offset: offset + items.length,
-                    expires: Date.now() + 15 * 60000,
-                  }),
-                }
-              : {}),
-          },
-        };
+        let items = await Promise.all(rows.slice(0, limit).map((n) => info(p, n.id)));
+        const output = () => ({
+          items,
+          ...(rows.length > items.length
+            ? {
+                nextCursor: signCursor(config.secret, {
+                  fingerprint,
+                  offset: offset + items.length,
+                  expires: Date.now() + 15 * 60000,
+                }),
+              }
+            : {}),
+        });
+        while (items.length && messageSize(output()) > 64512) items = items.slice(0, -1);
+        if (!items.length && rows.length) fail(413, 'RESPONSE_TOO_LARGE');
+        return { data: output() };
       });
       api.get<{ Params: { id: string } }>('/notes/:id', async (req) => ({
         data: await info((req as any).principal, req.params.id),

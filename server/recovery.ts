@@ -15,7 +15,8 @@ import type { AppDatabase } from './db.js';
 import type { NoteService } from './notes.js';
 import { HttpError } from './errors.js';
 import { safePath, validName } from './files.js';
-import { mutationCore, webPrincipal } from './knowledge/core.js';
+import { mutationCore, webPrincipal, assertWritable } from './knowledge/core.js';
+import { KnowledgeError } from './knowledge/errors.js';
 import { randomUUID } from 'node:crypto';
 export function recoveryService(config: AppConfig, db: AppDatabase, notes: NoteService) {
   function history(id: string, before?: string) {
@@ -38,7 +39,7 @@ export function recoveryService(config: AppConfig, db: AppDatabase, notes: NoteS
       sizeBytes: statSync(join(config.dataRoot, 'history', r.file)).size,
     }));
   }
-  function restoreRevision(id: string, revisionId: string, expected: string) {
+  function restoreRevision(id: string, revisionId: string, expected: string, requestId?: string) {
     const r = db
       .prepare('SELECT file FROM revisions WHERE id=? AND note_id=?')
       .get(revisionId, id) as { file: string } | undefined;
@@ -47,6 +48,7 @@ export function recoveryService(config: AppConfig, db: AppDatabase, notes: NoteS
       id,
       readFileSync(join(config.dataRoot, 'history', r.file), 'utf8'),
       expected,
+      requestId,
     );
   }
   function checkedTrash(id: string, create = false) {
@@ -78,6 +80,7 @@ export function recoveryService(config: AppConfig, db: AppDatabase, notes: NoteS
       .all();
   }
   function restore(id: string, fileName?: string) {
+    assertWritable(db, id);
     const n = notes.row(id, true);
     if (n.active || !n.trash_path) throw new HttpError(404, '回收站笔记不存在');
     const name = fileName || basename(n.path);
@@ -116,7 +119,13 @@ export function recoveryService(config: AppConfig, db: AppDatabase, notes: NoteS
       }
       throw e;
     }
-    return notes.getNote(id);
+    try {
+      return notes.getNote(id);
+    } catch (e) {
+      if (e instanceof KnowledgeError && e.code === 'LARGE_FILE_MODE_REQUIRED')
+        return { id, metadataOnly: true };
+      throw e;
+    }
   }
   return { history, restoreRevision, deleteNote, trash, restore };
 }

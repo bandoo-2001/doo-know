@@ -28,8 +28,39 @@ test('large document loads a fragment and saving preserves the unloaded tail', a
   expect(updated).toContain('CHANGED');
   expect(updated.endsWith('UNLOADED_SENTINEL')).toBe(true);
   expect(updated.length).toBeGreaterThan(2 * 1024 * 1024);
+  await page.getByRole('button', { name: '下一片段', exact: true }).click();
+  await expect(page.locator('.large-workspace p').filter({ hasText: /第 \d+/ })).not.toContainText(
+    '第 1–',
+  );
+  const beforeRange = await page
+    .locator('.large-workspace p')
+    .filter({ hasText: /第 \d+/ })
+    .innerText();
+  const line = Number(beforeRange.match(/^第 (\d+)/)![1]);
+  expect(line).toBeGreaterThan(1);
+  await page.locator('.large-workspace .cm-content').fill('SECOND_PAGE_EDIT\n');
+  await page.route(
+    /\/api\/notes\/[^/]+\/patch$/,
+    async (route) => {
+      await route.fetch();
+      await route.abort('failed');
+    },
+    { times: 1 },
+  );
+  await page.getByRole('button', { name: '保存片段', exact: true }).click();
+  await expect(page.getByRole('button', { name: '核对保存结果', exact: true })).toBeVisible();
+  await expect(page.locator('.large-workspace .cm-content')).toHaveAttribute(
+    'contenteditable',
+    'false',
+  );
+  await page.getByRole('button', { name: '核对保存结果', exact: true }).click();
+  await expect(page.getByText('片段已保存', { exact: true })).toBeVisible();
+  await expect(page.locator('.large-workspace p').filter({ hasText: /第 \d+/ })).toContainText(
+    '第 ' + line + '–',
+  );
+  expect((await readFile(path, 'utf8')).endsWith('UNLOADED_SENTINEL')).toBe(true);
   await page.getByRole('button', { name: '历史版本', exact: true }).click();
-  await page.getByRole('button', { name: '恢复此版本', exact: true }).first().click();
+  await page.getByRole('button', { name: '恢复此版本', exact: true }).last().click();
   await expect(page.locator('.large-workspace .cm-content')).toContainText('FIRST');
   expect((await readFile(path, 'utf8')).endsWith('UNLOADED_SENTINEL')).toBe(true);
 });

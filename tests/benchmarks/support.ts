@@ -1,6 +1,6 @@
 import { cpus, totalmem } from 'node:os';
-import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
-import { existsSync, lstatSync, readFileSync, realpathSync } from 'node:fs';
+import { mkdir, mkdtemp, open, writeFile } from 'node:fs/promises';
+import { constants, existsSync, lstatSync, readFileSync, realpathSync } from 'node:fs';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { monitorEventLoopDelay, performance } from 'node:perf_hooks';
@@ -20,6 +20,67 @@ export function assertBenchmarkOutput(path: string) {
     throw new Error('Symlinked benchmark output is forbidden');
   return full;
 }
+export function assertBenchmarkDirectory(path: string) {
+  const full = assertBenchmarkOutput(path),
+    info = lstatSync(full, { bigint: true });
+  if (!info.isDirectory() || info.isSymbolicLink()) throw new Error('UNSAFE_BENCHMARK_DIRECTORY');
+  return { path: full, dev: info.dev, ino: info.ino };
+}
+export function assertDirectoryIdentity(identity: ReturnType<typeof assertBenchmarkDirectory>) {
+  const current = assertBenchmarkDirectory(identity.path);
+  if (current.dev !== identity.dev || current.ino !== identity.ino)
+    throw new Error('BENCHMARK_DIRECTORY_CHANGED');
+}
+export function assertBenchmarkFileTarget(path: string) {
+  const full = assertBenchmarkOutput(path);
+  let info;
+  try {
+    info = lstatSync(full, { bigint: true });
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return;
+    throw error;
+  }
+  if (!info.isFile() || info.isSymbolicLink() || info.nlink !== 1n)
+    throw new Error('BENCHMARK_FILE_TARGET_LINK_OR_TYPE');
+}
+export async function readBenchmarkJson(path: string, maxBytes: number): Promise<any> {
+  const full = assertBenchmarkOutput(path),
+    before = lstatSync(full, { bigint: true });
+  if (!before.isFile() || before.isSymbolicLink() || before.nlink !== 1n)
+    throw new Error('BENCHMARK_ARTIFACT_LINK_OR_TYPE');
+  if (before.size > BigInt(maxBytes)) throw new Error('BENCHMARK_ARTIFACT_TOO_LARGE');
+  const fd = await open(full, constants.O_RDONLY | constants.O_NOFOLLOW);
+  try {
+    const opened = await fd.stat({ bigint: true });
+    if (
+      opened.dev !== before.dev ||
+      opened.ino !== before.ino ||
+      opened.nlink !== 1n ||
+      !opened.isFile()
+    )
+      throw new Error('BENCHMARK_ARTIFACT_LINK_OR_CHANGED');
+    const chunks: Buffer[] = [];
+    let bytes = 0;
+    for await (const chunk of fd.createReadStream({ autoClose: false, highWaterMark: 65536 })) {
+      bytes += chunk.length;
+      if (bytes > maxBytes) throw new Error('BENCHMARK_ARTIFACT_TOO_LARGE');
+      chunks.push(chunk as Buffer);
+    }
+    const after = await fd.stat({ bigint: true });
+    if (after.nlink !== 1n || after.size !== before.size || after.mtimeNs !== before.mtimeNs)
+      throw new Error('BENCHMARK_ARTIFACT_CHANGED');
+    try {
+      return JSON.parse(
+        new TextDecoder('utf-8', { fatal: true }).decode(Buffer.concat(chunks, bytes)),
+      );
+    } catch {
+      throw new Error('INVALID_BENCHMARK_ARTIFACT');
+    }
+  } finally {
+    await fd.close();
+  }
+}
+export const benchmarkArtifactBudgets = { result: 8 * 1024 * 1024, labels: 1024 * 1024 };
 export function parseOptions(argv: string[]) {
   const options = {
     counts: [10000, 100000],

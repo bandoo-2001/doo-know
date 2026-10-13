@@ -125,12 +125,18 @@ export async function createApp(config: AppConfig) {
           text(b?.folderPath, '目录', 1000),
           text(b?.fileName, '文件名', 180),
           text(b?.content, '正文'),
+          typeof b?.requestId === 'string' ? b.requestId : undefined,
         ),
       );
   });
   app.put<{ Params: { id: string } }>('/api/notes/:id', async (req) => {
     const b = saveInput(req.body);
-    return notes.saveNote(req.params.id, b.content, b.expectedModifiedAt);
+    return notes.saveNote(
+      req.params.id,
+      b.content,
+      b.expectedModifiedAt,
+      typeof (req.body as any)?.requestId === 'string' ? (req.body as any).requestId : undefined,
+    );
   });
   app.post('/api/folders', async (req, reply) => {
     const b = req.body as Record<string, unknown>;
@@ -158,7 +164,7 @@ export async function createApp(config: AppConfig) {
     assets.list(req.params.id),
   );
   app.post<{ Params: { id: string } }>('/api/notes/:id/assets', async (req, reply) => {
-    notes.getNote(req.params.id);
+    notes.exists(req.params.id);
     const part = await req.file();
     if (!part) throw new HttpError(400, '请选择附件');
     const bytes = await part.toBuffer();
@@ -204,6 +210,7 @@ export async function createApp(config: AppConfig) {
         req.params.id,
         req.params.revisionId,
         input.expectedModifiedAt,
+        typeof (b as any).requestId === 'string' ? (b as any).requestId : undefined,
       );
     },
   );
@@ -213,13 +220,21 @@ export async function createApp(config: AppConfig) {
   app.get('/api/trash', async () => recovery.trash());
   app.post<{ Params: { id: string } }>('/api/notes/:id/restore', async (req) => {
     const b = req.body as { fileName?: unknown } | undefined;
-    return recovery.restore(
+    const restored = recovery.restore(
       req.params.id,
       b?.fileName === undefined ? undefined : text(b.fileName, '文件名', 180),
     );
+    return 'metadataOnly' in restored ? knowledge.info(webPrincipal, req.params.id) : restored;
   });
   const shares = shareService(db, notes);
-  await registerWebKnowledgeRoutes(app, config, db, knowledge, shares);
+  await registerWebKnowledgeRoutes(
+    app,
+    config,
+    db,
+    knowledge,
+    shares,
+    async (req) => !!(await auth.api.getSession({ headers: fromNodeHeaders(req.headers) })),
+  );
   app.get<{ Params: { id: string } }>('/api/notes/:id/share', async (req) =>
     shares.status(req.params.id),
   );
@@ -245,8 +260,23 @@ export async function createApp(config: AppConfig) {
   });
   app.get<{ Params: { token: string; assetId: string } }>(
     '/api/public/shares/:token/assets/:assetId',
-    async (req, reply) =>
-      sendAsset(reply, assets.publicAsset(shares.document(req.params.token), req.params.assetId)),
+    async (req, reply) => {
+      const note = shares.lookup(req.params.token);
+      const asset = await assets.publicAsset(note.id, req.params.assetId);
+      if (shares.lookup(req.params.token).id !== note.id)
+        throw new HttpError(404, '分享不存在或已取消');
+      return sendAsset(reply, asset);
+    },
+  );
+  app.get<{ Params: { token: string }; Querystring: { source?: string } }>(
+    '/api/public/shares/:token/asset',
+    async (req, reply) => {
+      const note = shares.lookup(req.params.token);
+      const asset = await assets.publicSource(note.id, text(req.query.source, '附件引用', 8192));
+      if (shares.lookup(req.params.token).id !== note.id)
+        throw new HttpError(404, '分享不存在或已取消');
+      return sendAsset(reply, asset);
+    },
   );
   if (config.staticRoot) {
     app.get('/', async (_req, reply) => reply.sendFile('index.html'));

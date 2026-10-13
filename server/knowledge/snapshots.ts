@@ -61,7 +61,11 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
     const [noteId, revisionId] = id.split('@');
     const n = notes.row(noteId);
     authorizePath(p, n.path);
-    if (p.id !== 'web-owner' && !p.id.startsWith('share:')) {
+    if (
+      p.id !== 'web-owner' &&
+      !p.id.startsWith('share:') &&
+      !(p.id === 'system:index-worker' && p.clientId === 'indexer')
+    ) {
       const policy = currentAgentConfig(config)?.policies.find(
         (x) => x.id === p.id && x.clientId === p.clientId,
       );
@@ -325,7 +329,8 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
         const pendingBytes = (db.prepare(reservation).get() as any).n,
           ownPending = (db.prepare(reservation + ' AND o.principal=?').get(p.id) as any).n;
         if (
-          own + ownPending + Number(s.size) > 64 * 1024 * 1024 ||
+          own + ownPending + Number(s.size) >
+            (p.id === 'system:index-worker' ? 256 : 64) * 1024 * 1024 ||
           all + pendingBytes + Number(s.size) > 256 * 1024 * 1024
         )
           fail(429, 'SNAPSHOT_QUOTA_EXCEEDED');
@@ -369,7 +374,7 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
       (!state?.content_hash ||
         (row.source_hash === state.content_hash && row.source_revision === state.source_revision))
     )
-      return row;
+      return adopt(p, row);
     return {
       operation: await prepare(
         p,
@@ -393,6 +398,45 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
       offset += bytes.length;
     }
     return snapshot.size_bytes;
+  }
+  function adopt(p: Principal, row: SnapshotRow) {
+    if (row.principal === 'system:index-worker' && p.id !== 'system:index-worker')
+      db.transaction(() => {
+        const own = (
+          db
+            .prepare('SELECT coalesce(sum(size_bytes),0) n FROM read_snapshots WHERE principal=?')
+            .get(p.id) as any
+        ).n;
+        const pending = (
+          db
+            .prepare(
+              "SELECT coalesce(sum(CAST(json_extract(payload,'$.sizeBytes') AS INTEGER)),0) n FROM file_operations f JOIN operations o ON o.id=f.id WHERE o.principal=? AND f.kind='prepare_snapshot' AND f.status IN ('queued','running') AND f.snapshot_id IS NULL",
+            )
+            .get(p.id) as any
+        ).n;
+        if (own + pending + row.size_bytes > 64 * 1024 * 1024) fail(429, 'SNAPSHOT_QUOTA_EXCEEDED');
+        db.prepare('UPDATE read_snapshots SET principal=? WHERE id=? AND principal=?').run(
+          p.id,
+          row.id,
+          'system:index-worker',
+        );
+        row.principal = p.id;
+      })();
+    return row;
+  }
+  async function releaseInternal(id: string) {
+    const row = db
+      .prepare(
+        "SELECT * FROM read_snapshots WHERE id=? AND principal='system:index-worker' AND refs=0 AND NOT EXISTS(SELECT 1 FROM read_sessions WHERE snapshot_id=? AND expires_at>?)",
+      )
+      .get(id, id, Date.now()) as SnapshotRow | undefined;
+    if (!row) return;
+    if (row.path !== join(config.dataRoot, 'read-snapshots', id + '.md'))
+      fail(500, 'INVALID_SNAPSHOT_PATH');
+    db.prepare(
+      "DELETE FROM read_snapshots WHERE id=? AND principal='system:index-worker' AND refs=0",
+    ).run(id);
+    await unlink(row.path).catch(() => {});
   }
   async function read(
     p: Principal,
@@ -434,9 +478,9 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
         if (
           r &&
           (!Number.isSafeInteger(r.startLine) ||
-            !Number.isSafeInteger(r.endLine) ||
+            (r.endLine != null && !Number.isSafeInteger(r.endLine)) ||
             r.startLine < 1 ||
-            r.endLine < r.startLine ||
+            (r.endLine != null && r.endLine < r.startLine) ||
             (r.lineByteOffset != null &&
               (!Number.isSafeInteger(r.lineByteOffset) || r.lineByteOffset < 0)))
         )
@@ -444,7 +488,8 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
         const startLine = r?.startLine || 1,
           base = await lineByte(snapshot, startLine),
           startByte = base + (r?.lineByteOffset || 0),
-          endByte = r ? await lineByte(snapshot, r.endLine + 1) : snapshot.size_bytes;
+          endByte =
+            r?.endLine != null ? await lineByte(snapshot, r.endLine + 1) : snapshot.size_bytes;
         if (
           startByte > endByte ||
           (r?.lineByteOffset && startByte > (await lineByte(snapshot, startLine + 1)))
@@ -502,6 +547,7 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
           break;
         }
       let data: ReadPage;
+      const lineByteOffset = cursor.startByte - (await lineByte(snapshot, cursor.startLine));
       while (true) {
         const part = utf8Prefix(bytes, n),
           content = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(part),
@@ -521,6 +567,7 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
           hasMore,
           budgetRemainingBytes: policy.bytes - session.bytes - part.length,
           rangeHash: sha256(part),
+          lineByteOffset,
           ...(hasMore
             ? {
                 nextCursor: signCursor(config.secret, {
@@ -597,13 +644,13 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
         'SELECT title,level,line,byte AS startByte FROM outline_offsets WHERE snapshot_id=? AND ordinal>=? ORDER BY ordinal LIMIT 51',
       )
       .all(snapshot.id, start) as OutlinePage['items'];
-    const more = rows.length > 50;
-    const data = {
+    let items = rows.slice(0, 50);
+    const output = (): OutlinePage => ({
       snapshotId: snapshot.id,
       sourceHash: snapshot.source_hash,
       modifiedAt: snapshot.modified_at,
-      items: rows.slice(0, 50),
-      ...(more
+      items,
+      ...(rows.length > items.length
         ? {
             nextCursor: signCursor(config.secret, {
               kind: 'outline',
@@ -611,13 +658,17 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
               clientId: p.clientId,
               noteId: id,
               snapshotId: snapshot.id,
-              offset: start + 50,
+              offset: start + items.length,
             }),
           }
         : {}),
-    };
-    return { kind: 'ready', data };
+    });
+    while (items.length && messageSize({ kind: 'ready', data: output() }) > 64512)
+      items = items.slice(0, -1);
+    if (!items.length && rows.length) fail(413, 'RESPONSE_TOO_LARGE');
+    return { kind: 'ready', data: output() };
   }
+
   async function clean() {
     db.prepare('DELETE FROM read_sessions WHERE expires_at<=?').run(Date.now());
     const rows = db
@@ -680,6 +731,7 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
     close,
     recover,
     drain,
+    releaseInternal,
   };
 }
 export type SnapshotService = ReturnType<typeof snapshotService>;

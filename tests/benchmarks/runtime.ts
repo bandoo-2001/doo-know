@@ -3,11 +3,22 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { once } from 'node:events';
 import { createInterface } from 'node:readline';
-import { projectRoot, python, modelDir } from './support.js';
+import {
+  projectRoot,
+  python,
+  modelDir,
+  assertBenchmarkDirectory,
+  assertDirectoryIdentity,
+  assertBenchmarkOutput,
+} from './support.js';
 
 export async function startRuntime(root: string, threads: number) {
-  const indexes = join(root, 'indexes');
+  const rootIdentity = assertBenchmarkDirectory(root),
+    indexes = assertBenchmarkOutput(join(root, 'indexes'));
   await mkdir(indexes, { recursive: true });
+  const indexIdentity = assertBenchmarkDirectory(indexes);
+  assertDirectoryIdentity(rootIdentity);
+  assertDirectoryIdentity(indexIdentity);
   const tokenFile = join(indexes, `runtime-${process.pid}.key`),
     token = 'isolated-benchmark-runtime-only-at-least-thirty-two-characters';
   await writeFile(tokenFile, token, { mode: 0o600, flag: 'wx' });
