@@ -16,6 +16,7 @@ import type { AppDatabase } from './db.js';
 import { HttpError, text } from './errors.js';
 import { readDocument, safePath, scanFiles, validName } from './files.js';
 import { mutationCore, webPrincipal } from './knowledge/core.js';
+import { KnowledgeError } from './knowledge/errors.js';
 export interface NoteRow {
   id: string;
   path: string;
@@ -25,6 +26,10 @@ export interface NoteRow {
 export function noteService(config: AppConfig, db: AppDatabase) {
   const mutations = mutationCore(config, db);
   function scan() {
+    if (
+      db.prepare("SELECT 1 FROM sync_runs WHERE status IN ('running','needs_reconciliation')").get()
+    )
+      throw new KnowledgeError(503, 'SYNC_IN_PROGRESS', '原文同步中', true);
     const files = scanFiles(config.knowledgeRoot);
     db.transaction(() => {
       const live = new Set(files.notes);
@@ -57,6 +62,12 @@ export function noteService(config: AppConfig, db: AppDatabase) {
       };
     } catch (e) {
       if (e instanceof HttpError && e.statusCode === 404) {
+        if (
+          db
+            .prepare("SELECT 1 FROM sync_runs WHERE status IN ('running','needs_reconciliation')")
+            .get()
+        )
+          throw new KnowledgeError(503, 'SYNC_IN_PROGRESS', '原文同步中', true);
         db.prepare('UPDATE shares SET enabled=0 WHERE note_id=?').run(id);
         db.prepare('UPDATE notes SET active=0 WHERE id=?').run(id);
       }

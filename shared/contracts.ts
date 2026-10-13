@@ -7,10 +7,13 @@ export interface AppConfig {
   host?: string;
   staticRoot?: string;
   agent?: import('./knowledge-contracts.js').AgentConfig;
+  agentConfigFile?: string;
   vectorServiceUrl?: string;
   vectorServiceToken?: string;
   embeddingSpaceId?: string;
   indexing?: { enabled?: boolean; watch?: boolean };
+  fileTasks?: { embedded?: boolean };
+  gitSyncEnabled?: boolean;
 }
 export interface NoteDocument {
   id: string;

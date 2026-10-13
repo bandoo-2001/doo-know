@@ -2,6 +2,21 @@ import { createHash, randomUUID } from 'node:crypto';
 import type { AppDatabase } from '../db.js';
 import type { Principal } from '../../shared/knowledge-contracts.js';
 import { fail } from './errors.js';
+export function releaseSnapshotRef(db: AppDatabase, operationId: string) {
+  db.transaction(() => {
+    const row = db
+      .prepare(
+        'SELECT snapshot_id,snapshot_ref_released FROM file_operations WHERE id=? AND kind=?',
+      )
+      .get(operationId, 'patch') as any;
+    if (row?.snapshot_id && !row.snapshot_ref_released) {
+      db.prepare(
+        'UPDATE file_operations SET snapshot_ref_released=1 WHERE id=? AND snapshot_ref_released=0',
+      ).run(operationId);
+      db.prepare('UPDATE read_snapshots SET refs=max(0,refs-1) WHERE id=?').run(row.snapshot_id);
+    }
+  })();
+}
 export const sha256 = (value: string | Uint8Array) =>
   createHash('sha256').update(value).digest('hex');
 function canonical(value: unknown): unknown {

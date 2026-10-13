@@ -6,3 +6,9 @@ dist/
 playwright-report/
 test-results/
 .sdd/
+
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+config.agent.json

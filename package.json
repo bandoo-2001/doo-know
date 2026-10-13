@@ -19,7 +19,9 @@
     "restore": "tsx scripts/restore.ts",
     "account:prod": "node dist/server/scripts/account.js",
     "backup:prod": "node dist/server/scripts/backup.js",
-    "restore:prod": "node dist/server/scripts/restore.js"
+    "restore:prod": "node dist/server/scripts/restore.js",
+    "git:sync": "tsx scripts/git-sync.ts",
+    "worker:file": "tsx scripts/file-worker.ts"
   },
   "dependencies": {
     "@codemirror/commands": "^6.11.1",

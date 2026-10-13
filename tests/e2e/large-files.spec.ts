@@ -28,4 +28,8 @@ test('large document loads a fragment and saving preserves the unloaded tail', a
   expect(updated).toContain('CHANGED');
   expect(updated.endsWith('UNLOADED_SENTINEL')).toBe(true);
   expect(updated.length).toBeGreaterThan(2 * 1024 * 1024);
+  await page.getByRole('button', { name: '历史版本', exact: true }).click();
+  await page.getByRole('button', { name: '恢复此版本', exact: true }).first().click();
+  await expect(page.locator('.large-workspace .cm-content')).toContainText('FIRST');
+  expect((await readFile(path, 'utf8')).endsWith('UNLOADED_SENTINEL')).toBe(true);
 });

@@ -11,7 +11,9 @@
     "shared/**/*.ts",
     "scripts/account.ts",
     "scripts/backup.ts",
-    "scripts/restore.ts"
+    "scripts/restore.ts",
+    "scripts/git-sync.ts",
+    "scripts/file-worker.ts"
   ],
   "exclude": ["web", "tests"]
 }

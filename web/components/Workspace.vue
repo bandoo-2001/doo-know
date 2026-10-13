@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
 import { NButton, NInput, NModal, NAlert, NSelect } from 'naive-ui';
 import MarkdownIt from 'markdown-it';
 import DOMPurify from 'dompurify';
@@ -214,7 +214,7 @@ async function save(expected?: string, content?: string, revisionId?: string) {
     epoch = viewEpoch;
   const text = content ?? draft.value;
   try {
-    const n = revisionId
+    let n: any = revisionId
       ? await api<NoteDocument>(`/api/notes/${target.id}/revisions/${revisionId}/restore`, 'POST', {
           expectedModifiedAt: expected || target.modifiedAt,
         })
@@ -222,6 +222,29 @@ async function save(expected?: string, content?: string, revisionId?: string) {
           content: text,
           expectedModifiedAt: expected || target.modifiedAt,
         });
+    if (n?.kind === 'accepted') {
+      let op = n.operation as FileOperation;
+      while (['queued', 'running', 'committing'].includes(op.status)) {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        if (!currentView(target.id, epoch)) return;
+        op = await api<FileOperation>(`/api/operations/${op.operationId}`);
+      }
+      if (op.status !== 'succeeded')
+        throw new Error(
+          op.status === 'needs_reconciliation'
+            ? '保存结果需要核对，请保留草稿'
+            : '历史恢复未完成，请保留草稿',
+        );
+      const meta = await api<NoteInfo>(`/api/notes/${target.id}/meta`);
+      if (!currentView(target.id, epoch)) return;
+      noteInfo.value = meta;
+      n =
+        meta.editorMode === 'full'
+          ? await api<NoteDocument>(`/api/notes/${target.id}`)
+          : { ...target, title: meta.title, modifiedAt: meta.modifiedAt, content: '' };
+      await nextTick();
+      await largeRef.value?.reload();
+    }
     if (!currentView(target.id, epoch)) {
       await refresh();
       return;
@@ -237,7 +260,7 @@ async function save(expected?: string, content?: string, revisionId?: string) {
     if (e instanceof ApiError && e.status === 409)
       conflict.value = {
         version: String(e.data.currentModifiedAt),
-        opened: note.value.modifiedAt,
+        opened: target.modifiedAt,
         content: text,
         revisionId,
       };

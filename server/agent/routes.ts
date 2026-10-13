@@ -12,6 +12,10 @@ import { mutationCore } from '../knowledge/core.js';
 import { findOperation } from '../knowledge/operations.js';
 import { snapshotService } from '../knowledge/snapshots.js';
 import { fileJobService } from '../knowledge/file-jobs.js';
+import { currentAgentConfig } from './config.js';
+import { reconcileService } from '../indexing/reconcile.js';
+import { startWatcher } from '../indexing/watcher.js';
+import { syncService } from '../indexing/sync.js';
 export function metadataService(config: AppConfig, db: AppDatabase, notes: NoteService) {
   return async function getNoteInfo(p: Principal, id: string): Promise<NoteInfo> {
     const row = notes.row(id);
@@ -52,36 +56,41 @@ export async function registerAgentRoutes(
   await core.recover();
   const snapshots = snapshotService(config, db, notes);
   const files = fileJobService(config, db, notes, snapshots);
+  const indexing = reconcileService(config, db);
+  await snapshots.recover();
+  await files.recover();
   await app.register(
     async (api) => {
       api.addHook('onRoute', (route) => {
         route.bodyLimit = 128 * 1024;
       });
       api.addHook('onRequest', async (req) => {
-        (req as any).principal = authorizeAgent(req, config.agent);
+        try {
+          (req as any).principal = authorizeAgent(req, currentAgentConfig(config));
+        } catch {
+          fail(401, 'UNAUTHORIZED');
+        }
         if (req.headers['content-encoding']) fail(415, 'COMPRESSED_REQUEST_NOT_ALLOWED');
       });
       api.setErrorHandler((error, _req, reply) => {
         const e = error as KnowledgeError;
         const status = e.statusCode || 500;
-        reply
-          .code(status)
-          .send({
-            error: {
-              code:
-                e instanceof KnowledgeError
-                  ? e.code
-                  : status === 413
-                    ? 'REQUEST_TOO_LARGE'
-                    : status === 404
-                      ? 'NOT_FOUND'
-                      : status === 400
-                        ? 'INVALID_INPUT'
-                        : 'INTERNAL_ERROR',
-              message: e instanceof KnowledgeError ? e.message : '操作未完成',
-              retryable: e.retryable || false,
-            },
-          });
+        reply.code(status).send({
+          error: {
+            code:
+              e instanceof KnowledgeError
+                ? e.code
+                : status === 413
+                  ? 'REQUEST_TOO_LARGE'
+                  : status === 404
+                    ? 'NOT_FOUND'
+                    : status === 400
+                      ? 'INVALID_INPUT'
+                      : 'INTERNAL_ERROR',
+            message: e instanceof KnowledgeError ? e.message : '操作未完成',
+            retryable: e.retryable || false,
+          },
+        });
       });
       const info = metadataService(config, db, notes);
       api.get('/notes', async (req) => {
@@ -111,6 +120,12 @@ export async function registerAgentRoutes(
       });
       api.get<{ Params: { id: string } }>('/notes/:id', async (req) => ({
         data: await info((req as any).principal, req.params.id),
+      }));
+      api.post('/index/refresh', async (req) => ({
+        data: await indexing.refresh((req as any).principal, req.body as any),
+      }));
+      api.get('/index/status', async (req) => ({
+        data: indexing.status((req as any).principal, req.query as any),
       }));
       api.post<{ Params: { id: string } }>('/notes/:id/read', async (req) => ({
         data: await snapshots.read(
@@ -179,5 +194,18 @@ export async function registerAgentRoutes(
     },
     { prefix: '/api/agent/v1' },
   );
-  return { snapshots, files, core, info: metadataService(config, db, notes) };
+  let stopWatching = () => {};
+  if (config.indexing?.enabled) {
+    await syncService(config, db, indexing).recover();
+    await indexing.reconcile(undefined, true);
+    stopWatching = startWatcher(config, db, indexing);
+  }
+  return {
+    snapshots,
+    files,
+    core,
+    indexing,
+    stopWatching,
+    info: metadataService(config, db, notes),
+  };
 }

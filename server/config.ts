@@ -4,6 +4,7 @@ import { join, resolve } from 'node:path';
 import { homedir } from 'node:os';
 import { randomBytes } from 'node:crypto';
 import type { AppConfig } from '../shared/contracts.js';
+import { loadAgentConfig, privateFile } from './agent/config.js';
 export function loadConfig(): AppConfig {
   const base = process.env.DOOKNOW_DEMO_ROOT || join(homedir(), '.local/share/doo-know-web-demo');
   const production = process.env.NODE_ENV === 'production';
@@ -44,5 +45,22 @@ export function loadConfig(): AppConfig {
     port,
     host: process.env.HOST || '127.0.0.1',
     staticRoot: resolve('dist/web'),
+    ...(process.env.AGENT_CONFIG_FILE
+      ? {
+          agentConfigFile: resolve(process.env.AGENT_CONFIG_FILE),
+          agent: loadAgentConfig(resolve(process.env.AGENT_CONFIG_FILE), knowledgeRoot),
+        }
+      : {}),
+    ...(process.env.VECTOR_SERVICE_URL ? { vectorServiceUrl: process.env.VECTOR_SERVICE_URL } : {}),
+    ...(process.env.VECTOR_SERVICE_TOKEN_FILE
+      ? { vectorServiceToken: privateFile(process.env.VECTOR_SERVICE_TOKEN_FILE, 8192).trim() }
+      : {}),
+    ...(process.env.EMBEDDING_SPACE_ID ? { embeddingSpaceId: process.env.EMBEDDING_SPACE_ID } : {}),
+    fileTasks: { embedded: process.env.EMBEDDED_FILE_WORKER !== '0' },
+    gitSyncEnabled: process.env.GIT_SYNC_ENABLED === '1',
+    indexing: {
+      enabled: process.env.INDEXING_ENABLED !== '0',
+      watch: process.env.INDEX_WATCH !== '0',
+    },
   };
 }

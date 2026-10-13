@@ -1,3 +1,4 @@
+import { currentAgentConfig } from '../agent/config.js';
 import { mkdir, open, stat, unlink } from 'node:fs/promises';
 import { join, basename } from 'node:path';
 import { createHash, randomUUID } from 'node:crypto';
@@ -58,7 +59,9 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
     const n = notes.row(noteId);
     authorizePath(p, n.path);
     if (p.id !== 'web-owner' && !p.id.startsWith('share:')) {
-      const policy = config.agent?.policies.find((x) => x.id === p.id && x.clientId === p.clientId);
+      const policy = currentAgentConfig(config)?.policies.find(
+        (x) => x.id === p.id && x.clientId === p.clientId,
+      );
       if (!policy) fail(403, 'FORBIDDEN');
       authorizePath(policy, n.path);
     }
@@ -102,9 +105,15 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
         Date.now(),
       );
     if (!lease.changes) {
-      db.prepare(
-        "UPDATE operations SET status='failed',error='TASK_DEADLINE' WHERE id=? AND status='queued'",
-      ).run(opId);
+      const expired = db
+        .prepare(
+          "UPDATE file_operations SET status='failed',error='TASK_DEADLINE' WHERE id=? AND status='queued' AND deadline<=?",
+        )
+        .run(opId, Date.now());
+      if (expired.changes)
+        db.prepare(
+          "UPDATE operations SET status='failed',error='TASK_DEADLINE' WHERE id=? AND status='queued'",
+        ).run(opId);
       return;
     }
     db.prepare("UPDATE operations SET status='running' WHERE id=?").run(opId);
@@ -142,6 +151,7 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
         p.id,
         id,
       );
+      db.prepare('UPDATE file_operations SET snapshot_id=? WHERE id=?').run(snapshotId, opId);
       db.prepare('INSERT INTO snapshot_offsets VALUES(?,?,?)').run(snapshotId, 1, 0);
       const newline = (lineEnd: number) => {
         longest = Math.max(longest, lineLength);
@@ -246,6 +256,15 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
         });
       })();
     } catch (e) {
+      const ownership = db
+        .prepare('SELECT lease_epoch FROM file_operations WHERE id=?')
+        .get(opId) as any;
+      if (ownership?.lease_epoch !== row.lease_epoch) {
+        await fd?.close();
+        db.prepare('DELETE FROM read_snapshots WHERE id=?').run(snapshotId);
+        await unlink(destination).catch(() => {});
+        return;
+      }
       const code =
         e instanceof KnowledgeError
           ? e.code
@@ -264,45 +283,58 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
     }
   }
   async function prepare(p: Principal, id: string, requestId: string) {
-    const { file, n } = authorizedFile(p, id);
-    const s = await stableStat(file);
-    const op = beginOperation(db, p, 'prepare_snapshot', requestId, {
-      noteId: id,
-      modifiedAt: s.mtimeNs.toString(),
-    });
-    if (!op.fresh) return operation(op.operation.id);
-    const own = (
-        db
-          .prepare('SELECT coalesce(sum(size_bytes),0) n FROM read_snapshots WHERE principal=?')
-          .get(p.id) as any
-      ).n,
-      all = (db.prepare('SELECT coalesce(sum(size_bytes),0) n FROM read_snapshots').get() as any).n;
-    const pending = (
-      db
-        .prepare(
-          "SELECT coalesce(sum(CAST(json_extract(payload,'$.sizeBytes') AS INTEGER)),0) n FROM file_operations f JOIN operations o ON o.id=f.id WHERE f.kind='prepare_snapshot' AND f.status IN ('queued','running')",
+    const { file, n } = authorizedFile(p, id),
+      s = await stableStat(file),
+      modifiedAt = s.mtimeNs.toString();
+    const accepted = db
+      .transaction(() => {
+        const pending = db
+          .prepare(
+            "SELECT f.id FROM file_operations f JOIN operations o ON o.id=f.id WHERE f.kind='prepare_snapshot' AND f.status IN ('queued','running') AND o.principal=? AND o.client_id=? AND json_extract(f.payload,'$.sourceKey')=? AND json_extract(f.payload,'$.modifiedAt')=? LIMIT 1",
+          )
+          .get(p.id, p.clientId, id, modifiedAt) as { id: string } | undefined;
+        if (pending) return { id: pending.id, fresh: false };
+        const op = beginOperation(db, p, 'prepare_snapshot', requestId, { noteId: id, modifiedAt });
+        if (
+          !op.fresh &&
+          db.prepare('SELECT 1 FROM file_operations WHERE id=?').get(op.operation.id)
         )
-        .get() as any
-    ).n;
-    if (
-      own + Number(s.size) > 64 * 1024 * 1024 ||
-      all + pending + Number(s.size) > 256 * 1024 * 1024
-    )
-      fail(429, 'SNAPSHOT_QUOTA_EXCEEDED');
-    db.prepare(
-      'INSERT INTO file_operations(id,note_id,kind,status,payload,created_at,deadline) VALUES(?,?,?,?,?,?,?)',
-    ).run(
-      op.operation.id,
-      n.id,
-      'prepare_snapshot',
-      'queued',
-      JSON.stringify({ sizeBytes: Number(s.size), sourceKey: id, principal: p }),
-      Date.now(),
-      Date.now() + 300000,
-    );
-    db.prepare("UPDATE operations SET status='queued' WHERE id=?").run(op.operation.id);
-    if (!closing) tail = tail.then(() => build(p, id, op.operation.id));
-    return operation(op.operation.id);
+          return { id: op.operation.id, fresh: false };
+        const own = (
+            db
+              .prepare('SELECT coalesce(sum(size_bytes),0) n FROM read_snapshots WHERE principal=?')
+              .get(p.id) as any
+          ).n,
+          all = (
+            db.prepare('SELECT coalesce(sum(size_bytes),0) n FROM read_snapshots').get() as any
+          ).n;
+        const reservation =
+          "SELECT coalesce(sum(CAST(json_extract(payload,'$.sizeBytes') AS INTEGER)),0) n FROM file_operations f JOIN operations o ON o.id=f.id WHERE f.kind='prepare_snapshot' AND f.status IN ('queued','running') AND f.snapshot_id IS NULL";
+        const pendingBytes = (db.prepare(reservation).get() as any).n,
+          ownPending = (db.prepare(reservation + ' AND o.principal=?').get(p.id) as any).n;
+        if (
+          own + ownPending + Number(s.size) > 64 * 1024 * 1024 ||
+          all + pendingBytes + Number(s.size) > 256 * 1024 * 1024
+        )
+          fail(429, 'SNAPSHOT_QUOTA_EXCEEDED');
+        db.prepare(
+          'INSERT INTO file_operations(id,note_id,kind,status,payload,created_at,deadline) VALUES(?,?,?,?,?,?,?)',
+        ).run(
+          op.operation.id,
+          n.id,
+          'prepare_snapshot',
+          'queued',
+          JSON.stringify({ sizeBytes: Number(s.size), sourceKey: id, modifiedAt, principal: p }),
+          Date.now(),
+          Date.now() + 300000,
+        );
+        db.prepare("UPDATE operations SET status='queued' WHERE id=?").run(op.operation.id);
+        return { id: op.operation.id, fresh: true };
+      })
+      .immediate();
+    if (accepted.fresh && !closing && config.fileTasks?.embedded !== false)
+      tail = tail.then(() => build(p, id, accepted.id));
+    return operation(accepted.id);
   }
   async function available(p: Principal, id: string, input: ReadInput) {
     if (input.snapshotId) return check(p, id, input.snapshotId);
@@ -320,7 +352,11 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
       | undefined;
     if (row && (!state?.content_hash || row.source_hash === state.content_hash)) return row;
     return {
-      operation: await prepare(p, id, `snapshot:${sha256(JSON.stringify([id,s.mtimeNs.toString(),state?.content_hash||'']))}`),
+      operation: await prepare(
+        p,
+        id,
+        `snapshot:${sha256(JSON.stringify([id, s.mtimeNs.toString(), state?.content_hash || '']))}:${randomUUID()}`,
+      ),
     };
   }
   async function lineByte(snapshot: SnapshotRow, target: number) {
@@ -571,14 +607,51 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
           .get(r.id)
       )
         continue;
+      if (
+        !/^[0-9a-f-]{36}$/.test(r.id) ||
+        r.path !== join(config.dataRoot, 'read-snapshots', `${r.id}.md`)
+      )
+        fail(500, 'INVALID_SNAPSHOT_PATH');
       await unlink(r.path).catch(() => {});
       db.prepare('DELETE FROM read_snapshots WHERE id=? AND refs=0').run(r.id);
     }
+  }
+  async function drain() {
+    await tail;
   }
   async function close() {
     closing = true;
     await tail;
   }
-  return { prepare, read, outline, check, available, lineByte, operation, clean, close };
+  async function recover() {
+    db.prepare(
+      "UPDATE file_operations SET status='queued',lease_epoch=lease_epoch+1 WHERE kind='prepare_snapshot' AND status='running' AND lease_until<=?",
+    ).run(Date.now());
+    db.prepare(
+      "UPDATE operations SET status='queued' WHERE id IN (SELECT id FROM file_operations WHERE kind='prepare_snapshot' AND status='queued')",
+    ).run();
+    if (config.fileTasks?.embedded === false) return;
+    for (const row of db
+      .prepare(
+        "SELECT * FROM file_operations WHERE kind='prepare_snapshot' AND status='queued' ORDER BY created_at",
+      )
+      .all() as any[]) {
+      const payload = JSON.parse(row.payload);
+      tail = tail.then(() => build(payload.principal, payload.sourceKey || row.note_id, row.id));
+    }
+  }
+  return {
+    prepare,
+    read,
+    outline,
+    check,
+    available,
+    lineByte,
+    operation,
+    clean,
+    close,
+    recover,
+    drain,
+  };
 }
 export type SnapshotService = ReturnType<typeof snapshotService>;

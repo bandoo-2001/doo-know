@@ -109,6 +109,13 @@ export function readDocument(root: string, path: string) {
   }
 }
 export function scanFiles(root: string) {
+  try {
+    const s = lstatSync(root);
+    if (!s.isDirectory() || s.isSymbolicLink()) throw new Error();
+    readdirSync(root);
+  } catch {
+    throw new KnowledgeError(503, 'SOURCE_UNAVAILABLE', '原文目录不可用', true);
+  }
   const folders: string[] = [],
     notes: string[] = [];
   function walk(path: string) {
@@ -137,7 +144,9 @@ export function scanFiles(root: string) {
         walk(cat);
       }
     } catch (e) {
+      if ((e as NodeJS.ErrnoException).code === 'ENOENT') continue;
       if (e instanceof HttpError) throw e;
+      throw new KnowledgeError(503, 'SOURCE_UNAVAILABLE', '原文目录不可读', true);
     }
   }
   try {

@@ -1,0 +1,14 @@
+{
+  "serviceTokenFile": "/srv/secrets/knowledge/doo-know-web/agent.token",
+  "assertionKeyFile": "/srv/secrets/knowledge/doo-know-web/agent-assertion.key",
+  "issuer": "doo-know-bridge",
+  "audience": "doo-know-web",
+  "policies": [
+    {
+      "id": "REPLACE_WITH_OWNER_SUBJECT",
+      "clientId": "REPLACE_WITH_VERIFIED_CLIENT_ID",
+      "scopes": ["knowledge:read"],
+      "allowedPrefixes": ["30-Knowledge"]
+    }
+  ]
+}

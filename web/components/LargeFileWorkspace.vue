@@ -192,7 +192,11 @@ watch(
   { immediate: true },
 );
 onBeforeUnmount(() => epoch++);
-defineExpose({ save, discard });
+async function reload() {
+  await load();
+  await loadOutline();
+}
+defineExpose({ save, discard, reload });
 </script>
 <template>
   <section class="large-workspace">

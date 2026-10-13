@@ -1,4 +1,7 @@
 import Fastify from 'fastify';
+import { statSync } from 'node:fs';
+import { join } from 'node:path';
+import { randomUUID } from 'node:crypto';
 import cookie from '@fastify/cookie';
 import csrf from '@fastify/csrf-protection';
 import multipart from '@fastify/multipart';
@@ -169,6 +172,23 @@ export async function createApp(config: AppConfig) {
     async (req) => {
       const b = req.body as { expectedModifiedAt?: unknown };
       const input = saveInput({ content: '', expectedModifiedAt: b?.expectedModifiedAt });
+      const revision = db
+        .prepare('SELECT file FROM revisions WHERE id=? AND note_id=?')
+        .get(req.params.revisionId, req.params.id) as { file: string } | undefined;
+      if (revision) {
+        const info = await knowledge.info(webPrincipal, req.params.id);
+        if (
+          info.editorMode !== 'full' ||
+          statSync(join(config.dataRoot, 'history', revision.file)).size > 1024 * 1024
+        )
+          return knowledge.files.restore(
+            webPrincipal,
+            req.params.id,
+            req.params.revisionId,
+            input.expectedModifiedAt,
+            typeof (b as any).requestId === 'string' ? (b as any).requestId : randomUUID(),
+          );
+      }
       return recovery.restoreRevision(
         req.params.id,
         req.params.revisionId,
@@ -233,7 +253,9 @@ export async function createApp(config: AppConfig) {
   app.setErrorHandler((err, req, reply) => {
     const error = err as Error & { statusCode?: number };
     const status =
-      error.statusCode && error.statusCode >= 400 && error.statusCode < 500
+      error.statusCode &&
+      error.statusCode >= 400 &&
+      (error.statusCode < 500 || error instanceof KnowledgeError)
         ? error.statusCode
         : 500;
     reply.code(status).send({
@@ -243,8 +265,10 @@ export async function createApp(config: AppConfig) {
     });
   });
   app.addHook('onClose', async () => {
+    knowledge.stopWatching();
     await knowledge.files.close();
     await knowledge.snapshots.close();
+    await knowledge.indexing.close();
     db.close();
   });
   return app;

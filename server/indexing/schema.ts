@@ -28,6 +28,11 @@ export function migrateKnowledge(db: AppDatabase) {
  `),
   )();
   const snapshotColumns = db.pragma('table_info(read_snapshots)') as { name: string }[];
+  const taskColumns = db.pragma('table_info(file_operations)') as { name: string }[];
+  if (!taskColumns.some((c) => c.name === 'snapshot_ref_released'))
+    db.exec(
+      'ALTER TABLE file_operations ADD COLUMN snapshot_ref_released INTEGER NOT NULL DEFAULT 0',
+    );
   if (!snapshotColumns.some((c) => c.name === 'source_key')) {
     db.exec("ALTER TABLE read_snapshots ADD COLUMN source_key TEXT NOT NULL DEFAULT 'live'");
     db.exec("UPDATE read_snapshots SET source_key=note_id WHERE source_key='live'");

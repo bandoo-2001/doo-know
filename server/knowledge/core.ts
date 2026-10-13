@@ -20,7 +20,13 @@ import type { AppDatabase } from '../db.js';
 import { safePath, validName, readDocument } from '../files.js';
 import { authorizePath } from '../agent/auth.js';
 import { fail } from './errors.js';
-import { beginOperation, existingResult, completeOperation, sha256 } from './operations.js';
+import {
+  beginOperation,
+  existingResult,
+  completeOperation,
+  sha256,
+  releaseSnapshotRef,
+} from './operations.js';
 import { observeSource } from '../indexing/state.js';
 import { hashFile } from './file-reader.js';
 export const webPrincipal: Principal = {
@@ -55,7 +61,7 @@ type Intent = {
 export function assertWritable(db: AppDatabase, noteId?: string) {
   if (
     (db.prepare('SELECT active FROM maintenance WHERE id=1').get() as any)?.active ||
-    db.prepare("SELECT 1 FROM sync_runs WHERE status='running'").get()
+    db.prepare("SELECT 1 FROM sync_runs WHERE status IN ('running','needs_reconciliation')").get()
   )
     fail(503, 'SYNC_IN_PROGRESS', '工作区维护中', true);
   if (
@@ -349,9 +355,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
                 intent.id,
               );
               db.prepare("UPDATE file_operations SET status='succeeded' WHERE id=?").run(intent.id);
-              db.prepare('UPDATE read_snapshots SET refs=max(0,refs-1) WHERE id=?').run(
-                job.snapshot_id,
-              );
+              releaseSnapshotRef(db, intent.id);
             }
             report.recovered++;
             continue;
