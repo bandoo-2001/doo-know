@@ -2,11 +2,11 @@
 
 个人 Markdown 笔记应用。Vue 3 / Naive UI / CodeMirror 6 界面，Fastify / Better Auth / SQLite 服务端。笔记正文以真实 `.md` 文件为准，网页手动保存，分享每次读取最新已保存文件。
 
-源码：`/home/bandoo/workspace/projects/doo-know-web/`。真实知识库尚未接入，未启用常驻服务或公网发布。
+源码：`/home/bandoo/workspace/projects/doo-know-web/`。本机已接入真实知识库并通过用户级 systemd 常驻运行；未发布到公网。实际发布入口、数据和恢复说明见[本机发布](docs/本机发布.md)。
 
 ## 本机预览
 
-当前预览：[http://127.0.0.1:5173/](http://127.0.0.1:5173/)。仅绑定回环地址。
+正式服务已占用本机5173端口，当前应用内入口为 [http://localhost:40521/](http://localhost:40521/)，仅转发回环服务。以下命令是独立示例库的开发方式，启动前应选取独立空闲端口。
 
 独立示例库：`/home/bandoo/.local/share/doo-know-web-demo/knowledge/`；数据库和历史在同级 `data/`，密钥在同级 `secrets/`。示例账号的登录信息保存在 `secrets/demo-login.txt`（600 权限），不写入源码或本文。可以用交互命令重新设置密码：
 
