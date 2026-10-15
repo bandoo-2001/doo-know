@@ -3,9 +3,9 @@ import { writeFile, utimes } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createFixture } from '../support/fixture.js';
 import { agentConfig, agentHeaders } from '../support/agent.js';
-import { openDatabase } from '../../server/db.js';
-import { observeSource } from '../../server/indexing/state.js';
-import { sha256 } from '../../server/knowledge/operations.js';
+import { openDatabase } from '../../packages/core/db.js';
+import { observeSource } from '../../packages/core/indexing/state.js';
+import { sha256 } from '../../packages/core/knowledge/operations.js';
 
 it('fetches complete bounded research objects, rejects stale versions and never truncates large objects', async () => {
   const f = await createFixture({ agent: agentConfig, indexing: { enabled: true, watch: false } });

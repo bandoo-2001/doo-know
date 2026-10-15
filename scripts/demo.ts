@@ -1,7 +1,7 @@
 import { mkdir, writeFile, access } from 'node:fs/promises';
 import { join } from 'node:path';
-import { loadConfig } from '../server/config.js';
-import { categories } from '../server/files.js';
+import { loadConfig } from '../apps/server/config.js';
+import { categories } from '../packages/core/files.js';
 const c = loadConfig();
 if (process.env.KNOWLEDGE_ROOT || process.env.NODE_ENV === 'production')
   throw new Error('示例初始化只使用默认独立示例库，拒绝写入自定义原文目录');

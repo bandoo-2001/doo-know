@@ -42,8 +42,8 @@ if (fault === 'bounded-read') {
   }) as typeof fs.copyFileSync;
 }
 syncBuiltinESMExports();
-const { openDatabase } = await import('../../server/db.js');
-const { mutationCore, webPrincipal } = await import('../../server/knowledge/core.js');
+const { openDatabase } = await import('../../packages/core/db.js');
+const { mutationCore, webPrincipal } = await import('../../packages/core/knowledge/core.js');
 const db = openDatabase(config.dataRoot);
 let error: unknown;
 try {

@@ -1,88 +1,89 @@
-# DooKnow Web
+# DooKnow
 
-个人 Markdown 笔记应用。Vue 3 / Naive UI / CodeMirror 6 界面，Fastify / Better Auth / SQLite 服务端。笔记正文以真实 `.md` 文件为准，网页手动保存，分享每次读取最新已保存文件。
+个人 Markdown 知识平台。Vue、Naive UI、CodeMirror 提供工作区，Fastify、Better Auth、SQLite 管理账号、笔记身份、历史、回收站和检索。Markdown 原文独立保存在主人选择的服务器目录中。
 
-源码：`/home/bandoo/workspace/projects/doo-know-web/`。本机已接入真实知识库并通过用户级 systemd 常驻运行；未发布到公网。实际发布入口、数据和恢复说明见[本机发布](docs/本机发布.md)。
+MCP 与 Git 是独立发布的官方插件：安装后动态登记设置页、文件标记、笔记操作和面板，无需重新构建宿主。首版一个主人、一个知识库；浏览与编辑不依赖模型下载成功。
 
-## 本机预览
-
-正式服务已占用本机5173端口，当前应用内入口为 [http://localhost:40521/](http://localhost:40521/)，仅转发回环服务。以下命令是独立示例库的开发方式，启动前应选取独立空闲端口。
-
-独立示例库：`/home/bandoo/.local/share/doo-know-web-demo/knowledge/`；数据库和历史在同级 `data/`，密钥在同级 `secrets/`。示例账号的登录信息保存在 `secrets/demo-login.txt`（600 权限），不写入源码或本文。可以用交互命令重新设置密码：
+## 安装
 
 ```bash
-cd /home/bandoo/workspace/projects/doo-know-web
-npm run account -- reset
+curl -fsSL '<受控安装源>/install.sh' | bash
+# 或 wget -qO- '<受控安装源>/install.sh' | bash
 ```
 
-重新启动或在另一台主机运行：
+首版支持 Linux x86_64、glibc、systemd 用户服务，验收 Ubuntu 22.04+、Debian 12+。发行包自带固定 Node 和生产依赖，无需 Docker、全局 Node/Python、编译器或 sudo。源码和制品继续私有，`<受控安装源>` 必须使用实际配置的制品地址。
+
+安装时输入初始用户名与隐藏密码。登录后选择服务器知识库目录和时区，再按需安装 MCP、Git 或准备本地检索。默认只监听 `127.0.0.1:5173`；不会自动生成资料分类或启用外部连接。
+
+```bash
+dooknow status
+dooknow doctor
+dooknow start                 # stop / restart
+dooknow update               # rollback
+dooknow backup --destination '/受控目录/knowledge.dooknow'
+dooknow reset-password
+```
+
+完整目录、安装参数、加密备份、空目录恢复、升级与卸载说明见[原生安装与恢复](docs/原生安装与恢复.md)。真实环境接管和历史部署信息见[本机发布](docs/本机发布.md)；开发代码使用隔离 worktree，不直接作为常驻发行目录。
+
+## 工作区与插件
+
+- 浏览、搜索、编辑、预览和分屏；保存按钮或 Ctrl/Cmd+S 写回原文。外部修改导致版本冲突时保留草稿并提示核对。
+- 历史、回收站、分页大文件阅读与片段编辑。恢复保留笔记 ID，引用、索引和历史继续关联；正文默认不自动保存。
+- 分享读取最新已保存正文；附件验证类型、大小和实际引用，公开入口不提供私人目录与历史。
+- MCP 插件提供 ChatGPT 工具、OAuth 授权、独立 Tunnel Bearer 兼容入口、客户端撤销及调用观察。写权限和目录范围由主人配置；调用记录默认不含查询、正文或令牌。
+- Git 插件提供文件状态、分页历史、受限差异、保留笔记身份的单文件恢复，以及全量提交预览与确认。需要系统 Git ≥ 2.39，不自动安装依赖；不提供 push 或整库 reset。
+- 本地检索按需下载校验固定 CPython、CPU wheelhouse 和模型，在最终路径创建环境，完成后离线运行。就绪状态明确区分 tokenizer 与向量组件，保留 strict/semantic 请求要求。
+
+首版只接受可信官方插件，同进程 SDK 是职责边界，不能隔离任意第三方代码。任意代码市场、多用户、定期总结、自动推送和跨平台安装留待后续版本。
+
+## 源码结构
+
+```text
+doo-know/
+├── apps/server/              # 认证、控制面、固定路由、生命周期与发行运维
+├── apps/web/                 # 工作区、设置和动态扩展容器
+├── packages/core/            # 原文、权限、身份、历史、文件任务与检索
+├── packages/plugin-contracts/
+├── packages/plugin-sdk/
+├── packages/plugin-ui/
+├── plugins/mcp/              # 独立服务端与浏览器插件包
+├── plugins/git/
+└── runtime/vector-service/   # 可选本地检索的运行源码
+```
+
+```mermaid
+flowchart TB
+  UI[Web 工作区与设置] --> Host[固定 API / 插件宿主]
+  Host --> Core[核心：原文、身份、历史、任务、检索]
+  Host --> MCP[MCP 官方插件]
+  Host --> Git[Git 官方插件]
+  MCP --> SDK[宿主 SDK]
+  Git --> SDK
+  SDK --> Core
+  Core --> Raw[独立 Markdown 目录]
+  Core --> Data[SQLite / 历史 / 可重建索引]
+```
+
+[插件 API](docs/plugin-api.md)说明清单、配置 schema、六个扩展点和固定调用入口。插件资源带版本/hash，Vue 和 UI SDK 由宿主共享。插件配置在服务端校验，敏感值保存在受控文件中，浏览器只获得配置状态。
+
+## 开发与验证
+
+开发 Node.js ≥ 22.22.1，使用锁定依赖和独立资料目录、数据库、端口及密钥。
 
 ```bash
 npm ci
 npm run demo
-npm run account -- init   # 仅首次；在本机终端输入用户名与密码
-npm run dev
-```
-
-`npm run demo` 只初始化默认独立示例库，不覆盖已有文件，不允许对自定义 KNOWLEDGE_ROOT 执行。`npm run dev` 启动 API（127.0.0.1:3010）与 Vite（127.0.0.1:5173）。生产部署不要运行 Vite。
-
-## 使用
-
-- 搜索位于新建笔记上方。左侧展开目录即可直接选文件；点击文件夹在同一主区浏览目录。
-- 编辑、预览和分屏；保存按钮或 Ctrl/Cmd+S 写回文件。未保存正文不自动写入文件或浏览器持久存储。
-- 原文件修改时间变化时返回冲突。取消保留编辑；确认使用最新时间再次检查。外部再次变化会再次提示。
-- 分享窗口支持生成、复制、重置、取消。已分享笔记会持续提示保存后同步公开。未保存输入不会公开。
-- 插入图片/PDF 后仍需手动保存。文件保存在该笔记目录的 assets 下；链接使用相对路径。只允许 PNG、JPEG、GIF、WebP、PDF，最多 10 MiB，并验证实际文件签名。
-- 历史版本可查看和恢复；恢复同样检查版本。删除移入 `90-Archive/.trash/<note-id>/`，分享停用；恢复保持私有，同名占用不覆盖。
-- 手机使用导航抽屉，选择文件后收起；分屏在窄屏上下排列。
-- 设置中修改密码、退出。忘记密码通过本机 `npm run account -- reset` 重置并撤销所有会话。无注册入口。
-
-## 配置与生产构建
-
-Node.js ≥22.12（本机 22.22.1）。依赖由 package-lock.json 固定。复制 `.env.example` 为未提交的 `.env`，或使用受控 EnvironmentFile；按实际路径填入：
-
-| 配置 | 用途 |
-| --- | --- |
-| KNOWLEDGE_ROOT | 明确授权的原文目录，服务有受限读写权限 |
-| DATA_ROOT | SQLite 与 history 独立数据目录 |
-| AUTH_SECRET_FILE | 至少 32 字符的密钥文件，权限 600 |
-| APP_ORIGIN | 精确来源，如 https://notes.example.invalid，不含路径 |
-| HOST / PORT | 默认 127.0.0.1 / 3010 |
-| NODE_ENV | 生产设为 production，强制明确上述四项配置 |
-
-```bash
-npm run typecheck
-npm run build
-npm start
-```
-
-构建输出 `dist/web` 与 `dist/server`，其中不包含笔记正文、运行数据库或密钥。生产通过 Fastify 提供界面和 API。私人 API 逐次验证数据库会话；会话 24 小时，不使用 Cookie 会话缓存。业务写操作检查精确 Origin 与 CSRF。认证入口只开放用户名登录、会话查询、退出和修改密码，并保留 Better Auth 的来源防护。登录限流持久化在数据库。
-
-文件扫描仅管理八个分类下的 Markdown 与根 README，排除 AGENTS、隐藏目录、assets、软链接和共享硬链接。浏览器预览禁用原始 HTML 并用 DOMPurify 清理；公开 HTML 经 sanitize-html 清理。分享只读，无私人树、搜索或历史；附件逐次检查是否被当前原文引用。内容响应 no-store；公开阅读 noindex、no-referrer。远程图片不直接加载，避免第三方追踪私人笔记。
-
-## 验证
-
-```bash
-npm run test
+npm run account -- init       # 本机终端输入示例库账号
+npm run dev                  # 独立 API 与 Vite，勿与正式端口冲突
+npm test
 npm run test:e2e
 npm run typecheck
 npm run build
 ```
 
-接口测试使用临时库与临时 SQLite，浏览器测试按桌面/手机分别启动独立隔离库与 4179/4180 端口，不作用于真实知识库。Chromium 使用 Playwright；本机缺失的测试库仅解包在忽略的 `.local/browser-deps/`，由测试启动器加载。其他主机若浏览器库齐全，直接 `npx playwright install chromium` 后运行即可；需要系统库时按主机已有管理方式补齐。
+构建输出 `dist/web` 和 `dist/server`；管理入口固定为 `dist/server/scripts/manage.js`。生产由 Fastify 提供编译资源，不能暴露源码、数据库或原文目录。浏览器测试使用 4179/4180 的临时库；本机已有浏览器依赖通过忽略的 `.local/browser-deps/` 加载，不自动安装系统包。
 
-测试证据与实际截图见 [验收记录](docs/验收记录.md)。测试运行输出与 trace 在忽略的 test-results 中；不将会话、分享令牌或私人正文放入交付文档。
+传统机器 API 与既有笔记、文件、分享接口继续保留。契约和恢复背景见[机器 API](docs/机器API.md)、[索引运维](docs/MCP与索引运维.md)、[检索实测](docs/MCP性能评测.md)。[平台计划](docs/superpowers/plans/2026-10-15-doo-know-platform.md)记录交付范围；测试与真实切换结果按实际版本另记，不沿用历史验收结论。
 
-## 自托管与恢复
-
-[部署与恢复说明](docs/部署与恢复.md)；模板在 [deploy](deploy/)。提供 systemd、Docker/Compose、Caddy HTTPS 模板，尚未在主机上启用。部署配置以本项目模板为来源，发布到 `/srv/stacks/knowledge/doo-know-web/` 后通过明确版本维护，不把开发工作目录作为常驻发布目录。
-
-生产产物还提供 `account:prod`、`backup:prod`、`restore:prod`，可直接由 Node 运行，容器用法见部署说明。
-
-第一版不包含自动保存、批量移动/重命名、多账号、注册、会员或广告。外部编辑器不参与应用写入锁；应用写入使用 mtimeNs、快照哈希与版本核对，完整哈希周期检测保留 mtime/size 的修改，不能保证不合作的外部编辑器与提交之间实时互斥。
-
-## MCP 与本地检索扩展
-
-功能分支 `codex/doo-know-mcp` 提供中文全文、本地 BGE CPU embedding、`flat_file` 向量与混合检索，持久任务/文件和 Git 核对，以及最大 20 MiB Markdown 的片段编辑、分页分享和恢复。普通查询复用索引；向量服务离线时全文仍可用。独立 [doo-know-bridge](https://github.com/bandoo-2001/doo-know-bridge) 只调用受保护的机器 API，提供 MCP、等价 REST、OpenAPI 与外部 OAuth/Bearer 授权。
-
-入口：[接口契约](docs/机器API.md)、[运维与恢复](docs/MCP与索引运维.md)、[开发验证](docs/MCP与索引开发记录.md)、[实测性能与质量限制](docs/MCP性能评测.md)。模型需要显式准备，运行时纯本地；权重、索引、数据库和真实凭据不提交。完整 CPU 检索采用 native 模板，现有 Node Docker 模板只提供 Web，容器构建尚未验证。当前任务未连接真实知识库、安装常驻服务或接入真实远程客户端。
+标准 ChatGPT OAuth 需要浏览器可达的 HTTPS 授权站点和 MCP 地址；未配置时插件显示连接条件未满足，知识库仍可使用。本地协议测试不能代替真实客户端接入验收。

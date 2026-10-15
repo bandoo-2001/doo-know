@@ -1,7 +1,7 @@
-import { loadConfig } from '../server/config.js';
-import { openDatabase } from '../server/db.js';
-import { reconcileService } from '../server/indexing/reconcile.js';
-import { syncService } from '../server/indexing/sync.js';
+import { loadConfig } from '../apps/server/config.js';
+import { openDatabase } from '../packages/core/db.js';
+import { reconcileService } from '../packages/core/indexing/reconcile.js';
+import { syncService } from '../packages/core/indexing/sync.js';
 const config = loadConfig(),
   db = openDatabase(config.dataRoot),
   indexing = reconcileService(config, db);

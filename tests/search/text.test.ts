@@ -4,10 +4,10 @@ import { join } from 'node:path';
 import { createFixture } from '../support/fixture.js';
 import { readyRead } from '../support/read.js';
 import { agentConfig, agentHeaders } from '../support/agent.js';
-import { openDatabase } from '../../server/db.js';
-import { TokenizerClient } from '../../server/indexing/tokenizer-client.js';
-import { chunkService } from '../../server/indexing/chunks.js';
-import { textIndexService } from '../../server/indexing/text.js';
+import { openDatabase } from '../../packages/core/db.js';
+import { TokenizerClient } from '../../packages/core/indexing/tokenizer-client.js';
+import { chunkService } from '../../packages/core/indexing/chunks.js';
+import { textIndexService } from '../../packages/core/indexing/text.js';
 it('indexes Chinese short terms, phrases and identifiers without permitting query syntax or prefix lookalike escapes', async () => {
   const f = await createFixture({ agent: agentConfig }),
     tokenizer = new TokenizerClient(),

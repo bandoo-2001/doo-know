@@ -3,8 +3,8 @@ import { join } from 'node:path';
 import { readFileSync } from 'node:fs';
 import { createFixture } from '../support/fixture.js';
 import { agentConfig, agentHeaders } from '../support/agent.js';
-import { openDatabase } from '../../server/db.js';
-import { createApp } from '../../server/app.js';
+import { openDatabase } from '../../packages/core/db.js';
+import { createApp } from '../../apps/server/app.js';
 const faults = vi.hoisted(() => ({ point: '' }));
 vi.mock('node:fs', async (original) => {
   const fs = await original<typeof import('node:fs')>();

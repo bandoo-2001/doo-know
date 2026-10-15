@@ -1,8 +1,8 @@
 import { it, expect } from 'vitest';
 import { createFixture, loginFixtureOwner } from './support/fixture.js';
-import { openDatabase } from '../server/db.js';
-import { oauthGrantStore } from '../server/platform/oauth-grants.js';
-import { resetOwnerPassword } from '../server/auth.js';
+import { openDatabase } from '../packages/core/db.js';
+import { oauthGrantStore } from '../apps/server/platform/oauth-grants.js';
+import { resetOwnerPassword } from '../apps/server/auth.js';
 it('binds an immutable grant version to an authorization and rejects old refresh references after reconsent', async () => {
   const f = await createFixture(); const db = openDatabase(f.dataRoot);
   try {

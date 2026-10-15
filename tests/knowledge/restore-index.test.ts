@@ -4,9 +4,9 @@ import { writeFile, readFile } from 'node:fs/promises';
 import { createFixture, loginFixtureOwner } from '../support/fixture.js';
 import { agentConfig, agentHeaders } from '../support/agent.js';
 import { readyRead } from '../support/read.js';
-import { backup, restore } from '../../server/backup.js';
-import { createApp } from '../../server/app.js';
-import { openDatabase } from '../../server/db.js';
+import { backup, restore } from '../../apps/server/backup.js';
+import { createApp } from '../../apps/server/app.js';
+import { openDatabase } from '../../packages/core/db.js';
 
 it('restores original/history bytes and rebuilds derived state with a new source identity while rejecting old machine tokens', async () => {
   const f = await createFixture({ agent: agentConfig, indexing: { enabled: true, watch: false } });

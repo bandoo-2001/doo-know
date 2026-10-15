@@ -1,7 +1,7 @@
-import { loadConfig } from '../server/config.js';
-import { openDatabase } from '../server/db.js';
-import { reconcileService } from '../server/indexing/reconcile.js';
-import { indexJobService } from '../server/indexing/jobs.js';
+import { loadConfig } from '../apps/server/config.js';
+import { openDatabase } from '../packages/core/db.js';
+import { reconcileService } from '../packages/core/indexing/reconcile.js';
+import { indexJobService } from '../packages/core/indexing/jobs.js';
 const allowed = new Set(['--full-hash', '--retry-failed', '--rebuild-text', '--rebuild-vector']);
 if (process.argv.slice(2).some((flag) => !allowed.has(flag)) || process.argv.length < 3)
   throw new Error(

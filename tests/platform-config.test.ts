@@ -2,7 +2,7 @@ import { it, expect } from 'vitest';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { loadHostConfig } from '../server/platform/config.js';
+import { loadHostConfig } from '../apps/server/platform/config.js';
 it('loads an explicit profile without a knowledge root and resolves command over environment over profile', () => {
   const root = mkdtempSync(join(tmpdir(), 'dooknow-config-'));
   try {

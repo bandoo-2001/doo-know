@@ -3,7 +3,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createFixture } from '../support/fixture.js';
 import { agentConfig, agentHeaders } from '../support/agent.js';
-import { openDatabase } from '../../server/db.js';
+import { openDatabase } from '../../packages/core/db.js';
 it('persists write deduplication and rejects requestId/body and nanosecond version conflicts', async () => {
   const f = await createFixture({ agent: agentConfig });
   try {

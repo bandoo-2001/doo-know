@@ -2,7 +2,7 @@ import { it, expect, vi } from 'vitest';
 import { writeFile, chmod } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createFixture } from '../support/fixture.js';
-import { loadConfig } from '../../server/config.js';
+import { loadConfig } from '../../apps/server/config.js';
 it('loads machine credentials from private external files and rejects unsafe policy permissions', async () => {
   const f = await createFixture();
   try {

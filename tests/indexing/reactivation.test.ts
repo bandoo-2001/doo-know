@@ -5,7 +5,7 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { createFixture, loginFixtureOwner } from '../support/fixture.js';
 import { agentConfig, agentHeaders } from '../support/agent.js';
-import { openDatabase } from '../../server/db.js';
+import { openDatabase } from '../../packages/core/db.js';
 const exec = promisify(execFile);
 it.each(['archive', 'git-conflict'])(
   'rebuilds identical original bytes after %s and strict search cannot report empty-ready',

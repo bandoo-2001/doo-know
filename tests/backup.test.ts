@@ -2,7 +2,7 @@ import { it, expect } from 'vitest';
 import { join } from 'node:path';
 import { readFile } from 'node:fs/promises';
 import { createFixture, loginFixtureOwner, origin, testPassword } from './support/fixture.js';
-import { createApp } from '../server/app.js';
+import { createApp } from '../apps/server/app.js';
 it('consistent backup restores note bytes/history/account but revokes sessions and shares', async () => {
   const f = await createFixture();
   try {
@@ -32,7 +32,7 @@ it('consistent backup restores note bytes/history/account but revokes sessions a
       })
     ).json();
     await f.app.close();
-    const { backup, restore } = await import('../server/backup.js');
+    const { backup, restore } = await import('../apps/server/backup.js');
     const destination = join(f.root, 'backup'),
       targetKnowledge = join(f.root, 'restored-knowledge'),
       targetData = join(f.root, 'restored-data');

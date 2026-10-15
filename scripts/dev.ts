@@ -1,6 +1,6 @@
 import { spawn } from 'node:child_process';
-import { loadConfig } from '../server/config.js';
-import { createApp } from '../server/app.js';
+import { loadConfig } from '../apps/server/config.js';
+import { createApp } from '../apps/server/app.js';
 const config = loadConfig();
 config.staticRoot = undefined;
 const app = await createApp(config);

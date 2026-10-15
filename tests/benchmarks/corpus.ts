@@ -1,14 +1,14 @@
 import { mkdir, open, stat, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
-import type { openDatabase } from '../../server/db.js';
-import type { registerAgentRoutes } from '../../server/agent/routes.js';
-import { sha256 } from '../../server/knowledge/operations.js';
-import { hashFile, writeAll } from '../../server/knowledge/file-reader.js';
+import type { openDatabase } from '../../packages/core/db.js';
+import type { registerAgentRoutes } from '../../apps/server/agent/routes.js';
+import { sha256 } from '../../packages/core/knowledge/operations.js';
+import { hashFile, writeAll } from '../../packages/core/knowledge/file-reader.js';
 import { syntheticFixture, type BenchmarkDocument } from './fixtures.js';
 import { ResourceMonitor } from './support.js';
 import type { AppConfig } from '../../shared/contracts.js';
-import type { IndexedChunk } from '../../server/indexing/chunks.js';
+import type { IndexedChunk } from '../../packages/core/indexing/chunks.js';
 
 export const noise = [
   '兰花适合通风的窗台，盆土微湿，观察叶片颜色。',

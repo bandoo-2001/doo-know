@@ -4,8 +4,8 @@ import { existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { spawn } from 'node:child_process';
 import { createFixture, loginFixtureOwner } from '../support/fixture.js';
-import { openDatabase } from '../../server/db.js';
-import { createApp } from '../../server/app.js';
+import { openDatabase } from '../../packages/core/db.js';
+import { createApp } from '../../apps/server/app.js';
 for (const stage of ['intent', 'copy', 'publish', 'db-update', 'unlink', 'commit'])
   it(`W03 replays restore after process exit at ${stage}`, async () => {
     const f = await createFixture();

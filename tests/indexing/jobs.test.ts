@@ -1,8 +1,8 @@
 import {it,expect} from 'vitest';
 import {createFixture} from '../support/fixture.js';
-import {openDatabase} from '../../server/db.js';
-import {observeSource} from '../../server/indexing/state.js';
-import {indexJobService} from '../../server/indexing/jobs.js';
+import {openDatabase} from '../../packages/core/db.js';
+import {observeSource} from '../../packages/core/indexing/state.js';
+import {indexJobService} from '../../packages/core/indexing/jobs.js';
 it('deduplicates versions and fences expired leases including A to B to A content',async()=>{
  const f=await createFixture(),db=openDatabase(f.dataRoot);try{
   let now=1000;const jobs=indexJobService(db,{now:()=>now,random:()=>0,spaceId:'space-a'});db.prepare('INSERT INTO notes(id,path) VALUES(?,?)').run('note','00-Inbox/n.md');

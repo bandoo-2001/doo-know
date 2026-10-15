@@ -2,7 +2,7 @@ import { it, expect } from 'vitest';
 import { writeFile, readFile, mkdir, rename } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createFixture, loginFixtureOwner } from './support/fixture.js';
-import { createApp } from '../server/app.js';
+import { createApp } from '../apps/server/app.js';
 it('keeps old bytes and restores history using checked current version', async () => {
   const f = await createFixture();
   try {

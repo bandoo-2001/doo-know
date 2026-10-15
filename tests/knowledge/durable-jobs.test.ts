@@ -4,8 +4,8 @@ import { join } from 'node:path';
 import { createFixture } from '../support/fixture.js';
 import { readyRead } from '../support/read.js';
 import { agentConfig, agentHeaders } from '../support/agent.js';
-import { createApp } from '../../server/app.js';
-import { openDatabase } from '../../server/db.js';
+import { createApp } from '../../apps/server/app.js';
+import { openDatabase } from '../../packages/core/db.js';
 it.each(['restart', 'cancel', 'deadline'])(
   'retains queued patch evidence across %s without duplicate writes',
   async (action) => {

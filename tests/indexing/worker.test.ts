@@ -4,12 +4,12 @@ import { join } from 'node:path';
 import { createFixture } from '../support/fixture.js';
 import { startVectorRuntime } from '../support/vector-runtime.js';
 import { agentConfig, agentHeaders } from '../support/agent.js';
-import { openDatabase } from '../../server/db.js';
-import { noteService } from '../../server/notes.js';
-import { snapshotService } from '../../server/knowledge/snapshots.js';
-import { reconcileService } from '../../server/indexing/reconcile.js';
-import { indexWorker } from '../../server/indexing/worker.js';
-import { createApp } from '../../server/app.js';
+import { openDatabase } from '../../packages/core/db.js';
+import { noteService } from '../../packages/core/notes.js';
+import { snapshotService } from '../../packages/core/knowledge/snapshots.js';
+import { reconcileService } from '../../packages/core/indexing/reconcile.js';
+import { indexWorker } from '../../packages/core/indexing/worker.js';
+import { createApp } from '../../apps/server/app.js';
 it('rebuilds lexical chunk identities when enabling vectors after a text-only index', async () => {
   const f = await createFixture({ agent: agentConfig });
   let runtime: Awaited<ReturnType<typeof startVectorRuntime>> | undefined,

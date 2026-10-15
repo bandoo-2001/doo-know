@@ -5,9 +5,9 @@ import { createHash } from 'node:crypto';
 import { createFixture } from '../support/fixture.js';
 import { readyRead } from '../support/read.js';
 import { agentConfig, agentHeaders } from '../support/agent.js';
-import { openDatabase } from '../../server/db.js';
-import { TokenizerClient } from '../../server/indexing/tokenizer-client.js';
-import { chunkService } from '../../server/indexing/chunks.js';
+import { openDatabase } from '../../packages/core/db.js';
+import { TokenizerClient } from '../../packages/core/indexing/tokenizer-client.js';
+import { chunkService } from '../../packages/core/indexing/chunks.js';
 it('covers a real 20 MiB UTF-8 long line with bounded incremental chunks and exact head/tail bytes', async () => {
   const f = await createFixture({ agent: agentConfig }),
     db = openDatabase(f.dataRoot),

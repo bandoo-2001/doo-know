@@ -2,7 +2,7 @@ import { it, expect } from 'vitest';
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createFixture, loginFixtureOwner } from '../support/fixture.js';
-import { openDatabase } from '../../server/db.js';
+import { openDatabase } from '../../packages/core/db.js';
 it('stops an authenticated bounded-buffer download after its browser session is revoked', async () => {
   const f = await createFixture();
   try {

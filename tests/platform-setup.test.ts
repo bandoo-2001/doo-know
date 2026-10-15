@@ -2,9 +2,9 @@ import { it, expect } from 'vitest';
 import { mkdtemp, mkdir, rm, rename, symlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { createApp } from '../server/app.js';
-import { initializeOwner } from '../server/auth.js';
-import { openDatabase } from '../server/db.js';
+import { createApp } from '../apps/server/app.js';
+import { initializeOwner } from '../apps/server/auth.js';
+import { openDatabase } from '../packages/core/db.js';
 import { testPassword } from './support/credentials.js';
 
 async function fresh() {

@@ -1,8 +1,8 @@
 import { it, expect } from 'vitest';
 import { createFixture } from '../support/fixture.js';
-import { openDatabase } from '../../server/db.js';
-import { mutationCore, webPrincipal } from '../../server/knowledge/core.js';
-import { beginOperation, sha256 } from '../../server/knowledge/operations.js';
+import { openDatabase } from '../../packages/core/db.js';
+import { mutationCore, webPrincipal } from '../../packages/core/knowledge/core.js';
+import { beginOperation, sha256 } from '../../packages/core/knowledge/operations.js';
 it('does not reconcile another live committing worker and settles an expired unapplied intent once', async () => {
   const f = await createFixture(),
     db = openDatabase(f.dataRoot);

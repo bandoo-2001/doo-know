@@ -2,9 +2,9 @@ import { randomBytes } from 'node:crypto';
 import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { homedir } from 'node:os';
-import { loadConfig } from '../server/config.js';
-import { initializeOwner } from '../server/auth.js';
-import { openDatabase } from '../server/db.js';
+import { loadConfig } from '../apps/server/config.js';
+import { initializeOwner } from '../apps/server/auth.js';
+import { openDatabase } from '../packages/core/db.js';
 if (process.env.KNOWLEDGE_ROOT || process.env.NODE_ENV === 'production')
   throw new Error('仅允许隔离示例库');
 const config = loadConfig();

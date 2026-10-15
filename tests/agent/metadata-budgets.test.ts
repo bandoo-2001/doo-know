@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { createFixture } from '../support/fixture.js';
 import { agentConfig, agentHeaders } from '../support/agent.js';
 import { readyRead } from '../support/read.js';
-import { messageSize } from '../../server/knowledge/limits.js';
+import { messageSize } from '../../packages/core/knowledge/limits.js';
 it('shrinks metadata and outline pages using the complete compatibility response budget', async () => {
   const f = await createFixture({ agent: agentConfig });
   try {

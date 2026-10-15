@@ -4,8 +4,8 @@ import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { createServer } from 'vite';
-import { createApp } from '../../server/app.js';
-import { initializeOwner } from '../../server/auth.js';
+import { createApp } from '../../apps/server/app.js';
+import { initializeOwner } from '../../apps/server/auth.js';
 import { testPassword } from './credentials.js';
 import { pathToFileURL } from 'node:url';
 // @ts-expect-error build tool is plain ESM

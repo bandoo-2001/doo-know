@@ -65,10 +65,10 @@ async function childMode(mode: 'worker' | 'gateway', root: string) {
   if (mode === 'worker') {
     const [{ openDatabase }, { noteService }, { snapshotService }, { fileJobService }] =
       await Promise.all([
-        import('../server/db.js'),
-        import('../server/notes.js'),
-        import('../server/knowledge/snapshots.js'),
-        import('../server/knowledge/file-jobs.js'),
+        import('../packages/core/db.js'),
+        import('../packages/core/notes.js'),
+        import('../packages/core/knowledge/snapshots.js'),
+        import('../packages/core/knowledge/file-jobs.js'),
       ]);
     const config = {
         knowledgeRoot: join(root, 'knowledge'),
@@ -237,10 +237,10 @@ async function main() {
     return;
   }
   const [{ createApp }, { agentHeaders }, { messageSize }, { hashFile }] = await Promise.all([
-    import('../server/app.js'),
+    import('../apps/server/app.js'),
     import('../tests/support/agent.js'),
-    import('../server/knowledge/limits.js'),
-    import('../server/knowledge/file-reader.js'),
+    import('../packages/core/knowledge/limits.js'),
+    import('../packages/core/knowledge/file-reader.js'),
   ]);
   const app = await createApp({
     ...run,

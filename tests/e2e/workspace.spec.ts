@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { testPassword } from '../support/credentials.js';
 test('login and two-column workspace with manual Markdown editing', async ({ page }, info) => {
   await page.goto('/');
-  for (const path of ['server/auth.ts', '.local/e2e-cookies.json']) {
+  for (const path of ['apps/server/auth.ts', 'packages/core/db.ts', '.local/e2e-cookies.json']) {
     expect((await page.request.get('/@fs/' + process.cwd() + '/' + path)).status()).toBe(403);
   }
   await page.getByLabel('用户名', { exact: true }).waitFor();

@@ -1,9 +1,9 @@
 import { it, expect } from 'vitest';
 import { createHash, randomBytes } from 'node:crypto';
 import { createFixture, loginFixtureOwner } from './support/fixture.js';
-import { openDatabase } from '../server/db.js';
-import { createAuth } from '../server/auth.js';
-import { approveOAuthConsent, verifyMcpBearer, revokeOAuthClient } from '../server/platform/oauth.js';
+import { openDatabase } from '../packages/core/db.js';
+import { createAuth } from '../apps/server/auth.js';
+import { approveOAuthConsent, verifyMcpBearer, revokeOAuthClient } from '../apps/server/platform/oauth.js';
 it('runs real DCR, PKCE, owner consent, signed JWT, refresh and immediate grant revocation', async () => {
   const f = await createFixture(); const db = openDatabase(f.dataRoot);
   try {

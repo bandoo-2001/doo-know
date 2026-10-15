@@ -4,10 +4,11 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "outDir": "dist/server",
-    "noEmit": false
+    "noEmit": false,
+    "rootDir": "."
   },
   "include": [
-    "server/**/*.ts",
+    "apps/server/**/*.ts",
     "shared/**/*.ts",
     "scripts/account.ts",
     "scripts/manage.ts",
@@ -16,10 +17,14 @@
     "scripts/git-sync.ts",
     "scripts/file-worker.ts",
     "scripts/index-worker.ts",
-    "scripts/index-maintain.ts"
+    "scripts/index-maintain.ts",
+    "packages/core/**/*.ts",
+    "scripts/rebind-root.ts",
+    "scripts/adopt-bridge.ts",
+    "scripts/serve-artifacts.ts"
   ],
   "exclude": [
-    "web",
+    "apps/web",
     "tests"
   ]
 }

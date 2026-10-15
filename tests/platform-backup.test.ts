@@ -4,11 +4,11 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createFixture, loginFixtureOwner } from './support/fixture.js';
 import { pluginFixture } from './support/plugin-fixture.js';
-import { openDatabase } from '../server/db.js';
-import { oauthGrantStore } from '../server/platform/oauth-grants.js';
-import { loadHostConfig } from '../server/platform/config.js';
-import { createApp } from '../server/app.js';
-import { createPlatformBackup, restorePlatformBackup } from '../server/platform/backups.js';
+import { openDatabase } from '../packages/core/db.js';
+import { oauthGrantStore } from '../apps/server/platform/oauth-grants.js';
+import { loadHostConfig } from '../apps/server/platform/config.js';
+import { createApp } from '../apps/server/app.js';
+import { createPlatformBackup, restorePlatformBackup } from '../apps/server/platform/backups.js';
 it('encrypts the complete backup and restores a new bound root with stable note identity and revoked sessions, shares, grants and process ownership', async () => {
   const root = await mkdtemp(join(tmpdir(), 'encrypted-backup-')),
     entry = await pluginFixture(root),

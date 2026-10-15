@@ -3,7 +3,7 @@ import { readFile, mkdir, copyFile, readdir, writeFile } from 'node:fs/promises'
 import { resolve, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { createFixture, loginFixtureOwner } from './support/fixture.js';
-import { createApp } from '../server/app.js';
+import { createApp } from '../apps/server/app.js';
 const artifact = process.env.DOOKNOW_SEARCH_ARTIFACT;
 it.skipIf(!artifact)(
   'installs the actual bundled CPython/CPU wheels and model offline at final paths, keeps editing available, and starts again offline',

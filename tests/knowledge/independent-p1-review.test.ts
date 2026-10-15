@@ -1,9 +1,9 @@
 import { it, expect, vi } from 'vitest';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import * as files from '../../server/files.js';
-import { HttpError } from '../../server/errors.js';
-import { KnowledgeError } from '../../server/knowledge/errors.js';
+import * as files from '../../packages/core/files.js';
+import { HttpError } from '../../packages/core/errors.js';
+import { KnowledgeError } from '../../packages/core/knowledge/errors.js';
 import { createFixture, loginFixtureOwner } from '../support/fixture.js';
 
 // Losing threshold classification must fail the boundary cases below.

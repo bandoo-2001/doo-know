@@ -1,10 +1,10 @@
 import { setTimeout as delay } from 'node:timers/promises';
-import { loadConfig } from '../server/config.js';
-import { openDatabase } from '../server/db.js';
-import { noteService } from '../server/notes.js';
-import { mutationCore } from '../server/knowledge/core.js';
-import { snapshotService } from '../server/knowledge/snapshots.js';
-import { fileJobService } from '../server/knowledge/file-jobs.js';
+import { loadConfig } from '../apps/server/config.js';
+import { openDatabase } from '../packages/core/db.js';
+import { noteService } from '../packages/core/notes.js';
+import { mutationCore } from '../packages/core/knowledge/core.js';
+import { snapshotService } from '../packages/core/knowledge/snapshots.js';
+import { fileJobService } from '../packages/core/knowledge/file-jobs.js';
 const config = { ...loadConfig(), fileTasks: { embedded: true } },
   db = openDatabase(config.dataRoot,'file-worker'),
   notes = noteService(config, db),

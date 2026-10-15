@@ -2,10 +2,10 @@ import { it, expect } from 'vitest';
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createFixture } from '../support/fixture.js';
-import { openDatabase } from '../../server/db.js';
-import { noteService } from '../../server/notes.js';
-import { snapshotService } from '../../server/knowledge/snapshots.js';
-import { webPrincipal } from '../../server/knowledge/core.js';
+import { openDatabase } from '../../packages/core/db.js';
+import { noteService } from '../../packages/core/notes.js';
+import { snapshotService } from '../../packages/core/knowledge/snapshots.js';
+import { webPrincipal } from '../../packages/core/knowledge/core.js';
 it('releases internal indexing snapshots and adopts those actually opened by an authorized reader', async () => {
   const f = await createFixture(),
     db = openDatabase(f.dataRoot),

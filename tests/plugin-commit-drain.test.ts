@@ -5,8 +5,8 @@ import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { pluginFixture } from './support/plugin-fixture.js';
 import { pluginRuntimeFixture } from './support/plugin-runtime.js';
-import { pluginHost } from '../server/plugins/host.js';
-import { pluginServices } from '../server/plugins/services.js';
+import { pluginHost } from '../apps/server/plugins/host.js';
+import { pluginServices } from '../apps/server/plugins/services.js';
 it('rejects new calls during stopping while letting an owner request already committing finish its write', async () => {
   const f = await pluginRuntimeFixture(),
     entry = await pluginFixture(f.root);

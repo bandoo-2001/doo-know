@@ -91,7 +91,7 @@ it('local password reset revokes sessions and prevents a second owner', async ()
   const f = await createFixture();
   try {
     const h = await loginFixtureOwner(f);
-    const { resetOwnerPassword, initializeOwner } = await import('../server/auth.js');
+    const { resetOwnerPassword, initializeOwner } = await import('../apps/server/auth.js');
     await expect(initializeOwner(f.config, 'second', testPassword)).rejects.toThrow('账号已存在');
     await resetOwnerPassword(f.config, 'New-Fixture-Password-123');
     expect((await f.app.inject({ url: '/api/tree', headers: h })).statusCode).toBe(401);

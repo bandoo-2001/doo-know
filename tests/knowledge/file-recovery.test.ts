@@ -4,8 +4,8 @@ import { join } from 'node:path';
 import { createFixture } from '../support/fixture.js';
 import { readyRead } from '../support/read.js';
 import { agentConfig, agentHeaders } from '../support/agent.js';
-import { createApp } from '../../server/app.js';
-import { openDatabase } from '../../server/db.js';
+import { createApp } from '../../apps/server/app.js';
+import { openDatabase } from '../../packages/core/db.js';
 const faults = vi.hoisted(() => ({ afterRename: false, largeSyncReads: 0 }));
 vi.mock('node:fs/promises', async (original) => {
   const fs = await original<typeof import('node:fs/promises')>();

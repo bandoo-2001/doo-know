@@ -6,8 +6,8 @@ import {
   workspaceExclusive,
   operationHasLiveWorkspaceWriter,
   workspaceProcess,
-} from '../server/workspace/gate.js';
-import { openDatabase } from '../server/db.js';
+} from '../packages/core/workspace/gate.js';
+import { openDatabase } from '../packages/core/db.js';
 it('blocks all synchronous mutations while exclusive, waits for an active asynchronous writer, and supports nested core writes', async () => {
   const f = await pluginRuntimeFixture();
   const db2 = openDatabase(f.config.dataRoot);
@@ -77,9 +77,9 @@ it('does not steal a stopped registered Git process after its Web parent dies an
   const { pathToFileURL } = await import('node:url');
   const f = await pluginRuntimeFixture();
   let guardPid: number | undefined;
-  const source = `import {openDatabase} from ${JSON.stringify(pathToFileURL(process.cwd() + '/server/db.ts').href)};
-    import {workspaceExclusive} from ${JSON.stringify(pathToFileURL(process.cwd() + '/server/workspace/gate.ts').href)};
-    import {workspaceExec} from ${JSON.stringify(pathToFileURL(process.cwd() + '/server/workspace/exec.ts').href)};
+  const source = `import {openDatabase} from ${JSON.stringify(pathToFileURL(process.cwd() + '/packages/core/db.ts').href)};
+    import {workspaceExclusive} from ${JSON.stringify(pathToFileURL(process.cwd() + '/packages/core/workspace/gate.ts').href)};
+    import {workspaceExec} from ${JSON.stringify(pathToFileURL(process.cwd() + '/packages/core/workspace/exec.ts').href)};
     const db=openDatabase(${JSON.stringify(f.config.dataRoot)});
     await workspaceExclusive(db,{kind:'git.fault-test'},()=>workspaceExec(db,${JSON.stringify(f.config.knowledgeRoot)},['hash-object','--stdin'],{input:Buffer.alloc(80*1024*1024)}));db.close();`;
   const child = spawn(process.execPath, ['--import', 'tsx', '--input-type=module', '-e', source], {
@@ -155,7 +155,7 @@ it('does not treat an expired per-note lease as permission to overwrite a live f
 });
 it('rejects a process bookkeeping failure instead of leaving the command promise pending', async () => {
   const f = await pluginRuntimeFixture();
-  const { workspaceExec } = await import('../server/workspace/exec.js');
+  const { workspaceExec } = await import('../packages/core/workspace/exec.js');
   try {
     await workspaceWrite(f.db, { kind: 'init-schema' }, async () => {});
     f.db.exec(

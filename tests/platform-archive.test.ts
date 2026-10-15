@@ -3,7 +3,7 @@ import { mkdtemp, mkdir, writeFile, symlink, readFile, rm } from 'node:fs/promis
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { create } from 'tar';
-import { validateArchive, extractArchive } from '../server/platform/archive.js';
+import { validateArchive, extractArchive } from '../apps/server/platform/archive.js';
 it('streams and extracts regular PAX archives with long UTF-8 filenames, rejecting links and expansion beyond limits', async () => {
   const root = await mkdtemp(join(tmpdir(), 'platform-archive-'));
   try {

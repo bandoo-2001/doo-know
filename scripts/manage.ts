@@ -15,17 +15,17 @@ import { homedir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { randomBytes } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
-import { loadHostConfig, applicationRoot } from '../server/platform/config.js';
-import { openDatabase } from '../server/db.js';
-import { initializeOwner, resetOwnerPassword } from '../server/auth.js';
-import { createApp } from '../server/app.js';
-import { createAuth } from '../server/auth.js';
+import { loadHostConfig, applicationRoot } from '../apps/server/platform/config.js';
+import { openDatabase } from '../packages/core/db.js';
+import { initializeOwner, resetOwnerPassword } from '../apps/server/auth.js';
+import { createApp } from '../apps/server/app.js';
+import { createAuth } from '../apps/server/auth.js';
 import {
   acquireInstance,
   readInstance,
   activeDatabaseProcesses,
-} from '../server/platform/instance.js';
-import { releaseInfo } from '../server/platform/release.js';
+} from '../apps/server/platform/instance.js';
+import { releaseInfo } from '../apps/server/platform/release.js';
 import {
   systemctl,
   unitName,
@@ -35,11 +35,11 @@ import {
   withQuiesced,
   waitHealthy,
   healthURL,
-} from '../server/platform/service.js';
-import { createPlatformBackup, restorePlatformBackup } from '../server/platform/backups.js';
-import { managementLock, updatePlatform, rollbackPlatform } from '../server/platform/updates.js';
-import { platformSettings } from '../server/platform/settings.js';
-import { pluginHost } from '../server/plugins/host.js';
+} from '../apps/server/platform/service.js';
+import { createPlatformBackup, restorePlatformBackup } from '../apps/server/platform/backups.js';
+import { managementLock, updatePlatform, rollbackPlatform } from '../apps/server/platform/updates.js';
+import { platformSettings } from '../apps/server/platform/settings.js';
+import { pluginHost } from '../apps/server/plugins/host.js';
 import { satisfies } from 'semver';
 import { HOST_PLUGIN_API } from '../packages/plugin-contracts/index.js';
 import { rmSync } from 'node:fs';

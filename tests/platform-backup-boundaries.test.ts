@@ -2,8 +2,8 @@ import { it, expect } from 'vitest';
 import { mkdtemp, writeFile, readFile, rm, symlink, mkdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { sealBackup, unsealBackup } from '../server/platform/sealed-backup.js';
-import { restorePlatformBackup } from '../server/platform/backups.js';
+import { sealBackup, unsealBackup } from '../apps/server/platform/sealed-backup.js';
+import { restorePlatformBackup } from '../apps/server/platform/backups.js';
 it('preserves existing output files when encryption or decryption refuses exclusive creation', async () => {
   const root = await mkdtemp(join(tmpdir(), 'backup-existing-'));
   try {

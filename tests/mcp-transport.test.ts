@@ -6,11 +6,11 @@ import { pathToFileURL } from 'node:url';
 // @ts-expect-error build tool is plain ESM
 import { buildPlugins } from '../scripts/build-plugins.mjs';
 import { createFixture, loginFixtureOwner } from './support/fixture.js';
-import { resetOwnerPassword } from '../server/auth.js';
+import { resetOwnerPassword } from '../apps/server/auth.js';
 import { testPassword } from './support/credentials.js';
-import { openDatabase } from '../server/db.js';
-import { createAuth } from '../server/auth.js';
-import { oauthGrantStore } from '../server/platform/oauth-grants.js';
+import { openDatabase } from '../packages/core/db.js';
+import { createAuth } from '../apps/server/auth.js';
+import { oauthGrantStore } from '../apps/server/platform/oauth-grants.js';
 it('installs the official prebuilt MCP, isolates transports, observes calls without contents, and revokes unused static credentials on reset', async () => {
   const artifacts = await mkdtemp(join(tmpdir(), 'mcp-build-'));
   const catalog = await buildPlugins({ output: artifacts, ids: ['mcp'], baseURL: pathToFileURL(artifacts + '/').href });

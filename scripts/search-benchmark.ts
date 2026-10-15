@@ -4,10 +4,10 @@ import { join, resolve } from 'node:path';
 import { once } from 'node:events';
 import { performance } from 'node:perf_hooks';
 import Fastify from 'fastify';
-import { openDatabase } from '../server/db.js';
-import { noteService } from '../server/notes.js';
-import { registerAgentRoutes } from '../server/agent/routes.js';
-import { messageSize } from '../server/knowledge/limits.js';
+import { openDatabase } from '../packages/core/db.js';
+import { noteService } from '../packages/core/notes.js';
+import { registerAgentRoutes } from '../apps/server/agent/routes.js';
+import { messageSize } from '../packages/core/knowledge/limits.js';
 import { agentConfig, agentHeaders } from '../tests/support/agent.js';
 import { syntheticFixture } from '../tests/benchmarks/fixtures.js';
 import {

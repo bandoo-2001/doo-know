@@ -1,6 +1,6 @@
 import { it, expect } from 'vitest';
 import { createFixture } from '../support/fixture.js';
-import { openDatabase } from '../../server/db.js';
+import { openDatabase } from '../../packages/core/db.js';
 it('migrates repeatedly without losing legacy note, share or revision identities', async () => {
   const f = await createFixture();
   try {

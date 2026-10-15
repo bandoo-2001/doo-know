@@ -1,6 +1,6 @@
 import { it, expect } from 'vitest';
 import { createFixture } from './support/fixture.js';
-import { acquireInstance, readInstance } from '../server/platform/instance.js';
+import { acquireInstance, readInstance } from '../apps/server/platform/instance.js';
 it('refuses a second live owner for one database and releases only its own instance token', async () => {
   const f = await createFixture();
   let release: (() => void) | undefined;

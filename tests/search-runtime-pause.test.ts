@@ -1,8 +1,8 @@
 import { it, expect } from 'vitest';
 import { join } from 'node:path';
 import { pluginRuntimeFixture } from './support/plugin-runtime.js';
-import { indexWorker } from '../server/indexing/worker.js';
-import { setDesiredEmbeddingSpace } from '../server/indexing/space.js';
+import { indexWorker } from '../packages/core/indexing/worker.js';
+import { setDesiredEmbeddingSpace } from '../packages/core/indexing/space.js';
 it('pauses pending jobs without spending attempts when tokenizer is absent and retains the embedding identity', async () => {
   const f = await pluginRuntimeFixture();
   let worker: ReturnType<typeof indexWorker> | undefined;

@@ -1,9 +1,9 @@
 import { setTimeout as delay } from 'node:timers/promises';
-import { loadConfig } from '../server/config.js';
-import { openDatabase } from '../server/db.js';
-import { noteService } from '../server/notes.js';
-import { snapshotService } from '../server/knowledge/snapshots.js';
-import { indexWorker } from '../server/indexing/worker.js';
+import { loadConfig } from '../apps/server/config.js';
+import { openDatabase } from '../packages/core/db.js';
+import { noteService } from '../packages/core/notes.js';
+import { snapshotService } from '../packages/core/knowledge/snapshots.js';
+import { indexWorker } from '../packages/core/indexing/worker.js';
 const config = loadConfig(),
   db = openDatabase(config.dataRoot,'index-worker'),
   notes = noteService(config, db),

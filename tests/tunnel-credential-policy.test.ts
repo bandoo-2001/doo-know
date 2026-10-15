@@ -1,8 +1,8 @@
 import { it, expect } from 'vitest';
 import { createFixture, loginFixtureOwner } from './support/fixture.js';
-import { openDatabase } from '../server/db.js';
-import { oauthGrantStore } from '../server/platform/oauth-grants.js';
-import { platformPolicy } from '../server/platform/grants.js';
+import { openDatabase } from '../packages/core/db.js';
+import { oauthGrantStore } from '../apps/server/platform/oauth-grants.js';
+import { platformPolicy } from '../packages/core/auth/grants.js';
 it('rejects a queued Tunnel actor as soon as its configured credential reference changes', async () => {
   const f = await createFixture(),
     db = openDatabase(f.dataRoot);
@@ -53,7 +53,7 @@ it('rejects a queued Tunnel actor as soon as its configured credential reference
 
 it('keeps migrated receipt identity and original issuance while rotating credentials and changing explicit scope', async () => {
   const { tunnelPrincipal, initializeTunnelIdentity } =
-    await import('../server/platform/tunnel-identity.js');
+    await import('../apps/server/platform/tunnel-identity.js');
   const f = await createFixture(),
     db = openDatabase(f.dataRoot);
   try {

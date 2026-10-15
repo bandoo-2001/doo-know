@@ -4,9 +4,9 @@ import {join} from 'node:path';
 import {createFixture} from '../support/fixture.js';
 import {readyRead} from '../support/read.js';
 import {agentConfig,agentHeaders} from '../support/agent.js';
-import {openDatabase} from '../../server/db.js';
-import {TokenizerClient} from '../../server/indexing/tokenizer-client.js';
-import {chunkService} from '../../server/indexing/chunks.js';
+import {openDatabase} from '../../packages/core/db.js';
+import {TokenizerClient} from '../../packages/core/indexing/tokenizer-client.js';
+import {chunkService} from '../../packages/core/indexing/chunks.js';
 it('streams complete UTF-8 coverage with exact original line/byte ranges and model token limits',async()=>{
  const f=await createFixture({agent:agentConfig}),tokenizer=new TokenizerClient();try{
   const body='# 主题\r\n\n## 章节\n'+('中文😀\nembedding_space_id\n'.repeat(1800))+'TAIL_WITHOUT_NEWLINE';await writeFile(join(f.knowledgeRoot,'00-Inbox/chunk.md'),body);

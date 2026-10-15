@@ -1,6 +1,6 @@
 import { it, expect } from 'vitest';
 import { createFixture, loginFixtureOwner } from '../support/fixture.js';
-import { openDatabase } from '../../server/db.js';
+import { openDatabase } from '../../packages/core/db.js';
 it('preserves client request IDs for ordinary Web create/save retries and their durable status', async () => {
   const f = await createFixture();
   try {

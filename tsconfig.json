@@ -7,18 +7,32 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
-    "paths": { "@dooknow/plugin-ui": ["./packages/plugin-ui/index.ts"], "@dooknow/plugin-sdk": ["./packages/plugin-sdk/index.ts"] },
-    "types": ["node", "vite/client"],
-    "lib": ["ES2022", "DOM", "DOM.Iterable"]
+    "paths": {
+      "@dooknow/plugin-ui": [
+        "./packages/plugin-ui/index.ts"
+      ],
+      "@dooknow/plugin-sdk": [
+        "./packages/plugin-sdk/index.ts"
+      ]
+    },
+    "types": [
+      "node",
+      "vite/client"
+    ],
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ]
   },
   "include": [
-    "server/**/*.ts",
+    "apps/server/**/*.ts",
     "shared/**/*.ts",
     "packages/**/*.ts",
     "plugins/**/*.ts",
     "plugins/**/*.vue",
-    "web/**/*.ts",
-    "web/**/*.vue",
+    "apps/web/**/*.ts",
+    "apps/web/**/*.vue",
     "scripts/**/*.ts",
     "tests/**/*.ts",
     "*.ts"

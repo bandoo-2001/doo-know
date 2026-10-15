@@ -4,8 +4,8 @@ import { existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { spawn } from 'node:child_process';
 import { createFixture, loginFixtureOwner, type Fixture } from '../support/fixture.js';
-import { createApp } from '../../server/app.js';
-import { openDatabase } from '../../server/db.js';
+import { createApp } from '../../apps/server/app.js';
+import { openDatabase } from '../../packages/core/db.js';
 
 async function make(f: Fixture, h: any, name: string, content: string) {
   const r = await f.app.inject({

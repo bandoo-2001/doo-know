@@ -5,8 +5,8 @@ import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
-import { pluginHost } from '../server/plugins/host.js';
-import { openDatabase } from '../server/db.js';
+import { pluginHost } from '../apps/server/plugins/host.js';
+import { openDatabase } from '../packages/core/db.js';
 import type { PluginManifest } from '../packages/plugin-contracts/index.js';
 async function fixture() {
   const root = await mkdtemp(join(tmpdir(), 'dooknow-plugin-'));

@@ -2,8 +2,8 @@ import { it, expect, vi } from 'vitest';
 import { mkdtemp, open, rm, writeFile, utimes, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import * as reader from '../../server/knowledge/file-reader.js';
-import { hasSavedAssetReference } from '../../server/knowledge/asset-references.js';
+import * as reader from '../../packages/core/knowledge/file-reader.js';
+import { hasSavedAssetReference } from '../../packages/core/knowledge/asset-references.js';
 
 const notePath = '00-Inbox/current.md',
   image = '00-Inbox/assets/photo.png',

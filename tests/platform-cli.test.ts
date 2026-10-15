@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { initializeOwner } from '../server/auth.js';
+import { initializeOwner } from '../apps/server/auth.js';
 import { testPassword } from './support/credentials.js';
 const exec = promisify(execFile);
 it('reinstall with an existing owner needs no TTY and preserves the secret and profile', async () => {

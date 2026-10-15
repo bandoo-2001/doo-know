@@ -4,8 +4,8 @@ import { mkdtemp, mkdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { initializeOwner } from '../server/auth.js';
-import { openDatabase } from '../server/db.js';
+import { initializeOwner } from '../apps/server/auth.js';
+import { openDatabase } from '../packages/core/db.js';
 import { testPassword } from './support/credentials.js';
 // @ts-expect-error build tool is plain ESM
 import { buildPlugins } from '../scripts/build-plugins.mjs';
@@ -30,7 +30,7 @@ it('restarts after SIGKILL immediately after ref publication and replays exactly
   await mkdir(join(config.knowledgeRoot, '00-Inbox'), { recursive: true });
   await initializeOwner(config, 'owner', testPassword);
   let child: ChildProcess | undefined, db: ReturnType<typeof openDatabase> | undefined;
-  const source = `import {createApp} from ${JSON.stringify(pathToFileURL(process.cwd() + '/server/app.ts').href)};let app;process.once('message',async config=>{try{app=await createApp(config);await app.listen({host:'127.0.0.1',port:${port}});process.send({ready:true});}catch{process.send({failed:true});process.exit(1);}});process.once('SIGTERM',async()=>{await app?.close();process.exit(0);});`;
+  const source = `import {createApp} from ${JSON.stringify(pathToFileURL(process.cwd() + '/apps/server/app.ts').href)};let app;process.once('message',async config=>{try{app=await createApp(config);await app.listen({host:'127.0.0.1',port:${port}});process.send({ready:true});}catch{process.send({failed:true});process.exit(1);}});process.once('SIGTERM',async()=>{await app?.close();process.exit(0);});`;
   async function start() {
     child = spawn(process.execPath, ['--import', 'tsx', '--input-type=module', '-e', source], {
       cwd: process.cwd(),

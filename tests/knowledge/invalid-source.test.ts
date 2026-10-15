@@ -2,11 +2,11 @@ import { it, expect } from 'vitest';
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createFixture, loginFixtureOwner } from '../support/fixture.js';
-import { openDatabase } from '../../server/db.js';
-import { noteService } from '../../server/notes.js';
-import { snapshotService } from '../../server/knowledge/snapshots.js';
-import { reconcileService } from '../../server/indexing/reconcile.js';
-import { indexWorker } from '../../server/indexing/worker.js';
+import { openDatabase } from '../../packages/core/db.js';
+import { noteService } from '../../packages/core/notes.js';
+import { snapshotService } from '../../packages/core/knowledge/snapshots.js';
+import { reconcileService } from '../../packages/core/indexing/reconcile.js';
+import { indexWorker } from '../../packages/core/indexing/worker.js';
 it('rejects invalid original UTF-8 without lossy decoding and lets other index jobs finish', async () => {
   const f = await createFixture(),
     db = openDatabase(f.dataRoot),

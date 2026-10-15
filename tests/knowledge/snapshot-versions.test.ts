@@ -4,11 +4,11 @@ import { join } from 'node:path';
 import { createFixture } from '../support/fixture.js';
 import { agentConfig, agentHeaders } from '../support/agent.js';
 import { readyRead } from '../support/read.js';
-import { openDatabase } from '../../server/db.js';
-import { observeSource } from '../../server/indexing/state.js';
-import { sha256 } from '../../server/knowledge/operations.js';
-import { snapshotService } from '../../server/knowledge/snapshots.js';
-import { noteService } from '../../server/notes.js';
+import { openDatabase } from '../../packages/core/db.js';
+import { observeSource } from '../../packages/core/indexing/state.js';
+import { sha256 } from '../../packages/core/knowledge/operations.js';
+import { snapshotService } from '../../packages/core/knowledge/snapshots.js';
+import { noteService } from '../../packages/core/notes.js';
 
 it('preserves a UTF-8 BOM and exact page bytes for patch range hashes', async () => {
   const f = await createFixture({ agent: agentConfig });

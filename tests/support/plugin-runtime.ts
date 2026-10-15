@@ -2,10 +2,10 @@ import { mkdtemp, mkdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { AppConfig } from '../../shared/contracts.js';
-import { initializeOwner } from '../../server/auth.js';
-import { openDatabase } from '../../server/db.js';
-import { platformRuntime } from '../../server/platform/runtime.js';
-import { pluginServices } from '../../server/plugins/services.js';
+import { initializeOwner } from '../../apps/server/auth.js';
+import { openDatabase } from '../../packages/core/db.js';
+import { platformRuntime } from '../../apps/server/platform/runtime.js';
+import { pluginServices } from '../../apps/server/plugins/services.js';
 import { testPassword } from './credentials.js';
 export async function pluginRuntimeFixture() {
   const root = await mkdtemp(join(tmpdir(), 'dooknow-plugin-runtime-'));

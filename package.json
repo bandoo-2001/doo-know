@@ -1,5 +1,5 @@
 {
-  "name": "doo-know-web",
+  "name": "doo-know",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -12,7 +12,7 @@
     "test:e2e": "tsx scripts/e2e.ts",
     "typecheck": "vue-tsc --noEmit",
     "build": "vite build && tsc -p tsconfig.server.json",
-    "start": "node dist/server/server/main.js",
+    "start": "node dist/server/scripts/manage.js serve",
     "account": "tsx scripts/account.ts",
     "demo": "tsx scripts/demo.ts",
     "backup": "tsx scripts/backup.ts",

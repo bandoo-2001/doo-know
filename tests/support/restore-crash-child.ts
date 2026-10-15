@@ -19,9 +19,9 @@ fs.unlinkSync = ((p: any) => {
   if (stage === 'unlink' && String(p).includes('/.trash/')) exit();
 }) as any;
 syncBuiltinESMExports();
-const { openDatabase } = await import('../../server/db.js');
-const { noteService } = await import('../../server/notes.js');
-const { recoveryService } = await import('../../server/recovery.js');
+const { openDatabase } = await import('../../packages/core/db.js');
+const { noteService } = await import('../../packages/core/notes.js');
+const { recoveryService } = await import('../../packages/core/recovery.js');
 const db = openDatabase(config.dataRoot);
 const prepare = db.prepare.bind(db);
 db.prepare = ((sql: string) => {

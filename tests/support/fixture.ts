@@ -1,7 +1,7 @@
 import { mkdtemp, mkdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { createApp } from '../../server/app.js';
+import { createApp } from '../../apps/server/app.js';
 export const origin = 'http://localhost:3010';
 import { testPassword } from './credentials.js';
 export { testPassword };
@@ -34,7 +34,7 @@ export async function createFixture(overrides: Record<string, unknown> = {}, par
 }
 export type Fixture = Awaited<ReturnType<typeof createFixture>>;
 export async function loginFixtureOwner(f: Fixture) {
-  const { initializeOwner } = await import('../../server/auth.js');
+  const { initializeOwner } = await import('../../apps/server/auth.js');
   await initializeOwner(f.config, 'owner', testPassword);
   const login = await f.app.inject({
     method: 'POST',

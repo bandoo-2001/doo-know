@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { createFixture, loginFixtureOwner } from '../support/fixture.js';
 import { agentConfig, agentHeaders } from '../support/agent.js';
-import { openDatabase } from '../../server/db.js';
+import { openDatabase } from '../../packages/core/db.js';
 const hash = (s: string) => createHash('sha256').update(s).digest('hex');
 it('all listing and document entrances preserve identities when an empty replacement root appears', async () => {
   const f = await createFixture({ agent: agentConfig }),

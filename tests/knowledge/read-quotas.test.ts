@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { createFixture } from '../support/fixture.js';
 import { readyRead } from '../support/read.js';
 import { agentConfig, agentHeaders } from '../support/agent.js';
-import { openDatabase } from '../../server/db.js';
+import { openDatabase } from '../../packages/core/db.js';
 it('enforces persistent page budget, idempotent concurrent cursor retry, current grants and expiry', async () => {
   const f = await createFixture({ agent: agentConfig });
   try {

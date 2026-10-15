@@ -1,8 +1,8 @@
 import { createInterface } from 'node:readline/promises';
 import { stdin, stdout } from 'node:process';
 import { Writable } from 'node:stream';
-import { loadConfig } from '../server/config.js';
-import { initializeOwner, resetOwnerPassword } from '../server/auth.js';
+import { loadConfig } from '../apps/server/config.js';
+import { initializeOwner, resetOwnerPassword } from '../apps/server/auth.js';
 if (!stdin.isTTY) throw new Error('账号管理必须在本机交互终端执行');
 const mode = process.argv[2] || 'init';
 if (!['init', 'reset'].includes(mode)) throw new Error('用法：npm run account -- init|reset');

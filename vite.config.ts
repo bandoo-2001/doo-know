@@ -12,9 +12,9 @@ export default defineConfig({
         : { vue: '/assets/plugin-runtime.js', '@dooknow/plugin-ui': '/assets/plugin-ui.js' } }), injectTo: 'head-prepend',
     }] },
   }],
-  root: 'web',
-  build: { outDir: '../dist/web', emptyOutDir: true, rollupOptions: {
-    input: { app: resolve(projectRoot, 'web/index.html'), 'plugin-runtime': resolve(projectRoot, 'web/plugin-runtime.ts'), 'plugin-ui': resolve(projectRoot, 'packages/plugin-ui/index.ts') },
+  root: 'apps/web',
+  build: { outDir: resolve(projectRoot, 'dist/web'), emptyOutDir: true, rollupOptions: {
+    input: { app: resolve(projectRoot, 'apps/web/index.html'), 'plugin-runtime': resolve(projectRoot, 'apps/web/plugin-runtime.ts'), 'plugin-ui': resolve(projectRoot, 'packages/plugin-ui/index.ts') },
     preserveEntrySignatures: 'strict',
     output: { entryFileNames: 'assets/[name].js' },
   } },
@@ -23,7 +23,7 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
     fs: {
-      allow: ['web', 'node_modules', 'shared', 'packages/plugin-ui', 'packages/plugin-contracts'].map((path) => resolve(projectRoot, path)),
+      allow: ['apps/web', 'node_modules', 'shared', 'packages/plugin-ui', 'packages/plugin-contracts'].map((path) => resolve(projectRoot, path)),
       deny: [
         '**/.env',
         '**/.env.*',
@@ -31,6 +31,7 @@ export default defineConfig({
         '**/.local/**',
         '**/tests/**',
         '**/server/**',
+        '**/packages/core/**',
         '**/scripts/**',
         '**/*.sqlite*',
         '**/*.key',

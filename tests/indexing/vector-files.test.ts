@@ -1,10 +1,10 @@
 import { it, expect } from 'vitest';
 import { createFixture } from '../support/fixture.js';
 import { startVectorRuntime } from '../support/vector-runtime.js';
-import { openDatabase } from '../../server/db.js';
-import { observeSource } from '../../server/indexing/state.js';
-import { VectorRuntimeClient } from '../../server/indexing/vector-store.js';
-import { FlatFileStore } from '../../server/indexing/flat-file.js';
+import { openDatabase } from '../../packages/core/db.js';
+import { observeSource } from '../../packages/core/indexing/state.js';
+import { VectorRuntimeClient } from '../../packages/core/indexing/vector-store.js';
+import { FlatFileStore } from '../../packages/core/indexing/flat-file.js';
 import { access } from 'node:fs/promises';
 const vector = (a: number, b = 0) => {
   const value = Array(512).fill(0);

@@ -1,9 +1,9 @@
 import { it, expect } from 'vitest';
 import { createFixture, loginFixtureOwner } from './support/fixture.js';
-import { openDatabase } from '../server/db.js';
-import { initializeGrants } from '../server/platform/grants.js';
-import { noteService } from '../server/notes.js';
-import { snapshotService } from '../server/knowledge/snapshots.js';
+import { openDatabase } from '../packages/core/db.js';
+import { initializeGrants } from '../packages/core/auth/grants.js';
+import { noteService } from '../packages/core/notes.js';
+import { snapshotService } from '../packages/core/knowledge/snapshots.js';
 it('uses current OAuth directory grants for bounded reads and rejects revoked token versions', async () => {
   const f = await createFixture(); const db = openDatabase(f.dataRoot);
   const snapshots = snapshotService(f.config, db, noteService(f.config, db));

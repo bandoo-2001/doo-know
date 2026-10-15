@@ -3,7 +3,7 @@ import { mkdtemp, mkdir, writeFile, readlink, symlink, readFile, rm } from 'node
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { pathToFileURL } from 'node:url';
-import { updatePlatform, rollbackPlatform } from '../server/platform/updates.js';
+import { updatePlatform, rollbackPlatform } from '../apps/server/platform/updates.js';
 import { createFixture } from './support/fixture.js';
 it('rejects a corrupt release without switching the current release or changing notes', async () => {
   const temp = await mkdtemp(join(tmpdir(), 'dooknow-update-')),

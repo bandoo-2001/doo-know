@@ -2,7 +2,7 @@ import { it, expect } from 'vitest';
 import { writeFile, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createFixture, loginFixtureOwner } from '../support/fixture.js';
-import { openDatabase } from '../../server/db.js';
+import { openDatabase } from '../../packages/core/db.js';
 it('restores a large archived note as metadata and never reports failure after applying the copy', async () => {
   const f = await createFixture();
   try {

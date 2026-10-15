@@ -4,10 +4,10 @@ import { writeFile, mkdir, access } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createFixture } from '../support/fixture.js';
 import { agentConfig, agentHeaders } from '../support/agent.js';
-import { openDatabase } from '../../server/db.js';
-import { createApp } from '../../server/app.js';
-import { noteService } from '../../server/notes.js';
-import { snapshotService } from '../../server/knowledge/snapshots.js';
+import { openDatabase } from '../../packages/core/db.js';
+import { createApp } from '../../apps/server/app.js';
+import { noteService } from '../../packages/core/notes.js';
+import { snapshotService } from '../../packages/core/knowledge/snapshots.js';
 
 it.each(['fresh-lease', 'abandoned'])(
   'recovers a %s snapshot attempt in the default embedded lifecycle',

@@ -4,7 +4,7 @@ import { mkdir, writeFile, readFile, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { activate } from '../plugins/git/server/index.js';
 import { pluginRuntimeFixture } from './support/plugin-runtime.js';
-import { pluginServices } from '../server/plugins/services.js';
+import { pluginServices } from '../apps/server/plugins/services.js';
 import type { PluginContext, PluginCall } from '../packages/plugin-sdk/index.js';
 async function fixture() {
   const f = await pluginRuntimeFixture(),

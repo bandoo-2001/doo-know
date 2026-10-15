@@ -3,8 +3,8 @@ import { mkdtemp, mkdir, writeFile, readFile, rm, readdir } from 'node:fs/promis
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { chromium } from '@playwright/test';
-import { createApp } from '../dist/server/server/app.js';
-import { initializeOwner } from '../dist/server/server/auth.js';
+import { createApp } from '../dist/server/apps/server/app.js';
+import { initializeOwner } from '../dist/server/apps/server/auth.js';
 const root = await mkdtemp(join(tmpdir(), 'dooknow-production-')),
   knowledgeRoot = join(root, 'knowledge'),
   dataRoot = join(root, 'data'),
@@ -48,12 +48,13 @@ try {
   ])
     assert.equal((await app.inject({ url })).statusCode, 401);
   for (const url of [
-    '/server/auth.ts',
+    '/apps/server/auth.ts',
+    '/packages/core/db.ts',
     '/tests/support/credentials.ts',
     '/.env',
     '/.local/e2e-cookies.json',
     '/00-Inbox/生产验证.md',
-    '/../server/auth.ts',
+    '/../apps/server/auth.ts',
   ])
     assert.equal((await app.inject({ url })).statusCode, 404);
   await app.listen({ host: '127.0.0.1', port: 4190 });

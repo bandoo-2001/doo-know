@@ -3,7 +3,7 @@ import {join} from 'node:path';
 import {createFixture} from './fixture.js';
 import {agentConfig} from './agent.js';
 import {startVectorRuntime} from './vector-runtime.js';
-import {createApp} from '../../server/app.js';
+import {createApp} from '../../apps/server/app.js';
 const f=await createFixture({agent:agentConfig});
 await f.app.close();
 const runtime=await startVectorRuntime(f.dataRoot);
