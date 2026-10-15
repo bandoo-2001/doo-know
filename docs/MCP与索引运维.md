@@ -1,10 +1,12 @@
 # MCP 与本地索引运维
 
+> 2026-10-15：平台已统一交付，当前安装、插件、按需检索和加密备份/恢复使用[原生安装与恢复](原生安装与恢复.md)，测试与切换结果见[平台交付验证](平台交付验证.md)。下文为旧版本运维与设计背景；旧明文备份命令及独立网关流程不作为当前平台操作步骤。
+
 本文件对应 `codex/doo-know-mcp` 源码。所有自动测试使用隔离原文、数据库和回环进程；没有安装常驻服务或在真实知识库上执行故障测试。机器网关独立维护于 [doo-know-bridge](https://github.com/bandoo-2001/doo-know-bridge)，仅调用 `/api/agent/v1`，不挂载原文或数据库。
 
 ## 目录与启动顺序
 
-源码在 `/home/bandoo/workspace/projects/doo-know-web`。发布代码通过 `/srv/stacks/knowledge/doo-know-web/app` 链接选择明确版本，运行数据放 `/srv/data/knowledge/doo-know-web`，模型放 `/srv/models/bge-small-zh-v1.5`，凭据放 `/srv/secrets/knowledge/doo-know-web`。原文使用明确的 `KNOWLEDGE_ROOT`。这些是部署模板的路径，当前任务没有创建这些服务目录。
+源码在 `/home/bandoo/workspace/projects/doo-know`。发布代码通过 `/srv/stacks/knowledge/doo-know-web/app` 链接选择明确版本，运行数据放 `/srv/data/knowledge/doo-know-web`，模型放 `/srv/models/bge-small-zh-v1.5`，凭据放 `/srv/secrets/knowledge/doo-know-web`。原文使用明确的 `KNOWLEDGE_ROOT`。这些是部署模板的路径，当前任务没有创建这些服务目录。
 
 使用实际运行用户配置目录权限；授权 JSON 和密钥文件需为 600。复制 `.env.example` 为发布版本外的受控环境文件，填写真实路径，不将凭据本身放进环境文件或 Git。先启动 CPU 向量服务，再启动 Web；嵌入 worker 默认开启，也可显式关闭后启动独立 worker。最后启动网关和已有反向代理。Web、向量、网关的建议回环端口分别为 3010、3081、3071，部署前核对端口占用。
 

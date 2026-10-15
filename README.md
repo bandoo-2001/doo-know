@@ -24,7 +24,7 @@ dooknow backup --destination '/受控目录/knowledge.dooknow'
 dooknow reset-password
 ```
 
-完整目录、安装参数、加密备份、空目录恢复、升级与卸载说明见[原生安装与恢复](docs/原生安装与恢复.md)。真实环境接管和历史部署信息见[本机发布](docs/本机发布.md)；开发代码使用隔离 worktree，不直接作为常驻发行目录。
+完整目录、安装参数、加密备份、空目录恢复、升级与卸载说明见[原生安装与恢复](docs/原生安装与恢复.md)。真实环境接管见[平台交付验证](docs/平台交付验证.md)，历史部署信息见[本机发布](docs/本机发布.md)；开发代码使用隔离 worktree，不直接作为常驻发行目录。
 
 ## 工作区与插件
 
@@ -69,7 +69,7 @@ flowchart TB
 
 ## 开发与验证
 
-开发 Node.js ≥ 22.22.1，使用锁定依赖和独立资料目录、数据库、端口及密钥。
+开发 Node.js ≥ 22.22.1，使用锁定依赖和独立资料目录、数据库、端口及密钥。检索回归还需独立 Python 环境和固定模型；普通编辑不依赖检索组件，实际离线制品测试通过 `DOOKNOW_SEARCH_ARTIFACT` 显式指定受校验制品。
 
 ```bash
 npm ci
@@ -84,6 +84,6 @@ npm run build
 
 构建输出 `dist/web` 和 `dist/server`；管理入口固定为 `dist/server/scripts/manage.js`。生产由 Fastify 提供编译资源，不能暴露源码、数据库或原文目录。浏览器测试使用 4179/4180 的临时库；本机已有浏览器依赖通过忽略的 `.local/browser-deps/` 加载，不自动安装系统包。
 
-传统机器 API 与既有笔记、文件、分享接口继续保留。契约和恢复背景见[机器 API](docs/机器API.md)、[索引运维](docs/MCP与索引运维.md)、[检索实测](docs/MCP性能评测.md)。[平台计划](docs/superpowers/plans/2026-10-15-doo-know-platform.md)记录交付范围；测试与真实切换结果按实际版本另记，不沿用历史验收结论。
+传统机器 API 与既有笔记、文件、分享接口继续保留。契约和恢复背景见[机器 API](docs/机器API.md)、[索引运维](docs/MCP与索引运维.md)、[检索实测](docs/MCP性能评测.md)。[平台计划](docs/superpowers/plans/2026-10-15-doo-know-platform.md)记录交付范围；当前[平台交付验证](docs/平台交付验证.md)记录测试、制品和真实切换证据，不沿用历史验收结论。
 
 标准 ChatGPT OAuth 需要浏览器可达的 HTTPS 授权站点和 MCP 地址；未配置时插件显示连接条件未满足，知识库仍可使用。本地协议测试不能代替真实客户端接入验收。
