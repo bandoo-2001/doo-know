@@ -6,6 +6,8 @@ export type Principal = {
   tokenIssuedAt?: number;
   grantId?: string;
   grantVersion?: number;
+  pluginId?: string;
+  authGeneration?: number;
 };
 export type AgentConfig = {
   serviceToken: string;

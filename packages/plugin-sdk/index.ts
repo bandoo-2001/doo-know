@@ -11,6 +11,11 @@ export interface KnowledgePort {
 }
 export interface PluginServices {
   knowledge: KnowledgePort;
+  authorization?: {
+    list(): Promise<any[]>;
+    revoke(clientId: string): Promise<{ revoked: boolean; cleanupPending: boolean }>;
+    connection(): Promise<Record<string, any>>;
+  };
   workspace?: { root: string; bindingVersion: number; exclusive<T>(work: () => Promise<T>): Promise<T> };
   operations: {
     begin(kind: string, requestId: string, params: unknown): { fresh: boolean; operation: any };
@@ -28,6 +33,7 @@ export interface ProtocolCall {
 }
 export interface PluginContext {
   id: string; dataRoot: string; storage: PluginStorage;
+  secrets: { getOrCreate(name: string): string };
   config(): Record<string, any>;
   registerCommand(id: string, handler: (call: PluginCall) => unknown | Promise<unknown>): Disposer;
   registerProvider(id: string, handler: (call: PluginCall) => unknown | Promise<unknown>): Disposer;

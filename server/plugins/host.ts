@@ -1,7 +1,8 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync, renameSync, rmSync, lstatSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { randomUUID } from 'node:crypto';
+import { randomUUID, randomBytes } from 'node:crypto';
+import { privateFile } from '../agent/config.js';
 import { Ajv } from 'ajv';
 import { valid, satisfies } from 'semver';
 import { HOST_PLUGIN_API, type PluginManifest, type PluginCatalogEntry, type PluginView, type PluginStorage, type PluginCallInput } from '../../packages/plugin-contracts/index.js';
@@ -11,6 +12,7 @@ import type { AppDatabase } from '../db.js';
 import { fail } from '../knowledge/errors.js';
 import { sha256 } from '../knowledge/operations.js';
 import { unpackPlugin, packagePath } from './packages.js';
+import { remoteAuthGeneration } from '../platform/remote-auth.js';
 
 type Handler = (call: PluginCall) => unknown | Promise<unknown>;
 type Active = { commands: Map<string, Handler>; providers: Map<string, Handler>;
@@ -29,7 +31,11 @@ export function pluginHost(config: HostConfig & { pluginCatalog?: PluginCatalogE
     desired_enabled INTEGER NOT NULL DEFAULT 0,config_version INTEGER NOT NULL DEFAULT 0,
     config_json TEXT NOT NULL DEFAULT '{}',manifest_json TEXT NOT NULL,files_json TEXT NOT NULL,
     state TEXT NOT NULL DEFAULT 'disabled',restart_required INTEGER NOT NULL DEFAULT 0,error TEXT);
-    CREATE TABLE IF NOT EXISTS plugin_data(plugin_id TEXT NOT NULL,key TEXT NOT NULL,value TEXT NOT NULL,PRIMARY KEY(plugin_id,key));`);
+    CREATE TABLE IF NOT EXISTS plugin_data(plugin_id TEXT NOT NULL,key TEXT NOT NULL,value TEXT NOT NULL,PRIMARY KEY(plugin_id,key));
+    CREATE TABLE IF NOT EXISTS plugin_secrets(reference TEXT PRIMARY KEY,plugin_id TEXT NOT NULL,field TEXT NOT NULL,created_at INTEGER NOT NULL);`);
+  if (!(db.prepare('PRAGMA table_info(plugin_secrets)').all() as any[]).some(c => c.name === 'auth_generation')) db.exec('ALTER TABLE plugin_secrets ADD COLUMN auth_generation INTEGER NOT NULL DEFAULT -1');
+  const listeners = new Set<() => void | Promise<void>>();
+  const changed = async () => { for (const listener of listeners) await listener(); };
   const root = config.pluginRoot || join(config.dataRoot, '..', 'plugins');
   const catalogFile = config.applicationRoot && join(config.applicationRoot, 'catalog.json');
   const catalog: PluginCatalogEntry[] = config.pluginCatalog || (catalogFile && existsSync(catalogFile) ? JSON.parse(readFileSync(catalogFile, 'utf8')) : []);
@@ -78,8 +84,9 @@ export function pluginHost(config: HostConfig & { pluginCatalog?: PluginCatalogE
     };
   }
   const secretDir = (id: string) => join(config.secretFile ? dirname(config.secretFile) : join(config.dataRoot, 'secrets'), 'plugins', id);
+  function defaults(m: PluginManifest) { return Object.fromEntries(Object.entries(m.configSchema.properties || {}).filter(([,p]) => p && typeof p === 'object' && 'default' in p).map(([k,p]) => [k,structuredClone((p as any).default)])); }
   function plain(r: Row) {
-    const values = JSON.parse(r.config_json);
+    const values = { ...defaults(manifest(r)), ...JSON.parse(r.config_json) };
     for (const [key, value] of Object.entries(values)) if (manifest(r).configSchema.properties?.[key]?.writeOnly && value && typeof value === 'object' && '$secretRef' in value) {
       const ref = (value as any).$secretRef;
       if (!/^[a-f0-9-]{36}$/.test(ref)) fail(500, 'INVALID_PLUGIN_SECRET_REFERENCE');
@@ -96,7 +103,7 @@ export function pluginHost(config: HostConfig & { pluginCatalog?: PluginCatalogE
     return data;
   }
   function view(r: Row): PluginView {
-    const values = JSON.parse(r.config_json), configuredSecrets: string[] = [];
+    const values = { ...defaults(manifest(r)), ...JSON.parse(r.config_json) }, configuredSecrets: string[] = [];
     for (const [key, value] of Object.entries(values)) if (manifest(r).configSchema.properties?.[key]?.writeOnly && value && typeof value === 'object' && '$secretRef' in value) { delete values[key]; configuredSecrets.push(key); }
     const running = active.get(r.id), web = running?.manifest.web;
     return { id: r.id, installedVersion: r.installed_version, ...(r.active_version ? { activeVersion: r.active_version } : {}), desiredEnabled: !!r.desired_enabled,
@@ -130,27 +137,36 @@ export function pluginHost(config: HostConfig & { pluginCatalog?: PluginCatalogE
     if (active.has(id) && active.get(id)!.version !== r.installed_version) fail(409, 'PLUGIN_RESTART_REQUIRED');
     if (r.config_version !== expectedVersion) fail(409, 'CONFIG_VERSION_CONFLICT');
     if (!input || typeof input !== 'object' || Array.isArray(input)) fail(400, 'INVALID_PLUGIN_CONFIG');
-    const values = plain(r);
+    const generation = remoteAuthGeneration(db);
+    const previous = plain(r), previousStored = JSON.parse(r.config_json);
+    const values = structuredClone(previous);
     for (const [key, value] of Object.entries(input)) { if (value === null && m.configSchema.properties?.[key]?.writeOnly) delete values[key]; else values[key] = value; }
     const validated = validate(m, values);
     for (const validator of active.get(id)?.validators || []) await validator(validated);
     const stored = { ...validated };
+    const createdSecrets: { ref: string; field: string; time: number }[] = [];
     for (const [key, property] of Object.entries(m.configSchema.properties || {})) if ((property as any).writeOnly && typeof stored[key] === 'string') {
+      if (previousStored[key]?.$secretRef && previous[key] === stored[key]) { stored[key] = previousStored[key]; continue; }
       const ref = randomUUID(); mkdirSync(secretDir(id), { recursive: true, mode: 0o700 });
       writeFileSync(join(secretDir(id), ref), stored[key], { mode: 0o600, flag: 'wx' }); stored[key] = { $secretRef: ref };
+      createdSecrets.push({ ref, field: key, time: Date.now() });
     }
-    const updated = db.prepare('UPDATE platform_plugins SET config_json=?,config_version=config_version+1,restart_required=? WHERE id=? AND config_version=?')
-      .run(JSON.stringify(stored), active.has(id) && m.configurationRequiresRestart ? 1 : r.restart_required, id, expectedVersion);
-    if (updated.changes !== 1) fail(409, 'CONFIG_VERSION_CONFLICT');
+    db.transaction(() => {
+      if (generation !== remoteAuthGeneration(db)) fail(409, 'AUTHORIZATION_CHANGED');
+      const updated = db.prepare('UPDATE platform_plugins SET config_json=?,config_version=config_version+1,restart_required=? WHERE id=? AND config_version=?')
+        .run(JSON.stringify(stored), active.has(id) && m.configurationRequiresRestart ? 1 : r.restart_required, id, expectedVersion);
+      if (updated.changes !== 1) fail(409, 'CONFIG_VERSION_CONFLICT');
+      for (const secret of createdSecrets) db.prepare('INSERT INTO plugin_secrets VALUES(?,?,?,?,?)').run(secret.ref, id, secret.field, secret.time, generation);
+    }).immediate();
     if (active.has(id) && !m.configurationRequiresRestart) active.get(id)!.config = validated;
-    return view(row(id));
+    await changed(); return view(row(id));
   }
   async function stop(id: string, persist: boolean) {
     const running = active.get(id);
     db.prepare(`UPDATE platform_plugins SET state='stopping'${persist ? ',desired_enabled=0' : ''} WHERE id=?`).run(id);
     if (running) {
       // Remove the registry before waiting, so stale browser actions are rejected.
-      active.delete(id); await Promise.allSettled([...running.calls]);
+      active.delete(id); await changed(); await Promise.allSettled([...running.calls]);
       let failed = false;
       for (const dispose of [...running.disposers].reverse()) { try { await dispose(); } catch { failed = true; } }
       if (failed) db.prepare('UPDATE platform_plugins SET restart_required=1,error=? WHERE id=?').run('PLUGIN_CLEANUP_FAILED', id);
@@ -175,6 +191,15 @@ export function pluginHost(config: HostConfig & { pluginCatalog?: PluginCatalogE
       }
       running.config = validate(m, plain(r));
       const context: PluginContext = { id, dataRoot: join(config.dataRoot, 'plugins', id), storage: storage(id), config: () => structuredClone(running.config),
+        secrets: { getOrCreate: name => {
+          if (!/^[a-z][a-z0-9-]{0,63}$/.test(name)) fail(400, 'INVALID_PLUGIN_SECRET_NAME');
+          const file = join(secretDir(id), 'runtime', name + '.key');
+          if (!existsSync(file)) { mkdirSync(dirname(file), { recursive: true, mode: 0o700 });
+            try { writeFileSync(file, randomBytes(48).toString('base64url'), { mode: 0o600, flag: 'wx' }); }
+            catch (e) { if ((e as any).code !== 'EEXIST') throw e; }
+          }
+          const value = privateFile(file, 8192).trim(); if (value.length < 32) fail(500, 'PLUGIN_SECRET_UNAVAILABLE'); return value;
+        } },
         registerCommand: (key, handler) => register(running.commands, key, handler),
         registerProvider: (key, handler) => register(running.providers, key, handler),
         registerProtocol: (key, handler) => { if (!m.capabilities.includes('protocol:mcp') || id !== 'mcp') fail(403, 'PLUGIN_CAPABILITY_REQUIRED'); return register(running.protocols, key, handler); },
@@ -187,7 +212,7 @@ export function pluginHost(config: HostConfig & { pluginCatalog?: PluginCatalogE
       for (const c of m.contributions) if ((c.command && !running.commands.has(c.command)) || (c.provider && !running.providers.has(c.provider))) fail(400, 'MISSING_PLUGIN_IMPLEMENTATION');
       active.set(id, running);
       db.prepare("UPDATE platform_plugins SET state='enabled',active_version=?,restart_required=0,error=NULL WHERE id=?").run(r.installed_version, id);
-      return view(row(id));
+      await changed(); return view(row(id));
     } catch (e) {
       for (const dispose of [...running.disposers].reverse()) { try { await dispose(); } catch {} }
       db.prepare("UPDATE platform_plugins SET state='failed',error=? WHERE id=?").run((e as any).code || 'PLUGIN_START_FAILED', id); throw e;
@@ -207,6 +232,15 @@ export function pluginHost(config: HostConfig & { pluginCatalog?: PluginCatalogE
     list: () => (db.prepare('SELECT * FROM platform_plugins WHERE installed=1 ORDER BY id').all() as Row[]).map(view),
     contributions: () => [...active.entries()].flatMap(([id, running]) => running.manifest.contributions.map(c => ({ ...c, pluginId: id }))),
     storage, call,
+    onChange: (listener: () => void | Promise<void>) => { listeners.add(listener); return () => { listeners.delete(listener); }; },
+    dependencyError: (id: string, code?: string) => db.prepare('UPDATE platform_plugins SET error=? WHERE id=?').run(code || null,id),
+    privateConfig: (id: string) => plain(row(id)),
+    secretInfo: (id: string, field: string) => {
+      const r = row(id); if (!manifest(r).configSchema.properties?.[field]?.writeOnly) return;
+      const reference = JSON.parse(r.config_json)[field]?.$secretRef; if (!reference) return;
+      const metadata = db.prepare('SELECT created_at,auth_generation FROM plugin_secrets WHERE reference=? AND plugin_id=? AND field=?').get(reference, id, field) as any;
+      return { reference, createdAt: metadata?.created_at || 0, authGeneration: metadata?.auth_generation ?? -1 };
+    },
     install: (id: string) => serial(() => install(id)),
     configure: (id: string, input: Record<string, unknown>, version: number) => serial(() => configure(id, input, version)),
     enable: (id: string) => serial(() => enable(id)),
@@ -223,7 +257,7 @@ export function pluginHost(config: HostConfig & { pluginCatalog?: PluginCatalogE
     protocol: async (id: string, key: string, request: ProtocolCall) => {
       const running = active.get(id), handler = running?.protocols.get(key);
       if (!handler || closing) fail(404, 'PLUGIN_PROTOCOL_UNAVAILABLE');
-      const task = handler(request); running!.calls.add(task); try { await task; } finally { running!.calls.delete(task); }
+      const task = handler({ ...request, call: { ...request.call, services: services?.(id, running!.manifest.capabilities, request.call) as PluginServices } }); running!.calls.add(task); try { await task; } finally { running!.calls.delete(task); }
     },
   };
 }

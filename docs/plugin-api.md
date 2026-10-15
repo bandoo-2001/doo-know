@@ -31,3 +31,15 @@
 浏览器模块导出`activate(api)`；api提供registerComponent、绑定当前插件的call、openPanel、notifyChanged、notify。组件接收context，不能访问根应用或内部store。Vue与`@dooknow/plugin-ui`通过宿主import map提供。样式应使用插件自己的命名空间。
 
 浏览器资源URL包含插件ID、版本及整包文件清单hash，各文件另行验证。相对ESM引用与CSS沿用该版本命名空间。停用移除组件、面板、资源引用；不保证清除浏览器或Node的模块缓存。
+
+## MCP 官方插件
+
+`plugins/mcp` 独立构建与安装，15 个原有工具通过宿主知识端口执行；读取预算在插件激活期间共享，单次研究候选以最多两个并发读取，过期候选被略过并标明降级原因。研究引用绑定客户端授权版本，只有明确的 HTTPS 网页地址才返回网页链接。
+
+公开 `/mcp` 只接受标准 OAuth 的短期令牌。宿主提供 DCR、Authorization Code、PKCE S256、资源发现、主人同意及本地授权版本检查。`oauth / tunnel / both` 三种模式显式选择；没有可达的 HTTPS 授权站点时，界面显示条件未满足。
+
+Tunnel 使用独立的 loopback 监听端口、Bearer 密钥和本地授权记录，保留 `/mcp`、`/api/v1/tools/*`、`/openapi.json`、`/health`。浏览器只知道密钥是否已配置。凭据引用的发行代数持久保存，主人修改或重置密码后，未曾使用过的旧密钥也无法建立新连接；必须真正轮换密钥才能重新授权。
+
+调用观察最多保留 500 条元数据，分页 50 条，不记录工具参数、查询、正文或令牌。撤销先禁用本地授权版本，再清理 provider 的令牌记录；清理失败会返回 `cleanupPending`，旧授权仍立即失效。Web 主人的连接管理能力只在 Web 通道提供，外部工具调用不能管理授权。
+
+构建单独插件：`node scripts/build-plugins.mjs <产物目录>`；制品包括预构建服务端、共享宿主 Vue 的浏览器 ESM 和清单。发行构建时用真实私有制品源生成目录地址。

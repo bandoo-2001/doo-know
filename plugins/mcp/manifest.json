@@ -1,0 +1,103 @@
+{
+  "id": "mcp",
+  "version": "1.0.0",
+  "apiVersion": "^1.0.0",
+  "title": "MCP 服务",
+  "description": "让 ChatGPT 通过授权连接知识库，查看连接与调用状态。",
+  "server": "server/index.mjs",
+  "web": "web/index.js",
+  "capabilities": [
+    "knowledge:read",
+    "knowledge:write",
+    "knowledge:index",
+    "protocol:mcp"
+  ],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "mode": {
+        "type": "string",
+        "title": "连接方式",
+        "enum": [
+          "oauth",
+          "tunnel",
+          "both"
+        ],
+        "default": "oauth"
+      },
+      "readOnly": {
+        "type": "boolean",
+        "title": "只读访问",
+        "default": true
+      },
+      "allowIndex": {
+        "type": "boolean",
+        "title": "允许维护检索索引",
+        "default": false
+      },
+      "allowedPrefixes": {
+        "type": "array",
+        "title": "允许访问的目录",
+        "items": {
+          "type": "string"
+        },
+        "minItems": 1,
+        "maxItems": 64,
+        "default": [
+          "README.md",
+          "00-Inbox",
+          "10-Projects",
+          "20-Areas",
+          "30-Knowledge",
+          "40-Resources",
+          "50-Journal",
+          "90-Archive",
+          "99-System"
+        ]
+      },
+      "externalWebOrigin": {
+        "type": "string",
+        "title": "外部网页地址",
+        "description": "可选的 HTTPS 网页地址，用于返回可访问的资料链接。留空不返回网页链接。",
+        "default": "",
+        "maxLength": 2048
+      },
+      "compatPort": {
+        "type": "integer",
+        "title": "Tunnel 本地端口",
+        "minimum": 1024,
+        "maximum": 65535,
+        "default": 3071
+      },
+      "tunnelToken": {
+        "type": "string",
+        "title": "Tunnel Bearer 密钥",
+        "minLength": 32,
+        "maxLength": 8192,
+        "writeOnly": true
+      },
+      "tunnelOrigin": {
+        "type": "string",
+        "title": "Tunnel 外部地址",
+        "description": "可选的 HTTPS Tunnel 地址；用于兼容文档和 Host 检查。",
+        "default": "",
+        "maxLength": 2048
+      }
+    }
+  },
+  "contributions": [
+    {
+      "id": "mcp.settings",
+      "slot": "settingsPage",
+      "title": "连接与调用",
+      "component": "mcp.settings"
+    },
+    {
+      "id": "mcp.navigation",
+      "slot": "navigation",
+      "title": "MCP 连接",
+      "component": "mcp.navigation"
+    }
+  ]
+}

@@ -5,6 +5,9 @@ import { createServer } from 'vite';
 import { createApp } from '../../server/app.js';
 import { initializeOwner } from '../../server/auth.js';
 import { testPassword } from './credentials.js';
+import { pathToFileURL } from 'node:url';
+// @ts-expect-error build tool is plain ESM
+import { buildPlugins } from '../../scripts/build-plugins.mjs';
 import { pluginFixture } from './plugin-fixture.js';
 const root = await mkdtemp(join(tmpdir(), 'dooknow-browser-'));
 const knowledgeRoot = join(root, 'knowledge'),
@@ -22,7 +25,7 @@ const config = {
   dataRoot,
   secret: 'e2e-only-at-least-thirty-two-character-secret',
   origin: 'http://127.0.0.1:4179',
-  pluginCatalog: [await pluginFixture(root)],
+  pluginCatalog: [await pluginFixture(root), ...await buildPlugins({output:join(root,'plugins'),ids:['mcp'],baseURL:pathToFileURL(join(root,'plugins')+'/').href})],
   ...(process.env.DOOKNOW_E2E_PRODUCTION === '1' ? { staticRoot: resolve('dist/web') } : {}),
 };
 await initializeOwner(config, 'owner', testPassword);

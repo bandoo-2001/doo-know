@@ -18,6 +18,8 @@ async function fixture() {
   };
   await writeFile(join(code, 'manifest.json'), JSON.stringify(manifest));
   await writeFile(join(code, 'server/index.mjs'), `export async function activate(ctx) {
+    const secret = ctx.secrets.getOrCreate('signature');
+    ctx.registerProvider('sample.signature', async () => ({ length: secret.length, same: secret === ctx.secrets.getOrCreate('signature') }));
     ctx.registerCommand('sample.echo', async call => ({ label: ctx.config().label, secretConfigured: !!ctx.config().token, input: call.input }));
     ctx.registerProvider('sample.status', async () => ({ active: true }));
     ctx.onDispose(() => { ctx.storage.set('disposed', (ctx.storage.get('disposed') || 0) + 1); });
@@ -38,12 +40,16 @@ it('installs a prebuilt plugin, validates private config, dynamically enables an
     await host.configure('sample', { label: '自定义', token: 'fixture-private-token', metadata: { $secretRef: 'ordinary-business-data' } }, 0);
     expect(JSON.stringify(host.list())).not.toContain('fixture-private-token');
     expect(host.list()[0].config.metadata).toEqual({ $secretRef: 'ordinary-business-data' });
+    const originalRef = JSON.parse((f.db.prepare('SELECT config_json FROM platform_plugins WHERE id=?').get('sample') as any).config_json).token.$secretRef;
+    await host.configure('sample', { label: '自定义' }, 1);
+    expect(JSON.parse((f.db.prepare('SELECT config_json FROM platform_plugins WHERE id=?').get('sample') as any).config_json).token.$secretRef).toBe(originalRef);
     await host.enable('sample'); await host.enable('sample');
+    expect(await host.call('sample', { kind: 'provider', id: 'sample.signature', input: {} }, { ownerId: 'fixture-owner' })).toMatchObject({ same: true, length: 64 });
     expect(host.contributions()).toHaveLength(1);
     const context = { ownerId: 'fixture-owner', requestId: 'plugin-call' };
     expect(await host.call('sample', { kind: 'command', id: 'sample.echo', input: { value: 42 } }, context))
       .toEqual({ label: '自定义', secretConfigured: true, input: { value: 42 } });
-    await expect(host.configure('sample', { label: 4 }, 1)).rejects.toMatchObject({ code: 'INVALID_PLUGIN_CONFIG' });
+    await expect(host.configure('sample', { label: 4 }, 2)).rejects.toMatchObject({ code: 'INVALID_PLUGIN_CONFIG' });
     await expect(host.configure('sample', { label: 'new' }, 0)).rejects.toMatchObject({ code: 'CONFIG_VERSION_CONFLICT' });
     await host.disable('sample'); expect(host.contributions()).toHaveLength(0);
     await expect(host.call('sample', { kind: 'command', id: 'sample.echo', input: {} }, context)).rejects.toMatchObject({ code: 'PLUGIN_DISABLED' });

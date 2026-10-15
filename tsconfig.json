@@ -7,12 +7,16 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
+    "paths": { "@dooknow/plugin-ui": ["./packages/plugin-ui/index.ts"], "@dooknow/plugin-sdk": ["./packages/plugin-sdk/index.ts"] },
     "types": ["node", "vite/client"],
     "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
   "include": [
     "server/**/*.ts",
     "shared/**/*.ts",
+    "packages/**/*.ts",
+    "plugins/**/*.ts",
+    "plugins/**/*.vue",
     "web/**/*.ts",
     "web/**/*.vue",
     "scripts/**/*.ts",

@@ -11,8 +11,13 @@ import type { AppConfig } from '../shared/contracts.js';
 import type { HostConfig } from '../shared/platform-contracts.js';
 import { platformRuntime, lazyService } from './platform/runtime.js';
 import { pluginHost } from './plugins/host.js';
+import { mcpTransports } from './plugins/mcp-transport.js';
+import { oauthGrantStore } from './platform/oauth-grants.js';
+import { invalidateRemoteAuth } from './platform/remote-auth.js';
 import { pluginServices } from './plugins/services.js';
 import { registerPluginRoutes } from './plugins/routes.js';
+import { registerOAuthRoutes, forwardAuthResponse } from './platform/oauth-routes.js';
+import { serializeOAuth, revokeOAuthClient } from './platform/oauth.js';
 import { openDatabase } from './db.js';
 import { createAuth } from './auth.js';
 import { noteService, saveInput } from './notes.js';
@@ -31,8 +36,13 @@ export async function createApp(config: HostConfig) {
   const auth = await createAuth(config, db);
   const platform = platformRuntime(config, db);
   await platform.activate();
-  const plugins = pluginHost(config, db, (id, capabilities, context) => pluginServices(platform, db, id, capabilities, context));
-  await plugins.start();
+  const plugins = pluginHost(config, db, (id, capabilities, context) => pluginServices(platform, db, id, capabilities, context, undefined, {
+    list: async () => oauthGrantStore(db).list(context.ownerId),
+    revoke: clientId => revokeOAuthClient(auth, db, context.ownerId, clientId),
+    connection: () => transports.connection(),
+  }));
+  const transports = mcpTransports(app, plugins, auth, config, db, platform);
+  await plugins.start(); await transports.start();
   const businessConfig = new Proxy(config as AppConfig, { get: (target, key) =>
     key === 'knowledgeRoot' ? platform.settings.configured()?.knowledgeRoot : (target as any)[key] });
   app.setErrorHandler((err, req, reply) => {
@@ -63,6 +73,7 @@ export async function createApp(config: HostConfig) {
     getToken: (req) => req.headers['x-csrf-token'] as string,
   });
   await app.register(multipart, { limits: { fileSize: 10 * 1024 * 1024, files: 1, fields: 0 } });
+  app.addContentTypeParser('application/x-www-form-urlencoded', { parseAs: 'string' }, (_req, body, done) => done(null, body));
   app.addHook('onRequest', async (req, reply) => {
     reply
       .header('Cache-Control', 'no-store')
@@ -98,6 +109,9 @@ export async function createApp(config: HostConfig) {
     '/api/auth/sign-out',
     '/api/auth/get-session',
     '/api/auth/change-password',
+    '/api/auth/oauth2/authorize', '/api/auth/oauth2/register', '/api/auth/oauth2/token',
+    '/api/auth/oauth2/revoke', '/api/auth/oauth2/introspect', '/api/auth/jwks',
+    '/api/auth/.well-known/oauth-authorization-server',
   ]);
   app.route({
     method: ['GET', 'POST'],
@@ -105,27 +119,25 @@ export async function createApp(config: HostConfig) {
     handler: async (req, reply) => {
       const path = req.url.split('?')[0];
       if (!authPaths.has(path)) return reply.code(404).send({ error: '接口不存在' });
-      if (req.method === 'POST' && req.headers.origin !== config.origin)
+      if (req.method === 'POST' && !path.startsWith('/api/auth/oauth2/') && req.headers.origin !== config.origin)
         return reply.code(403).send({ error: '请求来源不被允许' });
       if (path.endsWith('change-password') && req.body && typeof req.body === 'object')
         Object.assign(req.body, { revokeOtherSessions: true });
-      const response = await auth.handler(
+      const changingOwner = path.endsWith('change-password') ? await auth.api.getSession({ headers: fromNodeHeaders(req.headers) }) : undefined;
+      const handle = () => auth.handler(
         new Request(new URL(req.url, config.origin), {
           method: req.method,
           headers: fromNodeHeaders(req.headers),
-          ...(req.body ? { body: JSON.stringify(req.body) } : {}),
+          ...(req.body ? { body: typeof req.body === 'string' ? req.body : JSON.stringify(req.body) } : {}),
         }),
       );
-      reply.code(response.status);
-      response.headers.forEach((v, k) => {
-        if (k !== 'set-cookie') reply.header(k, v);
-      });
-      const cookies = response.headers.getSetCookie();
-      if (cookies.length) reply.header('set-cookie', cookies);
-      return reply.send(await response.text());
+      const response = path === '/api/auth/oauth2/token' ? await serializeOAuth(db, handle) : await handle();
+      if (response.ok && changingOwner?.user) { db.transaction(() => invalidateRemoteAuth(db)).immediate(); await revokeOAuthClient(auth, db, changingOwner.user.id); }
+      return forwardAuthResponse(response, reply);
     },
   });
   app.get('/api/security/csrf', async (_req, reply) => ({ token: reply.generateCsrf() }));
+  registerOAuthRoutes(app, auth, config, db);
   app.get('/healthz', async () => ({ status: 'alive' }));
   app.get('/readyz', async (_req, reply) => {
     const ready = platform.status().components.knowledge;
@@ -345,6 +357,7 @@ export async function createApp(config: HostConfig) {
   );
   if (config.staticRoot) {
     app.get('/', async (_req, reply) => reply.sendFile('index.html'));
+    for (const path of ['/login', '/oauth/consent']) app.get(path, async (_req, reply) => reply.sendFile('index.html'));
     app.get('/s/:token', async (_req, reply) =>
       reply.header('X-Robots-Tag', 'noindex, nofollow').sendFile('index.html'),
     );
@@ -357,6 +370,7 @@ export async function createApp(config: HostConfig) {
     });
   }
   app.addHook('onClose', async () => {
+    await transports.close();
     await plugins.close();
     await platform.close();
     db.close();

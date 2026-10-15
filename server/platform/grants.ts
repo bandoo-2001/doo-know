@@ -20,5 +20,16 @@ export function platformPolicy(db: AppDatabase, p: Principal): Principal | undef
   const grant = db.prepare('SELECT * FROM platform_grants WHERE id=? AND owner_id=? AND client_id=? AND active=1')
     .get(p.grantId, p.id, p.clientId) as any;
   if (!grant || grant.version !== p.grantVersion || (p.tokenIssuedAt ?? 0) < grant.not_before) return;
-  return { ...p, scopes: JSON.parse(grant.scopes_json), allowedPrefixes: JSON.parse(grant.prefixes_json) };
+  let scopes: string[] = JSON.parse(grant.scopes_json), prefixes: string[] = JSON.parse(grant.prefixes_json);
+  if (p.pluginId) {
+    const plugin = db.prepare("SELECT config_json FROM platform_plugins WHERE id=? AND installed=1 AND state='enabled'").get(p.pluginId) as any;
+    if (!plugin) return;
+    if (p.pluginId === 'mcp') {
+      const c = JSON.parse(plugin.config_json);
+      scopes = scopes.filter(s => (s !== 'knowledge:write' || c.readOnly === false) && (s !== 'knowledge:index' || c.allowIndex === true));
+      const allowed: string[] = c.allowedPrefixes || ['README.md', ...categories];
+      prefixes = prefixes.flatMap(a => allowed.flatMap(b => a === b || a.startsWith(b + '/') ? [a] : b.startsWith(a + '/') ? [b] : []));
+    }
+  }
+  return { ...p, scopes, allowedPrefixes: [...new Set(prefixes)] };
 }

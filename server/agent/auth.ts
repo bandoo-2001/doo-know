@@ -1,3 +1,4 @@
+import { remoteAuthGeneration } from '../platform/remote-auth.js';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import type { FastifyRequest } from 'fastify';
 import type { AgentConfig, Principal } from '../../shared/knowledge-contracts.js';
@@ -88,10 +89,12 @@ export function authorizationCutoff(db: AppDatabase) {
   );
 }
 export function checkTokenCutoff(db: AppDatabase, p: Principal) {
+  if (p.authGeneration != null) { if(p.authGeneration !== remoteAuthGeneration(db)) fail(401,'UNAUTHORIZED'); return; }
   const cutoff = authorizationCutoff(db);
   if (
     cutoff &&
     p.id !== 'web-owner' &&
+    !p.clientId.startsWith('plugin-web:') &&
     !p.id.startsWith('share:') &&
     !p.id.startsWith('system:') &&
     (!p.tokenIssuedAt || p.tokenIssuedAt <= cutoff)

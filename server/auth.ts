@@ -5,15 +5,20 @@ import { hashPassword } from 'better-auth/crypto';
 import { randomUUID } from 'node:crypto';
 import type { HostConfig } from '../shared/platform-contracts.js';
 import { openDatabase, type AppDatabase } from './db.js';
+import { oauthPlugins } from './platform/oauth-options.js';
+import { oauthGrantStore } from './platform/oauth-grants.js';
+import { invalidateRemoteAuth } from './platform/remote-auth.js';
+import { revokeOAuthClient } from './platform/oauth.js';
 export async function createAuth(config: HostConfig, db: AppDatabase) {
   const auth = betterAuth({
     database: db,
     baseURL: config.origin,
     secret: config.secret,
     trustedOrigins: [config.origin],
+    disabledPaths: ['/token'],
     emailAndPassword: { enabled: true, disableSignUp: true, minPasswordLength: 12 },
     session: { expiresIn: 86400, cookieCache: { enabled: false } },
-    plugins: [username({ immutableUsername: true })],
+    plugins: [username({ immutableUsername: true }), ...oauthPlugins(config, db)],
     rateLimit: {
       enabled: true,
       storage: 'database',
@@ -56,7 +61,8 @@ export async function resetOwnerPassword(config: HostConfig, password: string) {
   if (password.length < 12) throw new Error('密码至少 12 位');
   const db = openDatabase(config.dataRoot);
   try {
-    await createAuth(config, db);
+    const auth = await createAuth(config, db);
+    const owner = db.prepare('SELECT id FROM user LIMIT 1').get() as { id: string } | undefined;
     const hash = await hashPassword(password);
     db.transaction(() => {
       const r = db
@@ -64,10 +70,10 @@ export async function resetOwnerPassword(config: HostConfig, password: string) {
         .run(hash, Date.now());
       if (!r.changes) throw new Error('尚无账号');
       db.prepare('DELETE FROM session').run();
-      db.prepare(
-        "INSERT INTO index_meta VALUES('remote_auth_not_before',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
-      ).run(String(Math.floor(Date.now() / 1000)));
+      if (owner) oauthGrantStore(db).revoke(owner.id);
+      invalidateRemoteAuth(db);
     })();
+    if (owner) return { passwordReset: true, ...(await revokeOAuthClient(auth, db, owner.id)) };
   } finally {
     db.close();
   }

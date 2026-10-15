@@ -11,7 +11,8 @@ import type { Principal } from '../../shared/knowledge-contracts.js';
 
 export function pluginServices(platform: ReturnType<typeof platformRuntime>, db: AppDatabase,
   id: string, capabilities: string[], context: HostCallContext,
-  exclusive?: <T>(work: () => Promise<T>) => Promise<T>): PluginServices {
+  exclusive?: <T>(work: () => Promise<T>) => Promise<T>,
+  authorization?: PluginServices['authorization']): PluginServices {
   const runtime = platform.get(), k = runtime.knowledge;
   const principal: Principal = context.principal || { ...webPrincipal, id: context.ownerId,
     clientId: 'plugin-web:' + id, tokenIssuedAt: Math.floor(Date.now() / 1000),
@@ -32,14 +33,15 @@ export function pluginServices(platform: ReturnType<typeof platformRuntime>, db:
   }
   db.exec('CREATE TABLE IF NOT EXISTS plugin_operation_intents(operation_id TEXT PRIMARY KEY REFERENCES operations(id),plugin_id TEXT NOT NULL,details TEXT NOT NULL)');
   return {
+    ...(id === 'mcp' && context.channel === 'web' && !context.principal && capabilities.includes('protocol:mcp') ? { authorization } : {}),
     knowledge: {
       info: async b => k.info(authorized('knowledge:read'), b.noteId),
       list: async b => listMetadata(runtime.config, db, runtime.notes, k.info, authorized('knowledge:read'), b),
       outline: async b => k.snapshots.outline(authorized('knowledge:read'), b.noteId, b.cursor),
-      readPage: async b => k.snapshots.read(authorized('knowledge:read'), b.noteId, b, context.channel === 'mcp' ? 'mcp' : 'web'),
+      readPage: async ({ noteId, ...b }) => k.snapshots.read(authorized('knowledge:read'), noteId, b, context.channel === 'mcp' ? 'mcp' : 'web'),
       create: async b => k.core.create(authorized('knowledge:write'), b.directory, b.fileName, b.content, b.requestId),
       update: async b => k.core.update(authorized('knowledge:write'), b.noteId, b.content, b.expectedModifiedAt, b.requestId),
-      patch: async b => k.files.submit(authorized('knowledge:write'), b.noteId, b, context.channel === 'mcp' ? 'mcp' : 'web'),
+      patch: async ({ noteId, ...b }) => k.files.submit(authorized('knowledge:write'), noteId, b, context.channel === 'mcp' ? 'mcp' : 'web'),
       archive: async b => k.core.archive(authorized('knowledge:write'), b.noteId, b.expectedModifiedAt, b.requestId),
       search: async b => k.search.search(authorized('knowledge:read'), b),
       research: async b => k.research.fetch(authorized('knowledge:read'), b.noteId, b.chunkId,
