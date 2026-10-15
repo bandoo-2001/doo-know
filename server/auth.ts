@@ -32,6 +32,7 @@ export async function createAuth(config: HostConfig, db: AppDatabase) {
   db.exec(
     `CREATE TRIGGER IF NOT EXISTS single_owner BEFORE INSERT ON user WHEN (SELECT COUNT(*) FROM user)>0 BEGIN SELECT RAISE(ABORT,'single owner'); END;`,
   );
+  await auth.$context;
   return auth;
 }
 export async function initializeOwner(config: HostConfig, name: string, password: string) {

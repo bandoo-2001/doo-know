@@ -8,6 +8,8 @@ export type Principal = {
   grantVersion?: number;
   pluginId?: string;
   authGeneration?: number;
+  ownerId?: string;
+  credentialRef?: string;
 };
 export type AgentConfig = {
   serviceToken: string;

@@ -1,8 +1,10 @@
+import {randomUUID} from 'node:crypto';
+import {workspaceProcess} from './workspace/gate.js';
 import Database from 'better-sqlite3';
 import { mkdirSync, chmodSync } from 'node:fs';
 import { join } from 'node:path';
 import { migrateKnowledge } from './indexing/schema.js';
-export function openDatabase(dataRoot: string) {
+export function openDatabase(dataRoot: string,role:'utility'|'server'|'file-worker'|'index-worker'='utility') {
   mkdirSync(dataRoot, { recursive: true, mode: 0o700 });
   const path = join(dataRoot, 'app.sqlite');
   const db = new Database(path);
@@ -18,6 +20,9 @@ export function openDatabase(dataRoot: string) {
  CREATE TABLE IF NOT EXISTS maintenance(id INTEGER PRIMARY KEY CHECK(id=1),active INTEGER NOT NULL);
  INSERT OR IGNORE INTO maintenance VALUES(1,0);`);
   migrateKnowledge(db);
+  db.exec('CREATE TABLE IF NOT EXISTS database_processes(id TEXT PRIMARY KEY,pid INTEGER NOT NULL,process_start TEXT NOT NULL,role TEXT NOT NULL,started_at INTEGER NOT NULL)');
+  const identity=workspaceProcess(),connectionId=randomUUID();db.prepare('INSERT INTO database_processes VALUES(?,?,?,?,?)').run(connectionId,identity.pid,identity.start,role,Date.now());
+  const nativeClose=db.close.bind(db);db.close=()=>{try{if(db.open)db.prepare('DELETE FROM database_processes WHERE id=?').run(connectionId);}finally{nativeClose();}return db;};
   return db;
 }
 export type AppDatabase = ReturnType<typeof openDatabase>;

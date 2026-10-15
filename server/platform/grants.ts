@@ -10,25 +10,53 @@ export function initializeGrants(db: AppDatabase) {
 export function platformPolicy(db: AppDatabase, p: Principal): Principal | undefined {
   if (p.clientId.startsWith('plugin-web:')) {
     const id = p.clientId.slice('plugin-web:'.length);
-    if (db.prepare('SELECT id FROM user WHERE id=?').get(p.id)
-      && db.prepare("SELECT id FROM platform_plugins WHERE id=? AND installed=1 AND state='enabled'").get(id))
-      return { ...p, scopes: ['knowledge:read', 'knowledge:write', 'knowledge:index'], allowedPrefixes: ['README.md', ...categories] };
+    if (
+      db.prepare('SELECT id FROM user WHERE id=?').get(p.id) &&
+      db
+        .prepare("SELECT id FROM platform_plugins WHERE id=? AND installed=1 AND state='enabled'")
+        .get(id)
+    )
+      return {
+        ...p,
+        scopes: ['knowledge:read', 'knowledge:write', 'knowledge:index'],
+        allowedPrefixes: ['README.md', ...categories],
+      };
     return;
   }
   if (!p.grantId) return;
   initializeGrants(db);
-  const grant = db.prepare('SELECT * FROM platform_grants WHERE id=? AND owner_id=? AND client_id=? AND active=1')
-    .get(p.grantId, p.id, p.clientId) as any;
-  if (!grant || grant.version !== p.grantVersion || (p.tokenIssuedAt ?? 0) < grant.not_before) return;
-  let scopes: string[] = JSON.parse(grant.scopes_json), prefixes: string[] = JSON.parse(grant.prefixes_json);
+  const grant = db
+    .prepare('SELECT * FROM platform_grants WHERE id=? AND owner_id=? AND client_id=? AND active=1')
+    .get(p.grantId, p.ownerId || p.id, p.clientId) as any;
+  if (!grant || grant.version !== p.grantVersion || (p.tokenIssuedAt ?? 0) < grant.not_before)
+    return;
+  let scopes: string[] = JSON.parse(grant.scopes_json),
+    prefixes: string[] = JSON.parse(grant.prefixes_json);
   if (p.pluginId) {
-    const plugin = db.prepare("SELECT config_json FROM platform_plugins WHERE id=? AND installed=1 AND state='enabled'").get(p.pluginId) as any;
+    const plugin = db
+      .prepare(
+        "SELECT config_json FROM platform_plugins WHERE id=? AND installed=1 AND state='enabled'",
+      )
+      .get(p.pluginId) as any;
     if (!plugin) return;
     if (p.pluginId === 'mcp') {
       const c = JSON.parse(plugin.config_json);
-      scopes = scopes.filter(s => (s !== 'knowledge:write' || c.readOnly === false) && (s !== 'knowledge:index' || c.allowIndex === true));
+      if (
+        p.authGeneration != null &&
+        (!p.credentialRef || p.credentialRef !== c.tunnelToken?.$secretRef)
+      )
+        return;
+      scopes = scopes.filter(
+        (s) =>
+          (s !== 'knowledge:write' || c.readOnly === false) &&
+          (s !== 'knowledge:index' || c.allowIndex === true),
+      );
       const allowed: string[] = c.allowedPrefixes || ['README.md', ...categories];
-      prefixes = prefixes.flatMap(a => allowed.flatMap(b => a === b || a.startsWith(b + '/') ? [a] : b.startsWith(a + '/') ? [b] : []));
+      prefixes = prefixes.flatMap((a) =>
+        allowed.flatMap((b) =>
+          a === b || a.startsWith(b + '/') ? [a] : b.startsWith(a + '/') ? [b] : [],
+        ),
+      );
     }
   }
   return { ...p, scopes, allowedPrefixes: [...new Set(prefixes)] };

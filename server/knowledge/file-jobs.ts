@@ -72,6 +72,7 @@ export function fileJobService(
     }
   };
   async function runUnlocked(p: Principal, id: string, input: PatchInput, opId: string) {
+    if((db.prepare('SELECT active FROM maintenance WHERE id=1').get() as any).active)fail(503,'WORKSPACE_BUSY');
     const now = Date.now(),
       claimed = db
         .prepare(

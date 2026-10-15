@@ -5,7 +5,7 @@ import { noteService } from '../server/notes.js';
 import { snapshotService } from '../server/knowledge/snapshots.js';
 import { indexWorker } from '../server/indexing/worker.js';
 const config = loadConfig(),
-  db = openDatabase(config.dataRoot),
+  db = openDatabase(config.dataRoot,'index-worker'),
   notes = noteService(config, db),
   snapshots = snapshotService(config, db, notes),
   worker = indexWorker(config, db, notes, snapshots);

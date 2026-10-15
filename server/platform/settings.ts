@@ -38,7 +38,7 @@ export function platformSettings(config: HostConfig, db: AppDatabase) {
         const s = lstatSync(current);
         if (!s.isDirectory() || s.isSymbolicLink()) fail(400, 'INVALID_KNOWLEDGE_ROOT');
       }
-      for (const forbidden of [config.dataRoot, config.applicationRoot, config.pluginRoot || resolve(config.dataRoot, '../plugins'), config.secretFile && resolve(config.secretFile, '..')].filter(Boolean) as string[]) {
+      for (const forbidden of [config.dataRoot, config.applicationRoot,config.installRoot,config.searchRuntimeRoot,config.searchModelsRoot,config.profileFile&&resolve(config.profileFile,'..'), config.pluginRoot || resolve(config.dataRoot, '../plugins'), config.secretFile && resolve(config.secretFile, '..')].filter(Boolean) as string[]) {
         let canonical = resolve(forbidden);
         try { canonical = realpathSync(canonical); } catch {}
         if (overlap(path, canonical)) fail(403, 'FORBIDDEN_KNOWLEDGE_ROOT');

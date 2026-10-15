@@ -23,7 +23,7 @@ export function loadHostConfig(overrides: Partial<HostConfig> = {}, env: NodeJS.
     origin: env.APP_ORIGIN, port: env.PORT && Number(env.PORT), host: env.HOST,
     vectorRuntimeRoot: env.VECTOR_RUNTIME_ROOT, modelDir: env.MODEL_DIR, tokenizerPython: env.TOKENIZER_PYTHON,
     vectorServiceUrl: env.VECTOR_SERVICE_URL, embeddingSpaceId: env.EMBEDDING_SPACE_ID,
-    agentConfigFile: env.AGENT_CONFIG_FILE,
+    agentConfigFile: env.AGENT_CONFIG_FILE, installRoot:env.DOOKNOW_INSTALL_ROOT,
   }).filter(([, v]) => v !== undefined && v !== ''));
   const options = { ...profile, ...fromEnv, ...overrides };
   const port = Number(options.port || 5173), origin = options.origin || `http://127.0.0.1:${port}`;
@@ -43,7 +43,7 @@ export function loadHostConfig(overrides: Partial<HostConfig> = {}, env: NodeJS.
     origin, port, host: options.host || '127.0.0.1', staticRoot: options.staticRoot || join(root, 'dist/web'),
     allowedKnowledgeBases: options.allowedKnowledgeBases || [home],
     vectorRuntimeRoot: options.vectorRuntimeRoot || join(root, 'runtime/vector-service'),
-    ...(env.VECTOR_SERVICE_TOKEN_FILE ? { vectorServiceToken: privateFile(env.VECTOR_SERVICE_TOKEN_FILE, 8192).trim() } : {}),
+    ...((env.VECTOR_SERVICE_TOKEN_FILE||options.vectorServiceTokenFile) ? { vectorServiceToken: privateFile(env.VECTOR_SERVICE_TOKEN_FILE||options.vectorServiceTokenFile, 8192).trim() } : {}),
     indexing: options.indexing || { enabled: env.INDEXING_ENABLED !== '0', watch: env.INDEX_WATCH !== '0', embedded: env.EMBEDDED_INDEX_WORKER !== '0' },
     fileTasks: options.fileTasks || { embedded: env.EMBEDDED_FILE_WORKER !== '0' },
     gitSyncEnabled: options.gitSyncEnabled ?? env.GIT_SYNC_ENABLED === '1',

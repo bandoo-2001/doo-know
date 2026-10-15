@@ -6,7 +6,7 @@ import { mutationCore } from '../server/knowledge/core.js';
 import { snapshotService } from '../server/knowledge/snapshots.js';
 import { fileJobService } from '../server/knowledge/file-jobs.js';
 const config = { ...loadConfig(), fileTasks: { embedded: true } },
-  db = openDatabase(config.dataRoot),
+  db = openDatabase(config.dataRoot,'file-worker'),
   notes = noteService(config, db),
   snapshots = snapshotService(config, db, notes),
   files = fileJobService(config, db, notes, snapshots);

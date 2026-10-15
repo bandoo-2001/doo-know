@@ -6,7 +6,7 @@ import type { AppDatabase } from '../db.js';
 import type { HostConfig } from '../../shared/platform-contracts.js';
 import type { Principal } from '../../shared/knowledge-contracts.js';
 import { verifyMcpBearer, mcpPolicy } from '../platform/oauth.js';
-import { oauthGrantStore } from '../platform/oauth-grants.js';
+import { tunnelPrincipal } from '../platform/tunnel-identity.js';
 import { remoteAuthGeneration } from '../platform/remote-auth.js';
 import { currentPrincipalPolicy } from '../agent/config.js';
 import { checkTokenCutoff } from '../agent/auth.js';
@@ -26,19 +26,7 @@ export function mcpTransports(app: FastifyInstance, host: Host, auth: Awaited<Re
     if (!expected.length || supplied.length!==expected.length || !timingSafeEqual(supplied,expected)
       || !info?.createdAt || info.authGeneration!==remoteAuthGeneration(db)) fail(401,'UNAUTHORIZED');
     const owner=(db.prepare('SELECT id FROM user LIMIT 1').get() as any)?.id; if (!owner) fail(401,'UNAUTHORIZED');
-    // Reference identity survives unrelated config updates/restarts. A revoked row
-    // is never recreated on first use; only actual credential rotation changes it.
-    const clientId='tunnel:'+info.reference, grants=oauthGrantStore(db);
-    let reference=grants.activeReference(owner,clientId);
-    if (!reference) {
-      const previous=db.prepare('SELECT 1 FROM platform_grants WHERE owner_id=? AND client_id=?').get(owner,clientId);
-      if (previous) fail(401,'UNAUTHORIZED');
-      const policy=mcpPolicy(db);
-      reference=grants.approve(owner,clientId,['knowledge:read',...(!policy.readOnly?['knowledge:write']:[]),...(policy.allowIndex?['knowledge:index']:[])],policy.allowedPrefixes).reference;
-    }
-    const grant=grants.requireExact(reference,owner,clientId,[]);
-    return {id:owner,clientId,scopes:grant.scopes,allowedPrefixes:grant.allowedPrefixes,
-      tokenIssuedAt:Math.max(Math.floor(info.createdAt/1000),grant.notBefore),grantId:grant.id,grantVersion:grant.version,pluginId:'mcp',authGeneration:info.authGeneration};
+    return tunnelPrincipal(db,owner,info);
   }
   function register(server: FastifyInstance, mode: 'oauth' | 'tunnel') {
     server.route({ method:['POST','GET','DELETE','OPTIONS'],url:'/mcp',bodyLimit:128*1024,handler:handle });
@@ -50,6 +38,7 @@ export function mcpTransports(app: FastifyInstance, host: Host, auth: Awaited<Re
     async function handle(req: any,reply: any) {
       const path=new URL(req.url,'http://local.invalid');
       try {
+        if((db.prepare('SELECT active FROM maintenance WHERE id=1').get() as any).active)fail(503,'MAINTENANCE_ACTIVE');
         if(!available(mode)) fail(404,'PLUGIN_PROTOCOL_UNAVAILABLE');
         if(req.headers['content-encoding']) fail(415,'COMPRESSED_REQUEST_NOT_ALLOWED');
         if(path.searchParams.has('access_token')) fail(401,'UNAUTHORIZED');
@@ -78,7 +67,7 @@ export function mcpTransports(app: FastifyInstance, host: Host, auth: Awaited<Re
         for(const [key,value] of Object.entries(reply.getHeaders())) if(value!==undefined) reply.raw.setHeader(key,value as any);
         reply.hijack();
         await host.protocol('mcp','mcp.'+(mode==='oauth'?'oauth':'compat'),{request:req.raw,response:reply.raw,body:req.body,
-          call:{ownerId:principal?.id || '',principal,channel:'mcp',input:{},services:undefined as any}});
+          call:{ownerId:principal?.ownerId || principal?.id || '',principal,channel:'mcp',input:{},services:undefined as any}});
         return reply;
       } catch(e) {
         const error=e as any, status=error.statusCode || error.status || 500;
