@@ -10,12 +10,14 @@ import { beginOperation, completeOperation, existingResult } from '../knowledge/
 import { fail } from '../knowledge/errors.js';
 import { assertRoot } from '../indexing/reconcile.js';
 
-interface Binding { knowledge_root: string; time_zone: string; binding_version: number }
+interface Binding { knowledge_root: string; time_zone: string; binding_version: number; onboarding_completed_at: number | null }
 export function platformSettings(config: HostConfig, db: AppDatabase) {
   db.exec(`CREATE TABLE IF NOT EXISTS platform_settings (
     id INTEGER PRIMARY KEY CHECK(id=1),schema_version INTEGER NOT NULL DEFAULT 1,
     knowledge_root TEXT NOT NULL,time_zone TEXT NOT NULL,configured_at INTEGER NOT NULL,
     binding_version INTEGER NOT NULL,setup_operation_id TEXT NOT NULL REFERENCES operations(id));`);
+  if (!(db.prepare('PRAGMA table_info(platform_settings)').all() as any[]).some(c => c.name === 'onboarding_completed_at'))
+    db.exec('ALTER TABLE platform_settings ADD COLUMN onboarding_completed_at INTEGER');
   const validations = new Map<string, { owner: string; path: string; dev: string; ino: string; expires: number }>();
   const binding = () => db.prepare('SELECT * FROM platform_settings WHERE id=1').get() as Binding | undefined;
   const strictChild = (path: string, parent: string) => path.startsWith(parent + sep);
@@ -36,7 +38,7 @@ export function platformSettings(config: HostConfig, db: AppDatabase) {
         const s = lstatSync(current);
         if (!s.isDirectory() || s.isSymbolicLink()) fail(400, 'INVALID_KNOWLEDGE_ROOT');
       }
-      for (const forbidden of [config.dataRoot, config.applicationRoot, config.secretFile && resolve(config.secretFile, '..')].filter(Boolean) as string[]) {
+      for (const forbidden of [config.dataRoot, config.applicationRoot, config.pluginRoot || resolve(config.dataRoot, '../plugins'), config.secretFile && resolve(config.secretFile, '..')].filter(Boolean) as string[]) {
         let canonical = resolve(forbidden);
         try { canonical = realpathSync(canonical); } catch {}
         if (overlap(path, canonical)) fail(403, 'FORBIDDEN_KNOWLEDGE_ROOT');
@@ -77,6 +79,8 @@ export function platformSettings(config: HostConfig, db: AppDatabase) {
       configurationSource: config.knowledgeRoot ? 'deployment' : saved ? 'application' : 'none',
       ...(business ? { knowledgeRoot: business.knowledgeRoot } : {}),
       timeZone: saved?.time_zone || 'Asia/Shanghai', bindingVersion: saved?.binding_version || 0,
+      onboardingRequired: !!saved && !saved.onboarding_completed_at,
+      allowedKnowledgeBases: config.allowedKnowledgeBases || [homedir()],
       components: { knowledge: runtimeReady && !error, search: false }, ...(error ? { code: error } : {}) };
   }
   function validate(owner: string, input: unknown) {
@@ -105,6 +109,8 @@ export function platformSettings(config: HostConfig, db: AppDatabase) {
       const root = checkRoot(knowledgeRoot);
       if (root.path !== proof.path || root.dev !== proof.dev || root.ino !== proof.ino) fail(409, 'KNOWLEDGE_ROOT_CHANGED');
       assertRoot({ ...config, knowledgeRoot }, db);
+      const identity = db.prepare("SELECT value FROM index_meta WHERE key='root_identity'").get() as { value: string };
+      if (identity.value !== JSON.stringify({ path: root.path, dev: root.dev, ino: root.ino })) fail(409, 'KNOWLEDGE_ROOT_CHANGED');
       db.prepare('INSERT INTO platform_settings(id,knowledge_root,time_zone,configured_at,binding_version,setup_operation_id) VALUES(1,?,?,?,?,?)')
         .run(knowledgeRoot, timeZone, Date.now(), 1, operation.id);
       const receipt = { configSaved: true, operationId: operation.id, bindingVersion: 1, knowledgeRoot };
@@ -112,5 +118,10 @@ export function platformSettings(config: HostConfig, db: AppDatabase) {
       return receipt;
     }).immediate();
   }
-  return { configured, status, validate, complete };
+  function finish() {
+    if (!binding()) fail(409, 'SETUP_REQUIRED');
+    db.prepare('UPDATE platform_settings SET onboarding_completed_at=? WHERE id=1 AND onboarding_completed_at IS NULL').run(Date.now());
+    return { completed: true };
+  }
+  return { configured, status, validate, complete, finish };
 }

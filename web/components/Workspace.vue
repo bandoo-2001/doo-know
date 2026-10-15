@@ -10,6 +10,10 @@ import TreeBranch from './TreeBranch.vue';
 import MarkdownEditor from './MarkdownEditor.vue';
 import LargeFileWorkspace from './LargeFileWorkspace.vue';
 import IndexStatus from './IndexStatus.vue';
+import PluginManager from './PluginManager.vue';
+import PluginSlot from './PluginSlot.vue';
+import PluginPanel from './PluginPanel.vue';
+import { refreshPlugins, disposePluginUIs } from '../plugins';
 import type {
   NoteInfo,
   FileReply,
@@ -47,6 +51,18 @@ let noticeTimer: ReturnType<typeof setTimeout>;
 const dirty = computed(
   () => !!note.value && (largeDirty.value || draft.value !== savedContent.value),
 );
+const pluginContext = computed(() => ({ noteId: note.value?.id, relativePath: note.value?.relativePath,
+  expectedModifiedAt: note.value?.modifiedAt, folderPath: folder.value,
+  note: { selected: !!note.value, dirty: dirty.value }, workspace: { ready: true } }));
+let pluginTimer: ReturnType<typeof setInterval> | undefined;
+function pluginNotice(event: Event) { tell((event as CustomEvent).detail.message); }
+function workspaceChanged(event: Event) {
+  const id = (event as CustomEvent).detail.noteId;
+  void run(async () => { await refresh(); if (id && note.value?.id === id) {
+    if (dirty.value) tell('原文已更新，当前未保存草稿会保留，请重新核对版本');
+    else await openNote(id);
+  } });
+}
 const md = new MarkdownIt({ html: false, linkify: true });
 const flatten = (items: TreeEntry[]): TreeEntry[] =>
   items.flatMap((x) => [x, ...(x.children ? flatten(x.children) : [])]);
@@ -750,6 +766,10 @@ function unload(e: BeforeUnloadEvent) {
   }
 }
 onMounted(() => {
+  void refreshPlugins().catch(() => {});
+  pluginTimer = setInterval(() => { void refreshPlugins().catch(() => {}); }, 5000);
+  window.addEventListener('dooknow-workspace-changed', workspaceChanged);
+  window.addEventListener('dooknow-notice', pluginNotice);
   void run(async () => {
     await refresh();
     const id = new URLSearchParams(window.location.search).get('note');
@@ -759,6 +779,10 @@ onMounted(() => {
   window.addEventListener('beforeunload', unload);
 });
 onBeforeUnmount(() => {
+  clearInterval(pluginTimer);
+  void disposePluginUIs();
+  window.removeEventListener('dooknow-workspace-changed', workspaceChanged);
+  window.removeEventListener('dooknow-notice', pluginNotice);
   clearTimeout(searchTimer);
   clearTimeout(noticeTimer);
   window.removeEventListener('keydown', shortcut);
@@ -787,6 +811,8 @@ onBeforeUnmount(() => {
         >
       </div>
       <button class="nav-action" @click="all"><Icon name="file" />全部笔记</button>
+      <PluginSlot slot-name="navigation" :context="pluginContext" />
+      <PluginSlot slot-name="libraryAction" :context="pluginContext" />
       <IndexStatus :note-id="note?.id" />
       <div class="tree-heading">
         <span>{{ query ? '搜索结果' : '笔记本' }}</span
@@ -837,6 +863,7 @@ onBeforeUnmount(() => {
               note.relativePath.split('/').join('　/　')
             }}</span>
             <div class="toolbar">
+              <PluginSlot slot-name="noteAction" :context="pluginContext" />
               <NButton v-if="pendingSave?.noteId === note.id" @click="run(checkSave)"
                 >核对保存结果</NButton
               >
@@ -993,9 +1020,11 @@ onBeforeUnmount(() => {
             :input-props="{ 'aria-label': '新密码' }"
           /><NButton type="primary" attr-type="submit">修改密码</NButton>
         </form>
+        <PluginManager />
         <NButton @click="logout">退出登录</NButton>
       </section>
     </main>
+    <PluginPanel />
     <div v-if="notice" class="toast" role="status">
       <Icon name="check" :size="18" />{{ notice }}
     </div>

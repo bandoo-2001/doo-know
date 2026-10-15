@@ -10,6 +10,9 @@ import { fromNodeHeaders } from 'better-auth/node';
 import type { AppConfig } from '../shared/contracts.js';
 import type { HostConfig } from '../shared/platform-contracts.js';
 import { platformRuntime, lazyService } from './platform/runtime.js';
+import { pluginHost } from './plugins/host.js';
+import { pluginServices } from './plugins/services.js';
+import { registerPluginRoutes } from './plugins/routes.js';
 import { openDatabase } from './db.js';
 import { createAuth } from './auth.js';
 import { noteService, saveInput } from './notes.js';
@@ -28,8 +31,26 @@ export async function createApp(config: HostConfig) {
   const auth = await createAuth(config, db);
   const platform = platformRuntime(config, db);
   await platform.activate();
+  const plugins = pluginHost(config, db, (id, capabilities, context) => pluginServices(platform, db, id, capabilities, context));
+  await plugins.start();
   const businessConfig = new Proxy(config as AppConfig, { get: (target, key) =>
     key === 'knowledgeRoot' ? platform.settings.configured()?.knowledgeRoot : (target as any)[key] });
+  app.setErrorHandler((err, req, reply) => {
+    if (req.url.startsWith('/api/public/') && !platform.status().components.knowledge)
+      return reply.code(404).send({ error: '分享不存在或已不可用' });
+    const error = err as Error & { statusCode?: number };
+    const status =
+      error.statusCode &&
+      error.statusCode >= 400 &&
+      (error.statusCode < 500 || error instanceof KnowledgeError)
+        ? error.statusCode
+        : 500;
+    reply.code(status).send({
+      error: status === 500 ? '操作失败，内容未标记为保存' : error.message,
+      ...(error instanceof HttpError ? error.details : {}),
+      ...(error instanceof KnowledgeError ? { code: error.code, retryable: error.retryable } : {}),
+    });
+  });
   await app.register(cookie, { secret: config.secret });
   await app.register(csrf, {
     cookieOpts: {
@@ -111,6 +132,7 @@ export async function createApp(config: HostConfig) {
     return reply.code(ready ? 200 : 503).send({ status: ready ? 'ready' : 'not_ready' });
   });
   app.get('/api/platform/status', async () => platform.status());
+  registerPluginRoutes(app, plugins);
   app.post('/api/platform/setup/validate', async (req) =>
     platform.settings.validate((req as any).ownerId, (req.body as any)?.knowledgeRoot));
   app.post('/api/platform/setup/complete', async (req) => {
@@ -118,6 +140,7 @@ export async function createApp(config: HostConfig) {
     void platform.activate();
     return receipt;
   });
+  app.post('/api/platform/setup/finish', async () => platform.settings.finish());
   const notes = lazyService(() => platform.get().notes);
   const knowledge = await registerAgentRoutes(app, businessConfig, db, notes, () => platform.get().knowledge);
   app.get('/api/tree', async () => notes.tree());
@@ -333,23 +356,8 @@ export async function createApp(config: HostConfig) {
       return reply.sendFile('index.html');
     });
   }
-  app.setErrorHandler((err, req, reply) => {
-    if (req.url.startsWith('/api/public/') && !platform.status().components.knowledge)
-      return reply.code(404).send({ error: '分享不存在或已不可用' });
-    const error = err as Error & { statusCode?: number };
-    const status =
-      error.statusCode &&
-      error.statusCode >= 400 &&
-      (error.statusCode < 500 || error instanceof KnowledgeError)
-        ? error.statusCode
-        : 500;
-    reply.code(status).send({
-      error: status === 500 ? '操作失败，内容未标记为保存' : error.message,
-      ...(error instanceof HttpError ? error.details : {}),
-      ...(error instanceof KnowledgeError ? { code: error.code, retryable: error.retryable } : {}),
-    });
-  });
   app.addHook('onClose', async () => {
+    await plugins.close();
     await platform.close();
     db.close();
   });

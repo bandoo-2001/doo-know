@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import type { TreeEntry } from '../../shared/contracts';
 import Icon from './Icon.vue';
+import PluginSlot from './PluginSlot.vue';
 defineProps<{ entries: TreeEntry[]; selected: string; depth?: number }>();
 const emit = defineEmits<{ select: [entry: TreeEntry] }>();
 const closed = ref(new Set<string>());
@@ -30,6 +31,7 @@ function toggle(p: string) {
             entry.name
           }}</span>
         </button>
+        <PluginSlot slot-name="fileDecoration" :context="{ relativePath: entry.path, file: { path: entry.path }, workspace: { ready: true } }" />
       </div>
       <TreeBranch
         v-if="entry.children?.length && !closed.has(entry.path)"

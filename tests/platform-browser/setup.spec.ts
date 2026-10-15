@@ -1,0 +1,20 @@
+import { test, expect } from '@playwright/test';
+import { readFile } from 'node:fs/promises';
+import { testPassword } from '../support/credentials.js';
+test('first login validates server paths, offers optional extensions and persists finished setup', async ({ page }) => {
+  const config = JSON.parse(await readFile('.local/setup-e2e.json', 'utf8'));
+  await page.goto('/');
+  await page.getByLabel('用户名', { exact: true }).fill('owner');
+  await page.getByLabel('密码', { exact: true }).fill(testPassword);
+  await page.getByRole('button', { name: '登录', exact: true }).click();
+  const input = page.getByPlaceholder('/home/your-name/knowledge-base');
+  await input.fill(config.dataRoot); await page.getByRole('button', { name: '校验目录', exact: true }).click();
+  await expect(page.getByRole('alert')).toContainText(/FORBIDDEN|允许范围/);
+  await input.fill(config.knowledgeRoot); await page.getByRole('button', { name: '校验目录', exact: true }).click();
+  await page.getByRole('button', { name: '保存并打开知识库', exact: true }).click();
+  await expect(page.getByRole('heading', { name: '插件市场', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '进入知识库', exact: true }).click();
+  await expect(page.locator('.sidebar .brand')).toContainText('DooKnow');
+  await page.reload(); await expect(page.locator('.sidebar .brand')).toContainText('DooKnow');
+  await expect(page.getByPlaceholder('/home/your-name/knowledge-base')).toHaveCount(0);
+});

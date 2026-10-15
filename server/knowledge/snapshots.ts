@@ -1,4 +1,4 @@
-import { currentAgentConfig } from '../agent/config.js';
+import { currentPrincipalPolicy } from '../agent/config.js';
 import { mkdir, open, stat, unlink } from 'node:fs/promises';
 import { join, basename } from 'node:path';
 import { createHash, randomUUID } from 'node:crypto';
@@ -66,9 +66,7 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
       !p.id.startsWith('share:') &&
       !(p.id === 'system:index-worker' && p.clientId === 'indexer')
     ) {
-      const policy = currentAgentConfig(config)?.policies.find(
-        (x) => x.id === p.id && x.clientId === p.clientId,
-      );
+      const policy = currentPrincipalPolicy(config, db, p);
       if (!policy) fail(403, 'FORBIDDEN');
       authorizePath(policy, n.path);
     }

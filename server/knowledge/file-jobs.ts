@@ -1,4 +1,4 @@
-import { currentAgentConfig } from '../agent/config.js';
+import { currentPrincipalPolicy } from '../agent/config.js';
 import { checkTokenCutoff } from '../agent/auth.js';
 import { open, mkdir, stat, rename, unlink } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
@@ -39,9 +39,7 @@ export function fileJobService(
     const n = notes.row(id, true);
     authorizePath(p, n.path, 'knowledge:write');
     if (p.id !== 'web-owner') {
-      const policy = currentAgentConfig(config)?.policies.find(
-        (x) => x.id === p.id && x.clientId === p.clientId,
-      );
+      const policy = currentPrincipalPolicy(config, db, p);
       if (!policy) fail(403, 'FORBIDDEN');
       authorizePath(policy, n.path, 'knowledge:write');
     }

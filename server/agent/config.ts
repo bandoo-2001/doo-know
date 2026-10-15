@@ -3,6 +3,8 @@ import { resolve } from 'node:path';
 import type { AppConfig } from '../../shared/contracts.js';
 import type { AgentConfig, Principal } from '../../shared/knowledge-contracts.js';
 import { validateRelative } from '../files.js';
+import type { AppDatabase } from '../db.js';
+import { platformPolicy } from '../platform/grants.js';
 export function privateFile(path: string, maxBytes = 65536) {
   let fd: number | undefined;
   try {
@@ -82,4 +84,9 @@ export function currentAgentConfig(config: AppConfig) {
   return config.agentConfigFile
     ? loadAgentConfig(config.agentConfigFile, config.knowledgeRoot)
     : config.agent;
+}
+export function currentPrincipalPolicy(config: AppConfig, db: AppDatabase, p: Principal) {
+  if (p.grantId || p.clientId.startsWith('plugin-web:')) return platformPolicy(db, p);
+  return currentAgentConfig(config)?.policies.find(x => x.id === p.id && x.clientId === p.clientId)
+    || platformPolicy(db, p);
 }

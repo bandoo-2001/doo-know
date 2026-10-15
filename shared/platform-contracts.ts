@@ -6,6 +6,8 @@ export interface HostConfig extends Omit<AppConfig, 'knowledgeRoot'> {
   secretFile?: string;
   applicationRoot?: string;
   profileFile?: string;
+  pluginCatalog?: import('../packages/plugin-contracts/index.js').PluginCatalogEntry[];
+  pluginRoot?: string;
 }
 export type PlatformPhase = 'owner_required' | 'setup_required' | 'initializing' | 'ready'
   | 'source_unavailable' | 'configuration_error';
@@ -16,6 +18,8 @@ export interface PlatformStatus {
   knowledgeRoot?: string;
   timeZone: string;
   bindingVersion: number;
+  onboardingRequired?: boolean;
+  allowedKnowledgeBases?: string[];
   components: { knowledge: boolean; search: boolean };
   code?: string;
 }

@@ -15,7 +15,7 @@ const token = location.pathname.startsWith('/s/') ? location.pathname.slice(3) :
 const platform = ref<PlatformStatus>();
 async function refreshPlatform() {
   platform.value = await api('/api/platform/status');
-  mountedWorkspace.value = platform.value?.phase === 'ready';
+  mountedWorkspace.value = platform.value?.phase === 'ready' && !platform.value.onboardingRequired;
 }
 const theme = {
   common: {

@@ -4,6 +4,8 @@ export type Principal = {
   scopes: string[];
   allowedPrefixes: string[];
   tokenIssuedAt?: number;
+  grantId?: string;
+  grantVersion?: number;
 };
 export type AgentConfig = {
   serviceToken: string;
