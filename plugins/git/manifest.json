@@ -1,0 +1,56 @@
+{
+  "id": "git",
+  "version": "1.0.0",
+  "apiVersion": "^1.0.0",
+  "title": "Git 版本管理",
+  "description": "查看知识库文件版本、恢复单篇笔记，并预览和提交全部变更。",
+  "server": "server/index.mjs",
+  "web": "web/index.js",
+  "capabilities": ["knowledge:read", "knowledge:write", "workspace:git"],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "authorName": { "type": "string", "title": "提交作者", "default": "", "maxLength": 100 },
+      "authorEmail": { "type": "string", "title": "作者邮箱", "default": "", "maxLength": 254 }
+    }
+  },
+  "contributions": [
+    {
+      "id": "git.settings",
+      "slot": "settingsPage",
+      "title": "Git 仓库",
+      "component": "git.settings"
+    },
+    {
+      "id": "git.decoration",
+      "slot": "fileDecoration",
+      "title": "Git 状态",
+      "component": "git.decoration"
+    },
+    {
+      "id": "git.historyAction",
+      "slot": "noteAction",
+      "title": "Git 版本",
+      "component": "git.historyAction"
+    },
+    {
+      "id": "git.history",
+      "slot": "notePanel",
+      "title": "Git 历史与差异",
+      "component": "git.history"
+    },
+    {
+      "id": "git.commitAction",
+      "slot": "libraryAction",
+      "title": "提交全部变更",
+      "component": "git.commitAction"
+    },
+    {
+      "id": "git.commitPanel",
+      "slot": "notePanel",
+      "title": "提交全部变更",
+      "component": "git.commitPanel"
+    }
+  ]
+}

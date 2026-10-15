@@ -1,3 +1,10 @@
+import {
+  workspaceWrite,
+  workspaceWriteSync,
+  operationHasLiveWorkspaceWriter,
+  workspaceBegin,
+  workspaceArtifact,
+} from '../workspace/gate.js';
 import { randomUUID, createHash } from 'node:crypto';
 import {
   readFileSync,
@@ -81,14 +88,17 @@ export function assertWritable(db: AppDatabase, noteId?: string, ownIntent?: str
       .get(noteId, ownIntent || '')
   )
     fail(409, 'OPERATION_OUTCOME_UNKNOWN', '请先核对未完成的写入', true);
-  if (
-    noteId &&
-    db.prepare("SELECT 1 FROM sqlite_master WHERE name='note_write_leases'").get() &&
-    db
-      .prepare('SELECT 1 FROM note_write_leases WHERE note_id=? AND lease_until>?')
-      .get(noteId, Date.now())
-  )
-    fail(409, 'OPERATION_IN_PROGRESS');
+  if (noteId && db.prepare("SELECT 1 FROM sqlite_master WHERE name='note_write_leases'").get()) {
+    const lease = db
+      .prepare('SELECT owner,lease_until FROM note_write_leases WHERE note_id=?')
+      .get(noteId) as any;
+    if (
+      lease &&
+      (lease.lease_until > Date.now() ||
+        operationHasLiveWorkspaceWriter(db, String(lease.owner).split(':')[0]))
+    )
+      fail(409, 'OPERATION_IN_PROGRESS');
+  }
 }
 function durableFile(file: string, content: string, mode = 0o600) {
   const fd = openSync(file, 'wx', mode);
@@ -179,6 +189,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
         },
         (file) => {
           staged.push(file);
+          if (/^\.doo-.*\.tmp$/.test(basename(file))) workspaceArtifact(db, file);
         },
       );
     } catch (error) {
@@ -312,7 +323,9 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     authorizePath(p, path, 'knowledge:write');
     assertRoot(config, db);
     assertWritable(db);
-    const op = beginOperation(db, p, 'create', requestId, { directory, fileName, content });
+    const op = workspaceBegin(db, () =>
+      beginOperation(db, p, 'create', requestId, { directory, fileName, content }),
+    );
     if (!op.fresh) return existingResult(op.operation);
     return runOperation(op.operation, (commit, stage) => {
       safePath(config.knowledgeRoot, directory, 'folder');
@@ -349,11 +362,13 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     if (typeof content !== 'string' || Buffer.byteLength(content) > 1024 * 1024)
       fail(413, 'REQUEST_TOO_LARGE');
     if (typeof expected !== 'string' || !/^\d+$/.test(expected)) fail(400, 'INVALID_VERSION');
-    const op = beginOperation(db, p, 'update', requestId, {
-      id,
-      content,
-      expectedModifiedAt: expected,
-    });
+    const op = workspaceBegin(db, () =>
+      beginOperation(db, p, 'update', requestId, {
+        id,
+        content,
+        expectedModifiedAt: expected,
+      }),
+    );
     if (!op.fresh) return existingResult(op.operation);
     return runOperation(op.operation, (commit, stage) => {
       const file = safePath(config.knowledgeRoot, n.path, 'note'),
@@ -405,7 +420,9 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
   function archive(p: Principal, id: string, expected: string, requestId: string) {
     const n = row(id, true);
     authorizePath(p, n.path, 'knowledge:write');
-    const op = beginOperation(db, p, 'archive', requestId, { id, expectedModifiedAt: expected });
+    const op = workspaceBegin(db, () =>
+      beginOperation(db, p, 'archive', requestId, { id, expectedModifiedAt: expected }),
+    );
     if (!op.fresh) return existingResult(op.operation);
     return runOperation(op.operation, (commit) => {
       assertWritable(db, id);
@@ -615,7 +632,9 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     if (!validName(name) || !name.toLowerCase().endsWith('.md')) fail(400, 'INVALID_INPUT');
     const path = dirname(n.path) === '.' ? name : `${dirname(n.path)}/${name}`;
     authorizePath(p, path, 'knowledge:write');
-    const op = beginOperation(db, p, 'restore', requestId, { id, fileName: fileName ?? null });
+    const op = workspaceBegin(db, () =>
+      beginOperation(db, p, 'restore', requestId, { id, fileName: fileName ?? null }),
+    );
     if (!op.fresh) {
       const intent = db
         .prepare("SELECT * FROM write_intents WHERE id=? AND kind='restore' AND status='prepared'")
@@ -660,14 +679,22 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
   }
   async function recover(): Promise<RecoveryReport> {
     const report = { recovered: 0, unapplied: 0, conflicted: 0 };
-    report.unapplied += db
+    for (const orphan of db
       .prepare(
-        "UPDATE operations SET status='failed',error='OPERATION_UNAPPLIED',updated_at=? WHERE kind IN ('create','update','archive','restore') AND status='prepared' AND NOT EXISTS(SELECT 1 FROM write_intents WHERE write_intents.id=operations.id)",
+        "SELECT id FROM operations WHERE kind IN ('create','update','archive','restore') AND status='prepared' AND NOT EXISTS(SELECT 1 FROM write_intents WHERE write_intents.id=operations.id)",
       )
-      .run(Date.now()).changes;
+      .all() as any[]) {
+      if (!operationHasLiveWorkspaceWriter(db, orphan.id))
+        report.unapplied += db
+          .prepare(
+            "UPDATE operations SET status='failed',error='OPERATION_UNAPPLIED',updated_at=? WHERE id=? AND status='prepared'",
+          )
+          .run(Date.now(), orphan.id).changes;
+    }
     for (const intent of db
       .prepare("SELECT * FROM write_intents WHERE status='prepared'")
       .all() as Intent[]) {
+      if (operationHasLiveWorkspaceWriter(db, intent.id)) continue;
       if (
         db
           .prepare(
@@ -769,5 +796,16 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     }
     return report;
   }
-  return { create, update, archive, restore, recover, record };
+  return {
+    create: (...args: Parameters<typeof create>) =>
+      workspaceWriteSync(db, { kind: 'core.create' }, () => create(...args)),
+    update: (...args: Parameters<typeof update>) =>
+      workspaceWriteSync(db, { kind: 'core.update' }, () => update(...args)),
+    archive: (...args: Parameters<typeof archive>) =>
+      workspaceWriteSync(db, { kind: 'core.archive' }, () => archive(...args)),
+    restore: (...args: Parameters<typeof restore>) =>
+      workspaceWriteSync(db, { kind: 'core.restore' }, () => restore(...args)),
+    recover: () => workspaceWrite(db, { kind: 'core.recover' }, recover),
+    record,
+  };
 }

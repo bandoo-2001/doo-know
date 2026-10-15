@@ -25,12 +25,22 @@ const config = {
   dataRoot,
   secret: 'e2e-only-at-least-thirty-two-character-secret',
   origin: 'http://127.0.0.1:4179',
-  pluginCatalog: [await pluginFixture(root), ...await buildPlugins({output:join(root,'plugins'),ids:['mcp'],baseURL:pathToFileURL(join(root,'plugins')+'/').href})],
+  pluginCatalog: [
+    await pluginFixture(root),
+    ...(await buildPlugins({
+      output: join(root, 'plugins'),
+      ids: ['mcp', 'git'],
+      baseURL: pathToFileURL(join(root, 'plugins') + '/').href,
+    })),
+  ],
   ...(process.env.DOOKNOW_E2E_PRODUCTION === '1' ? { staticRoot: resolve('dist/web') } : {}),
 };
 await initializeOwner(config, 'owner', testPassword);
 const app = await createApp(config);
-await app.listen({ host: '127.0.0.1', port: process.env.DOOKNOW_E2E_PRODUCTION === '1' ? 4179 : 4180 });
+await app.listen({
+  host: '127.0.0.1',
+  port: process.env.DOOKNOW_E2E_PRODUCTION === '1' ? 4179 : 4180,
+});
 const login = await app.inject({
   method: 'POST',
   url: '/api/auth/sign-in/username',
@@ -53,10 +63,17 @@ await writeFile(
   ),
   { mode: 0o600 },
 );
-const vite = process.env.DOOKNOW_E2E_PRODUCTION === '1' ? undefined : await createServer({
-  configFile: 'vite.config.ts',
-  server: { port: 4179, host: '127.0.0.1', proxy: { '/api/': 'http://127.0.0.1:4180', '/plugins/': 'http://127.0.0.1:4180' } },
-});
+const vite =
+  process.env.DOOKNOW_E2E_PRODUCTION === '1'
+    ? undefined
+    : await createServer({
+        configFile: 'vite.config.ts',
+        server: {
+          port: 4179,
+          host: '127.0.0.1',
+          proxy: { '/api/': 'http://127.0.0.1:4180', '/plugins/': 'http://127.0.0.1:4180' },
+        },
+      });
 await vite?.listen();
 for (const s of ['SIGINT', 'SIGTERM'])
   process.on(s, async () => {

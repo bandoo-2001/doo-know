@@ -1,3 +1,4 @@
+import { workspaceWriteSync } from './workspace/gate.js';
 import { randomUUID } from 'node:crypto';
 import {
   mkdirSync,
@@ -166,5 +167,15 @@ export function assetService(config: AppConfig, db: AppDatabase, notes: NoteServ
     if (!path) throw new HttpError(404, '附件不存在');
     return savedAsset(noteId, path);
   }
-  return { file, register, byId, mapUrl, list, upload, publicAsset, publicSource };
+  return {
+    file,
+    register,
+    byId,
+    mapUrl,
+    list,
+    upload: (...args: Parameters<typeof upload>) =>
+      workspaceWriteSync(db, { kind: 'asset.upload' }, () => upload(...args)),
+    publicAsset,
+    publicSource,
+  };
 }

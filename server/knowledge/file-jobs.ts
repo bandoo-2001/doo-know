@@ -1,3 +1,8 @@
+import {
+  workspaceWrite,
+  workspaceArtifact,
+  operationHasLiveWorkspaceWriter,
+} from '../workspace/gate.js';
 import { currentPrincipalPolicy } from '../agent/config.js';
 import { checkTokenCutoff } from '../agent/auth.js';
 import { open, mkdir, stat, rename, unlink } from 'node:fs/promises';
@@ -57,7 +62,16 @@ export function fileJobService(
       ...(row.snapshot_id ? { snapshotId: row.snapshot_id } : {}),
     };
   }
-  async function run(p: Principal, id: string, input: PatchInput, opId: string) {
+  const run = async (p: Principal, id: string, input: PatchInput, opId: string) => {
+    try {
+      await workspaceWrite(db, { kind: 'file.patch', operationId: opId }, () =>
+        runUnlocked(p, id, input, opId),
+      );
+    } catch (e) {
+      if ((e as any).code !== 'WORKSPACE_BUSY') throw e;
+    }
+  };
+  async function runUnlocked(p: Principal, id: string, input: PatchInput, opId: string) {
     const now = Date.now(),
       claimed = db
         .prepare(
@@ -150,6 +164,7 @@ export function fileJobService(
       if (size > limits.file) fail(413, 'FILE_TOO_LARGE');
       const file = safePath(config.knowledgeRoot, n.path, 'note');
       temp = join(dirname(file), `.doo-${opId}-${epoch}.tmp`);
+      workspaceArtifact(db, temp);
       fd = await open(temp, 'wx', Number((await stat(file)).mode) & 0o777);
       const hash = createHash('sha256');
       let written = 0;
@@ -198,7 +213,12 @@ export function fileJobService(
         const lock = db
           .prepare('SELECT owner,lease_until FROM note_write_leases WHERE note_id=?')
           .get(id) as any;
-        if (lock && lock.owner !== `${opId}:${epoch}` && lock.lease_until > Date.now())
+        if (
+          lock &&
+          lock.owner !== `${opId}:${epoch}` &&
+          (lock.lease_until > Date.now() ||
+            operationHasLiveWorkspaceWriter(db, String(lock.owner).split(':')[0]))
+        )
           fail(409, 'OPERATION_IN_PROGRESS');
         db.prepare(
           'INSERT INTO note_write_leases VALUES(?,?,?) ON CONFLICT(note_id) DO UPDATE SET owner=excluded.owner,lease_until=excluded.lease_until',
@@ -421,9 +441,16 @@ export function fileJobService(
       )
       .all() as { id: string }[])
       releaseSnapshotRef(db, row.id);
-    db.prepare(
-      "UPDATE file_operations SET status='queued',lease_epoch=lease_epoch+1 WHERE kind='patch' AND status='running' AND lease_until<=? AND NOT EXISTS(SELECT 1 FROM write_intents WHERE write_intents.id=file_operations.id)",
-    ).run(Date.now());
+    for (const expired of db
+      .prepare(
+        "SELECT id FROM file_operations WHERE kind='patch' AND status='running' AND lease_until<=? AND NOT EXISTS(SELECT 1 FROM write_intents WHERE write_intents.id=file_operations.id)",
+      )
+      .all(Date.now()) as any[]) {
+      if (!operationHasLiveWorkspaceWriter(db, expired.id))
+        db.prepare(
+          "UPDATE file_operations SET status='queued',lease_epoch=lease_epoch+1 WHERE id=? AND status='running'",
+        ).run(expired.id);
+    }
     db.prepare(
       "UPDATE operations SET status='queued' WHERE id IN (SELECT id FROM file_operations WHERE kind='patch' AND status='queued')",
     ).run();

@@ -1,3 +1,4 @@
+import { workspaceWriteSync } from './workspace/gate.js';
 import { randomUUID } from 'node:crypto';
 import {
   mkdirSync,
@@ -214,7 +215,17 @@ export function noteService(config: AppConfig, db: AppDatabase) {
     safePath(config.knowledgeRoot, n.path, 'note');
     return n;
   };
-  return { scan, row, getNote, tree, createNote, saveNote, createFolder, exists };
+  return {
+    scan,
+    row,
+    getNote,
+    tree,
+    createNote,
+    saveNote,
+    createFolder: (...args: Parameters<typeof createFolder>) =>
+      workspaceWriteSync(db, { kind: 'folder.create' }, () => createFolder(...args)),
+    exists,
+  };
 }
 export type NoteService = ReturnType<typeof noteService>;
 export function saveInput(body: unknown) {
