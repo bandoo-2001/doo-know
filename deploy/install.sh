@@ -83,8 +83,10 @@ main() {
     ln -s "releases/$version" "$base/.current-$$"
     mv -Tf "$base/.current-$$" "$base/current"
   fi
+  local install_id
+  install_id="$(printf '%s' "$base" | sha256sum)"; install_id="${install_id%% *}"
   {
-    printf '#!/usr/bin/env bash\nset -euo pipefail\nexport DOOKNOW_INSTALL_ROOT=%q\n' "$base"
+    printf '#!/usr/bin/env bash\n# DooKnow install: %s\nset -euo pipefail\nexport DOOKNOW_INSTALL_ROOT=%q\n' "$install_id" "$base"
     printf 'release_root="$(readlink -f "$DOOKNOW_INSTALL_ROOT/current")"\nexec "$release_root/runtime/node/bin/node" "$release_root/dist/server/scripts/manage.js" "$@"\n'
   } > "$work/dooknow"
   chmod 700 "$work/dooknow"

@@ -10,29 +10,167 @@ const exec = promisify(execFile);
 it('reinstall with an existing owner needs no TTY and preserves the secret and profile', async () => {
   const root = await mkdtemp(join(tmpdir(), 'dooknow-cli-'));
   try {
-    const secretFile = join(root, 'auth.key'), profileFile = join(root, 'profile.json');
+    const secretFile = join(root, 'auth.key'),
+      profileFile = join(root, 'profile.json');
     const secret = 'cli-fixture-secret-at-least-thirty-two-characters';
     await writeFile(secretFile, secret, { mode: 0o600 });
-    const profile = { dataRoot: join(root, 'data'), secretFile, origin: 'http://127.0.0.1:15177', port: 15177 };
+    const profile = {
+      dataRoot: join(root, 'data'),
+      secretFile,
+      origin: 'http://127.0.0.1:15177',
+      port: 15177,
+    };
     await writeFile(profileFile, JSON.stringify(profile), { mode: 0o600 });
     await initializeOwner({ ...profile, secret }, 'owner', testPassword);
-    const result = await exec(process.execPath, ['--import', 'tsx', 'scripts/manage.ts', 'install', '--profile', profileFile, '--no-service']);
+    const result = await exec(process.execPath, [
+      '--import',
+      'tsx',
+      'scripts/manage.ts',
+      'install',
+      '--profile',
+      profileFile,
+      '--no-service',
+    ]);
     expect(result.stdout).toContain('账号已存在');
     expect(await readFile(secretFile, 'utf8')).toBe(secret);
     expect(JSON.parse(await readFile(profileFile, 'utf8'))).toEqual(profile);
-  } finally { await rm(root, { recursive: true, force: true }); }
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
 });
 it('fresh noninteractive installation never creates an empty-password owner', async () => {
   const root = await mkdtemp(join(tmpdir(), 'dooknow-cli-'));
   try {
-    await expect(exec(process.execPath, ['--import', 'tsx', 'scripts/manage.ts', 'install', '--profile', join(root, 'profile.json'), '--data-root', join(root, 'data'), '--no-service'])).rejects.toMatchObject({ code: 1 });
-  } finally { await rm(root, { recursive: true, force: true }); }
+    await expect(
+      exec(process.execPath, [
+        '--import',
+        'tsx',
+        'scripts/manage.ts',
+        'install',
+        '--profile',
+        join(root, 'profile.json'),
+        '--data-root',
+        join(root, 'data'),
+        '--no-service',
+      ]),
+    ).rejects.toMatchObject({ code: 1 });
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
 });
-it('completes provider initialization before closing an offline self-check database',async()=>{
- const root=await mkdtemp(join(tmpdir(),'dooknow-selfcheck-'));try{
-  const secretFile=join(root,'auth.key'),profileFile=join(root,'profile.json'),secret='selfcheck-fixture-secret-at-least-thirty-two-characters';await writeFile(secretFile,secret,{mode:0o600});
-  const profile={dataRoot:join(root,'data'),secretFile,origin:'http://127.0.0.1:15177',port:15177};await writeFile(profileFile,JSON.stringify(profile),{mode:0o600});await initializeOwner({...profile,secret},'owner',testPassword);
-  const result=await exec(process.execPath,['--import','tsx','scripts/manage.ts','self-check','--profile',profileFile,'--data-root',join(root,'independent-check')]);
-  expect(JSON.parse(result.stdout)).toMatchObject({check:'ok'});
- }finally{await rm(root,{recursive:true,force:true});}
+it('completes provider initialization before closing an offline self-check database', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'dooknow-selfcheck-'));
+  try {
+    const secretFile = join(root, 'auth.key'),
+      profileFile = join(root, 'profile.json'),
+      secret = 'selfcheck-fixture-secret-at-least-thirty-two-characters';
+    await writeFile(secretFile, secret, { mode: 0o600 });
+    const profile = {
+      dataRoot: join(root, 'data'),
+      secretFile,
+      origin: 'http://127.0.0.1:15177',
+      port: 15177,
+    };
+    await writeFile(profileFile, JSON.stringify(profile), { mode: 0o600 });
+    await initializeOwner({ ...profile, secret }, 'owner', testPassword);
+    const result = await exec(process.execPath, [
+      '--import',
+      'tsx',
+      'scripts/manage.ts',
+      'self-check',
+      '--profile',
+      profileFile,
+      '--data-root',
+      join(root, 'independent-check'),
+    ]);
+    expect(JSON.parse(result.stdout)).toMatchObject({ check: 'ok' });
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+for (const suffix of ['-other', '/other-profile.json'])
+  it('uninstall checks exact service ownership before any control action: ' + suffix, async () => {
+    const { mkdir, chmod } = await import('node:fs/promises');
+    const root = await mkdtemp(join(tmpdir(), 'dooknow-uninstall-owner-'));
+    try {
+      const secretFile = join(root, 'auth.key'),
+        profileFile = join(root, 'profile.json'),
+        secret = 'uninstall-fixture-secret-at-least-thirty-two-characters',
+        configRoot = join(root, 'config'),
+        bin = join(root, 'bin'),
+        log = join(root, 'systemctl.log');
+      await writeFile(secretFile, secret, { mode: 0o600 });
+      const profile = {
+        dataRoot: join(root, 'data'),
+        secretFile,
+        origin: 'http://127.0.0.1:15177',
+        serviceName: 'other-install.service',
+      };
+      await writeFile(profileFile, JSON.stringify(profile), { mode: 0o600 });
+      await initializeOwner({ ...profile, secret }, 'owner', testPassword);
+      await mkdir(join(configRoot, 'systemd/user'), { recursive: true });
+      await writeFile(
+        join(configRoot, 'systemd/user/other-install.service'),
+        '# DooKnow profile: ' + profileFile + suffix + '\n[Service]\nExecStart=/bin/true\n',
+      );
+      await mkdir(bin);
+      await writeFile(
+        join(bin, 'systemctl'),
+        '#!/bin/sh\nprintf "%s\\n" "$*" >> "$DOOKNOW_FAKE_SYSTEMCTL_LOG"\ncase "$*" in *is-active*) printf "inactive\\n"; exit 3;; esac\n',
+      );
+      await chmod(join(bin, 'systemctl'), 0o700);
+      await expect(
+        exec(
+          process.execPath,
+          ['--import', 'tsx', 'scripts/manage.ts', 'uninstall', '--profile', profileFile],
+          {
+            env: {
+              ...process.env,
+              XDG_CONFIG_HOME: configRoot,
+              PATH: bin + ':' + process.env.PATH,
+              DOOKNOW_FAKE_SYSTEMCTL_LOG: log,
+            },
+          },
+        ),
+      ).rejects.toMatchObject({ code: 1 });
+      const calls = await readFile(log, 'utf8').catch(() => '');
+      expect(calls).not.toMatch(/disable|enable|stop|restart|daemon-reload/);
+      expect(
+        await readFile(join(configRoot, 'systemd/user/other-install.service'), 'utf8'),
+      ).toContain(profileFile + suffix);
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+it('uninstall leaves a launcher whose installation directory only shares a prefix', async () => {
+  const { mkdir } = await import('node:fs/promises');
+  const root = await mkdtemp(join(tmpdir(), 'uninstall-launcher-'));
+  try {
+    const secretFile = join(root, 'auth.key'),
+      profileFile = join(root, 'profile.json'),
+      bin = join(root, 'bin'),
+      secret = 'launcher-fixture-secret-at-least-thirty-two-characters',
+      installRoot = join(root, 'owned');
+    await writeFile(secretFile, secret, { mode: 0o600 });
+    const profile = {
+      dataRoot: join(root, 'data'),
+      secretFile,
+      origin: 'http://127.0.0.1:15177',
+      installRoot,
+      serviceName: 'missing-fixture.service',
+    };
+    await writeFile(profileFile, JSON.stringify(profile), { mode: 0o600 });
+    await initializeOwner({ ...profile, secret }, 'owner', testPassword);
+    await mkdir(bin);
+    const other = '#!/bin/bash\nexport DOOKNOW_INSTALL_ROOT=' + installRoot + '-other\n';
+    await writeFile(join(bin, 'dooknow'), other);
+    await exec(
+      process.execPath,
+      ['--import', 'tsx', 'scripts/manage.ts', 'uninstall', '--profile', profileFile],
+      { env: { ...process.env, XDG_CONFIG_HOME: join(root, 'config'), DOOKNOW_BIN_DIR: bin } },
+    );
+    expect(await readFile(join(bin, 'dooknow'), 'utf8')).toBe(other);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
 });

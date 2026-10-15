@@ -134,12 +134,7 @@ export function activate(ctx: PluginContext) {
         if ((await raw(call, ['config', '--bool', key])).stdout.toString().trim() === 'true')
           error('UNSUPPORTED_GIT_INDEX');
       if (await git(call, ['rev-parse', '--shared-index-path'])) error('UNSUPPORTED_GIT_INDEX');
-      const staged = await git(call, ['ls-files', '--stage', '-z']);
-      for (const item of staged.split('\0').filter(Boolean)) {
-        const record = item.match(/^(\d{6}) [a-f0-9]+ (\d)\t/s);
-        if (!record || record[2] !== '0') error('GIT_CONFLICT');
-        if (['160000', '040000', '120000'].includes(record[1])) error('UNSUPPORTED_GIT_ENTRY');
-      }
+      await validateIndex(call);
       const flags = await git(call, ['ls-files', '-v', '-z']);
       if (flags.split('\0').some((s) => /^[a-zS] /.test(s))) error('UNSUPPORTED_GIT_INDEX');
       const files = (
@@ -183,6 +178,14 @@ export function activate(ctx: PluginContext) {
     if (changes.length > 2000) error('GIT_TOO_MANY_CHANGES');
     return changes;
   }
+  async function validateIndex(call: PluginCall, env: Record<string, string> = {}) {
+    const staged = await git(call, ['ls-files', '--stage', '-z'], env);
+    for (const item of staged.split('\0').filter(Boolean)) {
+      const record = item.match(/^(\d{6}) [a-f0-9]+ (\d)\t/s);
+      if (!record || record[2] !== '0') error('GIT_CONFLICT');
+      if (!['100644', '100755'].includes(record[1])) error('UNSUPPORTED_GIT_ENTRY');
+    }
+  }
   async function privateIndex(
     call: PluginCall,
     repo: Awaited<ReturnType<typeof required>>,
@@ -195,6 +198,7 @@ export function activate(ctx: PluginContext) {
     const env = { GIT_INDEX_FILE: path };
     const originalTree = await git(call, ['write-tree'], env);
     if (add) await git(call, ['add', '--all', '--', '.'], env);
+    await validateIndex(call, env);
     return { originalTree, tree: await git(call, ['write-tree'], env) };
   }
   type Preview = {
@@ -309,14 +313,12 @@ export function activate(ctx: PluginContext) {
           branch: repo.branch?.slice(11),
           head: repo.head,
           changes: await status(call),
-          pending: call.services.operations
-            .pending()
-            .map((p) => ({
-              operationId: p.operationId,
-              requestId: p.requestId,
-              commit: p.details.commit,
-              phase: p.details.phase,
-            })),
+          pending: call.services.operations.pending().map((p) => ({
+            operationId: p.operationId,
+            requestId: p.requestId,
+            commit: p.details.commit,
+            phase: p.details.phase,
+          })),
         };
       } catch (e) {
         const code = (e as any).code || 'GIT_UNAVAILABLE';
@@ -510,7 +512,10 @@ export function activate(ctx: PluginContext) {
         return await finishPublished(call, id, details);
       } catch (e) {
         const code = (e as any).code || 'GIT_COMMIT_FAILED';
-        if (!call.services.operations.intent(id)) call.services.operations.fail(id, code);
+        if (!call.services.operations.intent(id)) {
+          call.services.operations.fail(id, code);
+          Object.assign(e as object, { publication: 'not_published' });
+        }
         throw e;
       } finally {
         await rm(check, { force: true });

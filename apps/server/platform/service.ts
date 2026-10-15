@@ -4,7 +4,7 @@ import { join, dirname, resolve } from 'node:path';
 import { homedir } from 'node:os';
 import type { HostConfig } from '../../../shared/platform-contracts.js';
 import { activeDatabaseProcesses, readInstance } from './instance.js';
-import { openDatabase } from '../../../packages/core/db.js';
+import Database from 'better-sqlite3';
 export function unitName(config: HostConfig) {
   const name = config.serviceName || 'doo-know.service';
   if (!/^[a-zA-Z0-9_.@-]+\.service$/.test(name)) throw Error('用户服务名称不正确');
@@ -24,7 +24,9 @@ export function assertServiceOwnership(config: HostConfig) {
   );
   if (
     !existsSync(file) ||
-    !readFileSync(file, 'utf8').includes('# DooKnow profile: ' + config.profileFile)
+    !readFileSync(file, 'utf8')
+      .split(/\r?\n/)
+      .includes('# DooKnow profile: ' + config.profileFile)
   )
     throw Error('用户服务不属于此配置，拒绝控制');
 }
@@ -56,7 +58,7 @@ export function writeService(config: HostConfig, root: string, node: string) {
   mkdirSync(unitDir, { recursive: true, mode: 0o700 });
   const file = join(unitDir, name),
     marker = '# DooKnow profile: ' + config.profileFile;
-  if (existsSync(file) && !readFileSync(file, 'utf8').includes(marker))
+  if (existsSync(file) && !readFileSync(file, 'utf8').split(/\r?\n/).includes(marker))
     throw Error('用户服务已属于其他安装，拒绝覆盖；请指定独立的 --service-name');
   writeFileSync(
     file,
@@ -99,7 +101,7 @@ export async function withQuiesced<T>(
       systemctl(['stop', unitName(config)]);
       restart = true;
     }
-    const db = openDatabase(config.dataRoot);
+    const db = new Database(join(config.dataRoot, 'app.sqlite'), { fileMustExist: true });
     try {
       previous = (db.prepare('SELECT active FROM maintenance WHERE id=1').get() as any).active;
       if (previous) throw Error('工作区已处于维护状态，请先核对未完成操作');
@@ -116,7 +118,7 @@ export async function withQuiesced<T>(
     const keep = !succeeded && options.keepMaintenanceOnError;
     try {
       if (maintenanceSet && !keep) {
-        const current = openDatabase(config.dataRoot);
+        const current = new Database(join(config.dataRoot, 'app.sqlite'), { fileMustExist: true });
         try {
           current.prepare('UPDATE maintenance SET active=? WHERE id=1').run(previous);
         } finally {

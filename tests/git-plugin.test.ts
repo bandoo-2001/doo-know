@@ -1,5 +1,5 @@
 import { it, expect } from 'vitest';
-import { mkdtemp, rm, writeFile, readFile, mkdir } from 'node:fs/promises';
+import { mkdtemp, rm, writeFile, readFile, mkdir, symlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -53,6 +53,13 @@ it('previews all changes privately, rejects stale previews, publishes one idempo
     });
     expect(created.statusCode).toBe(201);
     const note = created.json();
+    const link = join(f.knowledgeRoot, '00-Inbox/unsupported.md');
+    await symlink('带 空格.md', link);
+    await expect(call('git.preview', { message: 'unsupported candidate' })).rejects.toMatchObject({
+      code: 'UNSUPPORTED_GIT_ENTRY',
+    });
+    await expect(readFile(join(f.knowledgeRoot, '.git/index'))).rejects.toThrow();
+    await rm(link);
     const first = await call('git.preview', { message: 'Initial knowledge' });
     expect(first.changes.some((c: any) => c.path === '00-Inbox/带 空格.md')).toBe(true);
     await expect(readFile(join(f.knowledgeRoot, '.git/index'))).rejects.toThrow();

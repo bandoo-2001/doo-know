@@ -182,9 +182,10 @@ async function offlineMigration(config: HostConfig, candidate: string) {
   );
 }
 function maintenance(config: HostConfig, active: boolean) {
-  const db = openDatabase(config.dataRoot);
+  const db = new Database(join(config.dataRoot, 'app.sqlite'), { fileMustExist: true });
   try {
-    db.prepare('UPDATE maintenance SET active=? WHERE id=1').run(active ? 1 : 0);
+    if (db.prepare('UPDATE maintenance SET active=? WHERE id=1').run(active ? 1 : 0).changes !== 1)
+      throw Error('维护记录缺失');
   } finally {
     db.close();
   }
@@ -211,11 +212,37 @@ async function replaceDB(config: HostConfig, snapshot: string, keyFile: string) 
   const { activeDatabaseProcesses, readInstance } = await import('./instance.js');
   if (readInstance(config.dataRoot) || activeDatabaseProcesses(config.dataRoot).length)
     throw Error('数据库仍在使用，拒绝恢复快照');
-  const target = join(config.dataRoot, 'app.sqlite');
-  await unsealBackup(snapshot, target + '.restore', keyFile);
-  await rm(target + '-wal', { force: true });
-  await rm(target + '-shm', { force: true });
-  await rename(target + '.restore', target);
+  const target = join(config.dataRoot, 'app.sqlite'),
+    temporary = target + '.restore-' + randomUUID();
+  try {
+    await unsealBackup(snapshot, temporary, keyFile);
+    const file = await open(temporary, 'r');
+    try {
+      await file.sync();
+    } finally {
+      await file.close();
+    }
+    const check = new Database(temporary, { readonly: true, fileMustExist: true });
+    try {
+      if (check.pragma('integrity_check', { simple: true }) !== 'ok')
+        throw Error('恢复快照数据库不完整');
+    } finally {
+      check.close();
+    }
+    await rm(target + '-wal', { force: true });
+    await rm(target + '-shm', { force: true });
+    await rename(temporary, target);
+    const directory = await open(config.dataRoot, 'r');
+    try {
+      await directory.sync();
+    } finally {
+      await directory.close();
+    }
+  } finally {
+    await rm(temporary, { force: true });
+    await rm(temporary + '-wal', { force: true });
+    await rm(temporary + '-shm', { force: true });
+  }
 }
 async function switchRelease(config: HostConfig, candidate: string) {
   await setCurrent(config.installRoot!, basename(candidate));
@@ -228,27 +255,11 @@ async function startHealthy(config: HostConfig, candidate: string, wasActive: bo
     await waitHealthy(config, releaseInfo(candidate).version);
   }
 }
-async function recoverTransaction(config: HostConfig) {
+export async function recoverTransaction(config: HostConfig) {
   const journal = join(config.installRoot!, 'update-transaction.json');
   if (!existsSync(journal)) return;
   const state = JSON.parse(await readFile(journal, 'utf8'));
   if (['complete', 'recovered'].includes(state.phase)) return;
-  if (state.phase === 'quiescing') {
-    if (
-      !state.previous ||
-      basename(await realpath(join(config.installRoot!, 'current'))) !== state.previous
-    )
-      throw Error('停写记录与当前版本不一致，请先核对');
-    if (serviceActive(config)) systemctl(['stop', unitName(config)]);
-    maintenance(config, false);
-    if (state.wasActive) {
-      systemctl(['start', unitName(config)]);
-      await waitHealthy(config, state.previous);
-    }
-    await durableJson(journal, { ...state, phase: 'recovered' });
-    return;
-  }
-  if (!state.previous || !state.snapshot) throw Error('升级记录不完整，请使用备份恢复');
   if (state.phase === 'accepted') {
     await durableJson(join(config.installRoot!, 'installation.json'), {
       current: state.candidate,
@@ -260,15 +271,61 @@ async function recoverTransaction(config: HostConfig) {
     await durableJson(journal, { ...state, phase: 'complete' });
     return;
   }
+  async function finishRecovery() {
+    if (
+      !state.previous ||
+      basename(await realpath(join(config.installRoot!, 'current'))) !== state.previous
+    )
+      throw Error('已恢复版本与当前代码指针不一致；保留当前数据，请先核对');
+    if (state.wasActive) {
+      if (!serviceActive(config)) systemctl(['start', unitName(config)]);
+      await waitHealthy(config, state.previous);
+    }
+    // This durable barrier precedes ANY release of the write gate. A retry must
+    // never replace the database after old code can accept legitimate new writes.
+    await durableJson(journal, { ...state, phase: 'recoveryAccepted' });
+    maintenance(config, false);
+    await durableJson(journal, { ...state, phase: 'recovered' });
+  }
+  if (state.phase === 'recoveryAccepted') {
+    await finishRecovery();
+    return;
+  }
+  if (state.phase === 'quiescing') {
+    if (
+      !state.previous ||
+      basename(await realpath(join(config.installRoot!, 'current'))) !== state.previous
+    )
+      throw Error('停写记录与当前版本不一致，请先核对');
+    if (serviceActive(config)) systemctl(['stop', unitName(config)]);
+    maintenance(config, true);
+    await finishRecovery();
+    return;
+  }
+  if (
+    !['prepared', 'migrated', 'switched'].includes(state.phase) ||
+    !state.previous ||
+    !state.snapshot
+  )
+    throw Error('升级记录不完整，请使用备份恢复');
+  // Older or externally changed recovery state may already have reopened writes.
+  // It is unsafe to infer that replacing its database is still permitted.
+  const current = new Database(join(config.dataRoot, 'app.sqlite'), {
+    readonly: true,
+    fileMustExist: true,
+  });
+  let gated = false;
+  try {
+    gated = !!(current.prepare('SELECT active FROM maintenance WHERE id=1').get() as any)?.active;
+  } finally {
+    current.close();
+  }
+  if (!gated) throw Error('检测到写入已开放，禁止自动覆盖当前数据库；请核对升级恢复记录');
   if (serviceActive(config)) systemctl(['stop', unitName(config)]);
   await replaceDB(config, state.snapshot, state.keyFile);
+  maintenance(config, true);
   await switchRelease(config, join(config.installRoot!, 'releases', state.previous));
-  maintenance(config, false);
-  if (state.wasActive) {
-    systemctl(['start', unitName(config)]);
-    await waitHealthy(config, state.previous);
-  }
-  await durableJson(journal, { ...state, phase: 'recovered' });
+  await finishRecovery();
 }
 export async function updatePlatform(
   config: HostConfig,
@@ -393,7 +450,7 @@ export async function updatePlatform(
             await waitHealthy(config, old.version);
           }
         } catch (recovery) {
-          throw Error('升级失败且自动恢复未完成，维护状态已保留：' + (recovery as Error).message);
+          throw Error('升级失败且自动恢复未完成；当前数据已保留：' + (recovery as Error).message);
         }
         throw Error('升级失败，已恢复上一版本及切换前数据库：' + (error as Error).message);
       }

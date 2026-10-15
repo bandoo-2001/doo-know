@@ -12,6 +12,8 @@ export function activate(api: PluginUIApi) {
     GIT_PENDING_OPERATION_REQUIRES_RETRY: '上次提交尚未确认，请按原请求核对',
     GIT_DEPENDENCY_MISSING: '需要安装系统 Git 2.39 或更新版本',
     UNTRUSTED_GIT_FILTER: '仓库存在外部过滤器，暂停写操作',
+    UNSUPPORTED_GIT_ENTRY: '仓库包含软链接或子模块，请先在服务器核对后再提交',
+    GIT_CONFLICT: '仓库有未解决的冲突，请先在服务器处理',
     VERSION_CONFLICT: '文件已更新，请保留草稿后重新核对',
     WORKSPACE_BUSY: '工作区正在写入，请稍后重试',
   };
@@ -171,10 +173,22 @@ export function activate(api: PluginUIApi) {
         const confirm = () =>
           perform(async () => {
             uncertain.value = true;
-            result.value = await api.call('command', 'git.commit', {
-              token: preview.value.token,
-              requestId: requestId.value,
-            });
+            try {
+              result.value = await api.call('command', 'git.commit', {
+                token: preview.value.token,
+                requestId: requestId.value,
+              });
+            } catch (e) {
+              const response = e as any;
+              if ((response.data?.publication || response.publication) === 'not_published') {
+                const token = preview.value?.token;
+                uncertain.value = false;
+                preview.value = undefined;
+                requestId.value = '';
+                if (token) void api.call('command', 'git.cancelPreview', { token }).catch(() => {});
+              }
+              throw e;
+            }
             uncertain.value = false;
             await refresh();
             api.notifyChanged();

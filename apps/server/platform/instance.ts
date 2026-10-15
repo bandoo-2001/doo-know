@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
 import { join, resolve } from 'node:path';
 import Database from 'better-sqlite3';
@@ -47,8 +48,11 @@ export function acquireInstance(config: HostConfig, version: string) {
   };
 }
 export function activeDatabaseProcesses(dataRoot: string) {
-  const db = openDatabase(dataRoot);
+  const path = join(dataRoot, 'app.sqlite');
+  if (!existsSync(path)) return [];
+  const db = new Database(path, { readonly: true, fileMustExist: true });
   try {
+    if (!db.prepare("SELECT 1 FROM sqlite_master WHERE name='database_processes'").get()) return [];
     return (
       db.prepare('SELECT pid,process_start,role FROM database_processes').all() as any[]
     ).filter((p) => p.pid !== process.pid && processIsAlive(p.pid, p.process_start));

@@ -16,3 +16,27 @@ it('refuses a second live owner for one database and releases only its own insta
     await f.close();
   }
 });
+it('checks process ownership without migrating an older database', async () => {
+  const { mkdtemp, rm } = await import('node:fs/promises'),
+    { tmpdir } = await import('node:os'),
+    { join } = await import('node:path'),
+    { default: Database } = await import('better-sqlite3'),
+    { activeDatabaseProcesses } = await import('../apps/server/platform/instance.js');
+  const root = await mkdtemp(join(tmpdir(), 'ownership-readonly-'));
+  try {
+    let db = new Database(join(root, 'app.sqlite'));
+    db.exec('CREATE TABLE preserved_legacy_table(value TEXT)');
+    db.close();
+    expect(activeDatabaseProcesses(root)).toEqual([]);
+    db = new Database(join(root, 'app.sqlite'));
+    try {
+      expect(db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all()).toEqual([
+        { name: 'preserved_legacy_table' },
+      ]);
+    } finally {
+      db.close();
+    }
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});

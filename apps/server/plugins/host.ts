@@ -547,7 +547,13 @@ export function pluginHost(
       if (e instanceof KnowledgeError) throw e;
       const error = e as any;
       if (typeof error.code === 'string' && /^[A-Z][A-Z0-9_]{0,63}$/.test(error.code))
-        fail(error.statusCode || error.status || 500, error.code, error.code, !!error.retryable);
+        fail(
+          error.statusCode || error.status || 500,
+          error.code,
+          error.code,
+          !!error.retryable,
+          error.publication === 'not_published' ? { publication: 'not_published' } : {},
+        );
       fail(500, 'PLUGIN_CALL_FAILED');
     } finally {
       running.calls.delete(task);

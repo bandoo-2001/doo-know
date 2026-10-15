@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
 test('installs Git interactions, initializes, previews all changes and displays real history', async ({
   page,
   context,
@@ -27,6 +28,15 @@ test('installs Git interactions, initializes, previews all changes and displays 
   await expect(
     page.getByText('A · 30-Knowledge/个人知识管理/方法/入门指南.md', { exact: true }),
   ).toBeVisible({ timeout: 10000 });
+  const fixture = JSON.parse(await readFile('.local/e2e-config.json', 'utf8')),
+    file = join(fixture.knowledgeRoot, '30-Knowledge/个人知识管理/方法/入门指南.md');
+  await writeFile(file, (await readFile(file, 'utf8')) + '\n\n# External change before confirm\n');
+  await page.getByRole('button', { name: '确认提交', exact: true }).click();
+  await expect(
+    page.getByText('预览后文件或暂存区发生变化，请重新预览', { exact: true }),
+  ).toBeVisible();
+  await page.getByRole('button', { name: '预览全部变更', exact: true }).click();
+  await expect(page.getByRole('button', { name: '确认提交', exact: true })).toBeVisible();
   await page.getByRole('button', { name: '确认提交', exact: true }).click();
   await expect(page.getByText(/提交 [a-f0-9]{40} 已完成/)).toBeVisible({ timeout: 15000 });
   await page.getByRole('button', { name: '关闭插件面板', exact: true }).click();

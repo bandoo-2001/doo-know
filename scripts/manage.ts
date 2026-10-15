@@ -13,7 +13,7 @@ import {
 } from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
-import { randomBytes } from 'node:crypto';
+import { randomBytes, createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { loadHostConfig, applicationRoot } from '../apps/server/platform/config.js';
 import { openDatabase } from '../packages/core/db.js';
@@ -37,7 +37,11 @@ import {
   healthURL,
 } from '../apps/server/platform/service.js';
 import { createPlatformBackup, restorePlatformBackup } from '../apps/server/platform/backups.js';
-import { managementLock, updatePlatform, rollbackPlatform } from '../apps/server/platform/updates.js';
+import {
+  managementLock,
+  updatePlatform,
+  rollbackPlatform,
+} from '../apps/server/platform/updates.js';
 import { platformSettings } from '../apps/server/platform/settings.js';
 import { pluginHost } from '../apps/server/plugins/host.js';
 import { satisfies } from 'semver';
@@ -352,23 +356,21 @@ async function main() {
   }
   if (command === 'uninstall') {
     await managementLock(config, async () => {
-      const instance = readInstance(config.dataRoot);
-      if (instance && instance.profile_file !== profileFile) throw Error('数据库属于另一配置');
-      if (instance || serviceActive(config)) {
-        assertServiceOwnership(config);
-        systemctl(['stop', unitName(config)]);
-      }
-      try {
-        systemctl(['disable', unitName(config)]);
-      } catch {}
       const unit = join(
         process.env.XDG_CONFIG_HOME || join(homedir(), '.config'),
         'systemd/user',
         unitName(config),
       );
-      if (existsSync(unit)) {
-        if (!readFileSync(unit, 'utf8').includes('# DooKnow profile: ' + profileFile))
-          throw Error('拒绝删除另一配置的服务');
+      const ownsUnit = existsSync(unit);
+      if (ownsUnit) assertServiceOwnership(config);
+      const instance = readInstance(config.dataRoot);
+      if (instance && instance.profile_file !== profileFile) throw Error('数据库属于另一配置');
+      if (activeDatabaseProcesses(config.dataRoot).some((p) => p.pid !== instance?.pid))
+        throw Error('请先停止独立的数据进程再卸载');
+      if (instance && !ownsUnit) throw Error('请先正常停止前台应用再卸载');
+      if (ownsUnit) {
+        if (instance || serviceActive(config)) systemctl(['stop', unitName(config)]);
+        systemctl(['disable', unitName(config)]);
         unlinkSync(unit);
         systemctl(['daemon-reload']);
       }
@@ -380,12 +382,18 @@ async function main() {
         process.env.DOOKNOW_BIN_DIR || join(homedir(), '.local/bin'),
         'dooknow',
       );
-      if (
-        existsSync(launcher) &&
-        config.installRoot &&
-        readFileSync(launcher, 'utf8').includes(config.installRoot)
-      )
-        unlinkSync(launcher);
+      if (existsSync(launcher) && config.installRoot) {
+        const lines = readFileSync(launcher, 'utf8').split(/\r?\n/),
+          id = createHash('sha256').update(config.installRoot).digest('hex');
+        const legacySafe =
+          /^[A-Za-z0-9_./@+-]+$/.test(config.installRoot) &&
+          lines.some(
+            (line) =>
+              line === 'export DOOKNOW_INSTALL_ROOT=' + config.installRoot ||
+              line === 'DOOKNOW_INSTALL_ROOT=' + config.installRoot,
+          );
+        if (lines.includes('# DooKnow install: ' + id) || legacySafe) unlinkSync(launcher);
+      }
     });
     console.log('已卸载程序与用户服务；知识库、数据、插件、模型、配置及备份均已保留。');
     return;
