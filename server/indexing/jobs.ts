@@ -28,7 +28,11 @@ export function indexJobService(
       ).run(randomUUID(), v.noteId, v.sourceRevision, v.contentHash, target, space);
     })();
   }
-  function claim(workerId: string): LeasedIndexJob | null {
+  function claim(
+    workerId: string,
+    targets: ('text' | 'vector')[] = ['text', 'vector'],
+  ): LeasedIndexJob | null {
+    if (!targets.length) return null;
     return db
       .transaction(() => {
         if (desiredSpace(db, options.spaceId || '') !== (options.spaceId || '')) return null;
@@ -41,11 +45,13 @@ export function indexJobService(
           return null;
         const row = db
           .prepare(
-            `SELECT j.* FROM index_jobs j JOIN document_state d ON d.note_id=j.note_id JOIN notes n ON n.id=j.note_id WHERE n.active=1 AND d.active=1 AND d.conflict=0 AND j.source_revision=d.source_revision AND j.source_hash=d.content_hash AND j.attempts<10 AND ((j.status IN ('pending','retry_wait') AND j.next_run_at<=?) OR (j.status='leased' AND j.lease_until<=?)) AND (j.target='text' OR j.space_id=?) ORDER BY CASE j.target WHEN 'text' THEN 0 ELSE 1 END,CASE WHEN d.size_bytes<=1048576 THEN 0 ELSE 1 END,j.next_run_at,j.rowid LIMIT 1`,
+            `SELECT j.* FROM index_jobs j JOIN document_state d ON d.note_id=j.note_id JOIN notes n ON n.id=j.note_id WHERE n.active=1 AND d.active=1 AND d.conflict=0 AND j.source_revision=d.source_revision AND j.source_hash=d.content_hash AND j.attempts<10 AND ((j.status IN ('pending','retry_wait') AND j.next_run_at<=?) OR (j.status='leased' AND j.lease_until<=?)) AND j.target IN (?,?) AND (j.target='text' OR j.space_id=?) ORDER BY CASE j.target WHEN 'text' THEN 0 ELSE 1 END,CASE WHEN d.size_bytes<=1048576 THEN 0 ELSE 1 END,j.next_run_at,j.rowid LIMIT 1`,
           )
           .get(
             now(),
             now(),
+            targets[0] || '__paused__',
+            targets[1] || '__paused__',
             desiredSpace(db, options.spaceId || '') === options.spaceId
               ? options.spaceId || ''
               : '__inactive_space__',
@@ -130,6 +136,11 @@ export function indexJobService(
       job.leaseEpoch,
     );
   }
+  function defer(job: LeasedIndexJob, code: string) {
+    db.prepare(
+      "UPDATE index_jobs SET status='pending',lease_until=NULL,attempts=max(0,attempts-1),next_run_at=?,error=? WHERE id=? AND status='leased' AND lease_epoch=? AND worker_id=?",
+    ).run(now() + 5000, code, job.id, job.leaseEpoch, job.workerId);
+  }
   function checkpoint(job: LeasedIndexJob, count: number) {
     if (!valid(job)) return false;
     db.prepare('UPDATE index_jobs SET checkpoint=? WHERE id=? AND lease_epoch=?').run(
@@ -173,5 +184,5 @@ export function indexJobService(
       }
     return count;
   }
-  return { enqueue, claim, valid, complete, fail, heartbeat, checkpoint, retry, preempt };
+  return { enqueue, claim, valid, complete, fail, defer, heartbeat, checkpoint, retry, preempt };
 }

@@ -6,7 +6,15 @@ export function setDesiredEmbeddingSpace(db: AppDatabase, config: AppConfig) {
   const old = (
     db.prepare("SELECT value FROM index_meta WHERE key='desired_embedding_space'").get() as any
   )?.value;
-  if (!space && old === undefined) return;
+  if (!space) {
+    const active = db
+      .prepare(
+        "SELECT g.space_id FROM vector_generations g JOIN index_meta m ON m.value=g.id AND m.key='active_generation'",
+      )
+      .get() as any;
+    if (old || active?.space_id) config.embeddingSpaceId = old || active.space_id;
+    return;
+  }
   if (old === space) return;
   const active = db
     .prepare(

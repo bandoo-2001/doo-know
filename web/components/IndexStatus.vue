@@ -4,6 +4,7 @@ import { NButton } from 'naive-ui';
 import { api } from '../api';
 const props = defineProps<{ noteId?: string }>(),
   state = ref<any>(),
+  components = ref<any>(),
   error = ref(''),
   busy = ref(false);
 let epoch = 0;
@@ -14,6 +15,8 @@ async function load() {
       `/api/index/status${props.noteId ? '?noteId=' + encodeURIComponent(props.noteId) : ''}`,
     );
     if (current === epoch) state.value = result;
+    const runtime = await api<any>('/api/platform/search-runtime');
+    if (current === epoch) components.value = runtime.components;
   } catch (e) {
     if (current === epoch) error.value = (e as Error).message;
   }
@@ -50,9 +53,11 @@ onBeforeUnmount(() => {
       {{ state.sync.status === 'idle' ? '' : '同步中 · ' }}
       {{ state.conflicts ? `冲突 ${state.conflicts} · ` : '' }}
       {{
-        state.pending || state.retrying
-          ? `索引待处理 ${state.pending + state.retrying}`
-          : '文本索引已更新'
+        components && !components.tokenizerReady
+          ? '索引依赖未就绪，任务暂停'
+          : state.pending || state.retrying
+            ? `索引待处理 ${state.pending + state.retrying}`
+            : '文本索引已更新'
       }}
       {{ state.failed ? ` · 失败 ${state.failed}` : '' }}
       <span v-if="state.document">

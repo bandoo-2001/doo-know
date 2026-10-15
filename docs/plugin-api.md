@@ -57,3 +57,15 @@ Tunnel 使用独立的 loopback 监听端口、Bearer 密钥和本地授权记�
 宿主 SDK 的 workspace permit 覆盖核心原文写入、附件、目录、后台文件任务及旧的显式同步。普通 Git 查询持共享许可，预览、提交和恢复持独占许可。租约时限不会授权抢占活进程。执行进程先登记 PID 与 Linux 启动身份，再 `execve` 为 Git；同一进程身份及独立进程组在 Web 退出后仍阻止新写入，直到真实退出。执行超时先终止并等待进程，不按 IPC 断开释放锁。已进入提交阶段的 Web 请求可在插件 stopping 状态完成收尾，新请求被拒绝。
 
 闸门协调应用和相关 worker。外部编辑器/Git CLI 仍使用各自的进程和锁；检测到变化会停止覆盖并要求重新预览或核对，不宣称可以同时锁定任意外部写入者。
+
+## 可选本地检索
+
+原文运行时、首次设置和模型准备分开。`GET /api/platform/search-runtime` 返回实际组件状态和持久准备任务；`POST /api/platform/search-runtime/prepare` 使用 requestId，取消通过 `/api/platform/search-runtime/tasks/:id/cancel`。接口要求主人会话、Origin 和 CSRF；下载地址取受控发行配置，不接受浏览器指定任意源。
+
+独立检索包内含固定 CPython 3.14.4、53 个锁定版本与 SHA-256 的 CPU wheel、固定 revision 的 BGE 模型。安装在最终路径创建 venv，使用 `--no-index --require-hashes`，不复制开发环境。模型目录与运行时、原文分开。先校验整包、每个文件及固定模型 manifest，再运行真实模型空间/维度自检。准备任务在下载、校验、环境创建、安装、模型验证和启动阶段显示进度；已经校验的包可以复用。
+
+缺少 tokenizer 时不领取文本或向量任务；只有向量服务不可用时继续处理文本任务。组件在任务途中失效会保留 checkpoint、暂停任务，不消耗失败重试次数。暂时未配置或不可用不会清除已有 embedding space 身份。strict/semantic 的要求继续由检索入口检查。
+
+管理进程只替换 worker/search 句柄，不重复创建笔记 watcher、快照或文件 worker。已有显式部署配置优先，显示“服务器部署配置”，不会被可选下载流程覆盖。新安装由受管 loopback 进程提供向量服务，重启后根据已验证安装恢复组件；进程所有权使用启动身份和进程组检查，旧安装子进程未退出时不重装。临时解包和 pip 文件放在受管运行目录，确认安装进程退出后再清理。
+
+构建入口：`python3 scripts/build-search-runtime.py --output <目录> --base-url <受控制品源>`。`runtime/vector-service/wheels-manifest.json` 记录 wheel 字节的固定摘要；首次建立锁需显式 `--record-lock`，后续构建不得悄悄接纳不同内容。

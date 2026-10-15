@@ -5,8 +5,8 @@ import { createApp } from '../../server/app.js';
 export const origin = 'http://localhost:3010';
 import { testPassword } from './credentials.js';
 export { testPassword };
-export async function createFixture(overrides: Record<string, unknown> = {}) {
-  const root = await mkdtemp(join(tmpdir(), 'doo-know-test-'));
+export async function createFixture(overrides: Record<string, unknown> = {}, parent = tmpdir()) {
+  const root = await mkdtemp(join(parent, 'doo-know-test-'));
   const knowledgeRoot = join(root, 'knowledge'),
     dataRoot = join(root, 'data');
   await mkdir(join(knowledgeRoot, '00-Inbox'), { recursive: true });
@@ -16,7 +16,7 @@ export async function createFixture(overrides: Record<string, unknown> = {}) {
     dataRoot,
     origin,
     secret: 'fixture-only-secret-at-least-thirty-two-characters',
-    indexing:{enabled:false,watch:false},
+    indexing: { enabled: false, watch: false },
     ...overrides,
   };
   const app = await createApp(config);

@@ -49,6 +49,50 @@ export function indexWorker(
   let lastMaintenance = 0;
   let current: Promise<void> | undefined,
     closing = false;
+  let readiness = {
+    tokenizerReady: false,
+    vectorReady: false,
+    tokenizerError: 'NOT_PREPARED' as string | undefined,
+    vectorError: 'NOT_PREPARED' as string | undefined,
+  };
+  let checkedAt = 0,
+    checking: Promise<typeof readiness> | undefined;
+  function capabilities(force = false) {
+    if (closing)
+      return Promise.resolve({ ...readiness, tokenizerReady: false, vectorReady: false });
+    if (checking) return checking;
+    if (!force && Date.now() - checkedAt < 5000) return Promise.resolve({ ...readiness });
+    checking = (async () => {
+      const result = await Promise.allSettled([
+        tokenizer.count([]),
+        client
+          ? client.call('/describe')
+          : Promise.reject(new KnowledgeError(503, 'VECTOR_NOT_CONFIGURED', '向量组件未配置')),
+      ]);
+      const t = result[0],
+        v = result[1];
+      readiness = {
+        tokenizerReady: t.status === 'fulfilled',
+        vectorReady:
+          v.status === 'fulfilled' &&
+          v.value.spaceId === config.embeddingSpaceId &&
+          v.value.dimensions === 512,
+        tokenizerError:
+          t.status === 'rejected' ? t.reason?.code || 'TOKENIZER_UNAVAILABLE' : undefined,
+        vectorError:
+          v.status === 'rejected'
+            ? v.reason?.code || 'VECTOR_UNAVAILABLE'
+            : v.value.spaceId !== config.embeddingSpaceId
+              ? 'EMBEDDING_SPACE_MISMATCH'
+              : undefined,
+      };
+      checkedAt = Date.now();
+      return { ...readiness };
+    })().finally(() => {
+      checking = undefined;
+    });
+    return checking;
+  }
   const ensure = (job: LeasedIndexJob) => {
     if (closing) fail(503, 'WORKER_STOPPING');
     if (!jobs.valid(job)) fail(409, 'LEASE_LOST');
@@ -148,7 +192,21 @@ export function indexWorker(
       }
       jobs.complete(job);
     } catch (error) {
-      jobs.fail(job, error instanceof KnowledgeError ? error.code : 'INDEX_WORK_FAILED');
+      const code = error instanceof KnowledgeError ? error.code : 'INDEX_WORK_FAILED';
+      if (
+        [
+          'TOKENIZER_UNAVAILABLE',
+          'TOKENIZER_TIMEOUT',
+          'TOKENIZER_BUSY',
+          'VECTOR_UNAVAILABLE',
+          'VECTOR_NOT_CONFIGURED',
+          'EMBEDDING_SPACE_MISMATCH',
+          'LOCAL_MODEL_MISSING',
+        ].includes(code)
+      ) {
+        jobs.defer(job, code);
+        checkedAt = 0;
+      } else jobs.fail(job, code);
     } finally {
       clearInterval(heartbeat);
       if (snapshotId)
@@ -160,9 +218,16 @@ export function indexWorker(
     if (current) return current;
     if (closing) return;
     current = (async () => {
+      const ready = await capabilities();
+      const targets: ('text' | 'vector')[] = ready.tokenizerReady
+        ? ['text', ...(ready.vectorReady ? ['vector' as const] : [])]
+        : [];
       let job: LeasedIndexJob | null;
-      while (!closing && (job = jobs.claim(workerId))) await runJob(job);
-      if (vectors && !closing && Date.now() - lastMaintenance >= 60000) {
+      while (!closing && (job = jobs.claim(workerId, targets))) {
+        await runJob(job);
+        if (!checkedAt) break;
+      }
+      if (ready.vectorReady && vectors && !closing && Date.now() - lastMaintenance >= 60000) {
         lastMaintenance = Date.now();
         await vectors.compact().catch(() => {});
         await vectors.maintain().catch(() => {});
@@ -175,7 +240,18 @@ export function indexWorker(
   async function close() {
     closing = true;
     await current;
+    await checking;
     await tokenizer.close();
   }
-  return { drain, close, jobs, text, vectors, client, tokenizer };
+  return {
+    drain,
+    close,
+    jobs,
+    text,
+    vectors,
+    client,
+    tokenizer,
+    capabilities,
+    readiness: () => ({ ...readiness }),
+  };
 }

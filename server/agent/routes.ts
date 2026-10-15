@@ -70,16 +70,20 @@ export function metadataService(config: AppConfig, db: AppDatabase, notes: NoteS
     };
   };
 }
-export async function createKnowledgeRuntime(config: AppConfig, db: AppDatabase, notes: NoteService) {
+export async function createKnowledgeRuntime(
+  config: AppConfig,
+  db: AppDatabase,
+  notes: NoteService,
+) {
   const core = mutationCore(config, db);
   await core.recover();
   const snapshots = snapshotService(config, db, notes);
   const files = fileJobService(config, db, notes, snapshots);
   const indexing = reconcileService(config, db);
   setDesiredEmbeddingSpace(db, config);
-  const worker = indexWorker(config, db, notes, snapshots),
-    search = searchService(config, db, notes, indexing, worker),
-    research = researchService(config, db, notes);
+  let worker = indexWorker(config, db, notes, snapshots),
+    search = searchService(config, db, notes, indexing, worker);
+  const research = researchService(config, db, notes);
   await snapshots.recover();
   await files.recover();
   let stopWatching = () => {};
@@ -123,8 +127,19 @@ export async function createKnowledgeRuntime(config: AppConfig, db: AppDatabase,
     files,
     core,
     indexing,
-    worker,
-    search,
+    get worker() {
+      return worker;
+    },
+    get search() {
+      return search;
+    },
+    reconfigureSearch: async (updates: Partial<AppConfig>) => {
+      await worker.close();
+      Object.assign(config, updates);
+      setDesiredEmbeddingSpace(db, config);
+      worker = indexWorker(config, db, notes, snapshots);
+      search = searchService(config, db, notes, indexing, worker);
+    },
     research,
     stopWatching: async () => {
       stopWatching();
@@ -137,20 +152,30 @@ export async function createKnowledgeRuntime(config: AppConfig, db: AppDatabase,
 }
 export type KnowledgeRuntime = Awaited<ReturnType<typeof createKnowledgeRuntime>>;
 export async function registerAgentRoutes(
-  app: FastifyInstance, config: AppConfig, db: AppDatabase, notes: NoteService,
+  app: FastifyInstance,
+  config: AppConfig,
+  db: AppDatabase,
+  notes: NoteService,
   supplied?: () => KnowledgeRuntime,
 ) {
   const ready = supplied ? undefined : await createKnowledgeRuntime(config, db, notes);
   const get = supplied || (() => ready!);
-  const service = <T extends object>(read: () => T): T => new Proxy({} as T, {
-    get: (_target, key) => (...args: unknown[]) => {
-      const object = read(); const value = (object as any)[key];
-      return typeof value === 'function' ? value.apply(object, args) : value;
-    },
-  });
-  const core = service(() => get().core), snapshots = service(() => get().snapshots),
-    files = service(() => get().files), indexing = service(() => get().indexing),
-    search = service(() => get().search), research = service(() => get().research);
+  const service = <T extends object>(read: () => T): T =>
+    new Proxy({} as T, {
+      get:
+        (_target, key) =>
+        (...args: unknown[]) => {
+          const object = read();
+          const value = (object as any)[key];
+          return typeof value === 'function' ? value.apply(object, args) : value;
+        },
+    });
+  const core = service(() => get().core),
+    snapshots = service(() => get().snapshots),
+    files = service(() => get().files),
+    indexing = service(() => get().indexing),
+    search = service(() => get().search),
+    research = service(() => get().research);
   await app.register(
     async (api) => {
       api.addHook('onRoute', (route) => {
@@ -334,9 +359,12 @@ export async function registerAgentRoutes(
     },
     { prefix: '/api/agent/v1' },
   );
-  return new Proxy({} as KnowledgeRuntime, { get: (_target, key) => {
-    if (key === 'then') return undefined;
-    const object = get(); const value = (object as any)[key];
-    return typeof value === 'function' ? value.bind(object) : value;
-  } });
+  return new Proxy({} as KnowledgeRuntime, {
+    get: (_target, key) => {
+      if (key === 'then') return undefined;
+      const object = get();
+      const value = (object as any)[key];
+      return typeof value === 'function' ? value.bind(object) : value;
+    },
+  });
 }

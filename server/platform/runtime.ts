@@ -12,18 +12,26 @@ import { fail } from '../knowledge/errors.js';
 import { loadAgentConfig } from '../agent/config.js';
 
 async function createRuntime(config: AppConfig, db: AppDatabase) {
-  if (config.agentConfigFile) config.agent = loadAgentConfig(config.agentConfigFile, config.knowledgeRoot);
+  if (config.agentConfigFile)
+    config.agent = loadAgentConfig(config.agentConfigFile, config.knowledgeRoot);
   assertRoot(config, db);
   const notes = noteService(config, db);
   const knowledge = await createKnowledgeRuntime(config, db, notes);
-  return { config, notes, knowledge, assets: assetService(config, db, notes),
-    recovery: recoveryService(config, db, notes), shares: shareService(db, notes) };
+  return {
+    config,
+    notes,
+    knowledge,
+    assets: assetService(config, db, notes),
+    recovery: recoveryService(config, db, notes),
+    shares: shareService(db, notes),
+  };
 }
 export function platformRuntime(config: HostConfig, db: AppDatabase) {
   const settings = platformSettings(config, db);
   let runtime: Awaited<ReturnType<typeof createRuntime>> | undefined;
   let activation: Promise<void> | undefined;
-  let error: string | undefined, closing = false;
+  let error: string | undefined,
+    closing = false;
   function activate() {
     if (activation) return activation;
     if (runtime || closing) return Promise.resolve();
@@ -33,8 +41,12 @@ export function platformRuntime(config: HostConfig, db: AppDatabase) {
         if (!resolved) return;
         runtime = await createRuntime(resolved, db);
         error = undefined;
-      } catch (e) { error = (e as any).code || 'RUNTIME_INITIALIZATION_FAILED'; }
-    })().finally(() => { activation = undefined; });
+      } catch (e) {
+        error = (e as any).code || 'RUNTIME_INITIALIZATION_FAILED';
+      }
+    })().finally(() => {
+      activation = undefined;
+    });
     return activation;
   }
   function get() {
@@ -43,20 +55,38 @@ export function platformRuntime(config: HostConfig, db: AppDatabase) {
     assertRoot(runtime.config, db);
     return runtime;
   }
-  return { settings, activate, get,
-    status: () => settings.status(!!runtime, !!activation, error),
+  return {
+    settings,
+    activate,
+    get,
+    status: () => {
+      const value = settings.status(!!runtime, !!activation, error);
+      const search = runtime?.knowledge.worker.readiness();
+      value.components.search = !!search?.tokenizerReady && !!search?.vectorReady;
+      return value;
+    },
+    reconfigureSearch: (updates: Partial<AppConfig>) => get().knowledge.reconfigureSearch(updates),
     close: async () => {
       closing = true;
       await activation;
       if (!runtime) return;
       const k = runtime.knowledge;
-      await k.stopWatching(); await k.worker.close(); await k.files.close();
-      await k.snapshots.close(); await k.indexing.close();
-    } };
+      await k.stopWatching();
+      await k.worker.close();
+      await k.files.close();
+      await k.snapshots.close();
+      await k.indexing.close();
+    },
+  };
 }
 export function lazyService<T extends object>(read: () => T): T {
-  return new Proxy({} as T, { get: (_target, key) => (...args: unknown[]) => {
-    const instance = read(); const member = (instance as any)[key];
-    return typeof member === 'function' ? member.apply(instance, args) : member;
-  } });
+  return new Proxy({} as T, {
+    get:
+      (_target, key) =>
+      (...args: unknown[]) => {
+        const instance = read();
+        const member = (instance as any)[key];
+        return typeof member === 'function' ? member.apply(instance, args) : member;
+      },
+  });
 }

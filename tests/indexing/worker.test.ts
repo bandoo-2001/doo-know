@@ -96,7 +96,16 @@ it('publishes full text and real local vectors through durable jobs and keeps le
           )
           .get() as any
       ).status,
-    ).toBe('retry_wait');
+    ).toBe('pending');
+    expect(
+      (
+        db
+          .prepare(
+            "SELECT attempts FROM index_jobs WHERE target='vector' ORDER BY rowid DESC LIMIT 1",
+          )
+          .get() as any
+      ).attempts,
+    ).toBe(0);
   } finally {
     await worker.close();
     await snapshots.close();

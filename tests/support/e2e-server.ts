@@ -1,3 +1,5 @@
+import { createServer as createHTTPServer } from 'node:http';
+import { createHash } from 'node:crypto';
 import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -20,9 +22,36 @@ await writeFile(
 );
 await mkdir('.local', { recursive: true });
 await writeFile('.local/e2e-config.json', JSON.stringify({ knowledgeRoot, dataRoot }));
+let searchSource: ReturnType<typeof createHTTPServer> | undefined, searchDistribution: any;
+if (process.env.DOOKNOW_E2E_SEARCH_RUNTIME === '1') {
+  const bytes = Buffer.alloc(2 * 1024 * 1024, 65);
+  searchSource = createHTTPServer((_request, response) => {
+    response.writeHead(200, { 'content-length': bytes.length });
+    response.write(bytes.subarray(0, 1024 * 1024 + 1));
+  });
+  await new Promise<void>((r) => searchSource!.listen(0, '127.0.0.1', () => r()));
+  searchDistribution = {
+    version: 'bge-zh-cpu-20261015',
+    pythonVersion: '3.14.4',
+    platform: 'linux-x64',
+    spaceId: '6fabd979756dff4dc79f1430da4cdff500badfb47db0eb8c0d4b07b02770faf5',
+    modelRevision: '7999e1d3359715c523056ef9478215996d62a620',
+    url: 'http://127.0.0.1:' + (searchSource.address() as any).port + '/search.tar.gz',
+    bytes: bytes.length,
+    sha256: createHash('sha256').update(bytes).digest('hex'),
+  };
+}
 const config = {
   knowledgeRoot,
   dataRoot,
+  ...(searchDistribution
+    ? {
+        searchDistribution,
+        searchCacheRoot: join(root, 'cache'),
+        searchRuntimeRoot: join(root, 'runtime'),
+        searchModelsRoot: join(root, 'models'),
+      }
+    : {}),
   secret: 'e2e-only-at-least-thirty-two-character-secret',
   origin: 'http://127.0.0.1:4179',
   pluginCatalog: [
@@ -77,6 +106,8 @@ const vite =
 await vite?.listen();
 for (const s of ['SIGINT', 'SIGTERM'])
   process.on(s, async () => {
+    searchSource?.closeAllConnections();
+    await new Promise<void>((r) => (searchSource ? searchSource.close(() => r()) : r()));
     await vite?.close();
     await app.close();
     await rm(root, { recursive: true, force: true });

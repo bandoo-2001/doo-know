@@ -10,6 +10,7 @@ import TreeBranch from './TreeBranch.vue';
 import MarkdownEditor from './MarkdownEditor.vue';
 import LargeFileWorkspace from './LargeFileWorkspace.vue';
 import IndexStatus from './IndexStatus.vue';
+import SearchRuntimeSettings from './SearchRuntimeSettings.vue';
 import PluginManager from './PluginManager.vue';
 import PluginSlot from './PluginSlot.vue';
 import PluginPanel from './PluginPanel.vue';
@@ -51,17 +52,27 @@ let noticeTimer: ReturnType<typeof setTimeout>;
 const dirty = computed(
   () => !!note.value && (largeDirty.value || draft.value !== savedContent.value),
 );
-const pluginContext = computed(() => ({ noteId: note.value?.id, relativePath: note.value?.relativePath,
-  expectedModifiedAt: note.value?.modifiedAt, folderPath: folder.value,
-  note: { selected: !!note.value, dirty: dirty.value }, workspace: { ready: true } }));
+const pluginContext = computed(() => ({
+  noteId: note.value?.id,
+  relativePath: note.value?.relativePath,
+  expectedModifiedAt: note.value?.modifiedAt,
+  folderPath: folder.value,
+  note: { selected: !!note.value, dirty: dirty.value },
+  workspace: { ready: true },
+}));
 let pluginTimer: ReturnType<typeof setInterval> | undefined;
-function pluginNotice(event: Event) { tell((event as CustomEvent).detail.message); }
+function pluginNotice(event: Event) {
+  tell((event as CustomEvent).detail.message);
+}
 function workspaceChanged(event: Event) {
   const id = (event as CustomEvent).detail.noteId;
-  void run(async () => { await refresh(); if (id && note.value?.id === id) {
-    if (dirty.value) tell('原文已更新，当前未保存草稿会保留，请重新核对版本');
-    else await openNote(id);
-  } });
+  void run(async () => {
+    await refresh();
+    if (id && note.value?.id === id) {
+      if (dirty.value) tell('原文已更新，当前未保存草稿会保留，请重新核对版本');
+      else await openNote(id);
+    }
+  });
 }
 const md = new MarkdownIt({ html: false, linkify: true });
 const flatten = (items: TreeEntry[]): TreeEntry[] =>
@@ -523,7 +534,10 @@ async function history(more = false) {
   const id = note.value!.id,
     epoch = viewEpoch;
   await run(async () => {
-    const response = await api(`/api/notes/${id}/revisions` + (more && revisionCursor.value ? `?cursor=${encodeURIComponent(revisionCursor.value)}` : ''));
+    const response = await api(
+      `/api/notes/${id}/revisions` +
+        (more && revisionCursor.value ? `?cursor=${encodeURIComponent(revisionCursor.value)}` : ''),
+    );
     if (!currentView(id, epoch)) return;
     revisions.value = more ? [...revisions.value, ...response.items] : response.items;
     revisionCursor.value = response.nextCursor;
@@ -720,18 +734,28 @@ async function searchPage(q: string, cursor?: string): Promise<SearchOutput | un
   let response: SearchOutput;
   try {
     response = await api<SearchOutput>('/api/search/advanced', 'POST', {
-      query: '"' + q + '"', mode: 'text', ...(cursor ? { cursor } : {}),
+      query: '"' + q + '"',
+      mode: 'text',
+      ...(cursor ? { cursor } : {}),
     });
   } catch (e) {
-    if (cursor && e instanceof ApiError && (e.data.code === 'CURSOR_EXPIRED' || (e.data.error as any)?.code === 'CURSOR_EXPIRED')) {
+    if (
+      cursor &&
+      e instanceof ApiError &&
+      (e.data.code === 'CURSOR_EXPIRED' || (e.data.error as any)?.code === 'CURSOR_EXPIRED')
+    ) {
       tell('索引已更新，搜索结果已重新加载');
       return searchPage(q);
     }
     throw e;
   }
   if (query.value !== q) return;
-  const items = response.results.map((r) => ({ id: r.noteId, title: r.title,
-    relativePath: r.relativePath, snippet: r.matches[0]?.snippet || '' }));
+  const items = response.results.map((r) => ({
+    id: r.noteId,
+    title: r.title,
+    relativePath: r.relativePath,
+    snippet: r.matches[0]?.snippet || '',
+  }));
   results.value = cursor ? [...results.value, ...items] : items;
   searchCursor.value = response.nextCursor;
   return response;
@@ -748,7 +772,12 @@ watch(query, (q) => {
   const search = () =>
     void run(async () => {
       const response = await searchPage(q);
-      if (response && !results.value.length && ++attempts < 15 && (response.index.pending || attempts < 3))
+      if (
+        response &&
+        !results.value.length &&
+        ++attempts < 15 &&
+        (response.index.pending || attempts < 3)
+      )
         searchTimer = setTimeout(search, 1000);
     });
   searchTimer = setTimeout(search, 220);
@@ -767,7 +796,9 @@ function unload(e: BeforeUnloadEvent) {
 }
 onMounted(() => {
   void refreshPlugins().catch(() => {});
-  pluginTimer = setInterval(() => { void refreshPlugins().catch(() => {}); }, 5000);
+  pluginTimer = setInterval(() => {
+    void refreshPlugins().catch(() => {});
+  }, 5000);
   window.addEventListener('dooknow-workspace-changed', workspaceChanged);
   window.addEventListener('dooknow-notice', pluginNotice);
   void run(async () => {
@@ -835,7 +866,16 @@ onBeforeUnmount(() => {
             ><span>{{ r.snippet }}</span>
           </button>
           <p v-if="results.length" class="muted">已显示 {{ results.length }} 篇</p>
-          <NButton v-if="searchCursor" :loading="busy" @click="run(async () => { await searchPage(query, searchCursor); })">加载更多搜索结果</NButton>
+          <NButton
+            v-if="searchCursor"
+            :loading="busy"
+            @click="
+              run(async () => {
+                await searchPage(query, searchCursor);
+              })
+            "
+            >加载更多搜索结果</NButton
+          >
           <p v-if="!results.length" class="muted empty-search">没有匹配的笔记</p></template
         ><TreeBranch v-else :entries="tree" :selected="selected" @select="select" />
       </div>
@@ -1020,7 +1060,7 @@ onBeforeUnmount(() => {
             :input-props="{ 'aria-label': '新密码' }"
           /><NButton type="primary" attr-type="submit">修改密码</NButton>
         </form>
-        <PluginManager />
+        <SearchRuntimeSettings /><PluginManager />
         <NButton @click="logout">退出登录</NButton>
       </section>
     </main>

@@ -153,3 +153,26 @@ it('does not treat an expired per-note lease as permission to overwrite a live f
     await f.close();
   }
 });
+it('rejects a process bookkeeping failure instead of leaving the command promise pending', async () => {
+  const f = await pluginRuntimeFixture();
+  const { workspaceExec } = await import('../server/workspace/exec.js');
+  try {
+    await workspaceWrite(f.db, { kind: 'init-schema' }, async () => {});
+    f.db.exec(
+      "CREATE TRIGGER reject_guard_cleanup BEFORE DELETE ON workspace_guards BEGIN SELECT RAISE(ABORT,'fixture storage unavailable'); END;",
+    );
+    await expect(
+      Promise.race([
+        workspaceExclusive(f.db, { kind: 'git.failure' }, () =>
+          workspaceExec(f.db, f.config.knowledgeRoot, ['--version']),
+        ),
+        new Promise((_, reject) => setTimeout(() => reject(Error('command never settled')), 2000)),
+      ]),
+    ).rejects.toMatchObject({ code: 'SQLITE_CONSTRAINT_TRIGGER' });
+  } finally {
+    f.db.exec(
+      'DROP TRIGGER IF EXISTS reject_guard_cleanup;DELETE FROM workspace_guards;DELETE FROM workspace_gate;',
+    );
+    await f.close();
+  }
+});
