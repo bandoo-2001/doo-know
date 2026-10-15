@@ -8,6 +8,8 @@ import multipart from '@fastify/multipart';
 import staticPlugin from '@fastify/static';
 import { fromNodeHeaders } from 'better-auth/node';
 import type { AppConfig } from '../shared/contracts.js';
+import type { HostConfig } from '../shared/platform-contracts.js';
+import { platformRuntime, lazyService } from './platform/runtime.js';
 import { openDatabase } from './db.js';
 import { createAuth } from './auth.js';
 import { noteService, saveInput } from './notes.js';
@@ -20,10 +22,14 @@ import { registerAgentRoutes } from './agent/routes.js';
 import { registerWebKnowledgeRoutes } from './knowledge/web-routes.js';
 import { webPrincipal } from './knowledge/core.js';
 import { KnowledgeError } from './knowledge/errors.js';
-export async function createApp(config: AppConfig) {
+export async function createApp(config: HostConfig) {
   const app = Fastify({ logger: false, bodyLimit: 2 * 1024 * 1024 });
   const db = openDatabase(config.dataRoot);
   const auth = await createAuth(config, db);
+  const platform = platformRuntime(config, db);
+  await platform.activate();
+  const businessConfig = new Proxy(config as AppConfig, { get: (target, key) =>
+    key === 'knowledgeRoot' ? platform.settings.configured()?.knowledgeRoot : (target as any)[key] });
   await app.register(cookie, { secret: config.secret });
   await app.register(csrf, {
     cookieOpts: {
@@ -50,6 +56,7 @@ export async function createApp(config: AppConfig) {
     if (req.url.startsWith('/api/agent/v1/')) return;
     const session = await auth.api.getSession({ headers: fromNodeHeaders(req.headers) });
     if (!session) return reply.code(401).send({ error: '请登录后访问' });
+    (req as any).ownerId = session.user.id;
     if (
       (db.prepare('SELECT active FROM maintenance WHERE id=1').get() as { active: number }).active
     )
@@ -62,6 +69,8 @@ export async function createApp(config: AppConfig) {
         if (reply.sent) resolve();
       });
     }
+    if (!req.url.startsWith('/api/platform/') && !req.url.startsWith('/api/security/'))
+      platform.get();
   });
   const authPaths = new Set([
     '/api/auth/sign-in/username',
@@ -96,8 +105,21 @@ export async function createApp(config: AppConfig) {
     },
   });
   app.get('/api/security/csrf', async (_req, reply) => ({ token: reply.generateCsrf() }));
-  const notes = noteService(config, db);
-  const knowledge = await registerAgentRoutes(app, config, db, notes);
+  app.get('/healthz', async () => ({ status: 'alive' }));
+  app.get('/readyz', async (_req, reply) => {
+    const ready = platform.status().components.knowledge;
+    return reply.code(ready ? 200 : 503).send({ status: ready ? 'ready' : 'not_ready' });
+  });
+  app.get('/api/platform/status', async () => platform.status());
+  app.post('/api/platform/setup/validate', async (req) =>
+    platform.settings.validate((req as any).ownerId, (req.body as any)?.knowledgeRoot));
+  app.post('/api/platform/setup/complete', async (req) => {
+    const receipt = platform.settings.complete((req as any).ownerId, req.body);
+    void platform.activate();
+    return receipt;
+  });
+  const notes = lazyService(() => platform.get().notes);
+  const knowledge = await registerAgentRoutes(app, businessConfig, db, notes, () => platform.get().knowledge);
   app.get('/api/tree', async () => notes.tree());
   app.get('/api/notes', async (req) => {
     notes.scan();
@@ -144,7 +166,7 @@ export async function createApp(config: AppConfig) {
       .code(201)
       .send(notes.createFolder(text(b?.parent, '目录', 1000), text(b?.name, '名称', 180)));
   });
-  const assets = assetService(config, db, notes);
+  const assets = lazyService(() => platform.get().assets);
   app.get('/api/search', async (req) => {
     const q = text((req.query as { q?: unknown }).q || '', '搜索词', 512);
     if (!q.trim()) return [];
@@ -179,7 +201,7 @@ export async function createApp(config: AppConfig) {
   app.get<{ Params: { id: string } }>('/api/assets/:id', async (req, reply) =>
     sendAsset(reply, assets.byId(req.params.id)),
   );
-  const recovery = recoveryService(config, db, notes);
+  const recovery = lazyService(() => platform.get().recovery);
   app.get<{ Params: { id: string } }>('/api/notes/:id/revisions', async (req) => {
     const rows = recovery.history(req.params.id, (req.query as any).cursor);
     return { items: rows.slice(0, 50), ...(rows.length > 50 ? { nextCursor: rows[49].id } : {}) };
@@ -214,22 +236,42 @@ export async function createApp(config: AppConfig) {
       );
     },
   );
-  app.delete<{ Params: { id: string } }>('/api/notes/:id', async (req) =>
-    recovery.deleteNote(req.params.id),
-  );
+  app.delete<{ Params: { id: string } }>('/api/notes/:id', async (req) => {
+    const b = req.body as any;
+    const input = saveInput({ content: '', expectedModifiedAt: b?.expectedModifiedAt });
+    return recovery.deleteNote(
+      req.params.id,
+      input.expectedModifiedAt,
+      text(b?.requestId, '请求标识', 128),
+    );
+  });
   app.get('/api/trash', async () => recovery.trash());
   app.post<{ Params: { id: string } }>('/api/notes/:id/restore', async (req) => {
-    const b = req.body as { fileName?: unknown } | undefined;
+    const b = req.body as { fileName?: unknown; requestId?: unknown } | undefined;
     const restored = recovery.restore(
       req.params.id,
       b?.fileName === undefined ? undefined : text(b.fileName, '文件名', 180),
+      typeof b?.requestId === 'string' ? b.requestId : undefined,
     );
-    return 'metadataOnly' in restored ? knowledge.info(webPrincipal, req.params.id) : restored;
+    if (!('metadataOnly' in restored)) return restored;
+    const fallback = {
+      ...restored.receipt,
+      receipt: restored.receipt,
+      editorMode: 'metadata',
+      readState: 'unknown',
+      currentReadError: restored.currentReadError || 'CURRENT_READ_UNAVAILABLE',
+    };
+    if (restored.currentReadError) return fallback;
+    try {
+      return { ...(await knowledge.info(webPrincipal, req.params.id)), receipt: restored.receipt };
+    } catch {
+      return fallback;
+    }
   });
-  const shares = shareService(db, notes);
+  const shares = lazyService(() => platform.get().shares);
   await registerWebKnowledgeRoutes(
     app,
-    config,
+    businessConfig,
     db,
     knowledge,
     shares,
@@ -292,6 +334,8 @@ export async function createApp(config: AppConfig) {
     });
   }
   app.setErrorHandler((err, req, reply) => {
+    if (req.url.startsWith('/api/public/') && !platform.status().components.knowledge)
+      return reply.code(404).send({ error: '分享不存在或已不可用' });
     const error = err as Error & { statusCode?: number };
     const status =
       error.statusCode &&
@@ -306,11 +350,7 @@ export async function createApp(config: AppConfig) {
     });
   });
   app.addHook('onClose', async () => {
-    await knowledge.stopWatching();
-    await knowledge.worker.close();
-    await knowledge.files.close();
-    await knowledge.snapshots.close();
-    await knowledge.indexing.close();
+    await platform.close();
     db.close();
   });
   return app;

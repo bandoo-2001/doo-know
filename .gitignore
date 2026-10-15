@@ -7,7 +7,7 @@ playwright-report/
 test-results/
 .sdd/
 
-.venv/
+.venv
 __pycache__/
 *.pyc
 .pytest_cache/

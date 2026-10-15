@@ -60,3 +60,17 @@ it('expands bounded recall for stable result pages and binds metadata cursors to
     await f.close();
   }
 });
+
+it('expires an old offset when strict refresh changes the result set', async () => {
+  const f = await createFixture({ agent: agentConfig, indexing: { enabled: true, watch: false } });
+  try {
+    for (let i = 0; i < 3; i++) await writeFile(join(f.knowledgeRoot, `00-Inbox/strict-${i}.md`), '# 搜索分页\n搜索');
+    const payload = { query: '搜索', mode: 'text', freshness: 'strict', limit: 1 };
+    const first = await f.app.inject({ method: 'POST', url: '/api/agent/v1/search', headers: agentHeaders(), payload });
+    expect(first.statusCode).toBe(200);
+    await writeFile(join(f.knowledgeRoot, first.json().data.results[0].relativePath), '# 不再匹配');
+    const next = await f.app.inject({ method: 'POST', url: '/api/agent/v1/search', headers: agentHeaders(), payload: { ...payload, cursor: first.json().data.nextCursor } });
+    expect(next.statusCode).toBe(410);
+    expect(next.json().error.code).toBe('CURSOR_EXPIRED');
+  } finally { await f.close(); }
+});

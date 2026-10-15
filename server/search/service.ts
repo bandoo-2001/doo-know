@@ -136,6 +136,8 @@ export function searchService(
       offset = cursor.offset;
     }
     if (normalized.freshness === 'strict') await fresh(p, normalized);
+    if (input.cursor && decodeCursor(config.secret, input.cursor).epoch !== epoch())
+      fail(410, 'CURSOR_EXPIRED');
     const reasons: string[] = [];
     let recall = 50,
       queryVector: Promise<number[]> | undefined;

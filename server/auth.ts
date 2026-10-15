@@ -3,9 +3,9 @@ import { username } from 'better-auth/plugins';
 import { getMigrations } from 'better-auth/db/migration';
 import { hashPassword } from 'better-auth/crypto';
 import { randomUUID } from 'node:crypto';
-import type { AppConfig } from '../shared/contracts.js';
+import type { HostConfig } from '../shared/platform-contracts.js';
 import { openDatabase, type AppDatabase } from './db.js';
-export async function createAuth(config: AppConfig, db: AppDatabase) {
+export async function createAuth(config: HostConfig, db: AppDatabase) {
   const auth = betterAuth({
     database: db,
     baseURL: config.origin,
@@ -29,7 +29,7 @@ export async function createAuth(config: AppConfig, db: AppDatabase) {
   );
   return auth;
 }
-export async function initializeOwner(config: AppConfig, name: string, password: string) {
+export async function initializeOwner(config: HostConfig, name: string, password: string) {
   if (!/^[a-zA-Z0-9_.]{3,30}$/.test(name) || password.length < 12)
     throw new Error('用户名需 3–30 个字母、数字、点或下划线，密码至少 12 位');
   const db = openDatabase(config.dataRoot);
@@ -52,7 +52,7 @@ export async function initializeOwner(config: AppConfig, name: string, password:
     db.close();
   }
 }
-export async function resetOwnerPassword(config: AppConfig, password: string) {
+export async function resetOwnerPassword(config: HostConfig, password: string) {
   if (password.length < 12) throw new Error('密码至少 12 位');
   const db = openDatabase(config.dataRoot);
   try {

@@ -13,7 +13,19 @@ it('restores a large archived note as metadata and never reports failure after a
       .json()
       .find((n: any) => n.relativePath.endsWith('trash-large.md'));
     expect(
-      (await f.app.inject({ method: 'DELETE', url: `/api/notes/${n.id}`, headers: h })).statusCode,
+      (
+        await f.app.inject({
+          method: 'DELETE',
+          url: `/api/notes/${n.id}`,
+          headers: h,
+          payload: {
+            expectedModifiedAt: (
+              await f.app.inject({ url: `/api/notes/${n.id}/meta`, headers: h })
+            ).json().modifiedAt,
+            requestId: 'delete-note',
+          },
+        })
+      ).statusCode,
     ).toBe(200);
     const db = openDatabase(f.dataRoot);
     try {

@@ -1,6 +1,11 @@
-import { randomUUID } from 'node:crypto';
+import { randomUUID, createHash } from 'node:crypto';
 import {
   readFileSync,
+  copyFileSync,
+  constants,
+  chmodSync,
+  readSync,
+  fstatSync,
   writeFileSync,
   renameSync,
   linkSync,
@@ -30,6 +35,7 @@ import {
 } from './operations.js';
 import { observeSource } from '../indexing/state.js';
 import { hashFile } from './file-reader.js';
+import { limits } from './limits.js';
 import { assertRoot } from '../indexing/reconcile.js';
 export const webPrincipal: Principal = {
   id: 'web-owner',
@@ -60,12 +66,21 @@ type Intent = {
   history_file: string | null;
   status: string;
 };
-export function assertWritable(db: AppDatabase, noteId?: string) {
+export function assertWritable(db: AppDatabase, noteId?: string, ownIntent?: string) {
   if (
     (db.prepare('SELECT active FROM maintenance WHERE id=1').get() as any)?.active ||
     db.prepare("SELECT 1 FROM sync_runs WHERE status IN ('running','needs_reconciliation')").get()
   )
     fail(503, 'SYNC_IN_PROGRESS', '工作区维护中', true);
+  if (
+    noteId &&
+    db
+      .prepare(
+        "SELECT 1 FROM write_intents WHERE note_id=? AND status IN ('prepared','conflicted') AND id<>?",
+      )
+      .get(noteId, ownIntent || '')
+  )
+    fail(409, 'OPERATION_OUTCOME_UNKNOWN', '请先核对未完成的写入', true);
   if (
     noteId &&
     db.prepare("SELECT 1 FROM sqlite_master WHERE name='note_write_leases'").get() &&
@@ -80,6 +95,38 @@ function durableFile(file: string, content: string, mode = 0o600) {
   try {
     writeFileSync(fd, content, 'utf8');
     fsyncSync(fd);
+  } finally {
+    closeSync(fd);
+  }
+}
+function restoreHash(file: string) {
+  const fd = openSync(file, constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK);
+  try {
+    const before = fstatSync(fd, { bigint: true });
+    if (!before.isFile()) fail(409, 'RESTORE_CONFLICT');
+    const hash = createHash('sha256'),
+      buffer = Buffer.alloc(limits.io);
+    let offset = 0n;
+    while (offset < before.size) {
+      const size = Number(
+        before.size - offset > BigInt(buffer.length) ? BigInt(buffer.length) : before.size - offset,
+      );
+      const read = readSync(fd, buffer, 0, size, null);
+      if (!read) fail(409, 'RESTORE_CONFLICT');
+      hash.update(buffer.subarray(0, read));
+      offset += BigInt(read);
+    }
+    const after = fstatSync(fd, { bigint: true }),
+      named = lstatSync(file, { bigint: true });
+    if (
+      after.size !== before.size ||
+      after.mtimeNs !== before.mtimeNs ||
+      named.dev !== before.dev ||
+      named.ino !== before.ino ||
+      named.isSymbolicLink()
+    )
+      fail(409, 'RESTORE_CONFLICT', '恢复文件读取期间发生变化');
+    return hash.digest('hex');
   } finally {
     closeSync(fd);
   }
@@ -194,6 +241,8 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
       }
       const file = safePath(config.knowledgeRoot, intent.path, 'note'),
         s = statSync(file, { bigint: true });
+      if (intent.kind === 'restore' && restoreHash(file) !== intent.target_hash)
+        fail(409, 'RESTORE_CONFLICT', '恢复目标发生外部变化');
       if (intent.revision_id)
         db.prepare(
           'INSERT OR IGNORE INTO revisions(id,note_id,file,created_at,modified_at) VALUES(?,?,?,?,?)',
@@ -204,7 +253,13 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
           new Date().toISOString(),
           intent.original_mtime,
         );
-      db.prepare('UPDATE notes SET active=1 WHERE id=?').run(intent.note_id);
+      if (intent.kind === 'restore') {
+        db.prepare('UPDATE notes SET path=?,active=1,trash_path=NULL WHERE id=?').run(
+          intent.path,
+          intent.note_id,
+        );
+        db.prepare('UPDATE shares SET enabled=0 WHERE note_id=?').run(intent.note_id);
+      } else db.prepare('UPDATE notes SET active=1 WHERE id=?').run(intent.note_id);
       enqueueSource(
         db,
         config,
@@ -236,6 +291,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
         contentHash: intent.target_hash,
         sizeBytes: Number(s.size),
         indexState: 'pending',
+        ...(intent.kind === 'restore' ? { restored: true } : {}),
       };
       completeOperation(db, intent.id, result);
       db.prepare("UPDATE write_intents SET status='recorded' WHERE id=?").run(intent.id);
@@ -349,10 +405,10 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
   function archive(p: Principal, id: string, expected: string, requestId: string) {
     const n = row(id, true);
     authorizePath(p, n.path, 'knowledge:write');
-    assertWritable(db, id);
     const op = beginOperation(db, p, 'archive', requestId, { id, expectedModifiedAt: expected });
     if (!op.fresh) return existingResult(op.operation);
     return runOperation(op.operation, (commit) => {
+      assertWritable(db, id);
       if (!n.active) fail(404, 'NOT_FOUND');
       const file = safePath(config.knowledgeRoot, n.path, 'note'),
         s = statSync(file, { bigint: true });
@@ -383,11 +439,230 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
       );
     });
   }
+  function restoreStage(intent: Intent) {
+    return join(dirname(join(config.knowledgeRoot, intent.path)), `.doo-restore-${intent.id}.tmp`);
+  }
+  function trashSource(intent: Intent) {
+    const base = join(config.knowledgeRoot, '90-Archive');
+    safePath(config.knowledgeRoot, '90-Archive', 'folder');
+    for (const path of [join(base, '.trash'), join(base, '.trash', intent.note_id)]) {
+      const st = lstatSync(path);
+      if (!st.isDirectory() || st.isSymbolicLink()) fail(400, 'INVALID_PATH');
+    }
+    const source = intent.temp_path!;
+    if (dirname(source) !== join(base, '.trash', intent.note_id)) fail(400, 'INVALID_PATH');
+    if (existsSync(source)) {
+      const st = lstatSync(source);
+      if (!st.isFile() || st.isSymbolicLink()) fail(400, 'INVALID_PATH');
+    }
+    return source;
+  }
+  function assertRestoreDestination(intent: Intent) {
+    if (
+      db
+        .prepare('SELECT 1 FROM notes WHERE path=? AND active=1 AND id<>?')
+        .get(intent.path, intent.note_id)
+    )
+      fail(409, 'NAME_CONFLICT', '原位置已有其他笔记，请选择新文件名');
+    if (
+      db
+        .prepare(
+          "SELECT 1 FROM write_intents WHERE path=? AND id<>? AND status IN ('prepared','conflicted')",
+        )
+        .get(intent.path, intent.id)
+    )
+      fail(409, 'OPERATION_IN_PROGRESS');
+  }
+  function finishRestore(intent: Intent) {
+    assertRoot(config, db);
+    assertRestoreDestination(intent);
+    const source = trashSource(intent),
+      parent =
+        dirname(intent.path) === '.'
+          ? config.knowledgeRoot
+          : safePath(config.knowledgeRoot, dirname(intent.path), 'folder'),
+      dest = join(parent, basename(intent.path)),
+      stage = restoreStage(intent),
+      publication = `${stage}.publish`;
+    const matches = (file: string) => {
+      const st = lstatSync(file);
+      if (!st.isFile() || st.isSymbolicLink() || st.nlink !== 1) fail(409, 'RESTORE_CONFLICT');
+      return restoreHash(file) === intent.target_hash;
+    };
+    if (existsSync(source) && !matches(source)) fail(409, 'RESTORE_CONFLICT', '回收站原件发生变化');
+    // Keep a separate, durable inode until the database commit. A competing edit
+    // or unlink of the public target must not destroy the last original copy.
+    if (!existsSync(stage) || !matches(stage)) {
+      if (!existsSync(source)) fail(409, 'RESTORE_CONFLICT', '恢复文件证据缺失');
+      if (existsSync(stage)) unlinkSync(stage);
+      copyFileSync(source, stage, constants.COPYFILE_EXCL);
+      chmodSync(stage, 0o600);
+      const fd = openSync(stage, 'r');
+      try {
+        fsyncSync(fd);
+      } finally {
+        closeSync(fd);
+      }
+      if (!matches(stage)) fail(409, 'RESTORE_CONFLICT');
+      fsyncDirectory(parent);
+    }
+    const backupFd = openSync(stage, 'r');
+    try {
+      fsyncSync(backupFd);
+    } finally {
+      closeSync(backupFd);
+    }
+    fsyncDirectory(parent);
+    if (!existsSync(dest)) {
+      if (existsSync(publication)) {
+        const st = lstatSync(publication);
+        if (!st.isFile() || st.isSymbolicLink() || st.nlink !== 1) fail(409, 'RESTORE_CONFLICT');
+        unlinkSync(publication);
+      }
+      copyFileSync(stage, publication, constants.COPYFILE_EXCL);
+      const fd = openSync(publication, 'r');
+      try {
+        fsyncSync(fd);
+      } finally {
+        closeSync(fd);
+      }
+      if (!matches(publication)) fail(409, 'RESTORE_CONFLICT');
+      fsyncDirectory(parent);
+      const staged = lstatSync(publication);
+      intent.original_hash = JSON.stringify({ ino: staged.ino, dev: staged.dev });
+      db.prepare('UPDATE write_intents SET original_hash=? WHERE id=?').run(
+        intent.original_hash,
+        intent.id,
+      );
+      try {
+        linkSync(publication, dest);
+      } catch (e) {
+        if ((e as NodeJS.ErrnoException).code === 'EEXIST') fail(409, 'NAME_CONFLICT');
+        throw e;
+      }
+      fsyncDirectory(parent);
+    }
+    const identity = intent.original_hash ? JSON.parse(intent.original_hash) : null;
+    const st = lstatSync(dest);
+    if (
+      !identity ||
+      !st.isFile() ||
+      st.isSymbolicLink() ||
+      st.ino !== identity.ino ||
+      st.dev !== identity.dev ||
+      restoreHash(dest) !== intent.target_hash
+    )
+      fail(409, 'RESTORE_CONFLICT', '恢复目标发生外部变化');
+    if (existsSync(publication)) {
+      const pub = lstatSync(publication);
+      if (!pub.isFile() || pub.isSymbolicLink() || pub.ino !== st.ino || pub.dev !== st.dev)
+        fail(409, 'RESTORE_CONFLICT');
+      unlinkSync(publication);
+      fsyncDirectory(parent);
+    }
+    const result = db
+      .transaction(() => {
+        // The immediate transaction serializes database ownership through unlink
+        // and record. The private stage survives any process exit or read failure.
+        assertRestoreDestination(intent);
+        safePath(config.knowledgeRoot, intent.path, 'note');
+        if (existsSync(source)) {
+          if (!matches(source)) fail(409, 'RESTORE_CONFLICT');
+          unlinkSync(source);
+          fsyncDirectory(dirname(source));
+        }
+        return record(intent);
+      })
+      .immediate();
+    try {
+      if (matches(dest)) {
+        unlinkSync(stage);
+        fsyncDirectory(parent);
+      }
+    } catch {
+      /* Cleanup cannot replace the durable success receipt. */
+    }
+    return result;
+  }
+  function preserveRestoreSource(intent: Intent) {
+    const n = row(intent.note_id, true);
+    if (n.active || !n.trash_path) return;
+    const source = trashSource(intent),
+      stage = restoreStage(intent);
+    if (basename(source) !== n.trash_path || existsSync(source) || !existsSync(stage)) return;
+    const st = lstatSync(stage);
+    if (
+      !st.isFile() ||
+      st.isSymbolicLink() ||
+      st.nlink !== 1 ||
+      restoreHash(stage) !== intent.target_hash
+    )
+      return;
+    copyFileSync(stage, source, constants.COPYFILE_EXCL);
+    chmodSync(source, 0o600);
+    const fd = openSync(source, 'r');
+    try {
+      fsyncSync(fd);
+    } finally {
+      closeSync(fd);
+    }
+    fsyncDirectory(dirname(source));
+  }
+  function restore(p: Principal, id: string, fileName: string | undefined, requestId: string) {
+    const n = row(id, true);
+    authorizePath(p, n.path, 'knowledge:write');
+    const name = fileName || basename(n.path);
+    if (!validName(name) || !name.toLowerCase().endsWith('.md')) fail(400, 'INVALID_INPUT');
+    const path = dirname(n.path) === '.' ? name : `${dirname(n.path)}/${name}`;
+    authorizePath(p, path, 'knowledge:write');
+    const op = beginOperation(db, p, 'restore', requestId, { id, fileName: fileName ?? null });
+    if (!op.fresh) {
+      const intent = db
+        .prepare("SELECT * FROM write_intents WHERE id=? AND kind='restore' AND status='prepared'")
+        .get(op.operation.id) as Intent | undefined;
+      if (intent && ['prepared', 'needs_reconciliation'].includes(op.operation.status)) {
+        assertWritable(db, id, intent.id);
+        return finishRestore(intent);
+      }
+      return existingResult(op.operation);
+    }
+    return runOperation(op.operation, (commit) => {
+      assertWritable(db, id);
+      if (n.active || !n.trash_path) fail(404, 'NOT_FOUND');
+      const dest = safePath(config.knowledgeRoot, path, 'note', true);
+      if (db.prepare('SELECT 1 FROM notes WHERE path=? AND active=1 AND id<>?').get(path, id))
+        fail(409, 'NAME_CONFLICT', '原位置已有其他笔记，请选择新文件名');
+      if (existsSync(dest)) fail(409, 'NAME_CONFLICT', '原位置已被占用，请选择新文件名');
+      const intent: Intent = {
+        id: op.operation.id,
+        note_id: id,
+        path,
+        kind: 'restore',
+        temp_path: join(config.knowledgeRoot, '90-Archive', '.trash', id, n.trash_path),
+        original_hash: null,
+        original_mtime: null,
+        target_hash: null,
+        revision_id: null,
+        history_file: null,
+        status: 'prepared',
+      };
+      const source = trashSource(intent);
+      if (!existsSync(source)) fail(404, 'NOT_FOUND');
+      const st = lstatSync(source, { bigint: true });
+      intent.target_hash = restoreHash(source);
+      intent.original_mtime = st.mtimeNs.toString();
+      db.prepare(
+        'INSERT INTO write_intents(id,note_id,path,kind,original_mtime,target_hash,temp_path) VALUES(?,?,?,?,?,?,?)',
+      ).run(intent.id, id, path, 'restore', intent.original_mtime, intent.target_hash, source);
+      commit();
+      return finishRestore(intent);
+    });
+  }
   async function recover(): Promise<RecoveryReport> {
     const report = { recovered: 0, unapplied: 0, conflicted: 0 };
     report.unapplied += db
       .prepare(
-        "UPDATE operations SET status='failed',error='OPERATION_UNAPPLIED',updated_at=? WHERE kind IN ('create','update','archive') AND status='prepared' AND NOT EXISTS(SELECT 1 FROM write_intents WHERE write_intents.id=operations.id)",
+        "UPDATE operations SET status='failed',error='OPERATION_UNAPPLIED',updated_at=? WHERE kind IN ('create','update','archive','restore') AND status='prepared' AND NOT EXISTS(SELECT 1 FROM write_intents WHERE write_intents.id=operations.id)",
       )
       .run(Date.now()).changes;
     for (const intent of db
@@ -403,6 +678,11 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
         continue;
       try {
         assertRoot(config, db);
+        if (intent.kind === 'restore') {
+          finishRestore(intent);
+          report.recovered++;
+          continue;
+        }
         if (intent.kind === 'archive') {
           if (
             intent.temp_path &&
@@ -453,11 +733,41 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
         ).run(intent.id);
         releaseSnapshotRef(db, intent.id);
         report.unapplied++;
-      } catch {
+      } catch (e) {
+        if (intent.kind === 'restore') {
+          try {
+            preserveRestoreSource(intent);
+          } catch {
+            /* Keep the private backup for reconciliation. */
+          }
+          db.prepare(
+            "UPDATE operations SET status='needs_reconciliation',error='RESTORE_CONFLICT' WHERE id=?",
+          ).run(intent.id);
+          if (
+            e instanceof KnowledgeError &&
+            ['RESTORE_CONFLICT', 'NAME_CONFLICT', 'INVALID_PATH'].includes(e.code)
+          )
+            db.prepare("UPDATE write_intents SET status='conflicted' WHERE id=?").run(intent.id);
+        }
         report.conflicted++;
+      }
+    }
+    // Cleanup is retryable after a committed restore; it cannot change its receipt.
+    for (const intent of db
+      .prepare("SELECT * FROM write_intents WHERE kind='restore' AND status='recorded'")
+      .all() as Intent[]) {
+      const stage = restoreStage(intent);
+      if (existsSync(stage)) {
+        try {
+          const dest = safePath(config.knowledgeRoot, intent.path, 'note');
+          if (restoreHash(dest) === intent.target_hash) {
+            unlinkSync(stage);
+            fsyncDirectory(dirname(stage));
+          }
+        } catch {}
       }
     }
     return report;
   }
-  return { create, update, archive, recover, record };
+  return { create, update, archive, restore, recover, record };
 }

@@ -12,6 +12,7 @@ it('serves text, real semantic and hybrid search with ACL filtering and explicit
     policies: [{ ...agentConfig.policies[0], allowedPrefixes: ['00-Inbox/allowed'] }],
   };
   const f = await createFixture({
+    knowledgeRoot: seed.knowledgeRoot,
     dataRoot: seed.dataRoot,
     agent: config,
     indexing: { enabled: true, watch: false },
@@ -48,7 +49,7 @@ it('serves text, real semantic and hybrid search with ACL filtering and explicit
           limit: 10,
         },
       });
-      expect(r.statusCode).toBe(200);
+      expect(r.statusCode, r.body).toBe(200);
       expect(r.json().data.results.length).toBeGreaterThan(0);
       expect(
         r.json().data.results.every((x: any) => x.relativePath.startsWith('00-Inbox/allowed/')),

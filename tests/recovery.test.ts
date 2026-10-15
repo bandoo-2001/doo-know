@@ -59,7 +59,12 @@ it('deletes revoke shares and restore never overwrites occupied paths', async ()
         payload: {},
       })
     ).json();
-    const deleted = await f.app.inject({ method: 'DELETE', url: `/api/notes/${n.id}`, headers: h });
+    const deleted = await f.app.inject({
+      method: 'DELETE',
+      url: `/api/notes/${n.id}`,
+      headers: h,
+      payload: { expectedModifiedAt: n.modifiedAt, requestId: 'delete-note' },
+    });
     expect(deleted.statusCode).toBe(200);
     expect((await f.app.inject({ url: `/api/public/shares/${s.token}` })).statusCode).toBe(404);
     const trash = await f.app.inject({ url: '/api/trash', headers: h });
@@ -133,9 +138,15 @@ it('scans external new/renamed notes privately and persists identities across re
     expect(n.shared).toBe(false);
     await f.app.close();
     const restarted = await createApp(f.config);
-    expect((await restarted.inject({ url: `/api/notes/${n.id}`, headers: h })).statusCode).toBe(
-      200,
-    );
+    expect(
+      (
+        await restarted.inject({
+          url: `/api/notes/${n.id}`,
+          headers: h,
+          payload: { expectedModifiedAt: n.modifiedAt, requestId: 'delete-note' },
+        })
+      ).statusCode,
+    ).toBe(200);
     await restarted.close();
   } finally {
     await f.close();
@@ -159,7 +170,14 @@ it('keeps trash retryable when unlink of trash original fails', async () => {
       })
     ).json();
     expect(
-      (await f.app.inject({ method: 'DELETE', url: `/api/notes/${n.id}`, headers: h })).statusCode,
+      (
+        await f.app.inject({
+          method: 'DELETE',
+          url: `/api/notes/${n.id}`,
+          headers: h,
+          payload: { expectedModifiedAt: n.modifiedAt, requestId: 'delete-note' },
+        })
+      ).statusCode,
     ).toBe(200);
     trashDir = join(f.knowledgeRoot, '90-Archive/.trash', n.id);
     const { chmod, stat } = await import('node:fs/promises');
@@ -171,7 +189,7 @@ it('keeps trash retryable when unlink of trash original fails', async () => {
             method: 'POST',
             url: `/api/notes/${n.id}/restore`,
             headers: h,
-            payload: {},
+            payload: { requestId: 'retry-restore' },
           })
         ).statusCode,
       ).toBe(500);
@@ -187,13 +205,19 @@ it('keeps trash retryable when unlink of trash original fails', async () => {
           method: 'POST',
           url: `/api/notes/${n.id}/restore`,
           headers: h,
-          payload: {},
+          payload: { requestId: 'retry-restore' },
         })
       ).statusCode,
     ).toBe(200);
-    expect((await f.app.inject({ url: `/api/notes/${n.id}`, headers: h })).json().content).toBe(
-      'RESTORABLE_ORIGINAL',
-    );
+    expect(
+      (
+        await f.app.inject({
+          url: `/api/notes/${n.id}`,
+          headers: h,
+          payload: { expectedModifiedAt: n.modifiedAt, requestId: 'delete-note' },
+        })
+      ).json().content,
+    ).toBe('RESTORABLE_ORIGINAL');
   } finally {
     await f.close();
   }

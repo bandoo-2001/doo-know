@@ -24,8 +24,8 @@ export async function createFixture(overrides: Record<string, unknown> = {}) {
     app,
     config,
     root,
-    knowledgeRoot,
-    dataRoot,
+    knowledgeRoot: config.knowledgeRoot,
+    dataRoot: config.dataRoot,
     close: async () => {
       await app.close();
       await rm(root, { recursive: true, force: true });

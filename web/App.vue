@@ -4,12 +4,19 @@ import { NConfigProvider, NModal } from 'naive-ui';
 import Login from './components/Login.vue';
 import Workspace from './components/Workspace.vue';
 import ShareReader from './components/ShareReader.vue';
+import SetupWizard from './components/SetupWizard.vue';
+import type { PlatformStatus } from '../shared/platform-contracts';
 import { api, refreshCsrf } from './api';
 const token = location.pathname.startsWith('/s/') ? location.pathname.slice(3) : '',
   loggedIn = ref(false),
   mountedWorkspace = ref(false),
   expired = ref(false),
   ready = ref(false);
+const platform = ref<PlatformStatus>();
+async function refreshPlatform() {
+  platform.value = await api('/api/platform/status');
+  mountedWorkspace.value = platform.value?.phase === 'ready';
+}
 const theme = {
   common: {
     primaryColor: '#1688ff',
@@ -25,7 +32,7 @@ const theme = {
 };
 async function login() {
   loggedIn.value = true;
-  mountedWorkspace.value = true;
+  await refreshPlatform();
   expired.value = false;
 }
 function sessionExpired() {
@@ -56,7 +63,9 @@ onBeforeUnmount(() => window.removeEventListener('dooknow-session-expired', sess
         @logout="
           loggedIn = false;
           mountedWorkspace = false;
-        " /><Login v-else-if="!loggedIn" @login="login" /><NModal
+        " /><Login v-else-if="!loggedIn" @login="login" />
+      <SetupWizard v-else-if="platform" :status="platform" @refresh="refreshPlatform" />
+      <NModal
         :show="expired"
         :mask-closable="false"
         :close-on-esc="false"

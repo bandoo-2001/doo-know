@@ -37,6 +37,7 @@ const tree = ref<TreeEntry[]>([]),
   error = ref(''),
   notice = ref('');
 const query = ref(''),
+  searchCursor = ref<string>(),
   results = ref<any[]>([]),
   assets = ref<any[]>([]);
 let viewEpoch = 0;
@@ -215,31 +216,63 @@ const pendingSave = ref<{
   expected: string;
   revisionId?: string;
 }>();
+async function onLargeSaved(meta: NoteInfo) {
+  const epoch = viewEpoch;
+  if (!currentView(meta.id, epoch)) return;
+  if (meta.editorMode === 'full') {
+    try {
+      const document = await api<NoteDocument>(`/api/notes/${meta.id}`);
+      if (!currentView(meta.id, epoch)) return;
+      note.value = document;
+      draft.value = document.content;
+      savedContent.value = document.content;
+      largeDirty.value = false;
+      noteInfo.value = meta;
+    } catch {
+      if (currentView(meta.id, epoch))
+        error.value = '片段已保存；读取普通编辑器正文失败，请重新打开笔记';
+    }
+  } else {
+    noteInfo.value = meta;
+    note.value!.modifiedAt = meta.modifiedAt;
+    note.value!.title = meta.title;
+  }
+}
 async function checkSave() {
-  const pending = pendingSave.value;
+  const pending = pendingSave.value,
+    epoch = viewEpoch;
   if (!pending) return;
   const op = await api<FileOperation & { result?: { modifiedAt: string } }>(
     `/api/operations?requestId=${encodeURIComponent(pending.requestId)}`,
   );
   if (op.status === 'succeeded') {
-    if (note.value?.id === pending.noteId) {
-      if (pending.revisionId) {
-        const meta = await api<NoteInfo>(`/api/notes/${pending.noteId}/meta`);
-        noteInfo.value = meta;
-        if (meta.editorMode === 'full') {
-          note.value = await api<NoteDocument>(`/api/notes/${pending.noteId}`);
+    if (note.value && currentView(pending.noteId, epoch)) {
+      const meta = await api<NoteInfo>(`/api/notes/${pending.noteId}/meta`);
+      if (!currentView(pending.noteId, epoch)) {
+        pendingSave.value = undefined;
+        return;
+      }
+      noteInfo.value = meta;
+      if (meta.editorMode === 'full') {
+        if (pending.revisionId) {
+          const document = await api<NoteDocument>(`/api/notes/${pending.noteId}`);
+          if (!currentView(pending.noteId, epoch)) {
+            pendingSave.value = undefined;
+            return;
+          }
+          note.value = document;
           draft.value = note.value.content;
           savedContent.value = note.value.content;
         } else {
-          note.value.modifiedAt = meta.modifiedAt;
-          draft.value = '';
-          savedContent.value = '';
-          await nextTick();
-          await largeRef.value?.reload();
+          note.value.modifiedAt = op.result?.modifiedAt || note.value.modifiedAt;
+          savedContent.value = pending.content;
         }
       } else {
-        note.value.modifiedAt = op.result?.modifiedAt || note.value.modifiedAt;
-        savedContent.value = pending.content;
+        note.value.modifiedAt = meta.modifiedAt;
+        draft.value = '';
+        savedContent.value = '';
+        await nextTick();
+        await largeRef.value?.reload();
       }
     }
     pendingSave.value = undefined;
@@ -309,6 +342,15 @@ async function save(expected?: string, content?: string, revisionId?: string) {
       await nextTick();
       await largeRef.value?.reload();
     }
+    if (n.editorMode && currentView(target.id, epoch)) {
+      noteInfo.value = n;
+      if (n.editorMode !== 'full') {
+        n = { ...target, title: n.title, modifiedAt: n.modifiedAt, content: '' };
+        draft.value = '';
+        await nextTick();
+        await largeRef.value?.reload();
+      }
+    }
     if (!currentView(target.id, epoch)) {
       await refresh();
       return;
@@ -321,9 +363,20 @@ async function save(expected?: string, content?: string, revisionId?: string) {
     tell(revisionId ? '历史版本已恢复' : '笔记已保存');
     await refresh();
   } catch (e) {
-    if (e instanceof ApiError && e.status >= 400 && e.status < 500) pendingSave.value = undefined;
+    if (
+      e instanceof ApiError &&
+      e.status >= 400 &&
+      e.status < 500 &&
+      !e.data.retryable &&
+      !['OPERATION_OUTCOME_UNKNOWN', 'OPERATION_IN_PROGRESS'].includes(String(e.data.code))
+    )
+      pendingSave.value = undefined;
     if (!currentView(target.id, epoch)) return;
-    if (e instanceof ApiError && e.status === 409)
+    if (
+      e instanceof ApiError &&
+      e.data.code === 'VERSION_CONFLICT' &&
+      typeof e.data.currentModifiedAt === 'string'
+    )
       conflict.value = {
         version: String(e.data.currentModifiedAt),
         opened: target.modifiedAt,
@@ -447,15 +500,17 @@ async function submitCreate() {
 const panel = ref<'folder' | 'note' | 'trash' | 'settings'>('folder'),
   revisionsOpen = ref(false),
   revisions = ref<any[]>([]),
+  revisionCursor = ref<string>(),
   trash = ref<any[]>([]),
   deleteOpen = ref(false);
-async function history() {
+async function history(more = false) {
   const id = note.value!.id,
     epoch = viewEpoch;
   await run(async () => {
-    const response = await api(`/api/notes/${id}/revisions`);
+    const response = await api(`/api/notes/${id}/revisions` + (more && revisionCursor.value ? `?cursor=${encodeURIComponent(revisionCursor.value)}` : ''));
     if (!currentView(id, epoch)) return;
-    revisions.value = response.items;
+    revisions.value = more ? [...revisions.value, ...response.items] : response.items;
+    revisionCursor.value = response.nextCursor;
     revisionsOpen.value = true;
   });
 }
@@ -497,37 +552,86 @@ async function openTrash() {
     }),
   );
 }
-async function removeNote() {
-  const id = note.value!.id,
-    epoch = viewEpoch;
-  await run(async () => {
-    await api(`/api/notes/${id}`, 'DELETE');
-    if (!currentView(id, epoch)) {
-      await refresh();
-      return;
-    }
+const pendingDelete = ref<{ noteId: string; expectedModifiedAt: string; requestId: string }>();
+async function finishDelete(id: string, epoch: number) {
+  pendingDelete.value = undefined;
+  deleteOpen.value = false;
+  if (currentView(id, epoch)) {
     viewEpoch++;
-    deleteOpen.value = false;
     note.value = undefined;
     draft.value = '';
     savedContent.value = '';
     panel.value = 'folder';
-    await refresh();
-    tell('已移入回收站');
+  }
+  await refresh();
+  tell('已移入回收站');
+}
+async function checkDelete() {
+  const pending = pendingDelete.value;
+  if (!pending) return;
+  const epoch = viewEpoch;
+  let op: { status: string };
+  try {
+    op = await api(`/api/operations?requestId=${encodeURIComponent(pending.requestId)}`);
+  } catch (e) {
+    if (!(e instanceof ApiError) || e.data.code !== 'OPERATION_NOT_FOUND') throw e;
+    // The original request may not have reached the server: retry its immutable payload.
+    await api(`/api/notes/${pending.noteId}`, 'DELETE', pending);
+    await finishDelete(pending.noteId, epoch);
+    return;
+  }
+  if (op.status === 'succeeded') return finishDelete(pending.noteId, epoch);
+  if (['failed', 'cancelled'].includes(op.status)) {
+    pendingDelete.value = undefined;
+    throw new Error('删除未完成，原笔记保留；请重新读取后再确认');
+  }
+  throw new Error('删除结果待核对，请保留原请求标识');
+}
+async function removeNote() {
+  await run(async () => {
+    if (pendingDelete.value) return checkDelete();
+    const target = note.value!,
+      epoch = viewEpoch;
+    const pending = {
+      noteId: target.id,
+      expectedModifiedAt: target.modifiedAt,
+      requestId: crypto.randomUUID(),
+    };
+    pendingDelete.value = pending;
+    try {
+      await api(`/api/notes/${target.id}`, 'DELETE', pending);
+      await finishDelete(target.id, epoch);
+    } catch (e) {
+      if (e instanceof ApiError && e.status >= 400 && e.status < 500 && !e.data.retryable) {
+        pendingDelete.value = undefined;
+        deleteOpen.value = false;
+      }
+      if (e instanceof ApiError && e.data.code === 'VERSION_CONFLICT')
+        throw new Error('笔记已更新，删除被拒绝。请重新打开笔记后再确认');
+      throw e;
+    }
   });
 }
 const restoreTarget = ref<any>(),
   restoreName = ref('');
+const pendingRestore = new Map<string, { requestId: string; fileName?: string }>();
 async function restoreTrash(item: any, fileName?: string) {
   await run(async () => {
     try {
-      await api(`/api/notes/${item.id}/restore`, 'POST', fileName ? { fileName } : {});
+      let input = pendingRestore.get(item.id);
+      if (!input || input.fileName !== fileName) {
+        input = { requestId: crypto.randomUUID(), ...(fileName ? { fileName } : {}) };
+        pendingRestore.set(item.id, input);
+      }
+      await api(`/api/notes/${item.id}/restore`, 'POST', input);
+      pendingRestore.delete(item.id);
       restoreTarget.value = undefined;
       trash.value = await api('/api/trash');
       await refresh();
       tell('已恢复，笔记保持私有');
     } catch (e) {
-      if (e instanceof ApiError && e.status === 409) {
+      if (e instanceof ApiError && e.data.code === 'NAME_CONFLICT') {
+        pendingRestore.delete(item.id);
         restoreTarget.value = item;
         restoreName.value = '';
       } else throw e;
@@ -596,8 +700,30 @@ function clickPreview(event: MouseEvent) {
     void run(() => openNote(a.getAttribute('href')!.slice(6)));
   }
 }
+async function searchPage(q: string, cursor?: string): Promise<SearchOutput | undefined> {
+  let response: SearchOutput;
+  try {
+    response = await api<SearchOutput>('/api/search/advanced', 'POST', {
+      query: '"' + q + '"', mode: 'text', ...(cursor ? { cursor } : {}),
+    });
+  } catch (e) {
+    if (cursor && e instanceof ApiError && (e.data.code === 'CURSOR_EXPIRED' || (e.data.error as any)?.code === 'CURSOR_EXPIRED')) {
+      tell('索引已更新，搜索结果已重新加载');
+      return searchPage(q);
+    }
+    throw e;
+  }
+  if (query.value !== q) return;
+  const items = response.results.map((r) => ({ id: r.noteId, title: r.title,
+    relativePath: r.relativePath, snippet: r.matches[0]?.snippet || '' }));
+  results.value = cursor ? [...results.value, ...items] : items;
+  searchCursor.value = response.nextCursor;
+  return response;
+}
 watch(query, (q) => {
   clearTimeout(searchTimer);
+  searchCursor.value = undefined;
+  results.value = [];
   if (!q.trim()) {
     results.value = [];
     return;
@@ -605,18 +731,8 @@ watch(query, (q) => {
   let attempts = 0;
   const search = () =>
     void run(async () => {
-      const response = await api<SearchOutput>('/api/search/advanced', 'POST', {
-        query: '"' + q + '"',
-        mode: 'text',
-      });
-      if (query.value !== q) return;
-      results.value = response.results.map((r) => ({
-        id: r.noteId,
-        title: r.title,
-        relativePath: r.relativePath,
-        snippet: r.matches[0]?.snippet || '',
-      }));
-      if (!results.value.length && ++attempts < 15 && (response.index.pending || attempts < 3))
+      const response = await searchPage(q);
+      if (response && !results.value.length && ++attempts < 15 && (response.index.pending || attempts < 3))
         searchTimer = setTimeout(search, 1000);
     });
   searchTimer = setTimeout(search, 220);
@@ -692,6 +808,8 @@ onBeforeUnmount(() => {
             ><small>{{ r.relativePath }}</small
             ><span>{{ r.snippet }}</span>
           </button>
+          <p v-if="results.length" class="muted">已显示 {{ results.length }} 篇</p>
+          <NButton v-if="searchCursor" :loading="busy" @click="run(async () => { await searchPage(query, searchCursor); })">加载更多搜索结果</NButton>
           <p v-if="!results.length" class="muted empty-search">没有匹配的笔记</p></template
         ><TreeBranch v-else :entries="tree" :selected="selected" @select="select" />
       </div>
@@ -722,7 +840,10 @@ onBeforeUnmount(() => {
               <NButton v-if="pendingSave?.noteId === note.id" @click="run(checkSave)"
                 >核对保存结果</NButton
               >
-              <NButton title="历史版本" aria-label="历史版本" @click="history"
+              <NButton v-if="pendingDelete && !deleteOpen" @click="run(checkDelete)"
+                >核对删除结果</NButton
+              >
+              <NButton title="历史版本" aria-label="历史版本" @click="history()"
                 ><Icon name="clock" /></NButton
               ><NButton
                 title="插入图片或 PDF"
@@ -767,15 +888,7 @@ onBeforeUnmount(() => {
           :initial-line="note.id === initialNoteId ? initialLine : undefined"
           :key="note.id"
           @dirty="(v) => (largeDirty = v)"
-          @saved="
-            (n) => {
-              noteInfo = n;
-              if (note) {
-                note.modifiedAt = n.modifiedAt;
-                note.title = n.title;
-              }
-            }
-          " />
+          @saved="onLargeSaved" />
         <div v-else :class="['editor-panels', mode]">
           <section v-if="mode !== 'preview'" class="editor-panel">
             <div class="panel-label">Markdown <span>UTF-8</span></div>
@@ -993,7 +1106,8 @@ onBeforeUnmount(() => {
       ><p>已保存原文将移入回收站，分享立即失效。{{ dirty ? '当前未保存输入将被放弃。' : '' }}</p>
       <div class="dialog-actions">
         <NButton @click="deleteOpen = false">取消</NButton
-        ><NButton type="error" @click="removeNote">移入回收站</NButton>
+        ><NButton v-if="pendingDelete" @click="run(checkDelete)">核对删除结果</NButton
+        ><NButton v-else type="error" @click="removeNote">移入回收站</NButton>
       </div></NModal
     >
     <NModal v-model:show="revisionsOpen" preset="card" class="dialog-card" title="历史版本"
@@ -1013,6 +1127,8 @@ onBeforeUnmount(() => {
           <pre>{{ r.content }}</pre>
         </details>
       </div>
+      <NButton v-if="revisionCursor" :loading="busy" @click="history(true)">加载更早版本</NButton>
+      <p v-if="revisions.length" class="muted">已显示 {{ revisions.length }} 个版本</p>
       <p v-if="!revisions.length">尚无历史版本</p></NModal
     >
     <NModal

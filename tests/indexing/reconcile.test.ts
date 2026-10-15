@@ -45,7 +45,7 @@ it('all listing and document entrances preserve identities when an empty replace
       { url: `/api/public/shares/${share.token}/meta` },
     ]) {
       const r = await f.app.inject(request);
-      expect(r.statusCode).toBe(503);
+      expect(r.statusCode).toBe(request.url.startsWith('/api/public/') ? 404 : 503);
     }
     expect((db.prepare('SELECT active FROM notes WHERE id=?').get(n.id) as any).active).toBe(1);
     expect(

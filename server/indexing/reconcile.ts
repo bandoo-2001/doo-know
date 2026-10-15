@@ -80,6 +80,16 @@ export function reconcileService(config: AppConfig, db: AppDatabase) {
     for (const path of managed) {
       signal?.throwIfAborted();
       assertRoot(config, db);
+      if (
+        db
+          .prepare(
+            "SELECT 1 FROM write_intents WHERE path=? AND kind='restore' AND status IN ('prepared','conflicted')",
+          )
+          .get(path)
+      ) {
+        conflicted++;
+        continue;
+      }
       const existing = db.prepare('SELECT id FROM notes WHERE path=? AND active=1').get(path) as
         | { id: string }
         | undefined;

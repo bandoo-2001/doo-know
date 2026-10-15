@@ -24,7 +24,7 @@ export const categories = [
 export function validName(name: string) {
   return (
     name.length > 0 &&
-    name.length <= 180 &&
+    Buffer.byteLength(name, 'utf8') <= 180 &&
     !/[\x00-\x1f/\\:]/.test(name) &&
     !name.startsWith('.') &&
     !name.endsWith(' ') &&

@@ -42,7 +42,14 @@ export function noteService(config: AppConfig, db: AppDatabase) {
           db.prepare('UPDATE shares SET enabled=0 WHERE note_id=?').run(row.id);
         }
       for (const path of files.notes)
-        if (!db.prepare('SELECT id FROM notes WHERE path=? AND active=1').get(path))
+        if (
+          !db
+            .prepare(
+              "SELECT 1 FROM write_intents WHERE path=? AND kind='restore' AND status IN ('prepared','conflicted')",
+            )
+            .get(path) &&
+          !db.prepare('SELECT id FROM notes WHERE path=? AND active=1').get(path)
+        )
           db.prepare('INSERT INTO notes(id,path) VALUES(?,?)').run(randomUUID(), path);
     })();
     return files;
@@ -135,9 +142,59 @@ export function noteService(config: AppConfig, db: AppDatabase) {
     expectedModifiedAt: string,
     requestId: string = randomUUID(),
   ) {
-    mutations.update(webPrincipal, id, content, expectedModifiedAt, requestId);
-    return getNote(id);
+    const shared = !!db.prepare('SELECT 1 FROM shares WHERE note_id=? AND enabled=1').get(id);
+    const receipt = mutations.update(webPrincipal, id, content, expectedModifiedAt, requestId);
+    try {
+      const current = getNote(id);
+      // A later save may already exist when an old request is replayed. Its
+      // response still describes the original write; current state is read via GET.
+      return {
+        ...current,
+        relativePath: receipt.relativePath,
+        content,
+        title: content.match(/^#\s+(.+)$/m)?.[1] || basename(receipt.relativePath, '.md'),
+        modifiedAt: receipt.modifiedAt,
+        updatedAt: new Date(Number(BigInt(receipt.modifiedAt) / 1000000n)).toISOString(),
+        receipt,
+      };
+    } catch (e) {
+      // The committed receipt is authoritative. Optional current-content reads cannot
+      // turn a successful mutation into a deterministic HTTP failure.
+      const longestLineBytes = content
+        .split('\n')
+        .reduce((max, line) => Math.max(max, Buffer.byteLength(line)), 0);
+      const editorMode = longestLineBytes > 32768 ? ('large' as const) : ('full' as const);
+      const title = [
+        ...(content.match(/^#\s+(.+)$/m)?.[1] || basename(receipt.relativePath, '.md')),
+      ]
+        .slice(0, 256)
+        .join('');
+      const metadata = {
+        ...receipt,
+        title,
+        editorMode,
+        longestLineBytes,
+        url: `${config.origin}/?note=${encodeURIComponent(id)}`,
+        sourceRevision: null,
+        readState: 'unknown' as const,
+        receipt,
+        ...(e instanceof KnowledgeError && e.code === 'LARGE_FILE_MODE_REQUIRED'
+          ? {}
+          : {
+              currentReadError: e instanceof KnowledgeError ? e.code : 'CURRENT_READ_UNAVAILABLE',
+            }),
+      };
+      return editorMode === 'large'
+        ? metadata
+        : {
+            ...metadata,
+            content,
+            shared,
+            updatedAt: new Date(Number(BigInt(receipt.modifiedAt) / 1000000n)).toISOString(),
+          };
+    }
   }
+
   function createFolder(parent: string, name: string) {
     if (!validName(name) || name === 'assets') throw new HttpError(400, '文件夹名不允许');
     const folder = safePath(config.knowledgeRoot, parent, 'folder');

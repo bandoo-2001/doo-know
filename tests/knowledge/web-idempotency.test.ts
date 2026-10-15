@@ -40,3 +40,21 @@ it('preserves client request IDs for ordinary Web create/save retries and their 
     await f.close();
   }
 });
+
+it('replays save B after save C with the original content and version', async () => {
+  const f = await createFixture();
+  try {
+    const headers = await loginFixtureOwner(f);
+    const created = (await f.app.inject({ method: 'POST', url: '/api/notes', headers,
+      payload: { folderPath: '00-Inbox', fileName: 'replay.md', content: '# A', requestId: 'create-A' } })).json();
+    const url = `/api/notes/${created.id}`;
+    const payload = { content: '# B', expectedModifiedAt: created.modifiedAt, requestId: 'save-B' };
+    const first = await f.app.inject({ method: 'PUT', url, headers, payload });
+    const later = await f.app.inject({ method: 'PUT', url, headers,
+      payload: { content: '# C', expectedModifiedAt: first.json().modifiedAt, requestId: 'save-C' } });
+    expect(later.statusCode).toBe(200);
+    const replay = await f.app.inject({ method: 'PUT', url, headers, payload });
+    expect(replay.json()).toEqual(first.json());
+    expect((await f.app.inject({ url, headers })).json().content).toBe('# C');
+  } finally { await f.close(); }
+});

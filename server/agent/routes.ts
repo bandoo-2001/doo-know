@@ -70,12 +70,7 @@ export function metadataService(config: AppConfig, db: AppDatabase, notes: NoteS
     };
   };
 }
-export async function registerAgentRoutes(
-  app: FastifyInstance,
-  config: AppConfig,
-  db: AppDatabase,
-  notes: NoteService,
-) {
+export async function createKnowledgeRuntime(config: AppConfig, db: AppDatabase, notes: NoteService) {
   const core = mutationCore(config, db);
   await core.recover();
   const snapshots = snapshotService(config, db, notes);
@@ -87,6 +82,75 @@ export async function registerAgentRoutes(
     research = researchService(config, db, notes);
   await snapshots.recover();
   await files.recover();
+  let stopWatching = () => {};
+  if (config.indexing?.enabled !== false) {
+    await syncService(config, db, indexing).recover();
+    await indexing.reconcile(undefined, true);
+    stopWatching = startWatcher(config, db, indexing);
+  }
+  const workerTimer =
+    config.indexing?.enabled !== false && config.indexing?.embedded !== false
+      ? setInterval(() => void worker.drain(), 1000)
+      : undefined;
+  workerTimer?.unref();
+  let maintenanceRunning: Promise<void> | undefined;
+  const maintenanceTimer =
+    config.fileTasks?.embedded !== false
+      ? setInterval(() => {
+          if (maintenanceRunning) return;
+          maintenanceRunning = (async () => {
+            await core.recover();
+            await snapshots.recover();
+            await files.recover();
+            await files.drain();
+            await snapshots.drain();
+            await snapshots.clean();
+            db.prepare("DELETE FROM index_meta WHERE key='file_maintenance_error'").run();
+          })()
+            .catch(() => {
+              db.prepare(
+                "INSERT INTO index_meta VALUES('file_maintenance_error','FILE_MAINTENANCE_FAILED') ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+              ).run();
+            })
+            .finally(() => {
+              maintenanceRunning = undefined;
+            });
+        }, 1000)
+      : undefined;
+  maintenanceTimer?.unref();
+  return {
+    snapshots,
+    files,
+    core,
+    indexing,
+    worker,
+    search,
+    research,
+    stopWatching: async () => {
+      stopWatching();
+      if (workerTimer) clearInterval(workerTimer);
+      if (maintenanceTimer) clearInterval(maintenanceTimer);
+      await maintenanceRunning;
+    },
+    info: metadataService(config, db, notes),
+  };
+}
+export type KnowledgeRuntime = Awaited<ReturnType<typeof createKnowledgeRuntime>>;
+export async function registerAgentRoutes(
+  app: FastifyInstance, config: AppConfig, db: AppDatabase, notes: NoteService,
+  supplied?: () => KnowledgeRuntime,
+) {
+  const ready = supplied ? undefined : await createKnowledgeRuntime(config, db, notes);
+  const get = supplied || (() => ready!);
+  const service = <T extends object>(read: () => T): T => new Proxy({} as T, {
+    get: (_target, key) => (...args: unknown[]) => {
+      const object = read(); const value = (object as any)[key];
+      return typeof value === 'function' ? value.apply(object, args) : value;
+    },
+  });
+  const core = service(() => get().core), snapshots = service(() => get().snapshots),
+    files = service(() => get().files), indexing = service(() => get().indexing),
+    search = service(() => get().search), research = service(() => get().research);
   await app.register(
     async (api) => {
       api.addHook('onRoute', (route) => {
@@ -270,55 +334,9 @@ export async function registerAgentRoutes(
     },
     { prefix: '/api/agent/v1' },
   );
-  let stopWatching = () => {};
-  if (config.indexing?.enabled !== false) {
-    await syncService(config, db, indexing).recover();
-    await indexing.reconcile(undefined, true);
-    stopWatching = startWatcher(config, db, indexing);
-  }
-  const workerTimer =
-    config.indexing?.enabled !== false && config.indexing?.embedded !== false
-      ? setInterval(() => void worker.drain(), 1000)
-      : undefined;
-  workerTimer?.unref();
-  let maintenanceRunning: Promise<void> | undefined;
-  const maintenanceTimer =
-    config.fileTasks?.embedded !== false
-      ? setInterval(() => {
-          if (maintenanceRunning) return;
-          maintenanceRunning = (async () => {
-            await core.recover();
-            await snapshots.recover();
-            await files.recover();
-            await files.drain();
-            await snapshots.drain();
-            await snapshots.clean();
-            db.prepare("DELETE FROM index_meta WHERE key='file_maintenance_error'").run();
-          })()
-            .catch(() => {
-              db.prepare(
-                "INSERT INTO index_meta VALUES('file_maintenance_error','FILE_MAINTENANCE_FAILED') ON CONFLICT(key) DO UPDATE SET value=excluded.value",
-              ).run();
-            })
-            .finally(() => {
-              maintenanceRunning = undefined;
-            });
-        }, 1000)
-      : undefined;
-  maintenanceTimer?.unref();
-  return {
-    snapshots,
-    files,
-    core,
-    indexing,
-    worker,
-    search,
-    stopWatching: async () => {
-      stopWatching();
-      if (workerTimer) clearInterval(workerTimer);
-      if (maintenanceTimer) clearInterval(maintenanceTimer);
-      await maintenanceRunning;
-    },
-    info: metadataService(config, db, notes),
-  };
+  return new Proxy({} as KnowledgeRuntime, { get: (_target, key) => {
+    if (key === 'then') return undefined;
+    const object = get(); const value = (object as any)[key];
+    return typeof value === 'function' ? value.bind(object) : value;
+  } });
 }

@@ -10,6 +10,7 @@
     "server/**/*.ts",
     "shared/**/*.ts",
     "scripts/account.ts",
+    "scripts/manage.ts",
     "scripts/backup.ts",
     "scripts/restore.ts",
     "scripts/git-sync.ts",
