@@ -65,7 +65,7 @@ wget --no-netrc --config "${XDG_CONFIG_HOME:-$HOME/.config}/doo-know/secrets/git
 
 ```bash
 # RC 必须显式指定版本；不指定时查询 GitHub 最新正式版本。
-dooknow update --version 1.1.0-rc.5
+dooknow update --version 1.1.0-rc.7
 ```
 
 旧安装重复执行上方安装入口，会使用已校验的新管理程序接管升级；保留原账号、配置、原文与数据。新版本仍执行维护闸门、一致性备份、迁移、健康检查与失败恢复，不绕过既有升级规则。GitHub 下载授权不替代 MCP 的 OAuth 或 Tunnel 授权。
@@ -78,14 +78,18 @@ dooknow update --version 1.1.0-rc.5
 
 ```bash
 node scripts/release.mjs --output .local/github-rc3 \
-  --base-url 'https://github.com/bandoo-2001/doo-know/releases/download/v1.1.0-rc.5' \
-  --version 1.1.0-rc.5
+  --base-url 'https://github.com/bandoo-2001/doo-know/releases/download/v1.1.0-rc.7' \
+  --version 1.1.0-rc.7
 node --import tsx scripts/publish-github.ts \
   --directory .local/github-rc3 --repository bandoo-2001/doo-know \
-  --tag v1.1.0-rc.5 --commit '<构建元数据中的完整提交 SHA>' \
+  --tag v1.1.0-rc.7 --commit '<构建元数据中的完整提交 SHA>' \
   --token-file '/受控位置/github-publish.token' --bootstrap deploy/github-install.sh
 ```
 
 发布器使用流式 curl 上传大附件，沿用主机的代理环境；认证配置仍只保存在受控临时文件中。发布器只接受私有仓库和预期制品，验证本地摘要、Git 标签对应提交与已存在附件的远端 SHA-256。先创建草稿，上传全部附件并绑定实际 asset ID，最后发布；RC 标记 prerelease，不冒充最新正式版本。重试沿用相同标签与附件，内容冲突时停止，不覆盖已发布制品或移动标签。完成后提交并推送生成的入口与文档。可受控使用 `--token-fd` 由父进程传入现有发布连接，值不进入参数、日志或环境变量。
 
 发布失败保留草稿及已上传附件用于核对；已有正常安装不受影响。远端发布流程遵循 [GitHub Release API](https://docs.github.com/en/rest/releases/releases#create-a-release) 与[附件下载/上传接口](https://docs.github.com/en/rest/releases/assets)。
+
+## 2026-10-16 空知识库修复候选
+
+rc.7 保留空目录绑定后的首次创建流程：主人可以在根目录创建 README.md，或按现有知识库规则创建一级分类，再添加普通笔记。安装器入口已固定到该候选，原账号和资料通过受控升级保留。Git/MCP 1.0.0 独立包与 rc.5 逐字节一致。rc.6 因构建依赖链接影响同版本插件字节而保留为失败候选，未部署生产，不能作为安装来源。
