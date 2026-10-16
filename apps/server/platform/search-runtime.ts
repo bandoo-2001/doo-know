@@ -1,4 +1,5 @@
 import { createHash, randomBytes } from 'node:crypto';
+import { artifactFetch } from './distribution.js';
 import { existsSync, readFileSync, createReadStream } from 'node:fs';
 import {
   mkdir,
@@ -223,7 +224,7 @@ export function searchRuntimeManager(
       let stream: AsyncIterable<Buffer | Uint8Array>;
       if (source.protocol === 'file:') stream = createReadStream(fileURLToPath(source));
       else {
-        const response = await fetch(source, { redirect: 'error', signal });
+        const response = await artifactFetch(config, source, signal);
         if (!response.ok || Number(response.headers.get('content-length') || 0) > d.bytes)
           failure('SEARCH_DOWNLOAD_FAILED');
         stream = response.body as any;

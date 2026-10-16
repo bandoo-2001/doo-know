@@ -47,6 +47,9 @@ import { pluginHost } from '../apps/server/plugins/host.js';
 import { satisfies } from 'semver';
 import { HOST_PLUGIN_API } from '../packages/plugin-contracts/index.js';
 import { rmSync } from 'node:fs';
+import { privateFile } from '../packages/core/agent/config.js';
+import Database from 'better-sqlite3';
+import { assertDistributionOutsideKnowledge } from '../apps/server/platform/distribution.js';
 
 const { values, positionals } = parseArgs({
   allowPositionals: true,
@@ -67,6 +70,8 @@ const { values, positionals } = parseArgs({
     'service-name': { type: 'string' },
     'install-root': { type: 'string' },
     'auth-secret-file': { type: 'string' },
+    'github-repository': { type: 'string' },
+    'github-token-file': { type: 'string' },
     help: { type: 'boolean' },
   },
 });
@@ -80,6 +85,36 @@ function atomicJson(path: string, value: unknown) {
   const temporary = `${path}.${process.pid}.tmp`;
   writeFileSync(temporary, JSON.stringify(value, null, 2) + '\n', { mode: 0o600, flag: 'wx' });
   renameSync(temporary, path);
+}
+function configureDistribution(profile: Record<string, any>) {
+  if (!values['github-repository'] && !values['github-token-file']) return false;
+  if (!values['github-repository'] || !values['github-token-file'] ||
+      !/^[A-Za-z0-9-]+\/[A-Za-z0-9_.-]+$/.test(values['github-repository']))
+    throw Error('GitHub 分发需要仓库名与私有凭据文件');
+  if (profile.distribution && profile.distribution.repository.toLowerCase() !== values['github-repository'].toLowerCase())
+    throw Error('拒绝改变现有 GitHub 分发仓库');
+  const tokenFile = resolve(values['github-token-file']);
+  try {
+    if (lstatSync(tokenFile).uid !== process.getuid?.() || !/^[A-Za-z0-9_-]{20,4096}$/.test(privateFile(tokenFile, 8192).trim())) throw Error();
+  } catch { throw Error('GitHub 下载凭据不可用或权限不正确'); }
+  const distribution = { repository: values['github-repository'], tokenFile };
+  const roots = [profile.knowledgeRoot, process.env.KNOWLEDGE_ROOT].filter(Boolean) as string[];
+  if (profile.dataRoot && existsSync(join(profile.dataRoot, 'app.sqlite'))) {
+    const db = new Database(join(profile.dataRoot, 'app.sqlite'), { readonly: true, fileMustExist: true });
+    try {
+      if (db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='platform_settings'").get()) {
+        const binding = db.prepare('SELECT knowledge_root FROM platform_settings WHERE id=1').get() as any;
+        if (binding?.knowledge_root) roots.push(binding.knowledge_root);
+      }
+      if (db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='index_meta'").get()) {
+        const identity = db.prepare("SELECT value FROM index_meta WHERE key='root_identity'").get() as any;
+        if (identity) { const path = JSON.parse(identity.value).path; if (typeof path !== 'string') throw Error('INVALID_ROOT_IDENTITY'); roots.push(path); }
+      }
+    } finally { db.close(); }
+  }
+  for (const root of roots) assertDistributionOutsideKnowledge({ distribution }, root);
+  profile.distribution = distribution;
+  return true;
 }
 async function promptAccount(reset = false) {
   if (!process.stdin.isTTY)
@@ -155,7 +190,8 @@ async function install() {
       flag: 'wx',
     });
   }
-  if (!existing) atomicJson(profileFile, profile);
+  const distributionChanged = configureDistribution(profile);
+  if (!existing || distributionChanged) atomicJson(profileFile, profile);
   const config = effectiveConfig();
   const instance = readInstance(config.dataRoot);
   if (!instance) await availablePort(config.host!, config.port!);
@@ -245,6 +281,10 @@ async function main() {
     return;
   }
   if (command === 'install') return install();
+  if (command === 'update' && (values['github-repository'] || values['github-token-file'])) {
+    const profile = JSON.parse(readFileSync(profileFile, 'utf8'));
+    if (configureDistribution(profile)) atomicJson(profileFile, profile);
+  }
   const config = effectiveConfig(),
     version = releaseInfo().version;
   if (command === 'serve') {

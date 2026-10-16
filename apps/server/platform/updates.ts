@@ -11,6 +11,7 @@ import {
   open,
 } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { artifactFetch, githubUpdateSource } from './distribution.js';
 import { join, resolve, dirname, basename } from 'node:path';
 import { homedir } from 'node:os';
 import { createHash, randomUUID } from 'node:crypto';
@@ -88,7 +89,7 @@ function sourceURL(value: string) {
     throw Error('安装源必须为HTTPS或本机受控地址，且不能包含凭据');
   return url;
 }
-async function download(url: URL, file: string, maxBytes: number) {
+async function download(config: HostConfig, url: URL, file: string, maxBytes: number) {
   if (url.protocol === 'file:') {
     await copyFile(url, file);
     const f = await open(file);
@@ -99,7 +100,7 @@ async function download(url: URL, file: string, maxBytes: number) {
     }
     return;
   }
-  const response = await fetch(url, { redirect: 'error', signal: AbortSignal.timeout(600000) });
+  const response = await artifactFetch(config, url);
   if (!response.ok || !response.body) throw Error('下载失败：' + response.status);
   let size = 0;
   const out = await open(file, 'wx', 0o600);
@@ -337,13 +338,14 @@ export async function updatePlatform(
     const root = resolve(config.installRoot!),
       current = await realpath(join(root, 'current')),
       old = releaseInfo(current),
-      source = sourceURL(options.source || old.source || '');
+      source = sourceURL(githubUpdateSource(options.source || old.source || '', options.version));
     if (options.version && !/^[0-9][a-zA-Z0-9.+-]{0,79}$/.test(options.version))
       throw Error('发行版本不正确');
     const work = await mkdtemp(join(root, '.update-'));
     try {
       const metadata = join(work, 'release.json');
       await download(
+        config,
         new URL(options.version ? 'release-' + options.version + '.json' : 'release.json', source),
         metadata,
         65536,
@@ -360,7 +362,7 @@ export async function updatePlatform(
         throw Error('发行元数据不正确');
       if (info.version === old.version) return { version: old.version, unchanged: true };
       const archive = join(work, 'application.tar.gz');
-      await download(new URL(info.file, source), archive, 2 * 1024 ** 3);
+      await download(config, new URL(info.file, source), archive, 2 * 1024 ** 3);
       if ((await digest(archive)) !== info.sha256) throw Error('发行包校验失败');
       const candidate = join(root, 'releases', info.version);
       if (existsSync(candidate)) {

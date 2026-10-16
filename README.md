@@ -6,12 +6,13 @@ MCP 与 Git 是独立发布的官方插件：安装后动态登记设置页、�
 
 ## 安装
 
+当前使用私有 GitHub Releases 分发。先按[私有 GitHub 安装说明](docs/私有GitHub安装与发布.md)配置只读下载凭据，再执行：
+
 ```bash
-curl -fsSL '<受控安装源>/install.sh' | bash
-# 或 wget -qO- '<受控安装源>/install.sh' | bash
+curl -q --config "${XDG_CONFIG_HOME:-$HOME/.config}/doo-know/secrets/github.curl" -fsS --max-redirs 0 'https://api.github.com/repos/bandoo-2001/doo-know/contents/deploy/github-install.sh?ref=txj%2Fdoo-know-platform' | bash
 ```
 
-首版支持 Linux x86_64、glibc、systemd 用户服务，验收 Ubuntu 22.04+、Debian 12+。发行包自带固定 Node 和生产依赖，无需 Docker、全局 Node/Python、编译器或 sudo。源码和制品继续私有，`<受控安装源>` 必须使用实际配置的制品地址。
+说明中同时提供 wget。自有受控制品源仍支持 `curl -fsSL '<受控安装源>/install.sh' | bash`。首版支持 Linux x86_64、glibc、systemd 用户服务，验收 Ubuntu 22.04+、Debian 12+。发行包自带固定 Node 和生产依赖，无需 Docker、全局 Node/Python、编译器或 sudo。源码和制品继续私有。
 
 安装时输入初始用户名与隐藏密码。登录后选择服务器知识库目录和时区，再按需安装 MCP、Git 或准备本地检索。默认只监听 `127.0.0.1:5173`；不会自动生成资料分类或启用外部连接。
 

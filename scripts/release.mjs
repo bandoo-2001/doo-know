@@ -162,7 +162,9 @@ try {
   const sha256 = digest(join(output, name));
   writeFileSync(join(output, 'release.txt'), `${version} ${name} ${sha256}\n`);
   const script = readFileSync('deploy/install.sh', 'utf8')
+    .replace('# __DOOKNOW_GITHUB_FETCH_FUNCTION__', readFileSync('deploy/github-fetch.sh', 'utf8'))
     .replace('__DOOKNOW_RELEASE_SOURCE__', source.replace(/\/$/, ''))
+    .replaceAll('__DOOKNOW_RELEASE_VERSION__', version)
     .replace('__DOOKNOW_NODE_BINARY_SHA__', digest(join(stage, 'runtime/node/bin/node')));
   writeFileSync(join(output, 'install.sh'), script, { mode: 0o700 });
   writeFileSync(

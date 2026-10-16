@@ -21,6 +21,7 @@ export interface HostConfig extends Omit<AppConfig, 'knowledgeRoot'> {
   serviceName?:string;
   serviceManaged?:boolean;
   installRoot?:string;
+  distribution?: { repository: string; tokenFile: string };
   vectorServiceTokenFile?:string;
   searchDistribution?: SearchDistribution;
   searchRuntimeRoot?: string;

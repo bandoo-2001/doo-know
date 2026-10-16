@@ -9,6 +9,7 @@ import { webPrincipal } from '../../../packages/core/knowledge/core.js';
 import { beginOperation, completeOperation, existingResult } from '../../../packages/core/knowledge/operations.js';
 import { fail } from '../../../packages/core/knowledge/errors.js';
 import { assertRoot } from '../../../packages/core/indexing/reconcile.js';
+import { assertDistributionOutsideKnowledge } from './distribution.js';
 
 interface Binding { knowledge_root: string; time_zone: string; binding_version: number; onboarding_completed_at: number | null }
 export function platformSettings(config: HostConfig, db: AppDatabase) {
@@ -38,7 +39,7 @@ export function platformSettings(config: HostConfig, db: AppDatabase) {
         const s = lstatSync(current);
         if (!s.isDirectory() || s.isSymbolicLink()) fail(400, 'INVALID_KNOWLEDGE_ROOT');
       }
-      for (const forbidden of [config.dataRoot, config.applicationRoot,config.installRoot,config.searchRuntimeRoot,config.searchModelsRoot,config.profileFile&&resolve(config.profileFile,'..'), config.pluginRoot || resolve(config.dataRoot, '../plugins'), config.secretFile && resolve(config.secretFile, '..')].filter(Boolean) as string[]) {
+      for (const forbidden of [config.dataRoot, config.applicationRoot,config.installRoot,config.searchRuntimeRoot,config.searchModelsRoot,config.profileFile&&resolve(config.profileFile,'..'), config.pluginRoot || resolve(config.dataRoot, '../plugins'), config.secretFile && resolve(config.secretFile, '..'), config.distribution?.tokenFile].filter(Boolean) as string[]) {
         let canonical = resolve(forbidden);
         try { canonical = realpathSync(canonical); } catch {}
         if (overlap(path, canonical)) fail(403, 'FORBIDDEN_KNOWLEDGE_ROOT');
@@ -64,6 +65,8 @@ export function platformSettings(config: HostConfig, db: AppDatabase) {
         fail(503, 'CONFIGURATION_CONFLICT');
       return;
     }
+    try { assertDistributionOutsideKnowledge(config, root); }
+    catch { fail(503, 'CONFIGURATION_CONFLICT'); }
     return { ...config, knowledgeRoot: root };
   }
   function status(runtimeReady: boolean, initializing: boolean, error?: string): PlatformStatus {

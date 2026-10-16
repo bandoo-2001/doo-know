@@ -302,7 +302,7 @@ export function pluginHost(
     const stage = join(root, `.install-${randomUUID()}`);
     mkdirSync(stage, { recursive: true, mode: 0o700 });
     try {
-      const files = await unpackPlugin(entry.artifact.url, entry.artifact.sha256, stage);
+      const files = await unpackPlugin(entry.artifact.url, entry.artifact.sha256, stage, config.distribution);
       const m = JSON.parse(readFileSync(join(stage, 'manifest.json'), 'utf8')) as PluginManifest;
       verifyManifest(m);
       if (

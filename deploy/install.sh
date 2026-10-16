@@ -3,6 +3,7 @@
 main() {
   set -euo pipefail
   umask 077
+  # __DOOKNOW_GITHUB_FETCH_FUNCTION__
   local source="${DOOKNOW_SOURCE:-__DOOKNOW_RELEASE_SOURCE__}" node_sha='__DOOKNOW_NODE_BINARY_SHA__'
   source="${source%/}"
   if ! [[ "$source" =~ ^https://[A-Za-z0-9.-]+(:[0-9]{1,5})?(/[A-Za-z0-9._~/-]*)?$ || "$source" =~ ^http://(localhost|127\.0\.0\.1|\[::1\])(:[0-9]{1,5})?(/[A-Za-z0-9._~/-]*)?$ ]]; then
@@ -29,6 +30,16 @@ main() {
   printf -v cleanup_path '%q' "$work"
   trap "rm -rf -- $cleanup_path" EXIT
   fetch() {
+    if [[ "$source" =~ ^https://github\.com/([A-Za-z0-9-]+/[A-Za-z0-9_.-]+)/releases/download/([A-Za-z0-9.+-]+)$ ]]; then
+      local repository="${BASH_REMATCH[1]}" asset_id
+      case "$1" in
+        "$source/release.txt") asset_id='__DOOKNOW_GITHUB_RELEASE_TXT_ASSET__' ;;
+        "$source/dooknow-__DOOKNOW_RELEASE_VERSION__-linux-x64.tar.gz") asset_id='__DOOKNOW_GITHUB_APPLICATION_ASSET__' ;;
+        *) echo '安装脚本与 GitHub 固定发布不匹配' >&2; return 1 ;;
+      esac
+      github_fetch "$repository" "$asset_id" "$2"
+      return
+    fi
     if command -v curl >/dev/null; then curl -fsSL --proto '=https,http' --proto-redir '=https' --connect-timeout 20 --max-time 600 "$1" -o "$2"
     else wget -q --max-redirect=0 --timeout=600 -O "$2" "$1"; fi
   }
@@ -60,6 +71,12 @@ main() {
     mv "$work/application" "$release"
   fi
   local args=(install --install-root "$base")
+  local github_repository=''
+  if [[ "$source" =~ ^https://github\.com/([A-Za-z0-9-]+/[A-Za-z0-9_.-]+)/releases/download/([A-Za-z0-9.+-]+)$ ]]; then
+    github_repository="${BASH_REMATCH[1]}"
+    DOOKNOW_GITHUB_TOKEN_FILE="${DOOKNOW_GITHUB_TOKEN_FILE:-${XDG_CONFIG_HOME:-$HOME/.config}/doo-know/secrets/github.token}"
+    args+=(--github-repository "$github_repository" --github-token-file "$DOOKNOW_GITHUB_TOKEN_FILE")
+  fi
   [ -z "${DOOKNOW_PROFILE:-}" ] || args+=(--profile "$DOOKNOW_PROFILE")
   [ -z "${DOOKNOW_PORT:-}" ] || args+=(--port "$DOOKNOW_PORT")
   [ -z "${DOOKNOW_APP_ORIGIN:-}" ] || args+=(--origin "$DOOKNOW_APP_ORIGIN")
@@ -72,7 +89,12 @@ main() {
     local update_args=(update --source "$source" --version "$version" --install-root "$base")
     [ -z "${DOOKNOW_PROFILE:-}" ] || update_args+=(--profile "$DOOKNOW_PROFILE")
     [ "${DOOKNOW_NO_SERVICE:-0}" != 1 ] || update_args+=(--no-service)
-    "$current/runtime/node/bin/node" "$current/dist/server/scripts/manage.js" "${update_args[@]}"
+    if [ -n "$github_repository" ]; then
+      update_args+=(--github-repository "$github_repository" --github-token-file "$DOOKNOW_GITHUB_TOKEN_FILE")
+      "$release/runtime/node/bin/node" "$release/dist/server/scripts/manage.js" "${update_args[@]}"
+    else
+      "$current/runtime/node/bin/node" "$current/dist/server/scripts/manage.js" "${update_args[@]}"
+    fi
   else
     if ( : </dev/tty ) 2>/dev/null; then
       "$release/runtime/node/bin/node" "$release/dist/server/scripts/manage.js" "${args[@]}" </dev/tty
