@@ -30,11 +30,13 @@ github_fetch() (
   if [ "$client" = curl ]; then
     status="$(curl -q --config "$github_work/curl" --proto '=https' --max-redirs 0 --connect-timeout 20 --max-time 600 --silent --show-error --dump-header "$github_work/headers" --output "$github_work/asset" --write-out '%{http_code}' "$api" 2>"$github_work/error")" || { echo 'GitHub 制品下载失败' >&2; exit 1; }
   elif [ "$client" = wget ]; then
-    wget --no-config --no-netrc --config "$github_work/wget" --max-redirect=0 --timeout=600 --server-response -O "$github_work/asset" "$api" 2>"$github_work/headers" || true
+    wget --no-netrc --config "$github_work/wget" --max-redirect=0 --timeout=600 --server-response -O "$github_work/asset" "$api" 2>"$github_work/headers" || true
     status="$(awk '/^[[:space:]]*HTTP\// {code=$2} END {print code}' "$github_work/headers")"
   else echo '需要 curl 或 wget' >&2; exit 1; fi
   if [ "$status" = 302 ]; then
-    location="$(awk 'tolower($1)=="location:" {sub(/^[[:space:]]*[Ll][Oo][Cc][Aa][Tt][Ii][Oo][Nn]:[[:space:]]*/, "");sub(/\r$/, "");url=$0} END {print url}' "$github_work/headers")"
+    # wget also prints an unindented diagnostic "Location: ... [following]".
+    # Only its indented --server-response fields are actual HTTP headers.
+    location="$(awk -v client="$client" 'tolower($1)=="location:" && (client!="wget" || /^[ \t]/) {count++;sub(/^[ \t]*[^:]+:[ \t]*/, "");sub(/\r$/, "");url=$0} END {if(count!=1)exit 1;print url}' "$github_work/headers")" || { echo '拒绝不明确的 GitHub 制品跳转' >&2; exit 1; }
     [[ "$location" =~ ^https://(release-assets\.githubusercontent\.com|objects\.githubusercontent\.com|github-releases\.githubusercontent\.com)/ && "$location" != *[$'\r\n\t ']* ]] || { echo '拒绝非 GitHub 制品跳转' >&2; exit 1; }
     # Fresh request, no credential config, no inherited curlrc/wgetrc, no further redirects.
     if [ "$client" = curl ]; then
@@ -53,8 +55,8 @@ github_fetch() (
   work="$(mktemp -d "${TMPDIR:-/tmp}/dooknow-bootstrap.XXXXXXXX")"
   printf -v cleanup_path '%q' "$work"
   trap "rm -rf -- $cleanup_path" EXIT
-  github_fetch 'bandoo-2001/doo-know' '645891711' "$work/install.sh"
-  printf '%s  %s\n' '862062d855d103c272c219cfa092801157aecb21eeb5261fa4216d5356b79d6a' "$work/install.sh" | sha256sum -c - >/dev/null
+  github_fetch 'bandoo-2001/doo-know' '645938756' "$work/install.sh"
+  printf '%s  %s\n' '6113081f558bb54cab6f6bb3d6dca6bd83117f8ca3b323a17f6937b2785a0840' "$work/install.sh" | sha256sum -c - >/dev/null
   bash "$work/install.sh" "$@"
 }
 main "$@"

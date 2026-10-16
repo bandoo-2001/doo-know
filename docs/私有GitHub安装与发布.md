@@ -72,6 +72,6 @@ node --import tsx scripts/publish-github.ts \
   --token-file '/受控位置/github-publish.token' --bootstrap deploy/github-install.sh
 ```
 
-发布器只接受私有仓库和预期制品，验证本地摘要、Git 标签对应提交与已存在附件的远端 SHA-256。先创建草稿，上传全部附件并绑定实际 asset ID，最后发布；RC 标记 prerelease，不冒充最新正式版本。重试沿用相同标签与附件，内容冲突时停止，不覆盖已发布制品或移动标签。完成后提交并推送生成的入口与文档。可受控使用 `--token-fd` 由父进程传入现有发布连接，值不进入参数、日志或环境变量。
+发布器使用流式 curl 上传大附件，沿用主机的代理环境；认证配置仍只保存在受控临时文件中。发布器只接受私有仓库和预期制品，验证本地摘要、Git 标签对应提交与已存在附件的远端 SHA-256。先创建草稿，上传全部附件并绑定实际 asset ID，最后发布；RC 标记 prerelease，不冒充最新正式版本。重试沿用相同标签与附件，内容冲突时停止，不覆盖已发布制品或移动标签。完成后提交并推送生成的入口与文档。可受控使用 `--token-fd` 由父进程传入现有发布连接，值不进入参数、日志或环境变量。
 
 发布失败保留草稿及已上传附件用于核对；已有正常安装不受影响。远端发布流程遵循 [GitHub Release API](https://docs.github.com/en/rest/releases/releases#create-a-release) 与[附件下载/上传接口](https://docs.github.com/en/rest/releases/assets)。

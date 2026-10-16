@@ -4,8 +4,9 @@ import { join, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import { parseArgs } from 'node:util';
 import { pathToFileURL } from 'node:url';
+import { curlGithubUpload } from './github-upload.js';
 
-type Options = { directory: string; repository: string; tag: string; commit: string; token: string; bootstrap: string };
+type Options = { directory: string; repository: string; tag: string; commit: string; token: string; bootstrap: string; upload?: typeof curlGithubUpload };
 type Asset = { id: number; name: string; size: number; state: string; digest: string };
 const names = /^(?:install\.sh|release(?:-[0-9A-Za-z.+-]{1,80})?\.(?:txt|json)|catalog\.json|dooknow-[0-9A-Za-z.+-]{1,120}\.tar\.gz)$/;
 async function digest(file: string) { const h = createHash('sha256'); for await (const b of createReadStream(file)) h.update(b); return h.digest('hex'); }
@@ -74,12 +75,14 @@ export async function publishGithubRelease(o: Options) {
     if (assets.filter(a => a.name === name).length > 1) throw Error('DUPLICATE_GITHUB_ASSET');
     if (!a) {
       if (release.draft !== true) throw Error('PUBLISHED_RELEASE_IS_IMMUTABLE');
-      const stream = createReadStream(file);
+      const stream = o.upload ? undefined : createReadStream(file);
       try {
-        const response = await fetch(`https://uploads.github.com/repos/${o.repository}/releases/${release.id}/assets?name=${encodeURIComponent(name)}`, { method: 'POST', headers: { ...headers, 'content-type': name.endsWith('.gz') ? 'application/gzip' : 'application/octet-stream', 'content-length': String(bytes) }, body: stream, duplex: 'half', redirect: 'error', signal: AbortSignal.timeout(1800000) } as any);
+        const url = `https://uploads.github.com/repos/${o.repository}/releases/${release.id}/assets?name=${encodeURIComponent(name)}`;
+        const uploadHeaders = { ...headers, 'content-type': name.endsWith('.gz') ? 'application/gzip' : 'application/octet-stream', 'content-length': String(bytes) };
+        const response = o.upload ? await o.upload(url, uploadHeaders, file, bytes) : await fetch(url, { method: 'POST', headers: uploadHeaders, body: stream, duplex: 'half', redirect: 'error', signal: AbortSignal.timeout(1800000) } as any);
         if (!response.ok) throw Error('GITHUB_UPLOAD_HTTP_' + response.status);
         a = await response.json() as Asset;
-      } finally { stream.destroy(); }
+      } finally { stream?.destroy(); }
       assets.push(a);
     }
     if (!Number.isSafeInteger(a.id) || a.id <= 0 || a.name !== name || a.state !== 'uploaded' || a.size !== bytes || a.digest !== 'sha256:' + sha) throw Error('GITHUB_ASSET_CONTENT_CONFLICT');
@@ -116,6 +119,6 @@ async function main() {
     try { const st = await file.stat(); if (!st.isFile() || st.nlink !== 1 || st.uid !== process.getuid?.() || st.mode & 0o077 || st.size > 8192) throw Error('PRIVATE_TOKEN_FILE_REQUIRED'); token = await file.readFile('utf8'); }
     finally { await file.close(); }
   }
-  console.log(JSON.stringify(await publishGithubRelease({ directory: values.directory, repository: values.repository, tag: values.tag, commit: values.commit, bootstrap: values.bootstrap, token: token.trim() }), null, 2));
+  console.log(JSON.stringify(await publishGithubRelease({ directory: values.directory, repository: values.repository, tag: values.tag, commit: values.commit, bootstrap: values.bootstrap, token: token.trim(), upload: curlGithubUpload }), null, 2));
 }
 if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url) main().catch(() => { console.error('私有 GitHub 发布失败；未发布的草稿保留，重试前核对版本、仓库权限和附件摘要。'); process.exitCode = 1; });
