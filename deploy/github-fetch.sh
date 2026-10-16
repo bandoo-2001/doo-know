@@ -24,11 +24,13 @@ github_fetch() (
   if [ "$client" = curl ]; then
     status="$(curl -q --config "$github_work/curl" --proto '=https' --max-redirs 0 --connect-timeout 20 --max-time 600 --silent --show-error --dump-header "$github_work/headers" --output "$github_work/asset" --write-out '%{http_code}' "$api" 2>"$github_work/error")" || { echo 'GitHub 制品下载失败' >&2; exit 1; }
   elif [ "$client" = wget ]; then
-    wget --no-config --no-netrc --config "$github_work/wget" --max-redirect=0 --timeout=600 --server-response -O "$github_work/asset" "$api" 2>"$github_work/headers" || true
+    wget --no-netrc --config "$github_work/wget" --max-redirect=0 --timeout=600 --server-response -O "$github_work/asset" "$api" 2>"$github_work/headers" || true
     status="$(awk '/^[[:space:]]*HTTP\// {code=$2} END {print code}' "$github_work/headers")"
   else echo '需要 curl 或 wget' >&2; exit 1; fi
   if [ "$status" = 302 ]; then
-    location="$(awk 'tolower($1)=="location:" {sub(/^[[:space:]]*[Ll][Oo][Cc][Aa][Tt][Ii][Oo][Nn]:[[:space:]]*/, "");sub(/\r$/, "");url=$0} END {print url}' "$github_work/headers")"
+    # wget also prints an unindented diagnostic "Location: ... [following]".
+    # Only its indented --server-response fields are actual HTTP headers.
+    location="$(awk -v client="$client" 'tolower($1)=="location:" && (client!="wget" || /^[ \t]/) {count++;sub(/^[ \t]*[^:]+:[ \t]*/, "");sub(/\r$/, "");url=$0} END {if(count!=1)exit 1;print url}' "$github_work/headers")" || { echo '拒绝不明确的 GitHub 制品跳转' >&2; exit 1; }
     [[ "$location" =~ ^https://(release-assets\.githubusercontent\.com|objects\.githubusercontent\.com|github-releases\.githubusercontent\.com)/ && "$location" != *[$'\r\n\t ']* ]] || { echo '拒绝非 GitHub 制品跳转' >&2; exit 1; }
     # Fresh request, no credential config, no inherited curlrc/wgetrc, no further redirects.
     if [ "$client" = curl ]; then

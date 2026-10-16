@@ -38,7 +38,7 @@ curl -q --config "${XDG_CONFIG_HOME:-$HOME/.config}/doo-know/secrets/github.curl
 wget：
 
 ```bash
-wget --no-config --no-netrc --config "${XDG_CONFIG_HOME:-$HOME/.config}/doo-know/secrets/github.wget" --max-redirect=0 -qO- 'https://api.github.com/repos/bandoo-2001/doo-know/contents/deploy/github-install.sh?ref=txj%2Fdoo-know-platform' | bash
+wget --no-netrc --config "${XDG_CONFIG_HOME:-$HOME/.config}/doo-know/secrets/github.wget" --max-redirect=0 -qO- 'https://api.github.com/repos/bandoo-2001/doo-know/contents/deploy/github-install.sh?ref=txj%2Fdoo-know-platform' | bash
 ```
 
 入口通过 GitHub Contents API 返回仓库中的原始脚本，随后按固定 asset ID 下载并校验实际发行安装器。所有安装效果位于完整脚本的 `main` 中；初始下载中断不会执行部分安装。无终端时仍不会创建空密码账号。
@@ -51,7 +51,7 @@ wget --no-config --no-netrc --config "${XDG_CONFIG_HOME:-$HOME/.config}/doo-know
 
 ```bash
 # RC 必须显式指定版本；不指定时查询 GitHub 最新正式版本。
-dooknow update --version 1.1.0-rc.4
+dooknow update --version 1.1.0-rc.5
 ```
 
 旧安装重复执行上方安装入口，会使用已校验的新管理程序接管升级；保留原账号、配置、原文与数据。新版本仍执行维护闸门、一致性备份、迁移、健康检查与失败恢复，不绕过既有升级规则。GitHub 下载授权不替代 MCP 的 OAuth 或 Tunnel 授权。
@@ -64,11 +64,11 @@ dooknow update --version 1.1.0-rc.4
 
 ```bash
 node scripts/release.mjs --output .local/github-rc3 \
-  --base-url 'https://github.com/bandoo-2001/doo-know/releases/download/v1.1.0-rc.4' \
-  --version 1.1.0-rc.4
+  --base-url 'https://github.com/bandoo-2001/doo-know/releases/download/v1.1.0-rc.5' \
+  --version 1.1.0-rc.5
 node --import tsx scripts/publish-github.ts \
   --directory .local/github-rc3 --repository bandoo-2001/doo-know \
-  --tag v1.1.0-rc.4 --commit '<构建元数据中的完整提交 SHA>' \
+  --tag v1.1.0-rc.5 --commit '<构建元数据中的完整提交 SHA>' \
   --token-file '/受控位置/github-publish.token' --bootstrap deploy/github-install.sh
 ```
 

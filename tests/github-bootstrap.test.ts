@@ -19,7 +19,7 @@ const get=(k)=>a[a.indexOf(k)+1];let url=a.at(-1),cfg=a.includes('--config')?fs.
 if(url.startsWith('https://api.github.com/')) {
  if(!cfg.includes('Authorization: Bearer fixture_github_'))process.exit(72);
  const headers='HTTP/1.1 302 Found\r\nLocation: https://release-assets.githubusercontent.com/private/object?sig=fixture\r\n\r\n';
- if(a.includes('--dump-header')){fs.writeFileSync(get('--dump-header'),headers);process.stdout.write('302');}else process.stderr.write(headers);
+ if(a.includes('--dump-header')){fs.writeFileSync(get('--dump-header'),headers);process.stdout.write('302');}else process.stderr.write(headers.replace(/^(.+)$/gm,'  $1')+'Location: https://release-assets.githubusercontent.com/private/object?sig=fixture [following]\n');
 } else {
  if(cfg.includes('Authorization')||(!a.includes('-q')&&!a.includes('--no-config')))process.exit(73);
  fs.writeFileSync(a.includes('--output')?get('--output'):get('-O'),'artifact bytes');
