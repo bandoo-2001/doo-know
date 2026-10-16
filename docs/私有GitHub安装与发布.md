@@ -27,6 +27,20 @@ DooKnow 源码、安装脚本及发行包保存在同一个私有仓库。源码
 
 这一步也用于轮换过期的下载凭据；运行中的平台在下一次下载时重新读取文件。自动部署可事先提供受控的 `DOOKNOW_GITHUB_TOKEN_FILE`，无需通过环境变量传递 Token 本身。
 
+## 需要网络代理时
+
+curl/wget 沿用当前代理环境。后台插件和检索下载使用包内 Node 22.22.1；需要代理的网络须为该进程设置 `NODE_OPTIONS=--use-env-proxy`，并提供现有 `HTTPS_PROXY` / `HTTP_PROXY`，`NO_PROXY` 应包含 `127.0.0.1,localhost,::1`。普通直连网络无需设置。
+
+systemd 用户服务不会自动继承安装终端的环境。可在 `~/.config/systemd/user/doo-know.service.d/proxy.conf` 为本服务单独配置：
+
+```ini
+[Service]
+Environment=NODE_OPTIONS=--use-env-proxy
+EnvironmentFile=%h/.config/doo-know/proxy.env
+```
+
+在上述 `proxy.env` 中填写实际代理环境，文件权限设为 600；代理若含认证，不写进仓库或 unit。更新配置后执行 `systemctl --user daemon-reload` 和 `dooknow restart`。显式选择前台模式时，可用 `NODE_OPTIONS=--use-env-proxy dooknow serve`。本次私有检索包的下载与准备验收使用了这一网络配置；没有修改主机全局代理。
+
 ## 一行安装
 
 curl：
