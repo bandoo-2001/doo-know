@@ -198,12 +198,17 @@ export function noteService(config: AppConfig, db: AppDatabase) {
 
   function createFolder(parent: string, name: string) {
     if (!validName(name) || name === 'assets') throw new HttpError(400, '文件夹名不允许');
-    const folder = safePath(config.knowledgeRoot, parent, 'folder');
+    assertRoot(config, db);
+    const folder =
+      parent === '' ? config.knowledgeRoot : safePath(config.knowledgeRoot, parent, 'folder');
     if (!lstatSync(folder).isDirectory()) throw new HttpError(400, '目标不是目录');
     try {
-      mkdirSync(safePath(config.knowledgeRoot, `${parent}/${name}`, 'folder', true), {
-        mode: 0o700,
-      });
+      mkdirSync(
+        safePath(config.knowledgeRoot, parent === '' ? name : `${parent}/${name}`, 'folder', true),
+        {
+          mode: 0o700,
+        },
+      );
     } catch (e) {
       if ((e as NodeJS.ErrnoException).code === 'EEXIST') throw new HttpError(409, '目录已存在');
       throw e;

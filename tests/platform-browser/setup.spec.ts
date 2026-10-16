@@ -1,8 +1,11 @@
 import { test, expect } from '@playwright/test';
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir, rmdir } from 'node:fs/promises';
+import { join } from 'node:path';
 import { testPassword } from '../support/credentials.js';
-test('first login validates server paths, offers optional extensions and persists finished setup', async ({ page }) => {
+test('first login binds an empty knowledge base and creates its first root note, category and nested note', async ({ page }, info) => {
   const config = JSON.parse(await readFile('.local/setup-e2e.json', 'utf8'));
+  await rmdir(join(config.knowledgeRoot, '00-Inbox'));
+  expect(await readdir(config.knowledgeRoot)).toEqual([]);
   await page.goto('/');
   await page.getByLabel('用户名', { exact: true }).fill('owner');
   await page.getByLabel('密码', { exact: true }).fill(testPassword);
@@ -17,4 +20,31 @@ test('first login validates server paths, offers optional extensions and persist
   await expect(page.locator('.sidebar .brand')).toContainText('DooKnow');
   await page.reload(); await expect(page.locator('.sidebar .brand')).toContainText('DooKnow');
   await expect(page.getByPlaceholder('/home/your-name/knowledge-base')).toHaveCount(0);
+
+  await page.locator('.sidebar').getByRole('button', { name: '新建笔记', exact: true }).click();
+  const dialog = page.locator('.n-modal');
+  await expect(dialog.getByRole('textbox', { name: '文件名', exact: true })).toHaveValue('README.md');
+  await expect(dialog.locator('.n-base-selection-label')).toContainText('知识库根目录');
+  await expect(dialog).toContainText('根目录仅支持 README.md');
+  await dialog.getByRole('button', { name: '创建', exact: true }).click();
+  await expect(page.locator('.note-header h1')).toHaveText('README');
+  expect(await readFile(join(config.knowledgeRoot, 'README.md'), 'utf8')).toBe('# README\n\n');
+
+  if (info.project.name === 'mobile') await page.getByRole('button', { name: '打开侧栏' }).click();
+  await page.getByRole('button', { name: '全部笔记', exact: true }).click();
+  await page.locator('.folder-view').getByRole('button', { name: '新建文件夹', exact: true }).click();
+  await dialog.locator('.n-base-selection').click();
+  await page.locator('.n-base-select-option').getByText('知识库根目录', { exact: true }).click();
+  await dialog.getByRole('textbox', { name: '文件夹名', exact: true }).fill('00-Inbox');
+  await dialog.getByRole('button', { name: '创建', exact: true }).click();
+  await expect(page.getByText('文件夹已创建', { exact: true })).toBeVisible();
+  expect((await readdir(config.knowledgeRoot)).sort()).toEqual(['00-Inbox', 'README.md']);
+
+  await page.locator('.folder-view').getByRole('button', { name: '00-Inbox', exact: true }).click();
+  await page.locator('.folder-view').getByRole('button', { name: '新建笔记', exact: true }).click();
+  await expect(dialog.locator('.n-base-selection-label')).toContainText('00-Inbox');
+  await dialog.getByRole('textbox', { name: '文件名', exact: true }).fill('第一篇笔记');
+  await dialog.getByRole('button', { name: '创建', exact: true }).click();
+  await expect(page.locator('.note-header h1')).toHaveText('第一篇笔记');
+  expect(await readFile(join(config.knowledgeRoot, '00-Inbox/第一篇笔记.md'), 'utf8')).toBe('# 第一篇笔记\n\n');
 });

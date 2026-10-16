@@ -319,7 +319,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     if (typeof content !== 'string' || Buffer.byteLength(content) > 1024 * 1024)
       fail(413, 'REQUEST_TOO_LARGE');
     if (!validName(fileName) || !fileName.toLowerCase().endsWith('.md')) fail(400, 'INVALID_INPUT');
-    const path = `${directory}/${fileName}`;
+    const path = directory === '' ? fileName : `${directory}/${fileName}`;
     authorizePath(p, path, 'knowledge:write');
     assertRoot(config, db);
     assertWritable(db);
@@ -328,7 +328,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     );
     if (!op.fresh) return existingResult(op.operation);
     return runOperation(op.operation, (commit, stage) => {
-      safePath(config.knowledgeRoot, directory, 'folder');
+      if (directory !== '') safePath(config.knowledgeRoot, directory, 'folder');
       const file = safePath(config.knowledgeRoot, path, 'note', true);
       if (existsSync(file)) fail(409, 'NAME_CONFLICT');
       const noteId = randomUUID(),

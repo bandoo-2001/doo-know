@@ -1,7 +1,93 @@
 import { it, expect } from 'vitest';
-import { readFile, writeFile, symlink, mkdir } from 'node:fs/promises';
+import { readFile, writeFile, symlink, mkdir, rm, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createFixture, loginFixtureOwner } from './support/fixture.js';
+it('creates the first category at the root of an empty knowledge base', async () => {
+  const f = await createFixture();
+  try {
+    const headers = await loginFixtureOwner(f);
+    await rm(join(f.knowledgeRoot, '00-Inbox'), { recursive: true });
+    expect((await f.app.inject({ url: '/api/tree', headers })).json()).toEqual([]);
+    const create = (parent: string, name: string) =>
+      f.app.inject({ method: 'POST', url: '/api/folders', headers, payload: { parent, name } });
+    const first = await create('', '00-Inbox');
+    expect(first.statusCode, first.body).toBe(201);
+    expect(first.json()).toMatchObject([{ path: '00-Inbox', type: 'folder', children: [] }]);
+    expect((await create('00-Inbox', '阅读')).statusCode).toBe(201);
+    expect(await readdir(join(f.knowledgeRoot, '00-Inbox'))).toEqual(['阅读']);
+    expect((await create('', '00-Inbox')).statusCode).toBe(409);
+  } finally {
+    await f.close();
+  }
+});
+it('creates a root README with a stable write receipt in an empty knowledge base', async () => {
+  const f = await createFixture();
+  try {
+    const headers = await loginFixtureOwner(f);
+    await rm(join(f.knowledgeRoot, '00-Inbox'), { recursive: true });
+    const create = (requestId: string) =>
+      f.app.inject({
+        method: 'POST',
+        url: '/api/notes',
+        headers,
+        payload: { folderPath: '', fileName: 'README.md', content: '# 知识库\n', requestId },
+      });
+    const first = await create('root-readme');
+    expect(first.statusCode, first.body).toBe(201);
+    expect(first.json().relativePath).toBe('README.md');
+    expect(await readFile(join(f.knowledgeRoot, 'README.md'), 'utf8')).toBe('# 知识库\n');
+    const repeated = await create('root-readme');
+    expect(repeated.statusCode, repeated.body).toBe(201);
+    expect(repeated.json().id).toBe(first.json().id);
+    expect((await create('duplicate-readme')).statusCode).toBe(409);
+    expect((await f.app.inject({ url: '/api/tree', headers })).json()).toMatchObject([
+      { path: 'README.md', type: 'note', id: first.json().id },
+    ]);
+  } finally {
+    await f.close();
+  }
+});
+it('keeps root creation inside the managed categories and refuses unsafe parents', async () => {
+  const f = await createFixture();
+  try {
+    const headers = await loginFixtureOwner(f);
+    await mkdir(join(f.root, 'outside'));
+    await symlink(join(f.root, 'outside'), join(f.knowledgeRoot, '00-Inbox/link'));
+    for (const [parent, name] of [
+      ['', 'other'],
+      ['', 'assets'],
+      ['', '.hidden'],
+      ['', '../escaped'],
+      ['.', '10-Projects'],
+      ['../outside', 'escaped'],
+      ['/tmp', 'escaped'],
+      ['00-Inbox/link', 'escaped'],
+      ['00-Inbox', 'assets'],
+    ]) {
+      const result = await f.app.inject({
+        method: 'POST',
+        url: '/api/folders',
+        headers,
+        payload: { parent, name },
+      });
+      expect(result.statusCode, `${parent}/${name}: ${result.body}`).toBe(400);
+    }
+    for (const fileName of ['other.md', 'AGENTS.md']) {
+      const result = await f.app.inject({
+        method: 'POST',
+        url: '/api/notes',
+        headers,
+        payload: { folderPath: '', fileName, content: 'blocked' },
+      });
+      expect(result.statusCode).toBeGreaterThanOrEqual(400);
+      expect(result.statusCode).toBeLessThan(500);
+    }
+    expect(await readdir(f.knowledgeRoot)).toEqual(['00-Inbox']);
+    expect(await readdir(join(f.root, 'outside'))).toEqual([]);
+  } finally {
+    await f.close();
+  }
+});
 it('creates real Chinese Markdown and refuses duplicate names', async () => {
   const f = await createFixture();
   try {

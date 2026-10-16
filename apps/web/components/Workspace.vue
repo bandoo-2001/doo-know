@@ -78,9 +78,10 @@ const md = new MarkdownIt({ html: false, linkify: true });
 const flatten = (items: TreeEntry[]): TreeEntry[] =>
   items.flatMap((x) => [x, ...(x.children ? flatten(x.children) : [])]);
 const flat = computed(() => flatten(tree.value));
-const folders = computed(() =>
-  flat.value.filter((x) => x.type === 'folder').map((x) => ({ label: x.path, value: x.path })),
-);
+const folders = computed(() => [
+  { label: '知识库根目录', value: '' },
+  ...flat.value.filter((x) => x.type === 'folder').map((x) => ({ label: x.path, value: x.path })),
+]);
 const folderEntries = computed(() => {
   if (!folder.value) return tree.value;
   return flat.value.find((x) => x.path === folder.value)?.children || [];
@@ -480,13 +481,14 @@ async function copyShare() {
 const createOpen = ref(false),
   createKind = ref<'note' | 'folder'>('note'),
   newName = ref(''),
-  newFolder = ref('00-Inbox');
+  newFolder = ref('');
 let createRequestId = crypto.randomUUID();
 function create(kind: 'note' | 'folder') {
   createRequestId = crypto.randomUUID();
   createKind.value = kind;
-  newName.value = '';
-  newFolder.value = folder.value || '00-Inbox';
+  newFolder.value =
+    folder.value || (folders.value.some((x) => x.value === '00-Inbox') ? '00-Inbox' : '');
+  newName.value = kind === 'note' && !newFolder.value ? 'README.md' : '';
   createOpen.value = true;
 }
 async function submitCreate() {
@@ -1147,9 +1149,13 @@ onBeforeUnmount(() => {
         />
         <p class="muted">
           {{
-            createKind === 'note'
-              ? '创建后保存为真实 Markdown 文件，默认私有。'
-              : '在所选目录中创建子文件夹。'
+            !newFolder
+              ? createKind === 'note'
+                ? '根目录仅支持 README.md；其他笔记请先创建分类目录。'
+                : '根目录请使用 00-Inbox、10-Projects 等标准分类名称。'
+              : createKind === 'note'
+                ? '创建后保存为真实 Markdown 文件，默认私有。'
+                : '在所选目录中创建子文件夹。'
           }}
         </p>
         <div class="dialog-actions">

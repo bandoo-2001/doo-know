@@ -4,6 +4,47 @@ import { join } from 'node:path';
 import { createFixture } from '../support/fixture.js';
 import { agentConfig, agentHeaders } from '../support/agent.js';
 import { openDatabase } from '../../packages/core/db.js';
+it('requires an explicit empty directory to create the authorized root README', async () => {
+  const f = await createFixture({
+    agent: {
+      ...agentConfig,
+      policies: [{ ...agentConfig.policies[0], allowedPrefixes: ['README.md'] }],
+    },
+  });
+  try {
+    const headers = agentHeaders({ allowedPrefixes: ['README.md'] });
+    for (const directory of [undefined, null, false, 0]) {
+      const result = await f.app.inject({
+        method: 'POST',
+        url: '/api/agent/v1/notes',
+        headers,
+        payload: {
+          directory,
+          fileName: 'README.md',
+          content: '# Root',
+          requestId: `invalid-${directory}`,
+        },
+      });
+      expect(result.statusCode, `${directory}: ${result.body}`).toBe(400);
+    }
+    const result = await f.app.inject({
+      method: 'POST',
+      url: '/api/agent/v1/notes',
+      headers,
+      payload: {
+        directory: '',
+        fileName: 'README.md',
+        content: '# Root',
+        requestId: 'root-readme',
+      },
+    });
+    expect(result.statusCode, result.body).toBe(201);
+    expect(result.json().data.relativePath).toBe('README.md');
+    expect(await readFile(join(f.knowledgeRoot, 'README.md'), 'utf8')).toBe('# Root');
+  } finally {
+    await f.close();
+  }
+});
 it('persists write deduplication and rejects requestId/body and nanosecond version conflicts', async () => {
   const f = await createFixture({ agent: agentConfig });
   try {
