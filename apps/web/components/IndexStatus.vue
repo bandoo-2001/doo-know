@@ -147,7 +147,7 @@ summary > span:last-child {
   position: absolute;
   bottom: calc(100% + 8px);
   left: 0;
-  width: 242px;
+  width: min(242px, 100%);
   padding: 16px;
   border: 1px solid var(--border, #e3e6ec);
   background: #fff;
@@ -171,5 +171,18 @@ summary > span:last-child {
 }
 .index-status > .n-button {
   flex-shrink: 0;
+}
+@media (max-height: 540px) {
+  .index-status {
+    align-items: flex-start;
+  }
+  .index-details {
+    flex: 1;
+  }
+  .index-popover {
+    position: static;
+    width: auto;
+    margin-top: 8px;
+  }
 }
 </style>
