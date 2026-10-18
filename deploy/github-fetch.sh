@@ -3,12 +3,37 @@ github_fetch() (
   set +x
   set -euo pipefail
   umask 077
+  for tool in stat sleep awk; do command -v "$tool" >/dev/null || { echo "缺少必要命令：$tool" >&2; exit 1; }; done
   local repository="$1" asset_id="$2" destination="$3" client="${4:-}"
   [[ "$repository" =~ ^[A-Za-z0-9-]+/[A-Za-z0-9_.-]+$ && "$asset_id" =~ ^[1-9][0-9]*$ ]] || { echo '无效 GitHub 制品标识' >&2; exit 1; }
   local token_file="${DOOKNOW_GITHUB_TOKEN_FILE:-}" fd mode owner links token public_url="${5:-}"
   local github_work
   github_work="$(mktemp -d "$(dirname "$destination")/.github-download.XXXXXXXX")"
-  trap 'rm -rf -- "$github_work"' EXIT
+  local progress_pid='' progress_started=$SECONDS
+  progress_stop() {
+    if [ -n "$progress_pid" ]; then kill "$progress_pid" 2>/dev/null || true; wait "$progress_pid" 2>/dev/null || true; progress_pid=''; fi
+  }
+  progress_line() {
+    local bytes total elapsed
+    bytes="$(stat -c %s "$github_work/asset" 2>/dev/null || echo 0)"
+    total="$(awk '/^[[:space:]]*HTTP\// {ok=($2==200 || $2==206);n=0} ok && tolower($1)=="content-length:" {gsub(/\r/,"",$2);if($2 ~ /^[0-9]+$/)n=$2} END {print n+0}' "$github_work/headers" 2>/dev/null || echo 0)"
+    elapsed=$((SECONDS-progress_started))
+    awk -v b="$bytes" -v t="$total" -v e="$elapsed" -v done="${1:-0}" -v tty="$([ -t 2 ] && echo 1 || echo 0)" 'BEGIN {
+      rate=e>0?b/e:0;p=t>0?int(b*100/t):0;if(p>99)p=99;
+      prefix=done?"100%":(t>0?p"%":"总大小未知");
+      eta=(t>b && rate>0)?sprintf("%.0f 秒",(t-b)/rate):"等待估算";
+      printf "%s进度 %s | 已下载 %.2f MiB | 速度 %.2f MiB/s | 剩余 %s | 已用 %d 秒%s",tty?"\r":"",prefix,b/1048576,rate/1048576,done?"0 秒":eta,e,(!tty || done)?"\n":"";
+    }' >&2
+  }
+  trap 'progress_stop; rm -rf -- "$github_work"' EXIT
+  # Only numeric metadata is displayed; headers, signed URLs and errors stay private.
+  local progress_owner=$BASHPID
+  (
+    trap - EXIT
+    trap 'exit 0' TERM INT
+    while kill -0 "$progress_owner" 2>/dev/null && [ -d "$github_work" ]; do progress_line; sleep 1; done
+  ) 9>&- </dev/null &
+  progress_pid=$!
   local -a auth_config=()
   if [ -n "$token_file" ]; then
     [ ! -L "$token_file" ] && [ -f "$token_file" ] || { echo '指定的 GitHub 私有下载凭据不可用' >&2; exit 1; }
@@ -43,13 +68,15 @@ github_fetch() (
     [[ "$location" =~ ^https://(release-assets\.githubusercontent\.com|objects\.githubusercontent\.com|github-releases\.githubusercontent\.com)/ && "$location" != *[$'\r\n\t ']* ]] || { echo '拒绝非 GitHub 制品跳转' >&2; exit 1; }
     # Fresh request, no credential config, no inherited curlrc/wgetrc, no further redirects.
     if [ "$client" = curl ]; then
-      curl -q --proto '=https' --max-redirs 0 --connect-timeout 20 --max-time 600 --fail --silent --show-error --output "$github_work/asset" "$location" 2>"$github_work/error" || { echo 'GitHub 制品下载失败' >&2; exit 1; }
+      curl -q --proto '=https' --max-redirs 0 --connect-timeout 20 --max-time 600 --fail --silent --show-error --dump-header "$github_work/headers" --output "$github_work/asset" "$location" 2>"$github_work/error" || { echo 'GitHub 制品下载失败' >&2; exit 1; }
     else
-      wget --no-config --no-netrc --max-redirect=0 --timeout=600 -q -O "$github_work/asset" "$location" 2>"$github_work/error" || { echo 'GitHub 制品下载失败' >&2; exit 1; }
+      wget --no-config --no-netrc --max-redirect=0 --timeout=600 --server-response -O "$github_work/asset" "$location" 2>"$github_work/headers" || { echo 'GitHub 制品下载失败' >&2; exit 1; }
     fi
   elif [ "$status" != 200 ]; then
     echo "GitHub 制品不可访问（HTTP ${status:-unknown}）；请核对仓库权限、令牌与发布状态" >&2; exit 1
   fi
   [ -f "$github_work/asset" ] || { echo 'GitHub 制品下载未完成' >&2; exit 1; }
+  progress_stop
+  progress_line 1
   mv -- "$github_work/asset" "$destination"
 )

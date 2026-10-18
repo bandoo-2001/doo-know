@@ -4,6 +4,7 @@ main() {
   set -euo pipefail
   umask 077
   # __DOOKNOW_GITHUB_FETCH_FUNCTION__
+  echo '[1/6] 检查安装环境…' >&2
   local source="${DOOKNOW_SOURCE:-__DOOKNOW_RELEASE_SOURCE__}" node_sha='__DOOKNOW_NODE_BINARY_SHA__'
   source="${source%/}"
   if ! [[ "$source" =~ ^https://[A-Za-z0-9.-]+(:[0-9]{1,5})?(/[A-Za-z0-9._~/-]*)?$ || "$source" =~ ^http://(localhost|127\.0\.0\.1|\[::1\])(:[0-9]{1,5})?(/[A-Za-z0-9._~/-]*)?$ ]]; then
@@ -11,7 +12,7 @@ main() {
   fi
   [ "$(uname -s)" = Linux ] && [ "$(uname -m)" = x86_64 ] || { echo '首版仅支持Linux x86_64' >&2; return 1; }
   local command
-  for command in tar sha256sum flock readlink getconf df awk; do command -v "$command" >/dev/null || { echo "缺少必要命令：$command" >&2; return 1; }; done
+  for command in tar sha256sum flock readlink getconf df awk stat sleep; do command -v "$command" >/dev/null || { echo "缺少必要命令：$command" >&2; return 1; }; done
   command -v curl >/dev/null || command -v wget >/dev/null || { echo '需要curl或wget' >&2; return 1; }
   local libc
   libc="$(getconf GNU_LIBC_VERSION 2>/dev/null)" || { echo '需要glibc，不支持musl' >&2; return 1; }
@@ -40,9 +41,10 @@ main() {
       github_fetch "$repository" "$asset_id" "$2" "" "$1"
       return
     fi
-    if command -v curl >/dev/null; then curl -fsSL --proto '=https,http' --proto-redir '=https' --connect-timeout 20 --max-time 600 "$1" -o "$2"
-    else wget -q --max-redirect=0 --timeout=600 -O "$2" "$1"; fi
+    if command -v curl >/dev/null; then curl -fL --progress-bar --proto '=https,http' --proto-redir '=https' --connect-timeout 20 --max-time 600 "$1" -o "$2"
+    else wget -q --show-progress --progress=bar:force:noscroll --max-redirect=0 --timeout=600 -O "$2" "$1"; fi
   }
+  echo '[2/6] 下载发行清单…' >&2
   fetch "$source/release.txt" "$work/release.txt"
   local version filename checksum extra
   read -r version filename checksum extra < "$work/release.txt"
@@ -51,10 +53,13 @@ main() {
   local archive="$cache/$checksum.tar.gz"
   if [ -f "$archive" ] && ! printf '%s  %s\n' "$checksum" "$archive" | sha256sum -c - >/dev/null 2>&1; then rm -- "$archive"; fi
   if [ ! -f "$archive" ]; then
+    echo '[3/6] 下载应用安装包…' >&2
     fetch "$source/$filename" "$work/package.tar.gz"
+    echo '[4/6] 校验应用安装包…' >&2
     printf '%s  %s\n' "$checksum" "$work/package.tar.gz" | sha256sum -c - >/dev/null || { echo '发行包校验失败' >&2; return 1; }
     mv "$work/package.tar.gz" "$archive"
   fi
+  echo '[5/6] 解包应用并校验运行时…' >&2
   # Only execute the pinned Node and checksum-verified standalone validator before extraction.
   tar -xOzf "$archive" ./runtime/node/bin/node > "$work/node"
   printf '%s  %s\n' "$node_sha" "$work/node" | sha256sum -c - >/dev/null || { echo '运行时校验失败' >&2; return 1; }
@@ -70,6 +75,7 @@ main() {
     printf '%s\n' "$checksum" > "$work/application/package.sha256"
     mv "$work/application" "$release"
   fi
+  echo '[6/6] 初始化账号与服务…' >&2
   local args=(install --install-root "$base")
   local github_repository=''
   if [[ "$source" =~ ^https://github\.com/([A-Za-z0-9-]+/[A-Za-z0-9_.-]+)/releases/download/([A-Za-z0-9.+-]+)$ ]]; then
