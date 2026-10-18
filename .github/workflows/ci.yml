@@ -15,5 +15,5 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run typecheck
-      - run: npx vitest run tests/install-launcher.test.ts tests/install-template.test.ts tests/account-prompt.test.ts tests/auth.test.ts tests/platform-cli.test.ts tests/platform-config.test.ts tests/platform-update.test.ts tests/github-publish.test.ts tests/release-verification.test.ts tests/maintenance-storage.test.ts tests/backup-reconciliation.test.ts tests/knowledge/snapshot-lifecycle.test.ts
+      - run: npx vitest run tests/install-launcher.test.ts tests/install-template.test.ts tests/account-prompt.test.ts tests/auth.test.ts tests/platform-cli.test.ts tests/platform-config.test.ts tests/platform-update.test.ts tests/github-publish.test.ts tests/release-verification.test.ts tests/maintenance-storage.test.ts tests/backup-reconciliation.test.ts tests/knowledge/snapshot-lifecycle.test.ts tests/update-command.test.ts tests/download-proxy.test.ts tests/download-proxy-process.test.ts tests/download-proxy-cli.test.ts
       - run: npm run build

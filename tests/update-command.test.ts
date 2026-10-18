@@ -1,4 +1,4 @@
-import { it, expect } from 'vitest';
+import { it, expect, vi } from 'vitest';
 import { createServer } from 'node:http';
 import { connect } from 'node:net';
 import { execFile } from 'node:child_process';
@@ -95,6 +95,61 @@ it('explains network, proxy, HTTP and release errors without printing sensitive 
   expect(managementError(new Error('GITHUB_NO_PUBLISHED_RELEASE'))).toMatch(/尚无|没有/);
   expect(managementError(new Error('GITHUB_ACCESS_DENIED'))).toMatch(/拒绝|权限/);
   expect(managementError(new Error('已存在另一管理操作'))).toBe('已存在另一管理操作');
+});
+
+it('explains the real nested fetch failure after the GitHub downloader wraps it', async () => {
+  const { artifactFetch } = await import('../apps/server/platform/distribution.js');
+  const { managementError } = await import('../scripts/management-error.js');
+  const unavailable = createServer();
+  await new Promise<void>((r) => unavailable.listen(0, '127.0.0.1', r));
+  const port = (unavailable.address() as any).port;
+  await new Promise<void>((r) => unavailable.close(() => r()));
+  const realFetch = globalThis.fetch;
+  const intercepted = vi
+    .spyOn(globalThis, 'fetch')
+    .mockImplementation(() =>
+      realFetch(`http://127.0.0.1:${port}/`, { signal: AbortSignal.timeout(3000) }),
+    );
+  let failure: any;
+  try {
+    await artifactFetch(
+      {},
+      new URL('https://github.com/fixture/repository/releases/download/v1.0.0/release.json'),
+    );
+  } catch (e) {
+    failure = e;
+  } finally {
+    intercepted.mockRestore();
+  }
+  expect(failure?.message).toBe('GITHUB_DOWNLOAD_FAILED');
+  expect(failure?.cause?.cause?.code).toBe('ECONNREFUSED');
+  expect(managementError(failure)).toMatch(/无法连接下载服务器或代理/);
+});
+
+it('recognizes nested TLS and aggregate DNS failures without exposing their messages', async () => {
+  const { managementError } = await import('../scripts/management-error.js');
+  const certificate = new Error('GITHUB_DOWNLOAD_FAILED', {
+    cause: new TypeError('fetch failed', {
+      cause: Object.assign(new Error('https://user:fixture-secret@private.invalid/'), {
+        code: 'UNABLE_TO_VERIFY_LEAF_SIGNATURE',
+      }),
+    }),
+  });
+  expect(managementError(certificate)).toMatch(/证书.*校验/);
+  const dns = new Error('GITHUB_DOWNLOAD_FAILED', {
+    cause: new TypeError('fetch failed', {
+      cause: new AggregateError([
+        Object.assign(new Error('fixture-secret'), { code: 'EAI_AGAIN' }),
+      ]),
+    }),
+  });
+  expect(managementError(dns)).toMatch(/无法解析.*域名/);
+  expect(managementError(certificate) + managementError(dns)).not.toMatch(
+    /fixture-secret|private\.invalid|GITHUB_DOWNLOAD_FAILED/,
+  );
+  const cyclic = new Error('GITHUB_DOWNLOAD_FAILED') as Error & { cause?: unknown };
+  cyclic.cause = cyclic;
+  expect(managementError(cyclic)).toMatch(/下载失败/);
 });
 
 it('rejects malformed proxy configuration with a readable message without exposing its value', async () => {

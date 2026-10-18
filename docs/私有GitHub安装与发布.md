@@ -42,6 +42,8 @@ dooknow update --version 1.1.0-rc.18
 
 curl/wget 沿用当前代理环境。从 rc.12 起，`dooknow` 管理命令和通过 `serve` 启动的后台下载会自动使用已有 `HTTPS_PROXY` / `HTTP_PROXY`（也支持小写形式），无需设置 `NODE_OPTIONS`。`NO_PROXY` 应包含 `127.0.0.1,localhost,::1`，本机请求会绕过代理。普通直连网络无需设置。不会自动扫描端口或改动系统代理。
 
+从 rc.19 起，安装和升级会将不含账号密码的代理记入本实例的私有下载设置；以后新开的 SSH 终端运行 `dooknow update` 时会自动复用，当前终端的显式代理和 NO_PROXY 仍优先。首次从旧版本升级时，例如本机代理监听 7890，可执行一次 `HTTPS_PROXY=http://127.0.0.1:7890 dooknow update`。代理生效且未设置 NO_PROXY 时，管理进程默认绕过本机地址。认证代理不自动保存；需要临时绕过已保存设置时使用 `DOOKNOW_NO_SAVED_PROXY=1 dooknow update`。
+
 systemd 用户服务不会自动继承安装终端的环境。可在 `~/.config/systemd/user/doo-know.service.d/proxy.conf` 为本服务单独配置：
 
 ```ini

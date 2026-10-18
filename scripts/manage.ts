@@ -53,7 +53,15 @@ import { rmSync } from 'node:fs';
 import { privateFile } from '../packages/core/agent/config.js';
 import Database from 'better-sqlite3';
 import { assertDistributionOutsideKnowledge } from '../apps/server/platform/distribution.js';
-import { boundProfile, resolveProfileFile, bindInstallationProfile } from '../apps/server/platform/profile.js';
+import {
+  boundProfile,
+  resolveProfileFile,
+  bindInstallationProfile,
+} from '../apps/server/platform/profile.js';
+import {
+  loadDownloadProxy,
+  rememberDownloadProxy,
+} from '../apps/server/platform/download-proxy.js';
 
 const { values, positionals } = parseArgs({
   allowPositionals: true,
@@ -81,6 +89,15 @@ const { values, positionals } = parseArgs({
 });
 const command = positionals[0] || 'status';
 let profileFile: string;
+function rememberProxy() {
+  try {
+    rememberDownloadProxy(profileFile);
+  } catch {
+    console.error(
+      '本次操作已完成，但无法记住下载代理；下次更新请继续设置 HTTP_PROXY / HTTPS_PROXY。',
+    );
+  }
+}
 function atomicJson(path: string, value: unknown) {
   mkdirSync(dirname(path), { recursive: true, mode: 0o700 });
   const temporary = `${path}.${process.pid}.tmp`;
@@ -89,29 +106,63 @@ function atomicJson(path: string, value: unknown) {
 }
 function configureDistribution(profile: Record<string, any>) {
   if (!values['github-repository'] && !values['github-token-file']) return false;
-  if (!values['github-repository'] ||
-      !/^[A-Za-z0-9-]+\/[A-Za-z0-9_.-]+$/.test(values['github-repository']))
+  if (
+    !values['github-repository'] ||
+    !/^[A-Za-z0-9-]+\/[A-Za-z0-9_.-]+$/.test(values['github-repository'])
+  )
     throw Error('GitHub 分发需要有效仓库名');
-  if (profile.distribution && profile.distribution.repository.toLowerCase() !== values['github-repository'].toLowerCase())
+  if (
+    profile.distribution &&
+    profile.distribution.repository.toLowerCase() !== values['github-repository'].toLowerCase()
+  )
     throw Error('拒绝改变现有 GitHub 分发仓库');
   const tokenFile = values['github-token-file'] ? resolve(values['github-token-file']) : undefined;
-  if (tokenFile) try {
-    if (lstatSync(tokenFile).uid !== process.getuid?.() || !/^[A-Za-z0-9_-]{20,4096}$/.test(privateFile(tokenFile, 8192).trim())) throw Error();
-  } catch { throw Error('GitHub 下载凭据不可用或权限不正确'); }
-  const distribution = { repository: values['github-repository'], ...(tokenFile ? {tokenFile} : {}) };
+  if (tokenFile)
+    try {
+      if (
+        lstatSync(tokenFile).uid !== process.getuid?.() ||
+        !/^[A-Za-z0-9_-]{20,4096}$/.test(privateFile(tokenFile, 8192).trim())
+      )
+        throw Error();
+    } catch {
+      throw Error('GitHub 下载凭据不可用或权限不正确');
+    }
+  const distribution = {
+    repository: values['github-repository'],
+    ...(tokenFile ? { tokenFile } : {}),
+  };
   const roots = [profile.knowledgeRoot, process.env.KNOWLEDGE_ROOT].filter(Boolean) as string[];
   if (profile.dataRoot && existsSync(join(profile.dataRoot, 'app.sqlite'))) {
-    const db = new Database(join(profile.dataRoot, 'app.sqlite'), { readonly: true, fileMustExist: true });
+    const db = new Database(join(profile.dataRoot, 'app.sqlite'), {
+      readonly: true,
+      fileMustExist: true,
+    });
     try {
-      if (db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='platform_settings'").get()) {
-        const binding = db.prepare('SELECT knowledge_root FROM platform_settings WHERE id=1').get() as any;
+      if (
+        db
+          .prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='platform_settings'")
+          .get()
+      ) {
+        const binding = db
+          .prepare('SELECT knowledge_root FROM platform_settings WHERE id=1')
+          .get() as any;
         if (binding?.knowledge_root) roots.push(binding.knowledge_root);
       }
-      if (db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='index_meta'").get()) {
-        const identity = db.prepare("SELECT value FROM index_meta WHERE key='root_identity'").get() as any;
-        if (identity) { const path = JSON.parse(identity.value).path; if (typeof path !== 'string') throw Error('INVALID_ROOT_IDENTITY'); roots.push(path); }
+      if (
+        db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='index_meta'").get()
+      ) {
+        const identity = db
+          .prepare("SELECT value FROM index_meta WHERE key='root_identity'")
+          .get() as any;
+        if (identity) {
+          const path = JSON.parse(identity.value).path;
+          if (typeof path !== 'string') throw Error('INVALID_ROOT_IDENTITY');
+          roots.push(path);
+        }
       }
-    } finally { db.close(); }
+    } finally {
+      db.close();
+    }
   }
   for (const root of roots) assertDistributionOutsideKnowledge({ distribution }, root);
   profile.distribution = distribution;
@@ -139,11 +190,14 @@ async function promptAccount(reset = false) {
     }
   };
   try {
-    return await collectAccount({
-      username: () => rl.question('初始用户名（3–30 个字母、数字、点或下划线）：'),
-      password,
-      report: message => process.stdout.write(message + '\n'),
-    }, reset);
+    return await collectAccount(
+      {
+        username: () => rl.question('初始用户名（3–30 个字母、数字、点或下划线）：'),
+        password,
+        report: (message) => process.stdout.write(message + '\n'),
+      },
+      reset,
+    );
   } finally {
     rl.close();
   }
@@ -160,8 +214,11 @@ async function install() {
     ? JSON.parse(readFileSync(profileFile, 'utf8'))
     : undefined;
   const requestedInstallRoot = values['install-root'] || process.env.DOOKNOW_INSTALL_ROOT;
-  if (existing?.installRoot && requestedInstallRoot &&
-      resolve(existing.installRoot) !== resolve(requestedInstallRoot))
+  if (
+    existing?.installRoot &&
+    requestedInstallRoot &&
+    resolve(existing.installRoot) !== resolve(requestedInstallRoot)
+  )
     throw new Error('此配置已属于另一安装目录；独立安装请使用新的 --profile');
   const rootOwner = requestedInstallRoot && boundProfile(requestedInstallRoot);
   if (rootOwner && rootOwner !== profileFile)
@@ -248,6 +305,7 @@ async function install() {
     if (linger !== 'yes') console.log('用户服务已启用；无人登录时常驻需管理员启用 linger。');
   }
   if (config.installRoot) bindInstallationProfile(config.installRoot, profileFile);
+  rememberProxy();
   console.log(
     `DooKnow：${config.origin}\n登录后选择服务器知识库目录。\n管理：dooknow status / start / stop / restart / doctor`,
   );
@@ -271,7 +329,8 @@ async function main() {
     return;
   }
   profileFile = resolveProfileFile(values.profile, process.env, {
-    installRoot: values['install-root'], allowCreate: command === 'install' || (command === 'restore' && !!values.profile),
+    installRoot: values['install-root'],
+    allowCreate: command === 'install' || (command === 'restore' && !!values.profile),
   });
   if (command === 'restore') {
     if (!values.source || !values['key-file'] || !values['data-root'] || !values.profile)
@@ -353,6 +412,7 @@ async function main() {
         throw Error('数据库一致性检查失败');
       if (command === 'migrate' && config.installRoot)
         bindInstallationProfile(config.installRoot, profileFile);
+      if (command === 'migrate') rememberProxy();
       console.log(
         JSON.stringify({
           version,
@@ -374,13 +434,9 @@ async function main() {
     return;
   }
   if (command === 'update') {
-    console.log(
-      JSON.stringify(
-        await updatePlatform(config, { source: values.source, version: values.version }),
-        null,
-        2,
-      ),
-    );
+    const result = await updatePlatform(config, { source: values.source, version: values.version });
+    rememberProxy();
+    console.log(JSON.stringify(result, null, 2));
     return;
   }
   if (command === 'rollback') {
@@ -490,7 +546,13 @@ async function main() {
   }
   throw new Error('未知命令：' + command);
 }
-withEnvironmentProxy(main).catch((e: Error) => {
+withEnvironmentProxy(main, () => {
+  if (command !== 'update' || values.help) return;
+  const selected = resolveProfileFile(values.profile, process.env, {
+    installRoot: values['install-root'],
+  });
+  return loadDownloadProxy(selected);
+}).catch((e: Error) => {
   console.error(managementError(e));
   process.exitCode = 1;
 });

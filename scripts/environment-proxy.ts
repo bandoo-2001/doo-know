@@ -1,26 +1,29 @@
 /** Node 22 reads proxy variables only when its proxy support is enabled at startup. */
-export async function withEnvironmentProxy(work: () => Promise<void>) {
-  const proxy = ['HTTP_PROXY', 'HTTPS_PROXY', 'http_proxy', 'https_proxy'].some((k) =>
-    process.env[k]?.trim(),
-  );
-  if (!proxy || process.execArgv.includes('--use-env-proxy')) return work();
-  if (!process.allowedNodeEnvironmentFlags.has('--use-env-proxy'))
-    throw Error('当前 Node 不支持自动代理，请使用安装包自带的 Node 运行 DooKnow。');
+export async function withEnvironmentProxy(
+  work: () => Promise<void>,
+  fallback?: () => NodeJS.ProcessEnv | undefined | Promise<NodeJS.ProcessEnv | undefined>,
+) {
+  const proxyKeys = ['HTTP_PROXY', 'HTTPS_PROXY', 'http_proxy', 'https_proxy'];
+  const proxy = proxyKeys.some((k) => process.env[k]?.trim());
+  const extra = !proxy && fallback ? await fallback() : undefined;
   const env = Object.fromEntries(
-    Object.entries(process.env).filter(
+    Object.entries({ ...process.env, ...extra }).filter(
       (entry): entry is [string, string] => entry[1] !== undefined,
     ),
   );
+  if (!proxyKeys.some((key) => env[key]?.trim())) return work();
+  if (env.NO_PROXY === undefined && env.no_proxy === undefined)
+    env.NO_PROXY = 'localhost,127.0.0.1,::1';
   // An empty lowercase variable would otherwise shadow a configured uppercase one.
-  for (const key of [
-    'http_proxy',
-    'https_proxy',
-    'no_proxy',
-    'HTTP_PROXY',
-    'HTTPS_PROXY',
-    'NO_PROXY',
-  ])
-    if (!env[key]?.trim()) delete env[key];
+  for (const key of proxyKeys) if (!env[key]?.trim()) delete env[key];
+  if (!env.no_proxy?.trim() && env.NO_PROXY?.trim()) delete env.no_proxy;
+  if (!env.NO_PROXY?.trim() && env.no_proxy?.trim()) delete env.NO_PROXY;
+  const changed = [...new Set([...Object.keys(env), ...Object.keys(process.env)])].some(
+    (key) => env[key] !== process.env[key],
+  );
+  if (!changed && process.execArgv.includes('--use-env-proxy')) return work();
+  if (!process.allowedNodeEnvironmentFlags.has('--use-env-proxy'))
+    throw Error('当前 Node 不支持自动代理，请使用安装包自带的 Node 运行 DooKnow。');
   for (const key of ['HTTP_PROXY', 'HTTPS_PROXY', 'http_proxy', 'https_proxy']) {
     if (!env[key]) continue;
     try {
@@ -43,7 +46,12 @@ export async function withEnvironmentProxy(work: () => Promise<void>) {
   // Replace this process so systemd keeps the same PID and graceful shutdown signals are not duplicated.
   process.execve(
     process.execPath,
-    [process.execPath, '--use-env-proxy', ...process.execArgv, ...process.argv.slice(1)],
+    [
+      process.execPath,
+      ...(!process.execArgv.includes('--use-env-proxy') ? ['--use-env-proxy'] : []),
+      ...process.execArgv,
+      ...process.argv.slice(1),
+    ],
     env,
   );
 }

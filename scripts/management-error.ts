@@ -1,8 +1,26 @@
 /** Describe download failures without echoing URLs, response bodies or credential-bearing causes. */
 export function managementError(error: unknown): string {
   const e = error as Error & { code?: string; cause?: any };
-  if (e?.name === 'TypeError' && ['UND_ERR_SOCKET', 'ECONNRESET'].includes(e?.cause?.code))
-    return '下载连接中断。请检查网络或代理是否稳定，然后重试。';
+  const codes = new Set<string>(),
+    names = new Set<string>(),
+    seen = new Set<object>();
+  const pending: unknown[] = [error];
+  // The downloader adds a cause around fetch, which itself wraps the socket/TLS
+  // error. Keep traversal bounded, including AggregateError and cyclic causes.
+  for (let i = 0; i < pending.length && i < 32; i++) {
+    const value = pending[i] as {
+      name?: unknown;
+      code?: unknown;
+      cause?: unknown;
+      errors?: unknown;
+    };
+    if (!value || typeof value !== 'object' || seen.has(value)) continue;
+    seen.add(value);
+    if (typeof value.name === 'string') names.add(value.name);
+    if (typeof value.code === 'string') codes.add(value.code);
+    if (value.cause) pending.push(value.cause);
+    if (Array.isArray(value.errors)) pending.push(...value.errors.slice(0, 16));
+  }
   const messages: Record<string, string> = {
     GITHUB_RELEASE_OR_ASSET_NOT_FOUND:
       '找不到指定版本或安装包。请检查版本号，或执行 dooknow update 获取最新版本。',
@@ -22,23 +40,29 @@ export function managementError(error: unknown): string {
   if (
     e?.message === 'GITHUB_DOWNLOAD_FAILED' ||
     e?.message === 'fetch failed' ||
-    e?.name === 'TimeoutError'
+    names.has('TimeoutError') ||
+    (e?.name === 'TypeError' && (codes.has('UND_ERR_SOCKET') || codes.has('ECONNRESET')))
   ) {
-    const codes = new Set([
-      e?.code,
-      e?.cause?.code,
-      ...(e?.cause?.errors || []).map((v: any) => v.code),
-    ]);
-    if (
-      e?.name === 'TimeoutError' ||
-      codes.has('ETIMEDOUT') ||
-      codes.has('UND_ERR_CONNECT_TIMEOUT')
-    )
+    if (names.has('TimeoutError') || codes.has('ETIMEDOUT') || codes.has('UND_ERR_CONNECT_TIMEOUT'))
       return '下载连接超时。请检查网络或代理是否可用，然后重试。';
     if (codes.has('ENOTFOUND') || codes.has('EAI_AGAIN'))
       return '无法解析下载服务器或代理的域名。请检查网络、DNS 和代理设置，然后重试。';
     if (codes.has('ECONNREFUSED'))
       return '无法连接下载服务器或代理。请确认代理已启动、地址和端口正确，然后重试。';
+    if (
+      [
+        'CERT_HAS_EXPIRED',
+        'CERT_NOT_YET_VALID',
+        'DEPTH_ZERO_SELF_SIGNED_CERT',
+        'SELF_SIGNED_CERT_IN_CHAIN',
+        'UNABLE_TO_VERIFY_LEAF_SIGNATURE',
+        'UNABLE_TO_GET_ISSUER_CERT_LOCALLY',
+        'ERR_TLS_CERT_ALTNAME_INVALID',
+      ].some((code) => codes.has(code))
+    )
+      return '下载连接的证书校验失败。请检查系统时间、代理证书和证书配置，然后重试。';
+    if (codes.has('UND_ERR_SOCKET') || codes.has('ECONNRESET'))
+      return '下载连接中断。请检查网络或代理是否稳定，然后重试。';
     return '下载失败，无法连接 GitHub。请检查网络；需要代理时设置 HTTPS_PROXY 后重试，DooKnow 会自动使用代理。';
   }
   if (/^GITHUB_HTTP_\d+$/.test(e?.message || ''))
