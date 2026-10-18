@@ -7,7 +7,7 @@ import { publishGithubRelease } from '../scripts/publish-github.js';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 
-it.each([false, true])('uploads a complete private release, recovers a partial draft (%s), and publishes only after binding IDs and hashes', async (resume) => {
+it.each([['private', false], ['private', true], ['public', false]] as const)('uploads a complete %s release, recovers a partial draft (%s), and publishes only after binding IDs and hashes', async (visibility, resume) => {
   const root = await mkdtemp(join(tmpdir(), 'github-publish-'));
   const source = 'https://github.com/owner/private/releases/download/v1.1.0-rc.3', commit = 'a'.repeat(40);
   const hash = (b: string | Buffer) => createHash('sha256').update(b).digest('hex');
@@ -27,7 +27,7 @@ it.each([false, true])('uploads a complete private release, recovers a partial d
         const chunks: Buffer[] = []; for await (const b of init.body) chunks.push(Buffer.from(b));
         const bytes = Buffer.concat(chunks), asset = { id: 100 + assets.length, name: url.searchParams.get('name'), size: bytes.length, state: 'uploaded', digest: 'sha256:' + hash(bytes) }; assets.push(asset); return Response.json(asset, { status: 201 });
       }
-      if (url.pathname === '/repos/owner/private') return Response.json({ private: true });
+      if (url.pathname === '/repos/owner/private') return Response.json({ private: visibility === 'private' });
       if (url.pathname.endsWith('/releases') && method === 'GET') return Response.json(resume ? [{ id: 19, draft: true, tag_name: 'v1.1.0-rc.3' }] : []);
       if (url.pathname.includes('/git/ref/tags/')) return tagExists ? Response.json({ object: { type: 'commit', sha: commit } }) : new Response(null, { status: 404 });
       if (url.pathname.endsWith('/git/refs')) { tagExists = true; return Response.json({ object: { sha: commit } }, { status: 201 }); }
@@ -38,8 +38,9 @@ it.each([false, true])('uploads a complete private release, recovers a partial d
       throw Error('unexpected API request');
     });
     const bootstrap = join(root, 'bootstrap.sh');
-    const result = await publishGithubRelease({ directory: root, repository: 'owner/private', tag: 'v1.1.0-rc.3', commit, token: 'fixture_github_012345678901234567890123456789', bootstrap });
+    const result = await publishGithubRelease({ directory: root, repository: 'owner/private', tag: 'v1.1.0-rc.3', commit, token: 'fixture_github_012345678901234567890123456789', bootstrap, visibility });
     expect(result.assets).toHaveLength(6);
+    expect(result.private).toBe(visibility === 'private');
     const created = writes.find(w => w.method === 'POST' && w.url.endsWith('/releases'));
     if (resume) expect(created).toBeUndefined();
     else expect(created.body).toMatchObject({ draft: true, prerelease: true, target_commitish: commit });

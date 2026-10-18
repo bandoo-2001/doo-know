@@ -6,7 +6,7 @@ import { parseArgs } from 'node:util';
 import { pathToFileURL } from 'node:url';
 import { curlGithubUpload } from './github-upload.js';
 
-type Options = { directory: string; repository: string; tag: string; commit: string; token: string; bootstrap: string; upload?: typeof curlGithubUpload };
+type Options = { directory: string; repository: string; tag: string; commit: string; token: string; bootstrap: string; visibility?: "private" | "public"; upload?: typeof curlGithubUpload };
 type Asset = { id: number; name: string; size: number; state: string; digest: string };
 const names = /^(?:install\.sh|release(?:-[0-9A-Za-z.+-]{1,80})?\.(?:txt|json)|catalog\.json|dooknow-[0-9A-Za-z.+-]{1,120}\.tar\.gz)$/;
 async function digest(file: string) { const h = createHash('sha256'); for await (const b of createReadStream(file)) h.update(b); return h.digest('hex'); }
@@ -37,7 +37,8 @@ export async function publishGithubRelease(o: Options) {
     if (!response.ok) throw Error(`GITHUB_PUBLISH_HTTP_${response.status}`);
     return response.json();
   }
-  if ((await request('')).private !== true) throw Error('PUBLISH_REQUIRES_PRIVATE_REPOSITORY');
+  const privateRepository = (await request('')).private;
+  if (privateRepository !== (o.visibility !== 'public')) throw Error(o.visibility === 'public' ? 'PUBLISH_REQUIRES_PUBLIC_REPOSITORY' : 'PUBLISH_REQUIRES_PRIVATE_REPOSITORY');
   async function checkTag() {
     let object = (await request('/git/ref/tags/' + encodeURIComponent(o.tag), 'GET', undefined, true))?.object;
     if (!object) return false;
@@ -59,7 +60,7 @@ export async function publishGithubRelease(o: Options) {
     if (releases.length < 100) break;
     if (page === 16) throw Error('GITHUB_TOO_MANY_RELEASES');
   }
-  if (!release) release = await request('/releases', 'POST', { tag_name: o.tag, target_commitish: o.commit, name: 'DooKnow ' + info.version, draft: true, prerelease: o.tag.includes('-'), make_latest: 'false', body: '私有原生发行：Linux x86_64，systemd 用户服务；含独立 MCP/Git 与可选离线检索制品。安装方法见仓库 README。' });
+  if (!release) release = await request('/releases', 'POST', { tag_name: o.tag, target_commitish: o.commit, name: 'DooKnow ' + info.version, draft: true, prerelease: o.tag.includes('-'), make_latest: 'false', body: (privateRepository ? '私有' : '公开') + '原生发行：Linux x86_64，systemd 用户服务；含独立 MCP/Git 与可选离线检索制品。安装方法见仓库 README。' });
   if (!Number.isSafeInteger(release.id) || release.id <= 0 || release.tag_name !== o.tag) throw Error('INVALID_GITHUB_RELEASE');
   const assets: Asset[] = [];
   for (let page = 1; page <= 16; page++) {
@@ -102,13 +103,13 @@ export async function publishGithubRelease(o: Options) {
   if (!await checkTag()) throw Error('GITHUB_TAG_MISSING');
   if (release.draft) release = await request('/releases/' + release.id, 'PATCH', { draft: false, prerelease: o.tag.includes('-'), make_latest: o.tag.includes('-') ? 'false' : 'true' });
   const helper = await readFile(new URL('../deploy/github-fetch.sh', import.meta.url), 'utf8');
-  const bootstrap = `#!/usr/bin/env bash\n# Generated pinned private release bootstrap; contains no credentials.\nmain() {\n  set +x\n  set -euo pipefail\n  umask 077\n${helper}\n  local work cleanup_path\n  work="$(mktemp -d "\${TMPDIR:-/tmp}/dooknow-bootstrap.XXXXXXXX")"\n  printf -v cleanup_path '%q' "$work"\n  trap "rm -rf -- $cleanup_path" EXIT\n  github_fetch '${o.repository}' '${install.id}' "$work/install.sh"\n  printf '%s  %s\\n' '${installSha}' "$work/install.sh" | sha256sum -c - >/dev/null\n  bash "$work/install.sh" "$@"\n}\nmain "$@"\n`;
+  const bootstrap = `#!/usr/bin/env bash\n# Generated pinned release bootstrap; contains no credentials.\nmain() {\n  set +x\n  set -euo pipefail\n  umask 077\n${helper}\n  local work cleanup_path\n  work="$(mktemp -d "\${TMPDIR:-/tmp}/dooknow-bootstrap.XXXXXXXX")"\n  printf -v cleanup_path '%q' "$work"\n  trap "rm -rf -- $cleanup_path" EXIT\n  github_fetch '${o.repository}' '${install.id}' "$work/install.sh" "" 'https://github.com/${o.repository}/releases/download/${o.tag}/install.sh'\n  printf '%s  %s\\n' '${installSha}' "$work/install.sh" | sha256sum -c - >/dev/null\n  bash "$work/install.sh" "$@"\n}\nmain "$@"\n`;
   await writeFile(o.bootstrap, bootstrap, { mode: 0o700 });
-  return { url: release.html_url || `https://github.com/${o.repository}/releases/tag/${o.tag}`, private: true, tag: o.tag, commit: o.commit, installerAssetId: install.id, installerSha256: installSha, assets: assets.map(({ id, name, size, digest }) => ({ id, name, size, digest })) };
+  return { url: release.html_url || `https://github.com/${o.repository}/releases/tag/${o.tag}`, private: privateRepository, tag: o.tag, commit: o.commit, installerAssetId: install.id, installerSha256: installSha, assets: assets.map(({ id, name, size, digest }) => ({ id, name, size, digest })) };
 }
 
 async function main() {
-  const { values } = parseArgs({ options: { directory: { type: 'string' }, repository: { type: 'string' }, tag: { type: 'string' }, commit: { type: 'string' }, bootstrap: { type: 'string' }, 'token-file': { type: 'string' }, 'token-fd': { type: 'string' } } });
+  const { values } = parseArgs({ options: { directory: { type: 'string' }, repository: { type: 'string' }, tag: { type: 'string' }, commit: { type: 'string' }, bootstrap: { type: 'string' }, 'token-file': { type: 'string' }, 'token-fd': { type: 'string' }, public: { type: 'boolean', default: false } } });
   if (!values.directory || !values.repository || !values.tag || !values.commit || !values.bootstrap || (!values['token-file'] && !values['token-fd'])) throw Error('发布需要 directory/repository/tag/commit/bootstrap 与外部私有 token-file 或 token-fd');
   let token: string;
   if (values['token-fd']) {
@@ -119,6 +120,6 @@ async function main() {
     try { const st = await file.stat(); if (!st.isFile() || st.nlink !== 1 || st.uid !== process.getuid?.() || st.mode & 0o077 || st.size > 8192) throw Error('PRIVATE_TOKEN_FILE_REQUIRED'); token = await file.readFile('utf8'); }
     finally { await file.close(); }
   }
-  console.log(JSON.stringify(await publishGithubRelease({ directory: values.directory, repository: values.repository, tag: values.tag, commit: values.commit, bootstrap: values.bootstrap, token: token.trim(), upload: curlGithubUpload }), null, 2));
+  console.log(JSON.stringify(await publishGithubRelease({ directory: values.directory, repository: values.repository, tag: values.tag, commit: values.commit, bootstrap: values.bootstrap, visibility: values.public ? 'public' : 'private', token: token.trim(), upload: curlGithubUpload }), null, 2));
 }
-if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url) main().catch(() => { console.error('私有 GitHub 发布失败；未发布的草稿保留，重试前核对版本、仓库权限和附件摘要。'); process.exitCode = 1; });
+if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url) main().catch(() => { console.error('GitHub 发布失败；未发布的草稿保留，重试前核对版本、仓库权限和附件摘要。'); process.exitCode = 1; });

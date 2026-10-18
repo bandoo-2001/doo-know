@@ -5,26 +5,35 @@ github_fetch() (
   umask 077
   local repository="$1" asset_id="$2" destination="$3" client="${4:-}"
   [[ "$repository" =~ ^[A-Za-z0-9-]+/[A-Za-z0-9_.-]+$ && "$asset_id" =~ ^[1-9][0-9]*$ ]] || { echo '无效 GitHub 制品标识' >&2; exit 1; }
-  local token_file="${DOOKNOW_GITHUB_TOKEN_FILE:-${XDG_CONFIG_HOME:-$HOME/.config}/doo-know/secrets/github.token}" fd mode owner links token
-  [ ! -L "$token_file" ] && [ -f "$token_file" ] || { echo '请先配置私有 GitHub 下载凭据，参见仓库安装说明' >&2; exit 1; }
-  exec {fd}<"$token_file"
-  local shell_pid=$BASHPID
-  read -r mode owner links < <(stat -Lc '%a %u %h' "/proc/$shell_pid/fd/$fd")
-  [[ "$mode" =~ ^[0-7]{3,4}$ ]] && (( (8#$mode & 077) == 0 )) && [ "$owner" = "$(id -u)" ] && [ "$links" = 1 ] || { echo 'GitHub 凭据必须为当前用户的私有普通文件' >&2; exit 1; }
-  token="$(cat <&"$fd")"; exec {fd}<&-
-  [[ "$token" =~ ^[A-Za-z0-9_-]{20,4096}$ ]] || { echo 'GitHub 凭据格式不正确' >&2; exit 1; }
+  local token_file="${DOOKNOW_GITHUB_TOKEN_FILE:-}" fd mode owner links token public_url="${5:-}"
   local github_work
   github_work="$(mktemp -d "$(dirname "$destination")/.github-download.XXXXXXXX")"
   trap 'rm -rf -- "$github_work"' EXIT
-  printf 'header = "Authorization: Bearer %s"\nheader = "Accept: application/octet-stream"\nheader = "X-GitHub-Api-Version: 2022-11-28"\n' "$token" > "$github_work/curl"
-  printf 'header = Authorization: Bearer %s\nheader = Accept: application/octet-stream\nheader = X-GitHub-Api-Version: 2022-11-28\n' "$token" > "$github_work/wget"
-  unset token
+  local -a auth_config=()
+  if [ -n "$token_file" ]; then
+    [ ! -L "$token_file" ] && [ -f "$token_file" ] || { echo '指定的 GitHub 私有下载凭据不可用' >&2; exit 1; }
+    exec {fd}<"$token_file"
+    local shell_pid=$BASHPID
+    read -r mode owner links < <(stat -Lc '%a %u %h' "/proc/$shell_pid/fd/$fd")
+    [[ "$mode" =~ ^[0-7]{3,4}$ ]] && (( (8#$mode & 077) == 0 )) && [ "$owner" = "$(id -u)" ] && [ "$links" = 1 ] || { echo 'GitHub 凭据必须为当前用户的私有普通文件' >&2; exit 1; }
+    token="$(cat <&"$fd")"; exec {fd}<&-
+    [[ "$token" =~ ^[A-Za-z0-9_-]{20,4096}$ ]] || { echo 'GitHub 凭据格式不正确' >&2; exit 1; }
+    printf 'header = "Authorization: Bearer %s"\nheader = "Accept: application/octet-stream"\nheader = "X-GitHub-Api-Version: 2022-11-28"\n' "$token" > "$github_work/curl"
+    printf 'header = Authorization: Bearer %s\nheader = Accept: application/octet-stream\nheader = X-GitHub-Api-Version: 2022-11-28\n' "$token" > "$github_work/wget"
+    unset token
+  fi
   if [ -z "$client" ]; then if command -v curl >/dev/null; then client=curl; else client=wget; fi; fi
   local api="https://api.github.com/repos/$repository/releases/assets/$asset_id" status location
+  if [ -z "$token_file" ] && [ -n "$public_url" ]; then
+    [[ "$public_url" == "https://github.com/$repository/releases/download/"* && "$public_url" != *[$'\r\n\t ?#']* ]] || { echo '无效 GitHub 公开制品地址' >&2; exit 1; }
+    api="$public_url"
+  fi
   if [ "$client" = curl ]; then
-    status="$(curl -q --config "$github_work/curl" --proto '=https' --max-redirs 0 --connect-timeout 20 --max-time 600 --silent --show-error --dump-header "$github_work/headers" --output "$github_work/asset" --write-out '%{http_code}' "$api" 2>"$github_work/error")" || { echo 'GitHub 制品下载失败' >&2; exit 1; }
+    [ -z "$token_file" ] || auth_config=(--config "$github_work/curl")
+    status="$(curl -q "${auth_config[@]}" --proto '=https' --max-redirs 0 --connect-timeout 20 --max-time 600 --silent --show-error --dump-header "$github_work/headers" --output "$github_work/asset" --write-out '%{http_code}' "$api" 2>"$github_work/error")" || { echo 'GitHub 制品下载失败' >&2; exit 1; }
   elif [ "$client" = wget ]; then
-    wget --no-netrc --config "$github_work/wget" --max-redirect=0 --timeout=600 --server-response -O "$github_work/asset" "$api" 2>"$github_work/headers" || true
+    if [ -n "$token_file" ]; then auth_config=(--config "$github_work/wget"); else auth_config=(--no-config); fi
+    wget --no-netrc "${auth_config[@]}" --max-redirect=0 --timeout=600 --server-response -O "$github_work/asset" "$api" 2>"$github_work/headers" || true
     status="$(awk '/^[[:space:]]*HTTP\// {code=$2} END {print code}' "$github_work/headers")"
   else echo '需要 curl 或 wget' >&2; exit 1; fi
   if [ "$status" = 302 ]; then

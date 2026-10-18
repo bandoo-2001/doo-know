@@ -88,16 +88,16 @@ function atomicJson(path: string, value: unknown) {
 }
 function configureDistribution(profile: Record<string, any>) {
   if (!values['github-repository'] && !values['github-token-file']) return false;
-  if (!values['github-repository'] || !values['github-token-file'] ||
+  if (!values['github-repository'] ||
       !/^[A-Za-z0-9-]+\/[A-Za-z0-9_.-]+$/.test(values['github-repository']))
-    throw Error('GitHub 分发需要仓库名与私有凭据文件');
+    throw Error('GitHub 分发需要有效仓库名');
   if (profile.distribution && profile.distribution.repository.toLowerCase() !== values['github-repository'].toLowerCase())
     throw Error('拒绝改变现有 GitHub 分发仓库');
-  const tokenFile = resolve(values['github-token-file']);
-  try {
+  const tokenFile = values['github-token-file'] ? resolve(values['github-token-file']) : undefined;
+  if (tokenFile) try {
     if (lstatSync(tokenFile).uid !== process.getuid?.() || !/^[A-Za-z0-9_-]{20,4096}$/.test(privateFile(tokenFile, 8192).trim())) throw Error();
   } catch { throw Error('GitHub 下载凭据不可用或权限不正确'); }
-  const distribution = { repository: values['github-repository'], tokenFile };
+  const distribution = { repository: values['github-repository'], ...(tokenFile ? {tokenFile} : {}) };
   const roots = [profile.knowledgeRoot, process.env.KNOWLEDGE_ROOT].filter(Boolean) as string[];
   if (profile.dataRoot && existsSync(join(profile.dataRoot, 'app.sqlite'))) {
     const db = new Database(join(profile.dataRoot, 'app.sqlite'), { readonly: true, fileMustExist: true });

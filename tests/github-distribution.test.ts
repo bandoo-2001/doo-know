@@ -14,6 +14,28 @@ async function config() {
 }
 const url = 'https://github.com/owner/private/releases/download/v1.1.0-rc.3/package.tar.gz';
 
+it('downloads public releases anonymously without consulting credential files or the rate-limited metadata API', async () => {
+  const requests: string[] = [];
+  vi.stubGlobal('fetch', async (input: any, init: RequestInit) => {
+    const address = String(input); requests.push(address);
+    expect(new Headers(init.headers).has('authorization')).toBe(false);
+    if (address === url) return new Response(null, { status: 302, headers: { location: 'https://release-assets.githubusercontent.com/public/object' } });
+    expect(address).toBe('https://release-assets.githubusercontent.com/public/object');
+    return new Response('public verified bytes');
+  });
+  expect(await (await artifactFetch({ distribution: { repository: 'owner/private' } }, new URL(url))).text()).toBe('public verified bytes');
+  expect(requests).toHaveLength(2);
+});
+
+it('rejects public redirects outside the approved CDN and repository mismatches', async () => {
+  const network = vi.fn(async () => new Response(null, { status: 302, headers: { location: 'https://evil.example/asset' } }));
+  vi.stubGlobal('fetch', network);
+  await expect(artifactFetch({}, new URL(url))).rejects.toThrow('GITHUB_ASSET_REDIRECT_REJECTED');
+  network.mockClear();
+  await expect(artifactFetch({distribution:{repository:'other/repo'}}, new URL(url))).rejects.toThrow('GITHUB_REPOSITORY_MISMATCH');
+  expect(network).not.toHaveBeenCalled();
+});
+
 it('resolves a private asset through the authenticated API and removes authorization on the signed CDN hop', async () => {
   const c = await config(), requests: Array<{ url: string; auth: string | null }> = [];
   vi.stubGlobal('fetch', async (input: any, init: RequestInit = {}) => {

@@ -2,13 +2,13 @@ import { lstatSync, realpathSync } from 'node:fs';
 import { resolve, sep } from 'node:path';
 import { privateFile } from '../../../packages/core/agent/config.js';
 
-export interface DistributionCredential { repository: string; tokenFile: string }
+export interface DistributionCredential { repository: string; tokenFile?: string }
 type Configuration = { distribution?: DistributionCredential };
 const repositoryPattern = /^[A-Za-z0-9-]+\/[A-Za-z0-9_.-]+$/;
 const part = /^[A-Za-z0-9][A-Za-z0-9_.+-]{0,159}$/;
 const cdnHosts = new Set(['release-assets.githubusercontent.com', 'objects.githubusercontent.com', 'github-releases.githubusercontent.com']);
 export function assertDistributionOutsideKnowledge(config: Configuration, knowledgeRoot: string) {
-  if (!config.distribution) return;
+  if (!config.distribution?.tokenFile) return;
   const canonical = (path: string) => { try { return realpathSync(path); } catch { return resolve(path); } };
   const root = canonical(knowledgeRoot), file = canonical(config.distribution.tokenFile);
   if (file === root || file.startsWith(root + sep)) throw Error('GITHUB_CREDENTIAL_INSIDE_KNOWLEDGE_ROOT');
@@ -30,7 +30,7 @@ export function githubUpdateSource(source: string, version?: string) {
 }
 function credential(config: Configuration, repository: string) {
   const c = config.distribution;
-  if (!c) throw Error('GITHUB_CREDENTIAL_UNAVAILABLE');
+  if (!c?.tokenFile) throw Error('GITHUB_CREDENTIAL_UNAVAILABLE');
   if (!repositoryPattern.test(c.repository) || c.repository.toLowerCase() !== repository.toLowerCase()) throw Error('GITHUB_REPOSITORY_MISMATCH');
   try {
     if (lstatSync(c.tokenFile).uid !== process.getuid?.()) throw Error();
@@ -65,6 +65,18 @@ async function json(response: Response): Promise<any> {
 export async function artifactFetch(config: Configuration, url: URL, signal = AbortSignal.timeout(600000)) {
   const asset = githubAsset(url);
   if (!asset) return fetch(url, { signal, redirect: 'error' });
+  if (config.distribution && config.distribution.repository.toLowerCase() !== asset.repository.toLowerCase()) throw Error('GITHUB_REPOSITORY_MISMATCH');
+  if (!config.distribution?.tokenFile) {
+    const response = await request(url, { 'user-agent': 'DooKnow' }, signal);
+    if (response.status === 302) {
+      let redirect: URL;
+      try { redirect = new URL(response.headers.get('location') || ''); } catch { throw Error('GITHUB_ASSET_REDIRECT_REJECTED'); }
+      if (redirect.protocol !== 'https:' || redirect.port || redirect.username || redirect.password || !cdnHosts.has(redirect.hostname)) throw Error('GITHUB_ASSET_REDIRECT_REJECTED');
+      const downloaded = await request(redirect, {}, signal);
+      check(downloaded); return downloaded;
+    }
+    check(response); return response;
+  }
   const headers = { authorization: 'Bearer ' + credential(config, asset.repository), 'user-agent': 'DooKnow', accept: 'application/vnd.github+json', 'x-github-api-version': '2022-11-28' };
   const api = `https://api.github.com/repos/${asset.repository}/releases`;
   const release = await json(await request(api + (asset.tag === 'latest' ? '/latest' : '/tags/' + encodeURIComponent(asset.tag)), headers, signal));

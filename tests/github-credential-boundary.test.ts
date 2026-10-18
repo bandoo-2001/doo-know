@@ -11,6 +11,23 @@ import { initializeOwner } from '../apps/server/auth.js';
 import { testPassword } from './support/credentials.js';
 const exec = promisify(execFile);
 
+it('persists public distribution without a token and explicitly replaces a stale private credential reference', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'github-public-cli-'));
+  try {
+    const configDir = join(root, 'config'); await mkdir(configDir);
+    const secret = 'test-fixture-secret-at-least-thirty-two-characters';
+    const secretFile = join(configDir, 'auth.key'), profileFile = join(configDir, 'profile.json');
+    await writeFile(secretFile, secret, {mode:0o600});
+    const profile = {dataRoot:join(root,'data'),secretFile,origin:'http://127.0.0.1:15179',port:15179,
+      distribution:{repository:'owner/public',tokenFile:join(root,'missing.token')}};
+    await writeFile(profileFile,JSON.stringify(profile),{mode:0o600});
+    await initializeOwner({...profile,secret},'owner',testPassword);
+    await exec(process.execPath,['--import','tsx','scripts/manage.ts','install','--profile',profileFile,'--no-service','--github-repository','owner/public']);
+    expect(JSON.parse(await readFile(profileFile,'utf8')).distribution).toEqual({repository:'owner/public'});
+    expect(await readFile(secretFile,'utf8')).toBe(secret);
+  } finally {await rm(root,{recursive:true,force:true});}
+});
+
 it('refuses binding a directory containing the configured download credential and refuses activating an old unsafe binding', async () => {
   const root = await mkdtemp(join(tmpdir(), 'github-credential-root-'));
   const knowledgeRoot = join(root, 'knowledge'), tokenFile = join(knowledgeRoot, 'github.md');

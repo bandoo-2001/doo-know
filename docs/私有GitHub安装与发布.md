@@ -1,8 +1,56 @@
-# 私有 GitHub 安装与发布
+# GitHub 安装与发布
 
-DooKnow 源码、安装脚本及发行包保存在同一个私有仓库。源码维护 `deploy/install.sh`，GitHub Releases 保存构建后的安装器、应用、MCP/Git、可选检索包和校验清单。仓库中的 `deploy/github-install.sh` 是发布后生成的固定版本入口，包含安装器的 asset ID 与 SHA-256，不包含凭据。
+DooKnow 源码及发行包已公开，默认匿名下载，安装、官方插件、检索包和升级均不需要 GitHub Token。安装器仍校验固定版本、SHA-256、归档路径和运行时，跳转仅允许GitHub制品存储域名。
 
-## 准备下载凭据
+## 一行安装
+
+在Linux x86_64主机上以普通用户执行：
+
+```bash
+curl -fsSL 'https://raw.githubusercontent.com/bandoo-2001/doo-know/txj/doo-know-platform/deploy/github-install.sh' | bash
+```
+
+或：
+
+```bash
+wget -qO- 'https://raw.githubusercontent.com/bandoo-2001/doo-know/txj/doo-know-platform/deploy/github-install.sh' | bash
+```
+
+入口固定到1.1.0-rc.8。安装器包含Node及生产依赖，无需现场npm编译、Docker或sudo；需要可用的systemd用户会话。初始用户名、隐藏密码在终端输入，登录Web后自己选择服务器知识库目录，再配置插件与检索。
+
+Mini主机若继续使用原域名，可直接执行：
+
+```bash
+curl -fsSL 'https://raw.githubusercontent.com/bandoo-2001/doo-know/txj/doo-know-platform/deploy/github-install.sh' | DOOKNOW_APP_ORIGIN='https://know.mini.bandoo.top' bash
+```
+
+默认监听127.0.0.1:5173，远程访问另需正确的域名转发；完整目录、账号、备份和安装参数见[原生安装与恢复](原生安装与恢复.md)。重复安装保留已有账号及数据。
+
+## 升级与下载
+
+公开下载直接读取GitHub Release附件，不依赖匿名REST API的元数据查询配额，也不读取旧的本地下载Token。已安装版本、包与检索模型继续逐项校验。RC升级显式指定版本：
+
+```bash
+dooknow update --version 1.1.0-rc.8
+```
+
+旧安装重新运行公开入口会将分发配置切为匿名模式。需要继续使用私有分发时，安装前显式设置下方凭据文件环境变量。GitHub下载授权与MCP的OAuth/Tunnel授权相互独立。
+
+## 需要网络代理时
+
+curl/wget 沿用当前代理环境。后台插件和检索下载使用包内 Node 22.22.1；需要代理的网络须为该进程设置 `NODE_OPTIONS=--use-env-proxy`，并提供现有 `HTTPS_PROXY` / `HTTP_PROXY`，`NO_PROXY` 应包含 `127.0.0.1,localhost,::1`。普通直连网络无需设置。
+
+systemd 用户服务不会自动继承安装终端的环境。可在 `~/.config/systemd/user/doo-know.service.d/proxy.conf` 为本服务单独配置：
+
+```ini
+[Service]
+Environment=NODE_OPTIONS=--use-env-proxy
+EnvironmentFile=%h/.config/doo-know/proxy.env
+```
+
+在上述 `proxy.env` 中填写实际代理环境，文件权限设为 600；代理若含认证，不写进仓库或 unit。更新配置后执行 `systemctl --user daemon-reload` 和 `dooknow restart`。显式选择前台模式时，可用 `NODE_OPTIONS=--use-env-proxy dooknow serve`。本次私有检索包的下载与准备验收使用了这一网络配置；没有修改主机全局代理。
+
+## 可选：私有分发凭据
 
 在 GitHub 创建限定 `bandoo-2001/doo-know` 的 fine-grained PAT，授予 **Contents: read**。此权限也能读取该私有仓库源码，不能作为仅下载附件的授权。发布凭据另需 Contents: write；安装端不需要写权限。[GitHub 附件权限说明](https://docs.github.com/en/rest/releases/assets#get-a-release-asset)
 
@@ -27,69 +75,26 @@ DooKnow 源码、安装脚本及发行包保存在同一个私有仓库。源码
 
 这一步也用于轮换过期的下载凭据；运行中的平台在下一次下载时重新读取文件。自动部署可事先提供受控的 `DOOKNOW_GITHUB_TOKEN_FILE`，无需通过环境变量传递 Token 本身。
 
-## 需要网络代理时
 
-curl/wget 沿用当前代理环境。后台插件和检索下载使用包内 Node 22.22.1；需要代理的网络须为该进程设置 `NODE_OPTIONS=--use-env-proxy`，并提供现有 `HTTPS_PROXY` / `HTTP_PROXY`，`NO_PROXY` 应包含 `127.0.0.1,localhost,::1`。普通直连网络无需设置。
-
-systemd 用户服务不会自动继承安装终端的环境。可在 `~/.config/systemd/user/doo-know.service.d/proxy.conf` 为本服务单独配置：
-
-```ini
-[Service]
-Environment=NODE_OPTIONS=--use-env-proxy
-EnvironmentFile=%h/.config/doo-know/proxy.env
-```
-
-在上述 `proxy.env` 中填写实际代理环境，文件权限设为 600；代理若含认证，不写进仓库或 unit。更新配置后执行 `systemctl --user daemon-reload` 和 `dooknow restart`。显式选择前台模式时，可用 `NODE_OPTIONS=--use-env-proxy dooknow serve`。本次私有检索包的下载与准备验收使用了这一网络配置；没有修改主机全局代理。
-
-## 一行安装
-
-curl：
+私有下载必须显式选择凭据文件：
 
 ```bash
-curl -q --config "${XDG_CONFIG_HOME:-$HOME/.config}/doo-know/secrets/github.curl" -fsS --max-redirs 0 'https://api.github.com/repos/bandoo-2001/doo-know/contents/deploy/github-install.sh?ref=txj%2Fdoo-know-platform' | bash
+export DOOKNOW_GITHUB_TOKEN_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/doo-know/secrets/github.token"
 ```
 
-wget：
+未指定时使用公开匿名下载，不自动读取磁盘上遗留的Token。显式指定的文件缺失或不安全时停止，不自动回退匿名模式。
+## 维护者发布
+
+公开安装不需要Token；上传发行包仍需要维护者的写权限凭据。公开仓库发布必须显式加`--public`，否则保持原有私有仓库检查，避免意外公开上传。
 
 ```bash
-wget --no-netrc --config "${XDG_CONFIG_HOME:-$HOME/.config}/doo-know/secrets/github.wget" --max-redirect=0 -qO- 'https://api.github.com/repos/bandoo-2001/doo-know/contents/deploy/github-install.sh?ref=txj%2Fdoo-know-platform' | bash
-```
-
-入口通过 GitHub Contents API 返回仓库中的原始脚本，随后按固定 asset ID 下载并校验实际发行安装器。所有安装效果位于完整脚本的 `main` 中；初始下载中断不会执行部分安装。无终端时仍不会创建空密码账号。
-
-发行安装器自带 Node、应用和生产依赖，服务器不需要 gh、jq、全局 Node/Python、编译器、Docker 或 sudo。普通 HTTPS 自有制品源与本机验收源继续兼容。[完整安装与恢复](原生安装与恢复.md)
-
-## 升级、插件与检索
-
-原生配置只保存分发仓库和凭据文件引用，浏览器不会获得 Token。升级、官方插件和检索包共用认证下载器；凭据仅发往指定仓库的 `api.github.com`，302 跳转校验 GitHub 制品存储域名后重新发起无认证请求，禁止后续跳转。curl/wget 同样分开请求，并忽略用户级下载工具配置。
-
-```bash
-# RC 必须显式指定版本；不指定时查询 GitHub 最新正式版本。
-dooknow update --version 1.1.0-rc.7
-```
-
-旧安装重复执行上方安装入口，会使用已校验的新管理程序接管升级；保留原账号、配置、原文与数据。新版本仍执行维护闸门、一致性备份、迁移、健康检查与失败恢复，不绕过既有升级规则。GitHub 下载授权不替代 MCP 的 OAuth 或 Tunnel 授权。
-
-恢复到空目录后需重新配置 GitHub 下载凭据；发布凭据不进入应用发行包或知识库。401、权限不足、发布/附件缺失或校验失败时停止下载，平台的已有笔记功能仍可使用。
-
-## 开发者发布
-
-在干净的已推送源码版本上构建。以下命令的令牌参数只有受控文件路径，不能传 Token 值：
-
-```bash
-node scripts/release.mjs --output .local/github-rc3 \
-  --base-url 'https://github.com/bandoo-2001/doo-know/releases/download/v1.1.0-rc.7' \
-  --version 1.1.0-rc.7
-node --import tsx scripts/publish-github.ts \
-  --directory .local/github-rc3 --repository bandoo-2001/doo-know \
-  --tag v1.1.0-rc.7 --commit '<构建元数据中的完整提交 SHA>' \
+node scripts/release.mjs --output .local/github-rc8 \
+  --base-url 'https://github.com/bandoo-2001/doo-know/releases/download/v1.1.0-rc.8' \
+  --version 1.1.0-rc.8
+node --import tsx scripts/publish-github.ts --public \
+  --directory .local/github-rc8 --repository bandoo-2001/doo-know \
+  --tag v1.1.0-rc.8 --commit '<构建元数据中的完整提交SHA>' \
   --token-file '/受控位置/github-publish.token' --bootstrap deploy/github-install.sh
 ```
 
-发布器使用流式 curl 上传大附件，沿用主机的代理环境；认证配置仍只保存在受控临时文件中。发布器只接受私有仓库和预期制品，验证本地摘要、Git 标签对应提交与已存在附件的远端 SHA-256。先创建草稿，上传全部附件并绑定实际 asset ID，最后发布；RC 标记 prerelease，不冒充最新正式版本。重试沿用相同标签与附件，内容冲突时停止，不覆盖已发布制品或移动标签。完成后提交并推送生成的入口与文档。可受控使用 `--token-fd` 由父进程传入现有发布连接，值不进入参数、日志或环境变量。
-
-发布失败保留草稿及已上传附件用于核对；已有正常安装不受影响。远端发布流程遵循 [GitHub Release API](https://docs.github.com/en/rest/releases/releases#create-a-release) 与[附件下载/上传接口](https://docs.github.com/en/rest/releases/assets)。
-
-## 2026-10-16 空知识库修复候选
-
-rc.7 保留空目录绑定后的首次创建流程：主人可以在根目录创建 README.md，或按现有知识库规则创建一级分类，再添加普通笔记。安装器入口已固定到该候选，原账号和资料通过受控升级保留。Git/MCP 1.0.0 独立包与 rc.5 逐字节一致。rc.6 因构建依赖链接影响同版本插件字节而保留为失败候选，未部署生产，不能作为安装来源。
+从干净且已推送的源码构建。先草稿上传附件、核对远端SHA-256并绑定固定asset ID，再发布；已有附件和标签不覆盖。生成入口后提交推送。认证参数只有受控文件路径或`--token-fd`，实际值不进URL、参数和日志。旧版本保留追溯，不将预发布候选标为最新正式版。
