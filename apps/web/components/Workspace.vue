@@ -1046,7 +1046,7 @@ onBeforeUnmount(() => {
       <section v-else class="utility-view settings-view">
         <h1>个人设置</h1>
         <h2>修改密码</h2>
-        <p class="muted">修改后撤销其他会话。密码至少 12 位。</p>
+        <p class="muted">修改后撤销其他会话。密码不能为空。</p>
         <form @submit.prevent="changePassword">
           <label>当前密码</label
           ><NInput
