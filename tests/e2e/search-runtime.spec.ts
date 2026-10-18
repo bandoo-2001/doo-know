@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
 test('observes optional local-search download and cancels it from desktop and mobile settings', async ({
   page,
@@ -15,6 +15,6 @@ test('observes optional local-search download and cancels it from desktop and mo
   await expect(page.getByRole('button', { name: '取消检索准备', exact: true })).toBeVisible();
   await expect(page.getByText(/下载检索包/)).toBeVisible({ timeout: 10000 });
   await page.getByRole('button', { name: '取消检索准备', exact: true }).click();
-  await expect(page.getByRole('button', { name: '重试准备本地检索', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: '重新准备', exact: true })).toBeVisible();
   await expect(page.getByText('已取消', { exact: true })).toBeVisible();
 });

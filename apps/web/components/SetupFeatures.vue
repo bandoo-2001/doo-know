@@ -104,82 +104,108 @@ onMounted(async () => {
   </div>
 </template>
 <style scoped>
+.setup-features {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
 .feature {
-  border: 1px solid #dbe4ee;
-  border-radius: 12px;
-  margin: 14px 0;
+  min-width: 0;
   padding: 20px;
+  border: 1px solid var(--border, #e3e6ec);
+  border-radius: 8px;
+  background: white;
 }
 .feature-main {
   display: flex;
-  gap: 14px;
+  align-items: flex-start;
+  gap: 12px;
 }
-.feature-icon {
-  width: 36px;
-  height: 36px;
-  background: #eff5fd;
-  color: #3269af;
-  border-radius: 9px;
-  display: grid;
-  place-items: center;
-  font-size: 23px;
-  flex-shrink: 0;
-}
-h2 {
-  margin: 0 0 7px;
-  font-size: 17px;
-  line-height: 1.5;
-}
-p {
-  font-size: 14px;
-  color: #52657c;
-  line-height: 1.8;
-  margin: 0 0 8px;
-}
-.feature-state {
-  font-size: 12px;
-  color: #536d8a;
-}
-.feature-detail {
-  margin: 14px 0;
-  font-size: 13px;
-}
-.feature-config {
-  border-top: 1px solid #e7edf4;
-  margin-top: 16px;
-  padding-top: 4px;
+.feature-main > div {
   min-width: 0;
 }
-.technical {
+.feature-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border: 1px solid #e6eaf5;
+  border-radius: 7px;
+  background: #f3f5fc;
+  color: var(--blue, #4566c6);
+  font-size: 21px;
+}
+h2 {
+  margin: 0 0 5px;
+  color: var(--text, #262b36);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.6;
+}
+p {
+  margin: 0 0 8px;
+  color: #6c7482;
+  font-size: 13px;
+  line-height: 1.85;
+}
+.feature-state {
+  display: inline-block;
+  color: var(--muted, #7a8190);
+  font-size: 11px;
+  line-height: 1.7;
+}
+.feature-detail {
+  margin: 16px 0 13px;
+  padding-top: 13px;
+  border-top: 1px solid #edf0f4;
   font-size: 12px;
-  color: #5a6d83;
+}
+.feature-config {
+  min-width: 0;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border, #e3e6ec);
+  overflow-wrap: anywhere;
+}
+.technical {
   margin-top: 12px;
+  color: var(--muted, #7a8190);
+  font-size: 12px;
+  line-height: 1.8;
 }
 summary {
+  width: fit-content;
   cursor: pointer;
+}
+summary:focus-visible {
+  outline: 2px solid var(--focus, #4566c6);
+  outline-offset: 3px;
+}
+.technical[open] summary {
+  margin-bottom: 7px;
 }
 .unavailable {
   display: block;
-  font-size: 12px;
-  color: #62768c;
   margin-top: 8px;
+  color: var(--muted, #7a8190);
+  font-size: 12px;
+  line-height: 1.8;
 }
 @media (max-width: 600px) {
   .feature {
-    padding: 16px 13px;
+    padding: 16px 14px;
   }
   .feature-main {
     gap: 10px;
   }
-  h2 {
-    font-size: 16px;
-  }
   .feature-icon {
     width: 30px;
     height: 30px;
+    font-size: 19px;
   }
-  .feature-config {
-    overflow-wrap: anywhere;
+  h2 {
+    font-size: 14px;
   }
 }
 </style>

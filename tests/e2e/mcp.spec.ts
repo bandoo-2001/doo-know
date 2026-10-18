@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
 test('loads independently built MCP settings and exposes connection requirements on desktop and mobile', async ({page,context},info)=>{
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json','utf8')));

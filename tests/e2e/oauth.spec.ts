@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../support/browser-test';
 import { createHash, randomBytes } from 'node:crypto';
 import { testPassword } from '../support/credentials.js';
 test('OAuth login preserves signed authorization through owner consent and PKCE exchange', async ({ page, request }) => {

@@ -14,14 +14,29 @@ const token = location.pathname.startsWith('/s/') ? location.pathname.slice(3) :
   expired = ref(false),
   ready = ref(false);
 const platform = ref<PlatformStatus>();
-const oauthMode = location.pathname === '/oauth/consent' ? 'consent' : location.pathname === '/login' && location.search ? 'login' : '';
-const oauthQuery = new URLSearchParams(location.search).get('oauth_query') || location.search.slice(1);
-const oauthError = ref(''), resumingOAuth = ref(false);
+const oauthMode =
+  location.pathname === '/oauth/consent'
+    ? 'consent'
+    : location.pathname === '/login' && location.search
+      ? 'login'
+      : '';
+const oauthQuery =
+  new URLSearchParams(location.search).get('oauth_query') || location.search.slice(1);
+const oauthError = ref(''),
+  resumingOAuth = ref(false);
 async function continueOAuth() {
   if (resumingOAuth.value) return;
-  resumingOAuth.value = true; oauthError.value = '';
-  try { const result = await api('/api/platform/mcp/oauth/continue', 'POST', { oauth_query: oauthQuery }); window.location.assign(result.url); }
-  catch { oauthError.value = '无法继续授权，请回到连接客户端重新发起连接。'; resumingOAuth.value = false; }
+  resumingOAuth.value = true;
+  oauthError.value = '';
+  try {
+    const result = await api('/api/platform/mcp/oauth/continue', 'POST', {
+      oauth_query: oauthQuery,
+    });
+    window.location.assign(result.url);
+  } catch {
+    oauthError.value = '无法继续授权，请回到连接客户端重新发起连接。';
+    resumingOAuth.value = false;
+  }
 }
 async function refreshPlatform() {
   platform.value = await api('/api/platform/status');
@@ -31,15 +46,29 @@ async function refreshPlatform() {
 }
 const theme = {
   common: {
-    primaryColor: '#1688ff',
-    primaryColorHover: '#389cff',
-    primaryColorPressed: '#0874e7',
-    primaryColorSuppl: '#1688ff',
+    primaryColor: '#4566c6',
+    primaryColorHover: '#5676d4',
+    primaryColorPressed: '#3453ac',
+    primaryColorSuppl: '#4566c6',
     borderRadius: '6px',
-    textColorBase: '#18344f',
+    textColorBase: '#262b36',
     fontFamily: 'Inter,"Noto Sans CJK SC","Microsoft YaHei",Arial,sans-serif',
   },
-  Input: { color: '#f8fcff', border: '1px solid #d0e3f5' },
+  Input: {
+    color: '#ffffff',
+    colorFocus: '#ffffff',
+    border: '1px solid #dfe3eb',
+    borderHover: '1px solid #a2b0db',
+    boxShadowFocus: '0 0 0 3px #4566c614',
+  },
+  Card: {
+    borderColor: '#e3e6ec',
+    borderRadius: '10px',
+    titleFontSizeMedium: '17px',
+    titleFontWeight: '600',
+    paddingMedium: '24px',
+  },
+  Select: { peers: { InternalSelection: { border: '1px solid #dfe3eb', color: '#ffffff' } } },
   Button: { fontWeight: '500' },
 };
 async function login() {
@@ -70,9 +99,26 @@ onBeforeUnmount(() => window.removeEventListener('dooknow-session-expired', sess
 <template>
   <NConfigProvider :theme-overrides="theme"
     ><ShareReader v-if="token" :token="token" /><template v-else-if="ready"
-      ><OAuthConsent v-if="loggedIn && platform?.phase === 'ready' && !platform.onboardingRequired && oauthMode === 'consent'" :oauth-query="oauthQuery" />
-      <div v-else-if="loggedIn && platform?.phase === 'ready' && !platform.onboardingRequired && oauthMode === 'login'" class="share-error">
-        <NAlert v-if="oauthError" type="error">{{ oauthError }}</NAlert><p v-else>正在继续授权…</p><NButton v-if="oauthError" @click="continueOAuth">重试</NButton>
+      ><OAuthConsent
+        v-if="
+          loggedIn &&
+          platform?.phase === 'ready' &&
+          !platform.onboardingRequired &&
+          oauthMode === 'consent'
+        "
+        :oauth-query="oauthQuery" />
+      <div
+        v-else-if="
+          loggedIn &&
+          platform?.phase === 'ready' &&
+          !platform.onboardingRequired &&
+          oauthMode === 'login'
+        "
+        class="share-error"
+      >
+        <NAlert v-if="oauthError" type="error">{{ oauthError }}</NAlert>
+        <p v-else>正在继续授权…</p>
+        <NButton v-if="oauthError" @click="continueOAuth">重试</NButton>
       </div>
       <Workspace
         v-else-if="mountedWorkspace"

@@ -4,13 +4,18 @@ import { EditorView } from '@codemirror/view';
 import { Compartment, EditorState } from '@codemirror/state';
 import { basicSetup } from 'codemirror';
 import { markdown } from '@codemirror/lang-markdown';
-const props = defineProps<{
-  modelValue: string;
-  incremental?: boolean;
-  wrap?: boolean;
-  readOnly?: boolean;
-  initialLine?: number;
-}>();
+import { HighlightStyle, defaultHighlightStyle, syntaxHighlighting } from '@codemirror/language';
+import { tags } from '@lezer/highlight';
+const props = withDefaults(
+  defineProps<{
+    modelValue: string;
+    incremental?: boolean;
+    wrap?: boolean;
+    readOnly?: boolean;
+    initialLine?: number;
+  }>(),
+  { wrap: true },
+);
 const emit = defineEmits<{
   'update:modelValue': [value: string];
   changes: [edits: { from: number; to: number; insert: string }[]];
@@ -26,6 +31,22 @@ onMounted(() => {
     extensions: [
       basicSetup,
       markdown(),
+      syntaxHighlighting(
+        HighlightStyle.define([
+          ...defaultHighlightStyle.specs,
+          { tag: tags.heading1, fontSize: '1.65em', fontWeight: '650', color: '#262d3b' },
+          { tag: tags.heading2, fontSize: '1.25em', fontWeight: '600', color: '#303747' },
+          { tag: tags.heading3, fontSize: '1.1em', fontWeight: '600', color: '#40495b' },
+          { tag: tags.processingInstruction, color: '#a0a8b8' },
+          { tag: tags.link, color: '#4566c6' },
+          { tag: tags.quote, color: '#8791a6' },
+          {
+            tag: tags.monospace,
+            fontFamily: '"SFMono-Regular",Consolas,monospace',
+            fontSize: '.9em',
+          },
+        ]),
+      ),
       editability.of([
         EditorView.editable.of(!props.readOnly),
         EditorState.readOnly.of(!!props.readOnly),
@@ -33,16 +54,33 @@ onMounted(() => {
       ...(props.wrap === false ? [] : [EditorView.lineWrapping]),
       EditorView.contentAttributes.of({ 'aria-label': 'Markdown 正文' }),
       EditorView.theme({
-        '&': { height: '100%', fontSize: '16px' },
+        '&': { height: '100%', fontSize: '16px', color: '#414858' },
+        '&.cm-focused': { outline: 'none' },
         '.cm-scroller': {
           overflow: 'auto',
-          fontFamily: '"SFMono-Regular",Consolas,"Noto Sans Mono",monospace',
+          fontFamily:
+            props.wrap === false
+              ? '"SFMono-Regular",Consolas,monospace'
+              : 'Inter,-apple-system,"Noto Sans CJK SC","Microsoft YaHei",sans-serif',
+          lineHeight: '1.95',
         },
-        '.cm-content': { padding: '24px 18px' },
+        '.cm-content': { padding: '38px 28px 80px', caretColor: '#4566c6' },
+        '.cm-line': { padding: '0 4px' },
         '.cm-gutters': {
-          backgroundColor: '#f7fbff',
-          color: '#7c94ad',
-          borderRight: '1px solid #e1edf8',
+          backgroundColor: '#ffffff',
+          color: '#bac1ce',
+          borderRight: '0',
+          fontSize: '10px',
+        },
+        '.cm-activeLineGutter': { backgroundColor: '#f5f7fc', color: '#8594b5' },
+        '.cm-activeLine': { backgroundColor: '#f8f9fd' },
+        '.cm-selectionBackground, &.cm-focused .cm-selectionBackground': {
+          backgroundColor: '#dce5fa',
+        },
+        '.cm-cursor': { borderLeftColor: '#4566c6', borderLeftWidth: '2px' },
+        '@media (max-width: 720px)': {
+          '&': { fontSize: '14px' },
+          '.cm-content': { padding: '22px 14px 70px' },
         },
       }),
       EditorView.updateListener.of((update) => {

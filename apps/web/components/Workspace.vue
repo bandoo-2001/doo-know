@@ -14,7 +14,7 @@ import SearchRuntimeSettings from './SearchRuntimeSettings.vue';
 import PluginManager from './PluginManager.vue';
 import PluginSlot from './PluginSlot.vue';
 import PluginPanel from './PluginPanel.vue';
-import { refreshPlugins, disposePluginUIs } from '../plugins';
+import { refreshPlugins, disposePluginUIs, pluginRegistry } from '../plugins';
 import type {
   NoteInfo,
   FileReply,
@@ -36,7 +36,7 @@ const tree = ref<TreeEntry[]>([]),
   selected = ref(''),
   draft = ref(''),
   savedContent = ref(''),
-  mode = ref<'edit' | 'preview' | 'split'>('split'),
+  mode = ref<'edit' | 'preview' | 'split'>('edit'),
   drawer = ref(true),
   busy = ref(false),
   error = ref(''),
@@ -847,10 +847,14 @@ onBeforeUnmount(() => {
           ><template #icon><Icon name="plus" /></template>新建笔记</NButton
         >
       </div>
-      <button class="nav-action" @click="all"><Icon name="file" />全部笔记</button>
-      <PluginSlot slot-name="navigation" :context="pluginContext" />
-      <PluginSlot slot-name="libraryAction" :context="pluginContext" />
-      <IndexStatus :note-id="note?.id" />
+      <button
+        class="nav-action"
+        :class="{ active: panel === 'folder' && !folder }"
+        :aria-current="panel === 'folder' && !folder ? 'page' : undefined"
+        @click="all"
+      >
+        <Icon name="file" />全部笔记
+      </button>
       <div class="tree-heading">
         <span>{{ query ? '搜索结果' : '笔记本' }}</span
         ><button class="icon-button" aria-label="新建文件夹" @click="create('folder')">
@@ -885,12 +889,37 @@ onBeforeUnmount(() => {
           <p v-if="!results.length" class="muted empty-search">没有匹配的笔记</p></template
         ><TreeBranch v-else :entries="tree" :selected="selected" @select="select" />
       </div>
+      <div
+        v-if="
+          pluginRegistry.contributions.some(
+            (c) => c.slot === 'navigation' || c.slot === 'libraryAction',
+          )
+        "
+        class="sidebar-tools"
+      >
+        <span class="sidebar-section-title">扩展工具</span>
+        <PluginSlot slot-name="navigation" :context="pluginContext" />
+        <PluginSlot slot-name="libraryAction" :context="pluginContext" />
+      </div>
       <div class="sidebar-footer">
-        <button class="nav-action" @click="openTrash"><Icon name="trash" />回收站</button
-        ><button class="nav-action" @click="settings"><Icon name="settings" />设置</button
+        <button
+          class="nav-action"
+          :class="{ active: panel === 'trash' }"
+          :aria-current="panel === 'trash' ? 'page' : undefined"
+          @click="openTrash"
+        >
+          <Icon name="trash" />回收站</button
+        ><button
+          class="nav-action"
+          :class="{ active: panel === 'settings' }"
+          :aria-current="panel === 'settings' ? 'page' : undefined"
+          @click="settings"
+        >
+          <Icon name="settings" />设置</button
         ><button class="nav-action account-row" @click="logout">
           <span class="avatar">个人</span><span>个人账户</span><Icon name="logout" :size="18" />
         </button>
+        <IndexStatus :note-id="note?.id" />
       </div>
     </aside>
     <main class="main-content">
@@ -937,18 +966,35 @@ onBeforeUnmount(() => {
               >
             </div>
           </div>
-          <h1>{{ note.title }}</h1>
+          <h1 :class="['document-title', { 'sr-only': noteInfo?.editorMode === 'full' }]">
+            {{ note.title }}
+          </h1>
           <div v-if="note.shared" class="shared-status">
             <Icon name="share" :size="14" />已分享，保存后的修改将同步公开
           </div>
           <div v-if="noteInfo?.editorMode === 'full'" class="mode-row">
             <div class="mode-tabs">
-              <button :class="{ active: mode === 'edit' }" @click="mode = 'edit'">编辑</button
-              ><button :class="{ active: mode === 'preview' }" @click="mode = 'preview'">
+              <button
+                :aria-pressed="mode === 'edit'"
+                :class="{ active: mode === 'edit' }"
+                @click="mode = 'edit'"
+              >
+                编辑</button
+              ><button
+                :aria-pressed="mode === 'preview'"
+                :class="{ active: mode === 'preview' }"
+                @click="mode = 'preview'"
+              >
                 预览</button
-              ><button :class="{ active: mode === 'split' }" @click="mode = 'split'">分屏</button>
+              ><button
+                :aria-pressed="mode === 'split'"
+                :class="{ active: mode === 'split' }"
+                @click="mode = 'split'"
+              >
+                分屏
+              </button>
             </div>
-            <span :class="['save-state', { dirty }]"
+            <span role="status" aria-live="polite" :class="['save-state', { dirty }]"
               >● {{ busy ? '保存中' : dirty ? '未保存' : '已保存' }}</span
             >
           </div>
@@ -964,7 +1010,7 @@ onBeforeUnmount(() => {
           @saved="onLargeSaved" />
         <div v-else :class="['editor-panels', mode]">
           <section v-if="mode !== 'preview'" class="editor-panel">
-            <div class="panel-label">Markdown <span>UTF-8</span></div>
+            <div class="panel-label">Markdown <span>UTF-8 · 手动保存</span></div>
             <MarkdownEditor
               v-model="draft"
               :key="note.id"
@@ -1045,29 +1091,49 @@ onBeforeUnmount(() => {
           <Icon name="file" /><span>{{ item.relativePath }}</span
           ><NButton @click="restoreTrash(item)">恢复</NButton>
         </div>
-        <p v-if="!trash.length" class="muted">回收站为空</p>
+        <div v-if="!trash.length" class="utility-empty">
+          <Icon name="trash" :size="36" />
+          <h2>回收站为空</h2>
+          <p>删除的笔记会出现在这里，需要时可以恢复。</p>
+        </div>
       </section>
       <section v-else class="utility-view settings-view">
-        <h1>个人设置</h1>
-        <h2>修改密码</h2>
-        <p class="muted">修改后撤销其他会话。密码不能为空。</p>
-        <form @submit.prevent="changePassword">
-          <label>当前密码</label
-          ><NInput
-            v-model:value="currentPassword"
-            type="password"
-            autocomplete="current-password"
-            :input-props="{ 'aria-label': '当前密码' }"
-          /><label>新密码</label
-          ><NInput
-            v-model:value="newPassword"
-            type="password"
-            autocomplete="new-password"
-            :input-props="{ 'aria-label': '新密码' }"
-          /><NButton type="primary" attr-type="submit">修改密码</NButton>
-        </form>
+        <header class="settings-intro">
+          <p class="eyebrow">偏好与扩展</p>
+          <h1>个人设置</h1>
+          <p class="muted">管理你的账户、内容搜索和扩展功能。</p>
+        </header>
+        <section class="account-settings" aria-label="账户安全">
+          <h2>修改密码</h2>
+          <p class="muted">修改后撤销其他会话。密码不能为空。</p>
+          <form @submit.prevent="changePassword">
+            <div class="form-field">
+              <label for="current-password">当前密码</label
+              ><NInput
+                v-model:value="currentPassword"
+                type="password"
+                autocomplete="current-password"
+                placeholder="请输入当前密码"
+                :input-props="{ id: 'current-password', 'aria-label': '当前密码' }"
+              />
+            </div>
+            <div class="form-field">
+              <label for="new-password">新密码</label
+              ><NInput
+                v-model:value="newPassword"
+                type="password"
+                autocomplete="new-password"
+                placeholder="请输入新密码"
+                :input-props="{ id: 'new-password', 'aria-label': '新密码' }"
+              />
+            </div>
+            <NButton type="primary" attr-type="submit">修改密码</NButton>
+          </form>
+        </section>
         <SearchRuntimeSettings /><PluginManager />
-        <NButton @click="logout">退出登录</NButton>
+        <div class="settings-signout">
+          <NButton @click="logout">退出登录</NButton><span>结束当前设备的登录会话。</span>
+        </div>
       </section>
     </main>
     <PluginPanel />

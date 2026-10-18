@@ -5,6 +5,7 @@ import type { PlatformStatus } from '../../../shared/platform-contracts';
 import { api, ApiError } from '../api';
 import SetupFeatures from './SetupFeatures.vue';
 import SetupImport from './SetupImport.vue';
+import Icon from './Icon.vue';
 const props = defineProps<{ status: PlatformStatus }>();
 const emit = defineEmits<{ refresh: [] }>();
 const mode = ref<'new' | 'existing'>('new'),
@@ -177,7 +178,7 @@ onBeforeUnmount(() => clearInterval(timer));
 <template>
   <main class="setup-page" :aria-busy="busy">
     <header class="setup-brand">
-      <span class="brand-mark" aria-hidden="true">D</span> DooKnow
+      <Icon name="book" :size="29" /> DooKnow
       <span class="welcome">欢迎使用</span>
     </header>
     <section class="setup-card">
@@ -196,30 +197,8 @@ onBeforeUnmount(() => clearInterval(timer));
         <p class="eyebrow">让资料有个自己的家</p>
         <h1 ref="heading" tabindex="-1">准备你的知识库</h1>
         <p class="intro">从一个新空间开始，或接入你已经整理好的资料。</p>
-        <div class="mode-options" aria-label="知识库来源">
-          <button
-            type="button"
-            aria-label="创建新知识库"
-            :class="{ selected: mode === 'new' }"
-            :aria-pressed="mode === 'new'"
-            :disabled="busy"
-            @click="selectMode('new')"
-          >
-            <strong>创建新知识库</strong><span>只需起个名字，保存位置由我们准备。</span>
-          </button>
-          <button
-            type="button"
-            aria-label="使用已有资料"
-            :class="{ selected: mode === 'existing' }"
-            :aria-pressed="mode === 'existing'"
-            :disabled="busy"
-            @click="selectMode('existing')"
-          >
-            <strong>使用已有资料</strong><span>选择部署设备上的文件夹，保留原有文件。</span>
-          </button>
-        </div>
         <form @submit.prevent="complete">
-          <template v-if="mode === 'new'">
+          <div v-if="mode === 'new'" class="library-name-field">
             <label for="library-name">知识库名称</label>
             <NInput
               v-model:value="name"
@@ -229,8 +208,31 @@ onBeforeUnmount(() => clearInterval(timer));
               @update:value="changed"
             />
             <p class="hint">资料保存在部署 DooKnow 的设备上。无需手动创建文件夹。</p>
-          </template>
-          <div v-else class="folder-browser">
+          </div>
+          <p class="field-title">资料来源</p>
+          <div class="mode-options" aria-label="知识库来源">
+            <button
+              type="button"
+              aria-label="创建新知识库"
+              :class="{ selected: mode === 'new' }"
+              :aria-pressed="mode === 'new'"
+              :disabled="busy"
+              @click="selectMode('new')"
+            >
+              <strong>创建新知识库</strong><span>只需起个名字，保存位置由我们准备。</span>
+            </button>
+            <button
+              type="button"
+              aria-label="使用已有资料"
+              :class="{ selected: mode === 'existing' }"
+              :aria-pressed="mode === 'existing'"
+              :disabled="busy"
+              @click="selectMode('existing')"
+            >
+              <strong>使用已有资料</strong><span>选择部署设备上的文件夹，保留原有文件。</span>
+            </button>
+          </div>
+          <div v-if="mode === 'existing'" class="folder-browser">
             <p class="hint">这里浏览的是部署 DooKnow 的设备，不是当前浏览器所在电脑。</p>
             <div v-if="browser" class="browser-content" :aria-busy="browserBusy">
               <div class="location">
@@ -262,7 +264,8 @@ onBeforeUnmount(() => clearInterval(timer));
                     :aria-label="'打开文件夹 ' + dir.name"
                     @click="browse(dir.path)"
                   >
-                    <span aria-hidden="true">▱</span>{{ dir.name }}<span aria-hidden="true">›</span>
+                    <Icon name="folder" :size="18" /><span class="folder-name">{{ dir.name }}</span
+                    ><Icon name="chevron" :size="15" />
                   </button>
                 </li>
               </ul>
@@ -375,19 +378,19 @@ onBeforeUnmount(() => clearInterval(timer));
         <p>正在读取资料，请稍候。已有文件会保留。</p>
         <NButton :loading="busy" @click="emit('refresh')">检查进度</NButton>
       </div>
-      <template v-else-if="status.phase === 'owner_required'"
-        ><h1>还差一个登录账号</h1>
-        <p>请在部署设备上运行安装命令，完成账号创建后刷新此页。</p></template
-      >
-      <template v-else
-        ><h1>暂时无法打开知识库</h1>
+      <div v-else-if="status.phase === 'owner_required'" class="setup-state">
+        <h1>还差一个登录账号</h1>
+        <p>请在部署设备上运行安装命令，完成账号创建后刷新此页。</p>
+      </div>
+      <div v-else class="setup-state">
+        <h1>暂时无法打开知识库</h1>
         <p>原有资料和设置已保留。请检查保存位置是否可用，再重试。</p>
         <NButton @click="emit('refresh')">重新检查</NButton>
         <details class="advanced">
           <summary>查看详细信息</summary>
           {{ status.code || status.phase }}
-        </details></template
-      >
+        </details>
+      </div>
       <NAlert v-if="error" type="error" class="setup-error" role="alert" aria-live="polite"
         >{{ error }}
         <details v-if="errorDetail">
@@ -401,269 +404,350 @@ onBeforeUnmount(() => clearInterval(timer));
 </template>
 <style scoped>
 .setup-page {
-  max-width: 850px;
+  max-width: 840px;
   margin: 0 auto;
-  padding: 36px 22px;
-  color: #243649;
+  padding: 36px 24px 24px;
+  color: var(--text, #262b36);
 }
 .setup-brand {
   display: flex;
-  gap: 10px;
   align-items: center;
-  font-size: 21px;
-  font-weight: 650;
+  gap: 9px;
   margin-bottom: 24px;
-}
-.brand-mark {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  background: #306bc7;
-  color: white;
+  color: var(--blue, #4566c6);
   font-size: 23px;
+  font-weight: 650;
+  letter-spacing: -0.5px;
 }
 .welcome {
-  font-size: 13px;
-  color: #526982;
-  font-weight: 400;
   margin-left: auto;
+  color: var(--muted, #7a8190);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0;
 }
 .setup-card {
-  padding: 32px 40px;
-  border: 1px solid #dbe5ee;
-  border-radius: 18px;
-  background: #fff;
-  box-shadow: 0 12px 44px #28466808;
+  min-width: 0;
+  padding: 30px 36px;
+  border: 1px solid var(--border, #e3e6ec);
+  border-radius: 10px;
+  background: white;
 }
 .setup-steps {
-  list-style: none;
   display: flex;
-  padding: 0 0 26px;
-  margin: 0 0 32px;
-  border-bottom: 1px solid #e8edf3;
   justify-content: space-between;
   gap: 12px;
+  margin: 0 0 30px;
+  padding: 0 0 24px;
+  border-bottom: 1px solid var(--border, #e3e6ec);
+  list-style: none;
 }
 .setup-steps li {
   display: flex;
-  gap: 8px;
   align-items: center;
-  font-size: 13px;
-  color: #647487;
+  gap: 9px;
+  color: var(--muted, #7a8190);
+  font-size: 12px;
 }
 .setup-steps li > span {
   display: grid;
   place-items: center;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--border, #e3e6ec);
   border-radius: 50%;
-  width: 25px;
-  height: 25px;
-  background: #f0f3f7;
+  background: var(--surface-soft, #fafbfc);
+  font-size: 11px;
 }
 .setup-steps .active {
-  color: #245baa;
+  color: var(--blue, #4566c6);
   font-weight: 600;
 }
 .setup-steps .active > span {
-  background: #306bc7;
+  border-color: var(--blue, #4566c6);
+  background: var(--blue, #4566c6);
   color: white;
 }
 .setup-steps .done > span {
-  background: #e8f5ee;
-  color: #287553;
+  border-color: #dce3f6;
+  background: #eef1fa;
+  color: var(--blue, #4566c6);
 }
 h1 {
-  font-size: 28px;
-  line-height: 1.3;
-  margin: 8px 0 14px;
-  letter-spacing: -0.5px;
+  margin: 8px 0 12px;
+  color: var(--text, #262b36);
+  font-size: 26px;
+  font-weight: 650;
+  line-height: 1.45;
+  letter-spacing: -0.6px;
 }
 h1:focus {
   outline: none;
 }
 .eyebrow {
-  font-size: 13px;
-  color: #59718c;
   margin: 0;
+  color: var(--muted, #7a8190);
+  font-size: 12px;
 }
-.intro {
-  color: #52657c;
-  line-height: 1.8;
-  margin-bottom: 26px;
+.intro,
+.setup-state > p,
+.preparing > p {
+  margin: 0 0 24px;
+  color: #6c7482;
+  font-size: 14px;
+  line-height: 1.85;
+}
+.library-name-field {
+  margin-bottom: 24px;
+}
+.library-name-field label {
+  margin-top: 0;
+}
+.library-name-field :deep(.n-input) {
+  min-height: 40px;
+  align-items: center;
+}
+.field-title {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 500;
 }
 .mode-options {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-  margin-bottom: 26px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
 }
 .mode-options button {
-  border: 1px solid #dbe3ec;
-  border-radius: 11px;
+  position: relative;
   padding: 18px;
-  text-align: left;
+  border: 1px solid var(--border, #e3e6ec);
+  border-radius: 8px;
   background: white;
   color: inherit;
-  cursor: pointer;
+  text-align: left;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+.mode-options button:hover {
+  border-color: #bfc9e7;
+  background: var(--surface-soft, #fafbfc);
 }
 .mode-options .selected {
-  border: 2px solid #3977cf;
-  padding: 17px;
-  background: #f5f9ff;
+  border-color: var(--blue, #4566c6);
+  background: #f5f7fd;
 }
 .mode-options strong {
   display: block;
-  font-size: 16px;
-  margin-bottom: 8px;
+  margin-bottom: 7px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.mode-options .selected strong {
+  color: var(--blue, #4566c6);
 }
 .mode-options span {
   display: block;
-  color: #52657c;
-  font-size: 13px;
-  line-height: 1.7;
+  color: #6c7482;
+  font-size: 12px;
+  line-height: 1.8;
 }
 label {
   display: block;
-  margin: 16px 0 8px;
+  margin: 17px 0 8px;
+  font-size: 13px;
   font-weight: 500;
 }
 .hint {
-  color: #576b82;
-  font-size: 13px;
-  line-height: 1.8;
+  color: var(--muted, #7a8190);
+  font-size: 12px;
+  line-height: 1.85;
+  overflow-wrap: anywhere;
 }
 .advanced {
-  margin-top: 24px;
-  border-top: 1px solid #e7edf4;
-  padding-top: 16px;
-  font-size: 14px;
+  margin-top: 22px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border, #e3e6ec);
+  font-size: 13px;
 }
 summary {
-  cursor: pointer;
-  color: #435d7c;
+  width: fit-content;
   padding: 4px 0;
+  color: #596271;
+  cursor: pointer;
+}
+.advanced[open] > summary {
+  margin-bottom: 12px;
+  color: var(--text, #262b36);
 }
 .timezone {
-  margin-top: 20px;
+  margin-top: 18px;
 }
 .setup-footer {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
   gap: 14px;
-  margin-top: 30px;
-  border-top: 1px solid #e8edf3;
-  padding-top: 22px;
+  margin-top: 26px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border, #e3e6ec);
 }
 .setup-footer > span {
+  color: var(--muted, #7a8190);
   font-size: 12px;
-  color: #62768c;
+  line-height: 1.8;
+}
+.folder-browser {
+  min-width: 0;
+}
+.browser-content {
+  padding: 14px;
+  border: 1px solid var(--border, #e3e6ec);
+  border-radius: 8px;
 }
 .location {
   display: flex;
   flex-direction: column;
-  gap: 7px;
-  padding: 13px;
-  background: #f5f8fb;
-  border-radius: 8px;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid #edf0f4;
+  border-radius: 5px;
+  background: var(--surface-soft, #fafbfc);
 }
 .location span {
-  font-size: 12px;
-  color: #536b82;
+  color: var(--muted, #7a8190);
+  font-size: 11px;
 }
 code {
   display: block;
+  color: #545e6d;
+  font-family: 'SFMono-Regular', Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.8;
   overflow-wrap: anywhere;
   white-space: normal;
-  font-size: 13px;
 }
 .browser-tools {
   display: flex;
-  gap: 10px;
-  margin: 10px 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0;
+}
+.browser-tools .n-select {
+  min-width: 0;
+  flex: 1 1 160px;
 }
 .folder-list {
-  list-style: none;
-  padding: 0;
+  max-height: 250px;
   margin: 0 0 12px;
-  max-height: 240px;
+  padding: 0;
   overflow-y: auto;
+  list-style: none;
 }
 .folder-list button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 10px 8px;
   border: 0;
-  border-bottom: 1px solid #eef2f7;
+  border-bottom: 1px solid #edf0f4;
+  border-radius: 4px;
   background: white;
   color: inherit;
-  width: 100%;
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  padding: 13px 6px;
-  cursor: pointer;
+  font-size: 13px;
   text-align: left;
 }
-.folder-list button > span:last-child {
+.folder-list button:hover {
+  background: var(--surface-soft, #fafbfc);
+}
+.folder-list svg {
+  flex-shrink: 0;
+  color: var(--muted, #7a8190);
+}
+.folder-list svg:last-child {
   margin-left: auto;
 }
+.folder-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 .chosen-folder {
-  margin-top: 16px;
-  padding: 12px;
-  background: #eff8f2;
-  border-radius: 8px;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border: 1px solid #dce3f6;
+  border-radius: 6px;
+  background: #f5f7fd;
 }
 .chosen-folder strong {
   display: block;
-  margin-bottom: 6px;
-  font-size: 13px;
+  margin-bottom: 4px;
+  color: var(--blue, #4566c6);
+  font-size: 12px;
+  font-weight: 500;
 }
 .ready-mark {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: #e6f4eb;
-  color: #27744c;
   display: grid;
   place-items: center;
-  font-size: 25px;
+  width: 42px;
+  height: 42px;
   margin-bottom: 20px;
+  border: 1px solid #dce3f6;
+  border-radius: 10px;
+  background: #eef1fa;
+  color: var(--blue, #4566c6);
+  font-size: 22px;
 }
 .ready-summary {
-  border-radius: 10px;
-  background: #f6f9fc;
+  margin: 24px 0;
   padding: 18px;
-  margin: 25px 0;
+  border: 1px solid var(--border, #e3e6ec);
+  border-radius: 7px;
+  background: var(--surface-soft, #fafbfc);
 }
 .ready-summary strong {
   display: block;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 500;
 }
 .ready-summary p {
-  font-size: 13px;
-  color: #52657c;
+  margin: 8px 0 0;
+  color: var(--muted, #7a8190);
+  font-size: 12px;
+  line-height: 1.8;
 }
 .start-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 10px;
+}
+.setup-state,
+.preparing {
+  padding: 8px 0 18px;
 }
 .setup-error {
   margin-top: 20px;
+  overflow-wrap: anywhere;
 }
 .setup-error details {
   margin-top: 8px;
   font-size: 12px;
-  overflow-wrap: anywhere;
 }
 .setup-note {
+  margin-top: 22px;
+  color: var(--muted, #7a8190);
+  font-size: 11px;
   text-align: center;
-  font-size: 12px;
-  color: #6c7d8e;
-  margin-top: 24px;
 }
 button:focus-visible,
 summary:focus-visible {
-  outline: 3px solid #a8c8f4;
+  outline: 2px solid var(--focus, #4566c6);
   outline-offset: 3px;
 }
 button:disabled {
@@ -672,39 +756,42 @@ button:disabled {
 }
 @media (max-width: 600px) {
   .setup-page {
-    padding: 20px 12px;
-  }
-  .setup-card {
-    padding: 24px 18px;
-    border-radius: 12px;
+    padding: 22px 14px 16px;
   }
   .setup-brand {
-    margin: 0 6px 20px;
+    margin: 0 4px 20px;
+    font-size: 21px;
+  }
+  .setup-card {
+    padding: 22px 18px;
+    border-radius: 8px;
   }
   .setup-steps {
     gap: 5px;
-    margin-bottom: 25px;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
   }
   .setup-steps li {
-    font-size: 12px;
     gap: 5px;
+    font-size: 11px;
   }
   .setup-steps li > span {
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
+    font-size: 10px;
+  }
+  h1 {
+    font-size: 23px;
+  }
+  .intro {
+    font-size: 13px;
   }
   .mode-options {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 10px;
   }
   .mode-options button {
-    padding: 14px;
-  }
-  .mode-options .selected {
-    padding: 13px;
-  }
-  h1 {
-    font-size: 25px;
+    padding: 15px;
   }
   .setup-footer {
     flex-wrap: wrap;
@@ -717,6 +804,9 @@ button:disabled {
   }
   .start-actions .n-button {
     width: 100%;
+  }
+  .browser-content {
+    padding: 10px;
   }
 }
 </style>

@@ -90,28 +90,74 @@ async function upload() {
   </div>
 </template>
 <style scoped>
+.setup-import {
+  min-width: 0;
+  padding-top: 2px;
+  color: #6c7482;
+  font-size: 13px;
+}
 p {
-  line-height: 1.8;
+  margin: 12px 0;
+  line-height: 1.85;
+  overflow-wrap: anywhere;
 }
 label {
   display: block;
+  margin: 16px 0 12px;
+  padding: 16px;
+  border: 1px dashed #d5dbe6;
+  border-radius: 7px;
+  background: var(--surface-soft, #fafbfc);
+  color: var(--text, #262b36);
+  font-size: 13px;
   font-weight: 500;
-  margin: 14px 0;
+}
+label:focus-within {
+  outline: 2px solid var(--focus, #4566c6);
+  outline-offset: 2px;
 }
 input {
   display: block;
-  margin-top: 10px;
-  max-width: 100%;
-  font-size: 14px;
+  width: 100%;
+  min-width: 0;
+  margin-top: 12px;
+  color: #6c7482;
+  font-size: 12px;
+}
+input::file-selector-button {
+  margin-right: 10px;
+  padding: 7px 10px;
+  border: 1px solid var(--border, #e3e6ec);
+  border-radius: 5px;
+  background: white;
+  color: var(--text, #262b36);
+  font: inherit;
+  cursor: pointer;
+}
+input:disabled::file-selector-button {
+  cursor: default;
+  opacity: 0.6;
 }
 .hint {
+  margin-bottom: 16px;
+  color: var(--muted, #7a8190);
   font-size: 12px;
-  color: #5c6e83;
 }
 .n-alert {
-  margin-top: 12px;
+  margin-top: 14px;
+  overflow-wrap: anywhere;
 }
 [role='status'] {
-  color: #26784e;
+  padding: 12px 14px;
+  border: 1px solid #dce8df;
+  border-radius: 6px;
+  background: #f5f9f6;
+  color: #417351;
+  font-size: 12px;
+}
+@media (max-width: 600px) {
+  label {
+    padding: 13px;
+  }
 }
 </style>

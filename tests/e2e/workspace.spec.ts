@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../support/browser-test';
 import { testPassword } from '../support/credentials.js';
 test('login and two-column workspace with manual Markdown editing', async ({ page }, info) => {
   await page.goto('/');
@@ -130,6 +130,7 @@ test.describe('authenticated feature acceptance', () => {
     browser,
   }, info) => {
     const { n, h } = await newNote(page, '搭建自己的知识库-' + info.project.name);
+    await page.getByRole('button', { name: '分屏', exact: true }).click();
     await page.screenshot({
       path: `test-results/${info.project.name}-split.png`,
       fullPage: true,
@@ -351,10 +352,10 @@ test('late save and open responses never replace another note', async ({ page, c
     .getByRole('button', { name: b.relativePath.split('/').at(-1), exact: true })
     .first()
     .click();
-  await expect(page.locator('.note-header h1')).toContainText('迟到B');
+  await expect(page.locator('.cm-content')).toContainText('迟到B');
   release();
   await expect(page.locator('.toolbar button').last()).not.toHaveClass(/loading/);
-  await expect(page.locator('.note-header h1')).toContainText('迟到B');
+  await expect(page.locator('.cm-content')).toContainText('迟到B');
   await expect(page.locator('.cm-content')).toContainText('原文 迟到B');
   await page.locator('.cm-content').fill('# B 的新内容');
   await page.locator('.toolbar').getByRole('button', { name: /^保存/ }).click();
@@ -382,8 +383,8 @@ test('late save and open responses never replace another note', async ({ page, c
     .getByRole('button', { name: b.relativePath.split('/').at(-1), exact: true })
     .first()
     .click();
-  await expect(page.locator('.note-header h1')).toContainText('B 的新内容');
+  await expect(page.locator('.cm-content')).toContainText('B 的新内容');
   releaseOpen();
   await page.waitForResponse((r) => r.url().endsWith('/' + a.id));
-  await expect(page.locator('.note-header h1')).toContainText('B 的新内容');
+  await expect(page.locator('.cm-content')).toContainText('B 的新内容');
 });

@@ -13,8 +13,14 @@ const labels: Record<string, string> = {
 };
 </script>
 <template>
-  <div v-if="operation" class="operation-status" role="status">
-    <span>{{ labels[operation.status] || operation.status }}</span
+  <div
+    v-if="operation"
+    class="operation-status"
+    :class="'operation-' + operation.status"
+    role="status"
+  >
+    <span class="operation-label"
+      ><i aria-hidden="true"></i>{{ labels[operation.status] || operation.status }}</span
     ><button v-if="['queued', 'running'].includes(operation.status)" @click="$emit('cancel')">
       取消任务</button
     ><button v-if="operation.status === 'needs_reconciliation'" @click="$emit('check')">
@@ -22,3 +28,58 @@ const labels: Record<string, string> = {
     </button>
   </div>
 </template>
+<style scoped>
+.operation-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  min-width: 0;
+  margin: 12px 0;
+  padding: 10px 13px;
+  border: 1px solid var(--border, #e3e6ec);
+  border-radius: 6px;
+  background: var(--surface-soft, #fafbfc);
+  font-size: 12px;
+  color: var(--muted, #7a8190);
+}
+.operation-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  line-height: 1.6;
+}
+.operation-label i {
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--blue, #4566c6);
+}
+.operation-failed .operation-label i,
+.operation-needs_reconciliation .operation-label i {
+  background: #b27c41;
+}
+.operation-cancelled .operation-label i {
+  background: #b7bdc7;
+}
+.operation-status button {
+  min-height: 28px;
+  margin-left: auto;
+  padding: 3px 9px;
+  border: 1px solid var(--border, #e3e6ec);
+  border-radius: 5px;
+  background: #fff;
+  color: var(--text, #262b36);
+  font: inherit;
+  cursor: pointer;
+}
+.operation-status button:hover {
+  border-color: var(--blue, #4566c6);
+  color: var(--blue, #4566c6);
+}
+.operation-status button:focus-visible {
+  outline: 2px solid var(--focus, #4566c6);
+  outline-offset: 2px;
+}
+</style>

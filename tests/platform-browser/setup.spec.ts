@@ -94,17 +94,17 @@ test('first login binds an empty knowledge base and creates its first root note,
   await page.getByRole('button', { name: '暂时跳过', exact: true }).click();
   await expect(page.getByRole('heading', { name: '知识库准备好了' })).toBeVisible();
   await page.getByText('导入已有资料', { exact: true }).click();
-  await page.getByLabel('选择 Markdown 文件', { exact: true }).setInputFiles({ name: '不支持.txt', mimeType: 'text/plain', buffer: Buffer.from('fixture') });
+  await page
+    .getByLabel('选择 Markdown 文件', { exact: true })
+    .setInputFiles({ name: '不支持.txt', mimeType: 'text/plain', buffer: Buffer.from('fixture') });
   await page.getByRole('button', { name: '确认导入', exact: true }).click();
   await expect(page.getByRole('alert')).toContainText('请选择 Markdown 文件');
 
-  await page
-    .getByLabel('选择 Markdown 文件', { exact: true })
-    .setInputFiles({
-      name: '已有资料.md',
-      mimeType: 'text/markdown',
-      buffer: Buffer.from('# 我的已有资料\n\n原文会保留。\n'),
-    });
+  await page.getByLabel('选择 Markdown 文件', { exact: true }).setInputFiles({
+    name: '已有资料.md',
+    mimeType: 'text/markdown',
+    buffer: Buffer.from('# 我的已有资料\n\n原文会保留。\n'),
+  });
   await page.getByRole('button', { name: '确认导入', exact: true }).click();
   await expect(page.getByRole('status')).toContainText('已有资料.md 已导入');
   expect(await readFile(join(config.knowledgeRoot, '40-Resources', '已有资料.md'), 'utf8')).toBe(
@@ -114,10 +114,18 @@ test('first login binds an empty knowledge base and creates its first root note,
     path: `.local/onboarding-${info.project.name}-complete.png`,
     fullPage: true,
   });
-  await page.getByLabel('选择 Markdown 文件', { exact: true }).setInputFiles({ name: '已有资料.md', mimeType: 'text/markdown', buffer: Buffer.from('# 不应覆盖原文') });
+  await page
+    .getByLabel('选择 Markdown 文件', { exact: true })
+    .setInputFiles({
+      name: '已有资料.md',
+      mimeType: 'text/markdown',
+      buffer: Buffer.from('# 不应覆盖原文'),
+    });
   await page.getByRole('button', { name: '确认导入', exact: true }).click();
   await expect(page.getByRole('alert')).toContainText('已有同名文件');
-  expect(await readFile(join(config.knowledgeRoot, '40-Resources', '已有资料.md'), 'utf8')).toBe('# 我的已有资料\n\n原文会保留。\n');
+  expect(await readFile(join(config.knowledgeRoot, '40-Resources', '已有资料.md'), 'utf8')).toBe(
+    '# 我的已有资料\n\n原文会保留。\n',
+  );
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.getByRole('button', { name: '创建第一篇笔记', exact: true }).click();
   const firstDialog = page.locator('.n-modal');
@@ -138,7 +146,7 @@ test('first login binds an empty knowledge base and creates its first root note,
   await expect(dialog.locator('.n-base-selection-label')).toContainText('知识库根目录');
   await expect(dialog).toContainText('根目录仅支持 README.md');
   await dialog.getByRole('button', { name: '创建', exact: true }).click();
-  await expect(page.locator('.note-header h1')).toHaveText('README');
+  await expect(page.locator('.cm-content')).toContainText('# README');
   expect(await readFile(join(config.knowledgeRoot, 'README.md'), 'utf8')).toBe('# README\n\n');
 
   if (info.project.name === 'mobile') await page.getByRole('button', { name: '打开侧栏' }).click();
@@ -163,7 +171,7 @@ test('first login binds an empty knowledge base and creates its first root note,
   await expect(dialog.locator('.n-base-selection-label')).toContainText('00-Inbox');
   await dialog.getByRole('textbox', { name: '文件名', exact: true }).fill('第一篇笔记');
   await dialog.getByRole('button', { name: '创建', exact: true }).click();
-  await expect(page.locator('.note-header h1')).toHaveText('第一篇笔记');
+  await expect(page.locator('.cm-content')).toContainText('# 第一篇笔记');
   expect(await readFile(join(config.knowledgeRoot, '00-Inbox/第一篇笔记.md'), 'utf8')).toBe(
     '# 第一篇笔记\n\n',
   );

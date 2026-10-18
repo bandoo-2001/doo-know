@@ -330,7 +330,7 @@ defineExpose({ save, discard, reload });
         >
       </div>
       <div v-if="previewOpen" class="markdown large-preview" v-html="previewHtml"></div></template
-    ><NModal v-model:show="leaveOpen" preset="card" title="片段尚未保存" style="max-width: 420px"
+    ><NModal v-model:show="leaveOpen" preset="card" title="片段尚未保存" class="dialog-card"
       ><p>保存或放弃当前修改后再切换。</p>
       <NButton @click="leave('save')">保存</NButton><NButton @click="leave('discard')">放弃</NButton
       ><NButton @click="leave('cancel')">取消</NButton></NModal
@@ -339,27 +339,50 @@ defineExpose({ save, discard, reload });
 </template>
 <style scoped>
 .large-workspace {
-  padding: 20px;
+  padding: 24px 28px;
   overflow: auto;
   flex: 1;
   min-height: 0;
+  color: var(--text, #414858);
+}
+.large-workspace > p {
+  color: var(--muted, #7a8190);
+  font-size: 12px;
+  line-height: 1.8;
 }
 .large-editor {
   height: 50vh;
   min-height: 220px;
-  border: 1px solid #dbe4eb;
+  border: 1px solid var(--border, #e3e6ec);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 15px;
 }
 .large-actions {
   display: flex;
-  gap: 12px;
+  gap: 9px;
   align-items: center;
   flex-wrap: wrap;
   margin-top: 16px;
 }
-.note-outline {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin: 12px 0;
+.large-actions a {
+  font-size: 12px;
+  text-underline-offset: 3px;
+}
+.large-preview {
+  margin-top: 20px;
+  border: 1px solid var(--border, #e3e6ec);
+  border-radius: 8px;
+}
+@media (max-width: 720px) {
+  .large-workspace {
+    padding: 18px 16px;
+  }
+  .large-actions {
+    gap: 8px;
+  }
+  .large-editor {
+    height: 45dvh;
+  }
 }
 </style>

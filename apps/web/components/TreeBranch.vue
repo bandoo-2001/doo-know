@@ -14,7 +14,7 @@ function toggle(p: string) {
   <ul class="tree-level">
     <li v-for="entry in entries" :key="entry.path">
       <div
-        :class="['tree-row', { selected: entry.path === selected }]"
+        :class="['tree-row', 'is-' + entry.type, { selected: entry.path === selected }]"
         :style="{ paddingLeft: `${12 + (depth || 0) * 19}px` }"
       >
         <button
@@ -26,12 +26,24 @@ function toggle(p: string) {
         >
           <Icon name="chevron" :size="14" :class="{ expanded: !closed.has(entry.path) }" /></button
         ><span v-else class="tree-spacer"></span
-        ><button class="tree-select" :title="entry.name" @click="emit('select', entry)">
+        ><button
+          class="tree-select"
+          :aria-current="entry.path === selected ? 'page' : undefined"
+          :title="entry.name"
+          @click="emit('select', entry)"
+        >
           <Icon :name="entry.type === 'folder' ? 'folder' : 'file'" :size="18" /><span>{{
             entry.name
           }}</span>
         </button>
-        <PluginSlot slot-name="fileDecoration" :context="{ relativePath: entry.path, file: { path: entry.path }, workspace: { ready: true } }" />
+        <PluginSlot
+          slot-name="fileDecoration"
+          :context="{
+            relativePath: entry.path,
+            file: { path: entry.path },
+            workspace: { ready: true },
+          }"
+        />
       </div>
       <TreeBranch
         v-if="entry.children?.length && !closed.has(entry.path)"

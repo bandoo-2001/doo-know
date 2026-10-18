@@ -80,82 +80,125 @@ onMounted(() => {
 </script>
 <template>
   <section class="plugin-manager">
-    <h2>{{ focusPlugin ? '功能设置' : '插件市场' }}</h2>
-    <p class="muted">安装官方插件，为知识库添加功能。</p>
+    <header class="section-heading">
+      <div>
+        <h2>{{ focusPlugin ? '功能设置' : '插件市场' }}</h2>
+        <p class="muted">安装官方插件，为知识库添加功能。</p>
+      </div>
+      <NButton size="small" :loading="busy" @click="run(refreshPlugins)">刷新插件状态</NButton>
+    </header>
     <NAlert v-if="error" type="error">{{ error }}</NAlert>
-    <p v-if="!pluginRegistry.catalog.length" class="muted">当前安装源尚未提供可安装的官方插件。</p>
+    <p v-if="!pluginRegistry.catalog.length" class="plugin-empty">
+      当前安装源尚未提供可安装的官方插件。
+    </p>
     <article
       v-for="entry in pluginRegistry.catalog.filter((p) => !focusPlugin || p.id === focusPlugin)"
       :key="entry.id"
       class="plugin-card"
     >
-      <h3>
-        {{ entry.title }} <small>{{ entry.version }}</small>
-      </h3>
-      <p>{{ entry.description }}</p>
-      <template v-if="pluginRegistry.installed.find((p) => p.id === entry.id)">
-        <span>{{
-          pluginRegistry.installed.find((p) => p.id === entry.id)?.state === 'enabled'
-            ? '已启用'
-            : '未启用'
-        }}</span>
-        <NButton @click="selected = entry.id">配置</NButton>
-        <NButton
-          v-if="pluginRegistry.installed.find((p) => p.id === entry.id)?.state === 'enabled'"
-          :aria-label="'停用' + entry.title"
-          :loading="busy"
-          @click="action(entry.id, 'disable')"
-          >停用</NButton
+      <div class="plugin-card-heading">
+        <h3>
+          {{ entry.title }} <small>v{{ entry.version }}</small>
+        </h3>
+        <span
+          v-if="pluginRegistry.installed.find((p) => p.id === entry.id)"
+          class="plugin-state"
+          :class="{
+            enabled: pluginRegistry.installed.find((p) => p.id === entry.id)?.state === 'enabled',
+          }"
+          >{{
+            pluginRegistry.installed.find((p) => p.id === entry.id)?.state === 'enabled'
+              ? '已启用'
+              : '未启用'
+          }}</span
         >
+        <span v-else class="plugin-state">未安装</span>
+      </div>
+      <p class="plugin-description">{{ entry.description }}</p>
+      <div class="plugin-actions">
+        <template v-if="pluginRegistry.installed.find((p) => p.id === entry.id)">
+          <NButton
+            size="small"
+            :type="selected === entry.id ? 'primary' : 'default'"
+            :secondary="selected === entry.id"
+            @click="selected = entry.id"
+            >配置</NButton
+          >
+          <NButton
+            size="small"
+            v-if="pluginRegistry.installed.find((p) => p.id === entry.id)?.state === 'enabled'"
+            :aria-label="'停用' + entry.title"
+            :loading="busy"
+            @click="action(entry.id, 'disable')"
+            >停用</NButton
+          >
+          <NButton
+            v-else
+            size="small"
+            :aria-label="'启用' + entry.title"
+            :loading="busy"
+            @click="action(entry.id, 'enable')"
+            >启用</NButton
+          >
+          <NButton
+            size="small"
+            v-if="
+              pluginRegistry.installed.find((p) => p.id === entry.id)?.installedVersion !==
+              entry.version
+            "
+            :loading="busy"
+            @click="action(entry.id, 'upgrade')"
+            >升级</NButton
+          >
+          <NButton size="small" quaternary @click="pendingUninstall = entry.id">卸载</NButton>
+        </template>
         <NButton
           v-else
-          :aria-label="'启用' + entry.title"
+          size="small"
+          type="primary"
+          :aria-label="'安装' + entry.title"
           :loading="busy"
-          @click="action(entry.id, 'enable')"
-          >启用</NButton
+          @click="action(entry.id, 'install')"
+          >安装</NButton
         >
-        <NButton
-          v-if="
-            pluginRegistry.installed.find((p) => p.id === entry.id)?.installedVersion !==
-            entry.version
-          "
-          :loading="busy"
-          @click="action(entry.id, 'upgrade')"
-          >升级</NButton
-        >
-        <NButton @click="pendingUninstall = entry.id">卸载</NButton>
-      </template>
-      <NButton
-        v-else
-        :aria-label="'安装' + entry.title"
-        :loading="busy"
-        @click="action(entry.id, 'install')"
-        >安装</NButton
-      >
+      </div>
     </article>
-    <div v-if="pendingUninstall" class="plugin-card">
+    <div v-if="pendingUninstall" class="plugin-confirm">
       <p>卸载后保留插件配置与数据。</p>
-      <NButton
-        @click="
-          action(pendingUninstall, 'uninstall');
-          pendingUninstall = '';
-        "
-        >确认卸载</NButton
-      ><NButton @click="pendingUninstall = ''">取消</NButton>
+      <div class="plugin-actions">
+        <NButton
+          size="small"
+          @click="
+            action(pendingUninstall, 'uninstall');
+            pendingUninstall = '';
+          "
+          >确认卸载</NButton
+        ><NButton size="small" @click="pendingUninstall = ''">取消</NButton>
+      </div>
     </div>
-    <div v-if="installed" class="plugin-card">
-      <h3>{{ installed.manifest.title }}设置</h3>
+    <div v-if="installed" class="plugin-settings">
+      <header class="settings-heading">
+        <h3>{{ installed.manifest.title }}设置</h3>
+        <p class="muted">调整插件参数，管理运行状态。</p>
+      </header>
       <NAlert v-if="installed.error" type="error">插件状态：{{ installed.error }}</NAlert>
       <NAlert v-if="installed.restartRequired" type="warning"
         >配置或版本需要重启生效，请在服务器运行 dooknow restart。</NAlert
       >
-      <form @submit.prevent="save">
+      <form class="plugin-form" @submit.prevent="save">
         <div
           v-for="(field, key) in installed.manifest.configSchema.properties as Record<string, any>"
           :key="key"
           class="plugin-field"
+          :class="{
+            'field-wide': ['array', 'object'].includes(field.type),
+            'field-toggle': field.type === 'boolean',
+          }"
         >
-          <label :for="'plugin-field-' + key">{{ field.title || key }}</label>
+          <div class="field-heading">
+            <label :for="'plugin-field-' + key">{{ field.title || key }}</label>
+            <span v-if="['array', 'object'].includes(field.type)" class="field-format">JSON</span>
+          </div>
           <NSwitch
             v-if="field.type === 'boolean'"
             v-model:value="values[key]"
@@ -170,10 +213,14 @@ onMounted(() => {
             v-else-if="field.enum"
             v-model:value="values[key]"
             :options="field.enum.map((v: any) => ({ label: String(v), value: v }))"
+            :aria-label="field.title || String(key)"
           />
           <NInput
             v-else
             v-model:value="values[key]"
+            :autosize="
+              ['array', 'object'].includes(field.type) ? { minRows: 3, maxRows: 8 } : undefined
+            "
             :type="
               field.writeOnly
                 ? 'password'
@@ -191,48 +238,255 @@ onMounted(() => {
           <NButton
             v-if="field.writeOnly && installed.configuredSecrets.includes(String(key))"
             size="small"
+            quaternary
+            class="clear-secret"
             @click="values[key] = null"
             >清除已配置值</NButton
           >
           <p v-if="field.description" class="muted">{{ field.description }}</p>
+          <p v-else-if="['array', 'object'].includes(field.type)" class="muted">
+            {{
+              field.type === 'array'
+                ? '请填写有效的 JSON 数组，保留方括号与原有数据格式。'
+                : '使用 JSON 对象填写配置，保留键名与数据格式。'
+            }}
+          </p>
         </div>
-        <NButton attr-type="submit" type="primary" :loading="busy">保存插件配置</NButton>
+        <footer class="plugin-form-footer">
+          <NButton attr-type="submit" type="primary" :loading="busy">保存插件配置</NButton>
+        </footer>
       </form>
       <NAlert v-if="pluginUIErrors[installed.id]" type="error">{{
         pluginUIErrors[installed.id]
       }}</NAlert>
-      <PluginBoundary v-for="page in settingsPages" :key="page.id"
-        ><component
-          v-if="page.component && pluginComponents[page.component]"
-          :is="pluginComponents[page.component]"
-          :context="{}"
-      /></PluginBoundary>
+      <div v-if="settingsPages.length" class="plugin-live-settings">
+        <PluginBoundary v-for="page in settingsPages" :key="page.id"
+          ><component
+            v-if="page.component && pluginComponents[page.component]"
+            :is="pluginComponents[page.component]"
+            :context="{}"
+        /></PluginBoundary>
+      </div>
     </div>
-    <NButton :loading="busy" @click="run(refreshPlugins)">刷新插件状态</NButton>
   </section>
 </template>
 <style scoped>
 .plugin-manager {
-  margin-top: 36px;
+  min-width: 0;
+  margin-top: 28px;
+  color: var(--text, #262b36);
 }
-.plugin-card {
-  border: 1px solid #d0e3f5;
+.section-heading,
+.plugin-card-heading,
+.field-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.section-heading {
+  margin-bottom: 16px;
+}
+.section-heading > div,
+.plugin-card-heading h3 {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.section-heading h2 {
+  margin: 0 0 5px;
+  font-size: 18px;
+}
+.section-heading p,
+.settings-heading p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.section-heading > .n-button {
+  flex-shrink: 0;
+}
+.plugin-card,
+.plugin-settings {
+  min-width: 0;
+  border: 1px solid var(--border, #e3e6ec);
   border-radius: 8px;
   padding: 16px;
-  margin: 14px 0;
+  margin: 12px 0;
+  background: #fff;
 }
-.plugin-card .n-button {
-  margin: 4px 8px 4px 0;
+.plugin-card h3,
+.settings-heading h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+.plugin-card small {
+  margin-left: 5px;
+  font-size: 11px;
+  color: var(--muted, #7a8190);
+  font-weight: 400;
+}
+.plugin-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  font-size: 12px;
+  color: var(--muted, #7a8190);
+}
+.plugin-state::before {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  content: '';
+  background: #bec4cf;
+}
+.plugin-state.enabled {
+  color: var(--blue, #4566c6);
+}
+.plugin-state.enabled::before {
+  background: var(--blue, #4566c6);
+}
+.plugin-description {
+  margin: 8px 0 13px;
+  color: var(--muted, #7a8190);
+  font-size: 13px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+.plugin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.plugin-confirm {
+  margin: 12px 0;
+  padding: 13px 16px;
+  background: var(--surface, #f5f6f8);
+  border: 1px solid var(--border, #e3e6ec);
+  border-radius: 8px;
+}
+.plugin-confirm p {
+  margin: 0 0 10px;
+  font-size: 13px;
+}
+.settings-heading {
+  margin-bottom: 18px;
+}
+.settings-heading p {
+  margin-top: 5px;
+}
+.plugin-settings > .n-alert {
+  margin-bottom: 14px;
+}
+.plugin-form {
+  display: grid;
+  width: 100%;
+  max-width: none;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.plugin-form :deep(.n-button) {
+  margin: 0;
 }
 .plugin-field {
-  margin: 16px 0;
+  min-width: 0;
+}
+.field-wide,
+.plugin-form-footer {
+  grid-column: 1 / -1;
+}
+.field-heading {
+  margin-bottom: 7px;
 }
 .plugin-field label {
-  display: block;
-  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
 }
-small {
-  color: #71879b;
-  font-weight: normal;
+.field-format {
+  padding: 1px 5px;
+  background: var(--surface, #f5f6f8);
+  border-radius: 4px;
+  color: var(--muted, #7a8190);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+}
+.plugin-field .muted {
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.field-wide :deep(textarea) {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.65;
+}
+.field-toggle {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-content: center;
+  align-items: center;
+  column-gap: 12px;
+  padding: 11px 12px;
+  border-radius: 6px;
+  background: var(--surface-soft, #fafbfc);
+  border: 1px solid var(--border, #e3e6ec);
+}
+.field-toggle .field-heading {
+  margin: 0;
+}
+.field-toggle .muted {
+  grid-column: 1 / -1;
+}
+.plugin-form :deep(.clear-secret) {
+  margin: 4px 0 0;
+}
+.plugin-form-footer {
+  padding-top: 2px;
+}
+.plugin-live-settings {
+  min-width: 0;
+  margin-top: 22px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border, #e3e6ec);
+}
+.plugin-empty {
+  padding: 24px 16px;
+  border: 1px dashed var(--border, #e3e6ec);
+  border-radius: 8px;
+  color: var(--muted, #7a8190);
+  font-size: 13px;
+  text-align: center;
+}
+.muted {
+  color: var(--muted, #7a8190);
+}
+@media (max-width: 600px) {
+  .section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .plugin-card,
+  .plugin-settings {
+    padding: 14px;
+  }
+  .plugin-form {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+  .plugin-card-heading {
+    align-items: flex-start;
+  }
+  .plugin-card h3 {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px 6px;
+  }
+  .plugin-card small {
+    margin-left: 0;
+  }
 }
 </style>

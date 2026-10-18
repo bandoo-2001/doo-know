@@ -1,5 +1,47 @@
 import { defineComponent, h, ref, shallowRef, onMounted, onUnmounted } from 'vue';
 import { NButton, NInput, NAlert, type PluginUIApi } from '@dooknow/plugin-ui';
+
+const styles = `
+.dooknow-git-view { min-width: 0; color: var(--text, #262b36); font-size: 13px; line-height: 1.65; }
+.dooknow-git-view * { box-sizing: border-box; }
+.dooknow-git-view h3 { margin: 0 0 10px; font-size: 15px; font-weight: 600; }
+.dooknow-git-view p { margin: 0; overflow-wrap: anywhere; }
+.dooknow-git-view .git-description { margin-bottom: 16px; color: var(--muted, #7a8190); font-size: 12px; line-height: 1.75; }
+.dooknow-git-view .git-repository { margin: 10px 0 14px; padding: 11px 13px; border: 1px solid var(--border, #e3e6ec); border-radius: 6px; background: var(--surface-soft, #fafbfc); }
+.dooknow-git-view .git-pending { margin: 12px 0; padding: 13px; border: 1px solid var(--border, #e3e6ec); border-radius: 6px; }
+.dooknow-git-view .git-pending .git-description { margin: 5px 0 10px; }
+.dooknow-git-view .git-form-label { display: block; margin-bottom: 7px; font-weight: 500; }
+.dooknow-git-view .git-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.dooknow-git-view .git-preview { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border, #e3e6ec); }
+.dooknow-git-view .git-preview-heading { display: flex; justify-content: space-between; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin-bottom: 10px; }
+.dooknow-git-view .git-preview-heading strong { font-size: 13px; font-weight: 600; }
+.dooknow-git-view .git-expiry { color: var(--muted, #7a8190); font-size: 11px; font-variant-numeric: tabular-nums; }
+.dooknow-git-view .git-change-list { max-height: 34vh; margin-top: 10px; overflow: auto; overscroll-behavior: contain; border: 1px solid var(--border, #e3e6ec); border-radius: 6px; background: var(--surface-soft, #fafbfc); }
+.dooknow-git-view .git-change { padding: 7px 11px; font: 12px/1.7 ui-monospace, SFMono-Regular, Consolas, monospace; }
+.dooknow-git-view .git-change + .git-change { border-top: 1px solid var(--border, #e3e6ec); }
+.dooknow-git-view .git-history-list { display: grid; gap: 8px; }
+.dooknow-git-view .git-history-entry { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-width: 0; padding: 12px 13px; border: 1px solid var(--border, #e3e6ec); border-radius: 6px; }
+.dooknow-git-view .git-history-entry.selected { border-color: var(--blue, #4566c6); background: var(--surface-soft, #fafbfc); }
+.dooknow-git-view .git-history-entry > div { min-width: 0; }
+.dooknow-git-view .git-history-summary { font-weight: 500; }
+.dooknow-git-view .git-history-meta { display: flex; flex-wrap: wrap; gap: 3px 10px; margin-top: 4px; color: var(--muted, #7a8190); font-size: 11px; font-variant-numeric: tabular-nums; }
+.dooknow-git-view .git-history-meta code { font-size: 11px; }
+.dooknow-git-view .git-history-entry > .n-button { flex-shrink: 0; }
+.dooknow-git-view .git-diff { min-width: 0; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border, #e3e6ec); }
+.dooknow-git-view .git-diff-label { margin-bottom: 8px; color: var(--muted, #7a8190); font-size: 12px; }
+.dooknow-git-view .git-diff pre { max-height: 45vh; margin: 0 0 12px; padding: 14px; overflow: auto; overscroll-behavior: contain; border: 1px solid var(--border, #e3e6ec); border-radius: 6px; background: var(--surface-soft, #fafbfc); color: var(--text, #262b36); font: 12px/1.75 ui-monospace, SFMono-Regular, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
+.dooknow-git-view .git-restore-confirm { margin-top: 12px; padding: 13px; border: 1px solid var(--border, #e3e6ec); border-radius: 6px; background: var(--surface-soft, #fafbfc); }
+.dooknow-git-view .git-restore-confirm p { margin-bottom: 10px; font-size: 12px; }
+.dooknow-git-view .git-empty { padding: 24px 16px; border: 1px dashed var(--border, #e3e6ec); border-radius: 6px; color: var(--muted, #7a8190); text-align: center; font-size: 12px; }
+.dooknow-git-view > .n-alert { margin-bottom: 14px; }
+.dooknow-git-view .git-preview + .n-alert { margin-top: 14px; }
+@media (max-width: 600px) {
+  .dooknow-git-view .git-history-entry { align-items: flex-start; gap: 8px; padding: 11px; }
+  .dooknow-git-view .git-diff pre { padding: 11px; font-size: 11px; }
+  .dooknow-git-view .git-change { font-size: 11px; }
+}
+`;
+
 export function activate(api: PluginUIApi) {
   const state = shallowRef<any>({ repository: 'loading', changes: [] }),
     globalError = ref('');
@@ -65,11 +107,13 @@ export function activate(api: PluginUIApi) {
           }
         }
         return () =>
-          h('div', { class: 'dooknow-git-settings' }, [
+          h('div', { class: 'dooknow-git-settings dooknow-git-view' }, [
+            h('style', styles),
             h('h3', 'Git 仓库'),
             globalError.value && h(NAlert, { type: 'error' }, () => globalError.value),
             h(
               'p',
+              { class: 'git-repository' },
               state.value.repository === 'ready'
                 ? '当前分支：' + state.value.branch
                 : state.value.repository === 'missing'
@@ -79,15 +123,29 @@ export function activate(api: PluginUIApi) {
                     : messages[state.value.code] || state.value.code,
             ),
             state.value.repository === 'missing' &&
-              h(NButton, { onClick: init, loading: busy.value }, () => '初始化 Git 仓库（main）'),
+              h(
+                NButton,
+                { size: 'small', onClick: init, loading: busy.value },
+                () => '初始化 Git 仓库（main）',
+              ),
             ...(state.value.pending || []).map((p: any) =>
-              h('div', { key: p.operationId }, [
+              h('div', { key: p.operationId, class: 'git-pending' }, [
                 h('p', `待核对提交：${p.commit || '尚未发布'} · 请求 ${p.requestId} · ${p.phase}`),
-                h('p', '请在服务器核对当前分支及暂存区。此操作只确认已核对，不修改文件或暂存区。'),
-                h(NButton, { onClick: () => acknowledge(p.operationId) }, () => '已核对暂存区'),
+                h(
+                  'p',
+                  { class: 'git-description' },
+                  '请在服务器核对当前分支及暂存区。此操作只确认已核对，不修改文件或暂存区。',
+                ),
+                h(
+                  NButton,
+                  { size: 'small', onClick: () => acknowledge(p.operationId) },
+                  () => '已核对暂存区',
+                ),
               ]),
             ),
-            h(NButton, { onClick: refresh }, () => '刷新 Git 状态'),
+            h('div', { class: 'git-actions' }, [
+              h(NButton, { size: 'small', onClick: refresh }, () => '刷新 Git 状态'),
+            ]),
           ]);
       },
     }),
@@ -105,7 +163,12 @@ export function activate(api: PluginUIApi) {
           return change || nested
             ? h(
                 'span',
-                { class: 'dooknow-git-decoration', title: change?.code || '目录包含变更' },
+                {
+                  class: 'dooknow-git-decoration',
+                  title: change?.code || '目录包含变更',
+                  style:
+                    'color:var(--blue,#4566c6);font-size:10px;font-weight:600;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;flex-shrink:0',
+                },
                 change?.code || '●',
               )
             : null;
@@ -194,23 +257,40 @@ export function activate(api: PluginUIApi) {
             api.notifyChanged();
           });
         return () =>
-          h('div', { class: 'dooknow-git-commit' }, [
+          h('div', { class: 'dooknow-git-commit dooknow-git-view' }, [
+            h('style', styles),
             h(
               'p',
+              { class: 'git-description' },
               '提交包含暂存、未暂存和未忽略的新增、删除。部分暂存文件使用当前工作树的完整版本。',
             ),
             error.value && h(NAlert, { type: 'error' }, () => error.value),
+            h('label', { class: 'git-form-label', for: 'git-commit-message' }, '提交说明'),
             h(NInput, {
               value: message.value,
               'onUpdate:value': (v) => (message.value = v),
               placeholder: '填写提交说明',
-              inputProps: { 'aria-label': 'Git 提交说明' },
+              inputProps: { id: 'git-commit-message', 'aria-label': 'Git 提交说明' },
               type: 'textarea',
+              autosize: { minRows: 3, maxRows: 6 },
             }),
-            h(NButton, { onClick: prepare, loading: busy.value }, () => '预览全部变更'),
+            h('div', { class: 'git-actions' }, [
+              h(
+                NButton,
+                { type: 'primary', secondary: true, onClick: prepare, loading: busy.value },
+                () => '预览全部变更',
+              ),
+            ]),
             preview.value &&
-              h('div', [
-                h('p', `预览有效至 ${new Date(preview.value.expiresAt).toLocaleTimeString()}`),
+              h('div', { class: 'git-preview' }, [
+                h('div', { class: 'git-preview-heading' }, [
+                  h('strong', `${preview.value.changes.length} 项文件变更`),
+                  h(
+                    'span',
+                    { class: 'git-expiry' },
+                    `预览有效至 ${new Date(preview.value.expiresAt).toLocaleTimeString()}`,
+                  ),
+                ]),
                 ...(preview.value.partialStaging.length
                   ? [
                       h(
@@ -222,19 +302,30 @@ export function activate(api: PluginUIApi) {
                       ),
                     ]
                   : []),
-                ...preview.value.changes.map((c: any) =>
-                  h('p', { key: c.path }, c.code + ' · ' + c.path),
-                ),
                 h(
-                  NButton,
-                  { onClick: confirm, loading: busy.value, disabled: !!result.value },
-                  () => (uncertain.value ? '核对提交结果' : '确认提交'),
+                  'div',
+                  { class: 'git-change-list' },
+                  preview.value.changes.map((c: any) =>
+                    h('p', { key: c.path, class: 'git-change' }, c.code + ' · ' + c.path),
+                  ),
                 ),
-                h(
-                  NButton,
-                  { onClick: cancel, disabled: busy.value || !!result.value || uncertain.value },
-                  () => '取消预览',
-                ),
+                h('div', { class: 'git-actions' }, [
+                  h(
+                    NButton,
+                    {
+                      type: 'primary',
+                      onClick: confirm,
+                      loading: busy.value,
+                      disabled: !!result.value,
+                    },
+                    () => (uncertain.value ? '核对提交结果' : '确认提交'),
+                  ),
+                  h(
+                    NButton,
+                    { onClick: cancel, disabled: busy.value || !!result.value || uncertain.value },
+                    () => '取消预览',
+                  ),
+                ]),
               ]),
             result.value &&
               h(
@@ -309,31 +400,58 @@ export function activate(api: PluginUIApi) {
         }
         onMounted(() => load());
         return () =>
-          h('div', { class: 'dooknow-git-history' }, [
+          h('div', { class: 'dooknow-git-history dooknow-git-view' }, [
+            h('style', styles),
             error.value && h(NAlert, { type: 'error' }, () => error.value),
-            ...rows.value.map((r) =>
-              h('div', { key: r.commit }, [
-                h('p', `${r.at} · ${r.author} · ${r.message}`),
-                h(NButton, { onClick: () => show(r.commit) }, () => '查看差异'),
-              ]),
+            h(
+              'div',
+              { class: 'git-history-list' },
+              rows.value.length
+                ? rows.value.map((r) =>
+                    h(
+                      'div',
+                      {
+                        key: r.commit,
+                        class: ['git-history-entry', { selected: selected.value === r.commit }],
+                      },
+                      [
+                        h('div', [
+                          h('p', { class: 'git-history-summary' }, `${r.author} · ${r.message}`),
+                          h('div', { class: 'git-history-meta' }, [
+                            h('span', r.at),
+                            h('code', { title: r.commit }, r.commit.slice(0, 8)),
+                          ]),
+                        ]),
+                        h(
+                          NButton,
+                          { size: 'small', onClick: () => show(r.commit) },
+                          () => '查看差异',
+                        ),
+                      ],
+                    ),
+                  )
+                : [h('p', { class: 'git-empty' }, '暂无 Git 提交记录。')],
             ),
-            cursor.value && h(NButton, { onClick: () => load(true) }, () => '更早的 Git 提交'),
+            cursor.value &&
+              h('div', { class: 'git-actions' }, [
+                h(NButton, { size: 'small', onClick: () => load(true) }, () => '更早的 Git 提交'),
+              ]),
             selected.value &&
-              h('div', [
+              h('div', { class: 'git-diff' }, [
+                h('p', { class: 'git-diff-label' }, `版本差异 · ${selected.value.slice(0, 12)}`),
+                h('pre', diff.value),
                 h(
-                  'pre',
-                  {
-                    style:
-                      'white-space:pre-wrap;overflow-wrap:anywhere;max-height:45vh;overflow:auto',
-                  },
-                  diff.value,
+                  NButton,
+                  { size: 'small', onClick: () => (confirmRestore.value = true) },
+                  () => '恢复此版本',
                 ),
-                h(NButton, { onClick: () => (confirmRestore.value = true) }, () => '恢复此版本'),
                 confirmRestore.value &&
-                  h('div', [
+                  h('div', { class: 'git-restore-confirm' }, [
                     h('p', '恢复会保存为当前笔记的新版本。未保存的编辑草稿会保留，请先确认草稿。'),
-                    h(NButton, { onClick: restore, loading: busy.value }, () =>
-                      pendingRestore.value ? '核对恢复结果' : '确认恢复笔记',
+                    h(
+                      NButton,
+                      { type: 'primary', size: 'small', onClick: restore, loading: busy.value },
+                      () => (pendingRestore.value ? '核对恢复结果' : '确认恢复笔记'),
                     ),
                   ]),
               ]),

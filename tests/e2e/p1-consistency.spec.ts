@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
 async function open(page: any, context: any, name: string) {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
@@ -37,14 +37,30 @@ test('W01 switches committed long-line saves and lost responses into large mode'
   await expect(page.locator('.large-workspace .cm-content')).toContainText('# Long');
   await expect(page.getByText('原文件已更新', { exact: true })).toHaveCount(0);
 });
-test('W01 direct successful long-line save switches mode', async ({ page, context }, info) => {
-  await open(page, context, '长行直返-' + info.project.name);
+test('W01 long-line save enters large mode and a saved short note reopens in full mode', async ({
+  page,
+  context,
+}, info) => {
+  const { n } = await open(page, context, '长行直返-' + info.project.name);
   await page.locator('.cm-content').fill('# Long\n' + 'x'.repeat(32769));
   await page.locator('.toolbar').getByRole('button', { name: /^保存/ }).click();
   await expect(page.getByText('大文件模式', { exact: true })).toBeVisible();
   await expect(page.locator('.large-workspace .cm-content')).toContainText('# Long');
   await page.locator('.large-workspace .cm-content').fill('# Back\nshort');
   await page.getByRole('button', { name: '保存片段', exact: true }).click();
+  // The transient fragment notice can disappear immediately when the full editor is ready.
+  // Metadata remains conservative until the short file's new snapshot has been read.
+  await expect
+    .poll(async () => (await page.request.get(`/api/notes/${n.id}/meta`)).json(), {
+      timeout: 15000,
+    })
+    .toMatchObject({ editorMode: 'full', readState: 'ready', sizeBytes: 12 });
+  if (info.project.name === 'mobile')
+    await page.getByRole('button', { name: '打开侧栏', exact: true }).click();
+  await page
+    .getByRole('button', { name: '长行直返-' + info.project.name + '.md', exact: true })
+    .click();
+  await expect(page.locator('.large-workspace')).toHaveCount(0);
   await expect(page.locator('.editor-panels .cm-content')).toContainText('# Back');
   await expect(page.locator('.save-state')).toContainText('已保存');
 });
