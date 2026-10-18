@@ -13,6 +13,7 @@ import { basicSetup } from 'codemirror';
 import { markdown, markdownLanguage } from '@codemirror/lang-markdown';
 import { HighlightStyle, defaultHighlightStyle, syntaxHighlighting } from '@codemirror/language';
 import { tags } from '@lezer/highlight';
+import { editorTextStyles } from '../editor-text-styles';
 const props = withDefaults(
   defineProps<{
     modelValue: string;
@@ -46,6 +47,7 @@ onMounted(() => {
     extensions: [
       gutters.of(gutterTheme()),
       markdown({ base: markdownLanguage }),
+      editorTextStyles,
       keymap.of([
         { key: 'Mod-b', run: () => format('bold'), preventDefault: true },
         { key: 'Mod-i', run: () => format('italic'), preventDefault: true },

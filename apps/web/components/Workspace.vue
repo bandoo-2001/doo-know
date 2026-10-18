@@ -9,6 +9,7 @@ import {
   Popover as APopover,
 } from 'ant-design-vue';
 import MarkdownIt from 'markdown-it';
+import { markdownStyles } from '../../../shared/markdown-styles';
 import DOMPurify from 'dompurify';
 import type { NoteDocument, TreeEntry } from '../../../shared/contracts';
 import { api, ApiError, resetCsrf } from '../api';
@@ -241,7 +242,7 @@ function workspaceChanged(event: Event) {
     }
   });
 }
-const md = new MarkdownIt({ html: false, linkify: true });
+const md = new MarkdownIt({ html: false, linkify: true }).use(markdownStyles);
 const flatten = (items: TreeEntry[]): TreeEntry[] =>
   items.flatMap((x) => [x, ...(x.children ? flatten(x.children) : [])]);
 const flat = computed(() => flatten(tree.value));

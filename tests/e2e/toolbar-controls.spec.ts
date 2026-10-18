@@ -52,7 +52,7 @@ test('every formatting button and heading level survives undo, redo, preview and
 }) => {
   test.setTimeout(150000);
   const note = await createNote(page, context, 'all-format-buttons');
-  await expect(toolbar(page).getByRole('button')).toHaveCount(15);
+  await expect(toolbar(page).getByRole('button')).toHaveCount(18);
   const cases = [
     { name: '加粗', expected: '**Alpha beta**', selector: 'strong' },
     { name: '斜体', expected: '*Alpha beta*', selector: 'em' },
@@ -105,7 +105,7 @@ test('every formatting button and heading level survives undo, redo, preview and
         await expect(rendered).toHaveAttribute('href', 'https://example.com');
       await expect(button(page, '撤销')).toBeDisabled();
       await expect(button(page, '重做')).toBeDisabled();
-      for (const control of await toolbar(page).locator('button, select').all())
+      for (const control of await toolbar(page).locator('button, select, input').all())
         await expect(control).toBeDisabled();
       expect(await disk(page, note.id)).toBe(lastSaved);
       await page.locator('.toolbar').getByRole('button', { name: '保存', exact: true }).click();
@@ -219,12 +219,12 @@ test('toolbar arrow/Home/End navigation skips disabled code-context controls and
   await page.keyboard.press('ArrowLeft');
   await expect(bold).toBeFocused();
   await page.keyboard.press('Home');
-  await expect(tools.getByRole('combobox')).toBeFocused();
+  await expect(tools.getByRole('combobox', { name: '段落格式', exact: true })).toBeFocused();
   await bold.focus();
   await page.keyboard.press('End');
   await expect(tools.getByRole('button', { name: '上传附件', exact: true })).toBeFocused();
   await page.keyboard.press('ArrowRight');
-  await expect(tools.getByRole('combobox')).toBeFocused();
+  await expect(tools.getByRole('combobox', { name: '段落格式', exact: true })).toBeFocused();
   await replaceAndSelect(page, 'literal');
   await tools.getByRole('button', { name: '行内代码', exact: true }).click();
   for (const name of ['加粗', '斜体', '删除线', '插入链接'])

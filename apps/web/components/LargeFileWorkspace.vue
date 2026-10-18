@@ -21,6 +21,7 @@ import {
   type DraftStore,
 } from '../drafts';
 import MarkdownIt from 'markdown-it';
+import { markdownStyles } from '../../../shared/markdown-styles';
 import DOMPurify from 'dompurify';
 const props = defineProps<{
   note: NoteInfo;
@@ -154,7 +155,7 @@ const previewOpen = ref(false);
 const previewAllowed = computed(() => new TextEncoder().encode(draft.value).length <= 128 * 1024);
 const previewHtml = computed(() => {
   if (!previewOpen.value || !previewAllowed.value) return '';
-  const md = new MarkdownIt({ html: false, linkify: true });
+  const md = new MarkdownIt({ html: false, linkify: true }).use(markdownStyles);
   const tokens = md.parse(draft.value, {});
   const visit = (items: typeof tokens) => {
     for (const token of items) {

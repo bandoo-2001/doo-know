@@ -4,6 +4,7 @@ import DOMPurify from 'dompurify';
 import { api, ApiError } from '../api';
 import Icon from './Icon.vue';
 import MarkdownIt from 'markdown-it';
+import { markdownStyles } from '../../../shared/markdown-styles';
 import { Button as AButton, Alert as AAlert, Spin as ASpin } from 'ant-design-vue';
 const props = defineProps<{ token: string }>();
 const doc = ref<any>(),
@@ -52,7 +53,7 @@ async function readPage(cursor?: string) {
     if (result.kind !== 'ready') throw new Error();
     if (disposed) return;
     const page = result.data,
-      md = new MarkdownIt({ html: false, linkify: true });
+      md = new MarkdownIt({ html: false, linkify: true }).use(markdownStyles);
     const tokens = md.parse(page.content, {});
     const visit = (items: typeof tokens) => {
       for (const token of items) {

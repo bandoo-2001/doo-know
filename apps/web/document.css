@@ -206,6 +206,41 @@
   font-size: 17px;
   cursor: pointer;
 }
+.text-color-select {
+  height: 32px;
+  width: 88px;
+  border: 0;
+  border-radius: 5px;
+  padding: 0 4px;
+  background: transparent;
+  color: #46556e;
+  font: inherit;
+  font-size: 13px;
+}
+.text-color-symbol {
+  width: 16px;
+  border-bottom: 3px solid;
+  text-align: center;
+  font:
+    18px Georgia,
+    serif;
+  line-height: 21px;
+  color: #46556e;
+}
+.custom-text-color {
+  width: 26px;
+  height: 28px;
+  border: 0;
+  border-radius: 4px;
+  padding: 3px;
+  background: transparent;
+  cursor: pointer;
+}
+.text-color-select:disabled,
+.custom-text-color:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
 .format-toolbar button:hover:not(:disabled),
 .heading-select:hover:not(:disabled) {
   background: #eaf0fa;

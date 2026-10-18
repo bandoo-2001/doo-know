@@ -1,8 +1,18 @@
 <script setup lang="ts">
 import type { MarkdownAction, MarkdownToolbarState } from '../markdown-format';
 import Icon from './Icon.vue';
+import { textColors } from '../markdown-style';
 const props = defineProps<{ state: MarkdownToolbarState; disabled: boolean }>();
 const emit = defineEmits<{ format: [action: MarkdownAction]; upload: [] }>();
+const alignments = [
+  { action: 'alignLeft', label: '左对齐', icon: 'align-left', value: 'left' },
+  { action: 'alignCenter', label: '居中对齐', icon: 'align-center', value: 'center' },
+  { action: 'alignRight', label: '右对齐', icon: 'align-right', value: 'right' },
+] as const;
+function color(event: Event) {
+  const value = (event.target as HTMLInputElement | HTMLSelectElement).value;
+  emit('format', value ? `color:${value as `#${string}`}` : 'colorDefault');
+}
 const blocks = [
   { action: 'quote', label: '引用', icon: 'quote', state: 'quote' },
   { action: 'bulletList', label: '无序列表', icon: 'list', state: 'bullet' },
@@ -23,13 +33,13 @@ function heading(event: Event) {
 }
 function keydown(event: KeyboardEvent) {
   if (
-    (event.target as HTMLElement).tagName === 'SELECT' ||
+    ['SELECT', 'INPUT'].includes((event.target as HTMLElement).tagName) ||
     !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)
   )
     return;
   const controls = Array.from(
     (event.currentTarget as HTMLElement).querySelectorAll<HTMLElement>(
-      'button:not(:disabled), select:not(:disabled)',
+      'button:not(:disabled), select:not(:disabled), input:not(:disabled)',
     ),
   );
   const index = controls.indexOf(event.target as HTMLElement);
@@ -108,6 +118,57 @@ function preserveSelection(event: MouseEvent) {
         @click="emit('format', 'inlineCode')"
       >
         <Icon name="inline-code" :size="18" />
+      </button>
+    </div>
+    <span class="format-divider" aria-hidden="true"></span>
+    <div class="format-group text-color-controls">
+      <span
+        class="text-color-symbol"
+        :style="{ borderColor: state.color || '#343c4a' }"
+        aria-hidden="true"
+        >A</span
+      >
+      <select
+        class="text-color-select"
+        aria-label="文字颜色"
+        :value="state.color || ''"
+        :disabled="disabled || state.styleDisabled"
+        @change="color"
+      >
+        <option value="">默认颜色</option>
+        <option v-for="item in textColors" :key="item.value" :value="item.value">
+          {{ item.name }}
+        </option>
+        <option
+          v-if="state.color && !textColors.some((item) => item.value === state.color)"
+          :value="state.color"
+        >
+          自定义颜色
+        </option>
+      </select>
+      <input
+        class="custom-text-color"
+        type="color"
+        aria-label="自定义文字颜色"
+        title="自定义文字颜色"
+        :value="state.color || '#343c4a'"
+        :disabled="disabled || state.styleDisabled"
+        @change="color"
+      />
+    </div>
+    <span class="format-divider" aria-hidden="true"></span>
+    <div class="format-group">
+      <button
+        v-for="item in alignments"
+        :key="item.action"
+        type="button"
+        :aria-label="item.label"
+        :title="item.label"
+        :aria-pressed="state.alignment === item.value"
+        :disabled="disabled || state.styleDisabled"
+        @click="emit('format', item.action)"
+      >
+        <Icon :name="item.icon" :size="18" />
       </button>
     </div>
     <span class="format-divider" aria-hidden="true"></span>

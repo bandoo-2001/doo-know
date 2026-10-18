@@ -1,8 +1,16 @@
 import { EditorSelection, type EditorState, type Transaction } from '@codemirror/state';
 import { isolateHistory, undoDepth, redoDepth } from '@codemirror/commands';
 import { syntaxTree, ensureSyntaxTree } from '@codemirror/language';
+import {
+  isStyleAction,
+  styleState,
+  styleTransaction,
+  type StyleAction,
+  type Alignment,
+} from './markdown-style';
 
 export type MarkdownAction =
+  | StyleAction
   | 'bold'
   | 'italic'
   | 'strike'
@@ -20,6 +28,9 @@ export type MarkdownAction =
   | 'paragraph'
   | `heading${1 | 2 | 3 | 4 | 5}`;
 export interface MarkdownToolbarState {
+  alignment: Alignment;
+  color: string | null;
+  styleDisabled: boolean;
   heading: number;
   bold: boolean;
   italic: boolean;
@@ -33,6 +44,9 @@ export interface MarkdownToolbarState {
   canRedo: boolean;
 }
 export const emptyToolbarState = (): MarkdownToolbarState => ({
+  alignment: 'left',
+  color: null,
+  styleDisabled: false,
   heading: 0,
   bold: false,
   italic: false,
@@ -310,12 +324,14 @@ export function markdownTransaction(
     (['bold', 'italic', 'strike', 'link'].includes(action) && enclosingInline(state, 'inlineCode'))
   )
     return;
-  const spec =
-    action in markers || action === 'link'
+  const spec = isStyleAction(action)
+    ? styleTransaction(state, action)
+    : action in markers || action === 'link'
       ? inlineTransaction(state, action as InlineAction | 'link')
       : action === 'codeBlock' || action === 'table' || action === 'rule'
         ? blockTransaction(state, action)
         : lineTransaction(state, action);
+  if (!spec) return;
   return state.update({
     ...spec,
     userEvent: 'input.format',
@@ -330,6 +346,7 @@ export function toolbarState(state: EditorState): MarkdownToolbarState {
   const node = headingAtLine(state, currentLine);
   const heading = node && Number(node.name.at(-1)) <= 5 ? Number(node.name.at(-1)) : 0;
   return {
+    ...styleState(state),
     heading,
     bold: active('bold'),
     italic: active('italic'),
