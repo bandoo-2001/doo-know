@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Generated pinned installer bootstrap; contains no credentials.
+# Generated pinned release bootstrap; contains no credentials.
 main() {
   set +x
   set -euo pipefail
@@ -91,8 +91,8 @@ github_fetch() (
   work="$(mktemp -d "${TMPDIR:-/tmp}/dooknow-bootstrap.XXXXXXXX")"
   printf -v cleanup_path '%q' "$work"
   trap "rm -rf -- $cleanup_path" EXIT
-  github_fetch 'bandoo-2001/doo-know' '652676343' "$work/install.sh" "" 'https://github.com/bandoo-2001/doo-know/releases/download/installer-v1.0.1/install.sh'
-  printf '%s  %s\n' 'c1a2ef21cf5de5648537f6716c459671fef81a8c30871fc3983c5df644250d95' "$work/install.sh" | sha256sum -c - >/dev/null
+  github_fetch 'bandoo-2001/doo-know' '652768103' "$work/install.sh" "" 'https://github.com/bandoo-2001/doo-know/releases/download/v1.1.0-rc.9/install.sh'
+  printf '%s  %s\n' 'ffa1b38a17e5a461d181a6c1bb9f06cc592071b1810134356a886f35f12a6d21' "$work/install.sh" | sha256sum -c - >/dev/null
   bash "$work/install.sh" "$@"
 }
 main "$@"
