@@ -3,19 +3,20 @@ import { ref, computed, watch, onBeforeUnmount } from 'vue';
 import { NButton } from 'naive-ui';
 import { api } from '../api';
 import Icon from './Icon.vue';
+const emit = defineEmits<{ settings: [] }>();
 const props = defineProps<{ noteId?: string }>(),
   state = ref<any>(),
   components = ref<any>(),
   error = ref(''),
   busy = ref(false);
 const summary = computed(() => {
-  if (error.value) return '检索状态需检查';
-  if (!state.value) return '正在检查索引';
-  if (components.value && !components.value.tokenizerReady) return '索引依赖未就绪';
-  if (state.value.failed) return `索引任务失败 ${state.value.failed}`;
+  if (error.value) return '搜索状态需检查';
+  if (!state.value) return '正在检查搜索';
+  if (components.value && !components.value.tokenizerReady) return '内容搜索待准备';
+  if (state.value.failed) return `搜索需处理 ${state.value.failed} 项`;
   const pending = (state.value.pending || 0) + (state.value.retrying || 0);
-  if (pending) return `索引待处理 ${pending}`;
-  return state.value.sync.status === 'idle' ? '文本索引已更新' : '索引同步中';
+  if (pending) return `正在更新搜索 · ${pending}`;
+  return state.value.sync.status === 'idle' ? '内容搜索已更新' : '正在同步搜索';
 });
 let epoch = 0;
 async function load() {
@@ -89,6 +90,7 @@ onBeforeUnmount(() => {
         </p>
         <p v-if="error" role="alert">{{ error }}</p>
         <small>内容搜索的准备与配置可在个人设置中查看。</small>
+        <button class="index-settings-link" @click="emit('settings')">打开搜索设置</button>
       </div>
     </details>
     <NButton
@@ -171,6 +173,15 @@ summary > span:last-child {
 }
 .index-status > .n-button {
   flex-shrink: 0;
+}
+.index-settings-link {
+  display: block;
+  margin-top: 12px;
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  color: var(--blue);
+  font-size: 12px;
 }
 @media (max-height: 540px) {
   .index-status {

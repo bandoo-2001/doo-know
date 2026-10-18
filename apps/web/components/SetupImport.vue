@@ -5,6 +5,7 @@ import { api, ApiError } from '../api';
 import type { TreeEntry } from '../../../shared/contracts';
 const emit = defineEmits<{ busy: [value: boolean] }>();
 const file = ref<File>(),
+  fileInput = ref<HTMLInputElement>(),
   busy = ref(false),
   error = ref(''),
   imported = ref('');
@@ -59,6 +60,7 @@ async function upload() {
     });
     imported.value = source.name;
     file.value = undefined;
+    if (fileInput.value) fileInput.value.value = '';
   } catch (e) {
     error.value =
       e instanceof ApiError && (e.status === 409 || String(e.message).includes('存在'))
@@ -77,13 +79,20 @@ async function upload() {
     </p>
     <label
       >选择 Markdown 文件<input
+        ref="fileInput"
         type="file"
         accept=".md,text/markdown"
         :disabled="busy"
         aria-label="选择 Markdown 文件"
+        aria-describedby="import-limits"
         @change="select"
     /></label>
-    <p class="hint">单个文件不超过 256 KiB。文中的图片和附件不会随文件一起导入。</p>
+    <p id="import-limits" class="hint">
+      单个文件不超过 256 KiB。文中的图片和附件不会随文件一起导入。
+    </p>
+    <p v-if="file" class="import-selection">
+      已选择 {{ file.name }} · {{ (file.size / 1024).toFixed(1) }} KiB
+    </p>
     <NButton :loading="busy" :disabled="!file || busy" @click="upload">确认导入</NButton>
     <NAlert v-if="error" type="error" role="alert">{{ error }}</NAlert>
     <p v-if="imported" role="status">{{ imported }} 已导入，进入工作区后可以查看。</p>

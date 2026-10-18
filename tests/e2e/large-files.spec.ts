@@ -1,3 +1,4 @@
+import { clickNoteAction } from '../support/note-actions';
 import { test, expect } from '../support/browser-test';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -94,7 +95,7 @@ test('large document loads a fragment and saving preserves the unloaded tail', a
     '第 ' + line + '–',
   );
   expect((await readFile(path, 'utf8')).endsWith('UNLOADED_SENTINEL')).toBe(true);
-  await page.getByRole('button', { name: '历史版本', exact: true }).click();
+  await clickNoteAction(page, '历史版本');
   await page.getByRole('button', { name: '恢复此版本', exact: true }).last().click();
   await expect(page.locator('.large-workspace .cm-content')).toContainText('FIRST');
   expect((await readFile(path, 'utf8')).endsWith('UNLOADED_SENTINEL')).toBe(true);

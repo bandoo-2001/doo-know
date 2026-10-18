@@ -107,6 +107,7 @@ test('first login binds an empty knowledge base and creates its first root note,
   });
   await page.getByRole('button', { name: '确认导入', exact: true }).click();
   await expect(page.getByRole('status')).toContainText('已有资料.md 已导入');
+  await expect(page.getByLabel('选择 Markdown 文件', { exact: true })).toHaveValue('');
   expect(await readFile(join(config.knowledgeRoot, '40-Resources', '已有资料.md'), 'utf8')).toBe(
     '# 我的已有资料\n\n原文会保留。\n',
   );
@@ -114,13 +115,11 @@ test('first login binds an empty knowledge base and creates its first root note,
     path: `.local/onboarding-${info.project.name}-complete.png`,
     fullPage: true,
   });
-  await page
-    .getByLabel('选择 Markdown 文件', { exact: true })
-    .setInputFiles({
-      name: '已有资料.md',
-      mimeType: 'text/markdown',
-      buffer: Buffer.from('# 不应覆盖原文'),
-    });
+  await page.getByLabel('选择 Markdown 文件', { exact: true }).setInputFiles({
+    name: '已有资料.md',
+    mimeType: 'text/markdown',
+    buffer: Buffer.from('# 不应覆盖原文'),
+  });
   await page.getByRole('button', { name: '确认导入', exact: true }).click();
   await expect(page.getByRole('alert')).toContainText('已有同名文件');
   expect(await readFile(join(config.knowledgeRoot, '40-Resources', '已有资料.md'), 'utf8')).toBe(
@@ -150,11 +149,7 @@ test('first login binds an empty knowledge base and creates its first root note,
   expect(await readFile(join(config.knowledgeRoot, 'README.md'), 'utf8')).toBe('# README\n\n');
 
   if (info.project.name === 'mobile') await page.getByRole('button', { name: '打开侧栏' }).click();
-  await page.getByRole('button', { name: '全部笔记', exact: true }).click();
-  await page
-    .locator('.folder-view')
-    .getByRole('button', { name: '新建文件夹', exact: true })
-    .click();
+  await page.locator('.sidebar').getByRole('button', { name: '新建文件夹', exact: true }).click();
   await dialog.locator('.n-base-selection').click();
   await page.locator('.n-base-select-option').getByText('知识库根目录', { exact: true }).click();
   await dialog.getByRole('textbox', { name: '文件夹名', exact: true }).fill('00-Inbox');
@@ -166,7 +161,7 @@ test('first login binds an empty knowledge base and creates its first root note,
     'README.md',
   ]);
 
-  await page.locator('.folder-view').getByRole('button', { name: '00-Inbox', exact: true }).click();
+  await page.locator('.tree-scroll').getByRole('button', { name: '00-Inbox', exact: true }).click();
   await page.locator('.folder-view').getByRole('button', { name: '新建笔记', exact: true }).click();
   await expect(dialog.locator('.n-base-selection-label')).toContainText('00-Inbox');
   await dialog.getByRole('textbox', { name: '文件名', exact: true }).fill('第一篇笔记');

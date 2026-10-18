@@ -1,3 +1,4 @@
+import { clickNoteAction } from '../support/note-actions';
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
 async function open(page: any, context: any, name: string) {
@@ -104,7 +105,7 @@ test('W02 stale deletion preserves share then checks a lost delete receipt', asy
     },
   });
   expect(update.status()).toBe(200);
-  await page.getByRole('button', { name: '删除笔记', exact: true }).click();
+  await clickNoteAction(page, '删除笔记');
   await page.getByRole('button', { name: '移入回收站', exact: true }).click();
   await expect(page.getByText('原文件已更新', { exact: true })).toHaveCount(0);
   expect((await (await page.request.get(`/api/notes/${n.id}/share`)).json()).enabled).toBe(true);
@@ -122,7 +123,7 @@ test('W02 stale deletion preserves share then checks a lost delete receipt', asy
     },
     { times: 1 },
   );
-  await page.getByRole('button', { name: '删除笔记', exact: true }).click();
+  await clickNoteAction(page, '删除笔记');
   await page.getByRole('button', { name: '移入回收站', exact: true }).click();
   await expect(page.getByRole('button', { name: '核对删除结果', exact: true })).toBeVisible();
   await page.getByRole('button', { name: '核对删除结果', exact: true }).click();

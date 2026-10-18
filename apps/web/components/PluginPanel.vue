@@ -15,6 +15,11 @@ const item = computed(() =>
     class="dialog-card plugin-dialog"
     :title="item?.title"
     :closable="false"
+    @update:show="
+      (show) => {
+        if (!show) pluginPanel = undefined;
+      }
+    "
     @mask-click="pluginPanel = undefined"
   >
     <template #header-extra

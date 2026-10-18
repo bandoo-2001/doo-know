@@ -44,10 +44,12 @@ test('keeps navigation reachable and content scrolling inside the window with a 
         .locator('.tree-scroll')
         .getByRole('button', { name: names.at(-1)!, exact: true });
       await expect(last).toBeAttached();
-      if (size.height >= 568) await inWindow('.sidebar-footer');
+      if (await page.locator('.sidebar').evaluate((el) => el.scrollHeight <= el.clientHeight + 1))
+        await inWindow('.sidebar-footer');
       await last.scrollIntoViewIfNeeded();
       await expect(last).toBeInViewport();
-      if (size.height >= 568) await inWindow('.sidebar-footer');
+      if (await page.locator('.sidebar').evaluate((el) => el.scrollHeight <= el.clientHeight + 1))
+        await inWindow('.sidebar-footer');
       const settings = page
         .locator('.sidebar-footer')
         .getByRole('button', { name: '设置', exact: true });

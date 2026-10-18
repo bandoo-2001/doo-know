@@ -14,6 +14,8 @@ import SearchRuntimeSettings from './SearchRuntimeSettings.vue';
 import PluginManager from './PluginManager.vue';
 import PluginSlot from './PluginSlot.vue';
 import PluginPanel from './PluginPanel.vue';
+import NoteActions from './NoteActions.vue';
+import SidebarResizer from './SidebarResizer.vue';
 import { refreshPlugins, disposePluginUIs, pluginRegistry } from '../plugins';
 import type {
   NoteInfo,
@@ -30,6 +32,21 @@ const parsedLine = Number(window.location.hash.match(/^#L([1-9]\d*)$/)?.[1]);
 const initialLine =
   Number.isSafeInteger(parsedLine) && parsedLine <= 20 * 1024 * 1024 ? parsedLine : undefined;
 const emit = defineEmits<{ logout: [] }>();
+function storedSidebarWidth() {
+  try {
+    const width = Number(localStorage.getItem('dooknow.sidebarWidth'));
+    if (Number.isFinite(width) && width >= 240 && width <= 400) return width;
+  } catch {}
+  return 280;
+}
+const sidebarWidth = ref(storedSidebarWidth()),
+  showLineNumbers = ref(false),
+  releaseVersion = ref('');
+function saveSidebarWidth() {
+  try {
+    localStorage.setItem('dooknow.sidebarWidth', String(sidebarWidth.value));
+  } catch {}
+}
 const tree = ref<TreeEntry[]>([]),
   note = ref<NoteDocument>(),
   folder = ref(''),
@@ -301,6 +318,13 @@ async function checkSave() {
 }
 async function save(expected?: string, content?: string, revisionId?: string) {
   if (!note.value || busy.value) return;
+  if (
+    noteInfo.value?.editorMode === 'full' &&
+    !revisionId &&
+    !dirty.value &&
+    pendingSave.value?.noteId !== note.value.id
+  )
+    return;
   if (noteInfo.value?.editorMode !== 'full' && !revisionId) {
     await largeRef.value?.save();
     return;
@@ -656,26 +680,41 @@ async function restoreTrash(item: any, fileName?: string) {
     }
   });
 }
-async function settings() {
+function scrollSetting(section: 'account' | 'search' | 'plugins') {
+  document.getElementById(section + '-settings')?.scrollIntoView({ block: 'start' });
+}
+async function settings(section?: 'account' | 'search' | 'plugins') {
   await guard(async () => {
     viewEpoch++;
     panel.value = 'settings';
     note.value = undefined;
     drawer.value = false;
+    await nextTick();
+    if (section) scrollSetting(section);
   });
 }
 const currentPassword = ref(''),
-  newPassword = ref('');
+  newPassword = ref(''),
+  passwordBusy = ref(false),
+  passwordNotice = ref('');
 async function changePassword() {
+  if (passwordBusy.value) return;
   await run(async () => {
-    await api('/api/auth/change-password', 'POST', {
-      currentPassword: currentPassword.value,
-      newPassword: newPassword.value,
-      revokeOtherSessions: true,
-    });
-    currentPassword.value = '';
-    newPassword.value = '';
-    tell('密码已修改，其他会话已撤销');
+    passwordBusy.value = true;
+    passwordNotice.value = '';
+    try {
+      await api('/api/auth/change-password', 'POST', {
+        currentPassword: currentPassword.value,
+        newPassword: newPassword.value,
+        revokeOtherSessions: true,
+      });
+      currentPassword.value = '';
+      newPassword.value = '';
+      passwordNotice.value = '密码已修改，其他会话已撤销';
+      tell(passwordNotice.value);
+    } finally {
+      passwordBusy.value = false;
+    }
   });
 }
 async function logout() {
@@ -783,6 +822,11 @@ function unload(e: BeforeUnloadEvent) {
   }
 }
 onMounted(() => {
+  void api('/healthz')
+    .then((status) => {
+      releaseVersion.value = status.version || '';
+    })
+    .catch(() => {});
   void refreshPlugins().catch(() => {});
   pluginTimer = setInterval(() => {
     void refreshPlugins().catch(() => {});
@@ -813,9 +857,9 @@ onBeforeUnmount(() => {
 });
 </script>
 <template>
-  <div class="workspace">
+  <div class="workspace" :style="{ '--sidebar-width': sidebarWidth + 'px' }">
     <div v-if="drawer" class="drawer-scrim" @click="drawer = false"></div>
-    <aside :class="['sidebar', { open: drawer }]" aria-label="笔记导航">
+    <aside id="notebook-navigation" :class="['sidebar', { open: drawer }]" aria-label="笔记导航">
       <div class="brand">
         <Icon name="book" :size="31" /><strong>DooKnow</strong
         ><button class="mobile-only icon-button" aria-label="关闭侧栏" @click="drawer = false">
@@ -891,15 +935,17 @@ onBeforeUnmount(() => {
           class="nav-action"
           :class="{ active: panel === 'settings' }"
           :aria-current="panel === 'settings' ? 'page' : undefined"
-          @click="settings"
+          @click="settings()"
         >
           <Icon name="settings" />设置</button
-        ><button class="nav-action account-row" @click="logout">
-          <span class="avatar">个人</span><span>个人账户</span><Icon name="logout" :size="18" />
+        ><button class="nav-action account-row" aria-label="个人账户" @click="settings('account')">
+          <span class="avatar" aria-hidden="true">个人</span><span>个人账户</span
+          ><Icon name="chevron" :size="16" />
         </button>
-        <IndexStatus :note-id="note?.id" />
+        <IndexStatus :note-id="note?.id" @settings="settings('search')" />
       </div>
     </aside>
+    <SidebarResizer v-model="sidebarWidth" @commit="saveSidebarWidth" />
     <main class="main-content">
       <div class="mobile-bar">
         <button class="icon-button" aria-label="打开侧栏" @click="drawer = true">
@@ -912,41 +958,43 @@ onBeforeUnmount(() => {
       <template v-if="note && panel === 'note'"
         ><header class="note-header">
           <div class="note-topline">
-            <span class="breadcrumb" :title="note.relativePath">{{
-              note.relativePath.split('/').join('　/　')
-            }}</span>
+            <div class="document-identity">
+              <h1 class="document-title" :title="note.relativePath">
+                {{ note.relativePath.split('/').at(-1)?.replace(/\.md$/i, '') || note.title }}
+              </h1>
+              <span class="breadcrumb" :title="note.relativePath">{{
+                folder ? folder.split('/').join(' / ') : '知识库根目录'
+              }}</span>
+            </div>
             <div class="toolbar">
-              <PluginSlot slot-name="noteAction" :context="pluginContext" />
               <NButton v-if="pendingSave?.noteId === note.id" @click="run(checkSave)"
                 >核对保存结果</NButton
               >
               <NButton v-if="pendingDelete && !deleteOpen" @click="run(checkDelete)"
                 >核对删除结果</NButton
               >
-              <NButton title="历史版本" aria-label="历史版本" @click="history()"
-                ><Icon name="clock" /></NButton
-              ><NButton
-                title="插入图片或 PDF"
-                aria-label="插入图片或 PDF"
-                @click="uploadInput?.click()"
-                ><Icon name="image" /></NButton
-              ><NButton title="删除笔记" aria-label="删除笔记" @click="deleteOpen = true"
-                ><Icon name="trash" /></NButton
-              ><NButton @click="manageShare"
+              <NButton @click="manageShare"
                 ><template #icon><Icon name="share" /></template>分享</NButton
               ><NButton
                 v-if="noteInfo?.editorMode === 'full'"
                 type="primary"
                 :loading="busy"
+                :disabled="busy || (!dirty && pendingSave?.noteId !== note.id)"
                 @click="save()"
                 ><template #icon><Icon name="save" /></template>保存
                 <span class="shortcut">Ctrl+S</span></NButton
               >
+              <NoteActions
+                :key="note.id"
+                v-model:line-numbers="showLineNumbers"
+                :full-editor="noteInfo?.editorMode === 'full'"
+                @history="history()"
+                @upload="uploadInput?.click()"
+                @delete="deleteOpen = true"
+                ><PluginSlot slot-name="noteAction" :context="pluginContext"
+              /></NoteActions>
             </div>
           </div>
-          <h1 :class="['document-title', { 'sr-only': noteInfo?.editorMode === 'full' }]">
-            {{ note.title }}
-          </h1>
           <div v-if="note.shared" class="shared-status">
             <Icon name="share" :size="14" />已分享，保存后的修改将同步公开
           </div>
@@ -988,11 +1036,12 @@ onBeforeUnmount(() => {
           @saved="onLargeSaved" />
         <div v-else :class="['editor-panels', mode]">
           <section v-if="mode !== 'preview'" class="editor-panel">
-            <div class="panel-label">Markdown <span>UTF-8 · 手动保存</span></div>
+            <div class="panel-label">Markdown <span>手动保存 · Ctrl+S</span></div>
             <MarkdownEditor
               v-model="draft"
               :key="note.id"
               :initial-line="note.id === initialNoteId ? initialLine : undefined"
+              :show-line-numbers="showLineNumbers"
             />
           </section>
           <section v-if="mode !== 'edit'" class="preview-panel">
@@ -1007,7 +1056,7 @@ onBeforeUnmount(() => {
           hidden
           @change="upload"
       /></template>
-      <section v-else-if="panel === 'empty'" class="utility-view">
+      <section v-else-if="panel === 'empty'" class="utility-view workspace-empty">
         <div class="utility-empty">
           <Icon name="book" :size="36" />
           <h1>选择一篇笔记</h1>
@@ -1086,7 +1135,12 @@ onBeforeUnmount(() => {
           <h1>个人设置</h1>
           <p class="muted">管理你的账户、内容搜索和扩展功能。</p>
         </header>
-        <section class="account-settings" aria-label="账户安全">
+        <nav class="settings-nav" aria-label="设置分类">
+          <NButton quaternary @click="scrollSetting('account')">账户安全</NButton>
+          <NButton quaternary @click="scrollSetting('search')">内容搜索</NButton>
+          <NButton quaternary @click="scrollSetting('plugins')">扩展插件</NButton>
+        </nav>
+        <section id="account-settings" class="account-settings" aria-label="账户安全">
           <h2>修改密码</h2>
           <p class="muted">修改后撤销其他会话。密码不能为空。</p>
           <form @submit.prevent="changePassword">
@@ -1110,13 +1164,22 @@ onBeforeUnmount(() => {
                 :input-props="{ id: 'new-password', 'aria-label': '新密码' }"
               />
             </div>
-            <NButton type="primary" attr-type="submit">修改密码</NButton>
+            <NButton
+              type="primary"
+              attr-type="submit"
+              :loading="passwordBusy"
+              :disabled="passwordBusy || !currentPassword || !newPassword"
+              >修改密码</NButton
+            >
           </form>
+          <p v-if="passwordNotice" role="status" class="form-success">{{ passwordNotice }}</p>
+          <div class="settings-signout">
+            <NButton quaternary type="error" @click="logout">退出登录</NButton
+            ><span>结束当前设备的登录会话。</span>
+          </div>
         </section>
-        <SearchRuntimeSettings /><PluginManager />
-        <div class="settings-signout">
-          <NButton @click="logout">退出登录</NButton><span>结束当前设备的登录会话。</span>
-        </div>
+        <SearchRuntimeSettings id="search-settings" /><PluginManager id="plugins-settings" />
+        <p v-if="releaseVersion" class="app-version">DooKnow · 服务版本 {{ releaseVersion }}</p>
       </section>
     </main>
     <PluginPanel />
@@ -1227,7 +1290,9 @@ onBeforeUnmount(() => {
       <div class="dialog-actions">
         <NButton @click="leave('cancel')">取消</NButton
         ><NButton @click="leave('discard')">放弃修改</NButton
-        ><NButton type="primary" @click="leave('save')">保存并继续</NButton>
+        ><NButton type="primary" :loading="busy" :disabled="busy" @click="leave('save')"
+          >保存并继续</NButton
+        >
       </div></NModal
     >
     <NModal v-model:show="deleteOpen" preset="card" class="dialog-card" title="移入回收站？"

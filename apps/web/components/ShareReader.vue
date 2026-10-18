@@ -175,9 +175,9 @@ onMounted(async () => {
 .reader-layout {
   display: block;
   width: 100%;
-  max-width: 850px;
+  max-width: 880px;
   margin: 0 auto;
-  padding: 52px 40px 60px;
+  padding: 40px 36px 56px;
   flex: 1 0 auto;
 }
 .reader-layout.has-toc {
@@ -209,8 +209,8 @@ onMounted(async () => {
 .reader-layout article > .markdown {
   padding: 24px 0 0;
   color: var(--text, #262b36);
-  font-size: 15px;
-  line-height: 1.95;
+  font-size: 16px;
+  line-height: 1.8;
   overflow-wrap: anywhere;
 }
 .markdown :deep(h1),
@@ -394,7 +394,7 @@ onMounted(async () => {
   }
   .reader-layout article > .markdown {
     font-size: 14px;
-    line-height: 1.95;
+    line-height: 1.8;
   }
   .markdown :deep(h2) {
     font-size: 21px;

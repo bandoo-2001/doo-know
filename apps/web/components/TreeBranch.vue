@@ -15,7 +15,7 @@ function toggle(p: string) {
     <li v-for="entry in entries" :key="entry.path">
       <div
         :class="['tree-row', 'is-' + entry.type, { selected: entry.path === selected }]"
-        :style="{ paddingLeft: `${12 + (depth || 0) * 19}px` }"
+        :style="{ paddingLeft: `${12 + (depth || 0) * 14}px` }"
       >
         <button
           v-if="entry.type === 'folder'"
@@ -29,7 +29,7 @@ function toggle(p: string) {
         ><button
           class="tree-select"
           :aria-current="entry.path === selected ? 'page' : undefined"
-          :title="entry.name"
+          :title="entry.path"
           @click="emit('select', entry)"
         >
           <Icon :name="entry.type === 'folder' ? 'folder' : 'file'" :size="18" /><span>{{

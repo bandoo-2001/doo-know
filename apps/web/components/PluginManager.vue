@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, nextTick } from 'vue';
 import { NButton, NInput, NSwitch, NInputNumber, NSelect, NAlert } from 'naive-ui';
 import { pluginRegistry, pluginUIErrors, refreshPlugins } from '../plugins';
 import { pluginComponents } from '../../../packages/plugin-ui/host';
@@ -9,6 +9,7 @@ const props = defineProps<{ focusPlugin?: string }>();
 const selected = ref(props.focusPlugin || ''),
   busy = ref(false),
   error = ref(''),
+  notice = ref(''),
   values = ref<Record<string, any>>({});
 const installed = computed(() =>
   pluginRegistry.value.installed.find((p) => p.id === selected.value),
@@ -41,11 +42,14 @@ watch(
 async function run(work: () => Promise<unknown>) {
   busy.value = true;
   error.value = '';
+  notice.value = '';
   try {
     await work();
     await refreshPlugins();
+    return true;
   } catch (e) {
     error.value = (e as Error).message;
+    return false;
   } finally {
     busy.value = false;
   }
@@ -59,20 +63,45 @@ async function action(id: string, command: string) {
 async function save() {
   const plugin = installed.value;
   if (!plugin) return;
-  await run(async () => {
+  const saved = await run(async () => {
     const config = { ...values.value };
     for (const [key, schema] of Object.entries(plugin.manifest.configSchema.properties || {})) {
       const field = schema as any;
       if (field.writeOnly && config[key] === '') delete config[key];
-      else if (field.type === 'object' || field.type === 'array')
-        config[key] = JSON.parse(config[key]);
+      else if (field.type === 'object' || field.type === 'array') {
+        try {
+          const value = JSON.parse(config[key]);
+          if (
+            field.type === 'array'
+              ? !Array.isArray(value)
+              : !value || typeof value !== 'object' || Array.isArray(value)
+          )
+            throw Error();
+          config[key] = value;
+        } catch {
+          throw Error(
+            `${field.title || key}格式不正确，请填写有效的 JSON ${field.type === 'array' ? '数组' : '对象'}。`,
+          );
+        }
+      }
     }
     await api(`/api/platform/plugins/${plugin.id}/config`, 'PUT', {
       values: config,
       configVersion: plugin.configVersion,
     });
   });
+  if (saved) {
+    await nextTick();
+    notice.value = '插件配置已保存';
+  }
 }
+watch(
+  values,
+  () => {
+    notice.value = '';
+  },
+  { deep: true },
+);
 const pendingUninstall = ref('');
 onMounted(() => {
   void run(refreshPlugins);
@@ -253,7 +282,10 @@ onMounted(() => {
           </p>
         </div>
         <footer class="plugin-form-footer">
-          <NButton attr-type="submit" type="primary" :loading="busy">保存插件配置</NButton>
+          <NButton attr-type="submit" type="primary" :loading="busy" :disabled="busy"
+            >保存插件配置</NButton
+          >
+          <span v-if="notice" class="form-success" role="status">{{ notice }}</span>
         </footer>
       </form>
       <NAlert v-if="pluginUIErrors[installed.id]" type="error">{{

@@ -178,7 +178,7 @@ h2 {
   margin: 20px 0 24px;
   color: #6c7482;
   font-size: 13px;
-  line-height: 1.85;
+  line-height: 1.7;
 }
 fieldset {
   min-inline-size: 0;
@@ -245,7 +245,7 @@ legend {
   background: var(--surface-soft, #fafbfc);
   color: var(--muted, #7a8190);
   font-size: 12px;
-  line-height: 1.85;
+  line-height: 1.7;
 }
 .oauth-hint svg {
   flex-shrink: 0;
@@ -280,7 +280,7 @@ legend {
   margin-top: 20px;
   color: var(--muted, #7a8190);
   font-size: 11px;
-  line-height: 1.85;
+  line-height: 1.7;
   text-align: center;
 }
 @media (max-width: 600px) {

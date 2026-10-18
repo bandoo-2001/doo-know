@@ -13,8 +13,9 @@ const props = withDefaults(
     wrap?: boolean;
     readOnly?: boolean;
     initialLine?: number;
+    showLineNumbers?: boolean;
   }>(),
-  { wrap: true },
+  { wrap: true, showLineNumbers: false },
 );
 const emit = defineEmits<{
   'update:modelValue': [value: string];
@@ -23,6 +24,11 @@ const emit = defineEmits<{
 const mount = ref<HTMLElement>();
 let view: EditorView | undefined;
 const editability = new Compartment();
+const gutters = new Compartment();
+const gutterTheme = () =>
+  EditorView.theme({
+    '.cm-gutters': { display: props.showLineNumbers ? 'flex' : 'none' },
+  });
 let programmatic = false;
 onMounted(() => {
   view = new EditorView({
@@ -30,12 +36,13 @@ onMounted(() => {
     parent: mount.value,
     extensions: [
       basicSetup,
+      gutters.of(gutterTheme()),
       markdown(),
       syntaxHighlighting(
         HighlightStyle.define([
           ...defaultHighlightStyle.specs,
-          { tag: tags.heading1, fontSize: '1.65em', fontWeight: '650', color: '#262d3b' },
-          { tag: tags.heading2, fontSize: '1.25em', fontWeight: '600', color: '#303747' },
+          { tag: tags.heading1, fontSize: '1.4em', fontWeight: '650', color: '#262d3b' },
+          { tag: tags.heading2, fontSize: '1.18em', fontWeight: '600', color: '#303747' },
           { tag: tags.heading3, fontSize: '1.1em', fontWeight: '600', color: '#40495b' },
           { tag: tags.processingInstruction, color: '#a0a8b8' },
           { tag: tags.link, color: '#4566c6' },
@@ -54,7 +61,7 @@ onMounted(() => {
       ...(props.wrap === false ? [] : [EditorView.lineWrapping]),
       EditorView.contentAttributes.of({ 'aria-label': 'Markdown 正文' }),
       EditorView.theme({
-        '&': { height: '100%', fontSize: '16px', color: '#414858' },
+        '&': { height: '100%', fontSize: '15px', color: '#343c4a' },
         '&.cm-focused': { outline: 'none' },
         '.cm-scroller': {
           overflow: 'auto',
@@ -62,13 +69,13 @@ onMounted(() => {
             props.wrap === false
               ? '"SFMono-Regular",Consolas,monospace'
               : 'Inter,-apple-system,"Noto Sans CJK SC","Microsoft YaHei",sans-serif',
-          lineHeight: '1.95',
+          lineHeight: '1.7',
         },
-        '.cm-content': { padding: '38px 28px 80px', caretColor: '#4566c6' },
+        '.cm-content': { padding: '28px 24px 64px', caretColor: '#4566c6' },
         '.cm-line': { padding: '0 4px' },
         '.cm-gutters': {
           backgroundColor: '#ffffff',
-          color: '#bac1ce',
+          color: '#69778c',
           borderRight: '0',
           fontSize: '10px',
         },
@@ -101,6 +108,12 @@ onMounted(() => {
     view.dispatch({ selection: { anchor: line.from }, scrollIntoView: true });
   }
 });
+watch(
+  () => props.showLineNumbers,
+  () => {
+    view?.dispatch({ effects: gutters.reconfigure(gutterTheme()) });
+  },
+);
 watch(
   () => props.modelValue,
   (v) => {

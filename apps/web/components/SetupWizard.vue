@@ -428,7 +428,7 @@ onBeforeUnmount(() => clearInterval(timer));
 }
 .setup-card {
   min-width: 0;
-  padding: 30px 36px;
+  padding: 28px 32px;
   border: 1px solid var(--border, #e3e6ec);
   border-radius: 10px;
   background: white;
@@ -437,7 +437,7 @@ onBeforeUnmount(() => clearInterval(timer));
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  margin: 0 0 30px;
+  margin: 0 0 24px;
   padding: 0 0 24px;
   border-bottom: 1px solid var(--border, #e3e6ec);
   list-style: none;
@@ -496,7 +496,7 @@ h1:focus {
   margin: 0 0 24px;
   color: #6c7482;
   font-size: 14px;
-  line-height: 1.85;
+  line-height: 1.7;
 }
 .library-name-field {
   margin-bottom: 24px;
@@ -563,7 +563,7 @@ label {
 .hint {
   color: var(--muted, #7a8190);
   font-size: 12px;
-  line-height: 1.85;
+  line-height: 1.7;
   overflow-wrap: anywhere;
 }
 .advanced {

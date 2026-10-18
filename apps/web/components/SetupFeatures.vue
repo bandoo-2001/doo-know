@@ -5,13 +5,14 @@ import { api } from '../api';
 import { pluginRegistry, refreshPlugins } from '../plugins';
 import PluginManager from './PluginManager.vue';
 import SearchRuntimeSettings from './SearchRuntimeSettings.vue';
+import Icon from './Icon.vue';
 const expanded = ref(''),
   busy = ref(''),
   error = ref('');
 const features = [
   {
     id: 'mcp',
-    icon: '↗',
+    icon: 'share',
     title: '让 ChatGPT 使用你的资料',
     description: '连接后，可在你授权的范围内查找和阅读资料。',
     detail: '需要完成 ChatGPT 连接设置。只有你同意后，它才能访问资料。',
@@ -19,7 +20,7 @@ const features = [
   },
   {
     id: 'git',
-    icon: '↶',
+    icon: 'clock',
     title: '记录文件版本',
     description: '查看修改记录，在需要时恢复以前的内容。',
     detail: '版本记录保存在本机，不能代替独立备份。添加后还需设置并初始化。',
@@ -55,7 +56,7 @@ onMounted(async () => {
     <NAlert v-if="error" type="warning" role="alert">{{ error }}</NAlert>
     <article v-for="feature in features" :key="feature.id" class="feature">
       <div class="feature-main">
-        <span class="feature-icon" aria-hidden="true">{{ feature.icon }}</span>
+        <span class="feature-icon" aria-hidden="true"><Icon :name="feature.icon" /></span>
         <div>
           <h2>{{ feature.title }}</h2>
           <p>{{ feature.description }}</p>
@@ -88,7 +89,7 @@ onMounted(async () => {
     </article>
     <article class="feature">
       <div class="feature-main">
-        <span class="feature-icon" aria-hidden="true">⌕</span>
+        <span class="feature-icon" aria-hidden="true"><Icon name="search" /></span>
         <div>
           <h2>搜索资料内容</h2>
           <p>输入关键词或描述，查找知识库里的相关内容。</p>

@@ -308,6 +308,7 @@ defineExpose({ save, discard, reload });
           :model-value="original"
           :incremental="true"
           :wrap="false"
+          :show-line-numbers="true"
           :read-only="busy || !!requestId"
           @changes="applyChanges"
           :key="`${page.snapshotId}:${page.startByte}:${renderEpoch}`"

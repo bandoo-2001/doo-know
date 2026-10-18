@@ -1,3 +1,4 @@
+import { clickNoteAction } from '../support/note-actions';
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
 
@@ -20,18 +21,21 @@ test('search and history expose their remaining pages', async ({ page, context }
     expect(created.status()).toBe(201);
     current = await created.json();
   }
-  // Pagination assertions need a complete index, rather than an in-flight partial result set.
+  // Wait for this case's documents; unrelated large-file retries need not be idle.
   await expect
     .poll(
       async () => {
-        const status = await (await page.request.get('/api/index/status')).json();
-        return (
-          (status.pending || 0) + (status.retrying || 0) + (status.sync.status === 'idle' ? 0 : 1)
-        );
+        const response = await page.request.post('/api/search/advanced', {
+          headers,
+          data: { query: '"' + keyword + '"', mode: 'text', limit: 50 },
+        });
+        expect(response.status()).toBe(200);
+        return new Set((await response.json()).results.map((hit: { noteId: string }) => hit.noteId))
+          .size;
       },
       { timeout: 30000 },
     )
-    .toBe(0);
+    .toBe(12);
   await page.getByPlaceholder('搜索笔记与目录').fill(keyword);
   await expect(page.locator('.search-result')).toHaveCount(10, { timeout: 30000 });
   await page.getByRole('button', { name: '加载更多搜索结果', exact: true }).click();
@@ -49,7 +53,7 @@ test('search and history expose their remaining pages', async ({ page, context }
     current = await saved.json();
   }
   await page.goto(`/?note=${current.id}`);
-  await page.getByRole('button', { name: '历史版本', exact: true }).click();
+  await clickNoteAction(page, '历史版本');
   await expect(page.locator('.revision-item')).toHaveCount(50);
   await page.getByRole('button', { name: '加载更早版本', exact: true }).click();
   await expect(page.locator('.revision-item')).toHaveCount(51);

@@ -1,3 +1,4 @@
+import { clickNoteAction } from '../support/note-actions';
 import { test, expect } from '../support/browser-test';
 import { testPassword } from '../support/credentials.js';
 test('login and two-column workspace with manual Markdown editing', async ({ page }, info) => {
@@ -59,7 +60,7 @@ test('returns to an unselected workspace when a root note is deleted', async ({
     await page.goto('/');
     await page.locator('.tree-scroll').getByRole('button', { name: fileName, exact: true }).click();
     await expect(page.locator('.cm-content')).toBeVisible();
-    await page.getByRole('button', { name: '删除笔记', exact: true }).click();
+    await clickNoteAction(page, '删除笔记');
     await page.getByRole('button', { name: '移入回收站', exact: true }).click();
     await expect(page.getByRole('heading', { name: '选择一篇笔记', exact: true })).toBeVisible();
     await expect(page.locator('.folder-view')).toHaveCount(0);
@@ -251,7 +252,7 @@ test.describe('authenticated feature acceptance', () => {
       await page.getByRole('button', { name: '关闭侧栏' }).click();
     await page.locator('.toolbar').getByRole('button', { name: /^保存/ }).click();
     await expect(page.locator('.save-state')).toContainText('已保存');
-    await page.getByRole('button', { name: '历史版本', exact: true }).click();
+    await clickNoteAction(page, '历史版本');
     await page.getByRole('button', { name: '恢复此版本' }).first().click();
     await expect(page.locator('.cm-content')).toContainText('整理方法');
     if (info.project.name === 'mobile')
@@ -274,13 +275,14 @@ test.describe('authenticated feature acceptance', () => {
     await page.getByPlaceholder('搜索笔记与目录').fill('组织与恢复-' + info.project.name);
     await expect(page.locator('.search-result')).toHaveCount(1);
     await page.locator('.search-result').click();
-    await page.getByRole('button', { name: '删除笔记', exact: true }).click();
+    await clickNoteAction(page, '删除笔记');
     await page.getByRole('button', { name: '移入回收站', exact: true }).click();
     if (info.project.name === 'mobile')
       await page.getByRole('button', { name: '打开侧栏' }).click();
     await page.getByRole('button', { name: '回收站', exact: true }).click();
-    await page.getByRole('button', { name: '恢复', exact: true }).click();
-    await expect(page.getByText('回收站为空')).toBeVisible();
+    const deleted = page.locator('.utility-row').filter({ hasText: n.relativePath });
+    await deleted.getByRole('button', { name: '恢复', exact: true }).click();
+    await expect(deleted).toHaveCount(0);
   });
 });
 
@@ -372,6 +374,7 @@ test('late save and open responses never replace another note', async ({ page, c
       await route.fulfill({ response });
     } else await route.continue();
   });
+  await page.locator('.cm-content').fill('# 迟到A\n\n原文 迟到A\n\n并发保存验收');
   await page.locator('.toolbar').getByRole('button', { name: /^保存/ }).click();
   await captured;
   if (info.project.name === 'mobile') await page.getByRole('button', { name: '打开侧栏' }).click();
@@ -379,6 +382,8 @@ test('late save and open responses never replace another note', async ({ page, c
     .getByRole('button', { name: b.relativePath.split('/').at(-1), exact: true })
     .first()
     .click();
+  await expect(page.getByText('当前笔记尚未保存', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '放弃修改', exact: true }).click();
   await expect(page.locator('.cm-content')).toContainText('迟到B');
   release();
   await expect(page.locator('.toolbar button').last()).not.toHaveClass(/loading/);
@@ -389,6 +394,7 @@ test('late save and open responses never replace another note', async ({ page, c
   await expect(page.locator('.save-state')).toContainText('已保存');
   const cfg = JSON.parse(await readFile('.local/e2e-config.json', 'utf8'));
   expect(await readFile(join(cfg.knowledgeRoot, a.relativePath), 'utf8')).toContain('原文 迟到A');
+  expect(await readFile(join(cfg.knowledgeRoot, a.relativePath), 'utf8')).toContain('并发保存验收');
   expect(await readFile(join(cfg.knowledgeRoot, b.relativePath), 'utf8')).toBe('# B 的新内容');
   await page.unroute(`**/api/notes/${a.id}`);
   let releaseOpen!: () => void, openStarted!: () => void;

@@ -1,3 +1,4 @@
+import { clickNoteAction } from '../support/note-actions';
 import { test, expect } from '../support/browser-test';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -18,7 +19,9 @@ test('installs Git interactions, initializes, previews all changes and displays 
   await expect(page.getByText('当前分支：main', { exact: true })).toBeVisible({ timeout: 10000 });
   if (mobile) await page.getByRole('button', { name: '打开侧栏', exact: true }).click();
   await page.getByRole('button', { name: '入门指南.md', exact: true }).click();
+  await page.getByRole('button', { name: '更多操作', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Git 版本', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '更多操作', exact: true }).click();
   if (mobile) await page.getByRole('button', { name: '打开侧栏', exact: true }).click();
   await page.getByRole('button', { name: '提交全部变更', exact: true }).click();
   await page
@@ -41,7 +44,7 @@ test('installs Git interactions, initializes, previews all changes and displays 
   await expect(page.getByText(/提交 [a-f0-9]{40} 已完成/)).toBeVisible({ timeout: 15000 });
   await page.getByRole('button', { name: '关闭插件面板', exact: true }).click();
   if (mobile) await page.getByRole('button', { name: '关闭侧栏', exact: true }).click();
-  await page.getByRole('button', { name: 'Git 版本', exact: true }).click();
+  await clickNoteAction(page, 'Git 版本');
   await expect(page.getByText(/Browser Fixture · Browser first commit/)).toBeVisible({
     timeout: 10000,
   });

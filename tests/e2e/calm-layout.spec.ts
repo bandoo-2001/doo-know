@@ -29,13 +29,18 @@ test('opens in focused editing and keeps a long document path and actions usable
     await page.locator('.cm-scroller').evaluate((el) => el.scrollWidth <= el.clientWidth + 1),
   ).toBe(true);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-  for (const name of ['历史版本', '插入图片或 PDF', '删除笔记', '分享']) {
+  for (const name of ['分享', '更多操作']) {
     const button = page.getByRole('button', { name, exact: true });
     await expect(button).toBeVisible();
     const box = await button.boundingBox();
     expect(box!.x).toBeGreaterThanOrEqual(0);
     expect(box!.x + box!.width).toBeLessThanOrEqual(page.viewportSize()!.width);
   }
+  await page.getByRole('button', { name: '更多操作', exact: true }).click();
+  for (const name of ['历史版本', '插入图片或 PDF', '删除笔记']) {
+    await expect(page.getByRole('button', { name, exact: true })).toBeVisible();
+  }
+  await page.getByRole('button', { name: '更多操作', exact: true }).click();
   const content = '# 本地草稿\n\n只有显式保存才写入原文。';
   await page.locator('.cm-content').fill(content);
   await expect(page.locator('.save-state')).toContainText('未保存');
