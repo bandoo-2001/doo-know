@@ -13,9 +13,9 @@ export async function collectAccount(io: {
     }
   }
   for (;;) {
-    const password = await io.password('密码（至少12位，输入隐藏）：');
-    if (password.length < 12) {
-      io.report('密码至少需要 12 位，请重新输入。');
+    const password = await io.password('密码（输入隐藏）：');
+    if (password.length === 0) {
+      io.report('密码不能为空，请重新输入。');
       continue;
     }
     if (password !== await io.password('再次输入密码：')) {

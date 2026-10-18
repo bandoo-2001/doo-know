@@ -16,7 +16,7 @@ export async function createAuth(config: HostConfig, db: AppDatabase) {
     secret: config.secret,
     trustedOrigins: [config.origin],
     disabledPaths: ['/token'],
-    emailAndPassword: { enabled: true, disableSignUp: true, minPasswordLength: 12 },
+    emailAndPassword: { enabled: true, disableSignUp: true, minPasswordLength: 1 },
     session: { expiresIn: 86400, cookieCache: { enabled: false } },
     plugins: [username({ immutableUsername: true }), ...oauthPlugins(config, db)],
     rateLimit: {
@@ -36,8 +36,8 @@ export async function createAuth(config: HostConfig, db: AppDatabase) {
   return auth;
 }
 export async function initializeOwner(config: HostConfig, name: string, password: string) {
-  if (!/^[a-zA-Z0-9_.]{3,30}$/.test(name) || password.length < 12)
-    throw new Error('用户名需 3–30 个字母、数字、点或下划线，密码至少 12 位');
+  if (!/^[a-zA-Z0-9_.]{3,30}$/.test(name) || password.length === 0)
+    throw new Error('用户名需 3–30 个字母、数字、点或下划线，密码不能为空');
   const db = openDatabase(config.dataRoot);
   try {
     await createAuth(config, db);
@@ -59,7 +59,7 @@ export async function initializeOwner(config: HostConfig, name: string, password
   }
 }
 export async function resetOwnerPassword(config: HostConfig, password: string) {
-  if (password.length < 12) throw new Error('密码至少 12 位');
+  if (password.length === 0) throw new Error('密码不能为空');
   const db = openDatabase(config.dataRoot);
   try {
     const auth = await createAuth(config, db);
