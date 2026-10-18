@@ -57,7 +57,9 @@ test('keeps navigation reachable and content scrolling inside the window with a 
         await page.locator('.index-details summary').click();
         const details = page.locator('.index-popover');
         await details.scrollIntoViewIfNeeded();
-        await expect(details).toBeInViewport({ ratio: 1 });
+        // IntersectionObserver can report a fractional-pixel clip after scrolling.
+        await expect(details).toBeInViewport({ ratio: 0.99 });
+        await inWindow('.index-popover');
         await page.locator('.index-details summary').click();
       }
       await settings.click();

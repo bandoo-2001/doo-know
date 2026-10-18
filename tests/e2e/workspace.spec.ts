@@ -23,7 +23,10 @@ test('login and two-column workspace with manual Markdown editing', async ({ pag
     .getByRole('button', { name: '新建笔记', exact: true })
     .boundingBox();
   expect(search!.y).toBeLessThan(create!.y);
-  await page.getByRole('button', { name: '全部笔记', exact: true }).click();
+  await expect(page.getByRole('button', { name: '全部笔记', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: '选择一篇笔记', exact: true })).toBeVisible();
+  await expect(page.locator('.folder-view')).toHaveCount(0);
+  await page.getByRole('button', { name: '方法', exact: true }).click();
   await expect(page.locator('.folder-view')).toBeVisible();
   if (info.project.name === 'mobile') await page.getByRole('button', { name: '打开侧栏' }).click();
   await page.getByRole('button', { name: '入门指南.md', exact: true }).first().click();
@@ -39,6 +42,30 @@ test('login and two-column workspace with manual Markdown editing', async ({ pag
     fullPage: true,
     animations: 'disabled',
   });
+});
+
+test('returns to an unselected workspace when a root note is deleted', async ({
+  page,
+  context,
+}) => {
+  const { readFile, writeFile, rm } = await import('node:fs/promises');
+  const { join } = await import('node:path');
+  const { knowledgeRoot } = JSON.parse(await readFile('.local/e2e-config.json', 'utf8'));
+  const fileName = 'README.md';
+  const file = join(knowledgeRoot, fileName);
+  await writeFile(file, '# 根目录笔记\n\n删除后回到未选择笔记的状态。', { flag: 'wx' });
+  await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
+  try {
+    await page.goto('/');
+    await page.locator('.tree-scroll').getByRole('button', { name: fileName, exact: true }).click();
+    await expect(page.locator('.cm-content')).toBeVisible();
+    await page.getByRole('button', { name: '删除笔记', exact: true }).click();
+    await page.getByRole('button', { name: '移入回收站', exact: true }).click();
+    await expect(page.getByRole('heading', { name: '选择一篇笔记', exact: true })).toBeVisible();
+    await expect(page.locator('.folder-view')).toHaveCount(0);
+  } finally {
+    await rm(file, { force: true });
+  }
 });
 
 test.describe('authenticated feature acceptance', () => {
@@ -211,12 +238,12 @@ test.describe('authenticated feature acceptance', () => {
   }, info) => {
     const { n, h } = await newNote(page, '组织与恢复-' + info.project.name);
     await page.locator('.cm-content').fill('# 尚未保存的想法');
-    if (info.project.name === 'desktop')
-      await page.getByRole('button', { name: '全部笔记', exact: true }).click();
-    if (info.project.name === 'mobile') {
+    if (info.project.name === 'mobile')
       await page.getByRole('button', { name: '打开侧栏' }).click();
-      await page.getByRole('button', { name: '全部笔记', exact: true }).click();
-    }
+    await page
+      .locator('.tree-scroll')
+      .getByRole('button', { name: '00-Inbox', exact: true })
+      .click();
     await expect(page.getByText('当前笔记尚未保存', { exact: true })).toBeVisible();
     await page.getByRole('button', { name: '取消', exact: true }).click();
     await expect(page.locator('.cm-content')).toContainText('尚未保存的想法');

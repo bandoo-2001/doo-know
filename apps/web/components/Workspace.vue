@@ -83,7 +83,7 @@ const folders = computed(() => [
   ...flat.value.filter((x) => x.type === 'folder').map((x) => ({ label: x.path, value: x.path })),
 ]);
 const folderEntries = computed(() => {
-  if (!folder.value) return tree.value;
+  if (!folder.value) return [];
   return flat.value.find((x) => x.path === folder.value)?.children || [];
 });
 function localPath(url: string) {
@@ -192,20 +192,6 @@ async function select(entry: TreeEntry) {
         panel.value = 'folder';
       });
   });
-}
-async function all() {
-  await run(() =>
-    guard(async () => {
-      const epoch = ++viewEpoch;
-      await refresh();
-      if (epoch !== viewEpoch) return;
-      folder.value = '';
-      selected.value = '';
-      note.value = undefined;
-      panel.value = 'folder';
-      drawer.value = false;
-    }),
-  );
 }
 const leaveOpen = ref(false);
 let pendingNavigation: (() => Promise<void>) | undefined;
@@ -526,7 +512,7 @@ async function submitCreate() {
     }
   });
 }
-const panel = ref<'folder' | 'note' | 'trash' | 'settings'>('folder'),
+const panel = ref<'empty' | 'folder' | 'note' | 'trash' | 'settings'>('empty'),
   revisionsOpen = ref(false),
   revisions = ref<any[]>([]),
   revisionCursor = ref<string>(),
@@ -593,7 +579,7 @@ async function finishDelete(id: string, epoch: number) {
     note.value = undefined;
     draft.value = '';
     savedContent.value = '';
-    panel.value = 'folder';
+    panel.value = folder.value ? 'folder' : 'empty';
   }
   await refresh();
   tell('已移入回收站');
@@ -847,14 +833,6 @@ onBeforeUnmount(() => {
           ><template #icon><Icon name="plus" /></template>新建笔记</NButton
         >
       </div>
-      <button
-        class="nav-action"
-        :class="{ active: panel === 'folder' && !folder }"
-        :aria-current="panel === 'folder' && !folder ? 'page' : undefined"
-        @click="all"
-      >
-        <Icon name="file" />全部笔记
-      </button>
       <div class="tree-heading">
         <span>{{ query ? '搜索结果' : '笔记本' }}</span
         ><button class="icon-button" aria-label="新建文件夹" @click="create('folder')">
@@ -1029,12 +1007,17 @@ onBeforeUnmount(() => {
           hidden
           @change="upload"
       /></template>
-      <section v-else-if="panel === 'folder'" class="folder-view">
+      <section v-else-if="panel === 'empty'" class="utility-view">
+        <div class="utility-empty">
+          <Icon name="book" :size="36" />
+          <h1>选择一篇笔记</h1>
+          <p>从左侧目录打开笔记，或新建笔记开始记录。</p>
+        </div>
+      </section>
+      <section v-else-if="panel === 'folder' && folder" class="folder-view">
         <header class="folder-header">
-          <span class="breadcrumb">{{
-            folder ? folder.split('/').join('　/　') : '知识空间'
-          }}</span>
-          <h1>{{ folder ? folder.split('/').at(-1) : '全部笔记' }}</h1>
+          <span class="breadcrumb">{{ folder.split('/').join('　/　') }}</span>
+          <h1>{{ folder.split('/').at(-1) }}</h1>
           <div class="folder-info">
             <span
               >{{ folderEntries.filter((x) => x.type === 'folder').length }} 个文件夹 ·
