@@ -16,7 +16,7 @@ curl -fsSL 'https://raw.githubusercontent.com/bandoo-2001/doo-know/txj/doo-know-
 wget -qO- 'https://raw.githubusercontent.com/bandoo-2001/doo-know/txj/doo-know-platform/deploy/github-install.sh' | bash
 ```
 
-入口固定到1.1.0-rc.18。安装器包含Node及生产依赖，无需现场npm编译、Docker或sudo；需要可用的systemd用户会话。初始用户名、隐藏密码在终端输入，登录Web后自己选择服务器知识库目录，再配置插件与检索。
+入口固定到1.1.0-rc.19。安装器包含Node及生产依赖，无需现场npm编译、Docker或sudo；需要可用的systemd用户会话。初始用户名、隐藏密码在终端输入，登录Web后自己选择服务器知识库目录，再配置插件与检索。
 
 Mini主机若继续使用原域名，可直接执行：
 
@@ -33,7 +33,7 @@ curl -fsSL 'https://raw.githubusercontent.com/bandoo-2001/doo-know/txj/doo-know-
 ```bash
 dooknow update
 # 如需指定版本
-dooknow update --version 1.1.0-rc.18
+dooknow update --version 1.1.0-rc.19
 ```
 
 旧安装重新运行公开入口会将分发配置切为匿名模式。需要继续使用私有分发时，安装前显式设置下方凭据文件环境变量。GitHub下载授权与MCP的OAuth/Tunnel授权相互独立。
