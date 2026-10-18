@@ -1,9 +1,10 @@
 import { it, expect } from 'vitest';
-import { mkdir, writeFile, readFile, access } from 'node:fs/promises';
+import { mkdir, writeFile, readFile, access, utimes } from 'node:fs/promises';
 import { join } from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { createFixture } from '../support/fixture.js';
+import { gitState } from '../../packages/core/indexing/git-state.js';
 const exec = promisify(execFile);
 const git = (root: string, args: string[]) =>
   exec(
@@ -19,6 +20,24 @@ const git = (root: string, args: string[]) =>
     ],
     { cwd: root },
   );
+it('reads Git state without refreshing or locking the repository index', async () => {
+  const f = await createFixture();
+  try {
+    await git(f.knowledgeRoot, ['init', '--initial-branch=main']);
+    const file = join(f.knowledgeRoot, '00-Inbox/readonly-status.md');
+    await writeFile(file, '# Same content');
+    await git(f.knowledgeRoot, ['add', '.']);
+    await git(f.knowledgeRoot, ['commit', '-m', 'fixture']);
+    const index = join(f.knowledgeRoot, '.git/index');
+    const before = await readFile(index);
+    await utimes(file, 2000000000, 2000000000);
+    const state = await gitState(f.knowledgeRoot);
+    expect(state.dirty).toBe(false);
+    expect(await readFile(index)).toEqual(before);
+  } finally {
+    await f.close();
+  }
+});
 it('explicit managed pull updates actual Markdown, disables hooks and refuses dirty worktrees', async () => {
   const f = await createFixture();
   try {

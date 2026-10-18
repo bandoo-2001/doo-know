@@ -5,7 +5,35 @@ import { createHash } from 'node:crypto';
 import { createFixture, loginFixtureOwner } from '../support/fixture.js';
 import { agentConfig, agentHeaders } from '../support/agent.js';
 import { openDatabase } from '../../packages/core/db.js';
+import { reconcileService } from '../../packages/core/indexing/reconcile.js';
+import { noteService } from '../../packages/core/notes.js';
+import { shareService } from '../../packages/core/shares.js';
 const hash = (s: string) => createHash('sha256').update(s).digest('hex');
+it('preserves a note and its share when it is created after the reconciliation file snapshot', async () => {
+  const f = await createFixture(),
+    db = openDatabase(f.dataRoot);
+  try {
+    const notes = noteService(f.config, db),
+      shares = shareService(db, notes);
+    const reconciliation = reconcileService(f.config, db).reconcile();
+    // perform() has taken its synchronous file snapshot and is awaiting real Git IO.
+    await Promise.resolve();
+    const note = notes.createNote('00-Inbox', 'created-during-scan.md', '# Keep this identity');
+    const share = shares.create(note.id);
+    await reconciliation;
+    expect(
+      (db.prepare('SELECT active FROM notes WHERE id=?').get(note.id) as { active: number }).active,
+    ).toBe(1);
+    expect(notes.tree()[0].children?.find((entry) => entry.path === note.relativePath)?.id).toBe(
+      note.id,
+    );
+    expect(shares.document(share.token!).id).toBe(note.id);
+    expect(notes.getNote(note.id).content).toBe('# Keep this identity');
+  } finally {
+    db.close();
+    await f.close();
+  }
+});
 it('all listing and document entrances preserve identities when an empty replacement root appears', async () => {
   const f = await createFixture({ agent: agentConfig }),
     held = f.knowledgeRoot + '-held',

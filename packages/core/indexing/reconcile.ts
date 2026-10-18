@@ -1,5 +1,6 @@
 import { lstatSync, realpathSync, readdirSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
+import { join } from 'node:path';
 import type { AppConfig } from '../../../shared/contracts.js';
 import type { AppDatabase } from '../db.js';
 import { scanFiles, safePath } from '../files.js';
@@ -163,6 +164,17 @@ export function reconcileService(config: AppConfig, db: AppDatabase) {
           (!scopes || scopes.some((scope) => underPrefix(row.path, scope))) &&
           !live.has(row.path)
         ) {
+          // The scan predates asynchronous Git/hash reads. A writer may have
+          // created or restored this file while those reads were in progress.
+          try {
+            if (lstatSync(join(config.knowledgeRoot, row.path)).isFile()) {
+              safePath(config.knowledgeRoot, row.path, 'note');
+              continue;
+            }
+          } catch (e) {
+            if (!['ENOENT', 'ENOTDIR'].includes((e as NodeJS.ErrnoException).code || ''))
+              fail(503, 'SOURCE_UNAVAILABLE', '原文读取不可用', true);
+          }
           db.prepare('UPDATE notes SET active=0 WHERE id=?').run(row.id);
           db.prepare('UPDATE shares SET enabled=0 WHERE note_id=?').run(row.id);
           db.prepare(

@@ -2,7 +2,7 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 export const runFile = promisify(execFile);
 export async function git(root: string, args: string[], signal?: AbortSignal) {
-  const env = { ...process.env, GIT_TERMINAL_PROMPT: '0' };
+  const env = { ...process.env, GIT_TERMINAL_PROMPT: '0', GIT_OPTIONAL_LOCKS: '0' };
   for (const key of [
     'GIT_DIR',
     'GIT_WORK_TREE',
@@ -18,6 +18,8 @@ export async function git(root: string, args: string[], signal?: AbortSignal) {
       'core.hooksPath=/dev/null',
       '-c',
       'core.fsmonitor=false',
+      '-c',
+      'diff.autoRefreshIndex=false',
       '-c',
       'protocol.ext.allow=never',
       '--no-pager',
