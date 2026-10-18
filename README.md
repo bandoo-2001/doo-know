@@ -115,7 +115,7 @@ Git 插件将版本操作放到浏览资料的上下文中：文件列表显示�
 | 回退版本         | `dooknow rollback`                                           |
 | 卸载程序         | `dooknow uninstall`                                          |
 
-使用 `dooknow update` 升级到最新已发布版本（包含 RC 预发布版，按版本号选择，排除草稿）；也可指定版本，例如 `dooknow update --version 1.1.0-rc.14`。命令自动使用已有的 `HTTP_PROXY`、`HTTPS_PROXY` 和 `NO_PROXY` 环境变量，无需额外的 Node 参数；未配置代理时直接连接。升级执行下载校验、自检、一致性备份、迁移和健康检查，保留上一版本。卸载默认保留知识库、数据与配置。
+使用 `dooknow update` 升级到最新已发布版本（包含 RC 预发布版，按版本号选择，排除草稿）；也可指定版本，例如 `dooknow update --version 1.1.0-rc.15`。命令自动使用已有的 `HTTP_PROXY`、`HTTPS_PROXY` 和 `NO_PROXY` 环境变量，无需额外的 Node 参数；未配置代理时直接连接。升级执行下载校验、自检、一致性备份、迁移和健康检查，保留上一版本。卸载默认保留知识库、数据与配置。
 
 新安装遵循 XDG 目录约定：
 
