@@ -10,6 +10,8 @@ test('observes optional local-search download and cancels it from desktop and mo
   );
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   await page.goto('/');
+  if (!(await page.getByRole('button', { name: '设置', exact: true }).isVisible()))
+    await page.getByRole('button', { name: '个人账户', exact: true }).click();
   await page.getByRole('button', { name: '设置', exact: true }).click();
   await page.getByRole('button', { name: '准备本地检索', exact: true }).click();
   await expect(page.getByRole('button', { name: '取消检索准备', exact: true })).toBeVisible();

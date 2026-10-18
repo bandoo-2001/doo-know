@@ -39,6 +39,7 @@ test('keeps navigation reachable and content scrolling inside the window with a 
       await page.setViewportSize(size);
       await page.goto('/');
       await expect(page.locator('.main-content')).toBeVisible();
+      await page.getByRole('button', { name: '个人账户', exact: true }).click();
       await page.getByRole('button', { name: '刷新目录', exact: true }).click();
       const last = page
         .locator('.tree-scroll')
@@ -55,6 +56,11 @@ test('keeps navigation reachable and content scrolling inside the window with a 
         .getByRole('button', { name: '设置', exact: true });
       await settings.scrollIntoViewIfNeeded();
       await expect(settings).toBeInViewport();
+      if (size.width <= 720) await page.getByRole('button', { name: '关闭侧栏' }).click();
+      const status = await page.locator('.index-status').boundingBox();
+      expect(status!.x + status!.width).toBeGreaterThan(size.width - 40);
+      expect(status!.y + status!.height).toBeGreaterThan(size.height - 65);
+      await inWindow('.index-status');
       if (size.height <= 540) {
         await page.locator('.index-details summary').click();
         const details = page.locator('.index-popover');
@@ -64,6 +70,7 @@ test('keeps navigation reachable and content scrolling inside the window with a 
         await inWindow('.index-popover');
         await page.locator('.index-details summary').click();
       }
+      if (size.width <= 720) await page.getByRole('button', { name: '打开侧栏' }).click();
       await settings.click();
       await expect(page.getByRole('heading', { name: '个人设置', exact: true })).toBeVisible();
       await inWindow('.main-content');

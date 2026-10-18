@@ -84,15 +84,21 @@ button:disabled {
   height: 29px;
 }
 .sidebar-actions {
+  flex-direction: row;
+  align-items: center;
   padding: 0 16px;
-  gap: 10px;
+  gap: 8px;
   margin-bottom: 9px;
 }
 .sidebar-actions .n-input {
+  flex: 1;
+  min-width: 0;
   font-size: 12px;
   background: #f9fafc;
 }
 .sidebar-actions .n-button {
+  flex: 0 0 36px;
+  width: 36px;
   height: 36px;
   font-size: 13px;
 }
@@ -191,6 +197,12 @@ button:disabled {
 .account-row {
   padding-top: 10px;
   margin-top: 5px !important;
+}
+.account-row .account-expanded {
+  transform: rotate(90deg);
+}
+.account-navigation {
+  padding: 2px 0 4px 12px;
 }
 .avatar {
   width: 28px;

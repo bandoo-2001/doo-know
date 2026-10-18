@@ -9,6 +9,8 @@ test('installs Git interactions, initializes, previews all changes and displays 
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   const mobile = info.project.name === 'mobile';
   await page.goto('/');
+  if (!(await page.getByRole('button', { name: '设置', exact: true }).isVisible()))
+    await page.getByRole('button', { name: '个人账户', exact: true }).click();
   await page.getByRole('button', { name: '设置', exact: true }).click();
   await page.getByRole('button', { name: '安装Git 版本管理', exact: true }).click();
   await page.getByLabel('提交作者', { exact: true }).fill('Browser Fixture');

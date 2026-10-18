@@ -107,11 +107,19 @@ onBeforeUnmount(() => {
 </template>
 <style scoped>
 .index-status {
-  position: relative;
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(44px, env(safe-area-inset-bottom));
+  z-index: 15;
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 9px 8px 0;
+  padding: 4px 8px 4px 12px;
+  max-width: calc(100vw - 32px);
+  border: 1px solid var(--border, #e3e6ec);
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 2px 10px #25325408;
   color: var(--muted, #7a8190);
   font-size: 10px;
 }
@@ -148,8 +156,11 @@ summary > span:last-child {
 .index-popover {
   position: absolute;
   bottom: calc(100% + 8px);
-  left: 0;
-  width: min(242px, 100%);
+  right: 0;
+  width: min(280px, calc(100vw - 32px));
+  box-sizing: border-box;
+  max-height: calc(100dvh - 110px);
+  overflow-y: auto;
   padding: 16px;
   border: 1px solid var(--border, #e3e6ec);
   background: #fff;
@@ -182,18 +193,5 @@ summary > span:last-child {
   background: transparent;
   color: var(--blue);
   font-size: 12px;
-}
-@media (max-height: 540px) {
-  .index-status {
-    align-items: flex-start;
-  }
-  .index-details {
-    flex: 1;
-  }
-  .index-popover {
-    position: static;
-    width: auto;
-    margin-top: 8px;
-  }
 }
 </style>

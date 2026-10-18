@@ -6,6 +6,8 @@ test('installs a separate ESM plugin and removes its interactions when disabled'
 }, info) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   await page.goto('/');
+  if (!(await page.getByRole('button', { name: '设置', exact: true }).isVisible()))
+    await page.getByRole('button', { name: '个人账户', exact: true }).click();
   await page.getByRole('button', { name: '设置', exact: true }).click();
   await expect(page.getByRole('heading', { name: '插件市场', exact: true })).toBeVisible();
   await page.getByRole('button', { name: '安装计数验收插件', exact: true }).click();

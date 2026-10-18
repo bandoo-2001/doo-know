@@ -54,7 +54,16 @@ test('keeps note identity, secondary actions and editor preferences usable witho
   page.on('request', (r) => {
     if (r.url().includes('/api/auth/sign-out')) signOuts++;
   });
-  await page.getByRole('button', { name: '个人账户', exact: true }).click();
+  const account = page.getByRole('button', { name: '个人账户', exact: true });
+  await expect(account).toHaveAttribute('aria-expanded', 'false');
+  await expect(page.getByRole('button', { name: '回收站', exact: true })).toBeHidden();
+  await account.click();
+  await expect(account).toHaveAttribute('aria-expanded', 'true');
+  await expect(page.getByRole('button', { name: '回收站', exact: true })).toBeVisible();
+  await account.click();
+  await expect(page.getByRole('button', { name: '设置', exact: true })).toBeHidden();
+  await account.click();
+  await page.getByRole('button', { name: '账户设置', exact: true }).click();
   await expect(page.getByRole('heading', { name: '修改密码', exact: true })).toBeVisible();
   expect(signOuts).toBe(0);
   await expect(page.getByRole('button', { name: '退出登录', exact: true })).toBeVisible();
@@ -100,6 +109,8 @@ test('explains invalid plugin input and confirms a successful save without sendi
 }) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   await page.goto('/');
+  if (!(await page.getByRole('button', { name: '设置', exact: true }).isVisible()))
+    await page.getByRole('button', { name: '个人账户', exact: true }).click();
   await page.getByRole('button', { name: '设置', exact: true }).click();
   await page.getByRole('button', { name: '扩展插件', exact: true }).click();
   const card = page.locator('.plugin-card').filter({ hasText: 'MCP 服务' });

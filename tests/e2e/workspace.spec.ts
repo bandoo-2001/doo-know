@@ -23,7 +23,9 @@ test('login and two-column workspace with manual Markdown editing', async ({ pag
     .locator('.sidebar')
     .getByRole('button', { name: '新建笔记', exact: true })
     .boundingBox();
-  expect(search!.y).toBeLessThan(create!.y);
+  expect(Math.abs(search!.y - create!.y)).toBeLessThanOrEqual(2);
+  expect(search!.x + search!.width).toBeLessThan(create!.x);
+  expect(create!.width).toBeLessThanOrEqual(40);
   await expect(page.getByRole('button', { name: '全部笔记', exact: true })).toHaveCount(0);
   await expect(page.getByRole('heading', { name: '选择一篇笔记', exact: true })).toBeVisible();
   await expect(page.locator('.folder-view')).toHaveCount(0);
@@ -279,6 +281,8 @@ test.describe('authenticated feature acceptance', () => {
     await page.getByRole('button', { name: '移入回收站', exact: true }).click();
     if (info.project.name === 'mobile')
       await page.getByRole('button', { name: '打开侧栏' }).click();
+    if (!(await page.getByRole('button', { name: '回收站', exact: true }).isVisible()))
+      await page.getByRole('button', { name: '个人账户', exact: true }).click();
     await page.getByRole('button', { name: '回收站', exact: true }).click();
     const deleted = page.locator('.utility-row').filter({ hasText: n.relativePath });
     await deleted.getByRole('button', { name: '恢复', exact: true }).click();

@@ -40,6 +40,7 @@ function storedSidebarWidth() {
   return 280;
 }
 const sidebarWidth = ref(storedSidebarWidth()),
+  accountExpanded = ref(false),
   showLineNumbers = ref(false),
   releaseVersion = ref('');
 function saveSidebarWidth() {
@@ -873,9 +874,14 @@ onBeforeUnmount(() => {
           placeholder="搜索笔记与目录"
           aria-label="搜索笔记与目录"
           ><template #prefix><Icon name="search" :size="17" /></template></NInput
-        ><NButton type="primary" block @click="create('note')"
-          ><template #icon><Icon name="plus" /></template>新建笔记</NButton
-        >
+        ><NButton
+          type="primary"
+          square
+          aria-label="新建笔记"
+          title="新建笔记"
+          @click="create('note')"
+          ><template #icon><Icon name="plus" /></template
+        ></NButton>
       </div>
       <div class="tree-heading">
         <span>{{ query ? '搜索结果' : '笔记本' }}</span
@@ -925,24 +931,35 @@ onBeforeUnmount(() => {
       </div>
       <div class="sidebar-footer">
         <button
-          class="nav-action"
-          :class="{ active: panel === 'trash' }"
-          :aria-current="panel === 'trash' ? 'page' : undefined"
-          @click="openTrash"
+          class="nav-action account-row"
+          aria-label="个人账户"
+          :aria-expanded="accountExpanded"
+          aria-controls="account-navigation"
+          @click="accountExpanded = !accountExpanded"
         >
-          <Icon name="trash" />回收站</button
-        ><button
-          class="nav-action"
-          :class="{ active: panel === 'settings' }"
-          :aria-current="panel === 'settings' ? 'page' : undefined"
-          @click="settings()"
-        >
-          <Icon name="settings" />设置</button
-        ><button class="nav-action account-row" aria-label="个人账户" @click="settings('account')">
-          <span class="avatar" aria-hidden="true">个人</span><span>个人账户</span
-          ><Icon name="chevron" :size="16" />
+          <span class="avatar" aria-hidden="true">个人</span><span>个人账户</span>
+          <Icon name="chevron" :size="16" :class="{ 'account-expanded': accountExpanded }" />
         </button>
-        <IndexStatus :note-id="note?.id" @settings="settings('search')" />
+        <div v-show="accountExpanded" id="account-navigation" class="account-navigation">
+          <button class="nav-action" @click="settings('account')">
+            <Icon name="lock" />账户设置
+          </button>
+          <button
+            class="nav-action"
+            :class="{ active: panel === 'trash' }"
+            :aria-current="panel === 'trash' ? 'page' : undefined"
+            @click="openTrash"
+          >
+            <Icon name="trash" />回收站</button
+          ><button
+            class="nav-action"
+            :class="{ active: panel === 'settings' }"
+            :aria-current="panel === 'settings' ? 'page' : undefined"
+            @click="settings()"
+          >
+            <Icon name="settings" />设置
+          </button>
+        </div>
       </div>
     </aside>
     <SidebarResizer v-model="sidebarWidth" @commit="saveSidebarWidth" />
@@ -1182,6 +1199,7 @@ onBeforeUnmount(() => {
         <p v-if="releaseVersion" class="app-version">DooKnow · 服务版本 {{ releaseVersion }}</p>
       </section>
     </main>
+    <IndexStatus :note-id="note?.id" @settings="settings('search')" />
     <PluginPanel />
     <div v-if="notice" class="toast" role="status">
       <Icon name="check" :size="18" />{{ notice }}

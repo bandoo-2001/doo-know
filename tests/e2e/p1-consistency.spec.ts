@@ -133,6 +133,8 @@ test('W02 stale deletion preserves share then checks a lost delete receipt', asy
   ).json();
   expect(op.status).toBe('succeeded');
   if (info.project.name === 'mobile') await page.getByRole('button', { name: '打开侧栏' }).click();
+  if (!(await page.getByRole('button', { name: '回收站', exact: true }).isVisible()))
+    await page.getByRole('button', { name: '个人账户', exact: true }).click();
   await page.getByRole('button', { name: '回收站', exact: true }).click();
   const row = page.locator('.utility-row').filter({ hasText: n.relativePath });
   let restoreInput: any;
