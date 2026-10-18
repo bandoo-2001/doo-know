@@ -27,7 +27,11 @@ import {
   guardIsAlive,
   processGroupIsAlive,
 } from '../../../packages/core/workspace/gate.js';
-import { beginOperation, existingResult, completeOperation } from '../../../packages/core/knowledge/operations.js';
+import {
+  beginOperation,
+  existingResult,
+  completeOperation,
+} from '../../../packages/core/knowledge/operations.js';
 import { webPrincipal } from '../../../packages/core/knowledge/core.js';
 import { fail } from '../../../packages/core/knowledge/errors.js';
 import { privateFile } from '../../../packages/core/agent/config.js';
@@ -615,6 +619,7 @@ export function searchRuntimeManager(
     const active = db.prepare('SELECT active_json FROM search_runtime WHERE id=1').get() as any;
     return {
       distributionAvailable: !!distribution,
+      downloadBytes: distribution?.bytes || 0,
       externallyManaged,
       components,
       ...(runtimeError ? { code: runtimeError } : {}),

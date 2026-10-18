@@ -807,6 +807,10 @@ onMounted(() => {
     await refresh();
     const id = new URLSearchParams(window.location.search).get('note');
     if (id) await openNote(id);
+    if (sessionStorage.getItem('dooknow-welcome-action') === 'create-note') {
+      sessionStorage.removeItem('dooknow-welcome-action');
+      create('note');
+    }
   });
   window.addEventListener('keydown', shortcut);
   window.addEventListener('beforeunload', unload);

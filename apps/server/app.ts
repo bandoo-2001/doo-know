@@ -9,7 +9,7 @@ import staticPlugin from '@fastify/static';
 import { fromNodeHeaders } from 'better-auth/node';
 import type { AppConfig } from '../../shared/contracts.js';
 import type { HostConfig } from '../../shared/platform-contracts.js';
-import {releaseInfo} from './platform/release.js';
+import { releaseInfo } from './platform/release.js';
 import { searchRuntimeManager } from './platform/search-runtime.js';
 import { platformRuntime, lazyService } from './platform/runtime.js';
 import { pluginHost } from './plugins/host.js';
@@ -34,7 +34,7 @@ import { webPrincipal } from '../../packages/core/knowledge/core.js';
 import { KnowledgeError } from '../../packages/core/knowledge/errors.js';
 export async function createApp(config: HostConfig) {
   const app = Fastify({ logger: false, bodyLimit: 2 * 1024 * 1024 });
-  const db = openDatabase(config.dataRoot,'server');
+  const db = openDatabase(config.dataRoot, 'server');
   const auth = await createAuth(config, db);
   const platform = platformRuntime(config, db);
   const searchRuntime = searchRuntimeManager(config, db, platform);
@@ -139,7 +139,8 @@ export async function createApp(config: HostConfig) {
     url: '/api/auth/*',
     handler: async (req, reply) => {
       const path = req.url.split('?')[0];
-      if((db.prepare('SELECT active FROM maintenance WHERE id=1').get() as any).active)return reply.code(503).send({error:'维护中，请稍后重试',code:'MAINTENANCE_ACTIVE'});
+      if ((db.prepare('SELECT active FROM maintenance WHERE id=1').get() as any).active)
+        return reply.code(503).send({ error: '维护中，请稍后重试', code: 'MAINTENANCE_ACTIVE' });
       if (!authPaths.has(path)) return reply.code(404).send({ error: '接口不存在' });
       if (
         req.method === 'POST' &&
@@ -173,7 +174,12 @@ export async function createApp(config: HostConfig) {
   });
   app.get('/api/security/csrf', async (_req, reply) => ({ token: reply.generateCsrf() }));
   registerOAuthRoutes(app, auth, config, db);
-  app.get('/healthz', async () => ({ status: 'alive',version:releaseInfo(config.applicationRoot).version,phase:platform.status().phase,maintenance:!!(db.prepare('SELECT active FROM maintenance WHERE id=1').get() as any).active }));
+  app.get('/healthz', async () => ({
+    status: 'alive',
+    version: releaseInfo(config.applicationRoot).version,
+    phase: platform.status().phase,
+    maintenance: !!(db.prepare('SELECT active FROM maintenance WHERE id=1').get() as any).active,
+  }));
   app.get('/readyz', async (_req, reply) => {
     const ready = platform.status().components.knowledge;
     return reply.code(ready ? 200 : 503).send({ status: ready ? 'ready' : 'not_ready' });
@@ -188,6 +194,12 @@ export async function createApp(config: HostConfig) {
     async (req) => searchRuntime.cancel((req as any).ownerId, req.params.id),
   );
   registerPluginRoutes(app, plugins);
+  app.post('/api/platform/setup/directories', async (req) =>
+    platform.settings.directories(req.body),
+  );
+  app.post('/api/platform/setup/create', async (req) =>
+    platform.settings.createDirectory((req as any).ownerId, req.body),
+  );
   app.post('/api/platform/setup/validate', async (req) =>
     platform.settings.validate((req as any).ownerId, (req.body as any)?.knowledgeRoot),
   );

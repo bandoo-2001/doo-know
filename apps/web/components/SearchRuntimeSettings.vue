@@ -2,6 +2,7 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import { NButton, NAlert } from 'naive-ui';
 import { api } from '../api';
+defineProps<{ onboarding?: boolean }>();
 const state = ref<any>(),
   error = ref(''),
   busy = ref(false);
@@ -57,17 +58,39 @@ onUnmounted(() => clearInterval(timer));
 </script>
 <template>
   <section class="search-runtime-settings">
-    <h2>本地检索</h2>
-    <p>准备本地模型和检索环境。下载期间仍可浏览和编辑笔记。</p>
+    <h2>{{ onboarding ? '准备内容搜索' : '本地检索' }}</h2>
+    <p>
+      {{
+        onboarding
+          ? '下载一次搜索组件，准备好后可在本机运行。准备期间仍可浏览和编辑笔记。'
+          : '准备本地模型和检索环境。下载期间仍可浏览和编辑笔记。'
+      }}
+    </p>
     <NAlert v-if="error" type="error">{{ error }}</NAlert>
     <template v-if="state">
-      <p>
+      <p v-if="onboarding && state.downloadBytes">
+        需要下载约 {{ Math.ceil(state.downloadBytes / 1024 / 1024) }} MiB。未点击准备前不会下载。
+      </p>
+      <p v-if="!onboarding">
         文本检索：{{
           state.components.tokenizerReady ? '可用' : '依赖未准备，索引任务已暂停'
         }}；语义检索：{{ state.components.vectorReady ? '可用' : '暂不可用' }}
       </p>
-      <p v-if="state.externallyManaged">当前使用服务器部署配置中的检索环境。</p>
-      <p v-else-if="!state.distributionAvailable">当前安装源未提供检索包。知识库可以继续使用。</p>
+      <p v-if="onboarding" role="status">
+        {{
+          state.components.tokenizerReady && state.components.vectorReady
+            ? '内容搜索已就绪。'
+            : state.components.tokenizerReady
+              ? '关键词搜索可用，按意思搜索还需要准备。'
+              : '内容搜索尚未就绪，可以稍后再设置。'
+        }}
+      </p>
+      <p v-if="state.externallyManaged">
+        当前使用部署设备配置的搜索组件。实际可用情况以上方状态为准。
+      </p>
+      <p v-else-if="!state.distributionAvailable">
+        当前暂时没有可下载的搜索组件。你可以继续使用知识库。
+      </p>
       <template v-if="state.task"
         ><p>
           {{ labels[state.task.phase] || state.task.phase }}
@@ -77,7 +100,15 @@ onUnmounted(() => clearInterval(timer));
           >
         </p>
         <NAlert v-if="state.task.error" type="warning"
-          >{{ state.task.error }}；可重新准备，已校验的下载会复用。</NAlert
+          >{{
+            onboarding
+              ? '搜索组件暂时没有准备好，可以重试。已校验的下载会保留。'
+              : state.task.error + '；可重新准备，已校验的下载会复用。'
+          }}
+          <details v-if="onboarding">
+            <summary>查看详细信息</summary>
+            {{ state.task.error }}
+          </details></NAlert
         ></template
       >
       <NButton
@@ -94,7 +125,7 @@ onUnmounted(() => clearInterval(timer));
         "
         :loading="busy"
         @click="prepare"
-        >{{ state.task ? '重试准备本地检索' : '准备本地检索' }}</NButton
+        >{{ state.task ? '重新准备' : onboarding ? '下载并准备搜索' : '准备本地检索' }}</NButton
       >
       <NButton :loading="busy" @click="load">检查检索状态</NButton>
     </template>
