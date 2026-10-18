@@ -16,6 +16,7 @@ import Icon from './Icon.vue';
 import TreeBranch from './TreeBranch.vue';
 import MarkdownEditor from './MarkdownEditor.vue';
 import EditorToolbar from './EditorToolbar.vue';
+import DocumentBreadcrumb from './DocumentBreadcrumb.vue';
 import { emptyToolbarState, type MarkdownAction } from '../markdown-format';
 import DocumentOutline from './DocumentOutline.vue';
 import { outlineFromTokens } from '../document-outline';
@@ -157,10 +158,6 @@ function formatNote(action: MarkdownAction) {
 function editHistory(action: 'undo' | 'redo') {
   if (!formatDisabled.value) editorRef.value?.editHistory(action);
 }
-const documentCrumbs = computed(() => {
-  const parts = note.value?.relativePath.split('/').slice(0, -1) || [];
-  return parts.map((name, index) => ({ name, path: parts.slice(0, index + 1).join('/') }));
-});
 async function browseRoot() {
   await run(() =>
     guard(async () => {
@@ -1520,32 +1517,12 @@ onBeforeUnmount(() => {
                 <Icon name="forward" :size="18" />
               </button>
             </div>
-            <nav class="document-identity document-breadcrumb" aria-label="笔记路径">
-              <button
-                class="breadcrumb-root"
-                type="button"
-                aria-label="返回笔记本"
-                @click="browseRoot"
-              >
-                <Icon name="book" :size="17" /><span>笔记本</span>
-              </button>
-              <template v-for="crumb in documentCrumbs" :key="crumb.path">
-                <Icon class="breadcrumb-chevron" name="chevron" :size="12" />
-                <button
-                  class="breadcrumb-folder"
-                  type="button"
-                  :aria-label="'打开目录 ' + crumb.name"
-                  :title="crumb.path"
-                  @click="select({ type: 'folder', name: crumb.name, path: crumb.path })"
-                >
-                  <Icon name="folder" :size="16" /><span>{{ crumb.name }}</span>
-                </button>
-              </template>
-              <Icon class="breadcrumb-chevron" name="chevron" :size="12" />
-              <h1 class="document-title" :title="note.relativePath">
-                {{ note.relativePath.split('/').at(-1)?.replace(/\.md$/i, '') || note.title }}
-              </h1>
-            </nav>
+            <DocumentBreadcrumb
+              :relative-path="note.relativePath"
+              :title="note.title"
+              @root="browseRoot"
+              @folder="select"
+            />
             <div class="toolbar">
               <span
                 v-if="noteInfo?.editorMode === 'full'"

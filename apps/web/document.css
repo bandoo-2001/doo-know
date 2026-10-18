@@ -64,6 +64,23 @@
 .document-breadcrumb > button:hover {
   color: var(--blue);
 }
+.document-breadcrumb > .breadcrumb-root {
+  flex: 0 0 auto;
+  max-width: none;
+}
+.document-breadcrumb > .breadcrumb-overflow {
+  flex: 0 0 28px;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 5px;
+}
+.document-breadcrumb > .breadcrumb-overflow:hover {
+  background: #edf1fa;
+}
+.document-breadcrumb > .breadcrumb-overflow-single {
+  display: none;
+}
 .document-breadcrumb button span {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -77,10 +94,56 @@
 }
 .note-header .document-title {
   flex: 1 1 80px;
-  min-width: 60px;
+  min-width: 0;
   margin: 0;
   font-size: 14px;
   font-weight: 500;
+}
+.breadcrumb-menu {
+  width: min(360px, calc(100vw - 48px));
+  max-height: min(360px, 60dvh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.breadcrumb-menu button {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 8px;
+  border: 0;
+  border-radius: 5px;
+  text-align: left;
+  background: transparent;
+  color: #536178;
+  font: inherit;
+  cursor: pointer;
+}
+.breadcrumb-menu button:hover,
+.breadcrumb-menu button:focus-visible {
+  background: #f0f3fc;
+  color: var(--blue);
+}
+.breadcrumb-menu button > svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.breadcrumb-menu button > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.breadcrumb-menu-name,
+.breadcrumb-menu-path {
+  display: block;
+  line-height: 1.5;
+}
+.breadcrumb-menu-name {
+  font-size: 13px;
+}
+.breadcrumb-menu-path {
+  margin-top: 2px;
+  font-size: 11px;
+  color: #8692a5;
 }
 .note-header .toolbar {
   width: auto;
@@ -347,9 +410,12 @@
     display: none;
   }
   .document-breadcrumb > .breadcrumb-folder,
-  .document-breadcrumb > .breadcrumb-chevron,
+  .document-breadcrumb > .breadcrumb-parent-chevron,
   .document-breadcrumb .breadcrumb-root span {
     display: none;
+  }
+  .document-breadcrumb > .breadcrumb-overflow-single {
+    display: flex;
   }
   .document-identity.document-breadcrumb {
     gap: 6px;
