@@ -38,7 +38,14 @@ export function noteService(config: AppConfig, db: AppDatabase) {
     db.transaction(() => {
       const live = new Set(files.notes);
       for (const row of db.prepare('SELECT * FROM notes WHERE active=1').all() as NoteRow[])
-        if (!live.has(row.path)) {
+        if (
+          !live.has(row.path) &&
+          !db
+            .prepare(
+              "SELECT 1 FROM write_intents WHERE note_id=? AND kind='move' AND status IN ('prepared','conflicted')",
+            )
+            .get(row.id)
+        ) {
           db.prepare('UPDATE notes SET active=0 WHERE id=?').run(row.id);
           db.prepare('UPDATE shares SET enabled=0 WHERE note_id=?').run(row.id);
         }
@@ -46,7 +53,7 @@ export function noteService(config: AppConfig, db: AppDatabase) {
         if (
           !db
             .prepare(
-              "SELECT 1 FROM write_intents WHERE path=? AND kind='restore' AND status IN ('prepared','conflicted')",
+              "SELECT 1 FROM write_intents WHERE path=? AND kind IN ('restore','move','create') AND status IN ('prepared','conflicted')",
             )
             .get(path) &&
           !db.prepare('SELECT id FROM notes WHERE path=? AND active=1').get(path)
@@ -74,6 +81,19 @@ export function noteService(config: AppConfig, db: AppDatabase) {
       };
     } catch (e) {
       if (e instanceof HttpError && e.statusCode === 404) {
+        if (
+          db
+            .prepare(
+              "SELECT 1 FROM write_intents WHERE note_id=? AND kind='move' AND status IN ('prepared','conflicted')",
+            )
+            .get(id)
+        )
+          throw new KnowledgeError(
+            409,
+            'OPERATION_OUTCOME_UNKNOWN',
+            '移动尚未完成，请核对操作状态',
+            true,
+          );
         if (
           db
             .prepare("SELECT 1 FROM sync_runs WHERE status IN ('running','needs_reconciliation')")

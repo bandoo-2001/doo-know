@@ -14,6 +14,9 @@ it('propagates terminal cancellation rather than retrying forever',async()=>{
  await expect(collectAccount({username:async()=>{throw Error('cancelled');},password:async()=>'',report:()=>{}})).rejects.toThrow('cancelled');
 });
 
-it('accepts a short non-empty password',async()=>{
- expect(await collectAccount({username:async()=> 'owner',password:async()=> '123',report:()=>{throw Error('unexpected rejection');}})).toEqual({username:'owner',password:'123'});
+it('rejects short passwords before confirmation and accepts the eight-character boundary',async()=>{
+ const passwords=['1234567','12345678','12345678','12345678']; const errors:string[]=[];
+ expect(await collectAccount({username:async()=> 'owner',password:async()=>passwords.shift()!,report:message=>errors.push(message)})).toEqual({username:'owner',password:'12345678'});
+ expect(errors).toEqual(['密码至少需要 8 个字符，请重新输入。']);
+ expect(passwords).toHaveLength(1);
 });

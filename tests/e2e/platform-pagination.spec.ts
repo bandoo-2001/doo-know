@@ -14,7 +14,7 @@ test('search and history expose their remaining pages', async ({ page, context }
       headers,
       data: {
         folderPath: '00-Inbox',
-        fileName: `${keyword}-${i}.md`,
+        fileName: `分页正文-${info.project.name}-${i}.md`,
         content: `# ${keyword}\n${i}`,
       },
     });

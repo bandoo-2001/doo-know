@@ -12,12 +12,21 @@ import { api, ApiError } from '../api';
 import MarkdownEditor from './MarkdownEditor.vue';
 import NoteOutline from './NoteOutline.vue';
 import OperationStatus from './OperationStatus.vue';
+import DraftRecovery from './DraftRecovery.vue';
+import {
+  createDraftStore,
+  noteDraftBase,
+  type DraftRecord,
+  type DraftScope,
+  type DraftStore,
+} from '../drafts';
 import MarkdownIt from 'markdown-it';
 import DOMPurify from 'dompurify';
 const props = defineProps<{
   note: NoteInfo;
   initialLine?: number;
   assets?: { id: string; relativePath: string }[];
+  draftScope?: DraftScope;
 }>();
 const emit = defineEmits<{ saved: [note: NoteInfo]; dirty: [value: boolean] }>();
 const page = ref<ReadPage>(),
@@ -29,6 +38,118 @@ const page = ref<ReadPage>(),
   notice = ref(''),
   busy = ref(false),
   leaveOpen = ref(false);
+const editorContent = ref(''),
+  recovery = ref<DraftRecord>(),
+  localError = ref(''),
+  localStatus = ref('');
+let draftStore: DraftStore | undefined, localDraft: DraftRecord | undefined;
+let localTimer: ReturnType<typeof setTimeout> | undefined;
+let localWrite: Promise<void> = Promise.resolve();
+const recoveryBaseChanged = computed(() => {
+  const r = recovery.value,
+    p = page.value;
+  return (
+    !!r &&
+    (!p ||
+      r.baseRevision !== noteDraftBase({ modifiedAt: p.modifiedAt, contentHash: p.sourceHash }) ||
+      !r.range ||
+      r.range.startByte !== p.startByte ||
+      r.range.endByte !== p.endByte ||
+      r.range.rangeHash !== p.rangeHash)
+  );
+});
+function stopLocalTimer() {
+  if (localTimer) clearTimeout(localTimer);
+  localTimer = undefined;
+}
+function persistLocalDraft(): Promise<void> {
+  const p = page.value,
+    store = draftStore,
+    current = epoch,
+    noteId = props.note.id;
+  if (!store || !p || recovery.value) return localWrite;
+  const content = draft.value,
+    isDirty = content !== original.value;
+  const input = {
+    noteId,
+    kind: 'fragment' as const,
+    content,
+    baseRevision: noteDraftBase({ modifiedAt: p.modifiedAt, contentHash: p.sourceHash }),
+    range: {
+      startLine: p.startLine,
+      endLine: p.endLine,
+      lineByteOffset: p.lineByteOffset,
+      startByte: p.startByte,
+      endByte: p.endByte,
+      rangeHash: p.rangeHash,
+    },
+  };
+  localWrite = localWrite.then(async () => {
+    try {
+      if (isDirty) {
+        const saved = await store.put(input);
+        if (current === epoch) {
+          localDraft = saved;
+          localStatus.value = '本地草稿已保存';
+          localError.value = '';
+        }
+      } else if (localDraft?.noteId === noteId) {
+        await store.remove(noteId, localDraft.version);
+        if (current === epoch) {
+          localDraft = undefined;
+          localStatus.value = '';
+        }
+      }
+    } catch (e) {
+      if (current === epoch) {
+        localError.value = (e as Error).message;
+        localStatus.value = '';
+      }
+    }
+  });
+  return localWrite;
+}
+async function flushLocalDraft() {
+  stopLocalTimer();
+  await persistLocalDraft();
+}
+watch(draft, () => {
+  stopLocalTimer();
+  if ((dirty.value || localDraft) && draftStore && !recovery.value)
+    localTimer = setTimeout(() => void persistLocalDraft(), 400);
+});
+async function removeLocalVersion(version?: string) {
+  if (!draftStore || !version) return;
+  try {
+    const removed = await draftStore.remove(props.note.id, version);
+    if (removed && localDraft?.version === version) {
+      localDraft = undefined;
+      localStatus.value = '';
+    }
+  } catch (e) {
+    localError.value = (e as Error).message;
+  }
+}
+function recoverLocalDraft() {
+  if (!recovery.value || recovery.value.kind !== 'fragment' || recoveryBaseChanged.value) return;
+  draft.value = recovery.value.content;
+  editorContent.value = recovery.value.content;
+  localDraft = recovery.value;
+  recovery.value = undefined;
+  renderEpoch++;
+}
+async function discardRecovery() {
+  const version = recovery.value?.version;
+  if (!version || !draftStore) return;
+  try {
+    await draftStore.remove(props.note.id, version);
+    recovery.value = undefined;
+    if (localDraft?.version === version) localDraft = undefined;
+    localError.value = '';
+  } catch (e) {
+    localError.value = (e as Error).message;
+  }
+}
 const previewOpen = ref(false);
 const previewAllowed = computed(() => new TextEncoder().encode(draft.value).length <= 128 * 1024);
 const previewHtml = computed(() => {
@@ -75,6 +196,7 @@ let epoch = 0,
   submittedDraft = '',
   submittedNoteId = '',
   submittedPatch: Record<string, unknown> | undefined,
+  submittedLocalVersion: string | undefined,
   renderEpoch = 0,
   pending: (() => Promise<void>) | undefined;
 async function wait(op: FileOperation, current: number) {
@@ -115,6 +237,7 @@ async function load(input: Record<string, unknown> = {}) {
     renderEpoch++;
     draft.value = r.data.content;
     original.value = r.data.content;
+    editorContent.value = r.data.content;
   } catch (e) {
     if (current === epoch) error.value = (e as Error).message;
   } finally {
@@ -130,7 +253,7 @@ async function loadOutline(cursor?: string) {
   } catch {}
 }
 async function save() {
-  if (!page.value || busy.value) return;
+  if (!page.value || busy.value || recovery.value) return;
   if (requestId) {
     await check();
     return;
@@ -140,11 +263,14 @@ async function save() {
   error.value = '';
   notice.value = '';
   try {
+    await flushLocalDraft();
+    if (current !== epoch) return;
     if (new TextEncoder().encode(draft.value).length > 128 * 1024)
       throw new Error('片段超过 128 KiB，请分次修改');
     const nextRequestId = crypto.randomUUID();
     const p = page.value;
     submittedDraft = draft.value;
+    submittedLocalVersion = localDraft?.content === submittedDraft ? localDraft.version : undefined;
     const payload = {
       snapshotId: p.snapshotId,
       expectedModifiedAt: p.modifiedAt,
@@ -168,7 +294,8 @@ async function save() {
     const r = await api<FileReply<unknown>>(`/api/notes/${props.note.id}/patch`, 'POST', payload);
     if (r.kind === 'accepted') await wait(r.operation, current);
     if (current !== epoch) return;
-    original.value = draft.value;
+    original.value = submittedDraft;
+    await removeLocalVersion(submittedLocalVersion);
     requestId = '';
     submittedPatch = undefined;
     notice.value = '片段已保存';
@@ -207,6 +334,7 @@ async function check() {
     await wait(op, current);
     if (current !== epoch) return;
     original.value = submittedDraft;
+    await removeLocalVersion(submittedLocalVersion);
     requestId = '';
     submittedPatch = undefined;
     notice.value = '片段已保存';
@@ -228,6 +356,10 @@ async function cancel() {
     );
 }
 async function navigate(fn: () => Promise<void>) {
+  if (recovery.value) {
+    notice.value = '请先恢复或丢弃本地草稿后再切换片段。';
+    return;
+  }
   if (dirty.value) {
     pending = fn;
     leaveOpen.value = true;
@@ -242,7 +374,7 @@ async function leave(action: 'save' | 'discard' | 'cancel') {
   if (action === 'save') {
     await save();
     if (dirty.value) return;
-  } else draft.value = original.value;
+  } else await discard();
   leaveOpen.value = false;
   const fn = pending;
   pending = undefined;
@@ -254,13 +386,20 @@ function applyChanges(edits: { from: number; to: number; insert: string }[]) {
     value = value.slice(0, e.from) + e.insert + value.slice(e.to);
   draft.value = value;
 }
-function discard() {
+async function discard() {
+  stopLocalTimer();
+  await localWrite;
+  await removeLocalVersion(localDraft?.version);
   draft.value = original.value;
+  editorContent.value = original.value;
+  renderEpoch++;
 }
 watch(
-  () => props.note.id,
+  [() => props.note.id, () => props.draftScope?.ownerId, () => props.draftScope?.knowledgeId],
   async () => {
+    stopLocalTimer();
     epoch++;
+    const current = epoch;
     draft.value = '';
     original.value = '';
     page.value = undefined;
@@ -269,25 +408,76 @@ watch(
     requestId = '';
     submittedPatch = undefined;
     submittedNoteId = '';
+    submittedLocalVersion = undefined;
     previewOpen.value = false;
+    recovery.value = undefined;
+    localDraft = undefined;
+    localError.value = '';
+    localStatus.value = '';
+    draftStore = props.draftScope ? createDraftStore({ scope: props.draftScope }) : undefined;
     if (props.note.editorMode !== 'metadata') {
-      await load(props.initialLine ? { range: { startLine: props.initialLine } } : {});
+      if (draftStore) {
+        try {
+          const cached = await draftStore.load(props.note.id);
+          if (current !== epoch) return;
+          if (cached) recovery.value = cached;
+        } catch (e) {
+          if (current === epoch) localError.value = (e as Error).message;
+        }
+      }
+      if (current !== epoch) return;
+      const range = recovery.value?.range;
+      await load(
+        range
+          ? {
+              maxBytes: Math.max(1, range.endByte - range.startByte),
+              range: {
+                startLine: range.startLine,
+                endLine: range.endLine,
+                lineByteOffset: range.lineByteOffset,
+              },
+            }
+          : props.initialLine
+            ? { range: { startLine: props.initialLine } }
+            : {},
+      );
       await loadOutline();
     }
   },
   { immediate: true },
 );
-onBeforeUnmount(() => epoch++);
+function pageHidden() {
+  if (document.visibilityState === 'hidden') void flushLocalDraft();
+}
+window.addEventListener('pagehide', flushLocalDraft);
+document.addEventListener('visibilitychange', pageHidden);
+onBeforeUnmount(() => {
+  void flushLocalDraft();
+  epoch++;
+  window.removeEventListener('pagehide', flushLocalDraft);
+  document.removeEventListener('visibilitychange', pageHidden);
+});
 async function reload() {
   await load();
   await loadOutline();
 }
-defineExpose({ save, discard, reload });
+defineExpose({ save, discard, reload, flushLocalDraft });
 </script>
 <template>
   <section class="large-workspace">
     <NAlert type="info">大文件模式</NAlert>
     <p>仅编辑已加载片段。正文上限 20 MiB，每次加载最多 128 KiB。</p>
+    <DraftRecovery
+      v-if="recovery"
+      :draft="recovery"
+      :base-changed="recoveryBaseChanged"
+      fragment
+      :busy="busy"
+      @restore="recoverLocalDraft"
+      @discard="discardRecovery"
+    />
+    <NAlert v-if="localError" type="warning" role="alert">{{ localError }}</NAlert>
+    <p v-else-if="localStatus" role="status">{{ localStatus }} · 尚未写入原文</p>
     <NAlert v-if="error" type="error"
       >{{ error }} <NButton v-if="requestId" @click="check">核对保存结果</NButton></NAlert
     >
@@ -299,17 +489,17 @@ defineExpose({ save, discard, reload });
         :outline="outline"
         @select="(line) => navigate(() => load({ range: { startLine: line } }))"
         @next="loadOutline" />
-      <p v-if="page">
+      <p v-if="page" class="large-range">
         第 {{ page.startLine }}–{{ page.endLine }} 行 · {{ page.startByte }}–{{ page.endByte }} 字节
         · {{ dirty ? '未保存' : '已保存' }}
       </p>
       <div v-if="page" class="large-editor">
         <MarkdownEditor
-          :model-value="original"
+          :model-value="editorContent"
           :incremental="true"
           :wrap="false"
           :show-line-numbers="true"
-          :read-only="busy || !!requestId"
+          :read-only="busy || !!requestId || !!recovery"
           @changes="applyChanges"
           :key="`${page.snapshotId}:${page.startByte}:${renderEpoch}`"
         />
@@ -318,12 +508,13 @@ defineExpose({ save, discard, reload });
         <NButton :disabled="!page || !previewAllowed" @click="previewOpen = !previewOpen">{{
           previewOpen ? '关闭片段预览' : '预览当前片段'
         }}</NButton>
-        <NButton type="primary" :loading="busy" :disabled="!page" @click="save">保存片段</NButton
+        <NButton type="primary" :loading="busy" :disabled="!page || !!recovery" @click="save"
+          >保存片段</NButton
         ><NButton
-          :disabled="!page?.hasMore || busy"
+          :disabled="!page?.hasMore || busy || !!recovery"
           @click="navigate(() => load({ cursor: page!.nextCursor }))"
           >下一片段</NButton
-        ><NButton :disabled="busy" @click="navigate(() => load())">重新读取</NButton
+        ><NButton :disabled="busy || !!recovery" @click="navigate(() => load())">重新读取</NButton
         ><a
           v-if="page"
           :href="`/api/notes/${note.id}/download?snapshotId=${encodeURIComponent(page.snapshotId)}`"

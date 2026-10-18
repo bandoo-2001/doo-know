@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
 import { NInput, NModal, NAlert, NSelect } from 'naive-ui';
-import { Button as AButton, Input as AInput, Alert as AAlert } from 'ant-design-vue';
+import {
+  Button as AButton,
+  Input as AInput,
+  Alert as AAlert,
+  Select as ASelect,
+  Popover as APopover,
+} from 'ant-design-vue';
 import MarkdownIt from 'markdown-it';
 import DOMPurify from 'dompurify';
 import type { NoteDocument, TreeEntry } from '../../../shared/contracts';
@@ -17,6 +23,16 @@ import PluginSlot from './PluginSlot.vue';
 import PluginPanel from './PluginPanel.vue';
 import NoteActions from './NoteActions.vue';
 import SidebarResizer from './SidebarResizer.vue';
+import DraftRecovery from './DraftRecovery.vue';
+import NoteMoveDialog from './NoteMoveDialog.vue';
+import MaintenanceSettings from './MaintenanceSettings.vue';
+import StorageSettings from './StorageSettings.vue';
+import SetupImport from './SetupImport.vue';
+import { useNoteDraft } from '../useNoteDraft';
+import { filenameResults, mergeSearchResults } from '../search-results';
+import { noteDraftBase } from '../drafts';
+import { createWorkspaceNavigation, readWorkspaceRoute, type WorkspaceRoute } from '../navigation';
+import { MIN_PASSWORD_LENGTH, PASSWORD_POLICY_MESSAGE } from '../../../shared/password-policy';
 import { refreshPlugins, disposePluginUIs, pluginRegistry } from '../plugins';
 import type {
   NoteInfo,
@@ -24,11 +40,19 @@ import type {
   OutlinePage,
   FileOperation,
   SearchOutput,
+  MoveNoteResult,
 } from '../../../shared/knowledge-contracts';
 const noteInfo = ref<NoteInfo>(),
   largeRef = ref<InstanceType<typeof LargeFileWorkspace>>(),
   largeDirty = ref(false);
 const initialNoteId = new URLSearchParams(window.location.search).get('note');
+const noteLine = ref<number | undefined>();
+const editorRef = ref<InstanceType<typeof MarkdownEditor>>();
+const noteOpening = ref(false),
+  editorTransfer = ref(false);
+const moveOpen = ref(false),
+  importOpen = ref(false),
+  quickBusy = ref(false);
 const parsedLine = Number(window.location.hash.match(/^#L([1-9]\d*)$/)?.[1]);
 const initialLine =
   Number.isSafeInteger(parsedLine) && parsedLine <= 20 * 1024 * 1024 ? parsedLine : undefined;
@@ -61,6 +85,14 @@ const tree = ref<TreeEntry[]>([]),
   error = ref(''),
   notice = ref('');
 const dialogError = ref('');
+const searchMode = ref<'text' | 'semantic' | 'hybrid'>('hybrid'),
+  searchDirectory = ref(''),
+  searchDegraded = ref(false),
+  vectorReady = ref(false);
+const importFolder = ref('40-Resources'),
+  importBusy = ref(false),
+  downloading = ref(false),
+  outlineOpen = ref(false);
 const query = ref(''),
   searchBusy = ref(false),
   searchError = ref(''),
@@ -75,6 +107,71 @@ let noticeTimer: ReturnType<typeof setTimeout>;
 const dirty = computed(
   () => !!note.value && (largeDirty.value || draft.value !== savedContent.value),
 );
+function currentDraftBase() {
+  return noteDraftBase({ modifiedAt: note.value?.modifiedAt || '' });
+}
+const localDrafts = useNoteDraft(
+  () => ({
+    noteId: note.value?.id,
+    baseRevision: currentDraftBase(),
+    content: draft.value,
+    dirty: dirty.value,
+    enabled: noteInfo.value?.editorMode === 'full',
+  }),
+  (text) => {
+    draft.value = text;
+  },
+);
+const draftScope = localDrafts.scope,
+  recoveryDraft = localDrafts.recovered,
+  draftLoading = localDrafts.loading,
+  draftBusy = localDrafts.busy,
+  draftError = localDrafts.error,
+  draftSavedAt = localDrafts.savedAt;
+const navigation = createWorkspaceNavigation({
+  dirty: () => dirty.value,
+  guard,
+  apply: applyRoute,
+  error: showError,
+});
+async function initializeDrafts() {
+  try {
+    const [session, status] = await Promise.all([
+      api('/api/auth/get-session'),
+      api('/api/platform/status'),
+    ]);
+    if (!session?.user?.id || !status.knowledgeRoot)
+      throw new Error('未能确认本地草稿所属账户与知识库，请手动保存原文。');
+    const identity = JSON.stringify([status.knowledgeRoot, status.bindingVersion]);
+    const knowledgeId = crypto.subtle
+      ? Array.from(
+          new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(identity))),
+          (x) => x.toString(16).padStart(2, '0'),
+        ).join('')
+      : identity;
+    localDrafts.setup({ ownerId: session.user.id, knowledgeId });
+  } catch (cause) {
+    draftError.value =
+      cause instanceof Error ? cause.message : '本地草稿保护暂不可用，请手动保存原文。';
+  }
+}
+async function applyRoute(route: WorkspaceRoute) {
+  if (route.note) return openNote(route.note, route.line, false);
+  if (route.view === 'trash') return openTrash(false);
+  if (route.view === 'settings') return settings(route.section, false);
+  const entry = route.folder
+    ? flat.value.find((item) => item.type === 'folder' && item.path === route.folder)
+    : undefined;
+  if (entry) return select(entry, false);
+  await guard(async () => {
+    await localDrafts.flush();
+    viewEpoch++;
+    note.value = undefined;
+    panel.value = 'empty';
+    folder.value = '';
+    selected.value = '';
+  });
+}
 const pluginContext = computed(() => ({
   noteId: note.value?.id,
   relativePath: note.value?.relativePath,
@@ -122,6 +219,7 @@ const preview = computed(() => {
   const tokens = md.parse(draft.value, {});
   const visit = (list: typeof tokens) => {
     for (const t of list) {
+      if (t.type === 'heading_open' && t.map) t.attrSet('data-source-line', String(t.map[0] + 1));
       if (t.type === 'image' || t.type === 'link_open') {
         const attr = t.type === 'image' ? 'src' : 'href',
           url = String(t.attrGet(attr) || '');
@@ -173,51 +271,63 @@ async function run(fn: () => Promise<void>) {
 async function refresh() {
   tree.value = await api('/api/tree');
 }
-async function openNote(id: string) {
+async function openNote(id: string, line?: number, syncUrl = true) {
   await guard(async () => {
+    await localDrafts.flush();
     const epoch = ++viewEpoch;
-    let meta = await api<NoteInfo>(`/api/notes/${id}/meta`);
-    if (meta.readState === 'unknown' && meta.sizeBytes <= 1024 * 1024) {
-      const prep = await api<FileReply<OutlinePage>>(`/api/notes/${id}/outline`);
-      if (prep.kind === 'accepted') {
-        let op = prep.operation;
-        while (['queued', 'running'].includes(op.status)) {
-          await new Promise((r) => setTimeout(r, 1000));
-          if (epoch !== viewEpoch) return;
-          op = await api<FileOperation>(`/api/operations/${op.operationId}`);
+    noteOpening.value = true;
+    try {
+      let meta = await api<NoteInfo>(`/api/notes/${id}/meta`);
+      if (meta.readState === 'unknown' && meta.sizeBytes <= 1024 * 1024) {
+        const prep = await api<FileReply<OutlinePage>>(`/api/notes/${id}/outline`);
+        if (prep.kind === 'accepted') {
+          let op = prep.operation;
+          while (['queued', 'running'].includes(op.status)) {
+            await new Promise((r) => setTimeout(r, 1000));
+            if (epoch !== viewEpoch) return;
+            op = await api<FileOperation>(`/api/operations/${op.operationId}`);
+          }
         }
+        meta = await api<NoteInfo>(`/api/notes/${id}/meta`);
       }
-      meta = await api<NoteInfo>(`/api/notes/${id}/meta`);
+      const n: NoteDocument =
+        meta.editorMode === 'full'
+          ? await api<NoteDocument>(`/api/notes/${id}`)
+          : {
+              id: meta.id,
+              title: meta.title,
+              relativePath: meta.relativePath,
+              content: '',
+              modifiedAt: meta.modifiedAt,
+              updatedAt: new Date().toISOString(),
+              shared: meta.shared,
+            };
+      const attachments = await api<any[]>(`/api/notes/${id}/assets`).catch(() => []);
+      if (epoch !== viewEpoch) return;
+      if (meta.editorMode === 'full') localDrafts.prepare();
+      note.value = n;
+      noteInfo.value = meta;
+      largeDirty.value = false;
+      draft.value = n.content;
+      savedContent.value = n.content;
+      selected.value = n.relativePath;
+      folder.value = n.relativePath.includes('/')
+        ? n.relativePath.split('/').slice(0, -1).join('/')
+        : '';
+      assets.value = attachments;
+      drawer.value = false;
+      panel.value = 'note';
+      noteLine.value = line;
+      if (syncUrl) navigation.commit({ note: id, line });
+      if (meta.editorMode === 'full') await localDrafts.load(id, currentDraftBase(), n.content);
+      await nextTick();
+      if (line) editorRef.value?.goToLine(line);
+    } finally {
+      if (epoch === viewEpoch) noteOpening.value = false;
     }
-    const n: NoteDocument =
-      meta.editorMode === 'full'
-        ? await api<NoteDocument>(`/api/notes/${id}`)
-        : {
-            id: meta.id,
-            title: meta.title,
-            relativePath: meta.relativePath,
-            content: '',
-            modifiedAt: meta.modifiedAt,
-            updatedAt: new Date().toISOString(),
-            shared: meta.shared,
-          };
-    const attachments = await api<any[]>(`/api/notes/${id}/assets`).catch(() => []);
-    if (epoch !== viewEpoch) return;
-    note.value = n;
-    noteInfo.value = meta;
-    largeDirty.value = false;
-    draft.value = n.content;
-    savedContent.value = n.content;
-    selected.value = n.relativePath;
-    folder.value = n.relativePath.includes('/')
-      ? n.relativePath.split('/').slice(0, -1).join('/')
-      : '';
-    assets.value = attachments;
-    drawer.value = false;
-    panel.value = 'note';
   });
 }
-async function select(entry: TreeEntry) {
+async function select(entry: TreeEntry, syncUrl = true) {
   await run(async () => {
     if (entry.type === 'note') await openNote(entry.id!);
     else
@@ -228,6 +338,7 @@ async function select(entry: TreeEntry) {
         note.value = undefined;
         drawer.value = false;
         panel.value = 'folder';
+        if (syncUrl) navigation.commit({ folder: entry.path });
       });
   });
 }
@@ -249,8 +360,14 @@ async function leave(action: 'save' | 'discard' | 'cancel') {
     await save();
     if (dirty.value) return;
   } else {
+    try {
+      await localDrafts.discard();
+      await largeRef.value?.discard();
+    } catch (cause) {
+      showError(cause);
+      return;
+    }
     draft.value = savedContent.value;
-    largeRef.value?.discard();
     largeDirty.value = false;
   }
   leaveOpen.value = false;
@@ -275,11 +392,13 @@ async function onLargeSaved(meta: NoteInfo) {
     try {
       const document = await api<NoteDocument>(`/api/notes/${meta.id}`);
       if (!currentView(meta.id, epoch)) return;
+      localDrafts.prepare();
       note.value = document;
       draft.value = document.content;
       savedContent.value = document.content;
       largeDirty.value = false;
       noteInfo.value = meta;
+      await localDrafts.load(meta.id, currentDraftBase(), document.content);
     } catch {
       if (currentView(meta.id, epoch))
         error.value = '片段已保存；读取普通编辑器正文失败，请重新打开笔记';
@@ -290,52 +409,67 @@ async function onLargeSaved(meta: NoteInfo) {
     note.value!.title = meta.title;
   }
 }
+async function prepareLargeTransition(submitted: string) {
+  editorTransfer.value = true;
+  await nextTick();
+  const version = await localDrafts.flush();
+  if (draft.value !== submitted && !version)
+    throw new Error('原文已保存，但后续输入未能暂存。请复制当前内容后再重新打开笔记。');
+  if (draft.value === submitted && note.value) await localDrafts.clearSaved(note.value.id, version);
+}
 async function checkSave() {
   const pending = pendingSave.value,
     epoch = viewEpoch;
   if (!pending) return;
-  const op = await api<FileOperation & { result?: { modifiedAt: string } }>(
-    `/api/operations?requestId=${encodeURIComponent(pending.requestId)}`,
-  );
-  if (op.status === 'succeeded') {
-    if (note.value && currentView(pending.noteId, epoch)) {
-      const meta = await api<NoteInfo>(`/api/notes/${pending.noteId}/meta`);
-      if (!currentView(pending.noteId, epoch)) {
-        pendingSave.value = undefined;
-        return;
-      }
-      noteInfo.value = meta;
-      if (meta.editorMode === 'full') {
-        if (pending.revisionId) {
-          const document = await api<NoteDocument>(`/api/notes/${pending.noteId}`);
-          if (!currentView(pending.noteId, epoch)) {
-            pendingSave.value = undefined;
-            return;
-          }
-          note.value = document;
-          draft.value = note.value.content;
-          savedContent.value = note.value.content;
-        } else {
-          note.value.modifiedAt = op.result?.modifiedAt || note.value.modifiedAt;
-          savedContent.value = pending.content;
+  try {
+    const op = await api<FileOperation & { result?: { modifiedAt: string } }>(
+      `/api/operations?requestId=${encodeURIComponent(pending.requestId)}`,
+    );
+    if (op.status === 'succeeded') {
+      if (note.value && currentView(pending.noteId, epoch)) {
+        const meta = await api<NoteInfo>(`/api/notes/${pending.noteId}/meta`);
+        if (!currentView(pending.noteId, epoch)) {
+          pendingSave.value = undefined;
+          return;
         }
-      } else {
-        note.value.modifiedAt = meta.modifiedAt;
-        draft.value = '';
-        savedContent.value = '';
-        await nextTick();
-        await largeRef.value?.reload();
+        const enteringLarge = meta.editorMode !== 'full' && noteInfo.value?.editorMode === 'full';
+        if (enteringLarge) await prepareLargeTransition(pending.content);
+        noteInfo.value = meta;
+        if (meta.editorMode === 'full') {
+          if (pending.revisionId) {
+            const document = await api<NoteDocument>(`/api/notes/${pending.noteId}`);
+            if (!currentView(pending.noteId, epoch)) {
+              pendingSave.value = undefined;
+              return;
+            }
+            note.value = document;
+            draft.value = note.value.content;
+            savedContent.value = note.value.content;
+          } else {
+            note.value.modifiedAt = op.result?.modifiedAt || note.value.modifiedAt;
+            savedContent.value = pending.content;
+          }
+        } else {
+          note.value.modifiedAt = meta.modifiedAt;
+          draft.value = '';
+          savedContent.value = '';
+          await nextTick();
+          if (!enteringLarge) await largeRef.value?.reload();
+        }
       }
+      pendingSave.value = undefined;
+      editorTransfer.value = false;
+      tell('保存结果已确认');
+      return;
     }
-    pendingSave.value = undefined;
-    tell('保存结果已确认');
-    return;
+    if (['failed', 'cancelled'].includes(op.status)) {
+      pendingSave.value = undefined;
+      throw new Error('上次操作未完成，草稿已保留');
+    }
+    throw new Error('操作仍在处理，请稍后核对');
+  } finally {
+    editorTransfer.value = false;
   }
-  if (['failed', 'cancelled'].includes(op.status)) {
-    pendingSave.value = undefined;
-    throw new Error('上次操作未完成，草稿已保留');
-  }
-  throw new Error('操作仍在处理，请稍后核对');
 }
 async function save(expected?: string, content?: string, revisionId?: string) {
   if (!note.value || busy.value) return;
@@ -356,6 +490,7 @@ async function save(expected?: string, content?: string, revisionId?: string) {
   const target = note.value,
     epoch = viewEpoch;
   const text = content ?? draft.value;
+  const localVersion = await localDrafts.flush();
   try {
     if (pendingSave.value) {
       await checkSave();
@@ -394,21 +529,25 @@ async function save(expected?: string, content?: string, revisionId?: string) {
         );
       const meta = await api<NoteInfo>(`/api/notes/${target.id}/meta`);
       if (!currentView(target.id, epoch)) return;
+      const enteringLarge = meta.editorMode !== 'full' && noteInfo.value?.editorMode === 'full';
+      if (enteringLarge) await prepareLargeTransition(text);
       noteInfo.value = meta;
       n =
         meta.editorMode === 'full'
           ? await api<NoteDocument>(`/api/notes/${target.id}`)
           : { ...target, title: meta.title, modifiedAt: meta.modifiedAt, content: '' };
       await nextTick();
-      await largeRef.value?.reload();
+      if (!enteringLarge) await largeRef.value?.reload();
     }
     if (n.editorMode && currentView(target.id, epoch)) {
+      const enteringLarge = n.editorMode !== 'full' && noteInfo.value?.editorMode === 'full';
+      if (enteringLarge) await prepareLargeTransition(text);
       noteInfo.value = n;
       if (n.editorMode !== 'full') {
         n = { ...target, title: n.title, modifiedAt: n.modifiedAt, content: '' };
         draft.value = '';
         await nextTick();
-        await largeRef.value?.reload();
+        if (!enteringLarge) await largeRef.value?.reload();
       }
     }
     if (!currentView(target.id, epoch)) {
@@ -420,6 +559,7 @@ async function save(expected?: string, content?: string, revisionId?: string) {
     savedContent.value = n.content;
     if (revisionId) draft.value = n.content;
     conflict.value = undefined;
+    await localDrafts.clearSaved(target.id, localVersion);
     tell(revisionId ? '历史版本已恢复' : '笔记已保存');
     await refresh();
   } catch (e) {
@@ -445,6 +585,7 @@ async function save(expected?: string, content?: string, revisionId?: string) {
       };
     else showError(e);
   } finally {
+    editorTransfer.value = false;
     busy.value = false;
   }
 }
@@ -627,11 +768,12 @@ async function readRevision(r: any) {
 }
 const trashLoading = ref(false),
   restoringId = ref<string>();
-async function openTrash() {
+async function openTrash(syncUrl = true) {
   await run(() =>
     guard(async () => {
       const epoch = ++viewEpoch;
       panel.value = 'trash';
+      if (syncUrl) navigation.commit({ view: 'trash' });
       note.value = undefined;
       drawer.value = false;
       trashLoading.value = true;
@@ -654,8 +796,10 @@ async function finishDelete(id: string, epoch: number) {
     draft.value = '';
     savedContent.value = '';
     panel.value = folder.value ? 'folder' : 'empty';
+    navigation.commit(folder.value ? { folder: folder.value } : {});
   }
   await refresh();
+  if (panel.value === 'trash') trash.value = await api('/api/trash');
   tell('已移入回收站');
 }
 async function checkDelete() {
@@ -736,19 +880,24 @@ async function restoreTrash(item: any, fileName?: string) {
     restoringId.value = undefined;
   }
 }
-const activeSetting = ref<'account' | 'search' | 'plugins'>('account');
-function scrollSetting(section: 'account' | 'search' | 'plugins') {
+const activeSetting = ref<'account' | 'search' | 'plugins' | 'maintenance'>('account');
+function scrollSetting(section: 'account' | 'search' | 'plugins' | 'maintenance', syncUrl = true) {
   activeSetting.value = section;
+  if (syncUrl && panel.value === 'settings') navigation.commit({ view: 'settings', section }, true);
   document.getElementById(section + '-settings')?.scrollIntoView({ block: 'start' });
 }
-async function settings(section?: 'account' | 'search' | 'plugins') {
+async function settings(
+  section?: 'account' | 'search' | 'plugins' | 'maintenance',
+  syncUrl = true,
+) {
   await guard(async () => {
     viewEpoch++;
     panel.value = 'settings';
     note.value = undefined;
     drawer.value = false;
     await nextTick();
-    scrollSetting(section || 'account');
+    scrollSetting(section || 'account', false);
+    if (syncUrl) navigation.commit({ view: 'settings', section: section || 'account' });
   });
 }
 const currentPassword = ref(''),
@@ -757,6 +906,10 @@ const currentPassword = ref(''),
   passwordNotice = ref('');
 async function changePassword() {
   if (passwordBusy.value) return;
+  if ([...newPassword.value].length < MIN_PASSWORD_LENGTH) {
+    showError(new Error(PASSWORD_POLICY_MESSAGE));
+    return;
+  }
   await run(async () => {
     passwordBusy.value = true;
     passwordNotice.value = '';
@@ -776,15 +929,140 @@ async function changePassword() {
   });
 }
 async function logout() {
+  await run(() =>
+    guard(async () => {
+      try {
+        await localDrafts.logout();
+        await api('/api/auth/sign-out', 'POST', {});
+      } catch (cause) {
+        await initializeDrafts();
+        throw cause;
+      }
+      viewEpoch++;
+      resetCsrf();
+      tree.value = [];
+      note.value = undefined;
+      draft.value = '';
+      emit('logout');
+    }),
+  );
+}
+async function showMove() {
   await guard(async () => {
-    await api('/api/auth/sign-out', 'POST', {});
-    viewEpoch++;
-    resetCsrf();
-    tree.value = [];
-    note.value = undefined;
-    draft.value = '';
-    emit('logout');
+    moveOpen.value = true;
   });
+}
+async function moved(result: MoveNoteResult) {
+  await run(async () => {
+    await refresh();
+    await openNote(result.id);
+    tell('笔记已整理，历史和分享链接保持关联');
+  });
+}
+async function resolved(value: { noteId: string; operationId: string }) {
+  if (pendingSave.value?.noteId === value.noteId) pendingSave.value = undefined;
+  if (pendingDelete.value?.noteId === value.noteId) pendingDelete.value = undefined;
+  await run(refresh);
+  tell('磁盘版本已核对，原操作材料已保留');
+}
+let quickPending:
+  | { folderPath: string; fileName: string; content: string; requestId: string }
+  | undefined;
+async function quickNote() {
+  if (quickBusy.value) return;
+  await run(() =>
+    guard(async () => {
+      quickBusy.value = true;
+      try {
+        if (!flat.value.some((entry) => entry.type === 'folder' && entry.path === '00-Inbox')) {
+          try {
+            await api('/api/folders', 'POST', { parent: '', name: '00-Inbox' });
+          } catch (cause) {
+            await refresh();
+            if (!flat.value.some((entry) => entry.path === '00-Inbox')) throw cause;
+          }
+        }
+        const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+        quickPending ||= {
+          folderPath: '00-Inbox',
+          fileName: `新的想法-${stamp}-${crypto.randomUUID().slice(0, 4)}.md`,
+          content: '# 新的想法\n\n',
+          requestId: crypto.randomUUID(),
+        };
+        const created = await api<NoteDocument>('/api/notes', 'POST', quickPending);
+        quickPending = undefined;
+        createOpen.value = false;
+        await refresh();
+        await openNote(created.id);
+        await nextTick();
+        editorRef.value?.goToLine(3);
+      } finally {
+        quickBusy.value = false;
+      }
+    }),
+  );
+}
+async function imported(value: { id: string; relativePath: string }) {
+  await run(refresh);
+  tell('Markdown 已导入，可在目录中打开');
+}
+async function downloadNote() {
+  if (!note.value || downloading.value) return;
+  const target = note.value;
+  downloading.value = true;
+  await run(async () => {
+    try {
+      let response: Response | undefined;
+      for (let attempt = 0; attempt < 60; attempt++) {
+        response = await fetch(`/api/notes/${target.id}/download`, {
+          cache: 'no-store',
+          signal: AbortSignal.timeout(30000),
+        });
+        if (response.status !== 202) break;
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      }
+      if (!response?.ok || response.status === 202)
+        throw new Error('文件暂未准备好，请稍后重新下载。');
+      const blob = await response.blob(),
+        url = URL.createObjectURL(blob),
+        link = document.createElement('a');
+      link.href = url;
+      link.download = target.relativePath.split('/').at(-1) || 'note.md';
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 30000);
+      tell('已下载最新保存的 Markdown 原文');
+    } finally {
+      downloading.value = false;
+    }
+  });
+}
+const normalOutline = computed(() => {
+  if (!note.value || noteInfo.value?.editorMode !== 'full') return [];
+  const tokens = md.parse(draft.value, {});
+  return tokens
+    .flatMap((token, index) =>
+      token.type === 'heading_open' && token.map
+        ? [
+            {
+              line: token.map[0] + 1,
+              level: Number(token.tag.slice(1)),
+              title: tokens[index + 1]?.content || '章节',
+            },
+          ]
+        : [],
+    )
+    .slice(0, 100);
+});
+async function goToHeading(line: number) {
+  outlineOpen.value = false;
+  noteLine.value = line;
+  if (note.value) navigation.commit({ note: note.value.id, line }, true);
+  await nextTick();
+  if (mode.value !== 'preview') editorRef.value?.goToLine(line);
+  else
+    document
+      .querySelector(`.preview-panel [data-source-line="${line}"]`)
+      ?.scrollIntoView({ block: 'start' });
 }
 const uploadInput = ref<HTMLInputElement>();
 async function upload(event: Event) {
@@ -824,8 +1102,9 @@ async function searchPage(
   let response: SearchOutput;
   try {
     response = await api<SearchOutput>('/api/search/advanced', 'POST', {
-      query: '"' + q + '"',
-      mode: 'text',
+      query: q,
+      mode: searchMode.value,
+      ...(searchDirectory.value ? { filters: { directory: searchDirectory.value } } : {}),
       ...(cursor ? { cursor } : {}),
     });
   } catch (e) {
@@ -845,8 +1124,15 @@ async function searchPage(
     title: r.title,
     relativePath: r.relativePath,
     snippet: r.matches[0]?.snippet || '',
+    line: r.matches[0]?.startLine || 1,
+    headingPath: r.matches[0]?.headingPath || [],
+    matches: r.matches,
   }));
-  results.value = cursor ? [...results.value, ...items] : items;
+  searchDegraded.value = !!response.degraded;
+  const local = filenameResults(flat.value, q, searchDirectory.value);
+  results.value = cursor
+    ? mergeSearchResults(results.value, items, local)
+    : mergeSearchResults(items, local);
   searchCursor.value = response.nextCursor;
   return response;
 }
@@ -854,7 +1140,7 @@ function beginSearch(q: string) {
   clearTimeout(searchTimer);
   const epoch = ++searchEpoch;
   searchCursor.value = undefined;
-  results.value = [];
+  results.value = filenameResults(flat.value, q, searchDirectory.value);
   searchError.value = '';
   searchBusy.value = !!q.trim();
   searchWaiting.value = false;
@@ -864,13 +1150,19 @@ function beginSearch(q: string) {
     if (epoch !== searchEpoch) return;
     searchBusy.value = true;
     try {
+      if (searchMode.value === 'semantic') {
+        const runtime = await api('/api/platform/search-runtime');
+        if (epoch !== searchEpoch) return;
+        vectorReady.value = !!runtime.components?.vectorReady;
+        if (!vectorReady.value)
+          throw new Error('语义检索尚未准备。请准备本地检索，或使用文本/混合检索。');
+      }
       const response = await searchPage(q, undefined, epoch);
       if (epoch !== searchEpoch) return;
       searchWaiting.value = !!(
         response &&
-        !results.value.length &&
         ++attempts < 15 &&
-        (response.index.pending || attempts < 3)
+        (response.index.pending || (!results.value.length && attempts < 3))
       );
       if (searchWaiting.value) searchTimer = setTimeout(() => void search(), 1000);
     } catch (e) {
@@ -886,6 +1178,8 @@ function beginSearch(q: string) {
 }
 async function moreSearch() {
   if (searchBusy.value || !searchCursor.value) return;
+  clearTimeout(searchTimer);
+  searchWaiting.value = false;
   const epoch = searchEpoch;
   searchBusy.value = true;
   searchError.value = '';
@@ -897,7 +1191,7 @@ async function moreSearch() {
     if (epoch === searchEpoch) searchBusy.value = false;
   }
 }
-watch(query, beginSearch);
+watch([query, searchMode, searchDirectory], () => beginSearch(query.value));
 function shortcut(e: KeyboardEvent) {
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
     e.preventDefault();
@@ -916,6 +1210,11 @@ onMounted(() => {
       releaseVersion.value = status.version || '';
     })
     .catch(() => {});
+  void api('/api/platform/search-runtime')
+    .then((state) => {
+      vectorReady.value = !!state.components?.vectorReady;
+    })
+    .catch(() => {});
   void refreshPlugins().catch(() => {});
   pluginTimer = setInterval(() => {
     void refreshPlugins().catch(() => {});
@@ -923,9 +1222,9 @@ onMounted(() => {
   window.addEventListener('dooknow-workspace-changed', workspaceChanged);
   window.addEventListener('dooknow-notice', pluginNotice);
   void run(async () => {
+    await initializeDrafts();
     await refresh();
-    const id = new URLSearchParams(window.location.search).get('note');
-    if (id) await openNote(id);
+    await applyRoute(readWorkspaceRoute());
     if (sessionStorage.getItem('dooknow-welcome-action') === 'create-note') {
       sessionStorage.removeItem('dooknow-welcome-action');
       create('note');
@@ -935,6 +1234,7 @@ onMounted(() => {
   window.addEventListener('beforeunload', unload);
 });
 onBeforeUnmount(() => {
+  navigation.dispose();
   clearInterval(pluginTimer);
   void disposePluginUIs();
   window.removeEventListener('dooknow-workspace-changed', workspaceChanged);
@@ -974,19 +1274,54 @@ onBeforeUnmount(() => {
           <Icon name="refresh" :size="17" />
         </button>
       </div>
+      <div v-if="query" class="search-options">
+        <label class="sr-only" for="workspace-search-mode">搜索模式</label>
+        <ASelect
+          id="workspace-search-mode"
+          v-model:value="searchMode"
+          :options="[
+            { label: '混合检索', value: 'hybrid' },
+            { label: '文本检索', value: 'text' },
+            { label: vectorReady ? '语义检索' : '语义检索（需准备）', value: 'semantic' },
+          ]"
+        />
+        <label class="sr-only" for="workspace-search-directory">搜索目录</label>
+        <ASelect
+          id="workspace-search-directory"
+          v-model:value="searchDirectory"
+          :options="[{ label: '所有目录', value: '' }, ...folders.filter((item) => item.value)]"
+        />
+      </div>
       <div class="tree-scroll">
         <template v-if="query"
           ><button
             v-for="r in results"
             :key="r.id"
             class="search-result"
-            @click="run(() => openNote(r.id))"
+            @click="
+              run(() =>
+                r.type === 'folder'
+                  ? select({ type: 'folder', name: r.title, path: r.relativePath })
+                  : openNote(r.id, r.line),
+              )
+            "
           >
             <b>{{ r.title }}</b
             ><small>{{ r.relativePath }}</small
             ><span>{{ r.snippet }}</span>
           </button>
-          <p v-if="results.length" class="muted">已显示 {{ results.length }} 篇</p>
+          <p v-if="searchDegraded && results.length" class="search-feedback">
+            当前显示可用的检索结果，部分检索能力或索引仍在准备。<button
+              class="text-link"
+              @click="settings('search')"
+            >
+              检查搜索设置
+            </button>
+          </p>
+          <p v-if="results.length" class="muted">
+            已显示 {{ results.length }}
+            {{ results.some((item) => item.type === 'folder') ? '项' : '篇' }}
+          </p>
           <p
             v-if="searchBusy || searchWaiting"
             class="search-feedback"
@@ -1040,6 +1375,9 @@ onBeforeUnmount(() => {
           <Icon name="chevron" :size="16" :class="{ 'account-expanded': accountExpanded }" />
         </button>
         <div v-show="accountExpanded" id="account-navigation" class="account-navigation">
+          <button class="nav-action" @click="importOpen = true">
+            <Icon name="file" />导入 Markdown
+          </button>
           <button class="nav-action" @click="settings('account')">
             <Icon name="lock" />账户设置
           </button>
@@ -1047,7 +1385,7 @@ onBeforeUnmount(() => {
             class="nav-action"
             :class="{ active: panel === 'trash' }"
             :aria-current="panel === 'trash' ? 'page' : undefined"
-            @click="openTrash"
+            @click="openTrash()"
           >
             <Icon name="trash" />回收站</button
           ><button
@@ -1083,7 +1421,10 @@ onBeforeUnmount(() => {
               }}</span>
             </div>
             <div class="toolbar">
-              <AButton v-if="pendingSave?.noteId === note.id" @click="run(checkSave)"
+              <AButton
+                v-if="pendingSave?.noteId === note.id"
+                :disabled="busy"
+                @click="run(checkSave)"
                 >核对保存结果</AButton
               >
               <AButton v-if="pendingDelete && !deleteOpen" @click="run(checkDelete)"
@@ -1104,6 +1445,8 @@ onBeforeUnmount(() => {
                 :key="note.id"
                 v-model:line-numbers="showLineNumbers"
                 :full-editor="noteInfo?.editorMode === 'full'"
+                @move="showMove"
+                @download="downloadNote"
                 @history="history()"
                 @upload="uploadInput?.click()"
                 @delete="deleteOpen = true"
@@ -1136,6 +1479,26 @@ onBeforeUnmount(() => {
                 分屏
               </button>
             </div>
+            <APopover
+              v-if="normalOutline.length"
+              v-model:open="outlineOpen"
+              trigger="click"
+              placement="bottomRight"
+            >
+              <template #content
+                ><nav class="normal-outline" aria-label="本文章节">
+                  <button
+                    v-for="item in normalOutline"
+                    :key="item.line"
+                    :style="{ paddingLeft: item.level * 8 + 'px' }"
+                    @click="goToHeading(item.line)"
+                  >
+                    {{ item.title }}
+                  </button>
+                </nav></template
+              >
+              <AButton type="text" size="small" :aria-expanded="outlineOpen">章节目录</AButton>
+            </APopover>
             <span role="status" aria-live="polite" :class="['save-state', { dirty }]"
               >● {{ busy ? '保存中' : dirty ? '未保存' : '已保存' }}</span
             >
@@ -1146,25 +1509,52 @@ onBeforeUnmount(() => {
           ref="largeRef"
           :note="noteInfo"
           :assets="assets"
-          :initial-line="note.id === initialNoteId ? initialLine : undefined"
+          :draft-scope="draftScope"
+          :inert="noteOpening || editorTransfer ? '' : undefined"
+          :initial-line="noteLine || (note.id === initialNoteId ? initialLine : undefined)"
           :key="note.id"
           @dirty="(v) => (largeDirty = v)"
           @saved="onLargeSaved" />
-        <div v-else :class="['editor-panels', mode]">
-          <section v-if="mode !== 'preview'" class="editor-panel">
-            <div class="panel-label">Markdown <span>手动保存 · Ctrl+S</span></div>
-            <MarkdownEditor
-              v-model="draft"
-              :key="note.id"
-              :initial-line="note.id === initialNoteId ? initialLine : undefined"
-              :show-line-numbers="showLineNumbers"
-            />
-          </section>
-          <section v-if="mode !== 'edit'" class="preview-panel">
-            <div class="panel-label">预览 <Icon name="eye" :size="16" /></div>
-            <div class="markdown" v-html="preview" @click="clickPreview"></div>
-          </section>
-        </div>
+        <template v-else>
+          <AAlert
+            v-if="draftError"
+            type="warning"
+            :message="draftError"
+            role="alert"
+            class="local-draft-alert"
+          />
+          <DraftRecovery
+            v-if="recoveryDraft"
+            :draft="recoveryDraft"
+            :base-changed="recoveryDraft.baseRevision !== currentDraftBase()"
+            :busy="draftBusy"
+            @restore="localDrafts.restore"
+            @discard="run(localDrafts.discard)"
+          />
+          <div :class="['editor-panels', mode]">
+            <section v-if="mode !== 'preview'" class="editor-panel">
+              <div class="panel-label">Markdown <span>手动保存 · Ctrl+S</span></div>
+              <MarkdownEditor
+                ref="editorRef"
+                v-model="draft"
+                :read-only="
+                  noteOpening || editorTransfer || draftLoading || draftBusy || !!recoveryDraft
+                "
+                :key="note.id"
+                :initial-line="noteLine || (note.id === initialNoteId ? initialLine : undefined)"
+                :show-line-numbers="showLineNumbers"
+              />
+            </section>
+            <section v-if="mode !== 'edit'" class="preview-panel">
+              <div class="panel-label">预览 <Icon name="eye" :size="16" /></div>
+              <div class="markdown" v-html="preview" @click="clickPreview"></div>
+            </section>
+          </div>
+          <p v-if="draftSavedAt && dirty" class="local-draft-status" role="status">
+            本地草稿已暂存 · {{ new Date(draftSavedAt).toLocaleTimeString('zh-CN') }} ·
+            原文仍需手动保存
+          </p>
+        </template>
         <input
           ref="uploadInput"
           type="file"
@@ -1177,6 +1567,15 @@ onBeforeUnmount(() => {
           <Icon name="book" :size="36" />
           <h1>选择一篇笔记</h1>
           <p>从左侧目录打开笔记，或新建笔记开始记录。</p>
+          <AButton
+            type="primary"
+            :loading="quickBusy"
+            :disabled="quickBusy"
+            aria-label="快速记录"
+            @click="quickNote"
+            >快速记录</AButton
+          >
+          <AButton type="text" @click="importOpen = true">导入 Markdown</AButton>
         </div>
       </section>
       <section v-else-if="panel === 'folder' && folder" class="folder-view">
@@ -1272,6 +1671,12 @@ onBeforeUnmount(() => {
           >
           <AButton
             type="text"
+            :aria-current="activeSetting === 'maintenance' ? 'location' : undefined"
+            @click="scrollSetting('maintenance')"
+            >数据与恢复</AButton
+          >
+          <AButton
+            type="text"
             :aria-current="activeSetting === 'plugins' ? 'location' : undefined"
             @click="scrollSetting('plugins')"
             >扩展插件</AButton
@@ -1279,7 +1684,7 @@ onBeforeUnmount(() => {
         </nav>
         <section id="account-settings" class="account-settings" aria-label="账户安全">
           <h2>修改密码</h2>
-          <p class="muted">修改后撤销其他会话。密码不能为空。</p>
+          <p class="muted">修改后撤销其他会话。新密码至少需要 8 个字符。</p>
           <form @submit.prevent="changePassword">
             <div class="form-field">
               <label for="current-password">当前密码</label
@@ -1305,7 +1710,9 @@ onBeforeUnmount(() => {
               type="primary"
               html-type="submit"
               :loading="passwordBusy"
-              :disabled="passwordBusy || !currentPassword || !newPassword"
+              :disabled="
+                passwordBusy || !currentPassword || [...newPassword].length < MIN_PASSWORD_LENGTH
+              "
               >修改密码</AButton
             >
           </form>
@@ -1315,11 +1722,51 @@ onBeforeUnmount(() => {
             ><span>结束当前设备的登录会话。</span>
           </div>
         </section>
+        <MaintenanceSettings id="maintenance-settings" @resolved="resolved" /><StorageSettings />
         <SearchRuntimeSettings id="search-settings" /><PluginManager id="plugins-settings" />
         <p v-if="releaseVersion" class="app-version">DooKnow · 服务版本 {{ releaseVersion }}</p>
       </section>
     </main>
     <IndexStatus :note-id="note?.id" @settings="settings('search')" />
+    <NoteMoveDialog
+      v-model:show="moveOpen"
+      :note-id="note?.id"
+      :relative-path="note?.relativePath"
+      :modified-at="note?.modifiedAt"
+      :folders="folders"
+      @moved="moved"
+    />
+    <NModal
+      v-model:show="importOpen"
+      preset="card"
+      class="dialog-card"
+      title="导入 Markdown"
+      :mask-closable="!importBusy"
+      :close-on-esc="!importBusy"
+      :closable="!importBusy"
+    >
+      <label>导入到</label
+      ><NSelect
+        v-model:value="importFolder"
+        aria-label="导入目录"
+        :disabled="importBusy"
+        :options="[
+          ...folders,
+          ...(!folders.some((item) => item.value === '40-Resources')
+            ? [{ label: '40-Resources（导入时创建）', value: '40-Resources' }]
+            : []),
+        ]"
+        filterable
+      />
+      <SetupImport
+        :destination="importFolder"
+        @busy="(value) => (importBusy = value)"
+        @imported="imported"
+      />
+      <div class="dialog-actions">
+        <AButton :disabled="importBusy" @click="importOpen = false">完成</AButton>
+      </div>
+    </NModal>
     <PluginPanel />
     <div v-if="notice" class="toast" role="status">
       <Icon name="check" :size="18" />{{ notice }}
@@ -1402,6 +1849,14 @@ onBeforeUnmount(() => {
       class="dialog-card"
       :title="createKind === 'note' ? '新建笔记' : '新建文件夹'"
       ><form @submit.prevent="submitCreate">
+        <AButton
+          v-if="createKind === 'note'"
+          type="text"
+          :loading="quickBusy"
+          :disabled="quickBusy || createBusy"
+          @click="quickNote"
+          >快速记录到收集箱</AButton
+        >
         <AAlert v-if="dialogError" type="error" :message="dialogError" role="alert" />
         <label>所在目录</label
         ><NSelect

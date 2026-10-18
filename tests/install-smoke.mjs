@@ -4,8 +4,10 @@ import { tmpdir } from 'node:os';
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:http';
 import assert from 'node:assert/strict';
+import { parseArgs } from 'node:util';
+const { values } = parseArgs({ options: { directory: { type: 'string' }, 'skip-build': { type: 'boolean' } } });
 const root = await mkdtemp(join(tmpdir(), 'dooknow-install-smoke-'));
-const artifactRoot = resolve('.local/platform-execution/artifacts');
+const artifactRoot = resolve(values.directory || '.local/platform-execution/artifacts');
 const children = new Set();
 async function run(command, args, env = process.env) {
   return new Promise((yes, no) => {
@@ -25,7 +27,7 @@ const source = `http://127.0.0.1:${server.address().port}`;
 const env = { ...process.env, XDG_CONFIG_HOME: join(root, 'config'), XDG_DATA_HOME: join(root, 'share'), XDG_CACHE_HOME: join(root, 'cache'),
   DOOKNOW_BIN_DIR: join(root, 'bin'), DOOKNOW_SOURCE: source, DOOKNOW_NO_SERVICE: '1', DOOKNOW_PORT: '15178', DOOKNOW_ALLOW_ROOT: join(root, 'libraries') };
 try {
-  await run(process.execPath, ['scripts/release.mjs', '--output', artifactRoot, '--base-url', source]);
+  if (!values['skip-build']) await run(process.execPath, ['scripts/release.mjs', '--output', artifactRoot, '--base-url', source]);
   await mkdir(join(root, 'libraries', 'personal', '00-Inbox'), { recursive: true });
   const ptyScript = join(root, 'account-pty-check.py');
   await writeFile(ptyScript, `import os,pty,select,time,sys\npid,fd=pty.fork()\nif pid==0: os.execvp('bash',['bash','-c','curl -fsSL "$DOOKNOW_SOURCE/install.sh" | bash'])\nbuf=b''; sent=set(); start=time.time()\nwhile time.time()-start<90:\n if select.select([fd],[],[],1)[0]:\n  try: data=os.read(fd,65536)\n  except OSError: break\n  if not data: break\n  buf+=data\n  for key,prompt,value in [('user','初始用户名','owner\\n'),('first','密码（输入隐藏','release-fixture-password-2026\\n'),('confirm','再次输入密码','release-fixture-password-2026\\n')]:\n   if key not in sent and prompt.encode() in buf: os.write(fd,value.encode()); sent.add(key)\n else:\n  ended,status=os.waitpid(pid,os.WNOHANG)\n  if ended: sys.exit(os.waitstatus_to_exitcode(status))\nended,status=os.waitpid(pid,0)\nif b'release-fixture-password-2026' in buf: raise RuntimeError('PASSWORD_ECHOED')\nif os.waitstatus_to_exitcode(status)!=0: sys.stderr.buffer.write(buf); sys.exit(1)\nprint('TTY account initialized without password echo')\n`);
@@ -36,7 +38,11 @@ try {
   assert.match(repeated, /账号已存在/);
   assert.equal(await readFile(profileFile, 'utf8'), before);
   const launcher = join(root, 'bin', 'dooknow');
-  const service = spawn(launcher, ['serve'], { env, cwd: root, stdio: ['ignore', 'pipe', 'pipe'] }); children.add(service);
+  const freshEnv = { HOME: root, PATH: process.env.PATH, TMPDIR: tmpdir(), INDEXING_ENABLED: '0' };
+  const status = JSON.parse(await run(launcher, ['status'], freshEnv));
+  assert.equal(status.profileFile, profileFile);
+  assert.equal(status.dataRoot, join(root, 'share', 'doo-know', 'data'));
+  const service = spawn(launcher, ['serve'], { env: freshEnv, cwd: root, stdio: ['ignore', 'pipe', 'pipe'] }); children.add(service);
   let online = false;
   for (let i = 0; i < 80; i++) {
     try { online = (await fetch('http://127.0.0.1:15178/healthz')).ok; } catch {}

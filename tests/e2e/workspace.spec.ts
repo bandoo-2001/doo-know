@@ -277,8 +277,9 @@ test.describe('authenticated feature acceptance', () => {
     if (info.project.name === 'mobile')
       await page.getByRole('button', { name: '打开侧栏' }).click();
     await page.getByPlaceholder('搜索笔记与目录').fill('组织与恢复-' + info.project.name);
-    await expect(page.locator('.search-result')).toHaveCount(1);
-    await page.locator('.search-result').click();
+    const matchingNote = page.locator('.search-result').filter({ hasText: n.relativePath });
+    await expect(matchingNote).toHaveCount(1);
+    await matchingNote.click();
     await clickNoteAction(page, '删除笔记');
     await page.getByRole('button', { name: '移入回收站', exact: true }).click();
     if (info.project.name === 'mobile')

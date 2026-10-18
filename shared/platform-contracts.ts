@@ -28,6 +28,17 @@ export interface HostConfig extends Omit<AppConfig, 'knowledgeRoot'> {
   searchModelsRoot?: string;
   searchCacheRoot?: string;
 }
+export interface StorageUsage {
+  count: number;
+  bytes: number;
+  truncated: boolean;
+}
+export interface MaintenanceStorage {
+  history: StorageUsage;
+  trash: StorageUsage;
+  backups: StorageUsage & { lastCreatedAt: string | null };
+  warnings: string[];
+}
 export type PlatformPhase =
   | 'owner_required'
   | 'setup_required'

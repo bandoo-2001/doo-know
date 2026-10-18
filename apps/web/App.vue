@@ -1,22 +1,23 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onBeforeUnmount, defineAsyncComponent } from 'vue';
 import { NConfigProvider, NModal, NAlert, NButton } from 'naive-ui';
 import { ConfigProvider as AConfigProvider } from 'ant-design-vue';
 import zhCN from 'ant-design-vue/es/locale/zh_CN';
 import { antTheme } from './ant-design';
-import Login from './components/Login.vue';
-import Workspace from './components/Workspace.vue';
-import ShareReader from './components/ShareReader.vue';
-import SetupWizard from './components/SetupWizard.vue';
-import OAuthConsent from './components/OAuthConsent.vue';
 import type { PlatformStatus } from '../../shared/platform-contracts';
 import { api, refreshCsrf } from './api';
+const Login = defineAsyncComponent(() => import('./components/Login.vue'));
+const Workspace = defineAsyncComponent(() => import('./components/Workspace.vue'));
+const ShareReader = defineAsyncComponent(() => import('./components/ShareReader.vue'));
+const SetupWizard = defineAsyncComponent(() => import('./components/SetupWizard.vue'));
+const OAuthConsent = defineAsyncComponent(() => import('./components/OAuthConsent.vue'));
 const token = location.pathname.startsWith('/s/') ? location.pathname.slice(3) : '',
   loggedIn = ref(false),
   mountedWorkspace = ref(false),
   expired = ref(false),
   ready = ref(false);
 const platform = ref<PlatformStatus>();
+const ownerId = ref('');
 const oauthMode =
   location.pathname === '/oauth/consent'
     ? 'consent'
@@ -75,6 +76,14 @@ const theme = {
   Button: { fontWeight: '500' },
 };
 async function login() {
+  const session = await api('/api/auth/get-session');
+  if (typeof session?.user?.id !== 'string' || !session.user.id) {
+    expired.value = true;
+    return;
+  }
+  // The same owner keeps the mounted editor on reauthentication. A different
+  // identity gets a new workspace and cannot inherit the previous draft scope.
+  ownerId.value = session.user.id;
   loggedIn.value = true;
   await refreshPlatform();
   expired.value = false;
@@ -126,6 +135,7 @@ onBeforeUnmount(() => window.removeEventListener('dooknow-session-expired', sess
         </div>
         <Workspace
           v-else-if="mountedWorkspace"
+          :key="ownerId"
           @logout="
             loggedIn = false;
             mountedWorkspace = false;

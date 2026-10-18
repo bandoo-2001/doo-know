@@ -7,6 +7,40 @@ import { promisify } from 'node:util';
 import { initializeOwner } from '../apps/server/auth.js';
 import { testPassword } from './support/credentials.js';
 const exec = promisify(execFile);
+it('refuses to bind an existing profile to a different installation before creating data or secrets', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'dooknow-cli-owner-'));
+  try {
+    const profileFile = join(root, 'profile.json');
+    const profile = {
+      dataRoot: join(root, 'data'),
+      secretFile: join(root, 'missing.key'),
+      installRoot: join(root, 'owned'),
+      port: 15177,
+      origin: 'http://127.0.0.1:15177',
+    };
+    await writeFile(profileFile, JSON.stringify(profile), { mode: 0o600 });
+    await expect(
+      exec(process.execPath, [
+        '--import',
+        'tsx',
+        'scripts/manage.ts',
+        'install',
+        '--profile',
+        profileFile,
+        '--install-root',
+        join(root, 'other'),
+        '--no-service',
+      ]),
+    ).rejects.toMatchObject({
+      code: 1,
+      stderr: expect.stringContaining('此配置已属于另一安装目录'),
+    });
+    expect(JSON.parse(await readFile(profileFile, 'utf8'))).toEqual(profile);
+    await expect(readFile(profile.secretFile)).rejects.toMatchObject({ code: 'ENOENT' });
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
 it('reinstall with an existing owner needs no TTY and preserves the secret and profile', async () => {
   const root = await mkdtemp(join(tmpdir(), 'dooknow-cli-'));
   try {
@@ -51,9 +85,101 @@ it('fresh noninteractive installation never creates an empty-password owner', as
         join(root, 'profile.json'),
         '--data-root',
         join(root, 'data'),
+        '--port',
+        '15179',
         '--no-service',
       ]),
-    ).rejects.toMatchObject({ code: 1 });
+    ).rejects.toMatchObject({ code: 1, stderr: expect.stringContaining('账号初始化需要本机终端') });
+    expect(JSON.parse(await readFile(join(root, 'profile.json'), 'utf8'))).toMatchObject({
+      dataRoot: join(root, 'data'),
+    });
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+it('does not recreate a missing bound profile even through the installation creation entry', async () => {
+  const { mkdir } = await import('node:fs/promises');
+  const root = await mkdtemp(join(tmpdir(), 'dooknow-cli-missing-bound-'));
+  try {
+    const installRoot = join(root, 'install'),
+      profileFile = join(root, 'original-config/profile.json');
+    await mkdir(installRoot);
+    await writeFile(join(installRoot, 'profile.path'), profileFile + '\n');
+    await expect(
+      exec(process.execPath, [
+        '--import',
+        'tsx',
+        'scripts/manage.ts',
+        'install',
+        '--profile',
+        profileFile,
+        '--install-root',
+        installRoot,
+        '--data-root',
+        join(root, 'wrong-data'),
+        '--port',
+        '15179',
+        '--no-service',
+      ]),
+    ).rejects.toMatchObject({ code: 1, stderr: expect.stringContaining('配置文件不存在') });
+    await expect(readFile(profileFile)).rejects.toMatchObject({ code: 'ENOENT' });
+    await expect(readFile(join(root, 'original-config/secrets/auth.key'))).rejects.toMatchObject({
+      code: 'ENOENT',
+    });
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+it('lets a legacy launcher recover its trusted profile after the candidate migration without inherited XDG settings', async () => {
+  const { mkdir } = await import('node:fs/promises');
+  const root = await mkdtemp(join(tmpdir(), 'dooknow-legacy-launcher-'));
+  try {
+    const installRoot = join(root, 'install'),
+      profileFile = join(root, 'custom/profile.json');
+    const secretFile = join(root, 'auth.key'),
+      secret = 'legacy-launcher-fixture-secret-at-least-thirty-two';
+    await mkdir(installRoot);
+    await mkdir(join(root, 'custom'));
+    await writeFile(secretFile, secret, { mode: 0o600 });
+    const profile = {
+      dataRoot: join(root, 'data'),
+      secretFile,
+      installRoot,
+      serviceManaged: false,
+      port: 15177,
+      origin: 'http://127.0.0.1:15177',
+    };
+    await writeFile(profileFile, JSON.stringify(profile));
+    await initializeOwner({ ...profile, secret }, 'owner', testPassword);
+    const entry = join(process.cwd(), 'scripts/manage.ts');
+    const inherited: NodeJS.ProcessEnv = {
+      ...process.env,
+      XDG_CONFIG_HOME: join(root, 'unrelated'),
+      DOOKNOW_INSTALL_ROOT: installRoot,
+    };
+    delete inherited.DOOKNOW_PROFILE;
+    await mkdir(join(root, 'unrelated/doo-know'), { recursive: true });
+    await writeFile(
+      join(root, 'unrelated/doo-know/profile.json'),
+      JSON.stringify({
+        ...profile,
+        installRoot: join(root, 'another-installation'),
+        dataRoot: join(root, 'another-data'),
+      }),
+    );
+    await expect(
+      exec(process.execPath, ['--import', 'tsx', entry, 'status'], { env: inherited }),
+    ).rejects.toMatchObject({ stderr: expect.stringContaining('安装目录尚未绑定配置') });
+    // This is the existing updater's invocation of the newly downloaded candidate.
+    await exec(process.execPath, ['--import', 'tsx', entry, 'migrate', '--profile', profileFile], {
+      env: inherited,
+    });
+    expect((await readFile(join(installRoot, 'profile.path'), 'utf8')).trim()).toBe(profileFile);
+    const result = await exec(process.execPath, ['--import', 'tsx', entry, 'status'], {
+      env: inherited,
+    });
+    expect(JSON.parse(result.stdout)).toMatchObject({ profileFile, dataRoot: profile.dataRoot });
   } finally {
     await rm(root, { recursive: true, force: true });
   }

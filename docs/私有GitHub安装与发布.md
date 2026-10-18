@@ -92,10 +92,15 @@ export DOOKNOW_GITHUB_TOKEN_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/doo-know/sec
 node scripts/release.mjs --output .local/github-rc8 \
   --base-url 'https://github.com/bandoo-2001/doo-know/releases/download/v1.1.0-rc.8' \
   --version 1.1.0-rc.8
+npm run verify:release -- --directory .local/github-rc8 \
+  --output .local/github-rc8-verification.json
 node --import tsx scripts/publish-github.ts --public \
   --directory .local/github-rc8 --repository bandoo-2001/doo-know \
+  --verification .local/github-rc8-verification.json \
   --tag v1.1.0-rc.8 --commit '<构建元数据中的完整提交SHA>' \
   --token-file '/受控位置/github-publish.token' --bootstrap deploy/github-install.sh
 ```
 
-从干净且已推送的源码构建。先草稿上传附件、核对远端SHA-256并绑定固定asset ID，再发布；已有附件和标签不覆盖。生成入口后提交推送。认证参数只有受控文件路径或`--token-fd`，实际值不进URL、参数和日志。旧版本保留追溯，不将预发布候选标为最新正式版。
+从干净且已推送的源码构建。发布门禁会重新执行类型检查、平台与交付定向测试，以及当前制品的隔离安装、重新开终端启动、登录和知识库绑定；不复用旧测试报告。验证证据保存在制品目录外，记录源码提交、逐文件 SHA-256、文件大小、检查结果和验证时间。上传前必须提供该证据，提交或制品发生变化、检查缺失、失败，或证据超过 24 小时均会拒绝发布。上传中断后若安装脚本已绑定了附件 ID，应重新运行门禁生成对应证据再重试。
+
+先草稿上传附件、核对远端 SHA-256 并绑定固定 asset ID，再发布；已有附件和标签不覆盖。生成入口后提交推送。认证参数只有受控文件路径或`--token-fd`，实际值不进 URL、参数和日志。旧版本保留追溯，不将预发布候选标为最新正式版。

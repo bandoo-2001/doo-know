@@ -84,7 +84,7 @@ export function reconcileService(config: AppConfig, db: AppDatabase) {
       if (
         db
           .prepare(
-            "SELECT 1 FROM write_intents WHERE path=? AND kind='restore' AND status IN ('prepared','conflicted')",
+            "SELECT 1 FROM write_intents WHERE path=? AND status IN ('prepared','conflicted') AND (kind IN ('restore','move') OR (kind='create' AND status='conflicted'))",
           )
           .get(path)
       ) {
@@ -161,6 +161,11 @@ export function reconcileService(config: AppConfig, db: AppDatabase) {
         path: string;
       }[]) {
         if (
+          !db
+            .prepare(
+              "SELECT 1 FROM write_intents WHERE note_id=? AND kind='move' AND status IN ('prepared','conflicted')",
+            )
+            .get(row.id) &&
           (!scopes || scopes.some((scope) => underPrefix(row.path, scope))) &&
           !live.has(row.path)
         ) {

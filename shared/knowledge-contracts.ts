@@ -111,6 +111,51 @@ export type Chunk = {
 };
 export type RankedChunk = { chunkId: string; rank: number; score: number };
 export type RecoveryReport = { recovered: number; unapplied: number; conflicted: number };
+export type MoveNoteInput = {
+  folderPath: string;
+  fileName: string;
+  expectedModifiedAt: string;
+  requestId: string;
+};
+export type MoveNoteResult = {
+  id: string;
+  moved: true;
+  relativePath: string;
+  previousRelativePath: string;
+  modifiedAt: string;
+  contentHash: string;
+  sizeBytes: number;
+  indexState: string;
+};
+export type ConflictDiskVersion = { modifiedAt: string; contentHash: string; sizeBytes: number };
+export type WriteConflict = {
+  id: string;
+  noteId: string;
+  kind: string;
+  status: string;
+  relativePath: string;
+  resolvable: boolean;
+  reason?: string;
+  disk: ConflictDiskVersion | null;
+};
+export type WriteConflictList = {
+  items: WriteConflict[];
+  syncConflicts: { id: string; status: string; resolvable: false; reason: string }[];
+};
+export type ResolveConflictInput = {
+  strategy: 'keep_disk';
+  expectedModifiedAt: string;
+  expectedContentHash: string;
+  requestId: string;
+};
+export type ResolveConflictResult = ConflictDiskVersion & {
+  id: string;
+  operationId: string;
+  resolved: true;
+  strategy: 'keep_disk';
+  relativePath: string;
+  evidencePreserved: true;
+};
 export type StopHandle = () => void;
 export type IndexMode = 'text' | 'semantic' | 'hybrid';
 export type SearchInput = {

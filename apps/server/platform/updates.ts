@@ -360,6 +360,8 @@ export async function updatePlatform(
         (options.version && info.version !== options.version)
       )
         throw Error('发行元数据不正确');
+      if (info.databaseCompatibility < old.databaseCompatibility)
+        throw Error('目标发行版的数据兼容代次较低，拒绝代码降级；请使用明确的数据恢复流程，保留最新原文');
       if (info.version === old.version) return { version: old.version, unchanged: true };
       const archive = join(work, 'application.tar.gz');
       await download(config, new URL(info.file, source), archive, 2 * 1024 ** 3);

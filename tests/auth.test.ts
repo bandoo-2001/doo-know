@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { createFixture, loginFixtureOwner, origin, testPassword } from './support/fixture.js';
+import { initializeOwner, resetOwnerPassword } from '../apps/server/auth.js';
+import { openDatabase } from '../packages/core/db.js';
+import { hashPassword } from 'better-auth/crypto';
 describe('single owner authentication', () => {
   it('rejects anonymous access to every private surface', async () => {
     const f = await createFixture();
@@ -85,6 +88,30 @@ describe('single owner authentication', () => {
       await f.close();
     }
   });
+});
+
+it('rejects short initialization, reset and web changes while retaining an existing short-password login', async () => {
+  const f = await createFixture();
+  try {
+    await expect(initializeOwner(f.config, 'owner', '1234567')).rejects.toThrow('密码至少需要 8 个字符');
+    const headers = await loginFixtureOwner(f);
+    await expect(resetOwnerPassword(f.config, '1234567')).rejects.toThrow('密码至少需要 8 个字符');
+    expect((await f.app.inject({ url: '/api/tree', headers })).statusCode).toBe(200);
+    const changed = await f.app.inject({ method: 'POST', url: '/api/auth/change-password', headers,
+      payload: { currentPassword: testPassword, newPassword: '1234567' } });
+    expect(changed.statusCode).toBe(400);
+    expect(changed.json().code).toBe('PASSWORD_TOO_SHORT');
+    // Reproduce an account created before the policy update without bypassing the new initializer.
+    const db = openDatabase(f.dataRoot);
+    try { db.prepare("UPDATE account SET password=? WHERE providerId='credential'").run(await hashPassword('old')); }
+    finally { db.close(); }
+    const login = await f.app.inject({ method: 'POST', url: '/api/auth/sign-in/username',
+      headers: { origin }, payload: { username: 'owner', password: 'old' } });
+    expect(login.statusCode).toBe(200);
+    await resetOwnerPassword(f.config, '12345678');
+    expect((await f.app.inject({ method: 'POST', url: '/api/auth/sign-in/username',
+      headers: { origin }, payload: { username: 'owner', password: '12345678' } })).statusCode).toBe(200);
+  } finally { await f.close(); }
 });
 
 it('local password reset revokes sessions and prevents a second owner', async () => {

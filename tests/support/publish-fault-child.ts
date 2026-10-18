@@ -26,7 +26,7 @@ globalThis.fetch = (async (input: any, init: any = {}) => {
 try {
   const { publishGithubRelease } = await import('../../scripts/publish-github.js');
   let code = 'succeeded';
-  try { await publishGithubRelease({ directory: root, repository: 'owner/private', tag: 'v1.1.0-rc.3', commit, token: 'fixture_github_012345678901234567890123456789', bootstrap: join(root, 'bootstrap.sh') }); }
+  try { await publishGithubRelease({ directory: root, repository: 'owner/private', tag: 'v1.1.0-rc.3', commit, token: 'fixture_github_012345678901234567890123456789', bootstrap: join(root, 'bootstrap.sh'), verification: root + '.verification.json' }); }
   catch (e) { code = (e as Error).message; }
   console.log(JSON.stringify({ code, tampered, published }));
 } finally { fs.writeFile = realWrite; syncBuiltinESMExports(); }

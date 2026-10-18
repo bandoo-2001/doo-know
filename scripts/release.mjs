@@ -154,7 +154,7 @@ try {
     builtAt: new Date().toISOString(),
     sourceCommit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
     dirty: !!execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).trim(),
-    databaseCompatibility: 1,
+    databaseCompatibility: 2,
   };
   writeFileSync(join(stage, 'release.json'), JSON.stringify(release, null, 2) + '\n');
   const name = `dooknow-${version}-linux-x64.tar.gz`;

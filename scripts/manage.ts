@@ -53,6 +53,7 @@ import { rmSync } from 'node:fs';
 import { privateFile } from '../packages/core/agent/config.js';
 import Database from 'better-sqlite3';
 import { assertDistributionOutsideKnowledge } from '../apps/server/platform/distribution.js';
+import { boundProfile, resolveProfileFile, bindInstallationProfile } from '../apps/server/platform/profile.js';
 
 const { values, positionals } = parseArgs({
   allowPositionals: true,
@@ -79,10 +80,7 @@ const { values, positionals } = parseArgs({
   },
 });
 const command = positionals[0] || 'status';
-const configDir = join(process.env.XDG_CONFIG_HOME || join(homedir(), '.config'), 'doo-know');
-const profileFile = resolve(
-  values.profile || process.env.DOOKNOW_PROFILE || join(configDir, 'profile.json'),
-);
+let profileFile: string;
 function atomicJson(path: string, value: unknown) {
   mkdirSync(dirname(path), { recursive: true, mode: 0o700 });
   const temporary = `${path}.${process.pid}.tmp`;
@@ -161,6 +159,13 @@ async function install() {
   const existing = existsSync(profileFile)
     ? JSON.parse(readFileSync(profileFile, 'utf8'))
     : undefined;
+  const requestedInstallRoot = values['install-root'] || process.env.DOOKNOW_INSTALL_ROOT;
+  if (existing?.installRoot && requestedInstallRoot &&
+      resolve(existing.installRoot) !== resolve(requestedInstallRoot))
+    throw new Error('此配置已属于另一安装目录；独立安装请使用新的 --profile');
+  const rootOwner = requestedInstallRoot && boundProfile(requestedInstallRoot);
+  if (rootOwner && rootOwner !== profileFile)
+    throw new Error('此安装目录已绑定另一配置；独立安装请使用新的安装目录');
   const profile = existing || {
     dataRoot: resolve(
       values['data-root'] ||
@@ -169,7 +174,7 @@ async function install() {
     secretFile: resolve(
       values['auth-secret-file'] || join(dirname(profileFile), 'secrets/auth.key'),
     ),
-    installRoot: values['install-root'] || process.env.DOOKNOW_INSTALL_ROOT,
+    ...(requestedInstallRoot ? { installRoot: resolve(requestedInstallRoot) } : {}),
     serviceName: values['service-name'] || 'doo-know.service',
     serviceManaged: !values['no-service'],
     origin: values.origin || `http://127.0.0.1:${values.port || 5173}`,
@@ -183,6 +188,8 @@ async function install() {
     resolve(values['data-root']) !== resolve(existing.dataRoot)
   )
     throw new Error('拒绝改变现有数据目录；独立安装请使用新的 --profile');
+  const installRootChanged = !!existing && !existing.installRoot && !!requestedInstallRoot;
+  if (installRootChanged) profile.installRoot = resolve(requestedInstallRoot!);
   if (!existsSync(profile.secretFile)) {
     if (existsSync(join(profile.dataRoot, 'app.sqlite')))
       throw new Error('已有数据库的认证密钥缺失，请恢复密钥，不能重新生成');
@@ -193,7 +200,7 @@ async function install() {
     });
   }
   const distributionChanged = configureDistribution(profile);
-  if (!existing || distributionChanged) atomicJson(profileFile, profile);
+  if (!existing || distributionChanged || installRootChanged) atomicJson(profileFile, profile);
   const config = effectiveConfig();
   const instance = readInstance(config.dataRoot);
   if (!instance) await availablePort(config.host!, config.port!);
@@ -240,6 +247,7 @@ async function install() {
     } catch {}
     if (linger !== 'yes') console.log('用户服务已启用；无人登录时常驻需管理员启用 linger。');
   }
+  if (config.installRoot) bindInstallationProfile(config.installRoot, profileFile);
   console.log(
     `DooKnow：${config.origin}\n登录后选择服务器知识库目录。\n管理：dooknow status / start / stop / restart / doctor`,
   );
@@ -262,8 +270,11 @@ async function main() {
     );
     return;
   }
+  profileFile = resolveProfileFile(values.profile, process.env, {
+    installRoot: values['install-root'], allowCreate: command === 'install' || (command === 'restore' && !!values.profile),
+  });
   if (command === 'restore') {
-    if (!values.source || !values['key-file'] || !values['data-root'])
+    if (!values.source || !values['key-file'] || !values['data-root'] || !values.profile)
       throw Error('恢复需要 --source、--key-file、--data-root 和新的 --profile');
     const result = await restorePlatformBackup({
       source: values.source,
@@ -340,6 +351,8 @@ async function main() {
         (db.pragma('foreign_key_check') as any[]).length
       )
         throw Error('数据库一致性检查失败');
+      if (command === 'migrate' && config.installRoot)
+        bindInstallationProfile(config.installRoot, profileFile);
       console.log(
         JSON.stringify({
           version,

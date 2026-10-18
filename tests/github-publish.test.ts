@@ -6,6 +6,16 @@ import { createHash } from 'node:crypto';
 import { publishGithubRelease } from '../scripts/publish-github.js';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
+import { writeTestReleaseEvidence } from './support/release-evidence.js';
+
+it('requires fresh release verification before accessing GitHub or uploading assets', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'github-publish-unverified-'));
+  try {
+    await expect(publishGithubRelease({ directory: root, repository: 'owner/private', tag: 'v1.1.0-rc.3',
+      commit: 'a'.repeat(40), token: 'fixture_github_012345678901234567890123456789', bootstrap: join(root, 'bootstrap.sh') }))
+      .rejects.toThrow('RELEASE_VERIFICATION_REQUIRED');
+  } finally { await rm(root, { recursive: true, force: true }); }
+});
 
 it.each([['private', false], ['private', true], ['public', false]] as const)('uploads a complete %s release, recovers a partial draft (%s), and publishes only after binding IDs and hashes', async (visibility, resume) => {
   const root = await mkdtemp(join(tmpdir(), 'github-publish-'));
@@ -38,7 +48,8 @@ it.each([['private', false], ['private', true], ['public', false]] as const)('up
       throw Error('unexpected API request');
     });
     const bootstrap = join(root, 'bootstrap.sh');
-    const result = await publishGithubRelease({ directory: root, repository: 'owner/private', tag: 'v1.1.0-rc.3', commit, token: 'fixture_github_012345678901234567890123456789', bootstrap, visibility });
+    const verification = await writeTestReleaseEvidence(root, commit);
+    const result = await publishGithubRelease({ directory: root, repository: 'owner/private', tag: 'v1.1.0-rc.3', commit, token: 'fixture_github_012345678901234567890123456789', bootstrap, verification, visibility });
     expect(result.assets).toHaveLength(6);
     expect(result.private).toBe(visibility === 'private');
     const created = writes.find(w => w.method === 'POST' && w.url.endsWith('/releases'));
@@ -55,7 +66,7 @@ it.each([['private', false], ['private', true], ['public', false]] as const)('up
     await writeFile(join(bin, 'curl'), `#!${process.execPath}\nconst fs=require('fs'),a=process.argv.slice(2);fs.writeFileSync(a[a.indexOf('--dump-header')+1],'HTTP/1.1 200 OK\\r\\n\\r\\n');fs.writeFileSync(a[a.indexOf('--output')+1],${JSON.stringify(installer)});process.stdout.write('200');`, { mode: 0o700 });
     await promisify(execFile)('bash', [bootstrap], { env: { ...process.env, PATH: bin + ':' + process.env.PATH, TMPDIR: temp, DOOKNOW_GITHUB_TOKEN_FILE: tokenFile } });
     expect(await readdir(temp)).toEqual([]);
-  } finally { vi.unstubAllGlobals(); await rm(root, { recursive: true, force: true }); }
+  } finally { vi.unstubAllGlobals(); await rm(root, { recursive: true, force: true }); await rm(root + '.verification.json', { force: true }); }
 });
 
 it('rejects public repositories, a moved tag, and files changed after the initial manifest check without publishing', async () => {
@@ -67,7 +78,8 @@ it('rejects public repositories, a moved tag, and files changed after the initia
     for (const file of ['release.json', 'release-1.1.0-rc.3.json']) await writeFile(join(root, file), JSON.stringify(info));
     await writeFile(join(root, 'release.txt'), `1.1.0-rc.3 ${info.file} ${info.sha256}\n`);
     await writeFile(join(root, 'catalog.json'), '[]'); await writeFile(join(root, 'install.sh'), '#!/bin/bash\n');
-    const options = { directory: root, repository: 'owner/private', tag: 'v1.1.0-rc.3', commit, token: 'fixture_github_012345678901234567890123456789', bootstrap: join(root, 'bootstrap.sh') };
+    const verification = await writeTestReleaseEvidence(root, commit);
+    const options = { directory: root, repository: 'owner/private', tag: 'v1.1.0-rc.3', commit, token: 'fixture_github_012345678901234567890123456789', bootstrap: join(root, 'bootstrap.sh'), verification };
     vi.stubGlobal('fetch', async () => Response.json({ private: false }));
     await expect(publishGithubRelease(options)).rejects.toThrow('PUBLISH_REQUIRES_PRIVATE_REPOSITORY');
     vi.stubGlobal('fetch', async (input: any) => String(input).endsWith('/repos/owner/private') ? Response.json({ private: true }) : Response.json({ object: { type: 'commit', sha: 'b'.repeat(40) } }));
@@ -91,5 +103,5 @@ it('rejects public repositories, a moved tag, and files changed after the initia
     await writeFile(join(root, info.file), 'application');
     const child = await promisify(execFile)(process.execPath, ['--import', 'tsx', 'tests/support/publish-fault-child.ts', root]);
     expect(JSON.parse(child.stdout)).toEqual({ code: 'LOCAL_PUBLISH_FILES_CHANGED', tampered: true, published: false });
-  } finally { vi.unstubAllGlobals(); await rm(root, { recursive: true, force: true }); }
+  } finally { vi.unstubAllGlobals(); await rm(root, { recursive: true, force: true }); await rm(root + '.verification.json', { force: true }); }
 });

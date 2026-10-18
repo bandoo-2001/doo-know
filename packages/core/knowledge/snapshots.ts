@@ -268,7 +268,7 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
           modifiedAt: before.mtimeNs.toString(),
           sizeBytes: byte,
         });
-      })();
+      }).immediate();
     } catch (e) {
       const ownership = db
         .prepare('SELECT lease_epoch FROM file_operations WHERE id=?')
@@ -419,7 +419,7 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
           'system:index-worker',
         );
         row.principal = p.id;
-      })();
+      }).immediate();
     return row;
   }
   async function releaseInternal(id: string) {
@@ -522,7 +522,7 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
           .get(session.id, pageKey) as any;
       if (cached) {
         const page = JSON.parse(cached.result);
-        db.transaction(() => chargeRate(db, p, channel, page.bytesReturned))();
+        db.transaction(() => chargeRate(db, p, channel, page.bytesReturned)).immediate();
         return { kind: 'ready', data: page };
       }
       const fd = await open(snapshot.path, 'r');
@@ -608,7 +608,7 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
           JSON.stringify(data),
         );
         return data;
-      })();
+      }).immediate();
       return { kind: 'ready', data: page };
     } finally {
       release();

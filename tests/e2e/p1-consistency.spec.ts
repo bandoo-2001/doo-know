@@ -19,7 +19,7 @@ test('W01 switches committed long-line saves and lost responses into large mode'
   page,
   context,
 }, info) => {
-  const { n } = await open(page, context, '长行-' + info.project.name);
+  const { n } = await open(page, context, '长行-' + info.project.name + '-' + Date.now());
   await page.locator('.cm-content').fill('# Long\n' + 'x'.repeat(32769));
   await page.route(
     `**/api/notes/${n.id}`,
@@ -37,6 +37,7 @@ test('W01 switches committed long-line saves and lost responses into large mode'
   await expect(page.getByText('大文件模式', { exact: true })).toBeVisible();
   await expect(page.locator('.large-workspace .cm-content')).toContainText('# Long');
   await expect(page.getByText('原文件已更新', { exact: true })).toHaveCount(0);
+  await expect(page.locator('.global-error')).toHaveCount(0);
 });
 test('W01 long-line save enters large mode and a saved short note reopens in full mode', async ({
   page,

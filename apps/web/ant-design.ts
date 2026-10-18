@@ -1,18 +1,5 @@
 import type { App } from 'vue';
-import {
-  Alert,
-  Button,
-  Divider,
-  Empty,
-  Input,
-  Popover,
-  Progress,
-  Select,
-  Spin,
-  Steps,
-  Tag,
-  Tooltip,
-} from 'ant-design-vue';
+import { Alert, Button, Input } from 'ant-design-vue';
 import type { ThemeConfig } from 'ant-design-vue/es/config-provider/context';
 
 export const antTheme: ThemeConfig = {
@@ -34,23 +21,10 @@ export const antTheme: ThemeConfig = {
   },
 };
 
-// Shared registration keeps the same controls available across all application pages.
+// Only the common form controls are global; pages import their other controls on demand.
 // Do not load reset.css: Markdown and the editor have their own typography.
 export function installAntDesign(app: App) {
-  for (const component of [
-    Alert,
-    Button,
-    Divider,
-    Empty,
-    Input,
-    Popover,
-    Progress,
-    Select,
-    Spin,
-    Steps,
-    Tag,
-    Tooltip,
-  ]) {
+  for (const component of [Alert, Button, Input]) {
     app.use(component);
   }
 }

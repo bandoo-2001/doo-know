@@ -5,13 +5,15 @@ import { createHash } from 'node:crypto';
 import { parseArgs } from 'node:util';
 import { pathToFileURL } from 'node:url';
 import { curlGithubUpload } from './github-upload.js';
+import { verifyReleaseEvidence } from './release-verification.js';
 
-type Options = { directory: string; repository: string; tag: string; commit: string; token: string; bootstrap: string; visibility?: "private" | "public"; upload?: typeof curlGithubUpload };
+type Options = { directory: string; repository: string; tag: string; commit: string; token: string; bootstrap: string; verification?: string; visibility?: "private" | "public"; upload?: typeof curlGithubUpload };
 type Asset = { id: number; name: string; size: number; state: string; digest: string };
 const names = /^(?:install\.sh|release(?:-[0-9A-Za-z.+-]{1,80})?\.(?:txt|json)|catalog\.json|dooknow-[0-9A-Za-z.+-]{1,120}\.tar\.gz)$/;
 async function digest(file: string) { const h = createHash('sha256'); for await (const b of createReadStream(file)) h.update(b); return h.digest('hex'); }
 export async function publishGithubRelease(o: Options) {
   if (!/^[A-Za-z0-9-]+\/[A-Za-z0-9_.-]+$/.test(o.repository) || !/^v[0-9][A-Za-z0-9.+-]{0,79}$/.test(o.tag) || !/^[a-f0-9]{40}$/.test(o.commit) || !/^[A-Za-z0-9_-]{20,4096}$/.test(o.token)) throw Error('INVALID_PUBLISH_ARGUMENTS');
+  await verifyReleaseEvidence(o.directory, o.verification, o.commit);
   const directory = resolve(o.directory), paths = (await readdir(directory)).sort();
   const local = new Map<string, { sha: string; bytes: number }>();
   for (const name of paths) {
@@ -109,7 +111,7 @@ export async function publishGithubRelease(o: Options) {
 }
 
 async function main() {
-  const { values } = parseArgs({ options: { directory: { type: 'string' }, repository: { type: 'string' }, tag: { type: 'string' }, commit: { type: 'string' }, bootstrap: { type: 'string' }, 'token-file': { type: 'string' }, 'token-fd': { type: 'string' }, public: { type: 'boolean', default: false } } });
+  const { values } = parseArgs({ options: { directory: { type: 'string' }, verification: { type: 'string' }, repository: { type: 'string' }, tag: { type: 'string' }, commit: { type: 'string' }, bootstrap: { type: 'string' }, 'token-file': { type: 'string' }, 'token-fd': { type: 'string' }, public: { type: 'boolean', default: false } } });
   if (!values.directory || !values.repository || !values.tag || !values.commit || !values.bootstrap || (!values['token-file'] && !values['token-fd'])) throw Error('发布需要 directory/repository/tag/commit/bootstrap 与外部私有 token-file 或 token-fd');
   let token: string;
   if (values['token-fd']) {
@@ -120,6 +122,6 @@ async function main() {
     try { const st = await file.stat(); if (!st.isFile() || st.nlink !== 1 || st.uid !== process.getuid?.() || st.mode & 0o077 || st.size > 8192) throw Error('PRIVATE_TOKEN_FILE_REQUIRED'); token = await file.readFile('utf8'); }
     finally { await file.close(); }
   }
-  console.log(JSON.stringify(await publishGithubRelease({ directory: values.directory, repository: values.repository, tag: values.tag, commit: values.commit, bootstrap: values.bootstrap, visibility: values.public ? 'public' : 'private', token: token.trim(), upload: curlGithubUpload }), null, 2));
+  console.log(JSON.stringify(await publishGithubRelease({ directory: values.directory, repository: values.repository, tag: values.tag, commit: values.commit, bootstrap: values.bootstrap, verification: values.verification, visibility: values.public ? 'public' : 'private', token: token.trim(), upload: curlGithubUpload }), null, 2));
 }
 if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url) main().catch(() => { console.error('GitHub 发布失败；未发布的草稿保留，重试前核对版本、仓库权限和附件摘要。'); process.exitCode = 1; });

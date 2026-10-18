@@ -44,6 +44,7 @@ import { observeSource } from '../indexing/state.js';
 import { hashFile } from './file-reader.js';
 import { limits } from './limits.js';
 import { assertRoot } from '../indexing/reconcile.js';
+import { moveService } from './move.js';
 export const webPrincipal: Principal = {
   id: 'web-owner',
   clientId: 'browser',
@@ -109,7 +110,7 @@ function durableFile(file: string, content: string, mode = 0o600) {
     closeSync(fd);
   }
 }
-function restoreHash(file: string) {
+export function restoreHash(file: string) {
   const fd = openSync(file, constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK);
   try {
     const before = fstatSync(fd, { bigint: true });
@@ -229,6 +230,14 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
   }
   function record(intent: Intent, content?: string) {
     return db.transaction(() => {
+      const current = db.prepare('SELECT status FROM write_intents WHERE id=?').get(intent.id) as
+        | { status: string }
+        | undefined;
+      if (current?.status === 'recorded')
+        return existingResult(
+          db.prepare('SELECT * FROM operations WHERE id=?').get(intent.id) as OperationRow,
+        );
+      if (current?.status !== 'prepared') fail(409, 'OPERATION_ALREADY_RESOLVED');
       if (intent.kind === 'archive') {
         db.prepare('UPDATE notes SET active=0,trash_path=? WHERE id=?').run(
           basename(intent.path),
@@ -252,7 +261,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
       }
       const file = safePath(config.knowledgeRoot, intent.path, 'note'),
         s = statSync(file, { bigint: true });
-      if (intent.kind === 'restore' && restoreHash(file) !== intent.target_hash)
+      if (['restore', 'move'].includes(intent.kind) && restoreHash(file) !== intent.target_hash)
         fail(409, 'RESTORE_CONFLICT', '恢复目标发生外部变化');
       if (intent.revision_id)
         db.prepare(
@@ -264,13 +273,20 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
           new Date().toISOString(),
           intent.original_mtime,
         );
-      if (intent.kind === 'restore') {
+      const previousRelativePath =
+        intent.kind === 'move'
+          ? (db.prepare('SELECT path FROM notes WHERE id=?').get(intent.note_id) as any).path
+          : undefined;
+      if (intent.kind === 'restore' || intent.kind === 'move') {
         db.prepare('UPDATE notes SET path=?,active=1,trash_path=NULL WHERE id=?').run(
           intent.path,
           intent.note_id,
         );
-        db.prepare('UPDATE shares SET enabled=0 WHERE note_id=?').run(intent.note_id);
+        if (intent.kind === 'restore')
+          db.prepare('UPDATE shares SET enabled=0 WHERE note_id=?').run(intent.note_id);
       } else db.prepare('UPDATE notes SET active=1 WHERE id=?').run(intent.note_id);
+      if (intent.kind === 'move')
+        db.prepare('UPDATE document_state SET active=0 WHERE note_id=?').run(intent.note_id);
       enqueueSource(
         db,
         config,
@@ -303,6 +319,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
         sizeBytes: Number(s.size),
         indexState: 'pending',
         ...(intent.kind === 'restore' ? { restored: true } : {}),
+        ...(intent.kind === 'move' ? { moved: true, previousRelativePath } : {}),
       };
       completeOperation(db, intent.id, result);
       db.prepare("UPDATE write_intents SET status='recorded' WHERE id=?").run(intent.id);
@@ -387,6 +404,8 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
       const historyPath = join(config.dataRoot, 'history', historyFile);
       stage(historyPath);
       durableFile(historyPath, current.content);
+      fsyncDirectory(dirname(historyPath));
+      fsyncDirectory(config.dataRoot);
       stage(temp);
       durableFile(temp, content, Number(s.mode) & 0o777);
       db.prepare(
@@ -681,7 +700,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     const report = { recovered: 0, unapplied: 0, conflicted: 0 };
     for (const orphan of db
       .prepare(
-        "SELECT id FROM operations WHERE kind IN ('create','update','archive','restore') AND status='prepared' AND NOT EXISTS(SELECT 1 FROM write_intents WHERE write_intents.id=operations.id)",
+        "SELECT id FROM operations WHERE kind IN ('create','update','archive','restore','move') AND status='prepared' AND NOT EXISTS(SELECT 1 FROM write_intents WHERE write_intents.id=operations.id)",
       )
       .all() as any[]) {
       if (!operationHasLiveWorkspaceWriter(db, orphan.id))
@@ -705,6 +724,11 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
         continue;
       try {
         assertRoot(config, db);
+        if (intent.kind === 'move') {
+          moves.finish(intent);
+          report.recovered++;
+          continue;
+        }
         if (intent.kind === 'restore') {
           finishRestore(intent);
           report.recovered++;
@@ -725,6 +749,13 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
             hash = existsSync(file)
               ? await hashFile(safePath(config.knowledgeRoot, intent.path, 'note'))
               : null;
+          // Hashing yields to owner reconciliation. Never replay a stale
+          // snapshot of an intent that the owner has already disposed of.
+          if (
+            (db.prepare('SELECT status FROM write_intents WHERE id=?').get(intent.id) as any)
+              ?.status !== 'prepared'
+          )
+            continue;
           if (hash === intent.target_hash) {
             const result = record(intent) as any;
             const job = db
@@ -744,23 +775,45 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
           }
           if (hash !== intent.original_hash) {
             db.prepare(
-              "UPDATE operations SET status='needs_reconciliation',error='EXTERNAL_CHANGE' WHERE id=?",
+              "UPDATE operations SET status='needs_reconciliation',error='EXTERNAL_CHANGE' WHERE id=? AND status IN ('prepared','committing','needs_reconciliation')",
             ).run(intent.id);
-            db.prepare("UPDATE write_intents SET status='conflicted' WHERE id=?").run(intent.id);
+            db.prepare(
+              "UPDATE write_intents SET status='conflicted' WHERE id=? AND status='prepared'",
+            ).run(intent.id);
             report.conflicted++;
             continue;
           }
         }
         db.prepare(
-          "UPDATE operations SET status='failed',error='OPERATION_UNAPPLIED' WHERE id=?",
+          "UPDATE operations SET status='failed',error='OPERATION_UNAPPLIED' WHERE id=? AND status IN ('prepared','committing','needs_reconciliation')",
         ).run(intent.id);
-        db.prepare("UPDATE write_intents SET status='failed' WHERE id=?").run(intent.id);
+        db.prepare("UPDATE write_intents SET status='failed' WHERE id=? AND status='prepared'").run(
+          intent.id,
+        );
         db.prepare(
           "UPDATE file_operations SET status='failed',error='OPERATION_UNAPPLIED' WHERE id=?",
         ).run(intent.id);
         releaseSnapshotRef(db, intent.id);
         report.unapplied++;
       } catch (e) {
+        if (intent.kind === 'move') {
+          const changed = db
+            .transaction(() => {
+              const operation = db
+                .prepare(
+                  "UPDATE operations SET status='needs_reconciliation',error='MOVE_CONFLICT' WHERE id=? AND status IN ('prepared','committing','needs_reconciliation') AND EXISTS(SELECT 1 FROM write_intents WHERE id=? AND status='prepared')",
+                )
+                .run(intent.id, intent.id);
+              const writeIntent = db
+                .prepare(
+                  "UPDATE write_intents SET status='conflicted' WHERE id=? AND status='prepared' AND EXISTS(SELECT 1 FROM operations WHERE id=? AND status='needs_reconciliation')",
+                )
+                .run(intent.id, intent.id);
+              return operation.changes + writeIntent.changes;
+            })
+            .immediate();
+          if (!changed) continue;
+        }
         if (intent.kind === 'restore') {
           try {
             preserveRestoreSource(intent);
@@ -796,7 +849,9 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     }
     return report;
   }
+  const moves = moveService(config, db, record);
   return {
+    move: moves.move,
     create: (...args: Parameters<typeof create>) =>
       workspaceWriteSync(db, { kind: 'core.create' }, () => create(...args)),
     update: (...args: Parameters<typeof update>) =>

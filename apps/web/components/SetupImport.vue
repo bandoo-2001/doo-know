@@ -3,7 +3,11 @@ import { ref, watch } from 'vue';
 import { Button as AButton, Alert as AAlert } from 'ant-design-vue';
 import { api, ApiError } from '../api';
 import type { TreeEntry } from '../../../shared/contracts';
-const emit = defineEmits<{ busy: [value: boolean] }>();
+const props = defineProps<{ destination?: string }>();
+const emit = defineEmits<{
+  busy: [value: boolean];
+  imported: [value: { id: string; relativePath: string }];
+}>();
 const file = ref<File>(),
   fileInput = ref<HTMLInputElement>(),
   busy = ref(false),
@@ -11,6 +15,14 @@ const file = ref<File>(),
   imported = ref('');
 watch(busy, (value) => emit('busy', value));
 let requestId = crypto.randomUUID();
+watch(
+  () => props.destination,
+  () => {
+    requestId = crypto.randomUUID();
+    error.value = '';
+    imported.value = '';
+  },
+);
 function select(event: Event) {
   file.value = (event.target as HTMLInputElement).files?.[0];
   requestId = crypto.randomUUID();
@@ -42,7 +54,11 @@ async function upload() {
       return;
     }
     const tree = await api<TreeEntry[]>('/api/tree');
-    if (!tree.some((entry) => entry.type === 'folder' && entry.path === '40-Resources')) {
+    const destination = props.destination ?? '40-Resources';
+    if (
+      destination === '40-Resources' &&
+      !tree.some((entry) => entry.type === 'folder' && entry.path === '40-Resources')
+    ) {
       try {
         await api('/api/folders', 'POST', { parent: '', name: '40-Resources' });
       } catch (e) {
@@ -52,16 +68,18 @@ async function upload() {
           throw e;
       }
     }
-    await api('/api/notes', 'POST', {
-      folderPath: '40-Resources',
+    const created = await api('/api/notes', 'POST', {
+      folderPath: destination,
       fileName: source.name,
       content,
       requestId,
     });
     imported.value = source.name;
+    emit('imported', { id: created.id, relativePath: created.relativePath });
     file.value = undefined;
     if (fileInput.value) fileInput.value.value = '';
   } catch (e) {
+    if (e instanceof ApiError && e.status >= 400 && e.status < 500) requestId = crypto.randomUUID();
     error.value =
       e instanceof ApiError && (e.status === 409 || String(e.message).includes('存在'))
         ? '已有同名文件，没有覆盖。请修改文件名后重新选择。'
@@ -74,8 +92,11 @@ async function upload() {
 <template>
   <div class="setup-import">
     <p>
-      从当前电脑或手机选择一个 Markdown
-      文件，复制到知识库的“40-Resources”资料文件夹。原文件保持不变，不会覆盖同名资料。
+      从当前电脑或手机选择一个 Markdown 文件，复制到{{
+        props.destination === undefined
+          ? '“40-Resources”资料文件夹'
+          : props.destination || '知识库根目录'
+      }}。原文件保持不变，不会覆盖同名资料。
     </p>
     <label
       >选择 Markdown 文件<input

@@ -134,6 +134,22 @@ watch(
       effects: editability.reconfigure([EditorView.editable.of(!v), EditorState.readOnly.of(!!v)]),
     }),
 );
+function goToLine(number: number) {
+  if (!view || !Number.isInteger(number) || number < 1) return;
+  const line = view.state.doc.line(Math.min(number, view.state.doc.lines));
+  view.dispatch({
+    selection: { anchor: line.from },
+    effects: EditorView.scrollIntoView(line.from, { y: 'center' }),
+  });
+  view.focus();
+}
+watch(
+  () => props.initialLine,
+  (line) => {
+    if (line) goToLine(line);
+  },
+);
+defineExpose({ goToLine });
 onBeforeUnmount(() => view?.destroy());
 </script>
 <template><div ref="mount" class="markdown-editor"></div></template>

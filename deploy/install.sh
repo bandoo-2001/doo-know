@@ -22,10 +22,21 @@ main() {
   fi
   local base="${DOOKNOW_INSTALL_ROOT:-${XDG_DATA_HOME:-$HOME/.local/share}/doo-know}"
   local bindir="${DOOKNOW_BIN_DIR:-$HOME/.local/bin}" cache="${XDG_CACHE_HOME:-$HOME/.cache}/doo-know/downloads"
+  local config_home profile
+  config_home="$(readlink -m "${XDG_CONFIG_HOME:-$HOME/.config}")"
+  profile="$(readlink -m "${DOOKNOW_PROFILE:-$config_home/doo-know/profile.json}")"
   mkdir -p "$base/releases" "$bindir" "$cache"
+  base="$(readlink -f "$base")"
+  bindir="$(readlink -f "$bindir")"
   [ "$(df -Pk "$base" | awk 'NR==2 {print $4}')" -ge 786432 ] || { echo '安装至少需要768MiB可用空间' >&2; return 1; }
   exec 9>"$base/install.lock"
   flock -n 9 || { echo '另一个安装正在进行' >&2; return 1; }
+  if [ -e "$base/profile.path" ] || [ -L "$base/profile.path" ]; then
+    [ -f "$base/profile.path" ] && [ ! -L "$base/profile.path" ] && [ "$(cat "$base/profile.path")" = "$profile" ] || { echo '此安装目录已绑定另一配置；独立安装请另选 DOOKNOW_INSTALL_ROOT' >&2; return 1; }
+  fi
+  if { [ -e "$base/profile.path" ] || [ -L "$base/current" ]; } && [ ! -f "$profile" ]; then
+    echo '配置文件不存在，请恢复原配置；已有安装不会重建配置或使用其他实例数据' >&2; return 1
+  fi
   local work cleanup_path
   work="$(mktemp -d "$base/.install.XXXXXXXX")"
   printf -v cleanup_path '%q' "$work"
@@ -76,14 +87,13 @@ main() {
     mv "$work/application" "$release"
   fi
   echo '[6/6] 初始化账号与服务…' >&2
-  local args=(install --install-root "$base")
+  local args=(install --install-root "$base" --profile "$profile")
   local github_repository=''
   if [[ "$source" =~ ^https://github\.com/([A-Za-z0-9-]+/[A-Za-z0-9_.-]+)/releases/download/([A-Za-z0-9.+-]+)$ ]]; then
     github_repository="${BASH_REMATCH[1]}"
     args+=(--github-repository "$github_repository")
     [ -z "${DOOKNOW_GITHUB_TOKEN_FILE:-}" ] || args+=(--github-token-file "$DOOKNOW_GITHUB_TOKEN_FILE")
   fi
-  [ -z "${DOOKNOW_PROFILE:-}" ] || args+=(--profile "$DOOKNOW_PROFILE")
   [ -z "${DOOKNOW_PORT:-}" ] || args+=(--port "$DOOKNOW_PORT")
   [ -z "${DOOKNOW_APP_ORIGIN:-}" ] || args+=(--origin "$DOOKNOW_APP_ORIGIN")
   [ -z "${DOOKNOW_ALLOW_ROOT:-}" ] || args+=(--allow-root "$DOOKNOW_ALLOW_ROOT")
@@ -92,8 +102,7 @@ main() {
   if [ -L "$base/current" ] && [ "$(readlink -f "$base/current")" != "$release" ]; then
     local current
     current="$(readlink -f "$base/current")"
-    local update_args=(update --source "$source" --version "$version" --install-root "$base")
-    [ -z "${DOOKNOW_PROFILE:-}" ] || update_args+=(--profile "$DOOKNOW_PROFILE")
+    local update_args=(update --source "$source" --version "$version" --install-root "$base" --profile "$profile")
     [ "${DOOKNOW_NO_SERVICE:-0}" != 1 ] || update_args+=(--no-service)
     if [ -n "$github_repository" ]; then
       update_args+=(--github-repository "$github_repository")
@@ -112,10 +121,20 @@ main() {
     ln -s "releases/$version" "$base/.current-$$"
     mv -Tf "$base/.current-$$" "$base/current"
   fi
+  # Publish ownership only after initialization has created the profile. A
+  # missing profile in an already-bound installation must never be recreated.
+  if [ -e "$base/profile.path" ] || [ -L "$base/profile.path" ]; then
+    [ -f "$base/profile.path" ] && [ ! -L "$base/profile.path" ] && [ "$(cat "$base/profile.path")" = "$profile" ] || { echo '此安装目录已绑定另一配置' >&2; return 1; }
+  else
+    printf '%s\n' "$profile" > "$work/profile.path"
+    ln "$work/profile.path" "$base/profile.path"
+    rm "$work/profile.path"
+  fi
   local install_id
   install_id="$(printf '%s' "$base" | sha256sum)"; install_id="${install_id%% *}"
   {
     printf '#!/usr/bin/env bash\n# DooKnow install: %s\nset -euo pipefail\nexport DOOKNOW_INSTALL_ROOT=%q\n' "$install_id" "$base"
+    printf 'export DOOKNOW_PROFILE=%q\nexport XDG_CONFIG_HOME=%q\nexport DOOKNOW_BIN_DIR=%q\n' "$profile" "$config_home" "$bindir"
     printf 'release_root="$(readlink -f "$DOOKNOW_INSTALL_ROOT/current")"\nexec "$release_root/runtime/node/bin/node" "$release_root/dist/server/scripts/manage.js" "$@"\n'
   } > "$work/dooknow"
   chmod 700 "$work/dooknow"

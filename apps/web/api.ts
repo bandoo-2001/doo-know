@@ -1,3 +1,5 @@
+import { PASSWORD_POLICY_MESSAGE } from '../../shared/password-policy';
+
 let csrfToken = '';
 export class ApiError extends Error {
   constructor(
@@ -6,9 +8,11 @@ export class ApiError extends Error {
   ) {
     super(
       String(
-        typeof data.error === 'object' && data.error
-          ? (data.error as any).message || (data.error as any).code
-          : data.error || '请求失败',
+        data.code === 'PASSWORD_TOO_SHORT'
+          ? PASSWORD_POLICY_MESSAGE
+          : typeof data.error === 'object' && data.error
+            ? (data.error as any).message || (data.error as any).code
+            : data.error || '请求失败',
       ),
     );
   }

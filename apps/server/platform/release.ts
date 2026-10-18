@@ -16,5 +16,5 @@ export function releaseInfo(root = applicationRoot()) {
     };
   }
   const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
-  return { version: String(pkg.version) + '-dev', databaseCompatibility: 1 };
+  return { version: String(pkg.version) + '-dev', databaseCompatibility: 2 };
 }

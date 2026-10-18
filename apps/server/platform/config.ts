@@ -4,6 +4,7 @@ import { homedir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import type { HostConfig } from '../../../shared/platform-contracts.js';
 import { privateFile } from '../../../packages/core/agent/config.js';
+import { boundProfile, resolveProfileFile } from './profile.js';
 
 export function applicationRoot() {
   let path = dirname(fileURLToPath(import.meta.url));
@@ -16,8 +17,16 @@ export function applicationRoot() {
 }
 export function loadHostConfig(overrides: Partial<HostConfig> = {}, env: NodeJS.ProcessEnv = process.env): HostConfig {
   const home = homedir(), configRoot = join(env.XDG_CONFIG_HOME || join(home, '.config'), 'doo-know');
-  const profileFile = resolve(overrides.profileFile || env.DOOKNOW_PROFILE || join(configRoot, 'profile.json'));
-  const profile = existsSync(profileFile) ? JSON.parse(readFileSync(profileFile, 'utf8')) : {};
+  const profileFile = resolveProfileFile(overrides.profileFile, env, { installRoot: overrides.installRoot });
+  let profile: Record<string, any>;
+  try { profile = JSON.parse(readFileSync(profileFile, 'utf8')); }
+  catch (error) {
+    // Explicit and installed selections must also fail closed if the file is
+    // removed between profile resolution and this read.
+    const required = overrides.profileFile || env.DOOKNOW_PROFILE || overrides.installRoot || env.DOOKNOW_INSTALL_ROOT;
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT' || required) throw error;
+    profile = {};
+  }
   const fromEnv = Object.fromEntries(Object.entries({
     knowledgeRoot: env.KNOWLEDGE_ROOT, dataRoot: env.DATA_ROOT, secretFile: env.AUTH_SECRET_FILE,
     origin: env.APP_ORIGIN, port: env.PORT && Number(env.PORT), host: env.HOST,
@@ -26,6 +35,14 @@ export function loadHostConfig(overrides: Partial<HostConfig> = {}, env: NodeJS.
     agentConfigFile: env.AGENT_CONFIG_FILE, installRoot:env.DOOKNOW_INSTALL_ROOT,
   }).filter(([, v]) => v !== undefined && v !== ''));
   const options = { ...profile, ...fromEnv, ...overrides };
+  if (profile.installRoot && options.installRoot &&
+      resolve(profile.installRoot) !== resolve(options.installRoot))
+    throw new Error('此配置已属于另一安装目录；独立安装请使用新的 --profile');
+  if (options.installRoot) {
+    const owner = boundProfile(options.installRoot);
+    if (owner && owner !== profileFile)
+      throw new Error('此安装目录已绑定另一配置；独立安装请使用新的安装目录');
+  }
   const port = Number(options.port || 5173), origin = options.origin || `http://127.0.0.1:${port}`;
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('端口必须在1–65535之间');
   const url = new URL(origin);
@@ -36,6 +53,7 @@ export function loadHostConfig(overrides: Partial<HostConfig> = {}, env: NodeJS.
   const secret = readFileSync(secretFile, 'utf8').trim();
   if (secret.length < 32) throw new Error('认证密钥长度不足');
   const root = options.applicationRoot || applicationRoot();
+  const vectorServiceTokenFile = env.VECTOR_SERVICE_TOKEN_FILE || options.vectorServiceTokenFile;
   return {
     ...options, profileFile, secretFile, secret, applicationRoot: root,
     dataRoot: resolve(options.dataRoot || join(env.XDG_DATA_HOME || join(home, '.local/share'), 'doo-know/data')),
@@ -43,7 +61,7 @@ export function loadHostConfig(overrides: Partial<HostConfig> = {}, env: NodeJS.
     origin, port, host: options.host || '127.0.0.1', staticRoot: options.staticRoot || join(root, 'dist/web'),
     allowedKnowledgeBases: options.allowedKnowledgeBases || [home],
     vectorRuntimeRoot: options.vectorRuntimeRoot || join(root, 'runtime/vector-service'),
-    ...((env.VECTOR_SERVICE_TOKEN_FILE||options.vectorServiceTokenFile) ? { vectorServiceToken: privateFile(env.VECTOR_SERVICE_TOKEN_FILE||options.vectorServiceTokenFile, 8192).trim() } : {}),
+    ...(vectorServiceTokenFile ? { vectorServiceToken: privateFile(vectorServiceTokenFile, 8192).trim() } : {}),
     indexing: options.indexing || { enabled: env.INDEXING_ENABLED !== '0', watch: env.INDEX_WATCH !== '0', embedded: env.EMBEDDED_INDEX_WORKER !== '0' },
     fileTasks: options.fileTasks || { embedded: env.EMBEDDED_FILE_WORKER !== '0' },
     gitSyncEnabled: options.gitSyncEnabled ?? env.GIT_SYNC_ENABLED === '1',

@@ -28,7 +28,7 @@ test('keeps note identity, secondary actions and editor preferences usable witho
   await expect(page.locator('.toolbar').getByRole('button', { name: /^保存/ })).toBeDisabled();
   await page.locator('.cm-content').fill('# 保留本地草稿\n\n切换显示偏好时也不能丢失。');
   await page.getByRole('button', { name: '更多操作', exact: true }).click();
-  await expect(page.getByRole('button', { name: '历史版本', exact: true })).toBeFocused();
+  await expect(page.getByRole('button', { name: '移动或重命名', exact: true })).toBeFocused();
   await page.getByRole('checkbox', { name: '显示行号', exact: true }).check();
   await expect(page.locator('.cm-gutters')).toBeVisible();
   await expect(page.locator('.cm-content')).toContainText('切换显示偏好时也不能丢失');

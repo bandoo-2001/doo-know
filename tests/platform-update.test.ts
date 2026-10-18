@@ -5,6 +5,92 @@ import { tmpdir } from 'node:os';
 import { pathToFileURL } from 'node:url';
 import { updatePlatform, rollbackPlatform } from '../apps/server/platform/updates.js';
 import { createFixture } from './support/fixture.js';
+it.each([
+  {
+    name: 'latest metadata downgrade',
+    currentEpoch: 2,
+    candidateEpoch: 1,
+    explicit: false,
+    rejected: true,
+  },
+  {
+    name: 'explicit old version downgrade',
+    currentEpoch: 2,
+    candidateEpoch: 1,
+    explicit: true,
+    rejected: true,
+  },
+  {
+    name: 'generation one to two upgrade',
+    currentEpoch: 1,
+    candidateEpoch: 2,
+    explicit: true,
+    rejected: false,
+  },
+  {
+    name: 'same generation older version',
+    currentEpoch: 2,
+    candidateEpoch: 2,
+    explicit: true,
+    rejected: false,
+  },
+])(
+  'enforces database compatibility before fetching the archive: $name',
+  async ({ currentEpoch, candidateEpoch, explicit, rejected }) => {
+    const f = await createFixture();
+    try {
+      const installRoot = join(f.root, 'install'),
+        source = join(f.root, 'releases-source'),
+        currentVersion = currentEpoch === 1 ? '1.1.0-rc.17' : '1.1.0-rc.18',
+        candidateVersion = currentEpoch === 1 ? '1.1.0-rc.18' : '1.1.0-rc.17';
+      await mkdir(join(installRoot, 'releases', currentVersion), { recursive: true });
+      await mkdir(source);
+      await writeFile(
+        join(installRoot, 'releases', currentVersion, 'release.json'),
+        JSON.stringify({ version: currentVersion, databaseCompatibility: currentEpoch }),
+      );
+      await symlink('releases/' + currentVersion, join(installRoot, 'current'));
+      const file = `dooknow-${candidateVersion}-linux-x64.tar.gz`;
+      await writeFile(
+        join(source, explicit ? `release-${candidateVersion}.json` : 'release.json'),
+        JSON.stringify({
+          version: candidateVersion,
+          file,
+          sha256: '0'.repeat(64),
+          platform: 'linux-x64',
+          databaseCompatibility: candidateEpoch,
+        }),
+      );
+      // A forbidden generation must be refused without even needing an archive.
+      // Permitted generations continue to the existing integrity check.
+      if (!rejected) await writeFile(join(source, file), 'intentionally invalid release archive');
+      const retained = join(f.knowledgeRoot, '00-Inbox', 'compatibility.md');
+      await writeFile(retained, '# Preserve current data and source\n');
+      await expect(
+        updatePlatform(
+          {
+            ...f.config,
+            installRoot,
+            profileFile: join(f.root, 'profile.json'),
+            serviceManaged: false,
+          },
+          {
+            source: pathToFileURL(source + '/').href,
+            ...(explicit ? { version: candidateVersion } : {}),
+          },
+        ),
+      ).rejects.toThrow(rejected ? /兼容代次较低.*数据恢复/ : /校验/);
+      expect(await readlink(join(installRoot, 'current'))).toBe('releases/' + currentVersion);
+      expect(await readFile(retained, 'utf8')).toBe('# Preserve current data and source\n');
+      await expect(readFile(join(installRoot, 'update-transaction.json'))).rejects.toMatchObject({
+        code: 'ENOENT',
+      });
+    } finally {
+      await f.close();
+    }
+  },
+);
+
 it('rejects a corrupt release without switching the current release or changing notes', async () => {
   const temp = await mkdtemp(join(tmpdir(), 'dooknow-update-')),
     f = await createFixture();

@@ -1,9 +1,14 @@
+import { MIN_PASSWORD_LENGTH, PASSWORD_POLICY_MESSAGE } from '../shared/password-policy.js';
+
 /** Validate interactive input before any account write; terminal errors still abort. */
-export async function collectAccount(io: {
-  username(): Promise<string>;
-  password(prompt: string): Promise<string>;
-  report(message: string): void;
-}, reset = false) {
+export async function collectAccount(
+  io: {
+    username(): Promise<string>;
+    password(prompt: string): Promise<string>;
+    report(message: string): void;
+  },
+  reset = false,
+) {
   let username = '';
   if (!reset) {
     for (;;) {
@@ -14,11 +19,11 @@ export async function collectAccount(io: {
   }
   for (;;) {
     const password = await io.password('密码（输入隐藏）：');
-    if (password.length === 0) {
-      io.report('密码不能为空，请重新输入。');
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      io.report(PASSWORD_POLICY_MESSAGE + '，请重新输入。');
       continue;
     }
-    if (password !== await io.password('再次输入密码：')) {
+    if (password !== (await io.password('再次输入密码：'))) {
       io.report('两次密码不一致，请重新输入密码。');
       continue;
     }

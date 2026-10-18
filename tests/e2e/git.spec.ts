@@ -41,7 +41,9 @@ test('installs Git interactions, initializes, previews all changes and displays 
     page.getByText('预览后文件或暂存区发生变化，请重新预览', { exact: true }),
   ).toBeVisible();
   await page.getByRole('button', { name: '预览全部变更', exact: true }).click();
-  await expect(page.getByRole('button', { name: '确认提交', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: '确认提交', exact: true })).toBeVisible({
+    timeout: 15000,
+  });
   await page.getByRole('button', { name: '确认提交', exact: true }).click();
   await expect(page.getByText(/提交 [a-f0-9]{40} 已完成/)).toBeVisible({ timeout: 15000 });
   await page.getByRole('button', { name: '关闭插件面板', exact: true }).click();

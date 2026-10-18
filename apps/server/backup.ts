@@ -1,11 +1,14 @@
-import { mkdir, readdir, lstat, cp, writeFile, readFile, access } from 'node:fs/promises';
+import { mkdir, readdir, lstat, cp, writeFile, readFile } from 'node:fs/promises';
 import { resolve, join, relative } from 'node:path';
 import { createHash } from 'node:crypto';
-import {resetRestoredState} from './platform/restore-state.js';
+import { resetRestoredState } from './platform/restore-state.js';
 import Database from 'better-sqlite3';
 import type { AppConfig } from '../../shared/contracts.js';
 import { hashFile } from '../../packages/core/knowledge/file-reader.js';
 export async function inventory(root: string) {
+  const info = await lstat(root);
+  if (!info.isDirectory() || info.isSymbolicLink())
+    throw new Error('备份来源必须为真实目录，拒绝链接');
   const entries: Record<string, string> = {};
   async function walk(dir: string) {
     for (const e of await readdir(dir, { withFileTypes: true })) {
@@ -19,6 +22,15 @@ export async function inventory(root: string) {
   }
   await walk(root);
   return entries;
+}
+async function optionalInventory(root: string) {
+  try {
+    await lstat(root);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return undefined;
+    throw error;
+  }
+  return inventory(root);
 }
 export async function checksums(root: string) {
   const files = await inventory(root),
@@ -47,6 +59,10 @@ export async function backup(config: AppConfig, destination: string) {
   const before = await inventory(config.knowledgeRoot),
     db = new Database(join(config.dataRoot, 'app.sqlite'));
   try {
+    const retainedDirectories = ['history', 'reconciliation'];
+    const retainedBefore = await Promise.all(
+      retainedDirectories.map((name) => optionalInventory(join(config.dataRoot, name))),
+    );
     await cp(config.knowledgeRoot, join(destination, 'knowledge'), {
       recursive: true,
       errorOnExist: true,
@@ -54,19 +70,22 @@ export async function backup(config: AppConfig, destination: string) {
     });
     await mkdir(join(destination, 'data'), { mode: 0o700 });
     await db.backup(join(destination, 'data/app.sqlite'));
-    try {
-      await access(join(config.dataRoot, 'history'));
-      await cp(join(config.dataRoot, 'history'), join(destination, 'data/history'), {
+    for (const [index, name] of retainedDirectories.entries()) {
+      if (retainedBefore[index] === undefined) continue;
+      await cp(join(config.dataRoot, name), join(destination, 'data', name), {
         recursive: true,
         errorOnExist: true,
         force: false,
       });
-    } catch (e) {
-      if ((e as NodeJS.ErrnoException).code !== 'ENOENT') throw e;
     }
     const after = await inventory(config.knowledgeRoot);
     if (JSON.stringify(before) !== JSON.stringify(after))
       throw new Error('备份期间原文变化，请暂停编辑后重新备份');
+    const retainedAfter = await Promise.all(
+      retainedDirectories.map((name) => optionalInventory(join(config.dataRoot, name))),
+    );
+    if (JSON.stringify(retainedBefore) !== JSON.stringify(retainedAfter))
+      throw new Error('备份期间历史版本或核对保全材料变化，请暂停编辑后重新备份');
     await writeFile(
       join(destination, 'manifest.json'),
       JSON.stringify(
@@ -107,7 +126,7 @@ export async function restore(source: string, config: AppConfig) {
       });
   const db = new Database(join(config.dataRoot, 'app.sqlite'));
   try {
-    resetRestoredState(db,config);
+    resetRestoredState(db, config);
   } finally {
     db.close();
   }

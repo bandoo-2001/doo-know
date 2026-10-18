@@ -5,6 +5,8 @@ import Icon from './Icon.vue';
 defineProps<{ lineNumbers: boolean; fullEditor: boolean }>();
 const emit = defineEmits<{
   history: [];
+  move: [];
+  download: [];
   upload: [];
   delete: [];
   'update:lineNumbers': [value: boolean];
@@ -37,10 +39,12 @@ watch(open, async (shown) => {
 });
 onMounted(() => window.addEventListener('resize', measureSpace));
 onBeforeUnmount(() => window.removeEventListener('resize', measureSpace));
-function action(kind: 'history' | 'upload' | 'delete') {
+function action(kind: 'history' | 'upload' | 'delete' | 'move' | 'download') {
   close();
   if (kind === 'history') emit('history');
   else if (kind === 'upload') emit('upload');
+  else if (kind === 'move') emit('move');
+  else if (kind === 'download') emit('download');
   else emit('delete');
 }
 </script>
@@ -70,6 +74,10 @@ function action(kind: 'history' | 'upload' | 'delete') {
       aria-label="笔记操作"
       @keydown.esc.stop="close"
     >
+      <button @click="action('move')"><Icon name="folder" />移动或重命名</button>
+      <button v-if="fullEditor" @click="action('download')">
+        <Icon name="file" />下载 Markdown
+      </button>
       <button @click="action('history')"><Icon name="clock" />历史版本</button>
       <button @click="action('upload')"><Icon name="image" />插入图片或 PDF</button>
       <div class="plugin-note-actions" @click="close"><slot /></div>

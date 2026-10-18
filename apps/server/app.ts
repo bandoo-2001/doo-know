@@ -32,6 +32,7 @@ import { registerAgentRoutes } from './agent/routes.js';
 import { registerWebKnowledgeRoutes } from './knowledge/web-routes.js';
 import { webPrincipal } from '../../packages/core/knowledge/core.js';
 import { KnowledgeError } from '../../packages/core/knowledge/errors.js';
+import { registerStorageRoutes } from './platform/storage.js';
 export async function createApp(config: HostConfig) {
   const app = Fastify({ logger: false, bodyLimit: 2 * 1024 * 1024 });
   const db = openDatabase(config.dataRoot, 'server');
@@ -118,7 +119,8 @@ export async function createApp(config: HostConfig) {
         if (reply.sent) resolve();
       });
     }
-    if (!req.url.startsWith('/api/platform/') && !req.url.startsWith('/api/security/'))
+    if (!req.url.startsWith('/api/platform/') && !req.url.startsWith('/api/security/') &&
+        !req.url.startsWith('/api/maintenance/'))
       platform.get();
   });
   const authPaths = new Set([
@@ -185,6 +187,7 @@ export async function createApp(config: HostConfig) {
     return reply.code(ready ? 200 : 503).send({ status: ready ? 'ready' : 'not_ready' });
   });
   app.get('/api/platform/status', async () => platform.status());
+  registerStorageRoutes(app, config, () => platform.settings.configured()?.knowledgeRoot);
   app.get('/api/platform/search-runtime', async () => searchRuntime.status());
   app.post('/api/platform/search-runtime/prepare', async (req) =>
     searchRuntime.prepare((req as any).ownerId, (req.body as any)?.requestId),

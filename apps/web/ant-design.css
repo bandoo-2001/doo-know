@@ -92,3 +92,89 @@
   justify-self: start;
   width: auto;
 }
+.search-options {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  padding: 0 16px 12px;
+  flex-shrink: 0;
+}
+.search-options .ant-select {
+  width: 100%;
+}
+.sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.normal-outline {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: min(360px, 80vw);
+  max-height: min(350px, 55dvh);
+  overflow: auto;
+}
+.normal-outline button {
+  border: 0;
+  background: transparent;
+  text-align: left;
+  padding: 6px;
+  color: var(--muted);
+  font: inherit;
+  overflow-wrap: anywhere;
+}
+.normal-outline button:hover {
+  background: #edf1fb;
+  color: var(--blue);
+}
+.local-draft-alert,
+.workspace .draft-recovery {
+  margin: 8px 24px;
+}
+.local-draft-status {
+  padding: 5px 24px;
+  margin: 0;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.text-link {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--blue);
+  font-size: inherit;
+}
+.workspace-empty .ant-btn {
+  margin: 8px 4px;
+}
+.settings-nav {
+  flex-wrap: wrap;
+}
+@media (max-width: 720px) {
+  .local-draft-alert,
+  .workspace .draft-recovery {
+    margin: 8px 12px;
+  }
+  .local-draft-status {
+    padding-inline: 12px;
+  }
+  .mode-row {
+    flex-wrap: wrap;
+  }
+  .settings-nav {
+    position: static;
+  }
+}
+
+.workspace .draft-recovery {
+  max-height: min(280px, 42dvh);
+  overflow: auto;
+}

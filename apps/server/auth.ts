@@ -9,6 +9,7 @@ import { oauthPlugins } from './platform/oauth-options.js';
 import { oauthGrantStore } from './platform/oauth-grants.js';
 import { invalidateRemoteAuth } from '../../packages/core/auth/remote-auth.js';
 import { revokeOAuthClient } from './platform/oauth.js';
+import { MIN_PASSWORD_LENGTH, validateNewPassword } from '../../shared/password-policy.js';
 export async function createAuth(config: HostConfig, db: AppDatabase) {
   const auth = betterAuth({
     database: db,
@@ -16,7 +17,7 @@ export async function createAuth(config: HostConfig, db: AppDatabase) {
     secret: config.secret,
     trustedOrigins: [config.origin],
     disabledPaths: ['/token'],
-    emailAndPassword: { enabled: true, disableSignUp: true, minPasswordLength: 1 },
+    emailAndPassword: { enabled: true, disableSignUp: true, minPasswordLength: MIN_PASSWORD_LENGTH },
     session: { expiresIn: 86400, cookieCache: { enabled: false } },
     plugins: [username({ immutableUsername: true }), ...oauthPlugins(config, db)],
     rateLimit: {
@@ -36,8 +37,9 @@ export async function createAuth(config: HostConfig, db: AppDatabase) {
   return auth;
 }
 export async function initializeOwner(config: HostConfig, name: string, password: string) {
-  if (!/^[a-zA-Z0-9_.]{3,30}$/.test(name) || password.length === 0)
-    throw new Error('用户名需 3–30 个字母、数字、点或下划线，密码不能为空');
+  if (!/^[a-zA-Z0-9_.]{3,30}$/.test(name))
+    throw new Error('用户名需 3–30 个字母、数字、点或下划线');
+  validateNewPassword(password);
   const db = openDatabase(config.dataRoot);
   try {
     await createAuth(config, db);
@@ -59,7 +61,7 @@ export async function initializeOwner(config: HostConfig, name: string, password
   }
 }
 export async function resetOwnerPassword(config: HostConfig, password: string) {
-  if (password.length === 0) throw new Error('密码不能为空');
+  validateNewPassword(password);
   const db = openDatabase(config.dataRoot);
   try {
     const auth = await createAuth(config, db);

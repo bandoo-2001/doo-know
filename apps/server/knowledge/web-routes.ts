@@ -11,6 +11,7 @@ import { readBlocks } from '../../../packages/core/knowledge/file-reader.js';
 import { sha256, findOperation } from '../../../packages/core/knowledge/operations.js';
 import { authorizePath } from '../../../packages/core/agent/auth.js';
 import { fail } from '../../../packages/core/knowledge/errors.js';
+import { conflictService } from '../../../packages/core/knowledge/conflicts.js';
 export async function registerWebKnowledgeRoutes(
   app: FastifyInstance,
   config: AppConfig,
@@ -19,6 +20,22 @@ export async function registerWebKnowledgeRoutes(
   shares: ReturnType<typeof shareService>,
   verifySession: (req: FastifyRequest) => Promise<boolean>,
 ) {
+  const conflicts = conflictService(config, db);
+  app.post<{ Params: { id: string } }>('/api/notes/:id/move', async (req) => {
+    const b = req.body as any;
+    return knowledge.core.move(
+      webPrincipal,
+      req.params.id,
+      b?.folderPath,
+      b?.fileName,
+      b?.expectedModifiedAt,
+      b?.requestId,
+    );
+  });
+  app.get('/api/maintenance/conflicts', async () => conflicts.list());
+  app.post<{ Params: { id: string } }>('/api/maintenance/conflicts/:id/resolve', async (req) =>
+    conflicts.resolve(req.params.id, req.body),
+  );
   app.post('/api/search/advanced', { bodyLimit: 128 * 1024 }, async (req) =>
     knowledge.search.search(webPrincipal, req.body as any),
   );
@@ -102,7 +119,7 @@ export async function registerWebKnowledgeRoutes(
             fail(503, 'SYNC_IN_PROGRESS');
           await knowledge.snapshots.check(webPrincipal, req.params.id, ready.id);
           release.renew();
-          db.transaction(() => chargeRate(db, webPrincipal, 'web', bytes.length))();
+          db.transaction(() => chargeRate(db, webPrincipal, 'web', bytes.length)).immediate();
           yield bytes;
         }
       } finally {
