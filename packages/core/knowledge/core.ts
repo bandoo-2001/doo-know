@@ -229,7 +229,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     return n as { id: string; path: string; active: number; trash_path: string | null };
   }
   function record(intent: Intent, content?: string) {
-    return db.transaction(() => {
+    const recordReceipt = db.transaction(() => {
       const current = db.prepare('SELECT status FROM write_intents WHERE id=?').get(intent.id) as
         | { status: string }
         | undefined;
@@ -324,7 +324,8 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
       completeOperation(db, intent.id, result);
       db.prepare("UPDATE write_intents SET status='recorded' WHERE id=?").run(intent.id);
       return result;
-    })();
+    });
+    return recordReceipt.immediate();
   }
   function create(
     p: Principal,

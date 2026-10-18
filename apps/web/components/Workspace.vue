@@ -22,17 +22,20 @@ import { emptyToolbarState, type MarkdownAction } from '../markdown-format';
 import DocumentOutline from './DocumentOutline.vue';
 import { outlineFromTokens } from '../document-outline';
 import LargeFileWorkspace from './LargeFileWorkspace.vue';
-import IndexStatus from './IndexStatus.vue';
-import SearchRuntimeSettings from './SearchRuntimeSettings.vue';
-import PluginManager from './PluginManager.vue';
+import WorkspaceFooter from './WorkspaceFooter.vue';
+import SettingsWorkspace from './settings/SettingsWorkspace.vue';
+import TransferPanel from './settings/TransferPanel.vue';
+import StatusDrawer from './StatusDrawer.vue';
+import TrashWorkspace from './TrashWorkspace.vue';
+import { settingsSections, normalizeSettingsSection } from '../settings';
+import { editorPreferences, setEditorPreferences } from '../preferences';
+import type { SettingsSection } from '../../../shared/settings-contracts';
 import PluginSlot from './PluginSlot.vue';
 import PluginPanel from './PluginPanel.vue';
 import NoteActions from './NoteActions.vue';
 import SidebarResizer from './SidebarResizer.vue';
 import DraftRecovery from './DraftRecovery.vue';
 import NoteMoveDialog from './NoteMoveDialog.vue';
-import MaintenanceSettings from './MaintenanceSettings.vue';
-import StorageSettings from './StorageSettings.vue';
 import SetupImport from './SetupImport.vue';
 import { useNoteDraft } from '../useNoteDraft';
 import { filenameResults, mergeSearchResults } from '../search-results';
@@ -43,7 +46,6 @@ import {
   type WorkspaceRoute,
   type WorkspaceNavigationState,
 } from '../navigation';
-import { MIN_PASSWORD_LENGTH, PASSWORD_POLICY_MESSAGE } from '../../../shared/password-policy';
 import { refreshPlugins, disposePluginUIs, pluginRegistry } from '../plugins';
 import type {
   NoteInfo,
@@ -67,7 +69,17 @@ const moveOpen = ref(false),
 const parsedLine = Number(window.location.hash.match(/^#L([1-9]\d*)$/)?.[1]);
 const initialLine =
   Number.isSafeInteger(parsedLine) && parsedLine <= 20 * 1024 * 1024 ? parsedLine : undefined;
+const props = withDefaults(defineProps<{ username?: string }>(), { username: '当前账户' });
 const emit = defineEmits<{ logout: [] }>();
+const statusOpen = ref(false),
+  createMenuOpen = ref(false);
+let returnRoute: WorkspaceRoute = {};
+function openImport() {
+  createMenuOpen.value = false;
+  importFolder.value =
+    folder.value || note.value?.relativePath.split('/').slice(0, -1).join('/') || '00-Inbox';
+  importOpen.value = true;
+}
 function storedSidebarWidth() {
   try {
     const width = Number(localStorage.getItem('dooknow.sidebarWidth'));
@@ -79,8 +91,7 @@ const sidebarCollapsed = ref(false);
 const editorState = ref(emptyToolbarState());
 const navigationState = ref<WorkspaceNavigationState>({ canBack: false, canForward: false });
 const sidebarWidth = ref(storedSidebarWidth()),
-  accountExpanded = ref(false),
-  showLineNumbers = ref(false),
+  showLineNumbers = ref(editorPreferences.lineNumbers),
   releaseVersion = ref('');
 function saveSidebarWidth() {
   try {
@@ -88,12 +99,13 @@ function saveSidebarWidth() {
   } catch {}
 }
 const tree = ref<TreeEntry[]>([]),
+  treeLoaded = ref(false),
   note = ref<NoteDocument>(),
   folder = ref(''),
   selected = ref(''),
   draft = ref(''),
   savedContent = ref(''),
-  mode = ref<'edit' | 'preview' | 'split'>('edit'),
+  mode = ref<'edit' | 'preview' | 'split'>(editorPreferences.mode),
   drawer = ref(true),
   busy = ref(false),
   error = ref(''),
@@ -175,6 +187,9 @@ async function browseRoot() {
 }
 const navigation = createWorkspaceNavigation({
   dirty: () => dirty.value,
+  canPreserveDraft: (route) =>
+    !!route.view ||
+    (['settings', 'trash'].includes(panel.value) && !!route.note && note.value?.id === route.note),
   guard,
   apply: applyRoute,
   error: showError,
@@ -204,6 +219,11 @@ async function initializeDrafts() {
   }
 }
 async function applyRoute(route: WorkspaceRoute) {
+  if (route.note && ['settings', 'trash'].includes(panel.value) && note.value?.id === route.note) {
+    panel.value = 'note';
+    drawer.value = false;
+    return;
+  }
   if (route.note) return openNote(route.note, route.line, false);
   if (route.view === 'trash') return openTrash(false);
   if (route.view === 'settings') return settings(route.section, false);
@@ -298,7 +318,6 @@ function showError(cause: unknown) {
   if (
     createOpen.value ||
     shareOpen.value ||
-    restoreTarget.value ||
     deleteOpen.value ||
     revisionsOpen.value ||
     leaveOpen.value ||
@@ -318,9 +337,11 @@ async function run(fn: () => Promise<void>) {
 }
 async function refresh() {
   tree.value = await api('/api/tree');
+  treeLoaded.value = true;
 }
 async function openNote(id: string, line?: number, syncUrl = true) {
   await guard(async () => {
+    const useDefaultMode = note.value?.id !== id;
     await localDrafts.flush();
     const epoch = ++viewEpoch;
     noteOpening.value = true;
@@ -365,6 +386,7 @@ async function openNote(id: string, line?: number, syncUrl = true) {
       assets.value = attachments;
       drawer.value = false;
       panel.value = 'note';
+      if (useDefaultMode) mode.value = editorPreferences.mode;
       noteLine.value = line;
       if (syncUrl) navigation.commit({ note: id, line });
       if (meta.editorMode === 'full') await localDrafts.load(id, currentDraftBase(), n.content);
@@ -720,6 +742,7 @@ const createOpen = ref(false),
   newFolder = ref('');
 let createRequestId = crypto.randomUUID();
 function create(kind: 'note' | 'folder') {
+  if (!treeLoaded.value) return;
   dialogError.value = '';
   createRequestId = crypto.randomUUID();
   createKind.value = kind;
@@ -773,7 +796,6 @@ const panel = ref<'empty' | 'folder' | 'note' | 'trash' | 'settings'>('empty'),
   revisionsOpen = ref(false),
   revisions = ref<any[]>([]),
   revisionCursor = ref<string>(),
-  trash = ref<any[]>([]),
   deleteOpen = ref(false);
 async function history(more = false) {
   const id = note.value!.id,
@@ -814,25 +836,20 @@ async function readRevision(r: any) {
     r.cursor = reply.data.nextCursor;
   }
 }
-const trashLoading = ref(false),
-  restoringId = ref<string>();
 async function openTrash(syncUrl = true) {
-  await run(() =>
-    guard(async () => {
-      const epoch = ++viewEpoch;
-      panel.value = 'trash';
-      if (syncUrl) navigation.commit({ view: 'trash' });
-      note.value = undefined;
-      drawer.value = false;
-      trashLoading.value = true;
-      try {
-        const response = await api('/api/trash');
-        if (epoch === viewEpoch) trash.value = response;
-      } finally {
-        if (epoch === viewEpoch) trashLoading.value = false;
-      }
-    }),
-  );
+  await run(async () => {
+    await retainNoteContext();
+    panel.value = 'trash';
+    drawer.value = false;
+    if (syncUrl) navigation.commit({ view: 'trash' });
+  });
+}
+async function retainNoteContext() {
+  await localDrafts.flush();
+  if (!['settings', 'trash'].includes(panel.value)) returnRoute = navigation.currentRoute();
+  // Keep in-flight saves attached to the retained editor; only cancel a pending note open.
+  if (noteOpening.value) viewEpoch++;
+  noteOpening.value = false;
 }
 const pendingDelete = ref<{ noteId: string; expectedModifiedAt: string; requestId: string }>();
 async function finishDelete(id: string, epoch: number) {
@@ -847,7 +864,6 @@ async function finishDelete(id: string, epoch: number) {
     navigation.commit(folder.value ? { folder: folder.value } : {});
   }
   await refresh();
-  if (panel.value === 'trash') trash.value = await api('/api/trash');
   tell('已移入回收站');
 }
 async function checkDelete() {
@@ -896,86 +912,57 @@ async function removeNote() {
     }
   });
 }
-const restoreTarget = ref<any>(),
-  restoreName = ref('');
-const pendingRestore = new Map<string, { requestId: string; fileName?: string }>();
-async function restoreTrash(item: any, fileName?: string) {
-  if (restoringId.value || (fileName !== undefined && !fileName.trim())) return;
-  restoringId.value = item.id;
+const activeSetting = ref<SettingsSection>('editor');
+function rememberedSetting(): SettingsSection {
   try {
-    await run(async () => {
-      try {
-        let input = pendingRestore.get(item.id);
-        if (!input || input.fileName !== fileName) {
-          input = { requestId: crypto.randomUUID(), ...(fileName ? { fileName } : {}) };
-          pendingRestore.set(item.id, input);
-        }
-        await api(`/api/notes/${item.id}/restore`, 'POST', input);
-        pendingRestore.delete(item.id);
-        restoreTarget.value = undefined;
-        trash.value = await api('/api/trash');
-        await refresh();
-        tell('已恢复，笔记保持私有');
-      } catch (e) {
-        if (e instanceof ApiError && e.data.code === 'NAME_CONFLICT') {
-          pendingRestore.delete(item.id);
-          restoreTarget.value = item;
-          restoreName.value = '';
-        } else throw e;
-      }
-    });
-  } finally {
-    restoringId.value = undefined;
+    return normalizeSettingsSection(sessionStorage.getItem('dooknow.lastSettings') || undefined);
+  } catch {
+    return 'editor';
   }
 }
-const activeSetting = ref<'account' | 'search' | 'plugins' | 'maintenance'>('account');
-function scrollSetting(section: 'account' | 'search' | 'plugins' | 'maintenance', syncUrl = true) {
+function scrollSetting(section: SettingsSection, syncUrl = true) {
   activeSetting.value = section;
-  if (syncUrl && panel.value === 'settings') navigation.commit({ view: 'settings', section }, true);
-  document.getElementById(section + '-settings')?.scrollIntoView({ block: 'start' });
+  try {
+    sessionStorage.setItem('dooknow.lastSettings', section);
+  } catch {}
+  if (syncUrl && panel.value === 'settings') navigation.commit({ view: 'settings', section });
+  drawer.value = false;
 }
-async function settings(
-  section?: 'account' | 'search' | 'plugins' | 'maintenance',
-  syncUrl = true,
-) {
-  await guard(async () => {
-    viewEpoch++;
-    panel.value = 'settings';
-    note.value = undefined;
-    drawer.value = false;
-    await nextTick();
-    scrollSetting(section || 'account', false);
-    if (syncUrl) navigation.commit({ view: 'settings', section: section || 'account' });
-  });
-}
-const currentPassword = ref(''),
-  newPassword = ref(''),
-  passwordBusy = ref(false),
-  passwordNotice = ref('');
-async function changePassword() {
-  if (passwordBusy.value) return;
-  if ([...newPassword.value].length < MIN_PASSWORD_LENGTH) {
-    showError(new Error(PASSWORD_POLICY_MESSAGE));
+async function settings(section?: string, syncUrl = true) {
+  const target = section ? normalizeSettingsSection(section) : rememberedSetting();
+  if (panel.value === 'settings') {
+    scrollSetting(target, syncUrl);
     return;
   }
   await run(async () => {
-    passwordBusy.value = true;
-    passwordNotice.value = '';
-    try {
-      await api('/api/auth/change-password', 'POST', {
-        currentPassword: currentPassword.value,
-        newPassword: newPassword.value,
-        revokeOtherSessions: true,
-      });
-      currentPassword.value = '';
-      newPassword.value = '';
-      passwordNotice.value = '密码已修改，其他会话已撤销';
-      tell(passwordNotice.value);
-    } finally {
-      passwordBusy.value = false;
-    }
+    await retainNoteContext();
+    panel.value = 'settings';
+    drawer.value = false;
+    scrollSetting(target, false);
+    if (syncUrl) navigation.commit({ view: 'settings', section: target });
   });
 }
+async function backFromSettings() {
+  if (returnRoute.note && note.value?.id === returnRoute.note) {
+    panel.value = 'note';
+    drawer.value = false;
+    navigation.commit(returnRoute);
+    return;
+  }
+  await applyRoute(returnRoute);
+  navigation.commit(returnRoute);
+}
+watch(
+  () => editorPreferences.lineNumbers,
+  (value) => (showLineNumbers.value = value),
+);
+watch(showLineNumbers, (value) => {
+  if (value !== editorPreferences.lineNumbers) setEditorPreferences({ lineNumbers: value });
+});
+watch(
+  () => editorPreferences.mode,
+  (value) => (mode.value = value),
+);
 async function logout() {
   await run(() =>
     guard(async () => {
@@ -1265,7 +1252,7 @@ watch([query, searchMode, searchDirectory], () => beginSearch(query.value));
 function shortcut(e: KeyboardEvent) {
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
     e.preventDefault();
-    void save();
+    if (panel.value === 'note') void save();
   }
 }
 function unload(e: BeforeUnloadEvent) {
@@ -1328,149 +1315,188 @@ onBeforeUnmount(() => {
           <Icon name="close" />
         </button>
       </div>
-      <div class="sidebar-actions">
-        <AInput
-          v-model:value="query"
-          allow-clear
-          placeholder="搜索笔记与目录"
-          aria-label="搜索笔记与目录"
-          ><template #prefix><Icon name="search" :size="17" /></template></AInput
-        ><AButton type="primary" aria-label="新建笔记" title="新建笔记" @click="create('note')"
-          ><template #icon><Icon name="plus" /></template
-        ></AButton>
-      </div>
-      <div class="tree-heading">
-        <span>{{ query ? '搜索结果' : '笔记本' }}</span
-        ><button class="icon-button" aria-label="新建文件夹" @click="create('folder')">
-          <Icon name="plus" /></button
-        ><button class="icon-button" aria-label="刷新目录" @click="run(refresh)">
-          <Icon name="refresh" :size="17" />
+      <nav v-if="panel === 'settings'" class="settings-sidebar" aria-label="设置分类">
+        <button class="settings-return" @click="backFromSettings">
+          <Icon name="back" :size="16" />返回笔记
         </button>
-      </div>
-      <div v-if="query" class="search-options">
-        <label class="sr-only" for="workspace-search-mode">搜索模式</label>
-        <ASelect
-          id="workspace-search-mode"
-          v-model:value="searchMode"
-          :options="[
-            { label: '混合检索', value: 'hybrid' },
-            { label: '文本检索', value: 'text' },
-            { label: vectorReady ? '语义检索' : '语义检索（需准备）', value: 'semantic' },
-          ]"
-        />
-        <label class="sr-only" for="workspace-search-directory">搜索目录</label>
-        <ASelect
-          id="workspace-search-directory"
-          v-model:value="searchDirectory"
-          :options="[{ label: '所有目录', value: '' }, ...folders.filter((item) => item.value)]"
-        />
-      </div>
-      <div class="tree-scroll">
-        <template v-if="query"
-          ><button
-            v-for="r in results"
-            :key="r.id"
-            class="search-result"
-            @click="
-              run(() =>
-                r.type === 'folder'
-                  ? select({ type: 'folder', name: r.title, path: r.relativePath })
-                  : openNote(r.id, r.line),
-              )
-            "
-          >
-            <b>{{ r.title }}</b
-            ><small>{{ r.relativePath }}</small
-            ><span>{{ r.snippet }}</span>
-          </button>
-          <p v-if="searchDegraded && results.length" class="search-feedback">
-            当前显示可用的检索结果，部分检索能力或索引仍在准备。<button
-              class="text-link"
-              @click="settings('search')"
-            >
-              检查搜索设置
-            </button>
-          </p>
-          <p v-if="results.length" class="muted">
-            已显示 {{ results.length }}
-            {{ results.some((item) => item.type === 'folder') ? '项' : '篇' }}
-          </p>
-          <p
-            v-if="searchBusy || searchWaiting"
-            class="search-feedback"
-            role="status"
-            aria-live="polite"
-          >
-            {{ searchBusy ? '正在搜索…' : '搜索索引正在更新，请稍候…' }}
-          </p>
-          <div v-if="searchError" class="search-feedback">
-            <AAlert type="error" :message="searchError" role="alert" />
-            <AButton size="small" @click="searchCursor ? moreSearch() : beginSearch(query)"
-              >重试搜索</AButton
-            >
-          </div>
-          <AButton
-            v-if="searchCursor && !searchError"
-            :loading="searchBusy"
-            :disabled="searchBusy"
-            @click="moreSearch"
-            >加载更多搜索结果</AButton
-          >
-          <p
-            v-if="!results.length && !searchBusy && !searchWaiting && !searchError"
-            class="muted empty-search"
-          >
-            没有匹配的笔记
-          </p></template
-        ><TreeBranch v-else :entries="tree" :selected="selected" @select="select" />
-      </div>
-      <div
-        v-if="
-          pluginRegistry.contributions.some(
-            (c) => c.slot === 'navigation' || c.slot === 'libraryAction',
-          )
-        "
-        class="sidebar-tools"
-      >
-        <span class="sidebar-section-title">扩展工具</span>
-        <PluginSlot slot-name="navigation" :context="pluginContext" />
-        <PluginSlot slot-name="libraryAction" :context="pluginContext" />
-      </div>
-      <div class="sidebar-footer">
         <button
-          class="nav-action account-row"
-          aria-label="个人账户"
-          :aria-expanded="accountExpanded"
-          aria-controls="account-navigation"
-          @click="accountExpanded = !accountExpanded"
+          v-for="item in settingsSections"
+          :key="item.key"
+          :aria-current="activeSetting === item.key ? 'page' : undefined"
+          @click="scrollSetting(item.key)"
         >
-          <span class="avatar" aria-hidden="true">个人</span><span>个人账户</span>
-          <Icon name="chevron" :size="16" :class="{ 'account-expanded': accountExpanded }" />
+          <Icon :name="item.icon" :size="18" /><span>{{ item.label }}</span>
         </button>
-        <div v-show="accountExpanded" id="account-navigation" class="account-navigation">
-          <button class="nav-action" @click="importOpen = true">
-            <Icon name="file" />导入 Markdown
-          </button>
-          <button class="nav-action" @click="settings('account')">
-            <Icon name="lock" />账户设置
-          </button>
-          <button
-            class="nav-action"
-            :class="{ active: panel === 'trash' }"
-            :aria-current="panel === 'trash' ? 'page' : undefined"
-            @click="openTrash()"
-          >
-            <Icon name="trash" />回收站</button
+      </nav>
+      <div v-show="panel !== 'settings'" class="notebook-sidebar-content">
+        <div class="sidebar-actions">
+          <AInput
+            v-model:value="query"
+            allow-clear
+            placeholder="搜索笔记与目录"
+            aria-label="搜索笔记与目录"
+            ><template #prefix><Icon name="search" :size="17" /></template
+          ></AInput>
+          <div class="sidebar-create">
+            <AButton
+              type="primary"
+              :disabled="!treeLoaded"
+              aria-label="新建笔记"
+              title="新建笔记"
+              @click="create('note')"
+              ><template #icon><Icon name="plus" /></template></AButton
+            ><APopover v-model:open="createMenuOpen" trigger="click" placement="bottomRight">
+              <template #content
+                ><div
+                  class="create-menu"
+                  role="dialog"
+                  aria-label="创建与导入"
+                  @keydown.esc.stop="createMenuOpen = false"
+                >
+                  <button
+                    :disabled="!treeLoaded"
+                    @click="
+                      createMenuOpen = false;
+                      create('note');
+                    "
+                  >
+                    <Icon name="file" />新建笔记
+                  </button>
+                  <button
+                    :disabled="!treeLoaded"
+                    @click="
+                      createMenuOpen = false;
+                      create('folder');
+                    "
+                  >
+                    <Icon name="folder" />新建文件夹
+                  </button>
+                  <button @click="openImport"><Icon name="file" />导入 Markdown</button>
+                </div></template
+              >
+              <button
+                class="create-more"
+                type="button"
+                aria-label="创建与导入"
+                title="创建与导入"
+                :aria-expanded="createMenuOpen"
+              >
+                <Icon name="chevron" :size="12" />
+              </button>
+            </APopover>
+          </div>
+        </div>
+        <div class="tree-heading">
+          <span>{{ query ? '搜索结果' : '笔记本' }}</span
           ><button
-            class="nav-action"
-            :class="{ active: panel === 'settings' }"
-            :aria-current="panel === 'settings' ? 'page' : undefined"
-            @click="settings()"
+            class="icon-button"
+            :disabled="!treeLoaded"
+            aria-label="新建文件夹"
+            @click="create('folder')"
           >
-            <Icon name="settings" />设置
+            <Icon name="plus" /></button
+          ><button class="icon-button" aria-label="刷新目录" @click="run(refresh)">
+            <Icon name="refresh" :size="17" />
           </button>
         </div>
+        <div v-if="query" class="search-options">
+          <label class="sr-only" for="workspace-search-mode">搜索模式</label>
+          <ASelect
+            id="workspace-search-mode"
+            v-model:value="searchMode"
+            :options="[
+              { label: '混合检索', value: 'hybrid' },
+              { label: '文本检索', value: 'text' },
+              { label: vectorReady ? '语义检索' : '语义检索（需准备）', value: 'semantic' },
+            ]"
+          />
+          <label class="sr-only" for="workspace-search-directory">搜索目录</label>
+          <ASelect
+            id="workspace-search-directory"
+            v-model:value="searchDirectory"
+            :options="[{ label: '所有目录', value: '' }, ...folders.filter((item) => item.value)]"
+          />
+        </div>
+        <div class="tree-scroll">
+          <template v-if="query"
+            ><button
+              v-for="r in results"
+              :key="r.id"
+              class="search-result"
+              @click="
+                run(() =>
+                  r.type === 'folder'
+                    ? select({ type: 'folder', name: r.title, path: r.relativePath })
+                    : openNote(r.id, r.line),
+                )
+              "
+            >
+              <b>{{ r.title }}</b
+              ><small>{{ r.relativePath }}</small
+              ><span>{{ r.snippet }}</span>
+            </button>
+            <p v-if="searchDegraded && results.length" class="search-feedback">
+              当前显示可用的检索结果，部分检索能力或索引仍在准备。<button
+                class="text-link"
+                @click="settings('search')"
+              >
+                检查搜索设置
+              </button>
+            </p>
+            <p v-if="results.length" class="muted">
+              已显示 {{ results.length }}
+              {{ results.some((item) => item.type === 'folder') ? '项' : '篇' }}
+            </p>
+            <p
+              v-if="searchBusy || searchWaiting"
+              class="search-feedback"
+              role="status"
+              aria-live="polite"
+            >
+              {{ searchBusy ? '正在搜索…' : '搜索索引正在更新，请稍候…' }}
+            </p>
+            <div v-if="searchError" class="search-feedback">
+              <AAlert type="error" :message="searchError" role="alert" />
+              <AButton size="small" @click="searchCursor ? moreSearch() : beginSearch(query)"
+                >重试搜索</AButton
+              >
+            </div>
+            <AButton
+              v-if="searchCursor && !searchError"
+              :loading="searchBusy"
+              :disabled="searchBusy"
+              @click="moreSearch"
+              >加载更多搜索结果</AButton
+            >
+            <p
+              v-if="!results.length && !searchBusy && !searchWaiting && !searchError"
+              class="muted empty-search"
+            >
+              没有匹配的笔记
+            </p></template
+          ><TreeBranch v-else :entries="tree" :selected="selected" @select="select" />
+        </div>
+        <div
+          v-if="
+            pluginRegistry.contributions.some(
+              (c) => c.slot === 'navigation' || c.slot === 'libraryAction',
+            )
+          "
+          class="sidebar-tools"
+        >
+          <span class="sidebar-section-title">扩展工具</span>
+          <PluginSlot slot-name="navigation" :context="pluginContext" />
+          <PluginSlot slot-name="libraryAction" :context="pluginContext" />
+        </div>
       </div>
+      <WorkspaceFooter
+        :username="props.username"
+        :active="panel"
+        @settings="settings"
+        @trash="openTrash()"
+        @status="statusOpen = true"
+        @logout="logout"
+      />
     </aside>
     <SidebarResizer v-model="sidebarWidth" @commit="saveSidebarWidth" />
     <main class="main-content">
@@ -1482,8 +1508,8 @@ onBeforeUnmount(() => {
       <NAlert v-if="error" type="error" closable @close="error = ''" class="global-error">{{
         error
       }}</NAlert>
-      <template v-if="note && panel === 'note'"
-        ><header class="note-header">
+      <section v-if="note" v-show="panel === 'note'" class="note-workspace">
+        <header class="note-header">
           <div class="note-topline">
             <div class="document-navigation">
               <button
@@ -1665,7 +1691,8 @@ onBeforeUnmount(() => {
           :initial-line="noteLine || (note.id === initialNoteId ? initialLine : undefined)"
           :key="note.id"
           @dirty="(v) => (largeDirty = v)"
-          @saved="onLargeSaved" />
+          @saved="onLargeSaved"
+        />
         <template v-else>
           <AAlert
             v-if="draftError"
@@ -1698,6 +1725,7 @@ onBeforeUnmount(() => {
                       noteLine || (note.id === initialNoteId ? initialLine : undefined)
                     "
                     :show-line-numbers="showLineNumbers"
+                    :wrap="editorPreferences.wrap"
                     @line-change="articleLine = $event"
                     @state-change="editorState = $event"
                   />
@@ -1732,8 +1760,9 @@ onBeforeUnmount(() => {
           accept="image/png,image/jpeg,image/gif,image/webp,application/pdf"
           hidden
           @change="upload"
-      /></template>
-      <section v-else-if="panel === 'empty'" class="utility-view workspace-empty">
+        />
+      </section>
+      <section v-if="panel === 'empty'" class="utility-view workspace-empty">
         <div class="utility-empty">
           <Icon name="book" :size="36" />
           <h1>选择一篇笔记</h1>
@@ -1759,6 +1788,7 @@ onBeforeUnmount(() => {
             <span
               >{{ folderEntries.filter((x) => x.type === 'folder').length }} 个文件夹 ·
               {{ folderEntries.filter((x) => x.type === 'note').length }} 篇笔记</span
+            ><AButton @click="openImport">导入 Markdown</AButton
             ><AButton @click="create('folder')"
               ><template #icon><Icon name="plus" /></template>新建文件夹</AButton
             >
@@ -1804,103 +1834,28 @@ onBeforeUnmount(() => {
           >
         </div>
       </section>
-      <section v-else-if="panel === 'trash'" class="utility-view">
-        <h1>回收站</h1>
-        <p class="muted">恢复后笔记保持私有；原位置被占用时，不会覆盖已有文件。</p>
-        <p v-if="trashLoading" class="panel-loading" role="status">正在读取回收站…</p>
-        <div v-for="item in trashLoading ? [] : trash" :key="item.id" class="utility-row">
-          <Icon name="file" /><span>{{ item.relativePath }}</span
-          ><AButton
-            :loading="restoringId === item.id"
-            :disabled="!!restoringId"
-            @click="restoreTrash(item)"
-            >恢复</AButton
-          >
-        </div>
-        <div v-if="!trashLoading && !trash.length" class="utility-empty">
-          <Icon name="trash" :size="36" />
-          <h2>回收站为空</h2>
-          <p>删除的笔记会出现在这里，需要时可以恢复。</p>
-        </div>
-      </section>
-      <section v-else class="utility-view settings-view">
-        <header class="settings-intro">
-          <p class="eyebrow">偏好与扩展</p>
-          <h1>个人设置</h1>
-          <p class="muted">管理你的账户、内容搜索和扩展功能。</p>
-        </header>
-        <nav class="settings-nav" aria-label="设置分类">
-          <AButton
-            type="text"
-            :aria-current="activeSetting === 'account' ? 'location' : undefined"
-            @click="scrollSetting('account')"
-            >账户安全</AButton
-          >
-          <AButton
-            type="text"
-            :aria-current="activeSetting === 'search' ? 'location' : undefined"
-            @click="scrollSetting('search')"
-            >内容搜索</AButton
-          >
-          <AButton
-            type="text"
-            :aria-current="activeSetting === 'maintenance' ? 'location' : undefined"
-            @click="scrollSetting('maintenance')"
-            >数据与恢复</AButton
-          >
-          <AButton
-            type="text"
-            :aria-current="activeSetting === 'plugins' ? 'location' : undefined"
-            @click="scrollSetting('plugins')"
-            >扩展插件</AButton
-          >
-        </nav>
-        <section id="account-settings" class="account-settings" aria-label="账户安全">
-          <h2>修改密码</h2>
-          <p class="muted">修改后撤销其他会话。新密码至少需要 8 个字符。</p>
-          <form @submit.prevent="changePassword">
-            <div class="form-field">
-              <label for="current-password">当前密码</label
-              ><NInput
-                v-model:value="currentPassword"
-                type="password"
-                autocomplete="current-password"
-                placeholder="请输入当前密码"
-                :input-props="{ id: 'current-password', 'aria-label': '当前密码' }"
-              />
-            </div>
-            <div class="form-field">
-              <label for="new-password">新密码</label
-              ><NInput
-                v-model:value="newPassword"
-                type="password"
-                autocomplete="new-password"
-                placeholder="请输入新密码"
-                :input-props="{ id: 'new-password', 'aria-label': '新密码' }"
-              />
-            </div>
-            <AButton
-              type="primary"
-              html-type="submit"
-              :loading="passwordBusy"
-              :disabled="
-                passwordBusy || !currentPassword || [...newPassword].length < MIN_PASSWORD_LENGTH
-              "
-              >修改密码</AButton
-            >
-          </form>
-          <p v-if="passwordNotice" role="status" class="form-success">{{ passwordNotice }}</p>
-          <div class="settings-signout">
-            <AButton danger type="text" @click="logout">退出登录</AButton
-            ><span>结束当前设备的登录会话。</span>
-          </div>
-        </section>
-        <MaintenanceSettings id="maintenance-settings" @resolved="resolved" /><StorageSettings />
-        <SearchRuntimeSettings id="search-settings" /><PluginManager id="plugins-settings" />
-        <p v-if="releaseVersion" class="app-version">DooKnow · 服务版本 {{ releaseVersion }}</p>
-      </section>
+      <TrashWorkspace
+        v-else-if="panel === 'trash'"
+        @open-note="openNote"
+        @changed="run(refresh)"
+        @back="backFromSettings"
+      />
+      <SettingsWorkspace
+        v-else-if="panel === 'settings'"
+        :section="activeSetting"
+        :username="props.username"
+        @changed="run(refresh)"
+        @back="backFromSettings"
+        @logout="logout"
+        @open-note="openNote"
+      />
     </main>
-    <IndexStatus :note-id="note?.id" @settings="settings('search')" />
+    <StatusDrawer
+      v-model:open="statusOpen"
+      @settings="settings"
+      @open-note="openNote"
+      @changed="run(refresh)"
+    />
     <NoteMoveDialog
       v-model:show="moveOpen"
       :note-id="note?.id"
@@ -1931,6 +1886,20 @@ onBeforeUnmount(() => {
         ]"
         filterable
       />
+      <details class="batch-import-details">
+        <summary>批量导入文件或目录</summary>
+        <TransferPanel
+          :folder-path="importFolder"
+          :show-export="false"
+          @changed="run(refresh)"
+          @open-note="
+            (id) => {
+              importOpen = false;
+              openNote(id);
+            }
+          "
+        />
+      </details>
       <SetupImport
         :destination="importFolder"
         @busy="(value) => (importBusy = value)"
@@ -2116,31 +2085,6 @@ onBeforeUnmount(() => {
       <AButton v-if="revisionCursor" :loading="busy" @click="history(true)">加载更早版本</AButton>
       <p v-if="revisions.length" class="muted">已显示 {{ revisions.length }} 个版本</p>
       <p v-if="!revisions.length">尚无历史版本</p></NModal
-    >
-    <NModal
-      :show="!!restoreTarget"
-      preset="card"
-      class="dialog-card"
-      title="原位置已被占用"
-      :on-close="() => (restoreTarget = undefined)"
-      ><AAlert v-if="dialogError" type="error" :message="dialogError" role="alert" />
-      <p>请输入新文件名恢复，现有文件不会被覆盖。</p>
-      <AInput
-        v-model:value="restoreName"
-        aria-label="恢复文件名"
-        placeholder="新文件名.md"
-        :disabled="!!restoringId"
-      />
-      <div class="dialog-actions">
-        <AButton :disabled="!!restoringId" @click="restoreTarget = undefined">取消</AButton>
-        <AButton
-          type="primary"
-          :loading="!!restoringId"
-          :disabled="!!restoringId || !restoreName.trim()"
-          @click="restoreTrash(restoreTarget, restoreName)"
-          >使用新名称恢复</AButton
-        >
-      </div></NModal
     >
   </div>
 </template>

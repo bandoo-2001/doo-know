@@ -1,89 +1,86 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { Alert as AAlert, Button as AButton } from 'ant-design-vue';
-import type { MaintenanceStorage } from '../../../shared/platform-contracts';
+import type {
+  ManagementStorage,
+  ManagementStorageCategory,
+} from '../../../shared/management-contracts';
 import { api } from '../api';
-const state = ref<MaintenanceStorage>(),
+const state = ref<ManagementStorage>(),
   busy = ref(false),
   error = ref('');
-const sections = [
-  { key: 'history', title: '历史版本', detail: '修改前的版本，用于找回以前的内容。' },
-  { key: 'trash', title: '回收站', detail: '已归档的原文，可从回收站恢复。' },
-  { key: 'backups', title: '升级备份', detail: '安装目录内的备份文件，不包含自选位置的备份。' },
-] as const;
+const sections: { key: ManagementStorageCategory; title: string }[] = [
+  { key: 'notes', title: '笔记原文' },
+  { key: 'assets', title: '附件与其他文件' },
+  { key: 'history', title: '历史版本' },
+  { key: 'trash', title: '回收站' },
+  { key: 'index', title: '搜索索引' },
+  { key: 'models', title: '检索模型' },
+  { key: 'upgradeBackups', title: '升级备份' },
+];
 function bytes(value: number) {
-  if (value < 1024) return `${value} B`;
+  if (value < 1024) return value + ' B';
   const unit = Math.min(Math.floor(Math.log(value) / Math.log(1024)), 4);
-  return `${(value / 1024 ** unit).toFixed(1)} ${['B', 'KiB', 'MiB', 'GiB', 'TiB'][unit]}`;
+  return (value / 1024 ** unit).toFixed(1) + ' ' + ['B', 'KiB', 'MiB', 'GiB', 'TiB'][unit];
 }
 async function refresh() {
   if (busy.value) return;
   busy.value = true;
   error.value = '';
   try {
-    state.value = await api<MaintenanceStorage>('/api/maintenance/storage');
+    state.value = await api<ManagementStorage>('/api/manage/storage');
   } catch (e) {
     error.value = (e as Error).message;
   } finally {
     busy.value = false;
   }
 }
-onMounted(refresh);
+onMounted(() => void refresh());
 </script>
 <template>
   <section class="storage-settings" aria-labelledby="storage-title">
     <header>
       <div>
-        <h2 id="storage-title">空间与备份</h2>
-        <p>查看历史、回收站和升级备份的占用，决定何时安排维护。</p>
+        <h2 id="storage-title">存储占用</h2>
+        <p>按类别统计当前可读取的文件。统计有数量和深度上限，不能作为完整备份证明。</p>
       </div>
-      <AButton size="small" :loading="busy" @click="refresh">刷新</AButton>
+      <AButton size="small" :loading="busy" @click="refresh">刷新统计</AButton>
     </header>
-    <AAlert v-if="error" type="error" show-icon :message="error" role="alert" />
-    <p v-if="!state && busy" role="status">正在统计空间…</p>
-    <template v-if="state">
-      <div class="storage-cards">
+    <AAlert v-if="error" type="error" show-icon :message="error" />
+    <p v-if="busy && !state" role="status">正在统计空间…</p>
+    <template v-if="state"
+      ><div class="storage-cards">
         <article v-for="section in sections" :key="section.key">
           <h3>{{ section.title }}</h3>
-          <strong>{{ bytes(state[section.key].bytes) }}</strong>
-          <span
-            >{{ state[section.key].count }} 个文件{{
-              state[section.key].truncated ? ' · 部分统计' : ''
+          <strong>{{ bytes(state.categories[section.key].bytes) }}</strong
+          ><span
+            >{{ state.categories[section.key].count }} 个文件{{
+              state.categories[section.key].truncated ? ' · 部分统计' : ''
             }}</span
           >
-          <p>{{ section.detail }}</p>
         </article>
       </div>
-      <p v-if="state.backups.lastCreatedAt" class="storage-time">
-        最近备份文件时间：{{ new Date(state.backups.lastCreatedAt).toLocaleString() }}
-      </p>
+      <p class="storage-time">统计时间：{{ new Date(state.scannedAt).toLocaleString('zh-CN') }}</p>
       <ul class="storage-notes">
         <li v-for="warning in state.warnings" :key="warning">{{ warning }}</li>
       </ul>
-    </template>
-    <details class="storage-help">
-      <summary>如何备份与恢复</summary>
-      <p>
-        在安装这套知识库的本机终端运行管理命令。备份时暂停外部编辑，选择知识库和数据目录之外的新文件。
-      </p>
-      <pre><code>dooknow backup --destination /独立备份目录/本次备份.dooknow</code></pre>
-      <p>
-        命令会显示恢复私钥的位置；将私钥另行受控保存，重要备份再复制到独立设备。历史版本和同盘备份不能代替它。
-      </p>
-      <p>需要恢复时，保留现有资料，使用新的配置文件和空目录。</p>
-      <pre><code>dooknow restore --source /备份目录/本次备份.dooknow \
-  --key-file /受控目录/backup-key.pem --profile /新配置目录/profile.json \
-  --data-root /新数据目录 --knowledge-root /新知识库目录</code></pre>
-      <p>
-        随后从原安装来源重新运行安装器，指定恢复后的配置、新程序目录和管理命令目录。先选择前台方式与独立端口，登录核对原文、附件和历史后再切换服务。
-      </p>
-    </details>
+      <details>
+        <summary>统计范围</summary>
+        <p>
+          每类最多检查 {{ state.limits.entriesPerCategory }} 个条目，目录深度上限
+          {{
+            state.limits.depth
+          }}。升级备份仅指程序维护留下的副本；加密备份在「备份与恢复」中管理。无法读取或超出上限的项目不计入完整总量。
+        </p>
+      </details></template
+    >
   </section>
 </template>
 <style scoped>
 .storage-settings {
   display: grid;
   gap: 14px;
+  min-width: 0;
 }
 header {
   display: flex;
@@ -96,11 +93,11 @@ h2 {
   font-size: 17px;
 }
 header p,
-article p,
 .storage-time {
   margin: 0;
-  color: #687486;
+  color: var(--muted, #687486);
   font-size: 12px;
+  line-height: 1.7;
 }
 .storage-cards {
   display: grid;
@@ -108,7 +105,7 @@ article p,
   gap: 12px;
 }
 article {
-  border: 1px solid #e3e6ec;
+  border: 1px solid var(--border, #e3e6ec);
   border-radius: 8px;
   padding: 14px;
   display: grid;
@@ -125,31 +122,28 @@ strong {
 }
 article span,
 .storage-notes,
-.storage-help {
+details {
   font-size: 12px;
-  color: #687486;
+  color: var(--muted, #687486);
 }
 .storage-notes {
   margin: 0;
   padding-left: 18px;
   line-height: 1.8;
 }
-.storage-help {
-  border-top: 1px solid #e3e6ec;
-  padding-top: 12px;
-  line-height: 1.8;
-}
 summary {
   cursor: pointer;
-  color: #4566c6;
-}
-pre {
-  padding: 10px;
-  overflow: auto;
-  background: #f5f6f8;
-  border-radius: 6px;
+  color: var(--blue, #4566c6);
 }
 @media (max-width: 600px) {
+  .storage-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  header {
+    flex-direction: column;
+  }
+}
+@media (max-width: 420px) {
   .storage-cards {
     grid-template-columns: 1fr;
   }

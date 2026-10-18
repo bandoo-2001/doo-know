@@ -1,6 +1,6 @@
 import { createServer as createHTTPServer } from 'node:http';
 import { createHash } from 'node:crypto';
-import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
+import { appendFile, mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { createServer } from 'vite';
@@ -66,6 +66,29 @@ const config = {
 };
 await initializeOwner(config, 'owner', testPassword);
 const app = await createApp(config);
+// Optional fixture-only diagnostics: keep request bodies, cookies and credentials
+// out of the log while retaining the underlying exception hidden by the API.
+if (process.env.DOOKNOW_E2E_ERROR_LOG) {
+  const errorLog = resolve(process.env.DOOKNOW_E2E_ERROR_LOG);
+  app.addHook('onError', async (request, _reply, error) => {
+    if (error.statusCode && error.statusCode < 500) return;
+    const body = request.body as { requestId?: unknown } | undefined;
+    await appendFile(
+      errorLog,
+      JSON.stringify({
+        time: new Date().toISOString(),
+        method: request.method,
+        route: request.routeOptions.url,
+        requestId: typeof body?.requestId === 'string' ? body.requestId : undefined,
+        name: error.name,
+        code: error.code,
+        message: error.message,
+        stack: error.stack,
+      }) + '\n',
+      { mode: 0o600 },
+    ).catch(() => undefined);
+  });
+}
 await app.listen({
   host: '127.0.0.1',
   port: process.env.DOOKNOW_E2E_PRODUCTION === '1' ? 4179 : 4180,

@@ -30,11 +30,12 @@ async function openDirectory(path: string) {
   }
 }
 
-async function directoryUsage(
+export async function directoryUsage(
   path: string | undefined,
   label: string,
   warnings: Set<string>,
   accept: (name: string) => boolean = () => true,
+  descend: (name: string) => boolean = () => true,
 ) {
   const usage: StorageUsage & { latest: number } = {
     count: 0,
@@ -55,6 +56,7 @@ async function directoryUsage(
         const childPath = join(descriptorPath(directory), entry.name),
           info = await lstat(childPath);
         if (info.isDirectory()) {
+          if (!descend(entry.name)) continue;
           if (depth >= DEPTH_LIMIT) {
             usage.truncated = true;
             continue;

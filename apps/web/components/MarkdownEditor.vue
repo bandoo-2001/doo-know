@@ -35,6 +35,7 @@ const mount = ref<HTMLElement>();
 let view: EditorView | undefined;
 const editability = new Compartment();
 const gutters = new Compartment();
+const wrapping = new Compartment();
 const gutterTheme = () =>
   EditorView.theme({
     '.cm-gutters': { display: props.showLineNumbers ? 'flex' : 'none' },
@@ -89,7 +90,7 @@ onMounted(() => {
         EditorView.editable.of(!props.readOnly),
         EditorState.readOnly.of(!!props.readOnly),
       ]),
-      ...(props.wrap === false ? [] : [EditorView.lineWrapping]),
+      wrapping.of(props.wrap === false ? [] : EditorView.lineWrapping),
       EditorView.contentAttributes.of({ 'aria-label': 'Markdown 正文' }),
       EditorView.theme({
         '&': { height: '100%', fontSize: '15px', color: '#343c4a' },
@@ -161,6 +162,13 @@ watch(
   () => {
     view?.dispatch({ effects: gutters.reconfigure(gutterTheme()) });
   },
+);
+watch(
+  () => props.wrap,
+  (value) =>
+    view?.dispatch({
+      effects: wrapping.reconfigure(value === false ? [] : EditorView.lineWrapping),
+    }),
 );
 watch(
   () => props.modelValue,

@@ -1,3 +1,4 @@
+import { showSidebar } from '../support/settings-navigation';
 import { expandFolderPath } from '../support/notebook-tree';
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
@@ -118,6 +119,9 @@ test('moves a note through the UI while preserving its identity, history and pub
   await page.getByRole('button', { name: '移动或重命名', exact: true }).click();
   const dialog = page.locator('.n-modal').filter({ hasText: '保持笔记身份、历史版本和分享链接' });
   await dialog.locator('.n-select').click();
+  // The real tree can contain many folders after other fixture cases. Filter
+  // before choosing so the virtualized menu renders the intended destination.
+  await dialog.locator('.n-select input').fill('30-Knowledge/个人知识管理/方法');
   await page.getByText('30-Knowledge/个人知识管理/方法', { exact: true }).click();
   await dialog.getByRole('textbox', { name: '文件名', exact: true }).fill('整理后的知识.md');
   await dialog.getByRole('button', { name: '确认移动', exact: true }).click();
@@ -143,18 +147,35 @@ test('moves a note through the UI while preserving its identity, history and pub
 test('imports a Markdown note from the daily workspace and downloads the saved source', async ({
   page,
 }, info) => {
-  await page.getByRole('button', { name: '个人账户', exact: true }).click();
-  await page.getByRole('button', { name: '导入 Markdown', exact: true }).first().click();
+  await showSidebar(page);
+  await page.locator('.sidebar').getByRole('button', { name: '创建与导入', exact: true }).click();
+  await page
+    .getByRole('dialog', { name: '创建与导入', exact: true })
+    .getByRole('button', { name: '导入 Markdown', exact: true })
+    .click();
   const name = `日常导入-${info.project.name}-${Date.now()}.md`,
     content = '# 日常导入\n\n迁入的原始内容。\n';
   await page
     .getByLabel('选择 Markdown 文件', { exact: true })
     .setInputFiles({ name, mimeType: 'text/markdown', buffer: Buffer.from(content) });
+  await expect(page.locator('.n-modal .n-select .n-base-selection-label__render-label')).toHaveText(
+    '00-Inbox',
+  );
+  const created = page.waitForResponse(
+    (response) =>
+      new URL(response.url()).pathname === '/api/notes' && response.request().method() === 'POST',
+  );
   await page.getByRole('button', { name: '确认导入', exact: true }).click();
+  const response = await created;
+  expect(response.status()).toBe(201);
+  const imported = await response.json();
+  expect(imported.relativePath).toBe('00-Inbox/' + name);
   await expect(page.getByRole('status').filter({ hasText: name + ' 已导入' })).toBeVisible();
   await page.getByRole('button', { name: '完成', exact: true }).click();
-  await page.getByRole('button', { name: '40-Resources', exact: true }).click();
-  await page.locator('.folder-view').getByRole('button', { name, exact: true }).click();
+  await showSidebar(page);
+  await expandFolderPath(page, '00-Inbox');
+  await page.locator('.tree-scroll').getByRole('button', { name, exact: true }).click();
+  await expect(page).toHaveURL(new RegExp('note=' + imported.id));
   await expect(page.locator('.cm-content')).toContainText('迁入的原始内容');
   await page.getByRole('button', { name: '更多操作', exact: true }).click();
   const download = page.waitForEvent('download');
@@ -239,6 +260,8 @@ test('the maintenance confirmation shows disk time and requires rechecking a cha
     }
   });
   await page.goto('/?view=settings&section=maintenance');
+  await expect(page.locator('.settings-workspace h1')).toHaveText('备份与恢复');
+  await page.locator('summary').filter({ hasText: '异常写入恢复' }).click();
   await page.getByRole('button', { name: '核对磁盘版本', exact: true }).click();
   const dialog = page.locator('.n-modal').filter({ hasText: '采用当前磁盘版本？' });
   await expect(dialog).not.toContainText('Invalid Date');

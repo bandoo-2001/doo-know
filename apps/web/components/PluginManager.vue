@@ -8,12 +8,16 @@ import {
   Switch as ASwitch,
   Alert as AAlert,
   Empty as AEmpty,
+  Tabs as ATabs,
+  TabPane as ATabPane,
 } from 'ant-design-vue';
 import { pluginRegistry, pluginUIErrors, refreshPlugins } from '../plugins';
 import { pluginComponents } from '../../../packages/plugin-ui/host';
 import PluginBoundary from './PluginBoundary.vue';
 import { api } from '../api';
 const props = defineProps<{ focusPlugin?: string }>();
+const tab = ref('installed'),
+  advancedOpen = ref(false);
 const selected = ref(props.focusPlugin || ''),
   busy = ref(false),
   pendingAction = ref(''),
@@ -22,9 +26,18 @@ const selected = ref(props.focusPlugin || ''),
   invalidField = ref(''),
   values = ref<Record<string, any>>({});
 const catalog = computed(() =>
-  pluginRegistry.value.catalog.filter(
-    (entry) => !props.focusPlugin || entry.id === props.focusPlugin,
-  ),
+  [
+    ...pluginRegistry.value.catalog,
+    ...pluginRegistry.value.installed
+      .filter((plugin) => !pluginRegistry.value.catalog.some((entry) => entry.id === plugin.id))
+      .map((plugin) => ({ ...plugin.manifest, description: '已安装的扩展功能。' })),
+  ].filter((entry) => {
+    if (props.focusPlugin) return entry.id === props.focusPlugin;
+    if (selected.value) return false;
+    return tab.value === 'installed'
+      ? installedById.value.has(entry.id)
+      : !installedById.value.has(entry.id);
+  }),
 );
 const installedById = computed(
   () => new Map(pluginRegistry.value.installed.map((plugin) => [plugin.id, plugin])),
@@ -32,6 +45,39 @@ const installedById = computed(
 const installed = computed(() =>
   pluginRegistry.value.installed.find((p) => p.id === selected.value),
 );
+const standardFields = computed(() =>
+  Object.fromEntries(
+    Object.entries(installed.value?.manifest.configSchema.properties || {}).filter(
+      ([, field]) => !['object', 'array'].includes((field as any).type),
+    ),
+  ),
+);
+const advancedFields = computed(() =>
+  Object.fromEntries(
+    Object.entries(installed.value?.manifest.configSchema.properties || {}).filter(([, field]) =>
+      ['object', 'array'].includes((field as any).type),
+    ),
+  ),
+);
+const capabilityLabels: Record<string, string> = {
+  'knowledge:read': '读取知识库',
+  'knowledge:write': '写入知识库',
+  'knowledge:index': '维护搜索索引',
+  'protocol:mcp': '连接 AI 应用',
+  'workspace:git': 'Git 同步',
+  'network:listen': '提供网络服务',
+  'network:request': '访问网络',
+};
+function capability(value: string) {
+  return capabilityLabels[value] || '扩展能力';
+}
+const stateLabels: Record<string, string> = {
+  enabled: '已启用',
+  disabled: '已停用',
+  starting: '正在启动',
+  stopping: '正在停用',
+  failed: '运行异常',
+};
 const settingsPages = computed(() =>
   pluginRegistry.value.contributions.filter(
     (c) => c.pluginId === selected.value && c.slot === 'settingsPage' && c.component,
@@ -78,6 +124,7 @@ async function run(work: () => Promise<unknown>, action = 'refresh') {
     busy.value = false;
     pendingAction.value = '';
     if (invalidField.value) {
+      advancedOpen.value = true;
       await nextTick();
       document.getElementById('plugin-field-' + invalidField.value)?.focus();
     }
@@ -87,7 +134,8 @@ async function action(id: string, command: string) {
   await run(
     async () => {
       await api(`/api/platform/plugins/${id}/${command}`, 'POST', {});
-      selected.value = id;
+      selected.value = command === 'uninstall' ? '' : id;
+      tab.value = 'installed';
     },
     id + ':' + command,
   );
@@ -138,27 +186,44 @@ watch(
 );
 const pendingUninstall = ref('');
 onMounted(() => {
-  void run(refreshPlugins);
+  void run(async () => {});
 });
 </script>
 <template>
   <section class="plugin-manager">
     <header class="section-heading">
       <div>
-        <h2>{{ focusPlugin ? '功能设置' : '插件市场' }}</h2>
+        <h2>{{ focusPlugin ? '功能设置' : '扩展功能' }}</h2>
         <p class="muted">安装官方插件，为知识库添加功能。</p>
       </div>
-      <AButton :loading="pendingAction === 'refresh'" :disabled="busy" @click="run(refreshPlugins)">
+      <AButton :loading="pendingAction === 'refresh'" :disabled="busy" @click="run(async () => {})">
         刷新插件状态
       </AButton>
     </header>
+    <div v-if="selected && !focusPlugin" class="plugin-actions">
+      <AButton
+        :disabled="busy"
+        @click="
+          selected = '';
+          advancedOpen = false;
+        "
+        >返回插件列表</AButton
+      >
+    </div>
+    <ATabs v-if="!focusPlugin && !selected" v-model:active-key="tab"
+      ><ATabPane key="installed" tab="已安装" /><ATabPane key="add" tab="添加插件"
+    /></ATabs>
     <AAlert v-if="error" type="error" show-icon :message="error" class="plugin-feedback" />
     <AEmpty
-      v-if="!catalog.length && !busy"
+      v-if="!catalog.length && !selected && !busy"
       class="plugin-empty"
       :image="AEmpty.PRESENTED_IMAGE_SIMPLE"
       :description="
-        focusPlugin ? '当前安装源尚未提供此功能插件。' : '当前安装源尚未提供可安装的官方插件。'
+        focusPlugin
+          ? '当前安装源尚未提供此功能插件。'
+          : tab === 'installed'
+            ? '尚未安装插件，可在「添加插件」中查看。'
+            : '当前没有其他可安装的官方插件。'
       "
     />
     <article v-for="entry in catalog" :key="entry.id" class="plugin-card">
@@ -172,11 +237,14 @@ onMounted(() => {
           :class="{
             enabled: installedById.get(entry.id)?.state === 'enabled',
           }"
-          >{{ installedById.get(entry.id)?.state === 'enabled' ? '已启用' : '未启用' }}</span
+          >{{ stateLabels[installedById.get(entry.id)?.state || 'disabled'] }}</span
         >
         <span v-else class="plugin-state">未安装</span>
       </div>
       <p class="plugin-description">{{ entry.description }}</p>
+      <p class="muted" style="font-size: 12px">
+        {{ [...new Set(entry.capabilities.map(capability))].join(' · ') }}
+      </p>
       <div class="plugin-actions">
         <template v-if="installedById.has(entry.id)">
           <AButton
@@ -239,7 +307,33 @@ onMounted(() => {
     <div v-if="installed" class="plugin-settings">
       <header class="settings-heading">
         <h3>{{ installed.manifest.title }}设置</h3>
-        <p class="muted">调整插件参数，管理运行状态。</p>
+        <p class="muted">调整插件参数，管理运行状态。 · {{ stateLabels[installed.state] }}</p>
+        <div class="plugin-actions" style="margin-top: 12px">
+          <AButton
+            v-if="installed.state === 'enabled'"
+            :disabled="busy"
+            :loading="pendingAction === installed.id + ':disable'"
+            @click="action(installed.id, 'disable')"
+            >停用插件</AButton
+          ><AButton
+            v-else
+            :disabled="busy"
+            :loading="pendingAction === installed.id + ':enable'"
+            @click="action(installed.id, 'enable')"
+            >启用插件</AButton
+          ><AButton type="text" :disabled="busy" @click="pendingUninstall = installed.id"
+            >卸载插件</AButton
+          >
+        </div>
+        <details>
+          <summary>插件能力与版本</summary>
+          <p>版本 {{ installed.installedVersion }}</p>
+          <ul>
+            <li v-for="cap in installed.manifest.capabilities" :key="cap">
+              {{ capability(cap) }} <code>{{ cap }}</code>
+            </li>
+          </ul>
+        </details>
       </header>
       <AAlert
         v-if="installed.error"
@@ -256,7 +350,7 @@ onMounted(() => {
       />
       <form class="plugin-form" @submit.prevent="save">
         <div
-          v-for="(field, key) in installed.manifest.configSchema.properties as Record<string, any>"
+          v-for="(field, key) in standardFields as Record<string, any>"
           :key="key"
           class="plugin-field"
           :class="{
@@ -341,6 +435,37 @@ onMounted(() => {
             }}
           </p>
         </div>
+        <details
+          v-if="Object.keys(advancedFields).length"
+          :open="advancedOpen"
+          class="field-wide plugin-advanced"
+          @toggle="advancedOpen = ($event.target as HTMLDetailsElement).open"
+        >
+          <summary>高级配置</summary>
+          <p class="muted">用于需要完整结构的参数。填写有效的 JSON 后保存。</p>
+          <div
+            v-for="(field, key) in advancedFields as Record<string, any>"
+            :key="key"
+            class="plugin-field field-wide"
+            style="margin-top: 16px"
+          >
+            <label :for="'plugin-field-' + key">{{ field.title || key }}</label>
+            <AInput.TextArea
+              v-model:value="values[key]"
+              :id="'plugin-field-' + key"
+              :aria-label="field.title || String(key)"
+              :aria-invalid="invalidField === String(key)"
+              :status="invalidField === String(key) ? 'error' : undefined"
+              :disabled="busy"
+              :auto-size="{ minRows: 3, maxRows: 8 }"
+              spellcheck="false"
+            />
+            <p v-if="invalidField === String(key)" class="plugin-field-error" role="alert">
+              {{ error }}
+            </p>
+            <p v-else class="muted">{{ field.description }}</p>
+          </div>
+        </details>
         <footer class="plugin-form-footer">
           <AButton
             html-type="submit"
@@ -411,7 +536,7 @@ onMounted(() => {
   border-radius: 8px;
   padding: 16px;
   margin: 12px 0;
-  background: #fff;
+  background: var(--panel, #fff);
 }
 .plugin-card h3,
 .settings-heading h3 {
@@ -524,7 +649,19 @@ onMounted(() => {
   font-size: 10px;
   letter-spacing: 0.04em;
 }
-.plugin-field .muted {
+.plugin-field .plugin-advanced {
+  font-size: 13px;
+  line-height: 1.75;
+}
+.plugin-advanced summary {
+  cursor: pointer;
+  color: var(--blue, #4566c6);
+}
+.plugin-field-error {
+  color: var(--danger, #b43e3e);
+  font-size: 12px;
+}
+.muted {
   margin: 6px 0 0;
   font-size: 12px;
   line-height: 1.6;
@@ -549,7 +686,19 @@ onMounted(() => {
 .field-toggle .field-heading {
   margin: 0;
 }
-.field-toggle .muted {
+.field-toggle .plugin-advanced {
+  font-size: 13px;
+  line-height: 1.75;
+}
+.plugin-advanced summary {
+  cursor: pointer;
+  color: var(--blue, #4566c6);
+}
+.plugin-field-error {
+  color: var(--danger, #b43e3e);
+  font-size: 12px;
+}
+.muted {
   grid-column: 1 / -1;
 }
 .plugin-form :deep(.clear-secret) {
@@ -579,6 +728,18 @@ onMounted(() => {
   color: var(--muted, #7a8190);
   font-size: 13px;
   text-align: center;
+}
+.plugin-advanced {
+  font-size: 13px;
+  line-height: 1.75;
+}
+.plugin-advanced summary {
+  cursor: pointer;
+  color: var(--blue, #4566c6);
+}
+.plugin-field-error {
+  color: var(--danger, #b43e3e);
+  font-size: 12px;
 }
 .muted {
   color: var(--muted, #7a8190);

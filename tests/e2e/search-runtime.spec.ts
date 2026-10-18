@@ -1,3 +1,4 @@
+import { openSettingsSection } from '../support/settings-navigation';
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
 test('observes optional local-search download and cancels it from desktop and mobile settings', async ({
@@ -10,13 +11,13 @@ test('observes optional local-search download and cancels it from desktop and mo
   );
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   await page.goto('/');
-  if (!(await page.getByRole('button', { name: '设置', exact: true }).isVisible()))
-    await page.getByRole('button', { name: '个人账户', exact: true }).click();
-  await page.getByRole('button', { name: '设置', exact: true }).click();
+  await openSettingsSection(page, '搜索与索引');
   await page.getByRole('button', { name: '准备本地检索', exact: true }).click();
   await expect(page.getByRole('button', { name: '取消检索准备', exact: true })).toBeVisible();
-  await expect(page.getByText(/下载检索包/)).toBeVisible({ timeout: 10000 });
+  await expect(page.getByRole('status').filter({ hasText: '下载检索包' })).toBeVisible({
+    timeout: 10000,
+  });
   await page.getByRole('button', { name: '取消检索准备', exact: true }).click();
   await expect(page.getByRole('button', { name: '重新准备', exact: true })).toBeVisible();
-  await expect(page.getByText('已取消', { exact: true })).toBeVisible();
+  await expect(page.getByRole('status').filter({ hasText: /^已取消$/ })).toBeVisible();
 });

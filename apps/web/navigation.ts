@@ -3,7 +3,15 @@ export type WorkspaceRoute = {
   line?: number;
   folder?: string;
   view?: 'trash' | 'settings';
-  section?: 'account' | 'search' | 'plugins' | 'maintenance';
+  section?:
+    | 'editor'
+    | 'library'
+    | 'account'
+    | 'search'
+    | 'plugins'
+    | 'backup'
+    | 'about'
+    | 'maintenance';
 };
 export type WorkspaceNavigationState = { canBack: boolean; canForward: boolean };
 export function readWorkspaceRoute(href = window.location.href): WorkspaceRoute {
@@ -17,13 +25,27 @@ export function readWorkspaceRoute(href = window.location.href): WorkspaceRoute 
     ...(query.get('view') === 'trash' || query.get('view') === 'settings'
       ? { view: query.get('view') as 'trash' | 'settings' }
       : {}),
-    ...(['account', 'search', 'plugins', 'maintenance'].includes(query.get('section') || '')
-      ? { section: query.get('section') as WorkspaceRoute['section'] }
+    ...([
+      'editor',
+      'library',
+      'account',
+      'search',
+      'plugins',
+      'backup',
+      'about',
+      'maintenance',
+    ].includes(query.get('section') || '')
+      ? {
+          section: (query.get('section') === 'maintenance'
+            ? 'backup'
+            : query.get('section')) as WorkspaceRoute['section'],
+        }
       : {}),
   };
 }
 export function createWorkspaceNavigation(options: {
   dirty: () => boolean;
+  canPreserveDraft?: (route: WorkspaceRoute) => boolean;
   guard: (apply: () => Promise<void>) => Promise<void>;
   apply: (route: WorkspaceRoute) => Promise<void>;
   error: (cause: unknown) => void;
@@ -131,7 +153,7 @@ export function createWorkspaceNavigation(options: {
       else void restoreHistory(target);
       return;
     }
-    if (options.dirty()) {
+    if (options.dirty() && !options.canPreserveDraft?.(readWorkspaceRoute(target.href))) {
       const current = ++generation;
       const delta = active.index - target.index;
       const restored = restoreHistory(target);
@@ -151,6 +173,7 @@ export function createWorkspaceNavigation(options: {
   window.addEventListener('popstate', pop);
   return {
     commit,
+    currentRoute: () => readWorkspaceRoute(active.href),
     back() {
       if (active.index > 0 && !undoing && !replaying) history.back();
     },

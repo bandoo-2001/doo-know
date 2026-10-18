@@ -99,7 +99,7 @@ onUnmounted(() => clearInterval(timer));
           {{
             onboarding
               ? '下载一次搜索组件，准备好后可在本机运行。准备期间仍可浏览和编辑笔记。'
-              : '准备本地模型和检索环境。下载期间仍可浏览和编辑笔记。'
+              : '查看关键词与语义搜索的可用情况。准备期间仍可浏览和编辑笔记。'
           }}
         </p>
       </div>
@@ -143,6 +143,23 @@ onUnmounted(() => clearInterval(timer));
               : '内容搜索尚未就绪，可以稍后再设置。'
         }}
       </p>
+      <details v-if="!onboarding" class="runtime-note">
+        <summary>高级运行信息</summary>
+        <p>
+          {{ state.externallyManaged ? '搜索组件由部署配置管理。' : '搜索组件由应用准备与管理。' }}
+        </p>
+        <p>
+          当前安装源{{ state.distributionAvailable ? '提供' : '未提供' }}可下载的搜索组件。<template
+            v-if="state.downloadBytes"
+            >下载大小约 {{ Math.ceil(state.downloadBytes / 1024 / 1024) }} MiB。</template
+          >
+        </p>
+        <p v-if="state.task">
+          最近准备阶段：{{ labels[state.task.phase] || state.task.phase }}。任务编号：{{
+            state.task.id
+          }}
+        </p>
+      </details>
       <p v-if="state.externallyManaged" class="runtime-note">
         当前使用部署设备配置的搜索组件。实际可用情况以上方状态为准。
       </p>
@@ -218,7 +235,7 @@ onUnmounted(() => clearInterval(timer));
   padding: 18px;
   border: 1px solid var(--border, #e3e6ec);
   border-radius: 8px;
-  background: #fff;
+  background: var(--panel, #fff);
   color: var(--text, #262b36);
 }
 .runtime-heading {

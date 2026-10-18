@@ -1,5 +1,6 @@
 import { expandFolderPath } from '../support/notebook-tree';
 import { clickNoteAction } from '../support/note-actions';
+import { showSidebar } from '../support/settings-navigation';
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
 async function open(page: any, context: any, name: string) {
@@ -135,30 +136,41 @@ test('W02 stale deletion preserves share then checks a lost delete receipt', asy
     await page.request.get('/api/operations?requestId=' + request.requestId)
   ).json();
   expect(op.status).toBe('succeeded');
-  if (info.project.name === 'mobile') await page.getByRole('button', { name: '打开侧栏' }).click();
-  if (!(await page.getByRole('button', { name: '回收站', exact: true }).isVisible()))
-    await page.getByRole('button', { name: '个人账户', exact: true }).click();
-  await page.getByRole('button', { name: '回收站', exact: true }).click();
-  const row = page.locator('.utility-row').filter({ hasText: n.relativePath });
+  await showSidebar(page);
+  await page
+    .getByRole('navigation', { name: '常用工具', exact: true })
+    .getByRole('button', { name: '回收站', exact: true })
+    .click();
+  const row = page.locator('.trash-item').filter({ hasText: n.relativePath });
   let restoreInput: any;
   const restoreInputs: any[] = [];
+  page.on('request', (req) => {
+    if (new URL(req.url()).pathname === '/api/manage/trash/restore' && req.method() === 'POST')
+      restoreInputs.push(req.postDataJSON());
+  });
   await page.route(
-    `**/api/notes/${n.id}/restore`,
+    '**/api/manage/trash/restore',
     async (route) => {
       restoreInput = route.request().postDataJSON();
-      restoreInputs.push(restoreInput);
-      await route.fetch();
+      expect(restoreInput.ids).toEqual([n.id]);
+      const committed = await route.fetch();
+      expect(committed.status()).toBe(200);
+      expect((await committed.json()).results).toEqual([
+        { id: n.id, ok: true, relativePath: n.relativePath },
+      ]);
       await route.abort('failed');
     },
     { times: 1 },
   );
-  await row.getByRole('button', { name: '恢复', exact: true }).click();
-  await expect(page.locator('.global-error')).toBeVisible();
-  page.on('request', (req) => {
-    if (req.url().endsWith(`/api/notes/${n.id}/restore`)) restoreInputs.push(req.postDataJSON());
-  });
-  await row.getByRole('button', { name: '恢复', exact: true }).click();
+  await row.getByRole('button', { name: '恢复并打开', exact: true }).click();
+  await expect(page.locator('.trash-workspace').getByRole('alert')).toContainText(
+    '未收到完整操作结果',
+  );
+  await expect(row.getByRole('button', { name: '恢复并打开', exact: true })).toBeDisabled();
+  await page.getByRole('button', { name: '按原请求核对结果', exact: true }).click();
   await expect(row).toHaveCount(0);
+  await expect(page).toHaveURL(new RegExp('note=' + n.id));
+  await expect(page.locator('.cm-content')).toContainText('# B');
   expect(restoreInputs).toHaveLength(2);
   expect(restoreInputs[1]).toEqual(restoreInputs[0]);
   expect(restoreInput.requestId).toBeTruthy();

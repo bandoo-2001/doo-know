@@ -169,6 +169,9 @@ export async function restorePlatformBackup(options: {
   keyFile: string;
   target: { dataRoot: string; knowledgeRoot?: string; profileFile: string; pluginRoot?: string };
   origin?: string;
+  /** Optional managed-upload quotas; CLI defaults retain existing limits. */
+  maxBytes?: number;
+  maxEntries?: number;
 }) {
   const source = resolve(options.source),
     dataRoot = resolve(options.target.dataRoot),
@@ -201,11 +204,16 @@ export async function restorePlatformBackup(options: {
   try {
     const archive = join(stage, 'snapshot.tar.gz'),
       header = await unsealBackup(source, archive, resolve(options.keyFile));
+    if (options.maxBytes !== undefined && header.payloadBytes > options.maxBytes)
+      throw Error('恢复内容超过托管恢复配额，请使用 CLI 恢复到独立磁盘');
     const disk = await statfs(stage);
     if (header.payloadBytes > disk.bavail * disk.bsize) throw Error('恢复空间或配额不足');
     const extracted = join(stage, 'snapshot');
     await mkdir(extracted, { mode: 0o700 });
-    await extractArchive(archive, extracted, { maxBytes: header.payloadBytes, maxEntries: 500000 });
+    await extractArchive(archive, extracted, {
+      maxBytes: header.payloadBytes,
+      maxEntries: options.maxEntries ?? 500000,
+    });
     const meta = JSON.parse(await readFile(join(extracted, 'platform-backup.json'), 'utf8'));
     if (meta.version !== 1 || typeof meta.bound !== 'boolean') throw Error('备份元数据不正确');
     if (meta.bound && !knowledgeRoot)

@@ -11,6 +11,7 @@ export interface SearchDistribution {
   bytes: number;
 }
 export interface HostConfig extends Omit<AppConfig, 'knowledgeRoot'> {
+  environment?: 'development' | 'production';
   knowledgeRoot?: string;
   allowedKnowledgeBases?: string[];
   secretFile?: string;
@@ -18,11 +19,11 @@ export interface HostConfig extends Omit<AppConfig, 'knowledgeRoot'> {
   profileFile?: string;
   pluginCatalog?: import('../packages/plugin-contracts/index.js').PluginCatalogEntry[];
   pluginRoot?: string;
-  serviceName?:string;
-  serviceManaged?:boolean;
-  installRoot?:string;
+  serviceName?: string;
+  serviceManaged?: boolean;
+  installRoot?: string;
   distribution?: { repository: string; tokenFile?: string };
-  vectorServiceTokenFile?:string;
+  vectorServiceTokenFile?: string;
   searchDistribution?: SearchDistribution;
   searchRuntimeRoot?: string;
   searchModelsRoot?: string;

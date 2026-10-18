@@ -1,0 +1,278 @@
+:root {
+  --panel: #fff;
+  --bg: #fafbfc;
+  --editor-font-size: 15px;
+  --reading-width: 860px;
+}
+.note-workspace {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+.notebook-sidebar-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.document-surface .cm-editor {
+  font-size: var(--editor-font-size);
+}
+.document-surface .cm-content {
+  max-width: var(--reading-width);
+}
+.document-surface .preview-panel > .markdown {
+  font-size: calc(var(--editor-font-size) + 1px);
+  padding-inline: max(24px, calc((100% - var(--reading-content-width, 796px)) / 2));
+}
+.sidebar-create {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: stretch;
+}
+.sidebar-create > .ant-btn {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.create-more {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  padding: 0;
+  background: #4566c6;
+  border: 0;
+  border-left: 1px solid #ffffff33;
+  border-radius: 0 6px 6px 0;
+  color: #fff;
+  cursor: pointer;
+}
+.create-more svg {
+  transform: rotate(90deg);
+}
+.settings-sidebar {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  flex-direction: column;
+  gap: 5px;
+  padding: 12px 16px;
+}
+.settings-sidebar button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  border: 0;
+  border-radius: 6px;
+  padding: 11px 12px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.settings-sidebar button:hover,
+.settings-sidebar button[aria-current='page'] {
+  color: var(--blue);
+  background: var(--blue-soft);
+}
+.settings-sidebar .settings-return {
+  margin-bottom: 12px;
+  font-size: 12px;
+}
+.workspace-footer {
+  flex-shrink: 0;
+}
+.footer-tools {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 6px;
+}
+.footer-tools button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 36px;
+  border: 0;
+  border-radius: 6px;
+  padding: 6px 2px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+.footer-tools button:hover,
+.footer-tools button[aria-current='page'] {
+  background: var(--blue-soft);
+  color: var(--blue);
+}
+.workspace-footer .account-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 9px;
+}
+.account-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+}
+.account-popup {
+  display: grid;
+  gap: 4px;
+  min-width: 210px;
+  max-width: calc(100vw - 48px);
+  color: var(--text);
+}
+.account-popup strong {
+  padding: 6px 10px 10px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+.account-popup button,
+.create-menu button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.account-popup button:hover,
+.create-menu button:hover {
+  background: var(--blue-soft);
+}
+.account-popup .danger-action {
+  color: #c25260;
+}
+.create-menu {
+  width: 180px;
+}
+.batch-import-details {
+  margin-block: 20px;
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+}
+.batch-import-details summary {
+  cursor: pointer;
+  color: var(--blue);
+}
+html[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #101827;
+  --panel: #172033;
+  --surface: #121c2d;
+  --surface-soft: #1a263a;
+  --text: #e5e7eb;
+  --muted: #a6b0c0;
+  --border: #354158;
+  --blue: #8ba4ff;
+  --focus: #8ba4ff;
+  --blue-soft: #243455;
+  background: var(--bg);
+  color: var(--text);
+}
+html[data-theme='dark'] body,
+html[data-theme='dark'] .workspace,
+html[data-theme='dark'] .main-content {
+  background: var(--bg);
+  color: var(--text);
+}
+html[data-theme='dark'] h1,
+html[data-theme='dark'] h2,
+html[data-theme='dark'] h3,
+html[data-theme='dark'] h4,
+html[data-theme='dark'] h5 {
+  color: var(--text);
+}
+html[data-theme='dark'] .sidebar,
+html[data-theme='dark'] .note-header,
+html[data-theme='dark'] .document-format-row,
+html[data-theme='dark'] .mobile-bar,
+html[data-theme='dark'] .account-settings,
+html[data-theme='dark'] .maintenance-settings,
+html[data-theme='dark'] .plugin-card,
+html[data-theme='dark'] .plugin-config,
+html[data-theme='dark'] .search-runtime-settings,
+html[data-theme='dark'] .storage-settings article,
+html[data-theme='dark'] .utility-row {
+  background: var(--panel);
+  border-color: var(--border);
+  color: var(--text);
+}
+html[data-theme='dark'] .markdown-editor,
+html[data-theme='dark'] .cm-editor,
+html[data-theme='dark'] .preview-panel,
+html[data-theme='dark'] .editor-panel {
+  background: var(--panel);
+  color: var(--text);
+}
+html[data-theme='dark'] .cm-content,
+html[data-theme='dark'] .document-title,
+html[data-theme='dark'] .heading-select,
+html[data-theme='dark'] .text-color-select,
+html[data-theme='dark'] .format-toolbar button,
+html[data-theme='dark'] .tree-select {
+  color: var(--text);
+}
+html[data-theme='dark'] .cm-line > span:not(.cm-text-color) {
+  color: #b9c7e2;
+}
+html[data-theme='dark'] .cm-activeLine {
+  background: #8ba4ff0c;
+}
+html[data-theme='dark'] .cm-gutters,
+html[data-theme='dark'] .cm-activeLineGutter {
+  background: var(--surface);
+  color: var(--muted);
+}
+html[data-theme='dark'] .markdown pre,
+html[data-theme='dark'] .markdown code,
+html[data-theme='dark'] .storage-help pre,
+html[data-theme='dark'] .plugin-form-footer {
+  background: var(--surface);
+  color: var(--text);
+}
+html[data-theme='dark'] .document-outline,
+html[data-theme='dark'] .panel-label,
+html[data-theme='dark'] .sidebar-tools {
+  border-color: var(--border);
+  color: var(--muted);
+}
+html[data-theme='dark'] .mode-tabs,
+html[data-theme='dark'] .avatar {
+  background: var(--surface-soft);
+  color: var(--muted);
+}
+html[data-theme='dark'] .mode-tabs button.active,
+html[data-theme='dark'] .format-toolbar button[aria-pressed='true'],
+html[data-theme='dark'] .outline-branch button.active {
+  background: var(--blue-soft);
+  color: var(--blue);
+}
+@media (max-width: 720px) {
+  .settings-sidebar {
+    padding-inline: 12px;
+  }
+  .settings-sidebar button {
+    min-height: 42px;
+  }
+}

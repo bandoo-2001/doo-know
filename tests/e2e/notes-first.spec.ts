@@ -1,3 +1,4 @@
+import { configurePlugin } from '../support/settings-navigation';
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
 
@@ -56,17 +57,26 @@ test('keeps note identity, secondary actions and editor preferences usable witho
   });
   const account = page.getByRole('button', { name: '个人账户', exact: true });
   await expect(account).toHaveAttribute('aria-expanded', 'false');
-  await expect(page.getByRole('button', { name: '回收站', exact: true })).toBeHidden();
+  await expect(
+    page.locator('.sidebar-footer').getByRole('button', { name: '回收站', exact: true }),
+  ).toBeVisible();
   await account.click();
   await expect(account).toHaveAttribute('aria-expanded', 'true');
-  await expect(page.getByRole('button', { name: '回收站', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: '账户设置', exact: true })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(account).toHaveAttribute('aria-expanded', 'false');
+  await expect(account).toBeFocused();
   await account.click();
-  await expect(page.getByRole('button', { name: '设置', exact: true })).toBeHidden();
+  await account.click();
+  await expect(page.getByRole('button', { name: '账户设置', exact: true })).toBeHidden();
+  await expect(
+    page.locator('.sidebar-footer').getByRole('button', { name: '设置', exact: true }),
+  ).toBeVisible();
   await account.click();
   await page.getByRole('button', { name: '账户设置', exact: true }).click();
   await expect(page.getByRole('heading', { name: '修改密码', exact: true })).toBeVisible();
   expect(signOuts).toBe(0);
-  await expect(page.getByRole('button', { name: '退出登录', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: '退出当前设备', exact: true })).toBeVisible();
 });
 
 test('allows keyboard and pointer resizing of the desktop directory and remembers the width', async ({
@@ -109,14 +119,8 @@ test('explains invalid plugin input and confirms a successful save without sendi
 }) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   await page.goto('/');
-  if (!(await page.getByRole('button', { name: '设置', exact: true }).isVisible()))
-    await page.getByRole('button', { name: '个人账户', exact: true }).click();
-  await page.getByRole('button', { name: '设置', exact: true }).click();
-  await page.getByRole('button', { name: '扩展插件', exact: true }).click();
-  const card = page.locator('.plugin-card').filter({ hasText: 'MCP 服务' });
-  const install = card.getByRole('button', { name: '安装MCP 服务', exact: true });
-  if (await install.isVisible()) await install.click();
-  else await card.getByRole('button', { name: '配置', exact: true }).click();
+  await configurePlugin(page, 'MCP 服务');
+  await page.locator('.plugin-advanced > summary').click();
   const input = page.getByRole('textbox', { name: '允许访问的目录', exact: true });
   const original = await input.inputValue();
   let saves = 0;
@@ -125,7 +129,7 @@ test('explains invalid plugin input and confirms a successful save without sendi
   });
   await input.fill('{');
   await page.getByRole('button', { name: '保存插件配置', exact: true }).click();
-  await expect(page.getByText(/允许访问的目录格式不正确/)).toBeVisible();
+  await expect(page.locator('.plugin-feedback')).toContainText('允许访问的目录格式不正确');
   expect(saves).toBe(0);
   await expect(input).toHaveValue('{');
   await input.fill(original);

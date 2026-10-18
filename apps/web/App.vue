@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, defineAsyncComponent } from 'vue';
-import { NConfigProvider, NModal, NAlert, NButton } from 'naive-ui';
-import { ConfigProvider as AConfigProvider } from 'ant-design-vue';
+import { computed, ref, onMounted, onBeforeUnmount, defineAsyncComponent } from 'vue';
+import { NConfigProvider, NModal, NAlert, NButton, darkTheme } from 'naive-ui';
+import { ConfigProvider as AConfigProvider, theme as antAlgorithms } from 'ant-design-vue';
 import zhCN from 'ant-design-vue/es/locale/zh_CN';
 import { antTheme } from './ant-design';
 import type { PlatformStatus } from '../../shared/platform-contracts';
 import { api, refreshCsrf } from './api';
+import { initializeEditorPreferences, resolvedTheme } from './preferences';
 const Login = defineAsyncComponent(() => import('./components/Login.vue'));
 const Workspace = defineAsyncComponent(() => import('./components/Workspace.vue'));
 const ShareReader = defineAsyncComponent(() => import('./components/ShareReader.vue'));
@@ -18,6 +19,25 @@ const token = location.pathname.startsWith('/s/') ? location.pathname.slice(3) :
   ready = ref(false);
 const platform = ref<PlatformStatus>();
 const ownerId = ref('');
+const username = ref('');
+const activeAntTheme = computed(() => ({
+  ...antTheme,
+  algorithm:
+    resolvedTheme.value === 'dark' ? antAlgorithms.darkAlgorithm : antAlgorithms.defaultAlgorithm,
+  token: {
+    ...antTheme.token,
+    ...(resolvedTheme.value === 'dark'
+      ? {
+          colorText: '#e5e7eb',
+          colorTextSecondary: '#a6b0c0',
+          colorBorder: '#354158',
+          colorBgLayout: '#101827',
+          colorBgContainer: '#172033',
+          colorPrimary: '#8ba4ff',
+        }
+      : {}),
+  },
+}));
 const oauthMode =
   location.pathname === '/oauth/consent'
     ? 'consent'
@@ -48,7 +68,7 @@ async function refreshPlatform() {
   mountedWorkspace.value = !!usable && !oauthMode;
   if (usable && oauthMode === 'login') await continueOAuth();
 }
-const theme = {
+const lightTheme = {
   common: {
     primaryColor: '#4566c6',
     primaryColorHover: '#5676d4',
@@ -75,6 +95,18 @@ const theme = {
   Select: { peers: { InternalSelection: { border: '1px solid #dfe3eb', color: '#ffffff' } } },
   Button: { fontWeight: '500' },
 };
+const activeNaiveTheme = computed(() =>
+  resolvedTheme.value === 'dark'
+    ? {
+        common: {
+          primaryColor: '#8ba4ff',
+          primaryColorHover: '#a4b6ff',
+          primaryColorPressed: '#7188e8',
+          borderRadius: '6px',
+        },
+      }
+    : lightTheme,
+);
 async function login() {
   const session = await api('/api/auth/get-session');
   if (typeof session?.user?.id !== 'string' || !session.user.id) {
@@ -84,6 +116,9 @@ async function login() {
   // The same owner keeps the mounted editor on reauthentication. A different
   // identity gets a new workspace and cannot inherit the previous draft scope.
   ownerId.value = session.user.id;
+  username.value =
+    session.user.displayUsername || session.user.username || session.user.name || '当前账户';
+  initializeEditorPreferences(ownerId.value);
   loggedIn.value = true;
   await refreshPlatform();
   expired.value = false;
@@ -109,8 +144,10 @@ onMounted(async () => {
 onBeforeUnmount(() => window.removeEventListener('dooknow-session-expired', sessionExpired));
 </script>
 <template>
-  <AConfigProvider :locale="zhCN" :theme="antTheme" :auto-insert-space-in-button="false"
-    ><NConfigProvider :theme-overrides="theme"
+  <AConfigProvider :locale="zhCN" :theme="activeAntTheme" :auto-insert-space-in-button="false"
+    ><NConfigProvider
+      :theme="resolvedTheme === 'dark' ? darkTheme : null"
+      :theme-overrides="activeNaiveTheme"
       ><ShareReader v-if="token" :token="token" /><template v-else-if="ready"
         ><OAuthConsent
           v-if="
@@ -136,6 +173,7 @@ onBeforeUnmount(() => window.removeEventListener('dooknow-session-expired', sess
         <Workspace
           v-else-if="mountedWorkspace"
           :key="ownerId"
+          :username="username"
           @logout="
             loggedIn = false;
             mountedWorkspace = false;

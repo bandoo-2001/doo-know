@@ -1,5 +1,6 @@
 import { expandFolderPath } from '../support/notebook-tree';
 import { clickNoteAction } from '../support/note-actions';
+import { showSidebar } from '../support/settings-navigation';
 import { test, expect } from '../support/browser-test';
 import { testPassword } from '../support/credentials.js';
 test('login and two-column workspace with manual Markdown editing', async ({ page }, info) => {
@@ -95,22 +96,23 @@ test.describe('authenticated feature acceptance', () => {
   }
   async function newNote(page: any, title: string) {
     const h = await headers(page);
+    const fileName = title + '-' + crypto.randomUUID() + '.md';
     const r = await page.request.post('/api/notes', {
       headers: h,
       data: {
         folderPath: '00-Inbox',
-        fileName: title + '.md',
+        fileName,
         content: '# ' + title + '\n\n## 整理方法\n\n- 收集想法\n- 按主题整理\n\n> 让知识慢慢积累。',
+        requestId: crypto.randomUUID(),
       },
     });
-    expect(r.status()).toBe(201);
+    const created = await r.json();
+    expect(r.status(), JSON.stringify({ code: created.code, error: created.error })).toBe(201);
+    await showSidebar(page);
     await page.locator('.sidebar').getByRole('button', { name: '刷新目录' }).click();
     await expandFolderPath(page, '00-Inbox');
-    await page
-      .getByRole('button', { name: title + '.md', exact: true })
-      .first()
-      .click();
-    return { n: await r.json(), h };
+    await page.getByRole('button', { name: fileName, exact: true }).first().click();
+    return { n: created, h };
   }
   test('conflict cancellation, another external change and explicit overwrite', async ({
     page,
@@ -230,6 +232,7 @@ test.describe('authenticated feature acceptance', () => {
     await page.locator('.toolbar').getByRole('button', { name: /^保存/ }).click();
     await page.getByRole('button', { name: '确定覆盖', exact: true }).click();
     await expect(page.locator('.save-state')).toContainText('已保存');
+    await page.getByRole('button', { name: '预览', exact: true }).click();
     await expect(page.locator('.markdown img')).toBeVisible();
     await reader.reload();
     await expect(reader.locator('.markdown img')).toBeVisible();
@@ -293,14 +296,19 @@ test.describe('authenticated feature acceptance', () => {
     await matchingNote.click();
     await clickNoteAction(page, '删除笔记');
     await page.getByRole('button', { name: '移入回收站', exact: true }).click();
-    if (info.project.name === 'mobile')
-      await page.getByRole('button', { name: '打开侧栏' }).click();
-    if (!(await page.getByRole('button', { name: '回收站', exact: true }).isVisible()))
-      await page.getByRole('button', { name: '个人账户', exact: true }).click();
-    await page.getByRole('button', { name: '回收站', exact: true }).click();
-    const deleted = page.locator('.utility-row').filter({ hasText: n.relativePath });
-    await deleted.getByRole('button', { name: '恢复', exact: true }).click();
+    await showSidebar(page);
+    await page
+      .getByRole('navigation', { name: '常用工具', exact: true })
+      .getByRole('button', { name: '回收站', exact: true })
+      .click();
+    const deleted = page.locator('.trash-item').filter({ hasText: n.relativePath });
+    await deleted.getByRole('button', { name: '恢复并打开', exact: true }).click();
     await expect(deleted).toHaveCount(0);
+    await expect(page).toHaveURL(new RegExp('note=' + n.id));
+    await expect(page.locator('.cm-content')).toContainText('整理方法');
+    expect((await (await page.request.get(`/api/notes/${n.id}`)).json()).relativePath).toBe(
+      n.relativePath,
+    );
   });
 });
 

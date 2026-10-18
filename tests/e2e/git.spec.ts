@@ -1,3 +1,4 @@
+import { configurePlugin, returnToNotes } from '../support/settings-navigation';
 import { expandFolderPath } from '../support/notebook-tree';
 import { clickNoteAction } from '../support/note-actions';
 import { test, expect } from '../support/browser-test';
@@ -10,16 +11,17 @@ test('installs Git interactions, initializes, previews all changes and displays 
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   const mobile = info.project.name === 'mobile';
   await page.goto('/');
-  if (!(await page.getByRole('button', { name: '设置', exact: true }).isVisible()))
-    await page.getByRole('button', { name: '个人账户', exact: true }).click();
-  await page.getByRole('button', { name: '设置', exact: true }).click();
-  await page.getByRole('button', { name: '安装Git 版本管理', exact: true }).click();
+  await configurePlugin(page, 'Git 版本管理');
   await page.getByLabel('提交作者', { exact: true }).fill('Browser Fixture');
   await page.getByLabel('作者邮箱', { exact: true }).fill('browser@example.invalid');
   await page.getByRole('button', { name: '保存插件配置', exact: true }).click();
-  await page.getByRole('button', { name: '启用Git 版本管理', exact: true }).click();
+  const enable = page
+    .locator('.plugin-settings')
+    .getByRole('button', { name: '启用插件', exact: true });
+  if (await enable.isVisible()) await enable.click();
   await page.getByRole('button', { name: '初始化 Git 仓库（main）', exact: true }).click();
   await expect(page.getByText('当前分支：main', { exact: true })).toBeVisible({ timeout: 10000 });
+  await returnToNotes(page);
   if (mobile) await page.getByRole('button', { name: '打开侧栏', exact: true }).click();
   await expandFolderPath(page, '30-Knowledge/个人知识管理/方法');
   await page.getByRole('button', { name: '入门指南.md', exact: true }).click();

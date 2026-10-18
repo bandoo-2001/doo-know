@@ -1,3 +1,4 @@
+import { showSidebar, returnToNotes } from '../support/settings-navigation';
 import { expandFolderPath } from '../support/notebook-tree';
 import { test, expect } from '../support/browser-test';
 import { readFile, writeFile, rm } from 'node:fs/promises';
@@ -40,7 +41,7 @@ test('keeps navigation reachable and content scrolling inside the window with a 
       await page.setViewportSize(size);
       await page.goto('/');
       await expect(page.locator('.main-content')).toBeVisible();
-      await page.getByRole('button', { name: '个人账户', exact: true }).click();
+      await showSidebar(page);
       await page.getByRole('button', { name: '刷新目录', exact: true }).click();
       await expandFolderPath(page, '00-Inbox');
       const last = page
@@ -58,25 +59,26 @@ test('keeps navigation reachable and content scrolling inside the window with a 
         .getByRole('button', { name: '设置', exact: true });
       await settings.scrollIntoViewIfNeeded();
       await expect(settings).toBeInViewport();
-      if (size.width <= 720) await page.getByRole('button', { name: '关闭侧栏' }).click();
-      const status = await page.locator('.index-status').boundingBox();
-      expect(status!.x + status!.width).toBeGreaterThan(size.width - 40);
-      expect(status!.y + status!.height).toBeGreaterThan(size.height - 65);
-      await inWindow('.index-status');
-      if (size.height <= 540) {
-        await page.locator('.index-details').click();
-        const details = page.locator('.index-popover');
-        await details.scrollIntoViewIfNeeded();
-        // IntersectionObserver can report a fractional-pixel clip after scrolling.
-        await expect(details).toBeInViewport({ ratio: 0.99 });
-        await inWindow('.index-popover');
-        await page.locator('.index-details').click();
-      }
-      if (size.width <= 720) await page.getByRole('button', { name: '打开侧栏' }).click();
+      const status = page
+        .locator('.sidebar-footer')
+        .getByRole('button', { name: '后台状态', exact: true });
+      await expect(status).toBeInViewport();
+      await inWindow('.sidebar-footer');
+      await expect(page.locator('.index-status')).toHaveCount(0);
+      await status.click();
+      const details = page.getByRole('dialog', { name: '后台状态', exact: true });
+      await expect(details).toBeVisible();
+      await inWindow('.n-drawer:visible');
+      await expect(details.getByRole('heading', { name: '索引更新', exact: true })).toBeVisible();
+      await page.keyboard.press('Escape');
+      await expect(details).toBeHidden();
+      await expect(status).toBeFocused();
+      await expect(page.locator('.index-status')).toHaveCount(0);
       await settings.click();
-      await expect(page.getByRole('heading', { name: '个人设置', exact: true })).toBeVisible();
+      await expect(page.locator('.settings-workspace h1')).toHaveText('编辑器与外观');
       await inWindow('.main-content');
-      if (size.width <= 720) await page.getByRole('button', { name: '打开侧栏' }).click();
+      await returnToNotes(page);
+      await showSidebar(page);
       await page
         .locator('.tree-scroll')
         .getByRole('button', { name: '00-Inbox', exact: true })

@@ -34,6 +34,7 @@ async function source(page: Page) {
     );
 }
 async function replaceAndSelect(page: Page, content: string, mod = 'ControlOrMeta') {
+  await expect(page.locator('.cm-content')).toBeEditable();
   await page.locator('.cm-content').click();
   await page.keyboard.press(mod + '+a');
   await page.keyboard.insertText(content);
@@ -45,6 +46,23 @@ async function disk(page: Page, id: string) {
 }
 const toolbar = (page: Page) => page.getByRole('toolbar', { name: 'Markdown 格式', exact: true });
 const button = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
+
+async function navigateToReadyNote(
+  page: Page,
+  note: { id: string; relativePath: string },
+  navigate: () => Promise<unknown>,
+) {
+  const loaded = page.waitForResponse(
+    (response) =>
+      new URL(response.url()).pathname === `/api/notes/${note.id}/assets` &&
+      response.request().method() === 'GET',
+  );
+  await navigate();
+  await expect(page).toHaveURL(new RegExp('note=' + note.id));
+  expect((await loaded).status()).toBe(200);
+  await expect(page.locator('.document-title')).toHaveAttribute('title', note.relativePath);
+  await expect(page.locator('.cm-content')).toBeEditable();
+}
 
 test('every formatting button and heading level survives undo, redo, preview and explicit saving', async ({
   page,
@@ -305,17 +323,18 @@ test('top navigation, share and more-actions preserve drafts and expose all buil
   await expect(page.locator('.cm-content')).toContainText('Saved original.');
   if (info.project.name === 'mobile') await button(page, '打开侧栏').click();
   await expandFolderPath(page, '00-Inbox');
-  await page
-    .locator('.tree-scroll')
-    .getByRole('button', { name: b.relativePath.split('/').at(-1), exact: true })
-    .click();
-  await expect(page).toHaveURL(new RegExp('note=' + b.id));
-  if (info.project.name === 'mobile') await page.goBack();
-  else await button(page, '后退').click();
-  await expect(page).toHaveURL(new RegExp('note=' + a.id));
-  if (info.project.name === 'mobile') await page.goForward();
-  else await button(page, '前进').click();
-  await expect(page).toHaveURL(new RegExp('note=' + b.id));
+  await navigateToReadyNote(page, b, () =>
+    page
+      .locator('.tree-scroll')
+      .getByRole('button', { name: b.relativePath.split('/').at(-1), exact: true })
+      .click(),
+  );
+  await navigateToReadyNote(page, a, () =>
+    info.project.name === 'mobile' ? page.goBack() : button(page, '后退').click(),
+  );
+  await navigateToReadyNote(page, b, () =>
+    info.project.name === 'mobile' ? page.goForward() : button(page, '前进').click(),
+  );
   await replaceAndSelect(page, '# Guarded draft');
   if (info.project.name === 'mobile') await page.goBack();
   else await button(page, '后退').click();

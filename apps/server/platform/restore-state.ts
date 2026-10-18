@@ -2,7 +2,10 @@ import { randomUUID } from 'node:crypto';
 import { realpathSync, lstatSync } from 'node:fs';
 import type { AppDatabase } from '../../../packages/core/db.js';
 import { platformSettings } from './settings.js';
-import { invalidateRemoteAuth, remoteAuthGeneration } from '../../../packages/core/auth/remote-auth.js';
+import {
+  invalidateRemoteAuth,
+  remoteAuthGeneration,
+} from '../../../packages/core/auth/remote-auth.js';
 import type { AppConfig } from '../../../shared/contracts.js';
 export function resetRestoredState(
   db: AppDatabase,
@@ -53,6 +56,11 @@ export function resetRestoredState(
       'search_runtime',
       'database_processes',
       'platform_instance',
+      // Managed artifacts and recovery keys live outside the snapshot. Their
+      // old job payloads and downloadable records do not belong to this copy.
+      'managed_transfer_backups',
+      'managed_transfer_jobs',
+      'managed_key_attempts',
     ])
       if (tables.has(name)) db.exec(`DELETE FROM "${name}"`);
     if (tables.has('write_intents')) {

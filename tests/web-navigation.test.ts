@@ -47,17 +47,21 @@ beforeEach(async () => {
     });
     (window as any).navigation = createWorkspaceNavigation({
       dirty: () => state.dirty,
+      canPreserveDraft: (route: { note?: string; view?: string }) =>
+        (state as any).preserveUtilities && (!!route.view || route.note === 'C'),
       onState: (value: { canBack: boolean; canForward: boolean }) => {
         state.capabilities = value;
       },
       guard: async (apply: () => Promise<void>) => {
         state.pending = apply;
       },
-      apply: async (route: { note: string }) => {
+      apply: async (route: { note?: string; view?: string }) => {
         if (route.note === 'B' && state.holdB) await state.holdB;
         if (route.note === 'B' && state.rejectB)
           throw new Error('Controlled document read failure');
-        state.visible = route.note;
+        if (route.view && (state as any).returnRoutes)
+          (state as any).returnRoutes.push((window as any).navigation.currentRoute());
+        state.visible = route.note || route.view || '';
       },
       error: () => {
         state.errors++;
@@ -202,4 +206,35 @@ test('toolbar history buttons track available in-app navigation and truncate for
     (window as any).navigationState.visible = 'D';
   });
   expect(await capabilities()).toEqual({ canBack: true, canForward: false });
+});
+
+test('history retains a dirty note across utility views and still guards a different note', async () => {
+  await page.evaluate(() => {
+    const state = (window as any).navigationState;
+    state.dirty = true;
+    state.preserveUtilities = true;
+    (window as any).navigation.commit({ view: 'settings' });
+    state.visible = 'settings';
+    state.returnRoutes = [];
+    state.onError = undefined;
+  });
+  await page.goBack();
+  await expectRoute('C');
+  await expect
+    .poll(() => page.evaluate(() => !!(window as any).navigationState.pending))
+    .toBe(false);
+  await page.goForward();
+  await expect
+    .poll(() => page.evaluate(() => (window as any).navigationState.visible))
+    .toBe('settings');
+  expect(await page.evaluate(() => (window as any).navigationState.returnRoutes)).toEqual([
+    { note: 'C' },
+  ]);
+  await page.goBack();
+  await expectRoute('C');
+  await page.goBack();
+  await expect
+    .poll(() => page.evaluate(() => !!(window as any).navigationState.pending))
+    .toBe(true);
+  await expectRoute('C');
 });

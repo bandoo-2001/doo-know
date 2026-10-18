@@ -33,6 +33,8 @@ import { registerWebKnowledgeRoutes } from './knowledge/web-routes.js';
 import { webPrincipal } from '../../packages/core/knowledge/core.js';
 import { KnowledgeError } from '../../packages/core/knowledge/errors.js';
 import { registerStorageRoutes } from './platform/storage.js';
+import { registerManagementRoutes } from './platform/management.js';
+import { registerTransferRoutes } from './platform/transfers.js';
 export async function createApp(config: HostConfig) {
   const app = Fastify({ logger: false, bodyLimit: 2 * 1024 * 1024 });
   const db = openDatabase(config.dataRoot, 'server');
@@ -119,8 +121,12 @@ export async function createApp(config: HostConfig) {
         if (reply.sent) resolve();
       });
     }
-    if (!req.url.startsWith('/api/platform/') && !req.url.startsWith('/api/security/') &&
-        !req.url.startsWith('/api/maintenance/'))
+    if (
+      !req.url.startsWith('/api/platform/') &&
+      !req.url.startsWith('/api/security/') &&
+      !req.url.startsWith('/api/maintenance/') &&
+      !req.url.startsWith('/api/manage/')
+    )
       platform.get();
   });
   const authPaths = new Set([
@@ -187,6 +193,8 @@ export async function createApp(config: HostConfig) {
     return reply.code(ready ? 200 : 503).send({ status: ready ? 'ready' : 'not_ready' });
   });
   app.get('/api/platform/status', async () => platform.status());
+  registerManagementRoutes(app, config, db, auth, platform);
+  registerTransferRoutes(app, config, db, platform);
   registerStorageRoutes(app, config, () => platform.settings.configured()?.knowledgeRoot);
   app.get('/api/platform/search-runtime', async () => searchRuntime.status());
   app.post('/api/platform/search-runtime/prepare', async (req) =>
