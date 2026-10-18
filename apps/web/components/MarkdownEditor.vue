@@ -1,9 +1,16 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
-import { EditorView } from '@codemirror/view';
+import { EditorView, keymap } from '@codemirror/view';
+import { undo, redo } from '@codemirror/commands';
+import {
+  markdownTransaction,
+  toolbarState,
+  type MarkdownAction,
+  type MarkdownToolbarState,
+} from '../markdown-format';
 import { Compartment, EditorState } from '@codemirror/state';
 import { basicSetup } from 'codemirror';
-import { markdown } from '@codemirror/lang-markdown';
+import { markdown, markdownLanguage } from '@codemirror/lang-markdown';
 import { HighlightStyle, defaultHighlightStyle, syntaxHighlighting } from '@codemirror/language';
 import { tags } from '@lezer/highlight';
 const props = withDefaults(
@@ -21,6 +28,7 @@ const emit = defineEmits<{
   'update:modelValue': [value: string];
   changes: [edits: { from: number; to: number; insert: string }[]];
   'line-change': [line: number];
+  'state-change': [state: MarkdownToolbarState];
 }>();
 const mount = ref<HTMLElement>();
 let view: EditorView | undefined;
@@ -36,9 +44,14 @@ onMounted(() => {
     doc: props.modelValue,
     parent: mount.value,
     extensions: [
-      basicSetup,
       gutters.of(gutterTheme()),
-      markdown(),
+      markdown({ base: markdownLanguage }),
+      keymap.of([
+        { key: 'Mod-b', run: () => format('bold'), preventDefault: true },
+        { key: 'Mod-i', run: () => format('italic'), preventDefault: true },
+        { key: 'Mod-k', run: () => format('link'), preventDefault: true },
+      ]),
+      basicSetup,
       syntaxHighlighting(
         HighlightStyle.define([
           ...defaultHighlightStyle.specs,
@@ -106,6 +119,8 @@ onMounted(() => {
         },
       }),
       EditorView.updateListener.of((update) => {
+        if (update.docChanged || update.selectionSet || update.transactions.length)
+          emit('state-change', toolbarState(update.state));
         if (update.selectionSet && update.view.hasFocus)
           emit('line-change', update.state.doc.lineAt(update.state.selection.main.head).number);
         if (update.docChanged && !programmatic) {
@@ -121,13 +136,14 @@ onMounted(() => {
     ],
   });
   view.scrollDOM.addEventListener('scroll', reportVisibleLine, { passive: true });
+  emit('state-change', toolbarState(view.state));
   if (props.initialLine) {
     const line = view.state.doc.line(Math.min(props.initialLine, view.state.doc.lines));
     view.dispatch({ selection: { anchor: line.from }, scrollIntoView: true });
   }
 });
 function reportVisibleLine() {
-  if (!view) return;
+  if (!view || !view.scrollDOM.clientHeight) return;
   const top = Math.max(0, view.scrollDOM.getBoundingClientRect().top - view.documentTop + 32);
   const block = view.lineBlockAtHeight(top);
   emit('line-change', view.state.doc.lineAt(block.from).number);
@@ -173,7 +189,21 @@ watch(
     if (line) goToLine(line);
   },
 );
-defineExpose({ goToLine });
+function format(action: MarkdownAction) {
+  if (!view || props.readOnly) return false;
+  const transaction = markdownTransaction(view.state, action);
+  if (!transaction) return false;
+  view.dispatch(transaction);
+  view.focus();
+  return true;
+}
+function editHistory(action: 'undo' | 'redo') {
+  if (!view || props.readOnly) return false;
+  const changed = (action === 'undo' ? undo : redo)(view);
+  view.focus();
+  return changed;
+}
+defineExpose({ goToLine, format, editHistory });
 onBeforeUnmount(() => {
   view?.scrollDOM.removeEventListener('scroll', reportVisibleLine);
   view?.destroy();

@@ -81,7 +81,9 @@ test('document layout keeps an H1–H5 outline beside the article and navigates 
   );
   if (await chapterMenu.isVisible()) await chapterMenu.click();
   await page.getByRole('button', { name: '编辑', exact: true }).click();
-  await page.locator('.cm-content').fill('# 修改后的标题\n\n## 新的子章节\n\n未保存的正文。');
+  await page.locator('.cm-content').click();
+  await page.keyboard.press('ControlOrMeta+a');
+  await page.keyboard.insertText('# 修改后的标题\n\n## 新的子章节\n\n未保存的正文。');
   nav = await outline();
   await expect(nav.getByRole('button', { name: '新的子章节', exact: true })).toBeVisible();
   await expect(nav.getByRole('button', { name: '第一章', exact: true })).toHaveCount(0);

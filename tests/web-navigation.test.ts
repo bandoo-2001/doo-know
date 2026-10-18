@@ -41,11 +41,15 @@ beforeEach(async () => {
       dirty: false,
       rejectB: false,
       errors: 0,
+      capabilities: { canBack: false, canForward: false },
       pending: undefined as (() => Promise<void>) | undefined,
       holdB: undefined as Promise<void> | undefined,
     });
     (window as any).navigation = createWorkspaceNavigation({
       dirty: () => state.dirty,
+      onState: (value: { canBack: boolean; canForward: boolean }) => {
+        state.capabilities = value;
+      },
       guard: async (apply: () => Promise<void>) => {
         state.pending = apply;
       },
@@ -180,4 +184,22 @@ test('disposing a workspace prevents its outstanding failed navigation from chan
   });
   await expectRoute('NEW_WORKSPACE');
   await expect.poll(() => page.evaluate(() => (window as any).navigationState.errors)).toBe(0);
+});
+
+test('toolbar history buttons track available in-app navigation and truncate forward history after a new selection', async () => {
+  const capabilities = () => page.evaluate(() => (window as any).navigationState.capabilities);
+  expect(await capabilities()).toEqual({ canBack: true, canForward: false });
+  await page.evaluate(() => (window as any).navigation.back());
+  await expectRoute('B');
+  expect(await capabilities()).toEqual({ canBack: true, canForward: true });
+  await page.evaluate(() => (window as any).navigation.back());
+  await expectRoute('A');
+  expect(await capabilities()).toEqual({ canBack: false, canForward: true });
+  await page.evaluate(() => (window as any).navigation.forward());
+  await expectRoute('B');
+  await page.evaluate(() => {
+    (window as any).navigation.commit({ note: 'D' });
+    (window as any).navigationState.visible = 'D';
+  });
+  expect(await capabilities()).toEqual({ canBack: true, canForward: false });
 });

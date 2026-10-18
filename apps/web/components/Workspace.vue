@@ -15,6 +15,8 @@ import { api, ApiError, resetCsrf } from '../api';
 import Icon from './Icon.vue';
 import TreeBranch from './TreeBranch.vue';
 import MarkdownEditor from './MarkdownEditor.vue';
+import EditorToolbar from './EditorToolbar.vue';
+import { emptyToolbarState, type MarkdownAction } from '../markdown-format';
 import DocumentOutline from './DocumentOutline.vue';
 import { outlineFromTokens } from '../document-outline';
 import LargeFileWorkspace from './LargeFileWorkspace.vue';
@@ -33,7 +35,12 @@ import SetupImport from './SetupImport.vue';
 import { useNoteDraft } from '../useNoteDraft';
 import { filenameResults, mergeSearchResults } from '../search-results';
 import { noteDraftBase } from '../drafts';
-import { createWorkspaceNavigation, readWorkspaceRoute, type WorkspaceRoute } from '../navigation';
+import {
+  createWorkspaceNavigation,
+  readWorkspaceRoute,
+  type WorkspaceRoute,
+  type WorkspaceNavigationState,
+} from '../navigation';
 import { MIN_PASSWORD_LENGTH, PASSWORD_POLICY_MESSAGE } from '../../../shared/password-policy';
 import { refreshPlugins, disposePluginUIs, pluginRegistry } from '../plugins';
 import type {
@@ -66,6 +73,9 @@ function storedSidebarWidth() {
   } catch {}
   return 280;
 }
+const sidebarCollapsed = ref(false);
+const editorState = ref(emptyToolbarState());
+const navigationState = ref<WorkspaceNavigationState>({ canBack: false, canForward: false });
 const sidebarWidth = ref(storedSidebarWidth()),
   accountExpanded = ref(false),
   showLineNumbers = ref(false),
@@ -130,11 +140,49 @@ const draftScope = localDrafts.scope,
   draftBusy = localDrafts.busy,
   draftError = localDrafts.error,
   draftSavedAt = localDrafts.savedAt;
+const formatDisabled = computed(
+  () =>
+    !note.value ||
+    noteInfo.value?.editorMode !== 'full' ||
+    mode.value === 'preview' ||
+    noteOpening.value ||
+    editorTransfer.value ||
+    draftLoading.value ||
+    draftBusy.value ||
+    !!recoveryDraft.value,
+);
+function formatNote(action: MarkdownAction) {
+  if (!formatDisabled.value) editorRef.value?.format(action);
+}
+function editHistory(action: 'undo' | 'redo') {
+  if (!formatDisabled.value) editorRef.value?.editHistory(action);
+}
+const documentCrumbs = computed(() => {
+  const parts = note.value?.relativePath.split('/').slice(0, -1) || [];
+  return parts.map((name, index) => ({ name, path: parts.slice(0, index + 1).join('/') }));
+});
+async function browseRoot() {
+  await run(() =>
+    guard(async () => {
+      await localDrafts.flush();
+      viewEpoch++;
+      note.value = undefined;
+      panel.value = 'empty';
+      folder.value = '';
+      selected.value = '';
+      drawer.value = false;
+      navigation.commit({});
+    }),
+  );
+}
 const navigation = createWorkspaceNavigation({
   dirty: () => dirty.value,
   guard,
   apply: applyRoute,
   error: showError,
+  onState: (state) => {
+    navigationState.value = state;
+  },
 });
 async function initializeDrafts() {
   try {
@@ -1270,7 +1318,10 @@ onBeforeUnmount(() => {
 });
 </script>
 <template>
-  <div class="workspace" :style="{ '--sidebar-width': sidebarWidth + 'px' }">
+  <div
+    :class="['workspace', { 'sidebar-collapsed': sidebarCollapsed && panel === 'note' }]"
+    :style="{ '--sidebar-width': sidebarWidth + 'px' }"
+  >
     <div v-if="drawer" class="drawer-scrim" @click="drawer = false"></div>
     <aside id="notebook-navigation" :class="['sidebar', { open: drawer }]" aria-label="笔记导航">
       <div class="brand">
@@ -1436,15 +1487,98 @@ onBeforeUnmount(() => {
       <template v-if="note && panel === 'note'"
         ><header class="note-header">
           <div class="note-topline">
-            <div class="document-identity">
+            <div class="document-navigation">
+              <button
+                class="icon-button desktop-sidebar-toggle"
+                type="button"
+                :aria-label="sidebarCollapsed ? '展开侧栏' : '收起侧栏'"
+                :title="sidebarCollapsed ? '展开侧栏' : '收起侧栏'"
+                :aria-expanded="!sidebarCollapsed"
+                aria-controls="notebook-navigation"
+                @click="sidebarCollapsed = !sidebarCollapsed"
+              >
+                <Icon name="sidebar" :size="18" />
+              </button>
+              <button
+                class="icon-button"
+                type="button"
+                aria-label="后退"
+                title="后退"
+                :disabled="!navigationState.canBack"
+                @click="navigation.back()"
+              >
+                <Icon name="back" :size="18" />
+              </button>
+              <button
+                class="icon-button"
+                type="button"
+                aria-label="前进"
+                title="前进"
+                :disabled="!navigationState.canForward"
+                @click="navigation.forward()"
+              >
+                <Icon name="forward" :size="18" />
+              </button>
+            </div>
+            <nav class="document-identity document-breadcrumb" aria-label="笔记路径">
+              <button
+                class="breadcrumb-root"
+                type="button"
+                aria-label="返回笔记本"
+                @click="browseRoot"
+              >
+                <Icon name="book" :size="17" /><span>笔记本</span>
+              </button>
+              <template v-for="crumb in documentCrumbs" :key="crumb.path">
+                <Icon class="breadcrumb-chevron" name="chevron" :size="12" />
+                <button
+                  class="breadcrumb-folder"
+                  type="button"
+                  :aria-label="'打开目录 ' + crumb.name"
+                  :title="crumb.path"
+                  @click="select({ type: 'folder', name: crumb.name, path: crumb.path })"
+                >
+                  <Icon name="folder" :size="16" /><span>{{ crumb.name }}</span>
+                </button>
+              </template>
+              <Icon class="breadcrumb-chevron" name="chevron" :size="12" />
               <h1 class="document-title" :title="note.relativePath">
                 {{ note.relativePath.split('/').at(-1)?.replace(/\.md$/i, '') || note.title }}
               </h1>
-              <span class="breadcrumb" :title="note.relativePath">{{
-                folder ? folder.split('/').join(' / ') : '知识库根目录'
-              }}</span>
-            </div>
+            </nav>
             <div class="toolbar">
+              <span
+                v-if="noteInfo?.editorMode === 'full'"
+                role="status"
+                aria-live="polite"
+                :title="busy ? '保存中' : dirty ? '未保存' : '已保存'"
+                :class="['save-state', { dirty }]"
+                >● {{ busy ? '保存中' : dirty ? '未保存' : '已保存' }}</span
+              >
+              <div v-if="noteInfo?.editorMode === 'full'" class="history-controls">
+                <button
+                  class="icon-button"
+                  type="button"
+                  aria-label="撤销"
+                  title="撤销 · Ctrl/Cmd+Z"
+                  :disabled="formatDisabled || !editorState.canUndo"
+                  @mousedown.prevent
+                  @click="editHistory('undo')"
+                >
+                  <Icon name="undo" :size="18" />
+                </button>
+                <button
+                  class="icon-button"
+                  type="button"
+                  aria-label="重做"
+                  title="重做 · Ctrl/Cmd+Shift+Z"
+                  :disabled="formatDisabled || !editorState.canRedo"
+                  @mousedown.prevent
+                  @click="editHistory('redo')"
+                >
+                  <Icon name="redo" :size="18" />
+                </button>
+              </div>
               <AButton
                 v-if="pendingSave?.noteId === note.id"
                 :disabled="busy"
@@ -1454,10 +1588,19 @@ onBeforeUnmount(() => {
               <AButton v-if="pendingDelete && !deleteOpen" @click="run(checkDelete)"
                 >核对删除结果</AButton
               >
-              <AButton :loading="shareBusy" :disabled="shareBusy" @click="manageShare"
+              <AButton
+                class="share-button"
+                title="分享"
+                aria-label="分享"
+                :loading="shareBusy"
+                :disabled="shareBusy"
+                @click="manageShare"
                 ><template #icon><Icon name="share" /></template>分享</AButton
               ><AButton
                 v-if="noteInfo?.editorMode === 'full'"
+                class="save-button"
+                title="保存"
+                aria-label="保存"
                 type="primary"
                 :loading="busy"
                 :disabled="busy || (!dirty && pendingSave?.noteId !== note.id)"
@@ -1481,44 +1624,57 @@ onBeforeUnmount(() => {
           <div v-if="note.shared" class="shared-status">
             <Icon name="share" :size="14" />已分享，保存后的修改将同步公开
           </div>
-          <div v-if="noteInfo?.editorMode === 'full'" class="mode-row">
-            <div class="mode-tabs">
-              <button
-                :aria-pressed="mode === 'edit'"
-                :class="{ active: mode === 'edit' }"
-                @click="mode = 'edit'"
-              >
-                编辑</button
-              ><button
-                :aria-pressed="mode === 'preview'"
-                :class="{ active: mode === 'preview' }"
-                @click="mode = 'preview'"
-              >
-                预览</button
-              ><button
-                :aria-pressed="mode === 'split'"
-                :class="{ active: mode === 'split' }"
-                @click="mode = 'split'"
-              >
-                分屏
-              </button>
+          <div v-if="noteInfo?.editorMode === 'full'" class="document-format-row">
+            <EditorToolbar
+              :state="editorState"
+              :disabled="formatDisabled"
+              @format="formatNote"
+              @upload="uploadInput?.click()"
+            />
+            <div class="mode-row">
+              <div class="mode-tabs">
+                <button
+                  :aria-pressed="mode === 'edit'"
+                  :class="{ active: mode === 'edit' }"
+                  @click="mode = 'edit'"
+                >
+                  编辑</button
+                ><button
+                  :aria-pressed="mode === 'preview'"
+                  :class="{ active: mode === 'preview' }"
+                  @click="mode = 'preview'"
+                >
+                  预览</button
+                ><button
+                  :aria-pressed="mode === 'split'"
+                  :class="{ active: mode === 'split' }"
+                  @click="mode = 'split'"
+                >
+                  分屏
+                </button>
+              </div>
+              <APopover v-model:open="outlineOpen" trigger="click" placement="bottomRight">
+                <template #content>
+                  <DocumentOutline
+                    class="outline-popup"
+                    :headings="normalOutline"
+                    :active-line="activeHeading"
+                    @select="goToHeading"
+                  />
+                </template>
+                <AButton
+                  class="outline-toggle"
+                  type="text"
+                  size="small"
+                  aria-label="章节目录"
+                  title="章节目录"
+                  :aria-expanded="outlineOpen"
+                  ><Icon name="list" :size="17" /><span class="outline-toggle-label"
+                    >章节目录</span
+                  ></AButton
+                >
+              </APopover>
             </div>
-            <APopover v-model:open="outlineOpen" trigger="click" placement="bottomRight">
-              <template #content>
-                <DocumentOutline
-                  class="outline-popup"
-                  :headings="normalOutline"
-                  :active-line="activeHeading"
-                  @select="goToHeading"
-                />
-              </template>
-              <AButton class="outline-toggle" type="text" size="small" :aria-expanded="outlineOpen"
-                >章节目录</AButton
-              >
-            </APopover>
-            <span role="status" aria-live="polite" :class="['save-state', { dirty }]"
-              >● {{ busy ? '保存中' : dirty ? '未保存' : '已保存' }}</span
-            >
           </div>
         </header>
         <LargeFileWorkspace
@@ -1551,7 +1707,7 @@ onBeforeUnmount(() => {
           <div class="document-body">
             <div class="document-surface">
               <div :class="['editor-panels', mode]">
-                <section v-if="mode !== 'preview'" class="editor-panel">
+                <section v-show="mode !== 'preview'" class="editor-panel">
                   <div class="panel-label">Markdown <span>手动保存 · Ctrl+S</span></div>
                   <MarkdownEditor
                     ref="editorRef"
@@ -1565,6 +1721,7 @@ onBeforeUnmount(() => {
                     "
                     :show-line-numbers="showLineNumbers"
                     @line-change="articleLine = $event"
+                    @state-change="editorState = $event"
                   />
                 </section>
                 <section v-if="mode !== 'edit'" class="preview-panel">

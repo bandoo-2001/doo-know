@@ -5,6 +5,7 @@ export type WorkspaceRoute = {
   view?: 'trash' | 'settings';
   section?: 'account' | 'search' | 'plugins' | 'maintenance';
 };
+export type WorkspaceNavigationState = { canBack: boolean; canForward: boolean };
 export function readWorkspaceRoute(href = window.location.href): WorkspaceRoute {
   const url = new URL(href),
     query = url.searchParams;
@@ -26,6 +27,7 @@ export function createWorkspaceNavigation(options: {
   guard: (apply: () => Promise<void>) => Promise<void>;
   apply: (route: WorkspaceRoute) => Promise<void>;
   error: (cause: unknown) => void;
+  onState?: (state: WorkspaceNavigationState) => void;
 }) {
   type Entry = { href: string; index: number };
   let generation = 0,
@@ -34,7 +36,12 @@ export function createWorkspaceNavigation(options: {
   let pendingCommit: { route: WorkspaceRoute; replace: boolean } | undefined;
   let disposed = false;
   let active = { href: location.href, index: Number(history.state?.dooknowIndex) || 0 };
+  let furthestIndex = active.index;
+  function notify() {
+    options.onState?.({ canBack: active.index > 0, canForward: active.index < furthestIndex });
+  }
   history.replaceState({ ...history.state, dooknowIndex: active.index }, '', active.href);
+  notify();
   function commit(route: WorkspaceRoute, replace = false) {
     if (disposed) return;
     if (undoing) {
@@ -58,6 +65,8 @@ export function createWorkspaceNavigation(options: {
       url.href,
     );
     active = { href: url.href, index };
+    if (!replace) furthestIndex = index;
+    notify();
   }
   function restoreHistory(from: Entry): Promise<void> {
     if (undoing) return undoing.promise;
@@ -81,7 +90,11 @@ export function createWorkspaceNavigation(options: {
     const current = ++generation;
     try {
       await options.apply(readWorkspaceRoute(target.href));
-      if (current === generation) active = target;
+      if (current === generation) {
+        active = target;
+        furthestIndex = Math.max(furthestIndex, target.index);
+        notify();
+      }
     } catch (cause) {
       if (current !== generation) return;
       void restoreHistory(target);
@@ -138,6 +151,12 @@ export function createWorkspaceNavigation(options: {
   window.addEventListener('popstate', pop);
   return {
     commit,
+    back() {
+      if (active.index > 0 && !undoing && !replaying) history.back();
+    },
+    forward() {
+      if (active.index < furthestIndex && !undoing && !replaying) history.forward();
+    },
     dispose() {
       disposed = true;
       generation++;

@@ -1,6 +1,22 @@
 <script setup lang="ts">
 defineProps<{ name: string; size?: number }>();
 const paths: Record<string, string> = {
+  sidebar: 'M4 3h16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1ZM8 3v18',
+  undo: 'm8 4-5 5 5 5M3 9h11a6 6 0 0 1 0 12h-3',
+  redo: 'm16 4 5 5-5 5M21 9H10a6 6 0 0 0 0 12h3',
+  back: 'm15 5-7 7 7 7',
+  forward: 'm9 5 7 7-7 7',
+  quote: 'M5 5h5v7H5c0 4 1 5 4 5M14 5h5v7h-5c0 4 1 5 4 5',
+  list: 'M9 6h12M9 12h12M9 18h12M3 6h.01M3 12h.01M3 18h.01',
+  ordered: 'M10 6h11M10 12h11M10 18h11M3 4h1v5M2 9h4M2 14c0-2 4-2 4 0 0 1-4 3-4 5h4',
+  task: 'M9 6h12M9 12h12M9 18h12M2 5l2 2 3-4M2 11l2 2 3-4M2 17l2 2 3-4',
+  indent: 'M3 4h18M10 9h11M10 15h11M3 20h18m-18-12 4 4-4 4',
+  outdent: 'M3 4h18M10 9h11M10 15h11M3 20h18m-14-12-4 4 4 4',
+  link: 'm10 14 4-4M9 16l-2 2a4 4 0 0 1-6-6l5-5a4 4 0 0 1 6 0M15 8l2-2a4 4 0 0 1 6 6l-5 5a4 4 0 0 1-6 0',
+  'inline-code': 'm8 7-5 5 5 5m8-10 5 5-5 5M14 4l-4 16',
+  code: 'M4 3h16v18H4Zm4 5-3 4 3 4m8-8 3 4-3 4M13 7l-2 10',
+  table: 'M3 4h18v16H3ZM3 9h18M9 4v16M15 9v11M3 14h18',
+  rule: 'M3 12h18',
   more: 'M5 12h.01M12 12h.01M19 12h.01',
   book: 'M12 6C9 3 4 3 2 4v15c3-1 7-1 10 2 3-3 7-3 10-2V4c-3-1-7-1-10 2Zm0 0v15',
   folder: 'M3 6a2 2 0 0 1 2-2h5l2 3h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z',
