@@ -1,3 +1,4 @@
+import { expandFolderPath } from '../support/notebook-tree';
 import { clickNoteAction } from '../support/note-actions';
 import { test, expect } from '../support/browser-test';
 import { testPassword } from '../support/credentials.js';
@@ -31,6 +32,10 @@ test('login and two-column workspace with manual Markdown editing', async ({ pag
   await expect(page.getByRole('button', { name: '全部笔记', exact: true })).toHaveCount(0);
   await expect(page.getByRole('heading', { name: '选择一篇笔记', exact: true })).toBeVisible();
   await expect(page.locator('.folder-view')).toHaveCount(0);
+  await expect(
+    page.getByRole('button', { name: '展开 30-Knowledge', exact: true }),
+  ).toHaveAttribute('aria-expanded', 'false');
+  await expandFolderPath(page, '30-Knowledge/个人知识管理/方法');
   await page.getByRole('button', { name: '方法', exact: true }).click();
   await expect(page.locator('.folder-view')).toBeVisible();
   if (info.project.name === 'mobile') await page.getByRole('button', { name: '打开侧栏' }).click();
@@ -100,6 +105,7 @@ test.describe('authenticated feature acceptance', () => {
     });
     expect(r.status()).toBe(201);
     await page.locator('.sidebar').getByRole('button', { name: '刷新目录' }).click();
+    await expandFolderPath(page, '00-Inbox');
     await page
       .getByRole('button', { name: title + '.md', exact: true })
       .first()
@@ -145,6 +151,7 @@ test.describe('authenticated feature acceptance', () => {
     expect(await readFile(join(knowledgeRoot, n.relativePath), 'utf8')).toContain('我的修改');
     const second = await page.context().newPage();
     await second.goto('/');
+    await expandFolderPath(second, '00-Inbox');
     await second
       .getByRole('button', { name: n.relativePath.split('/').at(-1), exact: true })
       .first()
@@ -261,6 +268,10 @@ test.describe('authenticated feature acceptance', () => {
     await expect(page.locator('.cm-content')).toContainText('整理方法');
     if (info.project.name === 'mobile')
       await page.getByRole('button', { name: '打开侧栏' }).click();
+    await expect(
+      page.getByRole('button', { name: '展开 30-Knowledge', exact: true }),
+    ).toHaveAttribute('aria-expanded', 'false');
+    await expandFolderPath(page, '30-Knowledge/个人知识管理/方法');
     await page.getByRole('button', { name: '方法', exact: true }).click();
     await expect(page.locator('.folder-view')).toBeVisible();
     await page.screenshot({
@@ -366,6 +377,7 @@ test('late save and open responses never replace another note', async ({ page, c
   const a = await create('迟到A-' + info.project.name),
     b = await create('迟到B-' + info.project.name);
   await page.locator('.sidebar').getByRole('button', { name: '刷新目录' }).click();
+  await expandFolderPath(page, '00-Inbox');
   await page
     .getByRole('button', { name: a.relativePath.split('/').at(-1), exact: true })
     .first()

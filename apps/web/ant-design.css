@@ -28,6 +28,10 @@
   flex: 1;
   width: 0;
   background: #f9fafc;
+  height: 36px;
+}
+.sidebar-actions > .ant-input-affix-wrapper > input.ant-input {
+  background: transparent;
 }
 .sidebar-actions > .ant-btn {
   flex: 0 0 36px;
@@ -112,27 +116,6 @@
   white-space: nowrap;
   border: 0;
 }
-.normal-outline {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  max-width: min(360px, 80vw);
-  max-height: min(350px, 55dvh);
-  overflow: auto;
-}
-.normal-outline button {
-  border: 0;
-  background: transparent;
-  text-align: left;
-  padding: 6px;
-  color: var(--muted);
-  font: inherit;
-  overflow-wrap: anywhere;
-}
-.normal-outline button:hover {
-  background: #edf1fb;
-  color: var(--blue);
-}
 .local-draft-alert,
 .workspace .draft-recovery {
   margin: 8px 24px;
@@ -153,7 +136,9 @@
   font-size: inherit;
 }
 .workspace-empty .ant-btn {
-  margin: 8px 4px;
+  margin: 0;
+  min-height: 38px;
+  padding-inline: 16px;
 }
 .settings-nav {
   flex-wrap: wrap;

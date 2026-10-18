@@ -1,3 +1,4 @@
+import { expandFolderPath } from '../support/notebook-tree';
 import { test, expect } from '../support/browser-test';
 import type { Page } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
@@ -26,6 +27,7 @@ async function showSidebar(page: Page) {
 
 async function selectNote(page: Page, note: FixtureNote) {
   await showSidebar(page);
+  await expandFolderPath(page, note.relativePath.split('/').slice(0, -1).join('/'));
   await page
     .locator('.tree-scroll')
     .getByRole('button', { name: note.relativePath.split('/').at(-1), exact: true })

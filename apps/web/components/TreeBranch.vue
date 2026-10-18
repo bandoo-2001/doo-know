@@ -5,9 +5,9 @@ import Icon from './Icon.vue';
 import PluginSlot from './PluginSlot.vue';
 defineProps<{ entries: TreeEntry[]; selected: string; depth?: number }>();
 const emit = defineEmits<{ select: [entry: TreeEntry] }>();
-const closed = ref(new Set<string>());
+const expanded = ref(new Set<string>());
 function toggle(p: string) {
-  closed.value.has(p) ? closed.value.delete(p) : closed.value.add(p);
+  expanded.value.has(p) ? expanded.value.delete(p) : expanded.value.add(p);
 }
 </script>
 <template>
@@ -20,11 +20,11 @@ function toggle(p: string) {
         <button
           v-if="entry.type === 'folder'"
           class="tree-toggle"
-          :aria-label="`${closed.has(entry.path) ? '展开' : '收起'} ${entry.name}`"
-          :aria-expanded="!closed.has(entry.path)"
+          :aria-label="`${expanded.has(entry.path) ? '收起' : '展开'} ${entry.name}`"
+          :aria-expanded="expanded.has(entry.path)"
           @click="toggle(entry.path)"
         >
-          <Icon name="chevron" :size="14" :class="{ expanded: !closed.has(entry.path) }" /></button
+          <Icon name="chevron" :size="14" :class="{ expanded: expanded.has(entry.path) }" /></button
         ><span v-else class="tree-spacer"></span
         ><button
           class="tree-select"
@@ -46,7 +46,7 @@ function toggle(p: string) {
         />
       </div>
       <TreeBranch
-        v-if="entry.children?.length && !closed.has(entry.path)"
+        v-if="entry.children?.length && expanded.has(entry.path)"
         :entries="entry.children"
         :selected="selected"
         :depth="(depth || 0) + 1"

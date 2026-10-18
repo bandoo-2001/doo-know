@@ -157,8 +157,8 @@ onBeforeUnmount(() => {
 <style scoped>
 .index-status {
   position: fixed;
-  right: max(16px, env(safe-area-inset-right));
-  bottom: max(44px, env(safe-area-inset-bottom));
+  right: max(20px, env(safe-area-inset-right));
+  bottom: max(20px, env(safe-area-inset-bottom));
   z-index: 15;
   display: flex;
   align-items: center;
@@ -170,7 +170,7 @@ onBeforeUnmount(() => {
   background: #fff;
   box-shadow: 0 2px 10px #25325408;
   color: var(--muted, #7a8190);
-  font-size: 10px;
+  font-size: 11px;
 }
 .index-details {
   min-width: 0;

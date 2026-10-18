@@ -1,3 +1,4 @@
+import { expandFolderPath } from '../support/notebook-tree';
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
 
@@ -8,6 +9,7 @@ test('keeps all note actions reachable in a short window without scrolling the w
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   await page.setViewportSize({ width: 568, height: 240 });
   await page.goto('/');
+  await expandFolderPath(page, '30-Knowledge/个人知识管理/方法');
   await page.getByRole('button', { name: '入门指南.md', exact: true }).click();
   await expect(page.locator('.cm-content')).toBeVisible();
   await page.getByRole('button', { name: '更多操作', exact: true }).click();

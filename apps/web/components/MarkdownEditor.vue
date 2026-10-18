@@ -20,6 +20,7 @@ const props = withDefaults(
 const emit = defineEmits<{
   'update:modelValue': [value: string];
   changes: [edits: { from: number; to: number; insert: string }[]];
+  'line-change': [line: number];
 }>();
 const mount = ref<HTMLElement>();
 let view: EditorView | undefined;
@@ -44,6 +45,20 @@ onMounted(() => {
           { tag: tags.heading1, fontSize: '1.4em', fontWeight: '650', color: '#262d3b' },
           { tag: tags.heading2, fontSize: '1.18em', fontWeight: '600', color: '#303747' },
           { tag: tags.heading3, fontSize: '1.1em', fontWeight: '600', color: '#40495b' },
+          {
+            tag: tags.heading4,
+            fontSize: '1em',
+            fontWeight: '600',
+            color: '#4c566a',
+            textDecoration: 'none',
+          },
+          {
+            tag: tags.heading5,
+            fontSize: '.95em',
+            fontWeight: '600',
+            color: '#566177',
+            textDecoration: 'none',
+          },
           { tag: tags.processingInstruction, color: '#a0a8b8' },
           { tag: tags.link, color: '#4566c6' },
           { tag: tags.quote, color: '#8791a6' },
@@ -91,6 +106,8 @@ onMounted(() => {
         },
       }),
       EditorView.updateListener.of((update) => {
+        if (update.selectionSet && update.view.hasFocus)
+          emit('line-change', update.state.doc.lineAt(update.state.selection.main.head).number);
         if (update.docChanged && !programmatic) {
           if (props.incremental) {
             const edits: { from: number; to: number; insert: string }[] = [];
@@ -103,11 +120,18 @@ onMounted(() => {
       }),
     ],
   });
+  view.scrollDOM.addEventListener('scroll', reportVisibleLine, { passive: true });
   if (props.initialLine) {
     const line = view.state.doc.line(Math.min(props.initialLine, view.state.doc.lines));
     view.dispatch({ selection: { anchor: line.from }, scrollIntoView: true });
   }
 });
+function reportVisibleLine() {
+  if (!view) return;
+  const top = Math.max(0, view.scrollDOM.getBoundingClientRect().top - view.documentTop + 32);
+  const block = view.lineBlockAtHeight(top);
+  emit('line-change', view.state.doc.lineAt(block.from).number);
+}
 watch(
   () => props.showLineNumbers,
   () => {
@@ -134,12 +158,12 @@ watch(
       effects: editability.reconfigure([EditorView.editable.of(!v), EditorState.readOnly.of(!!v)]),
     }),
 );
-function goToLine(number: number) {
+function goToLine(number: number, align: 'start' | 'center' = 'center') {
   if (!view || !Number.isInteger(number) || number < 1) return;
   const line = view.state.doc.line(Math.min(number, view.state.doc.lines));
   view.dispatch({
     selection: { anchor: line.from },
-    effects: EditorView.scrollIntoView(line.from, { y: 'center' }),
+    effects: EditorView.scrollIntoView(line.from, { y: align, yMargin: 32 }),
   });
   view.focus();
 }
@@ -150,6 +174,9 @@ watch(
   },
 );
 defineExpose({ goToLine });
-onBeforeUnmount(() => view?.destroy());
+onBeforeUnmount(() => {
+  view?.scrollDOM.removeEventListener('scroll', reportVisibleLine);
+  view?.destroy();
+});
 </script>
 <template><div ref="mount" class="markdown-editor"></div></template>

@@ -15,6 +15,8 @@ import { api, ApiError, resetCsrf } from '../api';
 import Icon from './Icon.vue';
 import TreeBranch from './TreeBranch.vue';
 import MarkdownEditor from './MarkdownEditor.vue';
+import DocumentOutline from './DocumentOutline.vue';
+import { outlineFromTokens } from '../document-outline';
 import LargeFileWorkspace from './LargeFileWorkspace.vue';
 import IndexStatus from './IndexStatus.vue';
 import SearchRuntimeSettings from './SearchRuntimeSettings.vue';
@@ -1038,28 +1040,50 @@ async function downloadNote() {
 }
 const normalOutline = computed(() => {
   if (!note.value || noteInfo.value?.editorMode !== 'full') return [];
-  const tokens = md.parse(draft.value, {});
-  return tokens
-    .flatMap((token, index) =>
-      token.type === 'heading_open' && token.map
-        ? [
-            {
-              line: token.map[0] + 1,
-              level: Number(token.tag.slice(1)),
-              title: tokens[index + 1]?.content || '章节',
-            },
-          ]
-        : [],
-    )
-    .slice(0, 100);
+  return outlineFromTokens(md.parse(draft.value, {}));
 });
+const articleLine = ref(1);
+const activeHeading = computed(() => {
+  let line: number | undefined;
+  for (const item of normalOutline.value) {
+    if (item.line > articleLine.value) break;
+    line = item.line;
+  }
+  return line ?? normalOutline.value[0]?.line;
+});
+watch(
+  () => note.value?.id,
+  () => {
+    articleLine.value = noteLine.value || 1;
+  },
+);
+function trackPreview(event: Event) {
+  const container = event.currentTarget as HTMLElement;
+  const headings = container.querySelectorAll<HTMLElement>('[data-source-line]');
+  if (
+    container.scrollTop > 0 &&
+    container.scrollHeight - container.clientHeight - container.scrollTop <= 2
+  ) {
+    const last = Array.from(headings).at(-1);
+    if (last) articleLine.value = Number(last.dataset.sourceLine);
+    return;
+  }
+  const top = container.getBoundingClientRect().top + 40;
+  let line = 1;
+  for (const heading of headings) {
+    if (heading.getBoundingClientRect().top > top) break;
+    line = Number(heading.dataset.sourceLine);
+  }
+  articleLine.value = line;
+}
 async function goToHeading(line: number) {
   outlineOpen.value = false;
   noteLine.value = line;
+  articleLine.value = line;
   if (note.value) navigation.commit({ note: note.value.id, line }, true);
   await nextTick();
-  if (mode.value !== 'preview') editorRef.value?.goToLine(line);
-  else
+  if (mode.value !== 'preview') editorRef.value?.goToLine(line, 'start');
+  if (mode.value !== 'edit')
     document
       .querySelector(`.preview-panel [data-source-line="${line}"]`)
       ?.scrollIntoView({ block: 'start' });
@@ -1479,25 +1503,18 @@ onBeforeUnmount(() => {
                 分屏
               </button>
             </div>
-            <APopover
-              v-if="normalOutline.length"
-              v-model:open="outlineOpen"
-              trigger="click"
-              placement="bottomRight"
-            >
-              <template #content
-                ><nav class="normal-outline" aria-label="本文章节">
-                  <button
-                    v-for="item in normalOutline"
-                    :key="item.line"
-                    :style="{ paddingLeft: item.level * 8 + 'px' }"
-                    @click="goToHeading(item.line)"
-                  >
-                    {{ item.title }}
-                  </button>
-                </nav></template
+            <APopover v-model:open="outlineOpen" trigger="click" placement="bottomRight">
+              <template #content>
+                <DocumentOutline
+                  class="outline-popup"
+                  :headings="normalOutline"
+                  :active-line="activeHeading"
+                  @select="goToHeading"
+                />
+              </template>
+              <AButton class="outline-toggle" type="text" size="small" :aria-expanded="outlineOpen"
+                >章节目录</AButton
               >
-              <AButton type="text" size="small" :aria-expanded="outlineOpen">章节目录</AButton>
             </APopover>
             <span role="status" aria-live="polite" :class="['save-state', { dirty }]"
               >● {{ busy ? '保存中' : dirty ? '未保存' : '已保存' }}</span
@@ -1531,24 +1548,43 @@ onBeforeUnmount(() => {
             @restore="localDrafts.restore"
             @discard="run(localDrafts.discard)"
           />
-          <div :class="['editor-panels', mode]">
-            <section v-if="mode !== 'preview'" class="editor-panel">
-              <div class="panel-label">Markdown <span>手动保存 · Ctrl+S</span></div>
-              <MarkdownEditor
-                ref="editorRef"
-                v-model="draft"
-                :read-only="
-                  noteOpening || editorTransfer || draftLoading || draftBusy || !!recoveryDraft
-                "
-                :key="note.id"
-                :initial-line="noteLine || (note.id === initialNoteId ? initialLine : undefined)"
-                :show-line-numbers="showLineNumbers"
+          <div class="document-body">
+            <div class="document-surface">
+              <div :class="['editor-panels', mode]">
+                <section v-if="mode !== 'preview'" class="editor-panel">
+                  <div class="panel-label">Markdown <span>手动保存 · Ctrl+S</span></div>
+                  <MarkdownEditor
+                    ref="editorRef"
+                    v-model="draft"
+                    :read-only="
+                      noteOpening || editorTransfer || draftLoading || draftBusy || !!recoveryDraft
+                    "
+                    :key="note.id"
+                    :initial-line="
+                      noteLine || (note.id === initialNoteId ? initialLine : undefined)
+                    "
+                    :show-line-numbers="showLineNumbers"
+                    @line-change="articleLine = $event"
+                  />
+                </section>
+                <section v-if="mode !== 'edit'" class="preview-panel">
+                  <div class="panel-label">预览 <Icon name="eye" :size="16" /></div>
+                  <div
+                    class="markdown"
+                    v-html="preview"
+                    @click="clickPreview"
+                    @scroll.passive="trackPreview"
+                  ></div>
+                </section>
+              </div>
+            </div>
+            <aside class="document-outline">
+              <DocumentOutline
+                :headings="normalOutline"
+                :active-line="activeHeading"
+                @select="goToHeading"
               />
-            </section>
-            <section v-if="mode !== 'edit'" class="preview-panel">
-              <div class="panel-label">预览 <Icon name="eye" :size="16" /></div>
-              <div class="markdown" v-html="preview" @click="clickPreview"></div>
-            </section>
+            </aside>
           </div>
           <p v-if="draftSavedAt && dirty" class="local-draft-status" role="status">
             本地草稿已暂存 · {{ new Date(draftSavedAt).toLocaleTimeString('zh-CN') }} ·
@@ -1567,15 +1603,17 @@ onBeforeUnmount(() => {
           <Icon name="book" :size="36" />
           <h1>选择一篇笔记</h1>
           <p>从左侧目录打开笔记，或新建笔记开始记录。</p>
-          <AButton
-            type="primary"
-            :loading="quickBusy"
-            :disabled="quickBusy"
-            aria-label="快速记录"
-            @click="quickNote"
-            >快速记录</AButton
-          >
-          <AButton type="text" @click="importOpen = true">导入 Markdown</AButton>
+          <div class="workspace-empty-actions">
+            <AButton
+              type="primary"
+              :loading="quickBusy"
+              :disabled="quickBusy"
+              aria-label="快速记录"
+              @click="quickNote"
+              >快速记录</AButton
+            >
+            <AButton type="text" @click="importOpen = true">导入 Markdown</AButton>
+          </div>
         </div>
       </section>
       <section v-else-if="panel === 'folder' && folder" class="folder-view">

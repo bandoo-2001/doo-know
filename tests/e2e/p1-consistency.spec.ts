@@ -1,3 +1,4 @@
+import { expandFolderPath } from '../support/notebook-tree';
 import { clickNoteAction } from '../support/note-actions';
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
@@ -59,6 +60,7 @@ test('W01 long-line save enters large mode and a saved short note reopens in ful
     .toMatchObject({ editorMode: 'full', readState: 'ready', sizeBytes: 12 });
   if (info.project.name === 'mobile')
     await page.getByRole('button', { name: '打开侧栏', exact: true }).click();
+  await expandFolderPath(page, '00-Inbox');
   await page
     .getByRole('button', { name: '长行直返-' + info.project.name + '.md', exact: true })
     .click();

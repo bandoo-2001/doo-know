@@ -1,3 +1,4 @@
+import { expandFolderPath } from '../support/notebook-tree';
 import { test, expect } from '../support/browser-test';
 import { readFile, writeFile, rm } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -41,6 +42,7 @@ test('keeps navigation reachable and content scrolling inside the window with a 
       await expect(page.locator('.main-content')).toBeVisible();
       await page.getByRole('button', { name: '个人账户', exact: true }).click();
       await page.getByRole('button', { name: '刷新目录', exact: true }).click();
+      await expandFolderPath(page, '00-Inbox');
       const last = page
         .locator('.tree-scroll')
         .getByRole('button', { name: names.at(-1)!, exact: true });

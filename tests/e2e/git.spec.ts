@@ -1,3 +1,4 @@
+import { expandFolderPath } from '../support/notebook-tree';
 import { clickNoteAction } from '../support/note-actions';
 import { test, expect } from '../support/browser-test';
 import { readFile, writeFile } from 'node:fs/promises';
@@ -20,6 +21,7 @@ test('installs Git interactions, initializes, previews all changes and displays 
   await page.getByRole('button', { name: '初始化 Git 仓库（main）', exact: true }).click();
   await expect(page.getByText('当前分支：main', { exact: true })).toBeVisible({ timeout: 10000 });
   if (mobile) await page.getByRole('button', { name: '打开侧栏', exact: true }).click();
+  await expandFolderPath(page, '30-Knowledge/个人知识管理/方法');
   await page.getByRole('button', { name: '入门指南.md', exact: true }).click();
   await page.getByRole('button', { name: '更多操作', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Git 版本', exact: true })).toBeVisible();

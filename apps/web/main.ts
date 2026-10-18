@@ -4,6 +4,7 @@ import { installAntDesign } from './ant-design';
 import './style.css';
 import './calm.css';
 import './ant-design.css';
+import './document.css';
 const app = createApp(App);
 installAntDesign(app);
 app.mount('#app');

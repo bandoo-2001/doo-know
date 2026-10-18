@@ -1,3 +1,4 @@
+import { expandFolderPath } from '../support/notebook-tree';
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
 
@@ -29,6 +30,7 @@ test('tracks the selected note in the URL, restores it on reload and guards brow
   await expect(page.locator('.cm-content')).toBeVisible();
   if (info.project.name === 'mobile')
     await page.getByRole('button', { name: '打开侧栏', exact: true }).click();
+  await expandFolderPath(page, '00-Inbox');
   await page
     .locator('.tree-scroll')
     .getByRole('button', { name: b.relativePath.split('/').at(-1), exact: true })
@@ -175,7 +177,8 @@ test('the ordinary preview chapter menu jumps to its heading without leaving pre
   );
   await page.goto('/?note=' + note.id);
   await page.getByRole('button', { name: '预览', exact: true }).click();
-  await page.getByRole('button', { name: '章节目录', exact: true }).click();
+  const chapterMenu = page.getByRole('button', { name: '章节目录', exact: true });
+  if (await chapterMenu.isVisible()) await chapterMenu.click();
   await page
     .getByRole('navigation', { name: '本文章节', exact: true })
     .getByRole('button', { name: '本周结论', exact: true })

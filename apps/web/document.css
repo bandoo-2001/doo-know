@@ -1,0 +1,236 @@
+/* The document toolbar stays above an independently scrolling article and outline. */
+.main-content {
+  container: document-area / inline-size;
+}
+.note-header {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 24px 0;
+}
+.note-topline {
+  width: 100%;
+  min-height: 44px;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 0;
+  gap: 12px;
+}
+.document-identity {
+  flex: 1 1 140px;
+}
+.note-header .document-title {
+  font-size: 15px;
+}
+.note-header .toolbar {
+  width: auto;
+  max-width: 100%;
+  margin-left: auto;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.note-header .mode-row {
+  width: 100%;
+  min-height: 42px;
+  gap: 12px;
+}
+.note-header .mode-tabs {
+  flex-shrink: 0;
+  gap: 18px;
+}
+.note-header .mode-tabs button {
+  cursor: pointer;
+  font-size: 12px;
+  padding: 10px 2px;
+}
+.note-header .shared-status {
+  margin: 8px 0;
+}
+.document-body {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+.document-surface {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+.document-surface .panel-label {
+  display: none;
+}
+.document-surface .split .panel-label {
+  display: flex;
+  order: 0;
+  height: 32px;
+  border-top: 0;
+  border-bottom: 1px solid var(--border);
+}
+.document-surface .cm-editor {
+  max-width: none;
+}
+.document-surface .cm-content {
+  width: 100%;
+  max-width: 860px;
+  margin-inline: auto;
+  padding: 40px 32px 96px;
+}
+.document-surface .preview-panel > .markdown {
+  padding: 40px max(32px, calc((100% - 796px) / 2)) 96px;
+}
+.document-surface [data-source-line] {
+  scroll-margin-top: 32px;
+}
+.document-outline {
+  display: none;
+  flex: 0 0 216px;
+  min-width: 0;
+  min-height: 0;
+  padding: 32px 20px 20px 16px;
+  border-left: 1px solid #f0f1f4;
+}
+.document-toc {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 0;
+  max-height: 100%;
+  color: var(--muted);
+}
+.document-toc h2 {
+  flex-shrink: 0;
+  margin: 0 0 14px;
+  padding-left: 10px;
+  font-size: 12px;
+  line-height: 1.6;
+  letter-spacing: 0;
+  font-weight: 600;
+  color: #8992a2;
+}
+.document-toc-scroll {
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #d6dae3 transparent;
+  padding-bottom: 56px;
+}
+.outline-branch {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.outline-branch .outline-branch {
+  margin-left: 12px;
+}
+.outline-branch button {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.6;
+  text-align: left;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+.outline-branch > li[data-level='1'] > button {
+  font-weight: 600;
+  color: #46516a;
+}
+.outline-branch button:hover {
+  background: var(--surface);
+  color: var(--blue);
+}
+.outline-branch button.active {
+  background: #f0f3fc;
+  color: var(--blue);
+}
+.outline-branch button.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--blue);
+}
+.outline-empty {
+  margin: 0;
+  padding: 0 10px;
+  font-size: 12px;
+  line-height: 1.8;
+  color: #969eac;
+}
+.outline-popup {
+  width: min(300px, 80vw);
+  max-height: min(440px, 60dvh);
+  padding-block: 4px;
+}
+.outline-popup .document-toc-scroll {
+  padding-bottom: 4px;
+}
+@container document-area (min-width: 820px) {
+  .note-header {
+    display: grid;
+    grid-template-columns: minmax(150px, 1fr) auto auto;
+    align-items: center;
+    gap: 20px;
+    padding: 12px 24px;
+  }
+  .note-topline {
+    display: contents;
+  }
+  .document-identity {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .note-header .toolbar {
+    grid-column: 3;
+    grid-row: 1;
+    flex-wrap: nowrap;
+  }
+  .note-header .mode-row {
+    grid-column: 2;
+    grid-row: 1;
+    gap: 20px;
+    min-height: 36px;
+  }
+  .note-header .mode-tabs button {
+    padding-block: 7px;
+  }
+  .note-header .shared-status {
+    grid-column: 1 / -1;
+    margin: 0;
+  }
+  .document-outline {
+    display: flex;
+  }
+  .note-header .outline-toggle {
+    display: none;
+  }
+}
+@container document-area (max-width: 540px) {
+  .note-header {
+    padding-inline: 16px;
+  }
+  .note-header .shortcut {
+    display: none;
+  }
+  .document-surface .cm-content {
+    padding: 28px 20px 88px;
+  }
+  .document-surface .preview-panel > .markdown {
+    padding: 28px 24px 88px;
+  }
+}
