@@ -50,6 +50,7 @@ onMounted(() => {
         { key: 'Mod-b', run: () => format('bold'), preventDefault: true },
         { key: 'Mod-i', run: () => format('italic'), preventDefault: true },
         { key: 'Mod-k', run: () => format('link'), preventDefault: true },
+        { key: 'Mod-Shift-z', run: () => editHistory('redo'), preventDefault: true },
       ]),
       basicSetup,
       syntaxHighlighting(
