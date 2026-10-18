@@ -109,8 +109,13 @@ onMounted(() => {
           fontSize: '10px',
         },
         '.cm-activeLineGutter': { backgroundColor: '#f5f7fc', color: '#8594b5' },
-        '.cm-activeLine': { backgroundColor: '#f8f9fd' },
-        '.cm-selectionBackground, &.cm-focused .cm-selectionBackground': {
+        // CodeMirror draws selections behind the text. Keep the active line
+        // translucent so it cannot cover the selection on that same line.
+        '.cm-activeLine': { backgroundColor: '#4566c60a' },
+        '.cm-selectionBackground': {
+          backgroundColor: '#dce5fa',
+        },
+        '&.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground': {
           backgroundColor: '#dce5fa',
         },
         '.cm-cursor': { borderLeftColor: '#4566c6', borderLeftWidth: '2px' },
