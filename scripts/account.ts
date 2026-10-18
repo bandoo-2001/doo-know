@@ -1,3 +1,4 @@
+import { collectAccount } from './account-prompt.js';
 import { createInterface } from 'node:readline/promises';
 import { stdin, stdout } from 'node:process';
 import { Writable } from 'node:stream';
@@ -25,11 +26,11 @@ async function password(prompt: string) {
   }
 }
 try {
-  const name =
-    mode === 'init' ? await rl.question('用户名（3–30 个字母、数字、点或下划线）：') : '';
-  const p = await password('密码（至少 12 位，输入不显示）：'),
-    confirm = await password('再次输入密码：');
-  if (p !== confirm) throw new Error('两次密码不同');
+  const { username: name, password: p } = await collectAccount({
+    username: () => rl.question('用户名（3–30 个字母、数字、点或下划线）：'),
+    password,
+    report: message => stdout.write(message + '\n'),
+  }, mode === 'reset');
   if (mode === 'init') await initializeOwner(loadConfig(), name, p);
   else await resetOwnerPassword(loadConfig(), p);
   console.log(mode === 'init' ? '唯一账号已创建。' : '密码已重置，旧会话已全部撤销。');

@@ -1,3 +1,4 @@
+import { collectAccount } from './account-prompt.js';
 import { parseArgs } from 'node:util';
 import { createInterface } from 'node:readline/promises';
 import { Writable } from 'node:stream';
@@ -138,12 +139,11 @@ async function promptAccount(reset = false) {
     }
   };
   try {
-    const username = reset
-      ? ''
-      : await rl.question('初始用户名（3–30 个字母、数字、点或下划线）：');
-    const first = await password('密码（至少12位，输入隐藏）：');
-    if (first !== (await password('再次输入密码：'))) throw new Error('两次密码不同');
-    return { username, password: first };
+    return await collectAccount({
+      username: () => rl.question('初始用户名（3–30 个字母、数字、点或下划线）：'),
+      password,
+      report: message => process.stdout.write(message + '\n'),
+    }, reset);
   } finally {
     rl.close();
   }
