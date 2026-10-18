@@ -1,3 +1,5 @@
+import { withEnvironmentProxy } from './environment-proxy.js';
+import { managementError } from './management-error.js';
 import { collectAccount } from './account-prompt.js';
 import { parseArgs } from 'node:util';
 import { createInterface } from 'node:readline/promises';
@@ -475,7 +477,7 @@ async function main() {
   }
   throw new Error('未知命令：' + command);
 }
-main().catch((e: Error) => {
-  console.error(e.message);
+withEnvironmentProxy(main).catch((e: Error) => {
+  console.error(managementError(e));
   process.exitCode = 1;
 });

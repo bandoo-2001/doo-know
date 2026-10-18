@@ -109,10 +109,67 @@ it('reports revoked or missing access without response bodies and never sends Gi
   expect(await (await artifactFetch(c, new URL('https://artifacts.example/a'))).text()).toBe('generic');
 });
 
-it('pins explicit update versions to their own tag, uses stable latest by default, and rejects ambiguous GitHub URLs', () => {
-  expect(githubUpdateSource('https://github.com/owner/private/releases/download/v1.1.0-rc.3', '1.1.0-rc.4')).toBe('https://github.com/owner/private/releases/download/v1.1.0-rc.4/');
-  expect(githubUpdateSource('https://github.com/owner/private/releases/download/v1.1.0-rc.3')).toBe('https://github.com/owner/private/releases/latest/download/');
+it('pins explicit update versions without querying release metadata and rejects ambiguous GitHub URLs', async () => {
+  expect(await githubUpdateSource('https://github.com/owner/private/releases/download/v1.1.0-rc.3', '1.1.0-rc.4')).toBe('https://github.com/owner/private/releases/download/v1.1.0-rc.4/');
   expect(githubAsset(new URL(url))).toEqual({ repository: 'owner/private', tag: 'v1.1.0-rc.3', asset: 'package.tar.gz' });
   expect(() => githubAsset(new URL(url + '?token=forbidden'))).toThrow();
   expect(() => githubAsset(new URL(url.replace('package.tar.gz', '%2e%2e%2fsecret')))).toThrow();
+});
+
+
+it('selects the highest published version including RCs, ignoring drafts and unrelated tags', async () => {
+  vi.stubGlobal('fetch', async (input: any) => {
+    expect(String(input)).toBe('https://api.github.com/repos/owner/private/releases?per_page=100&page=1');
+    return Response.json([
+      { tag_name: 'v1.0.0', draft: false, prerelease: false },
+      { tag_name: 'v1.1.0-rc.9', draft: false, prerelease: true },
+      { tag_name: 'v1.1.0-rc.12', draft: false, prerelease: true },
+      { tag_name: 'v9.0.0', draft: true, prerelease: false },
+      { tag_name: 'search-runtime-v99', draft: false, prerelease: false },
+    ]);
+  });
+  expect(await githubUpdateSource('https://github.com/owner/private/releases/download/v1.0.0'))
+    .toBe('https://github.com/owner/private/releases/download/v1.1.0-rc.12/');
+});
+
+it('continues paginated discovery and prefers a final version over its RC', async () => {
+  vi.stubGlobal('fetch', async (input: any) => Response.json(String(input).endsWith('page=1')
+    ? Array.from({ length: 100 }, () => ({ tag_name: 'v1.1.0-rc.12', draft: false }))
+    : [{ tag_name: 'v1.1.0', draft: false }]));
+  expect(await githubUpdateSource('https://github.com/owner/private/releases/download/v1.0.0'))
+    .toBe('https://github.com/owner/private/releases/download/v1.1.0/');
+});
+
+it('keeps generic update sources unchanged and reports missing releases clearly', async () => {
+  expect(await githubUpdateSource('file:///controlled/releases')).toBe('file:///controlled/releases');
+  vi.stubGlobal('fetch', async () => Response.json([]));
+  await expect(githubUpdateSource('https://github.com/owner/private/releases/download/v1.0.0'))
+    .rejects.toThrow('GITHUB_NO_PUBLISHED_RELEASE');
+});
+
+it('uses explicit private credentials for discovery but keeps them off public requests', async () => {
+  const c = await config();
+  vi.stubGlobal('fetch', async (_: any, init: RequestInit) => {
+    expect(new Headers(init.headers).get('authorization')).toBe('Bearer fixture_github_012345678901234567890123456789');
+    return Response.json([{ tag_name: 'v1.2.0-rc.1', draft: false }]);
+  });
+  expect(await githubUpdateSource('https://github.com/owner/private/releases/download/v1.0.0', undefined, c))
+    .toBe('https://github.com/owner/private/releases/download/v1.2.0-rc.1/');
+});
+
+it('preserves network causes for safe CLI hints and distinguishes rate limits from missing assets', async () => {
+  vi.stubGlobal('fetch', async () => { throw Object.assign(new Error('private diagnostic'), { code: 'ECONNREFUSED' }); });
+  await expect(artifactFetch({}, new URL(url))).rejects.toMatchObject({
+    message: 'GITHUB_DOWNLOAD_FAILED', cause: { code: 'ECONNREFUSED' },
+  });
+  for (const [status, headers, error] of [
+    [429, {}, 'GITHUB_RATE_LIMITED'],
+    [403, { 'x-ratelimit-remaining': '0' }, 'GITHUB_RATE_LIMITED'],
+    [403, {}, 'GITHUB_ACCESS_DENIED'],
+    [404, {}, 'GITHUB_RELEASE_OR_ASSET_NOT_FOUND'],
+    [503, {}, 'GITHUB_HTTP_503'],
+  ] as const) {
+    vi.stubGlobal('fetch', async () => new Response(null, { status, headers }));
+    await expect(artifactFetch({}, new URL(url))).rejects.toThrow(error);
+  }
 });

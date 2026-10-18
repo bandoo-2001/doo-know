@@ -1,6 +1,7 @@
 import { lstatSync, realpathSync } from 'node:fs';
 import { resolve, sep } from 'node:path';
 import { privateFile } from '../../../packages/core/agent/config.js';
+import { valid, gt } from 'semver';
 
 export interface DistributionCredential { repository: string; tokenFile?: string }
 type Configuration = { distribution?: DistributionCredential };
@@ -22,11 +23,31 @@ export function githubAsset(url: URL) {
   if (!match || !repositoryPattern.test(match[1]) || (match[2] && !part.test(match[2])) || !part.test(match[3])) throw Error('INVALID_GITHUB_ASSET_URL');
   return { repository: match[1], tag: match[2] || 'latest', asset: match[3] };
 }
-export function githubUpdateSource(source: string, version?: string) {
+export async function githubUpdateSource(source: string, version?: string, config: Configuration = {}) {
   const asset = githubAsset(new URL(source.replace(/\/$/, '') + '/release.json'));
   if (!asset) return source;
   if (version && !/^[0-9][a-zA-Z0-9.+-]{0,79}$/.test(version)) throw Error('INVALID_RELEASE_VERSION');
-  return `https://github.com/${asset.repository}/releases/${version ? 'download/v' + version : 'latest/download'}/`;
+  if (config.distribution && config.distribution.repository.toLowerCase() !== asset.repository.toLowerCase())
+    throw Error('GITHUB_REPOSITORY_MISMATCH');
+  if (!version) {
+    const headers: Record<string, string> = { 'user-agent': 'DooKnow', accept: 'application/vnd.github+json' };
+    if (config.distribution?.tokenFile) headers.authorization = 'Bearer ' + credential(config, asset.repository);
+    const signal = AbortSignal.timeout(60000);
+    for (let page = 1; page <= 16; page++) {
+      const releases = await json(await request(`https://api.github.com/repos/${asset.repository}/releases?per_page=100&page=${page}`, headers, signal));
+      if (!Array.isArray(releases) || releases.length > 100) throw Error('INVALID_GITHUB_METADATA');
+      for (const release of releases) {
+        const tag = release?.tag_name;
+        if (release?.draft !== false || typeof tag !== 'string' || !/^v[0-9][a-zA-Z0-9.+-]{0,79}$/.test(tag)) continue;
+        const candidate = tag.slice(1);
+        if (valid(candidate) && (!version || gt(candidate, version))) version = candidate;
+      }
+      if (releases.length < 100) break;
+      if (page === 16) throw Error('GITHUB_TOO_MANY_RELEASES');
+    }
+    if (!version) throw Error('GITHUB_NO_PUBLISHED_RELEASE');
+  }
+  return `https://github.com/${asset.repository}/releases/download/v${version}/`;
 }
 function credential(config: Configuration, repository: string) {
   const c = config.distribution;
@@ -41,13 +62,14 @@ function credential(config: Configuration, repository: string) {
 }
 async function request(url: string | URL, headers: Record<string, string>, signal: AbortSignal) {
   try { return await fetch(url, { headers, signal, redirect: 'manual' }); }
-  catch { signal.throwIfAborted(); throw Error('GITHUB_DOWNLOAD_FAILED'); }
+  catch (cause) { signal.throwIfAborted(); throw Error('GITHUB_DOWNLOAD_FAILED', { cause }); }
 }
 function check(response: Response) {
   if (response.status === 401) throw Error('GITHUB_AUTHENTICATION_FAILED');
+  if (response.status === 429 || (response.status === 403 && (response.headers.get('x-ratelimit-remaining') === '0' || response.headers.has('retry-after')))) throw Error('GITHUB_RATE_LIMITED');
   if (response.status === 403) throw Error('GITHUB_ACCESS_DENIED');
   if (response.status === 404) throw Error('GITHUB_RELEASE_OR_ASSET_NOT_FOUND');
-  if (!response.ok) throw Error('GITHUB_DOWNLOAD_FAILED');
+  if (!response.ok) throw Error('GITHUB_HTTP_' + response.status);
 }
 async function json(response: Response): Promise<any> {
   check(response);

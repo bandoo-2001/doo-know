@@ -338,7 +338,7 @@ export async function updatePlatform(
     const root = resolve(config.installRoot!),
       current = await realpath(join(root, 'current')),
       old = releaseInfo(current),
-      source = sourceURL(githubUpdateSource(options.source || old.source || '', options.version));
+      source = sourceURL(await githubUpdateSource(options.source || old.source || '', options.version, config));
     if (options.version && !/^[0-9][a-zA-Z0-9.+-]{0,79}$/.test(options.version))
       throw Error('发行版本不正确');
     const work = await mkdtemp(join(root, '.update-'));

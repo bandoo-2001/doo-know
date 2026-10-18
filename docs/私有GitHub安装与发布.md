@@ -16,7 +16,7 @@ curl -fsSL 'https://raw.githubusercontent.com/bandoo-2001/doo-know/txj/doo-know-
 wget -qO- 'https://raw.githubusercontent.com/bandoo-2001/doo-know/txj/doo-know-platform/deploy/github-install.sh' | bash
 ```
 
-入口固定到1.1.0-rc.8。安装器包含Node及生产依赖，无需现场npm编译、Docker或sudo；需要可用的systemd用户会话。初始用户名、隐藏密码在终端输入，登录Web后自己选择服务器知识库目录，再配置插件与检索。
+入口固定到1.1.0-rc.12。安装器包含Node及生产依赖，无需现场npm编译、Docker或sudo；需要可用的systemd用户会话。初始用户名、隐藏密码在终端输入，登录Web后自己选择服务器知识库目录，再配置插件与检索。
 
 Mini主机若继续使用原域名，可直接执行：
 
@@ -28,27 +28,28 @@ curl -fsSL 'https://raw.githubusercontent.com/bandoo-2001/doo-know/txj/doo-know-
 
 ## 升级与下载
 
-公开下载直接读取GitHub Release附件，不依赖匿名REST API的元数据查询配额，也不读取旧的本地下载Token。已安装版本、包与检索模型继续逐项校验。RC升级显式指定版本：
+执行 `dooknow update` 默认查询 GitHub 已发布版本，按版本号选取最新版本，包含 RC、排除草稿；自动发现使用 GitHub API，若触发限流会提示稍后重试。指定版本可跳过版本发现。公开安装包下载直接读取 Release 附件，不读取旧的本地下载 Token，仍逐项校验版本与 SHA-256：
 
 ```bash
-dooknow update --version 1.1.0-rc.8
+dooknow update
+# 如需指定版本
+dooknow update --version 1.1.0-rc.12
 ```
 
 旧安装重新运行公开入口会将分发配置切为匿名模式。需要继续使用私有分发时，安装前显式设置下方凭据文件环境变量。GitHub下载授权与MCP的OAuth/Tunnel授权相互独立。
 
 ## 需要网络代理时
 
-curl/wget 沿用当前代理环境。后台插件和检索下载使用包内 Node 22.22.1；需要代理的网络须为该进程设置 `NODE_OPTIONS=--use-env-proxy`，并提供现有 `HTTPS_PROXY` / `HTTP_PROXY`，`NO_PROXY` 应包含 `127.0.0.1,localhost,::1`。普通直连网络无需设置。
+curl/wget 沿用当前代理环境。从 rc.12 起，`dooknow` 管理命令和通过 `serve` 启动的后台下载会自动使用已有 `HTTPS_PROXY` / `HTTP_PROXY`（也支持小写形式），无需设置 `NODE_OPTIONS`。`NO_PROXY` 应包含 `127.0.0.1,localhost,::1`，本机请求会绕过代理。普通直连网络无需设置。不会自动扫描端口或改动系统代理。
 
 systemd 用户服务不会自动继承安装终端的环境。可在 `~/.config/systemd/user/doo-know.service.d/proxy.conf` 为本服务单独配置：
 
 ```ini
 [Service]
-Environment=NODE_OPTIONS=--use-env-proxy
 EnvironmentFile=%h/.config/doo-know/proxy.env
 ```
 
-在上述 `proxy.env` 中填写实际代理环境，文件权限设为 600；代理若含认证，不写进仓库或 unit。更新配置后执行 `systemctl --user daemon-reload` 和 `dooknow restart`。显式选择前台模式时，可用 `NODE_OPTIONS=--use-env-proxy dooknow serve`。本次私有检索包的下载与准备验收使用了这一网络配置；没有修改主机全局代理。
+在上述 `proxy.env` 中填写实际代理环境，文件权限设为 600；代理若含认证，不写进仓库或 unit。更新配置后执行 `systemctl --user daemon-reload` 和 `dooknow restart`。显式选择前台模式时，设置代理环境后直接运行 `dooknow serve`。本次私有检索包的下载与准备验收使用了这一网络配置；没有修改主机全局代理。
 
 ## 可选：私有分发凭据
 
