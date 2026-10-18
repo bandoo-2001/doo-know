@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
-import { NButton, NInput, NModal, NAlert, NSelect } from 'naive-ui';
+import { NInput, NModal, NAlert, NSelect } from 'naive-ui';
+import { Button as AButton, Input as AInput, Alert as AAlert } from 'ant-design-vue';
 import MarkdownIt from 'markdown-it';
 import DOMPurify from 'dompurify';
 import type { NoteDocument, TreeEntry } from '../../../shared/contracts';
@@ -59,7 +60,11 @@ const tree = ref<TreeEntry[]>([]),
   busy = ref(false),
   error = ref(''),
   notice = ref('');
+const dialogError = ref('');
 const query = ref(''),
+  searchBusy = ref(false),
+  searchError = ref(''),
+  searchWaiting = ref(false),
   searchCursor = ref<string>(),
   results = ref<any[]>([]),
   assets = ref<any[]>([]);
@@ -142,12 +147,27 @@ function tell(s: string) {
   clearTimeout(noticeTimer);
   noticeTimer = setTimeout(() => (notice.value = ''), 4000);
 }
+function showError(cause: unknown) {
+  const message = cause instanceof Error ? cause.message : String(cause);
+  if (
+    createOpen.value ||
+    shareOpen.value ||
+    restoreTarget.value ||
+    deleteOpen.value ||
+    revisionsOpen.value ||
+    leaveOpen.value ||
+    conflict.value
+  )
+    dialogError.value = message;
+  else error.value = message;
+}
 async function run(fn: () => Promise<void>) {
   error.value = '';
+  dialogError.value = '';
   try {
     await fn();
-  } catch (e) {
-    error.value = (e as Error).message;
+  } catch (cause) {
+    showError(cause);
   }
 }
 async function refresh() {
@@ -332,6 +352,7 @@ async function save(expected?: string, content?: string, revisionId?: string) {
   }
   busy.value = true;
   error.value = '';
+  dialogError.value = '';
   const target = note.value,
     epoch = viewEpoch;
   const text = content ?? draft.value;
@@ -422,7 +443,7 @@ async function save(expected?: string, content?: string, revisionId?: string) {
         content: text,
         revisionId,
       };
-    else error.value = (e as Error).message;
+    else showError(e);
   } finally {
     busy.value = false;
   }
@@ -450,38 +471,52 @@ async function viewLatest() {
     latestOpen.value = true;
   });
 }
+const shareBusy = ref(false);
 const shareOpen = ref(false),
   share = ref<{ enabled: boolean; token?: string; url?: string }>({ enabled: false });
 const shareUrl = computed(() =>
   share.value.url ? new URL(share.value.url, location.origin).href : '',
 );
 async function manageShare() {
-  const id = note.value!.id,
-    epoch = viewEpoch;
-  await run(async () => {
-    const response = await api(`/api/notes/${id}/share`);
-    if (!currentView(id, epoch)) return;
-    share.value = response;
-    shareOpen.value = true;
-  });
+  if (shareBusy.value) return;
+  shareBusy.value = true;
+  dialogError.value = '';
+  try {
+    const id = note.value!.id,
+      epoch = viewEpoch;
+    await run(async () => {
+      const response = await api(`/api/notes/${id}/share`);
+      if (!currentView(id, epoch)) return;
+      share.value = response;
+      shareOpen.value = true;
+    });
+  } finally {
+    shareBusy.value = false;
+  }
 }
 async function shareAction(action: 'create' | 'reset' | 'revoke') {
-  const id = note.value!.id,
-    epoch = viewEpoch;
-  await run(async () => {
-    const base = `/api/notes/${id}/share`;
-    const response = await api(
-      base + (action === 'reset' ? '/reset' : ''),
-      action === 'revoke' ? 'DELETE' : 'POST',
-      action === 'revoke' ? undefined : {},
-    );
-    if (!currentView(id, epoch)) return;
-    share.value = response;
-    note.value!.shared = share.value.enabled;
-    tell(
-      action === 'revoke' ? '分享已取消' : action === 'reset' ? '旧链接已失效' : '分享链接已生成',
-    );
-  });
+  if (shareBusy.value) return;
+  shareBusy.value = true;
+  try {
+    const id = note.value!.id,
+      epoch = viewEpoch;
+    await run(async () => {
+      const base = `/api/notes/${id}/share`;
+      const response = await api(
+        base + (action === 'reset' ? '/reset' : ''),
+        action === 'revoke' ? 'DELETE' : 'POST',
+        action === 'revoke' ? undefined : {},
+      );
+      if (!currentView(id, epoch)) return;
+      share.value = response;
+      note.value!.shared = share.value.enabled;
+      tell(
+        action === 'revoke' ? '分享已取消' : action === 'reset' ? '旧链接已失效' : '分享链接已生成',
+      );
+    });
+  } finally {
+    shareBusy.value = false;
+  }
 }
 async function copyShare() {
   await run(async () => {
@@ -489,12 +524,14 @@ async function copyShare() {
     tell('链接已复制');
   });
 }
+const createBusy = ref(false);
 const createOpen = ref(false),
   createKind = ref<'note' | 'folder'>('note'),
   newName = ref(''),
   newFolder = ref('');
 let createRequestId = crypto.randomUUID();
 function create(kind: 'note' | 'folder') {
+  dialogError.value = '';
   createRequestId = crypto.randomUUID();
   createKind.value = kind;
   newFolder.value =
@@ -503,39 +540,45 @@ function create(kind: 'note' | 'folder') {
   createOpen.value = true;
 }
 async function submitCreate() {
-  await run(async () => {
-    if (createKind.value === 'folder') {
-      await api('/api/folders', 'POST', { parent: newFolder.value, name: newName.value });
-      await refresh();
-      createOpen.value = false;
-      tell('文件夹已创建');
-    } else {
-      await guard(async () => {
-        const name = newName.value.endsWith('.md') ? newName.value : newName.value + '.md';
-        const epoch = viewEpoch;
-        let n: NoteDocument;
-        try {
-          n = await api<NoteDocument>('/api/notes', 'POST', {
-            folderPath: newFolder.value,
-            fileName: name,
-            content: `# ${newName.value.replace(/\.md$/, '')}\n\n`,
-            requestId: createRequestId,
-          });
-        } catch (e) {
-          if (e instanceof ApiError && e.status >= 400 && e.status < 500)
-            createRequestId = crypto.randomUUID();
-          throw e;
-        }
-        createOpen.value = false;
+  if (createBusy.value || !newName.value.trim()) return;
+  createBusy.value = true;
+  try {
+    await run(async () => {
+      if (createKind.value === 'folder') {
+        await api('/api/folders', 'POST', { parent: newFolder.value, name: newName.value });
         await refresh();
-        if (epoch !== viewEpoch) {
-          tell('笔记已创建，可在目录中打开');
-          return;
-        }
-        await openNote(n.id);
-      });
-    }
-  });
+        createOpen.value = false;
+        tell('文件夹已创建');
+      } else {
+        await guard(async () => {
+          const name = newName.value.endsWith('.md') ? newName.value : newName.value + '.md';
+          const epoch = viewEpoch;
+          let n: NoteDocument;
+          try {
+            n = await api<NoteDocument>('/api/notes', 'POST', {
+              folderPath: newFolder.value,
+              fileName: name,
+              content: `# ${newName.value.replace(/\.md$/, '')}\n\n`,
+              requestId: createRequestId,
+            });
+          } catch (e) {
+            if (e instanceof ApiError && e.status >= 400 && e.status < 500)
+              createRequestId = crypto.randomUUID();
+            throw e;
+          }
+          createOpen.value = false;
+          await refresh();
+          if (epoch !== viewEpoch) {
+            tell('笔记已创建，可在目录中打开');
+            return;
+          }
+          await openNote(n.id);
+        });
+      }
+    });
+  } finally {
+    createBusy.value = false;
+  }
 }
 const panel = ref<'empty' | 'folder' | 'note' | 'trash' | 'settings'>('empty'),
   revisionsOpen = ref(false),
@@ -560,7 +603,7 @@ async function history(more = false) {
 async function restoreRevision(r: any) {
   await guard(async () => {
     await save(note.value!.modifiedAt, r.content, r.id);
-    if (!conflict.value) revisionsOpen.value = false;
+    if (!conflict.value && !dialogError.value && !error.value) revisionsOpen.value = false;
   });
 }
 async function readRevision(r: any) {
@@ -582,16 +625,22 @@ async function readRevision(r: any) {
     r.cursor = reply.data.nextCursor;
   }
 }
+const trashLoading = ref(false),
+  restoringId = ref<string>();
 async function openTrash() {
   await run(() =>
     guard(async () => {
       const epoch = ++viewEpoch;
-      const response = await api('/api/trash');
-      if (epoch !== viewEpoch) return;
-      trash.value = response;
       panel.value = 'trash';
       note.value = undefined;
       drawer.value = false;
+      trashLoading.value = true;
+      try {
+        const response = await api('/api/trash');
+        if (epoch === viewEpoch) trash.value = response;
+      } finally {
+        if (epoch === viewEpoch) trashLoading.value = false;
+      }
     }),
   );
 }
@@ -659,29 +708,37 @@ const restoreTarget = ref<any>(),
   restoreName = ref('');
 const pendingRestore = new Map<string, { requestId: string; fileName?: string }>();
 async function restoreTrash(item: any, fileName?: string) {
-  await run(async () => {
-    try {
-      let input = pendingRestore.get(item.id);
-      if (!input || input.fileName !== fileName) {
-        input = { requestId: crypto.randomUUID(), ...(fileName ? { fileName } : {}) };
-        pendingRestore.set(item.id, input);
-      }
-      await api(`/api/notes/${item.id}/restore`, 'POST', input);
-      pendingRestore.delete(item.id);
-      restoreTarget.value = undefined;
-      trash.value = await api('/api/trash');
-      await refresh();
-      tell('已恢复，笔记保持私有');
-    } catch (e) {
-      if (e instanceof ApiError && e.data.code === 'NAME_CONFLICT') {
+  if (restoringId.value || (fileName !== undefined && !fileName.trim())) return;
+  restoringId.value = item.id;
+  try {
+    await run(async () => {
+      try {
+        let input = pendingRestore.get(item.id);
+        if (!input || input.fileName !== fileName) {
+          input = { requestId: crypto.randomUUID(), ...(fileName ? { fileName } : {}) };
+          pendingRestore.set(item.id, input);
+        }
+        await api(`/api/notes/${item.id}/restore`, 'POST', input);
         pendingRestore.delete(item.id);
-        restoreTarget.value = item;
-        restoreName.value = '';
-      } else throw e;
-    }
-  });
+        restoreTarget.value = undefined;
+        trash.value = await api('/api/trash');
+        await refresh();
+        tell('已恢复，笔记保持私有');
+      } catch (e) {
+        if (e instanceof ApiError && e.data.code === 'NAME_CONFLICT') {
+          pendingRestore.delete(item.id);
+          restoreTarget.value = item;
+          restoreName.value = '';
+        } else throw e;
+      }
+    });
+  } finally {
+    restoringId.value = undefined;
+  }
 }
+const activeSetting = ref<'account' | 'search' | 'plugins'>('account');
 function scrollSetting(section: 'account' | 'search' | 'plugins') {
+  activeSetting.value = section;
   document.getElementById(section + '-settings')?.scrollIntoView({ block: 'start' });
 }
 async function settings(section?: 'account' | 'search' | 'plugins') {
@@ -691,7 +748,7 @@ async function settings(section?: 'account' | 'search' | 'plugins') {
     note.value = undefined;
     drawer.value = false;
     await nextTick();
-    if (section) scrollSetting(section);
+    scrollSetting(section || 'account');
   });
 }
 const currentPassword = ref(''),
@@ -758,7 +815,12 @@ function clickPreview(event: MouseEvent) {
     void run(() => openNote(a.getAttribute('href')!.slice(6)));
   }
 }
-async function searchPage(q: string, cursor?: string): Promise<SearchOutput | undefined> {
+let searchEpoch = 0;
+async function searchPage(
+  q: string,
+  cursor?: string,
+  epoch = searchEpoch,
+): Promise<SearchOutput | undefined> {
   let response: SearchOutput;
   try {
     response = await api<SearchOutput>('/api/search/advanced', 'POST', {
@@ -773,11 +835,11 @@ async function searchPage(q: string, cursor?: string): Promise<SearchOutput | un
       (e.data.code === 'CURSOR_EXPIRED' || (e.data.error as any)?.code === 'CURSOR_EXPIRED')
     ) {
       tell('索引已更新，搜索结果已重新加载');
-      return searchPage(q);
+      return searchPage(q, undefined, epoch);
     }
     throw e;
   }
-  if (query.value !== q) return;
+  if (query.value !== q || epoch !== searchEpoch) return;
   const items = response.results.map((r) => ({
     id: r.noteId,
     title: r.title,
@@ -788,28 +850,54 @@ async function searchPage(q: string, cursor?: string): Promise<SearchOutput | un
   searchCursor.value = response.nextCursor;
   return response;
 }
-watch(query, (q) => {
+function beginSearch(q: string) {
   clearTimeout(searchTimer);
+  const epoch = ++searchEpoch;
   searchCursor.value = undefined;
   results.value = [];
-  if (!q.trim()) {
-    results.value = [];
-    return;
-  }
+  searchError.value = '';
+  searchBusy.value = !!q.trim();
+  searchWaiting.value = false;
+  if (!q.trim()) return;
   let attempts = 0;
-  const search = () =>
-    void run(async () => {
-      const response = await searchPage(q);
-      if (
+  const search = async () => {
+    if (epoch !== searchEpoch) return;
+    searchBusy.value = true;
+    try {
+      const response = await searchPage(q, undefined, epoch);
+      if (epoch !== searchEpoch) return;
+      searchWaiting.value = !!(
         response &&
         !results.value.length &&
         ++attempts < 15 &&
         (response.index.pending || attempts < 3)
-      )
-        searchTimer = setTimeout(search, 1000);
-    });
-  searchTimer = setTimeout(search, 220);
-});
+      );
+      if (searchWaiting.value) searchTimer = setTimeout(() => void search(), 1000);
+    } catch (e) {
+      if (epoch === searchEpoch) {
+        searchError.value = (e as Error).message;
+        searchWaiting.value = false;
+      }
+    } finally {
+      if (epoch === searchEpoch) searchBusy.value = false;
+    }
+  };
+  searchTimer = setTimeout(() => void search(), 220);
+}
+async function moreSearch() {
+  if (searchBusy.value || !searchCursor.value) return;
+  const epoch = searchEpoch;
+  searchBusy.value = true;
+  searchError.value = '';
+  try {
+    await searchPage(query.value, searchCursor.value, epoch);
+  } catch (e) {
+    if (epoch === searchEpoch) searchError.value = (e as Error).message;
+  } finally {
+    if (epoch === searchEpoch) searchBusy.value = false;
+  }
+}
+watch(query, beginSearch);
 function shortcut(e: KeyboardEvent) {
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
     e.preventDefault();
@@ -868,20 +956,15 @@ onBeforeUnmount(() => {
         </button>
       </div>
       <div class="sidebar-actions">
-        <NInput
+        <AInput
           v-model:value="query"
-          clearable
+          allow-clear
           placeholder="搜索笔记与目录"
           aria-label="搜索笔记与目录"
-          ><template #prefix><Icon name="search" :size="17" /></template></NInput
-        ><NButton
-          type="primary"
-          square
-          aria-label="新建笔记"
-          title="新建笔记"
-          @click="create('note')"
+          ><template #prefix><Icon name="search" :size="17" /></template></AInput
+        ><AButton type="primary" aria-label="新建笔记" title="新建笔记" @click="create('note')"
           ><template #icon><Icon name="plus" /></template
-        ></NButton>
+        ></AButton>
       </div>
       <div class="tree-heading">
         <span>{{ query ? '搜索结果' : '笔记本' }}</span
@@ -904,17 +987,33 @@ onBeforeUnmount(() => {
             ><span>{{ r.snippet }}</span>
           </button>
           <p v-if="results.length" class="muted">已显示 {{ results.length }} 篇</p>
-          <NButton
-            v-if="searchCursor"
-            :loading="busy"
-            @click="
-              run(async () => {
-                await searchPage(query, searchCursor);
-              })
-            "
-            >加载更多搜索结果</NButton
+          <p
+            v-if="searchBusy || searchWaiting"
+            class="search-feedback"
+            role="status"
+            aria-live="polite"
           >
-          <p v-if="!results.length" class="muted empty-search">没有匹配的笔记</p></template
+            {{ searchBusy ? '正在搜索…' : '搜索索引正在更新，请稍候…' }}
+          </p>
+          <div v-if="searchError" class="search-feedback">
+            <AAlert type="error" :message="searchError" role="alert" />
+            <AButton size="small" @click="searchCursor ? moreSearch() : beginSearch(query)"
+              >重试搜索</AButton
+            >
+          </div>
+          <AButton
+            v-if="searchCursor && !searchError"
+            :loading="searchBusy"
+            :disabled="searchBusy"
+            @click="moreSearch"
+            >加载更多搜索结果</AButton
+          >
+          <p
+            v-if="!results.length && !searchBusy && !searchWaiting && !searchError"
+            class="muted empty-search"
+          >
+            没有匹配的笔记
+          </p></template
         ><TreeBranch v-else :entries="tree" :selected="selected" @select="select" />
       </div>
       <div
@@ -984,22 +1083,22 @@ onBeforeUnmount(() => {
               }}</span>
             </div>
             <div class="toolbar">
-              <NButton v-if="pendingSave?.noteId === note.id" @click="run(checkSave)"
-                >核对保存结果</NButton
+              <AButton v-if="pendingSave?.noteId === note.id" @click="run(checkSave)"
+                >核对保存结果</AButton
               >
-              <NButton v-if="pendingDelete && !deleteOpen" @click="run(checkDelete)"
-                >核对删除结果</NButton
+              <AButton v-if="pendingDelete && !deleteOpen" @click="run(checkDelete)"
+                >核对删除结果</AButton
               >
-              <NButton @click="manageShare"
-                ><template #icon><Icon name="share" /></template>分享</NButton
-              ><NButton
+              <AButton :loading="shareBusy" :disabled="shareBusy" @click="manageShare"
+                ><template #icon><Icon name="share" /></template>分享</AButton
+              ><AButton
                 v-if="noteInfo?.editorMode === 'full'"
                 type="primary"
                 :loading="busy"
                 :disabled="busy || (!dirty && pendingSave?.noteId !== note.id)"
                 @click="save()"
                 ><template #icon><Icon name="save" /></template>保存
-                <span class="shortcut">Ctrl+S</span></NButton
+                <span class="shortcut">Ctrl+S</span></AButton
               >
               <NoteActions
                 :key="note.id"
@@ -1088,8 +1187,8 @@ onBeforeUnmount(() => {
             <span
               >{{ folderEntries.filter((x) => x.type === 'folder').length }} 个文件夹 ·
               {{ folderEntries.filter((x) => x.type === 'note').length }} 篇笔记</span
-            ><NButton @click="create('folder')"
-              ><template #icon><Icon name="plus" /></template>新建文件夹</NButton
+            ><AButton @click="create('folder')"
+              ><template #icon><Icon name="plus" /></template>新建文件夹</AButton
             >
           </div>
         </header>
@@ -1128,19 +1227,25 @@ onBeforeUnmount(() => {
           <p>
             {{ folderEntries.length ? '选择文件即可打开编辑' : '这里还没有笔记，记录第一个想法吧' }}
           </p>
-          <NButton v-if="!folderEntries.length" type="primary" @click="create('note')"
-            >新建笔记</NButton
+          <AButton v-if="!folderEntries.length" type="primary" @click="create('note')"
+            >新建笔记</AButton
           >
         </div>
       </section>
       <section v-else-if="panel === 'trash'" class="utility-view">
         <h1>回收站</h1>
         <p class="muted">恢复后笔记保持私有；原位置被占用时，不会覆盖已有文件。</p>
-        <div v-for="item in trash" :key="item.id" class="utility-row">
+        <p v-if="trashLoading" class="panel-loading" role="status">正在读取回收站…</p>
+        <div v-for="item in trashLoading ? [] : trash" :key="item.id" class="utility-row">
           <Icon name="file" /><span>{{ item.relativePath }}</span
-          ><NButton @click="restoreTrash(item)">恢复</NButton>
+          ><AButton
+            :loading="restoringId === item.id"
+            :disabled="!!restoringId"
+            @click="restoreTrash(item)"
+            >恢复</AButton
+          >
         </div>
-        <div v-if="!trash.length" class="utility-empty">
+        <div v-if="!trashLoading && !trash.length" class="utility-empty">
           <Icon name="trash" :size="36" />
           <h2>回收站为空</h2>
           <p>删除的笔记会出现在这里，需要时可以恢复。</p>
@@ -1153,9 +1258,24 @@ onBeforeUnmount(() => {
           <p class="muted">管理你的账户、内容搜索和扩展功能。</p>
         </header>
         <nav class="settings-nav" aria-label="设置分类">
-          <NButton quaternary @click="scrollSetting('account')">账户安全</NButton>
-          <NButton quaternary @click="scrollSetting('search')">内容搜索</NButton>
-          <NButton quaternary @click="scrollSetting('plugins')">扩展插件</NButton>
+          <AButton
+            type="text"
+            :aria-current="activeSetting === 'account' ? 'location' : undefined"
+            @click="scrollSetting('account')"
+            >账户安全</AButton
+          >
+          <AButton
+            type="text"
+            :aria-current="activeSetting === 'search' ? 'location' : undefined"
+            @click="scrollSetting('search')"
+            >内容搜索</AButton
+          >
+          <AButton
+            type="text"
+            :aria-current="activeSetting === 'plugins' ? 'location' : undefined"
+            @click="scrollSetting('plugins')"
+            >扩展插件</AButton
+          >
         </nav>
         <section id="account-settings" class="account-settings" aria-label="账户安全">
           <h2>修改密码</h2>
@@ -1181,17 +1301,17 @@ onBeforeUnmount(() => {
                 :input-props="{ id: 'new-password', 'aria-label': '新密码' }"
               />
             </div>
-            <NButton
+            <AButton
               type="primary"
-              attr-type="submit"
+              html-type="submit"
               :loading="passwordBusy"
               :disabled="passwordBusy || !currentPassword || !newPassword"
-              >修改密码</NButton
+              >修改密码</AButton
             >
           </form>
           <p v-if="passwordNotice" role="status" class="form-success">{{ passwordNotice }}</p>
           <div class="settings-signout">
-            <NButton quaternary type="error" @click="logout">退出登录</NButton
+            <AButton danger type="text" @click="logout">退出登录</AButton
             ><span>结束当前设备的登录会话。</span>
           </div>
         </section>
@@ -1211,7 +1331,8 @@ onBeforeUnmount(() => {
       title="原文件已更新"
       :mask-closable="false"
       :on-close="() => (conflict = undefined)"
-      ><template v-if="conflict"
+      ><AAlert v-if="dialogError" type="error" :message="dialogError" role="alert" /><template
+        v-if="conflict"
         ><p>这篇笔记在其他地方被修改，是否覆盖最新版本？</p>
         <div class="version-box">
           <div>
@@ -1223,9 +1344,9 @@ onBeforeUnmount(() => {
         </div>
         <p class="muted">取消后会保留当前编辑内容。</p>
         <div class="dialog-actions">
-          <NButton @click="conflict = undefined">取消</NButton
-          ><NButton @click="viewLatest">查看最新版本</NButton
-          ><NButton type="warning" :loading="busy" @click="confirmConflict">确定覆盖</NButton>
+          <AButton @click="conflict = undefined">取消</AButton
+          ><AButton @click="viewLatest">查看最新版本</AButton
+          ><AButton danger :loading="busy" @click="confirmConflict">确定覆盖</AButton>
         </div></template
       ></NModal
     >
@@ -1233,17 +1354,18 @@ onBeforeUnmount(() => {
       <pre class="latest-source">{{ latest }}</pre>
     </NModal>
     <NModal v-model:show="shareOpen" preset="card" class="dialog-card share-dialog" title="分享笔记"
-      ><h3>
+      ><AAlert v-if="dialogError" type="error" :message="dialogError" role="alert" />
+      <h3>
         {{ note?.title }}
         <span class="share-badge">{{ share.enabled ? '分享已开启' : '私人笔记' }}</span>
       </h3>
       <template v-if="share.enabled"
         ><label>公开链接</label>
         <div class="share-link">
-          <NInput :value="shareUrl" readonly :input-props="{ 'aria-label': '公开链接' }" /><NButton
+          <AInput :value="shareUrl" readonly aria-label="公开链接" /><AButton
             type="primary"
             @click="copyShare"
-            >复制链接</NButton
+            >复制链接</AButton
           >
         </div>
         <p class="muted">任何获得链接的人都可以查看这篇笔记。</p></template
@@ -1258,12 +1380,20 @@ onBeforeUnmount(() => {
       </div>
       <div class="dialog-actions">
         <template v-if="share.enabled"
-          ><NButton @click="shareAction('reset')">重置链接</NButton
-          ><NButton type="error" quaternary @click="shareAction('revoke')"
-            >取消分享</NButton
+          ><AButton :loading="shareBusy" :disabled="shareBusy" @click="shareAction('reset')"
+            >重置链接</AButton
+          ><AButton danger type="text" :disabled="shareBusy" @click="shareAction('revoke')"
+            >取消分享</AButton
           ></template
-        ><NButton v-else type="primary" @click="shareAction('create')">生成分享链接</NButton
-        ><NButton @click="shareOpen = false">完成</NButton>
+        ><AButton
+          v-else
+          type="primary"
+          :loading="shareBusy"
+          :disabled="shareBusy"
+          aria-label="生成分享链接"
+          @click="shareAction('create')"
+          >生成分享链接</AButton
+        ><AButton @click="shareOpen = false">完成</AButton>
       </div></NModal
     >
     <NModal
@@ -1272,13 +1402,20 @@ onBeforeUnmount(() => {
       class="dialog-card"
       :title="createKind === 'note' ? '新建笔记' : '新建文件夹'"
       ><form @submit.prevent="submitCreate">
+        <AAlert v-if="dialogError" type="error" :message="dialogError" role="alert" />
         <label>所在目录</label
-        ><NSelect v-model:value="newFolder" :options="folders" filterable /><label>{{
-          createKind === 'note' ? '文件名' : '文件夹名'
-        }}</label
-        ><NInput
+        ><NSelect
+          v-model:value="newFolder"
+          :options="folders"
+          filterable
+          aria-label="所在目录"
+          :disabled="createBusy"
+        /><label>{{ createKind === 'note' ? '文件名' : '文件夹名' }}</label
+        ><AInput
           v-model:value="newName"
-          :input-props="{ 'aria-label': createKind === 'note' ? '文件名' : '文件夹名' }"
+          :disabled="createBusy"
+          autofocus
+          :aria-label="createKind === 'note' ? '文件名' : '文件夹名'"
           :placeholder="createKind === 'note' ? '例如：新的想法.md' : '例如：读书笔记'"
         />
         <p class="muted">
@@ -1293,8 +1430,15 @@ onBeforeUnmount(() => {
           }}
         </p>
         <div class="dialog-actions">
-          <NButton @click="createOpen = false">取消</NButton
-          ><NButton attr-type="submit" type="primary" :disabled="!newName.trim()">创建</NButton>
+          <AButton :disabled="createBusy" @click="createOpen = false">取消</AButton
+          ><AButton
+            html-type="submit"
+            type="primary"
+            aria-label="创建"
+            :loading="createBusy"
+            :disabled="createBusy || !newName.trim()"
+            >创建</AButton
+          >
         </div>
       </form></NModal
     >
@@ -1304,41 +1448,44 @@ onBeforeUnmount(() => {
       class="dialog-card"
       title="当前笔记尚未保存"
       :mask-closable="false"
-      ><p>离开前，请选择如何处理当前编辑内容。</p>
+      ><AAlert v-if="dialogError" type="error" :message="dialogError" role="alert" />
+      <p>离开前，请选择如何处理当前编辑内容。</p>
       <div class="dialog-actions">
-        <NButton @click="leave('cancel')">取消</NButton
-        ><NButton @click="leave('discard')">放弃修改</NButton
-        ><NButton type="primary" :loading="busy" :disabled="busy" @click="leave('save')"
-          >保存并继续</NButton
+        <AButton @click="leave('cancel')">取消</AButton
+        ><AButton @click="leave('discard')">放弃修改</AButton
+        ><AButton type="primary" :loading="busy" :disabled="busy" @click="leave('save')"
+          >保存并继续</AButton
         >
       </div></NModal
     >
     <NModal v-model:show="deleteOpen" preset="card" class="dialog-card" title="移入回收站？"
-      ><p>已保存原文将移入回收站，分享立即失效。{{ dirty ? '当前未保存输入将被放弃。' : '' }}</p>
+      ><AAlert v-if="dialogError" type="error" :message="dialogError" role="alert" />
+      <p>已保存原文将移入回收站，分享立即失效。{{ dirty ? '当前未保存输入将被放弃。' : '' }}</p>
       <div class="dialog-actions">
-        <NButton @click="deleteOpen = false">取消</NButton
-        ><NButton v-if="pendingDelete" @click="run(checkDelete)">核对删除结果</NButton
-        ><NButton v-else type="error" @click="removeNote">移入回收站</NButton>
+        <AButton @click="deleteOpen = false">取消</AButton
+        ><AButton v-if="pendingDelete" @click="run(checkDelete)">核对删除结果</AButton
+        ><AButton v-else danger type="primary" @click="removeNote">移入回收站</AButton>
       </div></NModal
     >
     <NModal v-model:show="revisionsOpen" preset="card" class="dialog-card" title="历史版本"
-      ><p class="muted">恢复前会保留当前原文，并检查版本是否变化。</p>
+      ><AAlert v-if="dialogError" type="error" :message="dialogError" role="alert" />
+      <p class="muted">恢复前会保留当前原文，并检查版本是否变化。</p>
       <div v-for="r in revisions" :key="r.id" class="revision-item">
         <div class="utility-row">
           <span>{{
             new Date(r.createdAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })
           }}</span
-          ><NButton @click="restoreRevision(r)">恢复此版本</NButton>
+          ><AButton @click="restoreRevision(r)">恢复此版本</AButton>
         </div>
         <details>
           <summary>查看原文</summary>
-          <NButton @click="run(() => readRevision(r))">{{
+          <AButton @click="run(() => readRevision(r))">{{
             r.cursor ? '下一片段' : '加载片段'
-          }}</NButton>
+          }}</AButton>
           <pre>{{ r.content }}</pre>
         </details>
       </div>
-      <NButton v-if="revisionCursor" :loading="busy" @click="history(true)">加载更早版本</NButton>
+      <AButton v-if="revisionCursor" :loading="busy" @click="history(true)">加载更早版本</AButton>
       <p v-if="revisions.length" class="muted">已显示 {{ revisions.length }} 个版本</p>
       <p v-if="!revisions.length">尚无历史版本</p></NModal
     >
@@ -1348,11 +1495,22 @@ onBeforeUnmount(() => {
       class="dialog-card"
       title="原位置已被占用"
       :on-close="() => (restoreTarget = undefined)"
-      ><p>请输入新文件名恢复，现有文件不会被覆盖。</p>
-      <NInput v-model:value="restoreName" placeholder="新文件名.md" />
+      ><AAlert v-if="dialogError" type="error" :message="dialogError" role="alert" />
+      <p>请输入新文件名恢复，现有文件不会被覆盖。</p>
+      <AInput
+        v-model:value="restoreName"
+        aria-label="恢复文件名"
+        placeholder="新文件名.md"
+        :disabled="!!restoringId"
+      />
       <div class="dialog-actions">
-        <NButton type="primary" @click="restoreTrash(restoreTarget, restoreName)"
-          >使用新名称恢复</NButton
+        <AButton :disabled="!!restoringId" @click="restoreTarget = undefined">取消</AButton>
+        <AButton
+          type="primary"
+          :loading="!!restoringId"
+          :disabled="!!restoringId || !restoreName.trim()"
+          @click="restoreTrash(restoreTarget, restoreName)"
+          >使用新名称恢复</AButton
         >
       </div></NModal
     >

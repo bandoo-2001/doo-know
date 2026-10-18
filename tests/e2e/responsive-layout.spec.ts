@@ -62,13 +62,13 @@ test('keeps navigation reachable and content scrolling inside the window with a 
       expect(status!.y + status!.height).toBeGreaterThan(size.height - 65);
       await inWindow('.index-status');
       if (size.height <= 540) {
-        await page.locator('.index-details summary').click();
+        await page.locator('.index-details').click();
         const details = page.locator('.index-popover');
         await details.scrollIntoViewIfNeeded();
         // IntersectionObserver can report a fractional-pixel clip after scrolling.
         await expect(details).toBeInViewport({ ratio: 0.99 });
         await inWindow('.index-popover');
-        await page.locator('.index-details summary').click();
+        await page.locator('.index-details').click();
       }
       if (size.width <= 720) await page.getByRole('button', { name: '打开侧栏' }).click();
       await settings.click();

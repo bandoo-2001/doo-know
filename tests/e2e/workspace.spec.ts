@@ -23,7 +23,9 @@ test('login and two-column workspace with manual Markdown editing', async ({ pag
     .locator('.sidebar')
     .getByRole('button', { name: '新建笔记', exact: true })
     .boundingBox();
-  expect(Math.abs(search!.y - create!.y)).toBeLessThanOrEqual(2);
+  expect(
+    Math.abs(search!.y + search!.height / 2 - create!.y - create!.height / 2),
+  ).toBeLessThanOrEqual(2);
   expect(search!.x + search!.width).toBeLessThan(create!.x);
   expect(create!.width).toBeLessThanOrEqual(40);
   await expect(page.getByRole('button', { name: '全部笔记', exact: true })).toHaveCount(0);

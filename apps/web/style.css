@@ -230,8 +230,8 @@ h3 {
   margin: 0 0 30px;
 }
 .login-card label,
-.dialog-card label,
-.settings-view label {
+.dialog-card label:not([class*="ant-"]),
+.settings-view label:not([class*="ant-"]) {
   display: block;
   font-weight: 600;
   margin: 23px 0 8px;

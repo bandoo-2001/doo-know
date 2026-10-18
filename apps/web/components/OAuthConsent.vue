@@ -1,8 +1,15 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { NCard, NAlert, NButton, NCheckbox, NCheckboxGroup } from 'naive-ui';
+import {
+  Card as ACard,
+  Alert as AAlert,
+  Button as AButton,
+  Checkbox as ACheckbox,
+  Spin as ASpin,
+} from 'ant-design-vue';
 import { api } from '../api';
 import Icon from './Icon.vue';
+const ACheckboxGroup = ACheckbox.Group;
 const props = defineProps<{ oauthQuery: string }>();
 const request = ref<any>(),
   scopes = ref<string[]>([]),
@@ -29,6 +36,13 @@ onMounted(async () => {
   }
 });
 async function consent(accept: boolean) {
+  if (
+    busy.value ||
+    !request.value ||
+    (accept &&
+      (!prefixes.value.length || !scopes.value.some((scope) => scope.startsWith('knowledge:'))))
+  )
+    return;
   busy.value = true;
   error.value = '';
   try {
@@ -49,7 +63,8 @@ async function consent(accept: boolean) {
 <template>
   <main class="oauth-consent">
     <header class="oauth-brand"><Icon name="book" :size="28" /><strong>DooKnow</strong></header>
-    <NCard class="oauth-card" title="连接 DooKnow">
+    <ACard class="oauth-card">
+      <template #title><h1>连接 DooKnow</h1></template>
       <template v-if="request">
         <div class="oauth-client">
           <span class="client-icon"><Icon name="lock" :size="22" /></span>
@@ -61,25 +76,25 @@ async function consent(accept: boolean) {
         <p class="oauth-intro">该连接请求访问你的知识库。请选择允许的操作与目录。</p>
         <fieldset>
           <legend>允许的操作</legend>
-          <NCheckboxGroup v-model:value="scopes">
+          <ACheckboxGroup v-model:value="scopes" :disabled="busy">
             <div v-for="scope in request.allowedScopes" :key="scope" class="scope-row">
-              <NCheckbox :value="scope">{{ labels[scope] || scope }}</NCheckbox>
+              <ACheckbox :value="scope">{{ labels[scope] || scope }}</ACheckbox>
             </div>
-          </NCheckboxGroup>
+          </ACheckboxGroup>
         </fieldset>
         <fieldset>
           <legend>允许的目录</legend>
-          <NCheckboxGroup v-model:value="prefixes">
+          <ACheckboxGroup v-model:value="prefixes" :disabled="busy">
             <div
               v-for="prefix in request.allowedPrefixes"
               :key="prefix"
               class="scope-row directory-row"
             >
-              <NCheckbox :value="prefix"
-                ><Icon name="folder" :size="16" /><span>{{ prefix }}</span></NCheckbox
+              <ACheckbox :value="prefix"
+                ><Icon name="folder" :size="16" /><span>{{ prefix }}</span></ACheckbox
               >
             </div>
-          </NCheckboxGroup>
+          </ACheckboxGroup>
         </fieldset>
         <p class="oauth-hint">
           <Icon name="lock" :size="15" /><span
@@ -87,22 +102,29 @@ async function consent(accept: boolean) {
           >
         </p>
         <footer class="oauth-actions">
-          <NButton :disabled="busy" @click="consent(false)">拒绝</NButton>
-          <NButton
+          <AButton :disabled="busy" @click="consent(false)">拒绝</AButton>
+          <AButton
             type="primary"
             :loading="busy"
-            :disabled="!prefixes.length || !scopes.some((s) => s.startsWith('knowledge:'))"
+            :disabled="busy || !prefixes.length || !scopes.some((s) => s.startsWith('knowledge:'))"
             @click="consent(true)"
-            >允许访问</NButton
+            >允许访问</AButton
           >
         </footer>
       </template>
-      <NAlert v-if="error" class="oauth-error" type="error" role="alert">{{ error }}</NAlert>
+      <AAlert
+        v-if="error"
+        class="oauth-error"
+        type="error"
+        show-icon
+        role="alert"
+        :message="error"
+      />
       <div v-else-if="!request" class="oauth-loading" role="status">
-        <Icon name="lock" :size="24" />
+        <ASpin />
         <p>正在检查授权请求…</p>
       </div>
-    </NCard>
+    </ACard>
     <p class="oauth-note">仅在你确认后，连接才能访问所选资料。</p>
   </main>
 </template>
@@ -127,15 +149,19 @@ async function consent(accept: boolean) {
   border-radius: 10px;
   background: white;
 }
-.oauth-card :deep(.n-card-header) {
-  padding: 28px 30px 0;
+.oauth-card :deep(.ant-card-head) {
+  min-height: 0;
+  padding: 24px 30px 20px;
+  border-bottom-color: var(--border, #e3e6ec);
 }
-.oauth-card :deep(.n-card-header__main) {
+.oauth-card h1 {
+  margin: 0;
+  line-height: 1.4;
   color: var(--text, #262b36);
   font-size: 23px;
   font-weight: 650;
 }
-.oauth-card :deep(.n-card__content) {
+.oauth-card :deep(.ant-card-body) {
   padding: 24px 30px 28px;
 }
 .oauth-client {
@@ -180,6 +206,9 @@ h2 {
   font-size: 13px;
   line-height: 1.7;
 }
+.oauth-card :deep(.ant-checkbox-group) {
+  display: block;
+}
 fieldset {
   min-inline-size: 0;
   margin: 0 0 22px;
@@ -202,23 +231,25 @@ legend {
 .scope-row:last-child {
   border-bottom: 0;
 }
-.scope-row :deep(.n-checkbox) {
+.scope-row :deep(.ant-checkbox-wrapper) {
+  margin: 0;
+  font-weight: 400;
   min-width: 0;
   max-width: 100%;
   align-items: flex-start;
   font-size: 13px;
   line-height: 1.7;
 }
-.scope-row :deep(.n-checkbox-box-wrapper) {
+.scope-row :deep(.ant-checkbox) {
   flex-shrink: 0;
-  margin-top: 3px;
+  margin-top: 4px;
 }
-.scope-row :deep(.n-checkbox__label) {
+.scope-row :deep(.ant-checkbox + span) {
   min-width: 0;
   white-space: normal;
   overflow-wrap: anywhere;
 }
-.directory-row :deep(.n-checkbox__label) {
+.directory-row :deep(.ant-checkbox + span) {
   display: flex;
   align-items: flex-start;
   gap: 7px;
@@ -259,7 +290,7 @@ legend {
   padding-top: 20px;
   border-top: 1px solid var(--border, #e3e6ec);
 }
-.oauth-actions .n-button {
+.oauth-actions .ant-btn {
   min-width: 84px;
   margin: 0;
 }
@@ -273,8 +304,8 @@ legend {
   font-size: 13px;
   text-align: center;
 }
-.oauth-loading svg {
-  color: #9098a5;
+.oauth-loading p {
+  margin: 16px 0 0;
 }
 .oauth-note {
   margin-top: 20px;
@@ -294,19 +325,21 @@ legend {
   .oauth-card {
     border-radius: 8px;
   }
-  .oauth-card :deep(.n-card-header) {
-    padding: 22px 20px 0;
+  .oauth-card :deep(.ant-card-head) {
+    padding: 20px;
   }
-  .oauth-card :deep(.n-card-header__main) {
+  .oauth-card h1 {
+    margin: 0;
+    line-height: 1.4;
     font-size: 21px;
   }
-  .oauth-card :deep(.n-card__content) {
+  .oauth-card :deep(.ant-card-body) {
     padding: 20px;
   }
   .oauth-client {
     padding: 13px;
   }
-  .oauth-actions .n-button {
+  .oauth-actions .ant-btn {
     flex: 1;
     min-width: 0;
   }

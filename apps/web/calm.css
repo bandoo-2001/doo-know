@@ -544,7 +544,7 @@ button:disabled {
   color: #626b7d;
   line-height: 1.8;
 }
-.dialog-card label {
+.dialog-card label:not([class*="ant-"]) {
   font-size: 12px;
   font-weight: 500;
   margin: 17px 0 7px;

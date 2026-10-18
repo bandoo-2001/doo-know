@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { NModal, NButton, NAlert } from 'naive-ui';
+import { NModal } from 'naive-ui';
+import { Button as AButton, Alert as AAlert } from 'ant-design-vue';
 import { pluginPanel, pluginComponents } from '../../../packages/plugin-ui/host';
 import { pluginRegistry, pluginUIErrors } from '../plugins';
 import PluginBoundary from './PluginBoundary.vue';
@@ -23,17 +24,20 @@ const item = computed(() =>
     @mask-click="pluginPanel = undefined"
   >
     <template #header-extra
-      ><NButton size="small" quaternary aria-label="关闭插件面板" @click="pluginPanel = undefined"
-        >关闭</NButton
+      ><AButton size="small" type="text" aria-label="关闭插件面板" @click="pluginPanel = undefined"
+        >关闭</AButton
       ></template
     >
     <div class="plugin-panel-content">
       <PluginBoundary v-if="item?.component && pluginComponents[item.component]" :key="item.id"
         ><component :is="pluginComponents[item.component]" :context="pluginPanel?.context || {}"
       /></PluginBoundary>
-      <NAlert v-else type="error">{{
-        (item && pluginUIErrors[item.pluginId]) || '插件界面尚未加载，请稍后重试'
-      }}</NAlert>
+      <AAlert
+        v-else
+        type="error"
+        show-icon
+        :message="(item && pluginUIErrors[item.pluginId]) || '插件界面尚未加载，请稍后重试'"
+      />
     </div>
   </NModal>
 </template>
@@ -51,6 +55,18 @@ const item = computed(() =>
   overflow: auto;
   overscroll-behavior: contain;
   overflow-wrap: anywhere;
+}
+.plugin-dialog :deep(.n-card-header) {
+  align-items: flex-start;
+  gap: 12px;
+}
+.plugin-dialog :deep(.n-card-header__main) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  line-height: 1.6;
+}
+.plugin-dialog :deep(.n-card-header__extra) {
+  flex-shrink: 0;
 }
 .plugin-panel-content :deep(> *) {
   min-width: 0;

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Button as AButton } from 'ant-design-vue';
 import type { FileOperation } from '../../../shared/knowledge-contracts';
 defineProps<{ operation?: FileOperation }>();
 defineEmits<{ cancel: []; check: [] }>();
@@ -21,11 +22,19 @@ const labels: Record<string, string> = {
   >
     <span class="operation-label"
       ><i aria-hidden="true"></i>{{ labels[operation.status] || operation.status }}</span
-    ><button v-if="['queued', 'running'].includes(operation.status)" @click="$emit('cancel')">
-      取消任务</button
-    ><button v-if="operation.status === 'needs_reconciliation'" @click="$emit('check')">
+    ><AButton
+      size="small"
+      v-if="['queued', 'running'].includes(operation.status)"
+      @click="$emit('cancel')"
+    >
+      取消任务</AButton
+    ><AButton
+      size="small"
+      v-if="operation.status === 'needs_reconciliation'"
+      @click="$emit('check')"
+    >
       核对保存结果
-    </button>
+    </AButton>
   </div>
 </template>
 <style scoped>
@@ -63,23 +72,7 @@ const labels: Record<string, string> = {
 .operation-cancelled .operation-label i {
   background: #b7bdc7;
 }
-.operation-status button {
-  min-height: 28px;
+.operation-status > .ant-btn {
   margin-left: auto;
-  padding: 3px 9px;
-  border: 1px solid var(--border, #e3e6ec);
-  border-radius: 5px;
-  background: #fff;
-  color: var(--text, #262b36);
-  font: inherit;
-  cursor: pointer;
-}
-.operation-status button:hover {
-  border-color: var(--blue, #4566c6);
-  color: var(--blue, #4566c6);
-}
-.operation-status button:focus-visible {
-  outline: 2px solid var(--focus, #4566c6);
-  outline-offset: 2px;
 }
 </style>

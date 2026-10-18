@@ -1,11 +1,18 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
-import { NButton, NAlert } from 'naive-ui';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import {
+  Button as AButton,
+  Alert as AAlert,
+  Progress as AProgress,
+  Spin as ASpin,
+} from 'ant-design-vue';
 import { api } from '../api';
 defineProps<{ onboarding?: boolean }>();
 const state = ref<any>(),
   error = ref(''),
-  busy = ref(false);
+  statusError = ref(''),
+  busy = ref(false),
+  checking = ref(false);
 const labels: Record<string, string> = {
   queued: '等待准备',
   downloading: '下载检索包',
@@ -19,14 +26,36 @@ const labels: Record<string, string> = {
   cancelled: '已取消',
   interrupted: '上次准备被中断',
 };
+const downloadProgress = computed(() => {
+  const task = state.value?.task;
+  return task?.totalBytes
+    ? Math.max(0, Math.min(100, (task.completedBytes / task.totalBytes) * 100))
+    : 0;
+});
+const taskErrorDescription = computed(() => {
+  switch (state.value?.task?.error) {
+    case 'PREPARATION_CANCELLED':
+      return '已停止准备，之后可继续。已校验的下载会保留。';
+    case 'PREPARATION_INTERRUPTED':
+      return '上次准备未完成，可以重新准备。已校验的下载会复用。';
+    default:
+      return '搜索组件暂时没有准备好，可以重试。已校验的下载会保留。';
+  }
+});
 async function load() {
+  if (checking.value) return;
+  checking.value = true;
   try {
     state.value = await api('/api/platform/search-runtime');
+    statusError.value = '';
   } catch (e) {
-    error.value = (e as Error).message;
+    statusError.value = (e as Error).message;
+  } finally {
+    checking.value = false;
   }
 }
 async function prepare() {
+  if (busy.value) return;
   busy.value = true;
   error.value = '';
   try {
@@ -39,7 +68,9 @@ async function prepare() {
   }
 }
 async function cancel() {
+  if (busy.value || !state.value?.task) return;
   busy.value = true;
+  error.value = '';
   try {
     await api('/api/platform/search-runtime/tasks/' + state.value.task.id + '/cancel', 'POST', {});
     await load();
@@ -52,7 +83,9 @@ async function cancel() {
 let timer: ReturnType<typeof setInterval>;
 onMounted(() => {
   void load();
-  timer = setInterval(load, 2000);
+  timer = setInterval(() => {
+    if (!busy.value) void load();
+  }, 2000);
 });
 onUnmounted(() => clearInterval(timer));
 </script>
@@ -71,7 +104,16 @@ onUnmounted(() => clearInterval(timer));
         </p>
       </div>
     </header>
-    <NAlert v-if="error" type="error">{{ error }}</NAlert>
+    <AAlert v-if="error" type="error" show-icon :message="error" />
+    <AAlert v-else-if="statusError" type="warning" show-icon message="暂时无法获取检索状态">
+      <template #description>
+        请检查连接后重试，当前笔记仍可继续使用。
+        <details>
+          <summary>查看详细信息</summary>
+          {{ statusError }}
+        </details>
+      </template>
+    </AAlert>
     <template v-if="state">
       <p v-if="onboarding && state.downloadBytes" class="runtime-note">
         需要下载约 {{ Math.ceil(state.downloadBytes / 1024 / 1024) }} MiB。未点击准备前不会下载。
@@ -115,46 +157,58 @@ onUnmounted(() => clearInterval(timer));
             {{ Math.ceil(state.task.totalBytes / 1024 / 1024) }} MiB</span
           >
         </div>
-        <progress
+        <AProgress
           v-if="state.task.phase === 'downloading' && state.task.totalBytes"
           class="runtime-progress"
-          :value="state.task.completedBytes"
-          :max="state.task.totalBytes"
+          :percent="downloadProgress"
+          :show-info="false"
+          size="small"
+          :aria-valuenow="Math.floor(downloadProgress)"
+          :aria-valuemin="0"
+          :aria-valuemax="100"
           aria-label="检索组件下载进度"
-        ></progress>
-        <NAlert v-if="state.task.error" type="warning"
-          >{{
-            onboarding
-              ? '搜索组件暂时没有准备好，可以重试。已校验的下载会保留。'
-              : state.task.error + '；可重新准备，已校验的下载会复用。'
-          }}
-          <details v-if="onboarding">
-            <summary>查看详细信息</summary>
-            {{ state.task.error }}
-          </details></NAlert
+        />
+        <AAlert
+          v-if="state.task.error"
+          :type="state.task.phase === 'cancelled' ? 'info' : 'warning'"
+          show-icon
+          :message="taskErrorDescription"
         >
-      </div>
-      <div class="runtime-actions">
-        <NButton
-          v-if="state.task && ['queued', 'running'].includes(state.task.state)"
-          :loading="busy"
-          @click="cancel"
-          >取消检索准备</NButton
-        >
-        <NButton
-          v-else-if="
-            !state.externallyManaged &&
-            state.distributionAvailable &&
-            (!state.components.tokenizerReady || !state.components.vectorReady)
-          "
-          :loading="busy"
-          type="primary"
-          @click="prepare"
-          >{{ state.task ? '重新准备' : onboarding ? '下载并准备搜索' : '准备本地检索' }}</NButton
-        >
-        <NButton :loading="busy" @click="load">检查检索状态</NButton>
+          <template v-if="state.task.phase !== 'cancelled'" #description>
+            <details>
+              <summary>查看详细信息</summary>
+              {{ state.task.error }}
+            </details>
+          </template>
+        </AAlert>
       </div>
     </template>
+    <div v-else-if="!statusError" class="runtime-loading" role="status">
+      <ASpin size="small" /><span>正在检查检索状态…</span>
+    </div>
+    <div class="runtime-actions">
+      <AButton
+        v-if="state?.task && ['queued', 'running'].includes(state.task.state)"
+        :loading="busy"
+        :disabled="busy || checking"
+        @click="cancel"
+        >取消检索准备</AButton
+      >
+      <AButton
+        v-else-if="
+          state &&
+          !state.externallyManaged &&
+          state.distributionAvailable &&
+          (!state.components.tokenizerReady || !state.components.vectorReady)
+        "
+        :loading="busy"
+        :disabled="busy || checking"
+        type="primary"
+        @click="prepare"
+        >{{ state.task ? '重新准备' : onboarding ? '下载并准备搜索' : '准备本地检索' }}</AButton
+      >
+      <AButton :loading="checking" :disabled="busy || checking" @click="load">检查检索状态</AButton>
+    </div>
   </section>
 </template>
 <style scoped>
@@ -288,35 +342,17 @@ onUnmounted(() => clearInterval(timer));
 .runtime-progress {
   display: block;
   width: 100%;
-  height: 5px;
-  margin-top: 12px;
-  overflow: hidden;
-  border: 0;
-  border-radius: 4px;
-  accent-color: var(--blue, #4566c6);
-  background: var(--surface, #f5f6f8);
+  margin-top: 8px;
 }
-.runtime-progress::-webkit-progress-bar {
-  background: var(--surface, #f5f6f8);
-  border-radius: 4px;
-}
-.runtime-progress::-webkit-progress-value {
-  background: var(--blue, #4566c6);
-  border-radius: 4px;
-}
-.runtime-progress::-moz-progress-bar {
-  background: var(--blue, #4566c6);
-  border-radius: 4px;
-}
-.runtime-task .n-alert {
+.runtime-task .ant-alert {
   margin-top: 12px;
 }
-.runtime-task details {
+.search-runtime-settings details {
   margin-top: 8px;
   overflow-wrap: anywhere;
   font-size: 12px;
 }
-.runtime-task summary {
+.search-runtime-settings summary {
   cursor: pointer;
 }
 .runtime-actions {
@@ -325,8 +361,16 @@ onUnmounted(() => clearInterval(timer));
   gap: 8px;
   margin-top: 16px;
 }
-.search-runtime-settings > .n-alert {
+.search-runtime-settings > .ant-alert {
   margin-bottom: 12px;
+}
+.runtime-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+  color: var(--muted, #687486);
+  font-size: 13px;
 }
 @media (max-width: 600px) {
   .search-runtime-settings {

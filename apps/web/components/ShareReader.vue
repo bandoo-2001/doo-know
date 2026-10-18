@@ -1,21 +1,45 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
 import DOMPurify from 'dompurify';
-import { api } from '../api';
+import { api, ApiError } from '../api';
 import Icon from './Icon.vue';
 import MarkdownIt from 'markdown-it';
-import { NButton } from 'naive-ui';
+import { Button as AButton, Alert as AAlert, Spin as ASpin } from 'ant-design-vue';
 const props = defineProps<{ token: string }>();
 const doc = ref<any>(),
-  error = ref('');
+  error = ref(''),
+  missing = ref(false),
+  fragmentError = ref(''),
+  opening = ref(false),
+  article = ref<HTMLElement>();
 const large = ref(false),
   nextCursor = ref<string>(),
   loading = ref(false);
+const headings = computed(() =>
+  (doc.value?.headings || []).filter(
+    (heading: { text: string }, index: number) => index !== 0 || heading.text !== doc.value.title,
+  ),
+);
+let disposed = false;
+function readError(cause: unknown, cursor?: string) {
+  if (cause instanceof ApiError && cause.status === 404) {
+    missing.value = true;
+    error.value = '分享不存在或已取消';
+  } else if (cursor && doc.value?.html) {
+    fragmentError.value = '下一片段读取失败，当前内容已保留。请检查连接后重试。';
+  } else {
+    missing.value = false;
+    error.value = '暂时无法读取分享笔记';
+  }
+}
 async function readPage(cursor?: string) {
+  if (loading.value) return;
   loading.value = true;
+  fragmentError.value = '';
   try {
     let result: any;
     for (let i = 0; i < 60; i++) {
+      if (disposed) return;
       result = await api(
         `/api/public/shares/${encodeURIComponent(props.token)}/read`,
         'POST',
@@ -26,6 +50,7 @@ async function readPage(cursor?: string) {
       await new Promise((r) => setTimeout(r, 1000));
     }
     if (result.kind !== 'ready') throw new Error();
+    if (disposed) return;
     const page = result.data,
       md = new MarkdownIt({ html: false, linkify: true });
     const tokens = md.parse(page.content, {});
@@ -60,29 +85,52 @@ async function readPage(cursor?: string) {
       headings: [],
     };
     nextCursor.value = page.nextCursor;
-  } catch {
-    error.value = '分享不存在或已取消';
+    if (cursor) {
+      await nextTick();
+      article.value?.scrollIntoView({ block: 'start' });
+    }
+  } catch (cause) {
+    if (!disposed) readError(cause, cursor);
   } finally {
     loading.value = false;
   }
 }
-onMounted(async () => {
-  const meta = document.createElement('meta');
-  meta.name = 'robots';
-  meta.content = 'noindex, nofollow';
-  document.head.append(meta);
+async function loadShare() {
+  if (opening.value || loading.value) return;
+  opening.value = true;
+  error.value = '';
+  fragmentError.value = '';
+  missing.value = false;
+  nextCursor.value = undefined;
   try {
     const meta = await api(`/api/public/shares/${encodeURIComponent(props.token)}/meta`);
-    if (meta.editorMode !== 'full') {
-      large.value = true;
+    if (disposed) return;
+    large.value = meta.editorMode !== 'full';
+    if (large.value) {
       if (meta.readState === 'ready') doc.value = { title: meta.title };
       await readPage();
-    } else doc.value = await api(`/api/public/shares/${encodeURIComponent(props.token)}`);
-    doc.value.html = DOMPurify.sanitize(doc.value.html);
-    document.title = `${doc.value.title} · DooKnow 分享`;
-  } catch {
-    error.value = '分享不存在或已取消';
+    } else {
+      const result = await api(`/api/public/shares/${encodeURIComponent(props.token)}`);
+      if (disposed) return;
+      doc.value = { ...result, html: DOMPurify.sanitize(result.html) };
+    }
+    if (doc.value && !error.value) document.title = `${doc.value.title} · DooKnow 分享`;
+  } catch (cause) {
+    if (!disposed) readError(cause);
+  } finally {
+    opening.value = false;
   }
+}
+const robotsMeta = document.createElement('meta');
+onMounted(() => {
+  robotsMeta.name = 'robots';
+  robotsMeta.content = 'noindex, nofollow';
+  document.head.append(robotsMeta);
+  void loadShare();
+});
+onUnmounted(() => {
+  disposed = true;
+  robotsMeta.remove();
 });
 </script>
 <template>
@@ -92,35 +140,60 @@ onMounted(async () => {
       <span>分享笔记</span><span class="read-only"><Icon name="eye" :size="17" />只读</span>
     </header>
     <div v-if="error" class="share-error" role="alert">
-      <div class="reader-state-icon"><Icon name="lock" :size="25" /></div>
+      <div class="reader-state-icon"><Icon :name="missing ? 'lock' : 'refresh'" :size="25" /></div>
       <h1>{{ error }}</h1>
-      <p>请向笔记主人获取有效链接。</p>
+      <p>{{ missing ? '请向笔记主人获取有效链接。' : '连接可能暂时中断，请稍后重新加载。' }}</p>
+      <AButton v-if="!missing" type="primary" :loading="opening || loading" @click="loadShare"
+        >重新加载</AButton
+      >
     </div>
-    <div v-else-if="doc" class="reader-layout" :class="{ 'has-toc': doc.headings?.length }">
-      <article>
+    <div v-else-if="doc" class="reader-layout" :class="{ 'has-toc': headings.length }">
+      <article ref="article">
         <h1 class="reader-title">{{ doc.title }}</h1>
         <p v-if="doc.updatedAt" class="reader-meta">
           更新于
           {{ new Date(doc.updatedAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }) }}
         </p>
+        <details v-if="headings.length" class="reader-mobile-toc">
+          <summary>
+            本文目录 <span>{{ headings.length }} 个章节</span>
+          </summary>
+          <nav aria-label="本文目录">
+            <a v-for="heading in headings" :key="heading.id" :href="`#${heading.id}`">{{
+              heading.text
+            }}</a>
+          </nav>
+        </details>
         <div class="markdown" v-html="doc.html"></div>
-        <div v-if="loading && !doc.html" class="reader-loading" role="status">正在读取笔记…</div>
-        <p v-if="large" class="reader-fragment">正在阅读当前片段</p>
-        <NButton
-          v-if="nextCursor"
-          :loading="loading"
-          :disabled="loading"
-          @click="readPage(nextCursor)"
-        >
-          下一片段
-        </NButton>
+        <div v-if="loading && !doc.html" class="reader-loading" role="status">
+          <ASpin size="small" />
+          <p>正在读取笔记…</p>
+        </div>
+        <AAlert
+          v-if="fragmentError"
+          type="warning"
+          show-icon
+          :message="fragmentError"
+          class="reader-fragment-error"
+        />
+        <div v-if="large && doc.html" class="reader-fragment-actions">
+          <p class="reader-fragment">正在阅读当前片段</p>
+          <AButton
+            v-if="nextCursor"
+            :loading="loading"
+            :disabled="loading"
+            @click="readPage(nextCursor)"
+          >
+            下一片段
+          </AButton>
+        </div>
       </article>
-      <nav v-if="doc.headings?.length" class="reader-toc" aria-label="本文目录">
-        <b>本文目录</b><a v-for="h in doc.headings" :key="h.id" :href="`#${h.id}`">{{ h.text }}</a>
+      <nav v-if="headings.length" class="reader-toc" aria-label="本文目录">
+        <b>本文目录</b><a v-for="h in headings" :key="h.id" :href="`#${h.id}`">{{ h.text }}</a>
       </nav>
     </div>
     <div v-else class="reader-loading" role="status">
-      <div class="reader-state-icon"><Icon name="book" :size="25" /></div>
+      <ASpin />
       <p>正在读取分享笔记…</p>
     </div>
     <footer>由 DooKnow 分享　｜　内容随原笔记保存同步更新</footer>
@@ -220,6 +293,7 @@ onMounted(async () => {
   color: var(--text, #262b36);
   font-weight: 650;
   line-height: 1.55;
+  scroll-margin-top: 24px;
 }
 .markdown :deep(h1:first-child) {
   display: none;
@@ -301,6 +375,12 @@ onMounted(async () => {
   font-size: 12px;
   line-height: 1.7;
   overflow-wrap: anywhere;
+  max-height: calc(100dvh - 56px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.reader-mobile-toc {
+  display: none;
 }
 .reader-toc b {
   margin-bottom: 4px;
@@ -312,13 +392,34 @@ onMounted(async () => {
   color: #6c7482;
   text-decoration: none;
 }
-.reader-toc a:hover {
+.reader-toc a:hover,
+.reader-mobile-toc a:hover {
   color: var(--blue, #4566c6);
 }
 .reader-fragment {
-  margin-top: 28px;
+  margin: 0;
   color: var(--muted, #7a8190);
   font-size: 12px;
+}
+.reader-fragment-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border, #e3e6ec);
+}
+.reader-fragment-error {
+  margin-top: 24px;
+}
+.reader-toc a:focus-visible,
+.reader-mobile-toc a:focus-visible,
+.reader-mobile-toc summary:focus-visible {
+  outline: 2px solid var(--blue, #4566c6);
+  outline-offset: 3px;
+  border-radius: 2px;
 }
 .share-page footer {
   margin: auto 32px 0;
@@ -391,6 +492,39 @@ onMounted(async () => {
   }
   .reader-toc {
     display: none;
+  }
+  .reader-mobile-toc {
+    display: block;
+    margin-top: 20px;
+    border: 1px solid var(--border, #e3e6ec);
+    border-radius: 6px;
+    background: var(--surface-soft, #fafbfc);
+    font-size: 12px;
+    line-height: 1.7;
+  }
+  .reader-mobile-toc summary {
+    padding: 11px 13px;
+    color: var(--text, #262b36);
+    cursor: pointer;
+  }
+  .reader-mobile-toc summary span {
+    margin-left: 8px;
+    color: var(--muted, #687486);
+    font-size: 11px;
+  }
+  .reader-mobile-toc nav {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 32dvh;
+    padding: 0 16px 13px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    overflow-wrap: anywhere;
+  }
+  .reader-mobile-toc a {
+    color: var(--muted, #687486);
+    text-decoration: none;
   }
   .reader-layout article > .markdown {
     font-size: 14px;

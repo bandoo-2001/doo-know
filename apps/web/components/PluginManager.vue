@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, nextTick } from 'vue';
-import { NButton, NInput, NSwitch, NInputNumber, NSelect, NAlert } from 'naive-ui';
+import {
+  Button as AButton,
+  Input as AInput,
+  InputNumber as AInputNumber,
+  Select as ASelect,
+  Switch as ASwitch,
+  Alert as AAlert,
+  Empty as AEmpty,
+} from 'ant-design-vue';
 import { pluginRegistry, pluginUIErrors, refreshPlugins } from '../plugins';
 import { pluginComponents } from '../../../packages/plugin-ui/host';
 import PluginBoundary from './PluginBoundary.vue';
@@ -8,9 +16,19 @@ import { api } from '../api';
 const props = defineProps<{ focusPlugin?: string }>();
 const selected = ref(props.focusPlugin || ''),
   busy = ref(false),
+  pendingAction = ref(''),
   error = ref(''),
   notice = ref(''),
+  invalidField = ref(''),
   values = ref<Record<string, any>>({});
+const catalog = computed(() =>
+  pluginRegistry.value.catalog.filter(
+    (entry) => !props.focusPlugin || entry.id === props.focusPlugin,
+  ),
+);
+const installedById = computed(
+  () => new Map(pluginRegistry.value.installed.map((plugin) => [plugin.id, plugin])),
+);
 const installed = computed(() =>
   pluginRegistry.value.installed.find((p) => p.id === selected.value),
 );
@@ -23,6 +41,9 @@ watch(
   [() => installed.value?.id, () => installed.value?.configVersion],
   () => {
     const plugin = installed.value;
+    invalidField.value = '';
+    error.value = '';
+    notice.value = '';
     values.value = { ...(plugin?.config || {}) };
     for (const [key, schema] of Object.entries(plugin?.manifest.configSchema.properties || {})) {
       const field = schema as any;
@@ -39,10 +60,13 @@ watch(
   },
   { immediate: true },
 );
-async function run(work: () => Promise<unknown>) {
+async function run(work: () => Promise<unknown>, action = 'refresh') {
+  if (busy.value) return false;
   busy.value = true;
+  pendingAction.value = action;
   error.value = '';
   notice.value = '';
+  invalidField.value = '';
   try {
     await work();
     await refreshPlugins();
@@ -52,13 +76,21 @@ async function run(work: () => Promise<unknown>) {
     return false;
   } finally {
     busy.value = false;
+    pendingAction.value = '';
+    if (invalidField.value) {
+      await nextTick();
+      document.getElementById('plugin-field-' + invalidField.value)?.focus();
+    }
   }
 }
 async function action(id: string, command: string) {
-  await run(async () => {
-    await api(`/api/platform/plugins/${id}/${command}`, 'POST', {});
-    selected.value = id;
-  });
+  await run(
+    async () => {
+      await api(`/api/platform/plugins/${id}/${command}`, 'POST', {});
+      selected.value = id;
+    },
+    id + ':' + command,
+  );
 }
 async function save() {
   const plugin = installed.value;
@@ -79,6 +111,7 @@ async function save() {
             throw Error();
           config[key] = value;
         } catch {
+          invalidField.value = key;
           throw Error(
             `${field.title || key}格式不正确，请填写有效的 JSON ${field.type === 'array' ? '数组' : '对象'}。`,
           );
@@ -89,7 +122,7 @@ async function save() {
       values: config,
       configVersion: plugin.configVersion,
     });
-  });
+  }, 'save');
   if (saved) {
     await nextTick();
     notice.value = '插件配置已保存';
@@ -99,6 +132,7 @@ watch(
   values,
   () => {
     notice.value = '';
+    invalidField.value = '';
   },
   { deep: true },
 );
@@ -114,95 +148,92 @@ onMounted(() => {
         <h2>{{ focusPlugin ? '功能设置' : '插件市场' }}</h2>
         <p class="muted">安装官方插件，为知识库添加功能。</p>
       </div>
-      <NButton size="small" :loading="busy" @click="run(refreshPlugins)">刷新插件状态</NButton>
+      <AButton :loading="pendingAction === 'refresh'" :disabled="busy" @click="run(refreshPlugins)">
+        刷新插件状态
+      </AButton>
     </header>
-    <NAlert v-if="error" type="error">{{ error }}</NAlert>
-    <p v-if="!pluginRegistry.catalog.length" class="plugin-empty">
-      当前安装源尚未提供可安装的官方插件。
-    </p>
-    <article
-      v-for="entry in pluginRegistry.catalog.filter((p) => !focusPlugin || p.id === focusPlugin)"
-      :key="entry.id"
-      class="plugin-card"
-    >
+    <AAlert v-if="error" type="error" show-icon :message="error" class="plugin-feedback" />
+    <AEmpty
+      v-if="!catalog.length && !busy"
+      class="plugin-empty"
+      :image="AEmpty.PRESENTED_IMAGE_SIMPLE"
+      :description="
+        focusPlugin ? '当前安装源尚未提供此功能插件。' : '当前安装源尚未提供可安装的官方插件。'
+      "
+    />
+    <article v-for="entry in catalog" :key="entry.id" class="plugin-card">
       <div class="plugin-card-heading">
         <h3>
           {{ entry.title }} <small>v{{ entry.version }}</small>
         </h3>
         <span
-          v-if="pluginRegistry.installed.find((p) => p.id === entry.id)"
+          v-if="installedById.has(entry.id)"
           class="plugin-state"
           :class="{
-            enabled: pluginRegistry.installed.find((p) => p.id === entry.id)?.state === 'enabled',
+            enabled: installedById.get(entry.id)?.state === 'enabled',
           }"
-          >{{
-            pluginRegistry.installed.find((p) => p.id === entry.id)?.state === 'enabled'
-              ? '已启用'
-              : '未启用'
-          }}</span
+          >{{ installedById.get(entry.id)?.state === 'enabled' ? '已启用' : '未启用' }}</span
         >
         <span v-else class="plugin-state">未安装</span>
       </div>
       <p class="plugin-description">{{ entry.description }}</p>
       <div class="plugin-actions">
-        <template v-if="pluginRegistry.installed.find((p) => p.id === entry.id)">
-          <NButton
-            size="small"
-            :type="selected === entry.id ? 'primary' : 'default'"
-            :secondary="selected === entry.id"
+        <template v-if="installedById.has(entry.id)">
+          <AButton
+            :class="{ 'is-selected': selected === entry.id }"
+            :aria-pressed="selected === entry.id"
+            :disabled="busy"
             @click="selected = entry.id"
-            >配置</NButton
+            >配置</AButton
           >
-          <NButton
-            size="small"
-            v-if="pluginRegistry.installed.find((p) => p.id === entry.id)?.state === 'enabled'"
+          <AButton
+            v-if="installedById.get(entry.id)?.state === 'enabled'"
             :aria-label="'停用' + entry.title"
-            :loading="busy"
+            :loading="pendingAction === entry.id + ':disable'"
+            :disabled="busy"
             @click="action(entry.id, 'disable')"
-            >停用</NButton
+            >停用</AButton
           >
-          <NButton
+          <AButton
             v-else
-            size="small"
             :aria-label="'启用' + entry.title"
-            :loading="busy"
+            :loading="pendingAction === entry.id + ':enable'"
+            :disabled="busy"
             @click="action(entry.id, 'enable')"
-            >启用</NButton
+            >启用</AButton
           >
-          <NButton
-            size="small"
-            v-if="
-              pluginRegistry.installed.find((p) => p.id === entry.id)?.installedVersion !==
-              entry.version
-            "
-            :loading="busy"
+          <AButton
+            v-if="installedById.get(entry.id)?.installedVersion !== entry.version"
+            :loading="pendingAction === entry.id + ':upgrade'"
+            :disabled="busy"
             @click="action(entry.id, 'upgrade')"
-            >升级</NButton
+            >升级</AButton
           >
-          <NButton size="small" quaternary @click="pendingUninstall = entry.id">卸载</NButton>
+          <AButton type="text" :disabled="busy" @click="pendingUninstall = entry.id">卸载</AButton>
         </template>
-        <NButton
+        <AButton
           v-else
-          size="small"
           type="primary"
           :aria-label="'安装' + entry.title"
-          :loading="busy"
+          :loading="pendingAction === entry.id + ':install'"
+          :disabled="busy"
           @click="action(entry.id, 'install')"
-          >安装</NButton
+          >安装</AButton
         >
       </div>
     </article>
     <div v-if="pendingUninstall" class="plugin-confirm">
       <p>卸载后保留插件配置与数据。</p>
       <div class="plugin-actions">
-        <NButton
-          size="small"
+        <AButton
+          danger
+          :disabled="busy"
           @click="
             action(pendingUninstall, 'uninstall');
             pendingUninstall = '';
           "
-          >确认卸载</NButton
-        ><NButton size="small" @click="pendingUninstall = ''">取消</NButton>
+          >确认卸载</AButton
+        ><AButton :disabled="busy" @click="pendingUninstall = ''">取消</AButton>
       </div>
     </div>
     <div v-if="installed" class="plugin-settings">
@@ -210,10 +241,19 @@ onMounted(() => {
         <h3>{{ installed.manifest.title }}设置</h3>
         <p class="muted">调整插件参数，管理运行状态。</p>
       </header>
-      <NAlert v-if="installed.error" type="error">插件状态：{{ installed.error }}</NAlert>
-      <NAlert v-if="installed.restartRequired" type="warning"
-        >配置或版本需要重启生效，请在服务器运行 dooknow restart。</NAlert
-      >
+      <AAlert
+        v-if="installed.error"
+        type="error"
+        show-icon
+        :message="'插件状态：' + installed.error"
+      />
+      <AAlert
+        v-if="installed.restartRequired"
+        type="warning"
+        show-icon
+        message="配置或版本需要重启生效"
+        description="请在服务器运行 dooknow restart。"
+      />
       <form class="plugin-form" @submit.prevent="save">
         <div
           v-for="(field, key) in installed.manifest.configSchema.properties as Record<string, any>"
@@ -228,49 +268,69 @@ onMounted(() => {
             <label :for="'plugin-field-' + key">{{ field.title || key }}</label>
             <span v-if="['array', 'object'].includes(field.type)" class="field-format">JSON</span>
           </div>
-          <NSwitch
+          <ASwitch
             v-if="field.type === 'boolean'"
-            v-model:value="values[key]"
+            v-model:checked="values[key]"
+            :id="'plugin-field-' + key"
             :aria-label="field.title || key"
+            :disabled="busy"
           />
-          <NInputNumber
+          <AInputNumber
             v-else-if="field.type === 'integer' || field.type === 'number'"
             v-model:value="values[key]"
-            :input-props="{ id: 'plugin-field-' + key }"
+            :id="'plugin-field-' + key"
+            :aria-label="field.title || String(key)"
+            :disabled="busy"
           />
-          <NSelect
+          <ASelect
             v-else-if="field.enum"
             v-model:value="values[key]"
+            :id="'plugin-field-' + key"
             :options="field.enum.map((v: any) => ({ label: String(v), value: v }))"
             :aria-label="field.title || String(key)"
+            :disabled="busy"
           />
-          <NInput
-            v-else
+          <AInput.Password
+            v-else-if="field.writeOnly"
             v-model:value="values[key]"
-            :autosize="
-              ['array', 'object'].includes(field.type) ? { minRows: 3, maxRows: 8 } : undefined
-            "
-            :type="
-              field.writeOnly
-                ? 'password'
-                : ['array', 'object'].includes(field.type)
-                  ? 'textarea'
-                  : 'text'
-            "
+            :id="'plugin-field-' + key"
+            :aria-label="field.title || String(key)"
+            :disabled="busy"
             :placeholder="
-              field.writeOnly && installed.configuredSecrets.includes(String(key))
+              installed.configuredSecrets.includes(String(key))
                 ? '已配置；留空保留'
                 : field.description || ''
             "
-            :input-props="{ id: 'plugin-field-' + key, 'aria-label': field.title || String(key) }"
+            autocomplete="new-password"
           />
-          <NButton
+          <AInput.TextArea
+            v-else-if="['array', 'object'].includes(field.type)"
+            v-model:value="values[key]"
+            :id="'plugin-field-' + key"
+            :aria-label="field.title || String(key)"
+            :aria-invalid="invalidField === String(key)"
+            :status="invalidField === String(key) ? 'error' : undefined"
+            :disabled="busy"
+            :auto-size="{ minRows: 3, maxRows: 8 }"
+            :placeholder="field.description || ''"
+            spellcheck="false"
+          />
+          <AInput
+            v-else
+            v-model:value="values[key]"
+            :id="'plugin-field-' + key"
+            :aria-label="field.title || String(key)"
+            :disabled="busy"
+            :placeholder="field.description || ''"
+          />
+          <AButton
             v-if="field.writeOnly && installed.configuredSecrets.includes(String(key))"
             size="small"
-            quaternary
+            type="text"
+            :disabled="busy"
             class="clear-secret"
             @click="values[key] = null"
-            >清除已配置值</NButton
+            >清除已配置值</AButton
           >
           <p v-if="field.description" class="muted">{{ field.description }}</p>
           <p v-else-if="['array', 'object'].includes(field.type)" class="muted">
@@ -282,15 +342,22 @@ onMounted(() => {
           </p>
         </div>
         <footer class="plugin-form-footer">
-          <NButton attr-type="submit" type="primary" :loading="busy" :disabled="busy"
-            >保存插件配置</NButton
+          <AButton
+            html-type="submit"
+            type="primary"
+            :loading="pendingAction === 'save'"
+            :disabled="busy"
+            >保存插件配置</AButton
           >
           <span v-if="notice" class="form-success" role="status">{{ notice }}</span>
         </footer>
       </form>
-      <NAlert v-if="pluginUIErrors[installed.id]" type="error">{{
-        pluginUIErrors[installed.id]
-      }}</NAlert>
+      <AAlert
+        v-if="pluginUIErrors[installed.id]"
+        type="error"
+        show-icon
+        :message="pluginUIErrors[installed.id]"
+      />
       <div v-if="settingsPages.length" class="plugin-live-settings">
         <PluginBoundary v-for="page in settingsPages" :key="page.id"
           ><component
@@ -334,7 +401,7 @@ onMounted(() => {
   font-size: 13px;
   line-height: 1.6;
 }
-.section-heading > .n-button {
+.section-heading > .ant-btn {
   flex-shrink: 0;
 }
 .plugin-card,
@@ -391,6 +458,15 @@ onMounted(() => {
   flex-wrap: wrap;
   gap: 8px;
 }
+.plugin-actions .is-selected {
+  border-color: #c7d1ec;
+  background: #f0f3fb;
+  color: var(--blue, #4566c6);
+}
+.plugin-feedback {
+  margin-bottom: 14px;
+  overflow-wrap: anywhere;
+}
 .plugin-confirm {
   margin: 12px 0;
   padding: 13px 16px;
@@ -408,7 +484,7 @@ onMounted(() => {
 .settings-heading p {
   margin-top: 5px;
 }
-.plugin-settings > .n-alert {
+.plugin-settings > .ant-alert {
   margin-bottom: 14px;
 }
 .plugin-form {
@@ -418,11 +494,15 @@ onMounted(() => {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
 }
-.plugin-form :deep(.n-button) {
+.plugin-form :deep(.ant-btn) {
   margin: 0;
 }
 .plugin-field {
   min-width: 0;
+}
+.plugin-field > .ant-select,
+.plugin-field > .ant-input-number {
+  width: 100%;
 }
 .field-wide,
 .plugin-form-footer {
@@ -476,7 +556,14 @@ onMounted(() => {
   margin: 4px 0 0;
 }
 .plugin-form-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
   padding-top: 2px;
+}
+.plugin-form-footer .form-success {
+  margin: 0;
 }
 .plugin-live-settings {
   min-width: 0;
@@ -485,6 +572,7 @@ onMounted(() => {
   border-top: 1px solid var(--border, #e3e6ec);
 }
 .plugin-empty {
+  margin: 12px 0;
   padding: 24px 16px;
   border: 1px dashed var(--border, #e3e6ec);
   border-radius: 8px;

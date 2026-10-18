@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { NButton, NAlert } from 'naive-ui';
+import { Button as AButton, Alert as AAlert } from 'ant-design-vue';
 import { api } from '../api';
 import { pluginRegistry, refreshPlugins } from '../plugins';
 import PluginManager from './PluginManager.vue';
@@ -31,6 +31,7 @@ function installed(id: string) {
   return pluginRegistry.value.installed.find((p) => p.id === id);
 }
 async function configure(id: string) {
+  if (busy.value) return;
   error.value = '';
   busy.value = id;
   try {
@@ -53,7 +54,7 @@ onMounted(async () => {
 </script>
 <template>
   <div class="setup-features">
-    <NAlert v-if="error" type="warning" role="alert">{{ error }}</NAlert>
+    <AAlert v-if="error" type="warning" show-icon role="alert" :message="error" />
     <article v-for="feature in features" :key="feature.id" class="feature">
       <div class="feature-main">
         <span class="feature-icon" aria-hidden="true"><Icon :name="feature.icon" /></span>
@@ -70,9 +71,14 @@ onMounted(async () => {
         </div>
       </div>
       <p class="feature-detail">{{ feature.detail }}</p>
-      <NButton :loading="busy === feature.id" :disabled="!!busy" @click="configure(feature.id)"
+      <AButton
+        :loading="busy === feature.id"
+        :disabled="!!busy"
+        :aria-expanded="expanded === feature.id"
+        :aria-controls="`setup-feature-${feature.id}`"
+        @click="configure(feature.id)"
         >{{ installed(feature.id) ? '查看' : '添加'
-        }}{{ feature.id === 'mcp' ? '连接设置' : '版本记录' }}</NButton
+        }}{{ feature.id === 'mcp' ? '连接设置' : '版本记录' }}</AButton
       >
       <span
         v-if="!pluginRegistry.catalog.some((p) => p.id === feature.id) && !installed(feature.id)"
@@ -83,7 +89,11 @@ onMounted(async () => {
         <summary>了解更多</summary>
         此功能由官方 {{ feature.technical }} 插件提供。
       </details>
-      <div v-if="expanded === feature.id" class="feature-config">
+      <div
+        v-if="expanded === feature.id"
+        :id="`setup-feature-${feature.id}`"
+        class="feature-config"
+      >
         <PluginManager :focus-plugin="feature.id" />
       </div>
     </article>
@@ -97,8 +107,13 @@ onMounted(async () => {
         </div>
       </div>
       <p class="feature-detail">下载和准备期间仍可写笔记。可以查看进度，也可以稍后再准备。</p>
-      <NButton @click="expanded = expanded === 'search' ? '' : 'search'">设置内容搜索</NButton>
-      <div v-if="expanded === 'search'" class="feature-config">
+      <AButton
+        :aria-expanded="expanded === 'search'"
+        aria-controls="setup-feature-search"
+        @click="expanded = expanded === 'search' ? '' : 'search'"
+        >设置内容搜索</AButton
+      >
+      <div v-if="expanded === 'search'" id="setup-feature-search" class="feature-config">
         <SearchRuntimeSettings onboarding />
       </div>
     </article>
@@ -111,11 +126,25 @@ onMounted(async () => {
   min-width: 0;
 }
 .feature {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 18px;
   min-width: 0;
   padding: 20px;
   border: 1px solid var(--border, #e3e6ec);
   border-radius: 8px;
   background: white;
+}
+.feature > .ant-btn {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: center;
+}
+.feature-detail,
+.technical,
+.unavailable,
+.feature-config {
+  grid-column: 1 / -1;
 }
 .feature-main {
   display: flex;
@@ -195,7 +224,13 @@ summary:focus-visible {
 }
 @media (max-width: 600px) {
   .feature {
+    grid-template-columns: minmax(0, 1fr);
     padding: 16px 14px;
+  }
+  .feature > .ant-btn {
+    grid-column: 1;
+    grid-row: auto;
+    justify-self: start;
   }
   .feature-main {
     gap: 10px;

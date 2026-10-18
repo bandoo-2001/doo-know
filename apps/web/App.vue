@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { NConfigProvider, NModal, NAlert, NButton } from 'naive-ui';
+import { ConfigProvider as AConfigProvider } from 'ant-design-vue';
+import zhCN from 'ant-design-vue/es/locale/zh_CN';
+import { antTheme } from './ant-design';
 import Login from './components/Login.vue';
 import Workspace from './components/Workspace.vue';
 import ShareReader from './components/ShareReader.vue';
@@ -97,45 +100,47 @@ onMounted(async () => {
 onBeforeUnmount(() => window.removeEventListener('dooknow-session-expired', sessionExpired));
 </script>
 <template>
-  <NConfigProvider :theme-overrides="theme"
-    ><ShareReader v-if="token" :token="token" /><template v-else-if="ready"
-      ><OAuthConsent
-        v-if="
-          loggedIn &&
-          platform?.phase === 'ready' &&
-          !platform.onboardingRequired &&
-          oauthMode === 'consent'
-        "
-        :oauth-query="oauthQuery" />
-      <div
-        v-else-if="
-          loggedIn &&
-          platform?.phase === 'ready' &&
-          !platform.onboardingRequired &&
-          oauthMode === 'login'
-        "
-        class="share-error"
-      >
-        <NAlert v-if="oauthError" type="error">{{ oauthError }}</NAlert>
-        <p v-else>正在继续授权…</p>
-        <NButton v-if="oauthError" @click="continueOAuth">重试</NButton>
-      </div>
-      <Workspace
-        v-else-if="mountedWorkspace"
-        @logout="
-          loggedIn = false;
-          mountedWorkspace = false;
-        " /><Login v-else-if="!loggedIn" @login="login" />
-      <SetupWizard v-else-if="platform" :status="platform" @refresh="refreshPlatform" />
-      <NModal
-        :show="expired"
-        :mask-closable="false"
-        :close-on-esc="false"
-        preset="card"
-        class="dialog-card"
-        :closable="false"
-        ><Login compact @login="login" /></NModal
-    ></template>
-    <div v-else class="share-error">正在打开知识空间…</div></NConfigProvider
+  <AConfigProvider :locale="zhCN" :theme="antTheme" :auto-insert-space-in-button="false"
+    ><NConfigProvider :theme-overrides="theme"
+      ><ShareReader v-if="token" :token="token" /><template v-else-if="ready"
+        ><OAuthConsent
+          v-if="
+            loggedIn &&
+            platform?.phase === 'ready' &&
+            !platform.onboardingRequired &&
+            oauthMode === 'consent'
+          "
+          :oauth-query="oauthQuery" />
+        <div
+          v-else-if="
+            loggedIn &&
+            platform?.phase === 'ready' &&
+            !platform.onboardingRequired &&
+            oauthMode === 'login'
+          "
+          class="share-error"
+        >
+          <NAlert v-if="oauthError" type="error">{{ oauthError }}</NAlert>
+          <p v-else>正在继续授权…</p>
+          <NButton v-if="oauthError" @click="continueOAuth">重试</NButton>
+        </div>
+        <Workspace
+          v-else-if="mountedWorkspace"
+          @logout="
+            loggedIn = false;
+            mountedWorkspace = false;
+          " /><Login v-else-if="!loggedIn" @login="login" />
+        <SetupWizard v-else-if="platform" :status="platform" @refresh="refreshPlatform" />
+        <NModal
+          :show="expired"
+          :mask-closable="false"
+          :close-on-esc="false"
+          preset="card"
+          class="dialog-card"
+          :closable="false"
+          ><Login compact @login="login" /></NModal
+      ></template>
+      <div v-else class="share-error">正在打开知识空间…</div></NConfigProvider
+    ></AConfigProvider
   >
 </template>

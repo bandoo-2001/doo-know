@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
-import { NButton, NInput, NAlert, NSelect } from 'naive-ui';
+import {
+  Button as AButton,
+  Input as AInput,
+  Alert as AAlert,
+  Select as ASelect,
+  AutoComplete as AAutoComplete,
+} from 'ant-design-vue';
 import type { PlatformStatus } from '../../../shared/platform-contracts';
 import { api, ApiError } from '../api';
 import SetupFeatures from './SetupFeatures.vue';
@@ -101,10 +107,17 @@ function useFolder() {
   knowledgeRoot.value = browser.value!.path;
   changed();
 }
+function filterTimeZone(input: string, option?: { label?: unknown; value?: unknown }) {
+  return String(option?.label || option?.value)
+    .toLowerCase()
+    .includes(input.toLowerCase());
+}
 function zoneChanged() {
   bindRequest = crypto.randomUUID();
 }
 async function complete() {
+  if (busy.value || (mode.value === 'new' ? !name.value.trim() : !knowledgeRoot.value.trim()))
+    return;
   busy.value = true;
   error.value = '';
   try {
@@ -143,6 +156,7 @@ async function go(value: number) {
   heading.value?.focus();
 }
 async function finish(createNote = false) {
+  if (busy.value || importBusy.value) return;
   busy.value = true;
   error.value = '';
   try {
@@ -198,17 +212,6 @@ onBeforeUnmount(() => clearInterval(timer));
         <h1 ref="heading" tabindex="-1">准备你的知识库</h1>
         <p class="intro">从一个新空间开始，或接入你已经整理好的资料。</p>
         <form @submit.prevent="complete">
-          <div v-if="mode === 'new'" class="library-name-field">
-            <label for="library-name">知识库名称</label>
-            <NInput
-              v-model:value="name"
-              :disabled="busy"
-              :input-props="{ id: 'library-name', 'aria-label': '知识库名称', maxlength: 40 }"
-              placeholder="例如：我的知识库"
-              @update:value="changed"
-            />
-            <p class="hint">资料保存在部署 DooKnow 的设备上。无需手动创建文件夹。</p>
-          </div>
           <p class="field-title">资料来源</p>
           <div class="mode-options" aria-label="知识库来源">
             <button
@@ -232,6 +235,25 @@ onBeforeUnmount(() => clearInterval(timer));
               <strong>使用已有资料</strong><span>选择部署设备上的文件夹，保留原有文件。</span>
             </button>
           </div>
+          <div v-if="mode === 'new'" class="library-name-field">
+            <label for="library-name">知识库名称</label>
+            <AInput
+              :value="name"
+              :disabled="busy"
+              id="library-name"
+              aria-label="知识库名称"
+              :maxlength="40"
+              required
+              placeholder="例如：我的知识库"
+              @update:value="
+                (value) => {
+                  name = String(value ?? '');
+                  changed();
+                }
+              "
+            />
+            <p class="hint">资料保存在部署 DooKnow 的设备上。无需手动创建文件夹。</p>
+          </div>
           <div v-if="mode === 'existing'" class="folder-browser">
             <p class="hint">这里浏览的是部署 DooKnow 的设备，不是当前浏览器所在电脑。</p>
             <div v-if="browser" class="browser-content" :aria-busy="browserBusy">
@@ -239,13 +261,14 @@ onBeforeUnmount(() => clearInterval(timer));
                 <span>当前位置</span><code>{{ browser.path }}</code>
               </div>
               <div class="browser-tools">
-                <NButton
+                <AButton
                   v-if="browser.parent"
                   :disabled="browserBusy || busy"
                   @click="browse(browser.parent)"
-                  >返回上一级</NButton
-                ><NSelect
+                  >返回上一级</AButton
+                ><ASelect
                   v-if="browser.roots.length > 1"
+                  :disabled="browserBusy || busy"
                   :value="
                     browser.roots.find(
                       (r) => browser!.path === r || browser!.path.startsWith(r + '/'),
@@ -253,7 +276,7 @@ onBeforeUnmount(() => clearInterval(timer));
                   "
                   :options="browser.roots.map((r) => ({ label: r, value: r }))"
                   aria-label="可用位置"
-                  @update:value="browse"
+                  @change="(value) => browse(String(value))"
                 />
               </div>
               <ul class="folder-list" aria-label="可选文件夹">
@@ -275,10 +298,10 @@ onBeforeUnmount(() => clearInterval(timer));
               <p v-if="browser.truncated" class="hint">
                 文件夹较多，仅显示部分结果。可以在高级设置中填写完整路径。
               </p>
-              <NButton
+              <AButton
                 :disabled="busy || browserBusy || browser.roots.includes(browser.path)"
                 @click="useFolder"
-                >使用这个文件夹</NButton
+                >使用这个文件夹</AButton
               >
             </div>
             <p v-else class="hint">
@@ -286,7 +309,7 @@ onBeforeUnmount(() => clearInterval(timer));
                 browserBusy ? '正在读取文件夹…' : '未能读取文件夹，请重试或在高级设置中填写路径。'
               }}
             </p>
-            <NButton v-if="!browserBusy && !browser" @click="browse()">重新选择</NButton>
+            <AButton v-if="!browserBusy && !browser" @click="browse()">重新选择</AButton>
             <div v-if="knowledgeRoot" class="chosen-folder" role="status">
               <strong>已选择</strong><code>{{ knowledgeRoot }}</code>
             </div>
@@ -297,43 +320,59 @@ onBeforeUnmount(() => clearInterval(timer));
             <p class="hint">需要自定义保存位置或时区时再修改。</p>
             <template v-if="mode === 'new'"
               ><label for="setup-parent">保存到哪个文件夹</label
-              ><NInput
-                v-model:value="parentPath"
+              ><AInput
+                :value="parentPath"
                 :disabled="busy"
-                :input-props="{ id: 'setup-parent', 'aria-label': '保存到哪个文件夹' }"
+                id="setup-parent"
+                aria-label="保存到哪个文件夹"
                 placeholder="留空，使用推荐位置"
-                @update:value="changed"
+                @update:value="
+                  (value) => {
+                    parentPath = String(value ?? '');
+                    changed();
+                  }
+                "
             /></template>
             <template v-else
               ><label for="setup-root">服务器上的知识库目录</label
-              ><NInput
-                v-model:value="knowledgeRoot"
+              ><AInput
+                :value="knowledgeRoot"
                 :disabled="busy"
-                :input-props="{ id: 'setup-root', 'aria-label': '服务器上的知识库目录' }"
+                id="setup-root"
+                aria-label="服务器上的知识库目录"
                 placeholder="填写已有文件夹的完整路径"
-                @update:value="changed"
+                @update:value="
+                  (value) => {
+                    knowledgeRoot = String(value ?? '');
+                    changed();
+                  }
+                "
             /></template>
             <p class="hint">允许保存的范围：{{ status.allowedKnowledgeBases?.join('、') }}</p>
             <label for="setup-timezone">时区</label
-            ><NSelect
-              v-model:value="timeZone"
-              filterable
-              tag
+            ><AAutoComplete
+              :value="timeZone"
+              :filter-option="filterTimeZone"
               :disabled="busy"
-              :input-props="{ id: 'setup-timezone', 'aria-label': '时区' }"
+              id="setup-timezone"
               :options="timeZones"
-              @update:value="zoneChanged"
+              @update:value="
+                (value) => {
+                  timeZone = String(value ?? '');
+                  zoneChanged();
+                }
+              "
             />
           </details>
           <p class="hint timezone">时间显示：{{ recommendedZone }}，可在高级设置中修改。</p>
           <footer class="setup-footer">
             <span>以后也可以继续添加和整理资料</span
-            ><NButton
-              attr-type="submit"
+            ><AButton
+              html-type="submit"
               type="primary"
               :loading="busy"
-              :disabled="mode === 'new' ? !name.trim() : !knowledgeRoot.trim()"
-              >确认并继续</NButton
+              :disabled="busy || (mode === 'new' ? !name.trim() : !knowledgeRoot.trim())"
+              >确认并继续</AButton
             >
           </footer>
         </form>
@@ -345,8 +384,8 @@ onBeforeUnmount(() => clearInterval(timer));
           <p class="intro">知识库已经可以使用。这些功能都可以跳过，以后在设置中添加。</p>
           <SetupFeatures />
           <footer class="setup-footer">
-            <NButton :disabled="busy" @click="go(3)">暂时跳过</NButton
-            ><NButton type="primary" :disabled="busy" @click="go(3)">继续</NButton>
+            <AButton :disabled="busy" @click="go(3)">暂时跳过</AButton
+            ><AButton type="primary" :disabled="busy" @click="go(3)">继续</AButton>
           </footer>
         </template>
         <template v-else>
@@ -358,9 +397,15 @@ onBeforeUnmount(() => clearInterval(timer));
             <p>资料保存在部署 DooKnow 的设备上。</p>
           </div>
           <div class="start-actions">
-            <NButton type="primary" :loading="busy" :disabled="importBusy" @click="finish(true)"
-              >创建第一篇笔记</NButton
-            ><NButton :loading="busy" :disabled="importBusy" @click="finish()">进入工作区</NButton>
+            <AButton
+              type="primary"
+              :loading="busy"
+              :disabled="busy || importBusy"
+              @click="finish(true)"
+              >创建第一篇笔记</AButton
+            ><AButton :loading="busy" :disabled="busy || importBusy" @click="finish()"
+              >进入工作区</AButton
+            >
           </div>
           <details class="advanced">
             <summary>导入已有资料</summary>
@@ -368,7 +413,7 @@ onBeforeUnmount(() => clearInterval(timer));
             <p class="hint">请保留原始资料的备份。版本记录不能代替独立备份。</p>
           </details>
           <footer class="setup-footer">
-            <NButton :disabled="busy || importBusy" @click="go(2)">上一步</NButton
+            <AButton :disabled="busy || importBusy" @click="go(2)">上一步</AButton
             ><span>所有可选功能都能稍后设置</span>
           </footer>
         </template>
@@ -376,7 +421,7 @@ onBeforeUnmount(() => clearInterval(timer));
       <div v-else-if="status.phase === 'initializing'" class="preparing" role="status">
         <h1>正在准备你的知识库</h1>
         <p>正在读取资料，请稍候。已有文件会保留。</p>
-        <NButton :loading="busy" @click="emit('refresh')">检查进度</NButton>
+        <AButton :loading="busy" @click="emit('refresh')">检查进度</AButton>
       </div>
       <div v-else-if="status.phase === 'owner_required'" class="setup-state">
         <h1>还差一个登录账号</h1>
@@ -385,19 +430,28 @@ onBeforeUnmount(() => clearInterval(timer));
       <div v-else class="setup-state">
         <h1>暂时无法打开知识库</h1>
         <p>原有资料和设置已保留。请检查保存位置是否可用，再重试。</p>
-        <NButton @click="emit('refresh')">重新检查</NButton>
+        <AButton @click="emit('refresh')">重新检查</AButton>
         <details class="advanced">
           <summary>查看详细信息</summary>
           {{ status.code || status.phase }}
         </details>
       </div>
-      <NAlert v-if="error" type="error" class="setup-error" role="alert" aria-live="polite"
-        >{{ error }}
-        <details v-if="errorDetail">
-          <summary>查看详细信息</summary>
-          {{ errorDetail }}
-        </details></NAlert
+      <AAlert
+        v-if="error"
+        type="error"
+        show-icon
+        :message="error"
+        class="setup-error"
+        role="alert"
+        aria-live="polite"
       >
+        <template v-if="errorDetail" #description>
+          <details>
+            <summary>查看详细信息</summary>
+            {{ errorDetail }}
+          </details>
+        </template>
+      </AAlert>
     </section>
     <p class="setup-note">你的资料，由你掌握。</p>
   </main>
@@ -504,9 +558,11 @@ h1:focus {
 .library-name-field label {
   margin-top: 0;
 }
-.library-name-field :deep(.n-input) {
+.library-name-field :deep(.ant-input) {
   min-height: 40px;
-  align-items: center;
+}
+.advanced :deep(.ant-select) {
+  width: 100%;
 }
 .field-title {
   margin: 0 0 10px;
@@ -636,7 +692,7 @@ code {
   gap: 8px;
   margin: 12px 0;
 }
-.browser-tools .n-select {
+.browser-tools .ant-select {
   min-width: 0;
   flex: 1 1 160px;
 }
@@ -802,7 +858,7 @@ button:disabled {
   .start-actions {
     flex-direction: column;
   }
-  .start-actions .n-button {
+  .start-actions .ant-btn {
     width: 100%;
   }
   .browser-content {

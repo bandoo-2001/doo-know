@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import { NButton, NAlert } from 'naive-ui';
+import { Button as AButton, Alert as AAlert } from 'ant-design-vue';
 import { api, ApiError } from '../api';
 import type { TreeEntry } from '../../../shared/contracts';
 const emit = defineEmits<{ busy: [value: boolean] }>();
@@ -19,7 +19,7 @@ function select(event: Event) {
 }
 async function upload() {
   const source = file.value;
-  if (!source) return;
+  if (!source || busy.value) return;
   error.value = '';
   imported.value = '';
   if (!source.name.toLowerCase().endsWith('.md')) {
@@ -93,9 +93,15 @@ async function upload() {
     <p v-if="file" class="import-selection">
       已选择 {{ file.name }} · {{ (file.size / 1024).toFixed(1) }} KiB
     </p>
-    <NButton :loading="busy" :disabled="!file || busy" @click="upload">确认导入</NButton>
-    <NAlert v-if="error" type="error" role="alert">{{ error }}</NAlert>
-    <p v-if="imported" role="status">{{ imported }} 已导入，进入工作区后可以查看。</p>
+    <AButton :loading="busy" :disabled="!file || busy" @click="upload">确认导入</AButton>
+    <AAlert v-if="error" type="error" show-icon role="alert" :message="error" />
+    <AAlert
+      v-if="imported"
+      type="success"
+      show-icon
+      role="status"
+      :message="`${imported} 已导入，进入工作区后可以查看。`"
+    />
   </div>
 </template>
 <style scoped>
@@ -152,17 +158,9 @@ input:disabled::file-selector-button {
   color: var(--muted, #7a8190);
   font-size: 12px;
 }
-.n-alert {
+.ant-alert {
   margin-top: 14px;
   overflow-wrap: anywhere;
-}
-[role='status'] {
-  padding: 12px 14px;
-  border: 1px solid #dce8df;
-  border-radius: 6px;
-  background: #f5f9f6;
-  color: #417351;
-  font-size: 12px;
 }
 @media (max-width: 600px) {
   label {

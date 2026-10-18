@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { NButton, NInput, NAlert } from 'naive-ui';
+import { Button as AButton, Input as AInput, Alert as AAlert } from 'ant-design-vue';
 import { api, refreshCsrf } from '../api';
 import Icon from './Icon.vue';
+const AInputPassword = AInput.Password;
 defineProps<{ compact?: boolean }>();
 const emit = defineEmits<{ login: [] }>();
 const username = ref(''),
@@ -10,7 +11,7 @@ const username = ref(''),
   error = ref(''),
   busy = ref(false);
 async function login() {
-  if (busy.value) return;
+  if (busy.value || !username.value.trim() || !password.value) return;
   busy.value = true;
   error.value = '';
   try {
@@ -34,31 +35,47 @@ async function login() {
       <div class="brand"><Icon name="book" :size="30" /><strong>DooKnow</strong></div>
       <p class="login-eyebrow">你的个人知识空间</p>
     </section>
-    <form class="login-card" @submit.prevent="login">
+    <form class="login-card" :aria-busy="busy" @submit.prevent="login">
       <div v-if="compact" class="brand"><Icon name="book" /><strong>DooKnow</strong></div>
       <h2>{{ compact ? '登录已失效' : '登录 DooKnow' }}</h2>
       <p>{{ compact ? '重新登录后可继续编辑，未保存内容仍保留。' : '登录后访问你的私人笔记' }}</p>
-      <NAlert v-if="error" type="error" class="login-error">{{ error }}</NAlert
-      ><label for="username">用户名</label
-      ><NInput
+      <AAlert
+        v-if="error"
+        id="login-error"
+        type="error"
+        show-icon
+        role="alert"
+        :message="error"
+        class="login-error"
+      /><label for="username">用户名</label
+      ><AInput
         id="username"
         v-model:value="username"
         placeholder="请输入用户名"
         autocomplete="username"
-        :input-props="{ 'aria-label': '用户名' }"
-        size="large"
+        aria-label="用户名"
+        :aria-describedby="error ? 'login-error' : undefined"
+        :disabled="busy"
+        required
+        @input="error = ''"
       /><label for="password">密码</label
-      ><NInput
+      ><AInputPassword
         id="password"
         v-model:value="password"
-        type="password"
-        show-password-on="click"
         placeholder="请输入密码"
         autocomplete="current-password"
-        :input-props="{ 'aria-label': '密码' }"
-        size="large"
-      /><NButton attr-type="submit" type="primary" size="large" :loading="busy" class="login-submit"
-        >登录</NButton
+        aria-label="密码"
+        :aria-describedby="error ? 'login-error' : undefined"
+        :disabled="busy"
+        required
+        @input="error = ''"
+      /><AButton
+        html-type="submit"
+        type="primary"
+        :loading="busy"
+        :disabled="busy || !username.trim() || !password"
+        class="login-submit"
+        >登录</AButton
       >
       <div class="login-private"><Icon name="lock" />笔记默认私有，仅分享链接可公开访问</div>
     </form>
@@ -118,13 +135,17 @@ async function login() {
   margin: 16px 0 8px;
   font-size: 13px;
   font-weight: 500;
+  color: var(--text, #262b36);
 }
-.login-card :deep(.n-input) {
+.login-card :deep(.ant-input),
+.login-card :deep(.ant-input-affix-wrapper) {
   width: 100%;
 }
 .login-submit {
   width: 100%;
+  height: 40px !important;
   margin-top: 24px;
+  font-size: 14px !important;
 }
 .login-private {
   display: flex;
