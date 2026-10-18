@@ -67,7 +67,17 @@ export async function artifactFetch(config: Configuration, url: URL, signal = Ab
   if (!asset) return fetch(url, { signal, redirect: 'error' });
   if (config.distribution && config.distribution.repository.toLowerCase() !== asset.repository.toLowerCase()) throw Error('GITHUB_REPOSITORY_MISMATCH');
   if (!config.distribution?.tokenFile) {
-    const response = await request(url, { 'user-agent': 'DooKnow' }, signal);
+    let response = await request(url, { 'user-agent': 'DooKnow' }, signal);
+    if (response.status === 302 && asset.tag === 'latest') {
+      let pinned: URL;
+      try { pinned = new URL(response.headers.get('location') || ''); } catch { throw Error('GITHUB_ASSET_REDIRECT_REJECTED'); }
+      if (pinned.hostname === 'github.com') {
+        let target: ReturnType<typeof githubAsset>;
+        try { target = githubAsset(pinned); } catch { throw Error('GITHUB_ASSET_REDIRECT_REJECTED'); }
+        if (!target || target.tag === 'latest' || target.repository.toLowerCase() !== asset.repository.toLowerCase() || target.asset !== asset.asset) throw Error('GITHUB_ASSET_REDIRECT_REJECTED');
+        response = await request(pinned, {}, signal);
+      }
+    }
     if (response.status === 302) {
       let redirect: URL;
       try { redirect = new URL(response.headers.get('location') || ''); } catch { throw Error('GITHUB_ASSET_REDIRECT_REJECTED'); }

@@ -36,6 +36,31 @@ it('rejects public redirects outside the approved CDN and repository mismatches'
   expect(network).not.toHaveBeenCalled();
 });
 
+it('resolves a public latest download through the same repository and asset pinned tag before the CDN', async () => {
+  const latest='https://github.com/owner/private/releases/latest/download/package.tar.gz';
+  const requests:string[]=[];
+  vi.stubGlobal('fetch',async (input:any,init:RequestInit)=>{
+    const address=String(input); requests.push(address);
+    expect(new Headers(init.headers).has('authorization')).toBe(false);
+    if(address===latest)return new Response(null,{status:302,headers:{location:url}});
+    if(address===url)return new Response(null,{status:302,headers:{location:'https://release-assets.githubusercontent.com/public/object'}});
+    expect(address).toBe('https://release-assets.githubusercontent.com/public/object');
+    return new Response('latest bytes');
+  });
+  expect(await(await artifactFetch({},new URL(latest))).text()).toBe('latest bytes');
+  expect(requests).toEqual([latest,url,'https://release-assets.githubusercontent.com/public/object']);
+});
+
+it.each([
+  'https://github.com/other/repo/releases/download/v1/package.tar.gz',
+  'https://github.com/owner/private/releases/download/v1/other.tar.gz',
+  'https://github.com/owner/private/releases/latest/download/package.tar.gz',
+])('refuses a mismatched or looping latest public redirect: %s',async location=>{
+  const network=vi.fn(async()=>new Response(null,{status:302,headers:{location}}));vi.stubGlobal('fetch',network);
+  await expect(artifactFetch({},new URL('https://github.com/owner/private/releases/latest/download/package.tar.gz'))).rejects.toThrow('GITHUB_ASSET_REDIRECT_REJECTED');
+  expect(network).toHaveBeenCalledTimes(1);
+});
+
 it('resolves a private asset through the authenticated API and removes authorization on the signed CDN hop', async () => {
   const c = await config(), requests: Array<{ url: string; auth: string | null }> = [];
   vi.stubGlobal('fetch', async (input: any, init: RequestInit = {}) => {
