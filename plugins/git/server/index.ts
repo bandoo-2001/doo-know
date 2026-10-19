@@ -70,6 +70,26 @@ export function activate(ctx: PluginContext) {
     if (r.code !== 0) error('GIT_COMMAND_FAILED');
     return text(r.stdout).trimEnd();
   }
+  async function restoreCapability(
+    call: PluginCall,
+    info: { sizeBytes: number; editorMode: string; relativePath: string },
+    commit: string,
+  ) {
+    if (
+      info.sizeBytes > 1024 * 1024 ||
+      info.editorMode === 'metadata' ||
+      !info.relativePath.toLowerCase().endsWith('.md')
+    )
+      return { supported: false, code: 'GIT_RESTORE_UNSUPPORTED' };
+    const object = commit + ':' + info.relativePath;
+    const type = await raw(call, ['cat-file', '-t', object]);
+    if (type.code !== 0 || text(type.stdout).trim() !== 'blob')
+      return { supported: false, code: 'GIT_VERSION_NOT_FOUND' };
+    const size = Number(await git(call, ['cat-file', '-s', object]));
+    if (!Number.isSafeInteger(size) || size < 0) error('GIT_COMMAND_FAILED');
+    if (size > 1024 * 1024) return { supported: false, code: 'GIT_RESTORE_VERSION_TOO_LARGE' };
+    return { supported: true };
+  }
   async function exists(path: string) {
     try {
       return await lstat(path);
@@ -607,8 +627,10 @@ export function activate(ctx: PluginContext) {
         commit = call.input?.commit;
       if (!oid(commit)) error('INVALID_GIT_COMMIT', 400);
       const info = await call.services.knowledge.info({ noteId: call.input?.noteId });
+      const restore = await restoreCapability(call, info, commit);
       try {
         return {
+          restore,
           diff: await git(
             call,
             [
@@ -629,7 +651,7 @@ export function activate(ctx: PluginContext) {
         };
       } catch (e) {
         if ((e as any).code === 'GIT_OUTPUT_TOO_LARGE')
-          return { diff: '', truncated: true, maxBytes: 256 * 1024 };
+          return { diff: '', truncated: true, maxBytes: 256 * 1024, restore };
         throw e;
       }
     }),
@@ -641,12 +663,9 @@ export function activate(ctx: PluginContext) {
       const commit = call.input?.commit;
       if (!oid(commit)) error('INVALID_GIT_COMMIT', 400);
       const info = await call.services.knowledge.info({ noteId: call.input?.noteId });
-      if (
-        info.sizeBytes > 1024 * 1024 ||
-        info.editorMode === 'metadata' ||
-        !info.relativePath.toLowerCase().endsWith('.md')
-      )
-        error('GIT_RESTORE_UNSUPPORTED');
+      const restore = await restoreCapability(call, info, commit);
+      if (!restore.supported)
+        error(restore.code!, restore.code === 'GIT_VERSION_NOT_FOUND' ? 404 : 409);
       const blob = await raw(
         call,
         ['cat-file', 'blob', commit + ':' + info.relativePath],

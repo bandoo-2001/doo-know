@@ -604,11 +604,24 @@ async function prepareLargeTransition(submitted: string) {
 async function checkSave() {
   const pending = pendingSave.value,
     epoch = viewEpoch;
-  if (!pending) return;
+  if (!pending || busy.value) return;
+  busy.value = true;
   try {
-    const op = await api<FileOperation & { result?: { modifiedAt: string } }>(
-      `/api/operations?requestId=${encodeURIComponent(pending.requestId)}`,
-    );
+    let op: FileOperation & { result?: { modifiedAt: string } };
+    try {
+      op = await api(`/api/operations?requestId=${encodeURIComponent(pending.requestId)}`);
+    } catch (cause) {
+      if (
+        !(cause instanceof ApiError) ||
+        cause.status !== 404 ||
+        cause.data.code !== 'OPERATION_NOT_FOUND'
+      )
+        throw cause;
+      if (!currentView(pending.noteId, epoch))
+        throw new Error('请返回原笔记后重试保存，当前草稿已保留。');
+      await save(pending.expected, pending.content, pending.revisionId, pending);
+      return;
+    }
     if (op.status === 'succeeded') {
       if (note.value && currentView(pending.noteId, epoch)) {
         const meta = await api<NoteInfo>(`/api/notes/${pending.noteId}/meta`);
@@ -653,10 +666,16 @@ async function checkSave() {
     throw new Error('操作仍在处理，请稍后核对');
   } finally {
     editorTransfer.value = false;
+    busy.value = false;
   }
 }
-async function save(expected?: string, content?: string, revisionId?: string) {
-  if (!note.value || busy.value || props.serviceUnavailable) return;
+async function save(
+  expected?: string,
+  content?: string,
+  revisionId?: string,
+  retry?: NonNullable<typeof pendingSave.value>,
+) {
+  if (!note.value || (busy.value && !retry) || props.serviceUnavailable) return;
   if (
     noteInfo.value?.editorMode === 'full' &&
     !revisionId &&
@@ -664,8 +683,12 @@ async function save(expected?: string, content?: string, revisionId?: string) {
     pendingSave.value?.noteId !== note.value.id
   )
     return;
-  if (noteInfo.value?.editorMode !== 'full' && !revisionId) {
+  if (noteInfo.value?.editorMode !== 'full' && !revisionId && !retry) {
     await largeRef.value?.save();
+    return;
+  }
+  if (!retry && pendingSave.value) {
+    await run(checkSave);
     return;
   }
   busy.value = true;
@@ -676,11 +699,7 @@ async function save(expected?: string, content?: string, revisionId?: string) {
   const text = content ?? draft.value;
   const localVersion = await localDrafts.flush();
   try {
-    if (pendingSave.value) {
-      await checkSave();
-      if (pendingSave.value) return;
-    }
-    const requestId = crypto.randomUUID();
+    const requestId = retry?.requestId || crypto.randomUUID();
     pendingSave.value = {
       noteId: target.id,
       requestId,
@@ -743,7 +762,7 @@ async function save(expected?: string, content?: string, revisionId?: string) {
     savedContent.value = n.content;
     if (revisionId) draft.value = n.content;
     conflict.value = undefined;
-    await localDrafts.clearSaved(target.id, localVersion);
+    if (revisionId || draft.value === text) await localDrafts.clearSaved(target.id, localVersion);
     tell(revisionId ? '历史版本已恢复' : '笔记已保存');
     await refresh();
   } catch (e) {

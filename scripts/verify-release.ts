@@ -61,6 +61,8 @@ const commands: [string, string[]][] = [
       'tests/maintenance-storage.test.ts',
       'tests/backup-reconciliation.test.ts',
       'tests/backup-wal.test.ts',
+      'tests/workspace-save-recovery.test.ts',
+      'tests/git-web-regressions.test.ts',
       'tests/knowledge/snapshot-lifecycle.test.ts',
       'tests/update-command.test.ts',
       'tests/download-proxy.test.ts',

@@ -60,6 +60,18 @@ export function activate(api: PluginUIApi) {
     VERSION_CONFLICT: '文件已更新，请保留草稿后重新核对',
     WORKSPACE_BUSY: '工作区正在写入，请稍后重试',
   };
+  const restoreLimits: Record<string, string> = {
+    GIT_RESTORE_UNSUPPORTED:
+      '当前笔记不支持 Git 恢复：仅支持不超过 1 MiB 的 Markdown 笔记，元数据模式不可恢复。仍可查看历史和差异。',
+    GIT_RESTORE_VERSION_TOO_LARGE:
+      '所选历史版本超过 1 MiB，无法在页面恢复。仍可查看历史和差异；请部署者在服务器导出该版本，保留当前笔记后再处理。',
+    GIT_VERSION_NOT_FOUND:
+      '所选版本中没有可恢复的此笔记文件，仍可查看历史和删除差异。请选择其他版本。',
+    GIT_OUTPUT_TOO_LARGE:
+      '所选历史版本超出恢复读取限制，无法在页面恢复。请部署者在服务器导出该版本，保留当前笔记后再处理。',
+    LARGE_FILE_MODE_REQUIRED:
+      '当前笔记需要大文件模式，无法使用此 Git 恢复操作。仍可查看历史和差异；请部署者在服务器导出所选版本，保留当前笔记后再处理。',
+  };
   const friendly = (e: any) => messages[e.code || e.message] || e.message;
   function refresh() {
     if (loading) return loading;
@@ -370,6 +382,7 @@ export function activate(api: PluginUIApi) {
           selected = ref<string>(),
           confirmRestore = ref(false),
           restoreNeedsReload = ref(false),
+          restoreBlockedCode = ref(''),
           busy = ref(false),
           pendingRestore = ref<any>();
         let diffRequest = 0;
@@ -395,6 +408,7 @@ export function activate(api: PluginUIApi) {
           const request = ++diffRequest;
           selected.value = commit;
           diffCommit.value = undefined;
+          restoreBlockedCode.value = '';
           diff.value = '';
           diffLoading.value = true;
           error.value = '';
@@ -403,6 +417,10 @@ export function activate(api: PluginUIApi) {
             const result = await api.call('provider', 'git.diff', { noteId: noteId(), commit });
             if (request !== diffRequest) return;
             diff.value = result.truncated ? '差异超过 256 KiB，请在服务器查看。' : result.diff;
+            restoreBlockedCode.value =
+              result.restore?.supported === false
+                ? result.restore.code || 'GIT_RESTORE_UNSUPPORTED'
+                : '';
             diffCommit.value = commit;
           } catch (e) {
             if (request === diffRequest) error.value = friendly(e);
@@ -414,6 +432,7 @@ export function activate(api: PluginUIApi) {
           if (
             busy.value ||
             restoreNeedsReload.value ||
+            restoreBlockedCode.value ||
             diffLoading.value ||
             !diffCommit.value ||
             diffCommit.value !== selected.value
@@ -444,7 +463,12 @@ export function activate(api: PluginUIApi) {
               data = response.data || {},
               code = data.code || data.error?.code || response.code || response.message,
               retryable = data.retryable || data.error?.retryable || response.retryable;
-            if (
+            if (restoreLimits[String(code)]) {
+              pendingRestore.value = undefined;
+              confirmRestore.value = false;
+              restoreBlockedCode.value = String(code);
+              error.value = '';
+            } else if (
               status >= 400 &&
               status < 500 &&
               !retryable &&
@@ -454,7 +478,7 @@ export function activate(api: PluginUIApi) {
               confirmRestore.value = false;
               restoreNeedsReload.value = true;
             }
-            error.value = friendly(e);
+            if (!restoreLimits[String(code)]) error.value = friendly(e);
           } finally {
             busy.value = false;
           }
@@ -468,8 +492,18 @@ export function activate(api: PluginUIApi) {
             h('style', styles),
             error.value && h(NAlert, { type: 'error' }, () => error.value),
             restoreNeedsReload.value &&
-              h(NAlert, { type: 'warning' }, () =>
-                '恢复未执行。请关闭此面板，保留当前编辑草稿并重新读取笔记后，再打开 Git 版本恢复。',
+              h(
+                NAlert,
+                { type: 'warning' },
+                () =>
+                  '恢复未执行。请关闭此面板，保留当前编辑草稿并重新读取笔记后，再打开 Git 版本恢复。',
+              ),
+            restoreBlockedCode.value &&
+              h(
+                NAlert,
+                { type: 'warning' },
+                () =>
+                  restoreLimits[restoreBlockedCode.value] || restoreLimits.GIT_RESTORE_UNSUPPORTED,
               ),
             h(
               'div',
@@ -514,7 +548,8 @@ export function activate(api: PluginUIApi) {
                     NButton,
                     {
                       size: 'small',
-                      disabled: busy.value || restoreNeedsReload.value,
+                      disabled:
+                        busy.value || restoreNeedsReload.value || !!restoreBlockedCode.value,
                       onClick: () => (confirmRestore.value = true),
                     },
                     () => '恢复此版本',

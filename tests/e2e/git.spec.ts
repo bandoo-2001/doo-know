@@ -62,3 +62,73 @@ test('installs Git interactions, initializes, previews all changes and displays 
   });
   await page.getByRole('button', { name: '关闭插件面板', exact: true }).click();
 });
+
+test('a large note keeps its Git history readable and explains why restore is disabled', async ({
+  page,
+  context,
+}, info) => {
+  await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
+  await page.goto('/');
+  await configurePlugin(page, 'Git 版本管理');
+  await page.getByLabel('提交作者', { exact: true }).fill('Browser Fixture');
+  await page.getByLabel('作者邮箱', { exact: true }).fill('browser@example.invalid');
+  await page.getByRole('button', { name: '保存插件配置', exact: true }).click();
+  const enable = page
+    .locator('.plugin-settings')
+    .getByRole('button', { name: '启用插件', exact: true });
+  if (await enable.isVisible()) await enable.click();
+  const csrf = await (await page.request.get('/api/security/csrf')).json();
+  const headers = { origin: 'http://127.0.0.1:4179', 'x-csrf-token': csrf.token };
+  const call = async (kind: 'command' | 'provider', id: string, input: unknown = {}) => {
+    const response = await page.request.post('/api/plugins/git/call', {
+      headers,
+      data: { kind, id, input },
+    });
+    expect(response.status()).toBe(200);
+    return response.json();
+  };
+  if ((await call('provider', 'git.status')).repository === 'missing')
+    await call('command', 'git.initialize', { requestId: crypto.randomUUID() });
+  const original = '# Version available in Git\n';
+  const created = await page.request.post('/api/notes', {
+    headers,
+    data: {
+      folderPath: '00-Inbox',
+      fileName: `Git恢复限制-${info.project.name}-${crypto.randomUUID()}.md`,
+      content: original,
+      requestId: crypto.randomUUID(),
+    },
+  });
+  expect(created.status()).toBe(201);
+  const note = await created.json();
+  const preview = await call('command', 'git.preview', { message: 'Git restore limit fixture' });
+  await call('command', 'git.commit', { token: preview.token, requestId: crypto.randomUUID() });
+  const fixture = JSON.parse(await readFile('.local/e2e-config.json', 'utf8'));
+  const file = join(fixture.knowledgeRoot, note.relativePath);
+  const large = ('x'.repeat(4095) + '\n').repeat(257);
+  let restoreRequests = 0;
+  page.on('request', (request) => {
+    if (
+      request.method() === 'POST' &&
+      request.url().endsWith('/api/plugins/git/call') &&
+      request.postDataJSON()?.id === 'git.restore'
+    )
+      restoreRequests++;
+  });
+  try {
+    await writeFile(file, large);
+    await page.goto('/?note=' + note.id);
+    await clickNoteAction(page, 'Git 版本');
+    await expect(page.getByRole('button', { name: '查看差异', exact: true }).first()).toBeVisible();
+    await page.getByRole('button', { name: '查看差异', exact: true }).first().click();
+    await expect(page.getByText(/当前笔记不支持 Git 恢复：仅支持不超过 1 MiB/)).toBeVisible();
+    await expect(page.getByRole('button', { name: '恢复此版本', exact: true })).toBeDisabled();
+    await expect(page.locator('.dooknow-git-history pre')).toContainText(
+      'Version available in Git',
+    );
+    expect(restoreRequests).toBe(0);
+    expect(await readFile(file, 'utf8')).toBe(large);
+  } finally {
+    await writeFile(file, original);
+  }
+});

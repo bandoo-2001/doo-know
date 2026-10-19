@@ -1,6 +1,6 @@
 {
   "id": "git",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "apiVersion": "^1.0.0",
   "title": "Git 版本管理",
   "description": "查看知识库文件版本、恢复单篇笔记，并预览和提交全部变更。",

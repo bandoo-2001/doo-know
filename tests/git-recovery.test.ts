@@ -84,6 +84,89 @@ it('recovers the original commit after reference publication but before its data
     await f.close();
   }
 }, 45000);
+
+it('reports current and historical restore size limits without losing truncated differences or missing-file history', async () => {
+  const f = await fixture();
+  const file = join(f.config.knowledgeRoot, '00-Inbox/source.md');
+  const commit = (message: string) => {
+    f.git('add', '--all');
+    f.git(
+      '-c',
+      'user.name=Fixture',
+      '-c',
+      'user.email=fixture@example.invalid',
+      'commit',
+      '-m',
+      message,
+    );
+    return f.git('rev-parse', 'HEAD');
+  };
+  try {
+    await writeFile(file, 'x'.repeat(1048577));
+    const oversized = commit('Oversized historical version');
+    f.platform.get().notes.scan();
+    const id = (f.db.prepare("SELECT id FROM notes WHERE path='00-Inbox/source.md'").get() as any)
+      .id;
+    const currentLarge = await f.call('git.diff', { noteId: id, commit: oversized });
+    expect(currentLarge).toMatchObject({
+      truncated: true,
+      restore: { supported: false, code: 'GIT_RESTORE_UNSUPPORTED' },
+    });
+    await writeFile(file, '# current small note\n');
+    const smaller = commit('Small current version');
+    const historicalLarge = await f.call('git.diff', { noteId: id, commit: oversized });
+    expect(historicalLarge).toMatchObject({
+      truncated: true,
+      restore: { supported: false, code: 'GIT_RESTORE_VERSION_TOO_LARGE' },
+    });
+    const info = await f.services.knowledge.info({ noteId: id });
+    await expect(
+      f.call('git.restore', {
+        noteId: id,
+        commit: oversized,
+        expectedModifiedAt: info.modifiedAt,
+        requestId: 'oversized-restore',
+      }),
+    ).rejects.toMatchObject({ code: 'GIT_RESTORE_VERSION_TOO_LARGE' });
+    expect(await readFile(file, 'utf8')).toBe('# current small note\n');
+    await rm(file);
+    const removed = commit('File removed');
+    await writeFile(file, '# current small note\n');
+    const absent = await f.call('git.diff', { noteId: id, commit: removed });
+    expect(absent.diff).toContain('deleted file');
+    expect(absent.restore).toEqual({ supported: false, code: 'GIT_VERSION_NOT_FOUND' });
+    expect((await f.call('git.diff', { noteId: id, commit: smaller })).restore).toEqual({
+      supported: true,
+    });
+    await writeFile(file, ('y'.repeat(1023) + '\n').repeat(1024));
+    const boundary = commit('Exactly one MiB');
+    expect((await f.call('git.diff', { noteId: id, commit: boundary })).restore).toEqual({
+      supported: true,
+    });
+    const boundaryInfo = await f.services.knowledge.info({ noteId: id });
+    await f.call('git.restore', {
+      noteId: id,
+      commit: boundary,
+      expectedModifiedAt: boundaryInfo.modifiedAt,
+      requestId: 'boundary-restore',
+    });
+    expect((await readFile(file)).length).toBe(1048576);
+    const longLine = 'z'.repeat(32769);
+    await writeFile(file, longLine);
+    const longLineInfo = await f.services.knowledge.info({ noteId: id });
+    await expect(
+      f.call('git.restore', {
+        noteId: id,
+        commit: smaller,
+        expectedModifiedAt: longLineInfo.modifiedAt,
+        requestId: 'long-line-restore',
+      }),
+    ).rejects.toMatchObject({ code: 'LARGE_FILE_MODE_REQUIRED' });
+    expect(await readFile(file, 'utf8')).toBe(longLine);
+  } finally {
+    await f.close();
+  }
+}, 45000);
 it('preserves an externally locked index after a published commit, returns a fixed receipt and requires explicit reconciliation', async () => {
   const f = await fixture();
   const execute = f.services.workspace!.exec;

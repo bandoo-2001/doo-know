@@ -210,6 +210,62 @@ it('does not offer restoration when the chosen difference request fails', async 
   expect(view.canRestore()).toBe(true);
 });
 
+it.each([
+  ['GIT_RESTORE_UNSUPPORTED', '当前笔记'],
+  ['GIT_RESTORE_VERSION_TOO_LARGE', '历史版本'],
+  ['GIT_VERSION_NOT_FOUND', '文件'],
+])(
+  'explains %s before restoration while preserving historical differences',
+  async (code, reason) => {
+    const view = await mount('git.history');
+    call.mockResolvedValueOnce({
+      diff: 'Readable historical change',
+      restore: { supported: false, code },
+    });
+    await view.click('查看差异', 0);
+    expect(view.difference()).toBe('Readable historical change');
+    expect(view.canRestore()).toBe(false);
+    expect(view.notices().join(' ')).toContain(reason);
+    expect(view.notices().join(' ')).not.toMatch(/重新读取笔记/);
+    await view.click('查看差异', 1);
+    expect(view.canRestore()).toBe(true);
+  },
+);
+
+it('keeps a truncated difference viewable and honors the separate restoration limit', async () => {
+  const view = await mount('git.history');
+  call.mockResolvedValueOnce({
+    diff: '',
+    truncated: true,
+    restore: { supported: false, code: 'GIT_RESTORE_VERSION_TOO_LARGE' },
+  });
+  await view.click('查看差异');
+  expect(view.difference()).toMatch(/差异超过/);
+  expect(view.canRestore()).toBe(false);
+  expect(view.notices().join(' ')).toMatch(/历史版本.*1 MiB/);
+});
+
+it.each([
+  'GIT_RESTORE_UNSUPPORTED',
+  'GIT_RESTORE_VERSION_TOO_LARGE',
+  'GIT_VERSION_NOT_FOUND',
+  'GIT_OUTPUT_TOO_LARGE',
+  'LARGE_FILE_MODE_REQUIRED',
+])('does not suggest reloading can repair the deterministic restore rejection %s', async (code) => {
+  const view = await mount('git.history');
+  await view.click('查看差异');
+  await view.click('恢复此版本');
+  call.mockRejectedValueOnce(new ApiError(409, { code, error: code, retryable: false }));
+  await view.click('确认恢复笔记');
+  expect(view.canRestore()).toBe(false);
+  expect(view.notices().join(' ')).toMatch(/无法|没有可恢复|不支持/);
+  expect(view.notices().join(' ')).not.toMatch(/重新读取笔记/);
+  expect(view.notices().join(' ')).not.toContain(code);
+  expect(view.buttons('核对恢复结果')).toHaveLength(0);
+  await view.click('查看差异', 1);
+  expect(view.canRestore()).toBe(true);
+});
+
 it('allows choosing another version after a confirmed rejection without reusing stale note metadata', async () => {
   const view = await mount('git.history');
   await view.click('查看差异', 0);
