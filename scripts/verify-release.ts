@@ -60,6 +60,7 @@ const commands: [string, string[]][] = [
       'tests/release-verification.test.ts',
       'tests/maintenance-storage.test.ts',
       'tests/backup-reconciliation.test.ts',
+      'tests/backup-wal.test.ts',
       'tests/knowledge/snapshot-lifecycle.test.ts',
       'tests/update-command.test.ts',
       'tests/download-proxy.test.ts',

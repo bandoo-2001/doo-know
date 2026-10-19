@@ -69,7 +69,14 @@ export async function backup(config: AppConfig, destination: string) {
       force: false,
     });
     await mkdir(join(destination, 'data'), { mode: 0o700 });
-    await db.backup(join(destination, 'data/app.sqlite'));
+    // Keep one WAL read snapshot so metadata writes cannot restart each backup step.
+    db.exec('BEGIN');
+    try {
+      db.prepare('SELECT name FROM main.sqlite_schema LIMIT 1').get();
+      await db.backup(join(destination, 'data/app.sqlite'));
+    } finally {
+      if (db.inTransaction) db.exec('ROLLBACK');
+    }
     for (const [index, name] of retainedDirectories.entries()) {
       if (retainedBefore[index] === undefined) continue;
       await cp(join(config.dataRoot, name), join(destination, 'data', name), {

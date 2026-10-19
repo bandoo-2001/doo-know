@@ -94,30 +94,39 @@ test('cancelling refresh keeps an unsaved plugin input even after its settings p
 test('explicit logout clears plugin drafts before the next authenticated workspace opens', async ({
   page,
 }) => {
-  await page.goto('/');
-  await page.getByLabel('用户名', { exact: true }).fill('owner');
-  await page.getByLabel('密码', { exact: true }).fill(testPassword);
-  await page.getByRole('button', { name: '登录', exact: true }).click();
-  await expect(page.locator('.workspace-empty')).toBeVisible();
-  await configurePlugin(page, 'MCP 服务');
   const prefixes = page.getByLabel('允许访问的目录', { exact: true });
-  const saved = await prefixes.inputValue();
-  await prefixes.fill('00-Inbox\n退出后不应保留');
-  await tunnelMode(page);
-  await page.getByRole('button', { name: '生成连接密钥', exact: true }).click();
-  await section(page, '账号与安全');
-  await page.getByRole('button', { name: '退出当前设备', exact: true }).click();
-  await expect(page.getByRole('heading', { name: '登录 DooKnow', exact: true })).toBeVisible();
-  await page.getByLabel('用户名', { exact: true }).fill('owner');
-  await page.getByLabel('密码', { exact: true }).fill(testPassword);
-  await page.getByRole('button', { name: '登录', exact: true }).click();
-  await expect(page.locator('.workspace')).toBeVisible();
-  await configurePlugin(page, 'MCP 服务');
-  expect((await prefixes.inputValue()) === saved).toBe(true);
-  await tunnelMode(page);
-  expect((await page.getByLabel('Tunnel Bearer 密钥', { exact: true }).inputValue()) === '').toBe(
-    true,
-  );
+  let saved = '';
+  await test.step('登录并打开 MCP 设置', async () => {
+    await page.goto('/');
+    await page.getByLabel('用户名', { exact: true }).fill('owner');
+    await page.getByLabel('密码', { exact: true }).fill(testPassword);
+    await page.getByRole('button', { name: '登录', exact: true }).click();
+    await expect(page.locator('.workspace-empty')).toBeVisible();
+    await configurePlugin(page, 'MCP 服务');
+    saved = await prefixes.inputValue();
+  });
+  await test.step('留下插件草稿并退出当前设备', async () => {
+    await prefixes.fill('00-Inbox\n退出后不应保留');
+    await tunnelMode(page);
+    await page.getByRole('button', { name: '生成连接密钥', exact: true }).click();
+    await section(page, '账号与安全');
+    await page.getByRole('button', { name: '退出当前设备', exact: true }).click();
+    await expect(page.getByRole('heading', { name: '登录 DooKnow', exact: true })).toBeVisible();
+  });
+  await test.step('重新登录并返回 MCP 设置', async () => {
+    await page.getByLabel('用户名', { exact: true }).fill('owner');
+    await page.getByLabel('密码', { exact: true }).fill(testPassword);
+    await page.getByRole('button', { name: '登录', exact: true }).click();
+    await expect(page.locator('.workspace')).toBeVisible();
+    await configurePlugin(page, 'MCP 服务');
+  });
+  await test.step('核对插件草稿和未保存密钥已清理', async () => {
+    expect((await prefixes.inputValue()) === saved).toBe(true);
+    await tunnelMode(page);
+    expect((await page.getByLabel('Tunnel Bearer 密钥', { exact: true }).inputValue()) === '').toBe(
+      true,
+    );
+  });
 });
 
 test('a save response from an unmounted plugin view cannot replace newer inputs after returning', async ({
