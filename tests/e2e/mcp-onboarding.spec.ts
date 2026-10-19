@@ -41,6 +41,7 @@ test('guides a new MCP user before enablement and keeps local readiness separate
   await page.locator('.ant-select-item-option').filter({ hasText: '网页授权（OAuth）' }).click();
   await page.getByRole('button', { name: '保存插件配置', exact: true }).click();
   await page.reload();
+  await expect(page.locator('.settings-workspace')).toBeVisible();
   await configurePlugin(page, 'MCP 服务');
   await expect(page.getByLabel('允许访问的目录', { exact: true })).toHaveValue('00-Inbox');
   await expect(page.getByLabel('Tunnel Bearer 密钥', { exact: true })).toBeHidden();
