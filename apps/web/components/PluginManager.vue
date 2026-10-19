@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, nextTick } from 'vue';
+import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import {
   Button as AButton,
   Input as AInput,
@@ -10,11 +10,23 @@ import {
   Empty as AEmpty,
   Tabs as ATabs,
   TabPane as ATabPane,
+  Popconfirm as APopconfirm,
 } from 'ant-design-vue';
+import type { PluginView } from '../../../packages/plugin-contracts';
 import { pluginRegistry, pluginUIErrors, refreshPlugins } from '../plugins';
 import { pluginComponents } from '../../../packages/plugin-ui/host';
 import PluginBoundary from './PluginBoundary.vue';
-import { api } from '../api';
+import MCPConnectionGuide from './MCPConnectionGuide.vue';
+import { api, ApiError } from '../api';
+import { pluginDrafts as drafts, pluginDraftSession, storePluginDraft } from '../plugin-drafts';
+import {
+  createPluginDraft,
+  refreshPluginDraft,
+  pluginDraftDirty,
+  pluginFieldVisible,
+  serializePluginDraft,
+  PluginConfigError,
+} from '../plugin-config';
 const props = defineProps<{ focusPlugin?: string }>();
 const tab = ref('installed'),
   advancedOpen = ref(false);
@@ -45,17 +57,54 @@ const installedById = computed(
 const installed = computed(() =>
   pluginRegistry.value.installed.find((p) => p.id === selected.value),
 );
+const draftSession = pluginDraftSession();
+let active = true;
+const currentDraftSession = () => active && draftSession === pluginDraftSession();
+onBeforeUnmount(() => {
+  active = false;
+});
+const draft = computed(() => installed.value && drafts[installed.value.id]);
+const dirty = computed(() => !!draft.value && pluginDraftDirty(draft.value));
+const remoteChanged = computed(
+  () =>
+    !!draft.value &&
+    (draft.value.conflicted || draft.value.configVersion !== installed.value?.configVersion),
+);
+function prefixField(key: string | number) {
+  return installed.value?.id === 'mcp' && key === 'allowedPrefixes';
+}
+function requirement(key: string | number) {
+  if (prefixField(key)) return '必填';
+  if (installed.value?.id === 'mcp' && key === 'mode') return '必选';
+  return installed.value?.manifest.configSchema.required?.includes(String(key)) ? '必填' : '选填';
+}
+function enumOptions(key: string | number, field: any) {
+  const modes: Record<string, string> = {
+    oauth: '网页授权（OAuth）',
+    tunnel: '本地隧道（Tunnel）',
+    both: '同时启用',
+  };
+  return field.enum.map((value: any) => ({
+    label:
+      installed.value?.id === 'mcp' && key === 'mode'
+        ? modes[value] || String(value)
+        : String(value),
+    value,
+  }));
+}
 const standardFields = computed(() =>
   Object.fromEntries(
     Object.entries(installed.value?.manifest.configSchema.properties || {}).filter(
-      ([, field]) => !['object', 'array'].includes((field as any).type),
+      ([key, field]) =>
+        (!['object', 'array'].includes((field as any).type) || prefixField(key)) &&
+        pluginFieldVisible(installed.value?.id || '', key, values.value.mode),
     ),
   ),
 );
 const advancedFields = computed(() =>
   Object.fromEntries(
-    Object.entries(installed.value?.manifest.configSchema.properties || {}).filter(([, field]) =>
-      ['object', 'array'].includes((field as any).type),
+    Object.entries(installed.value?.manifest.configSchema.properties || {}).filter(
+      ([key, field]) => ['object', 'array'].includes((field as any).type) && !prefixField(key),
     ),
   ),
 );
@@ -64,7 +113,7 @@ const capabilityLabels: Record<string, string> = {
   'knowledge:write': '写入知识库',
   'knowledge:index': '维护搜索索引',
   'protocol:mcp': '连接 AI 应用',
-  'workspace:git': 'Git 同步',
+  'workspace:git': '本地文件版本',
   'network:listen': '提供网络服务',
   'network:request': '访问网络',
 };
@@ -86,47 +135,60 @@ const settingsPages = computed(() =>
 watch(
   [() => installed.value?.id, () => installed.value?.configVersion],
   () => {
+    if (!currentDraftSession()) return;
     const plugin = installed.value;
     invalidField.value = '';
     error.value = '';
     notice.value = '';
-    values.value = { ...(plugin?.config || {}) };
-    for (const [key, schema] of Object.entries(plugin?.manifest.configSchema.properties || {})) {
-      const field = schema as any;
-      if (field.writeOnly) values.value[key] = '';
-      else if (field.type === 'object' || field.type === 'array')
-        values.value[key] = JSON.stringify(
-          values.value[key] ?? field.default ?? (field.type === 'array' ? [] : {}),
-          null,
-          2,
-        );
-      else if (values.value[key] === undefined && field.default !== undefined)
-        values.value[key] = field.default;
+    if (!plugin) {
+      values.value = {};
+      return;
     }
+    const next = drafts[plugin.id]
+      ? refreshPluginDraft(drafts[plugin.id], plugin)
+      : createPluginDraft(plugin);
+    if (!storePluginDraft(next, draftSession)) return;
+    values.value = drafts[plugin.id].values;
   },
   { immediate: true },
 );
 async function run(work: () => Promise<unknown>, action = 'refresh') {
-  if (busy.value) return false;
+  if (busy.value || !currentDraftSession()) return false;
   busy.value = true;
   pendingAction.value = action;
   error.value = '';
   notice.value = '';
   invalidField.value = '';
+  let completed = false;
   try {
     await work();
+    completed = true;
+    if (!currentDraftSession()) return false;
     await refreshPlugins();
-    return true;
+    return currentDraftSession();
   } catch (e) {
-    error.value = (e as Error).message;
+    if (!currentDraftSession()) return false;
+    const readOnly = action === 'refresh' || action === 'reload';
+    const uncertain =
+      (e instanceof ApiError && e.status === 0) ||
+      e instanceof TypeError ||
+      (e instanceof Error && ['TimeoutError', 'AbortError'].includes(e.name));
+    if (completed && !readOnly) error.value = '操作已完成，但未能读取最新状态，请刷新核对。';
+    else if (uncertain && !readOnly) error.value = '操作结果尚未确认，请先刷新状态核对。';
+    else if (readOnly && !(e instanceof PluginConfigError))
+      error.value = '暂时无法读取插件状态，请检查连接后重试。';
+    else if (e instanceof ApiError && e.data.code === 'PLUGIN_RESTART_REQUIRED')
+      error.value = '配置或版本需要重启生效，请重启 DooKnow 后再启用插件。';
+    else error.value = (e as Error).message;
     return false;
   } finally {
     busy.value = false;
     pendingAction.value = '';
-    if (invalidField.value) {
+    if (currentDraftSession() && invalidField.value) {
       advancedOpen.value = true;
       await nextTick();
-      document.getElementById('plugin-field-' + invalidField.value)?.focus();
+      if (currentDraftSession())
+        document.getElementById('plugin-field-' + invalidField.value)?.focus();
     }
   }
 }
@@ -142,39 +204,59 @@ async function action(id: string, command: string) {
 }
 async function save() {
   const plugin = installed.value;
-  if (!plugin) return;
+  const currentDraft = draft.value;
+  if (!plugin || !currentDraft || remoteChanged.value) return;
   const saved = await run(async () => {
-    const config = { ...values.value };
-    for (const [key, schema] of Object.entries(plugin.manifest.configSchema.properties || {})) {
-      const field = schema as any;
-      if (field.writeOnly && config[key] === '') delete config[key];
-      else if (field.type === 'object' || field.type === 'array') {
-        try {
-          const value = JSON.parse(config[key]);
-          if (
-            field.type === 'array'
-              ? !Array.isArray(value)
-              : !value || typeof value !== 'object' || Array.isArray(value)
-          )
-            throw Error();
-          config[key] = value;
-        } catch {
-          invalidField.value = key;
-          throw Error(
-            `${field.title || key}格式不正确，请填写有效的 JSON ${field.type === 'array' ? '数组' : '对象'}。`,
-          );
-        }
+    try {
+      const updated = await api<PluginView>(
+        `/api/platform/plugins/${plugin.id}/config`,
+        'PUT',
+        serializePluginDraft(currentDraft, plugin),
+      );
+      if (!currentDraftSession() || !storePluginDraft(createPluginDraft(updated), draftSession))
+        return;
+      if (selected.value === plugin.id) values.value = drafts[plugin.id].values;
+    } catch (e) {
+      if (!currentDraftSession()) return;
+      if (e instanceof PluginConfigError) invalidField.value = e.field;
+      if ((e as Error).message.includes('CONFIG_VERSION_CONFLICT')) {
+        currentDraft.conflicted = true;
+        await refreshPlugins().catch(() => {});
+        throw Error('远端配置已经变化，未保存的输入已保留。请先重新载入已保存配置。');
       }
+      throw e;
     }
-    await api(`/api/platform/plugins/${plugin.id}/config`, 'PUT', {
-      values: config,
-      configVersion: plugin.configVersion,
-    });
   }, 'save');
   if (saved) {
     await nextTick();
-    notice.value = '插件配置已保存';
+    notice.value =
+      installed.value?.state === 'enabled'
+        ? '插件配置已保存。'
+        : '插件配置已保存，请启用插件后使用连接功能。';
   }
+}
+async function reloadConfig() {
+  const id = installed.value?.id;
+  if (!id) return;
+  const reloaded = await run(async () => {
+    await refreshPlugins();
+    const plugin = pluginRegistry.value.installed.find((entry) => entry.id === id);
+    if (!plugin) throw Error('插件已经卸载，请刷新插件列表。');
+    if (!currentDraftSession() || !storePluginDraft(createPluginDraft(plugin), draftSession))
+      return;
+    values.value = drafts[id].values;
+  }, 'reload');
+  if (reloaded) {
+    await nextTick();
+    notice.value = '已重新载入已保存配置。';
+  }
+}
+async function generateConnectionKey() {
+  values.value.tunnelToken = Array.from(crypto.getRandomValues(new Uint8Array(32)), (byte) =>
+    byte.toString(16).padStart(2, '0'),
+  ).join('');
+  await nextTick();
+  notice.value = '已在本浏览器生成连接密钥，请保存插件配置。';
 }
 watch(
   values,
@@ -210,7 +292,8 @@ onMounted(() => {
         >返回插件列表</AButton
       >
     </div>
-    <ATabs v-if="!focusPlugin && !selected" v-model:active-key="tab"
+    <!-- Both tabs fit without dragging. Keep rc-tabs from capturing vertical page swipes. -->
+    <ATabs v-if="!focusPlugin && !selected" v-model:active-key="tab" @touchstart.capture.stop
       ><ATabPane key="installed" tab="已安装" /><ATabPane key="add" tab="添加插件"
     /></ATabs>
     <AAlert v-if="error" type="error" show-icon :message="error" class="plugin-feedback" />
@@ -292,6 +375,9 @@ onMounted(() => {
     </article>
     <div v-if="pendingUninstall" class="plugin-confirm">
       <p>卸载后保留插件配置与数据。</p>
+      <p v-if="pendingUninstall === 'mcp'">
+        已有连接授权也会保留。如需撤销，请先在连接引导中撤销授权。
+      </p>
       <div class="plugin-actions">
         <AButton
           danger
@@ -307,7 +393,13 @@ onMounted(() => {
     <div v-if="installed" class="plugin-settings">
       <header class="settings-heading">
         <h3>{{ installed.manifest.title }}设置</h3>
+        <p v-if="installed.id === 'git'" class="muted">
+          版本记录保存在当前知识库，不会自动上传到远端，也不能替代备份。远端同步需部署者单独配置。
+        </p>
         <p class="muted">调整插件参数，管理运行状态。 · {{ stateLabels[installed.state] }}</p>
+        <p v-if="installed.state !== 'enabled'" class="muted">
+          请先保存配置，再启用插件。保存本身不会启用连接。
+        </p>
         <div class="plugin-actions" style="margin-top: 12px">
           <AButton
             v-if="installed.state === 'enabled'"
@@ -317,7 +409,7 @@ onMounted(() => {
             >停用插件</AButton
           ><AButton
             v-else
-            :disabled="busy"
+            :disabled="busy || dirty || remoteChanged"
             :loading="pendingAction === installed.id + ':enable'"
             @click="action(installed.id, 'enable')"
             >启用插件</AButton
@@ -335,6 +427,12 @@ onMounted(() => {
           </ul>
         </details>
       </header>
+      <MCPConnectionGuide
+        v-if="installed.id === 'mcp'"
+        :plugin="installed"
+        :mode="values.mode || 'oauth'"
+        :dirty="dirty"
+      />
       <AAlert
         v-if="installed.error"
         type="error"
@@ -348,19 +446,40 @@ onMounted(() => {
         message="配置或版本需要重启生效"
         description="请在服务器运行 dooknow restart。"
       />
+      <AAlert
+        v-if="remoteChanged"
+        type="warning"
+        show-icon
+        message="已保存配置在其他位置发生变化"
+        description="当前输入已保留。请先重新载入最新配置，再检查并重新填写需要保留的更改。"
+      >
+        <template #action>
+          <APopconfirm
+            title="重新载入会丢弃当前未保存输入，确定继续？"
+            ok-text="丢弃输入并重新载入"
+            cancel-text="保留当前输入"
+            @confirm="reloadConfig"
+          >
+            <AButton :disabled="busy">重新载入已保存配置</AButton>
+          </APopconfirm>
+        </template>
+      </AAlert>
+      <p v-else-if="dirty" class="muted plugin-draft-notice" role="status">
+        有未保存的更改。返回插件列表后，本页会保留各插件的输入。
+      </p>
       <form class="plugin-form" @submit.prevent="save">
         <div
           v-for="(field, key) in standardFields as Record<string, any>"
           :key="key"
           class="plugin-field"
           :class="{
-            'field-wide': ['array', 'object'].includes(field.type),
+            'field-wide': !['integer', 'number'].includes(field.type),
             'field-toggle': field.type === 'boolean',
           }"
         >
           <div class="field-heading">
             <label :for="'plugin-field-' + key">{{ field.title || key }}</label>
-            <span v-if="['array', 'object'].includes(field.type)" class="field-format">JSON</span>
+            <span class="field-format">{{ requirement(key) }}</span>
           </div>
           <ASwitch
             v-if="field.type === 'boolean'"
@@ -368,6 +487,17 @@ onMounted(() => {
             :id="'plugin-field-' + key"
             :aria-label="field.title || key"
             :disabled="busy"
+          />
+          <AInput.TextArea
+            v-else-if="prefixField(key)"
+            v-model:value="values[key]"
+            :id="'plugin-field-' + key"
+            :aria-label="field.title || String(key)"
+            :aria-invalid="invalidField === String(key)"
+            :status="invalidField === String(key) ? 'error' : undefined"
+            :disabled="busy"
+            :auto-size="{ minRows: 4, maxRows: 10 }"
+            spellcheck="false"
           />
           <AInputNumber
             v-else-if="field.type === 'integer' || field.type === 'number'"
@@ -380,7 +510,7 @@ onMounted(() => {
             v-else-if="field.enum"
             v-model:value="values[key]"
             :id="'plugin-field-' + key"
-            :options="field.enum.map((v: any) => ({ label: String(v), value: v }))"
+            :options="enumOptions(key, field)"
             :aria-label="field.title || String(key)"
             :disabled="busy"
           />
@@ -391,9 +521,7 @@ onMounted(() => {
             :aria-label="field.title || String(key)"
             :disabled="busy"
             :placeholder="
-              installed.configuredSecrets.includes(String(key))
-                ? '已配置；留空保留'
-                : field.description || ''
+              installed.configuredSecrets.includes(String(key)) ? '已配置；留空保留' : '尚未配置'
             "
             autocomplete="new-password"
           />
@@ -406,7 +534,6 @@ onMounted(() => {
             :status="invalidField === String(key) ? 'error' : undefined"
             :disabled="busy"
             :auto-size="{ minRows: 3, maxRows: 8 }"
-            :placeholder="field.description || ''"
             spellcheck="false"
           />
           <AInput
@@ -415,8 +542,16 @@ onMounted(() => {
             :id="'plugin-field-' + key"
             :aria-label="field.title || String(key)"
             :disabled="busy"
-            :placeholder="field.description || ''"
           />
+          <template v-if="installed.id === 'mcp' && key === 'tunnelToken'">
+            <AButton :disabled="busy" class="generate-connection-key" @click="generateConnectionKey"
+              >生成连接密钥</AButton
+            >
+            <p class="muted">
+              这是 DooKnow 的连接密钥，与 OpenAI API key
+              不同。可在本浏览器生成，生成后仍需保存配置；已有密钥留空会保留。
+            </p>
+          </template>
           <AButton
             v-if="field.writeOnly && installed.configuredSecrets.includes(String(key))"
             size="small"
@@ -426,13 +561,20 @@ onMounted(() => {
             @click="values[key] = null"
             >清除已配置值</AButton
           >
-          <p v-if="field.description" class="muted">{{ field.description }}</p>
+          <p v-if="prefixField(key)" class="muted">
+            每行填写一个知识库内的相对目录或文件，最多 64
+            项。填写的目录下内容均可访问；不能使用绝对路径、上级目录或隐藏目录。
+          </p>
+          <p v-else-if="field.description" class="muted">{{ field.description }}</p>
           <p v-else-if="['array', 'object'].includes(field.type)" class="muted">
             {{
               field.type === 'array'
                 ? '请填写有效的 JSON 数组，保留方括号与原有数据格式。'
                 : '使用 JSON 对象填写配置，保留键名与数据格式。'
             }}
+          </p>
+          <p v-if="invalidField === String(key)" class="plugin-field-error" role="alert">
+            {{ error }}
           </p>
         </div>
         <details
@@ -450,6 +592,7 @@ onMounted(() => {
             style="margin-top: 16px"
           >
             <label :for="'plugin-field-' + key">{{ field.title || key }}</label>
+            <span class="field-format">{{ requirement(key) }} · JSON</span>
             <AInput.TextArea
               v-model:value="values[key]"
               :id="'plugin-field-' + key"
@@ -471,7 +614,7 @@ onMounted(() => {
             html-type="submit"
             type="primary"
             :loading="pendingAction === 'save'"
-            :disabled="busy"
+            :disabled="busy || remoteChanged"
             >保存插件配置</AButton
           >
           <span v-if="notice" class="form-success" role="status">{{ notice }}</span>
@@ -703,6 +846,12 @@ onMounted(() => {
 }
 .plugin-form :deep(.clear-secret) {
   margin: 4px 0 0;
+}
+.plugin-form :deep(.generate-connection-key) {
+  margin-top: 8px;
+}
+.plugin-draft-notice {
+  margin-bottom: 14px;
 }
 .plugin-form-footer {
   display: flex;

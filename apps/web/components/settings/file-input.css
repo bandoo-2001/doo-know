@@ -1,0 +1,35 @@
+.settings-field input[type='file'] {
+  max-width: 100%;
+  color: var(--muted);
+  font: inherit;
+}
+
+.settings-field input[type='file']::file-selector-button {
+  height: 36px;
+  margin-right: 12px;
+  padding: 0 15px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-soft);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.settings-field input[type='file']:not(:disabled)::file-selector-button:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+.settings-field input[type='file']:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.settings-field input[type='file']:disabled::file-selector-button {
+  color: var(--muted);
+  background: var(--surface);
+  cursor: not-allowed;
+}

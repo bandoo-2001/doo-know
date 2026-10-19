@@ -14,7 +14,12 @@ import type {
   TransferTaskList,
 } from '../../../../shared/transfer-contracts';
 const props = withDefaults(
-  defineProps<{ kinds?: TransferKind[]; pollInterval?: number; pollAlways?: boolean }>(),
+  defineProps<{
+    kinds?: TransferKind[];
+    pollInterval?: number;
+    pollAlways?: boolean;
+    compact?: boolean;
+  }>(),
   {
     pollInterval: 2500,
   },
@@ -25,9 +30,25 @@ const tasks = ref<TransferTask[]>([]),
   loading = ref(false),
   busy = ref(''),
   cursor = ref<string>();
-const visible = computed(() =>
+const showHistory = ref(false);
+const matching = computed(() =>
   tasks.value.filter((task) => !props.kinds || props.kinds.includes(task.kind)),
 );
+const historyCount = computed(
+  () => matching.value.filter((task) => ['succeeded', 'cancelled'].includes(task.state)).length,
+);
+const visible = computed(() => {
+  if (!props.compact) return matching.value;
+  const priority = (task: TransferTask) =>
+    ['queued', 'running'].includes(task.state)
+      ? 0
+      : ['failed', 'interrupted'].includes(task.state)
+        ? 1
+        : 2;
+  return matching.value
+    .filter((task) => showHistory.value || priority(task) < 2)
+    .sort((a, b) => priority(a) - priority(b));
+});
 const stateLabels: Record<string, string> = {
   queued: '等待开始',
   running: '进行中',
@@ -111,7 +132,7 @@ function progress(task: TransferTask) {
     ? Math.min(100, Math.round((task.progress.completed / task.progress.total) * 100))
     : 0;
 }
-defineExpose({ refresh });
+defineExpose({ refresh, loading });
 let timer: ReturnType<typeof setInterval>;
 onMounted(() => {
   void refresh();
@@ -123,17 +144,28 @@ onMounted(() => {
 onUnmounted(() => clearInterval(timer));
 </script>
 <template>
-  <section class="settings-card">
+  <section class="settings-card transfer-tasks" :class="{ 'transfer-tasks-compact': compact }">
     <div class="settings-item-header">
       <div>
         <h2>任务与结果</h2>
-        <p>离开此页后任务仍会继续，也可从左下角「状态」查看。</p>
+        <p v-if="!compact">离开此页后任务仍会继续，也可从左下角「状态」查看。</p>
+        <p v-else>关闭面板后，任务仍会继续。</p>
       </div>
-      <AButton size="small" :loading="loading" @click="refresh(false, true)">刷新任务</AButton>
+      <AButton v-if="!compact" size="small" :loading="loading" @click="refresh(false, true)"
+        >刷新任务</AButton
+      >
     </div>
-    <AAlert v-if="error" type="error" :message="error" show-icon />
+    <AAlert v-if="error" type="error" :message="error" show-icon>
+      <template v-if="compact" #action>
+        <AButton size="small" :loading="loading" @click="refresh(false, true)"
+          >重新读取任务</AButton
+        >
+      </template>
+    </AAlert>
     <p v-if="!visible.length && !error" class="settings-muted" role="status">
-      {{ loading ? '正在读取任务…' : '暂无相关任务。' }}
+      {{
+        loading && !tasks.length ? '正在读取任务…' : compact ? '暂无进行中的任务' : '暂无相关任务。'
+      }}
     </p>
     <ul class="settings-list">
       <li v-for="task in visible" :key="task.id">
@@ -185,13 +217,13 @@ onUnmounted(() => clearInterval(timer));
           size="small"
           :show-info="false"
         />
-        <p v-if="task.error" class="settings-field-error" role="alert">
+        <div v-if="task.error" class="settings-field-error" role="alert">
           任务未完成，请保留已完成的结果并重试支持的项目。
           <details>
             <summary>错误详情</summary>
             {{ task.error }}
           </details>
-        </p>
+        </div>
         <p v-if="task.result?.scope" class="settings-muted">导出范围：{{ task.result.scope }}</p>
         <ul v-if="task.result?.warnings?.length" class="settings-muted">
           <li v-for="warning in task.result.warnings" :key="warning">{{ warning }}</li>
@@ -247,6 +279,42 @@ onUnmounted(() => clearInterval(timer));
         </details>
       </li>
     </ul>
+    <AButton
+      v-if="compact && historyCount"
+      type="text"
+      size="small"
+      class="transfer-history-toggle"
+      :aria-expanded="showHistory"
+      @click="showHistory = !showHistory"
+      >{{ showHistory ? '收起' : '查看' }}已完成与已取消（{{ historyCount }}）</AButton
+    >
     <AButton v-if="cursor" :loading="loading" @click="refresh(true)">加载更多任务</AButton>
   </section>
 </template>
+<style scoped>
+.transfer-tasks-compact > .settings-item-header h2 {
+  font-size: 14px;
+}
+.transfer-tasks-compact > .settings-muted {
+  margin: 20px 0 4px;
+  padding: 14px 12px;
+  border: 1px dashed var(--border, #e3e6ec);
+  border-radius: 8px;
+  text-align: center;
+}
+.transfer-tasks-compact > .settings-list:empty {
+  margin: 0;
+}
+.transfer-tasks-compact .settings-item-header {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.transfer-tasks-compact .settings-item-header strong {
+  margin-right: 8px;
+  font-size: 13px;
+}
+.transfer-history-toggle {
+  margin-top: 12px;
+  color: var(--muted, #687486);
+}
+</style>

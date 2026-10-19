@@ -1,20 +1,27 @@
 import { clickNoteAction } from '../support/note-actions';
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
+import { randomUUID } from 'node:crypto';
 
 test('search and history expose their remaining pages', async ({ page, context }, info) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   await page.goto('/');
+  await expect(page.locator('.workspace')).toBeVisible();
+  await expect(
+    page.locator('.sidebar-create').getByRole('button', { name: '新建笔记', exact: true }),
+  ).toBeEnabled();
   const csrf = await page.request.get('/api/security/csrf');
+  expect(csrf.status()).toBe(200);
   const headers = { origin: 'http://127.0.0.1:4179', 'x-csrf-token': (await csrf.json()).token };
-  const keyword = `platformpagination${info.project.name}`;
+  const suffix = randomUUID().replaceAll('-', '');
+  const keyword = `platformpagination${info.project.name}${suffix}`;
   let current: any;
   for (let i = 0; i < 12; i++) {
     const created = await page.request.post('/api/notes', {
       headers,
       data: {
         folderPath: '00-Inbox',
-        fileName: `分页正文-${info.project.name}-${i}.md`,
+        fileName: `分页正文-${info.project.name}-${suffix}-${i}.md`,
         content: `# ${keyword}\n${i}`,
       },
     });

@@ -1,9 +1,12 @@
 import { test, expect } from '../support/browser-test';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { showSidebar } from '../support/settings-navigation';
 
 async function openFixtureNote(page: import('@playwright/test').Page, fileName: string) {
   await page.goto('/');
+  await expect(page.locator('.workspace')).toBeVisible();
+  await showSidebar(page);
   await page.getByRole('button', { name: '00-Inbox', exact: true }).first().click();
   const metadata = page.waitForResponse((response) =>
     /\/api\/notes\/[^/]+\/meta$/.test(response.url()),

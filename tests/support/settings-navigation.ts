@@ -2,6 +2,7 @@ import type { Page } from '@playwright/test';
 import { expect } from '@playwright/test';
 /** Contextual settings hide notebook navigation; use the visible sidebar for each transition. */
 export async function showSidebar(page: Page) {
+  await expect(page.locator('.workspace')).toBeVisible();
   const trigger = page.getByRole('button', { name: '打开侧栏', exact: true });
   if (
     (await trigger.isVisible()) &&
@@ -20,6 +21,7 @@ export async function closeSidebar(page: Page) {
 export async function openSettingsSection(page: Page, label: string) {
   await showSidebar(page);
   await page.locator('.sidebar-footer').getByRole('button', { name: '设置', exact: true }).click();
+  await expect(page.locator('.settings-workspace')).toBeVisible();
   await showSidebar(page);
   await page
     .getByRole('navigation', { name: '设置分类', exact: true })

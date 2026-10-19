@@ -19,10 +19,10 @@ test('loads independently built MCP settings and exposes connection requirements
     .getByRole('button', { name: '启用插件', exact: true });
   if (await enable.isVisible()) await enable.click();
   await expect(
-    page.getByText('OAuth 尚未就绪：需要浏览器可达的 HTTPS 授权站点和 MCP 地址', { exact: true }),
+    page.getByText('网页授权尚未就绪：需要浏览器可达的 HTTPS 授权站点和 MCP 地址', { exact: true }),
   ).toBeVisible();
   await expect(page.getByRole('heading', { name: '最近调用', exact: true })).toBeVisible();
-  await expect(page.getByLabel('Tunnel Bearer 密钥', { exact: true })).toHaveValue('');
+  await expect(page.getByLabel('Tunnel Bearer 密钥', { exact: true })).toBeHidden();
   await returnToNotes(page);
   await showSidebar(page);
   await page.getByRole('button', { name: 'MCP 连接', exact: true }).click();

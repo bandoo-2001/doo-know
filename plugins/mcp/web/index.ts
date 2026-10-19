@@ -89,8 +89,8 @@ export function activate(api: PluginUIApi) {
                       'p',
                       { class: ['mcp-connection', { ready: status.value.connection.oauth.ready }] },
                       status.value.connection.oauth.ready
-                        ? 'OAuth 可连接：' + status.value.connection.oauth.address
-                        : 'OAuth 尚未就绪：' + status.value.connection.oauth.reason,
+                        ? '网页授权本机条件已满足（外部连接未验证）：' + status.value.connection.oauth.address
+                        : '网页授权尚未就绪：' + status.value.connection.oauth.reason,
                     ),
                     status.value.connection.tunnel &&
                       h(
@@ -101,7 +101,7 @@ export function activate(api: PluginUIApi) {
                             { ready: status.value.connection.tunnel.ready },
                           ],
                         },
-                        'Tunnel：' +
+                        '本地隧道服务（不代表外部隧道在线）：' +
                           (status.value.connection.tunnel.ready
                             ? status.value.connection.tunnel.address
                             : status.value.connection.tunnel.reason),

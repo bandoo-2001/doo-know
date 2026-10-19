@@ -286,3 +286,5 @@ async function exportLibrary() {
     />
   </div>
 </template>
+
+<style scoped src="./file-input.css"></style>

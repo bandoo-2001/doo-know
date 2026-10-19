@@ -1,5 +1,6 @@
 import { defineComponent, h, ref, shallowRef, onMounted, onUnmounted } from 'vue';
 import { NButton, NInput, NAlert, type PluginUIApi } from '@dooknow/plugin-ui';
+import { gitDecoration } from './decoration';
 
 const styles = `
 .dooknow-git-view { min-width: 0; color: var(--text, #262b36); font-size: 13px; line-height: 1.65; }
@@ -158,18 +159,18 @@ export function activate(api: PluginUIApi) {
         return () => {
           const path = props.context?.relativePath,
             rows = state.value.changes || [],
-            change = rows.find((r: any) => r.path === path),
-            nested = rows.some((r: any) => r.path.startsWith(path + '/'));
-          return change || nested
+            decoration = path ? gitDecoration(rows, path) : undefined;
+          return decoration
             ? h(
                 'span',
                 {
                   class: 'dooknow-git-decoration',
-                  title: change?.code || '目录包含变更',
+                  title: decoration.title,
+                  role: 'img',
+                  'aria-label': decoration.title,
                   style:
-                    'color:var(--blue,#4566c6);font-size:10px;font-weight:600;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;flex-shrink:0',
+                    `display:inline-block;width:8px;height:8px;border-radius:50%;background:${decoration.color};margin:0 4px;flex-shrink:0`,
                 },
-                change?.code || '●',
               )
             : null;
         };
@@ -206,7 +207,21 @@ export function activate(api: PluginUIApi) {
           busy = ref(false),
           requestId = ref(''),
           uncertain = ref(false);
+        function updateMessage(value: string) {
+          if (busy.value || uncertain.value) return;
+          message.value = value;
+          const previous = preview.value;
+          if (previous && previous.message !== value.trim()) {
+            preview.value = undefined;
+            requestId.value = '';
+            result.value = undefined;
+            void api
+              .call('command', 'git.cancelPreview', { token: previous.token })
+              .catch(() => {});
+          }
+        }
         async function perform(fn: () => Promise<void>) {
+          if (busy.value) return;
           busy.value = true;
           error.value = '';
           try {
@@ -235,6 +250,8 @@ export function activate(api: PluginUIApi) {
           });
         const confirm = () =>
           perform(async () => {
+            if (!preview.value || preview.value.message !== message.value.trim())
+              throw Error('提交说明已修改，请重新预览');
             uncertain.value = true;
             try {
               result.value = await api.call('command', 'git.commit', {
@@ -268,7 +285,8 @@ export function activate(api: PluginUIApi) {
             h('label', { class: 'git-form-label', for: 'git-commit-message' }, '提交说明'),
             h(NInput, {
               value: message.value,
-              'onUpdate:value': (v) => (message.value = v),
+              'onUpdate:value': updateMessage,
+              disabled: busy.value || uncertain.value,
               placeholder: '填写提交说明',
               inputProps: { id: 'git-commit-message', 'aria-label': 'Git 提交说明' },
               type: 'textarea',
@@ -346,11 +364,15 @@ export function activate(api: PluginUIApi) {
         const rows = ref<any[]>([]),
           cursor = ref<string>(),
           diff = ref(''),
+          diffCommit = ref<string>(),
+          diffLoading = ref(false),
           error = ref(''),
           selected = ref<string>(),
           confirmRestore = ref(false),
+          restoreNeedsReload = ref(false),
           busy = ref(false),
           pendingRestore = ref<any>();
+        let diffRequest = 0;
         const noteId = () => props.context?.note?.id || props.context?.noteId;
         async function load(next = false) {
           try {
@@ -365,27 +387,51 @@ export function activate(api: PluginUIApi) {
           }
         }
         async function show(commit: string) {
+          if (busy.value) return;
+          if (pendingRestore.value && pendingRestore.value.commit !== commit) {
+            error.value = '请先核对上一次恢复结果';
+            return;
+          }
+          const request = ++diffRequest;
+          selected.value = commit;
+          diffCommit.value = undefined;
+          diff.value = '';
+          diffLoading.value = true;
+          error.value = '';
+          confirmRestore.value = false;
           try {
-            if (pendingRestore.value && pendingRestore.value.commit !== commit)
-              throw Error('请先核对上一次恢复结果');
-            selected.value = commit;
-            confirmRestore.value = false;
             const result = await api.call('provider', 'git.diff', { noteId: noteId(), commit });
+            if (request !== diffRequest) return;
             diff.value = result.truncated ? '差异超过 256 KiB，请在服务器查看。' : result.diff;
+            diffCommit.value = commit;
           } catch (e) {
-            error.value = friendly(e);
+            if (request === diffRequest) error.value = friendly(e);
+          } finally {
+            if (request === diffRequest) diffLoading.value = false;
           }
         }
         async function restore() {
+          if (
+            busy.value ||
+            restoreNeedsReload.value ||
+            diffLoading.value ||
+            !diffCommit.value ||
+            diffCommit.value !== selected.value
+          )
+            return;
           busy.value = true;
           try {
+            if (!pendingRestore.value && !props.context?.expectedModifiedAt) {
+              restoreNeedsReload.value = true;
+              confirmRestore.value = false;
+              return;
+            }
             pendingRestore.value ||= {
               noteId: noteId(),
-              commit: selected.value,
+              commit: diffCommit.value,
               expectedModifiedAt: props.context?.expectedModifiedAt,
               requestId: crypto.randomUUID(),
             };
-            if (!pendingRestore.value.expectedModifiedAt) throw Error('请重新打开笔记后再恢复');
             await api.call('command', 'git.restore', pendingRestore.value);
             pendingRestore.value = undefined;
             api.notifyChanged(noteId());
@@ -393,16 +439,38 @@ export function activate(api: PluginUIApi) {
             confirmRestore.value = false;
             await refresh();
           } catch (e) {
+            const response = e as any,
+              status = response.status ?? response.statusCode,
+              data = response.data || {},
+              code = data.code || data.error?.code || response.code || response.message,
+              retryable = data.retryable || data.error?.retryable || response.retryable;
+            if (
+              status >= 400 &&
+              status < 500 &&
+              !retryable &&
+              !String(code).includes('OUTCOME_UNKNOWN')
+            ) {
+              pendingRestore.value = undefined;
+              confirmRestore.value = false;
+              restoreNeedsReload.value = true;
+            }
             error.value = friendly(e);
           } finally {
             busy.value = false;
           }
         }
         onMounted(() => load());
+        onUnmounted(() => {
+          diffRequest++;
+        });
         return () =>
           h('div', { class: 'dooknow-git-history dooknow-git-view' }, [
             h('style', styles),
             error.value && h(NAlert, { type: 'error' }, () => error.value),
+            restoreNeedsReload.value &&
+              h(NAlert, { type: 'warning' }, () =>
+                '恢复未执行。请关闭此面板，保留当前编辑草稿并重新读取笔记后，再打开 Git 版本恢复。',
+              ),
             h(
               'div',
               { class: 'git-history-list' },
@@ -424,7 +492,7 @@ export function activate(api: PluginUIApi) {
                         ]),
                         h(
                           NButton,
-                          { size: 'small', onClick: () => show(r.commit) },
+                          { size: 'small', disabled: busy.value, onClick: () => show(r.commit) },
                           () => '查看差异',
                         ),
                       ],
@@ -439,12 +507,18 @@ export function activate(api: PluginUIApi) {
             selected.value &&
               h('div', { class: 'git-diff' }, [
                 h('p', { class: 'git-diff-label' }, `版本差异 · ${selected.value.slice(0, 12)}`),
+                diffLoading.value && h('p', { role: 'status' }, '正在读取版本差异…'),
                 h('pre', diff.value),
-                h(
-                  NButton,
-                  { size: 'small', onClick: () => (confirmRestore.value = true) },
-                  () => '恢复此版本',
-                ),
+                diffCommit.value === selected.value &&
+                  h(
+                    NButton,
+                    {
+                      size: 'small',
+                      disabled: busy.value || restoreNeedsReload.value,
+                      onClick: () => (confirmRestore.value = true),
+                    },
+                    () => '恢复此版本',
+                  ),
                 confirmRestore.value &&
                   h('div', { class: 'git-restore-confirm' }, [
                     h('p', '恢复会保存为当前笔记的新版本。未保存的编辑草稿会保留，请先确认草稿。'),

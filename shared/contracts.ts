@@ -34,5 +34,6 @@ export interface TreeEntry {
   path: string;
   type: 'folder' | 'note';
   updatedAt?: string;
+  favorite?: boolean;
   children?: TreeEntry[];
 }

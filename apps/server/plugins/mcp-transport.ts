@@ -12,9 +12,11 @@ import { currentPrincipalPolicy } from '../../../packages/core/agent/config.js';
 import { checkTokenCutoff } from '../../../packages/core/agent/auth.js';
 import { fail } from '../../../packages/core/knowledge/errors.js';
 import type { platformRuntime } from '../platform/runtime.js';
+import type { MCPConnectionAttempt } from '../../../shared/mcp-connection-contracts.js';
 type Host = ReturnType<typeof pluginHost>;
 export function mcpTransports(app: FastifyInstance, host: Host, auth: Awaited<ReturnType<typeof createAuth>>, config: HostConfig, db: AppDatabase, platform: ReturnType<typeof platformRuntime>) {
   let compat: FastifyInstance | undefined, compatPort: number | undefined, compatError: string | undefined;
+  let latestAttempt: MCPConnectionAttempt | null = null;
   function available(mode: 'oauth' | 'tunnel') {
     const item = host.list().find(p => p.id==='mcp');
     return item?.state === 'enabled' && (item.config.mode === mode || item.config.mode === 'both');
@@ -63,6 +65,7 @@ export function mcpTransports(app: FastifyInstance, host: Host, auth: Awaited<Re
           if(!policy) fail(401,'UNAUTHORIZED');
           principal.scopes=principal.scopes.filter(s=>policy.scopes.includes(s)); principal.allowedPrefixes=policy.allowedPrefixes;
         }
+        if (principal) latestAttempt = { at: new Date().toISOString(), mode, outcome: 'authenticated', code: 'AUTHENTICATED' };
         if(path.pathname==='/mcp' && req.method!=='POST') return reply.code(405).header('Allow','POST').send({jsonrpc:'2.0',id:null,error:{code:-32000,message:'POST required'}});
         for(const [key,value] of Object.entries(reply.getHeaders())) if(value!==undefined) reply.raw.setHeader(key,value as any);
         reply.hijack();
@@ -72,6 +75,7 @@ export function mcpTransports(app: FastifyInstance, host: Host, auth: Awaited<Re
       } catch(e) {
         const error=e as any, status=error.statusCode || error.status || 500;
         const code=typeof error.code==='string' && /^[A-Z][A-Z0-9_]{0,63}$/.test(error.code)?error.code:'INTERNAL_ERROR';
+        latestAttempt = { at: new Date().toISOString(), mode, outcome: 'rejected', code };
         if(!reply.raw.headersSent) {
           const headers: Record<string,string>={'content-type':'application/json','cache-control':'no-store'};
           if(status===401) headers['www-authenticate']=mode==='oauth' ? `Bearer resource_metadata="${config.origin}/.well-known/oauth-protected-resource/mcp"` : 'Bearer realm="DooKnow Tunnel"';
@@ -97,7 +101,7 @@ export function mcpTransports(app: FastifyInstance, host: Host, auth: Awaited<Re
     }
   }
   const unsubscribe=host.onChange(reconcile);
-  return { start:reconcile, close:async()=>{unsubscribe();if(compat){const previous=compat;compat=undefined;await previous.close();}},
+  return { latestAttempt: () => latestAttempt ? { ...latestAttempt } : null, start:reconcile, close:async()=>{unsubscribe();if(compat){const previous=compat;compat=undefined;await previous.close();}},
     connection:async()=>({oauth:{ready:available('oauth') && config.origin.startsWith('https:') && platform.status().components.knowledge,
       address:config.origin+'/mcp',reason:!available('oauth')?'OAuth 连接方式未启用':!config.origin.startsWith('https:')?'需要浏览器可达的 HTTPS 授权站点和 MCP 地址':!platform.status().components.knowledge?'知识库尚未就绪':undefined},
       tunnel:{ready:!!compat && !!host.secretInfo('mcp','tunnelToken') && host.secretInfo('mcp','tunnelToken')!.authGeneration===remoteAuthGeneration(db),

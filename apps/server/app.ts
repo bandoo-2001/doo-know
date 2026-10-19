@@ -18,6 +18,7 @@ import { oauthGrantStore } from './platform/oauth-grants.js';
 import { invalidateRemoteAuth } from '../../packages/core/auth/remote-auth.js';
 import { pluginServices } from './plugins/services.js';
 import { registerPluginRoutes } from './plugins/routes.js';
+import { registerMcpManagementRoutes } from './platform/mcp-management.js';
 import { registerOAuthRoutes, forwardAuthResponse } from './platform/oauth-routes.js';
 import { serializeOAuth, revokeOAuthClient } from './platform/oauth.js';
 import { openDatabase } from '../../packages/core/db.js';
@@ -205,6 +206,7 @@ export async function createApp(config: HostConfig) {
     async (req) => searchRuntime.cancel((req as any).ownerId, req.params.id),
   );
   registerPluginRoutes(app, plugins);
+  registerMcpManagementRoutes(app, config, db, plugins, transports, auth);
   app.post('/api/platform/setup/directories', async (req) =>
     platform.settings.directories(req.body),
   );
@@ -228,7 +230,14 @@ export async function createApp(config: HostConfig) {
     notes,
     () => platform.get().knowledge,
   );
-  app.get('/api/tree', async () => notes.tree());
+  app.get('/api/tree', async (req) => notes.tree((req as any).ownerId));
+  app.put<{ Params: { id: string } }>('/api/notes/:id/favorite', async (req) =>
+    notes.setFavorite(
+      (req as any).ownerId,
+      req.params.id,
+      (req.body as { favorite?: unknown })?.favorite,
+    ),
+  );
   app.get('/api/notes', async (req) => {
     notes.scan();
     const folder = (req.query as { folder?: string }).folder;

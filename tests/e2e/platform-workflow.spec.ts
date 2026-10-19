@@ -118,11 +118,10 @@ test('moves a note through the UI while preserving its identity, history and pub
   await page.getByRole('button', { name: '更多操作', exact: true }).click();
   await page.getByRole('button', { name: '移动或重命名', exact: true }).click();
   const dialog = page.locator('.n-modal').filter({ hasText: '保持笔记身份、历史版本和分享链接' });
-  await dialog.locator('.n-select').click();
-  // The real tree can contain many folders after other fixture cases. Filter
-  // before choosing so the virtualized menu renders the intended destination.
-  await dialog.locator('.n-select input').fill('30-Knowledge/个人知识管理/方法');
-  await page.getByText('30-Knowledge/个人知识管理/方法', { exact: true }).click();
+  const directory = dialog.getByRole('combobox', { name: '目标目录', exact: true });
+  await dialog.locator('[aria-label="目标目录"]').click();
+  await directory.fill('30-Knowledge/个人知识管理/方法');
+  await page.locator('.directory-tree-popup:visible').getByTitle('方法', { exact: true }).click();
   await dialog.getByRole('textbox', { name: '文件名', exact: true }).fill('整理后的知识.md');
   await dialog.getByRole('button', { name: '确认移动', exact: true }).click();
   await expect(page.locator('.document-title')).toHaveText('整理后的知识');
@@ -158,7 +157,7 @@ test('imports a Markdown note from the daily workspace and downloads the saved s
   await page
     .getByLabel('选择 Markdown 文件', { exact: true })
     .setInputFiles({ name, mimeType: 'text/markdown', buffer: Buffer.from(content) });
-  await expect(page.locator('.n-modal .n-select .n-base-selection-label__render-label')).toHaveText(
+  await expect(page.locator('.n-modal .directory-select .ant-select-selection-item')).toHaveText(
     '00-Inbox',
   );
   const created = page.waitForResponse(

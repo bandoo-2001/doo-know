@@ -120,18 +120,18 @@ test('explains invalid plugin input and confirms a successful save without sendi
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   await page.goto('/');
   await configurePlugin(page, 'MCP 服务');
-  await page.locator('.plugin-advanced > summary').click();
   const input = page.getByRole('textbox', { name: '允许访问的目录', exact: true });
   const original = await input.inputValue();
+  const invalid = '00-Inbox\n../private';
   let saves = 0;
   page.on('request', (r) => {
     if (r.method() === 'PUT' && r.url().endsWith('/plugins/mcp/config')) saves++;
   });
-  await input.fill('{');
+  await input.fill(invalid);
   await page.getByRole('button', { name: '保存插件配置', exact: true }).click();
   await expect(page.locator('.plugin-feedback')).toContainText('允许访问的目录格式不正确');
   expect(saves).toBe(0);
-  await expect(input).toHaveValue('{');
+  await expect(input).toHaveValue(invalid);
   await input.fill(original);
   await page.getByRole('button', { name: '保存插件配置', exact: true }).click();
   await expect(page.getByRole('status').filter({ hasText: '插件配置已保存' })).toBeVisible();

@@ -15,6 +15,7 @@ export function openDatabase(dataRoot: string,role:'utility'|'server'|'file-work
   db.exec(`CREATE TABLE IF NOT EXISTS notes(id TEXT PRIMARY KEY,path TEXT NOT NULL,active INTEGER NOT NULL DEFAULT 1,trash_path TEXT);
  CREATE UNIQUE INDEX IF NOT EXISTS active_note_path ON notes(path) WHERE active=1;
  CREATE TABLE IF NOT EXISTS shares(note_id TEXT PRIMARY KEY REFERENCES notes(id),token TEXT UNIQUE NOT NULL,enabled INTEGER NOT NULL DEFAULT 1);
+ CREATE TABLE IF NOT EXISTS note_favorites(owner_id TEXT NOT NULL,note_id TEXT NOT NULL REFERENCES notes(id) ON DELETE CASCADE,PRIMARY KEY(owner_id,note_id));
  CREATE TABLE IF NOT EXISTS revisions(id TEXT PRIMARY KEY,note_id TEXT NOT NULL REFERENCES notes(id),file TEXT NOT NULL,created_at TEXT NOT NULL,modified_at TEXT NOT NULL);
  CREATE TABLE IF NOT EXISTS assets(id TEXT PRIMARY KEY,path TEXT UNIQUE NOT NULL);
  CREATE TABLE IF NOT EXISTS maintenance(id INTEGER PRIMARY KEY CHECK(id=1),active INTEGER NOT NULL);

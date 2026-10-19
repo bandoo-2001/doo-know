@@ -78,6 +78,18 @@ async function login() {
         >登录</AButton
       >
       <div class="login-private"><Icon name="lock" />笔记默认私有，仅分享链接可公开访问</div>
+      <details v-if="!compact" class="login-help">
+        <summary>第一次使用或还没有账号？</summary>
+        <p>账号在安装 DooKnow 时创建。</p>
+        <p>如果由他人部署，请向部署者获取用户名和密码。</p>
+        <p>如果由你部署，请在运行 DooKnow 的设备终端中继续完成安装，再回到这里登录。</p>
+        <a
+          href="https://github.com/bandoo-2001/doo-know#安装"
+          target="_blank"
+          rel="noopener noreferrer"
+          >查看安装说明</a
+        >
+      </details>
     </form>
   </div>
 </template>
@@ -165,6 +177,23 @@ async function login() {
 .login-error {
   margin-bottom: 16px;
   overflow-wrap: anywhere;
+}
+.login-help {
+  border-top: 1px solid var(--border);
+  margin-top: 20px;
+  padding-top: 16px;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+.login-help summary {
+  cursor: pointer;
+}
+.login-help p {
+  margin: 10px 0;
+}
+.login-help a {
+  color: var(--accent, #4566c6);
 }
 .compact {
   min-height: 0;

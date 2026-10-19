@@ -311,3 +311,5 @@ onMounted(() => void load());
     </details>
   </div>
 </template>
+
+<style scoped src="./file-input.css"></style>

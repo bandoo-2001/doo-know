@@ -28,6 +28,7 @@ const props = defineProps<{
   initialLine?: number;
   assets?: { id: string; relativePath: string }[];
   draftScope?: DraftScope;
+  serviceUnavailable?: string;
 }>();
 const emit = defineEmits<{ saved: [note: NoteInfo]; dirty: [value: boolean] }>();
 const page = ref<ReadPage>(),
@@ -254,6 +255,7 @@ async function loadOutline(cursor?: string) {
   } catch {}
 }
 async function save() {
+  if (props.serviceUnavailable) return;
   if (!page.value || busy.value || recovery.value) return;
   if (requestId) {
     await check();
@@ -509,7 +511,11 @@ defineExpose({ save, discard, reload, flushLocalDraft });
         <NButton :disabled="!page || !previewAllowed" @click="previewOpen = !previewOpen">{{
           previewOpen ? '关闭片段预览' : '预览当前片段'
         }}</NButton>
-        <NButton type="primary" :loading="busy" :disabled="!page || !!recovery" @click="save"
+        <NButton
+          type="primary"
+          :loading="busy"
+          :disabled="!page || !!recovery || !!props.serviceUnavailable"
+          @click="save"
           >保存片段</NButton
         ><NButton
           :disabled="!page?.hasMore || busy || !!recovery"

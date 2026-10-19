@@ -5,6 +5,15 @@ import { resolve } from 'node:path';
 const projectRoot = fileURLToPath(new URL('.', import.meta.url));
 export default defineConfig({
   plugins: [vue(), {
+    name: 'dooknow-isolated-dev-cache',
+    apply: 'serve',
+    config(config, environment) {
+      if (environment.isPreview || config.cacheDir !== undefined) return;
+      return {
+        cacheDir: resolve(projectRoot, `node_modules/.vite-dooknow-${config.server?.port ?? 5173}`),
+      };
+    },
+  }, {
     name: 'dooknow-plugin-import-map',
     transformIndexHtml: { order: 'pre', handler: (_html, context) => [{
       tag: 'script', attrs: { type: 'importmap' }, children: JSON.stringify({ imports: context.server
@@ -20,7 +29,7 @@ export default defineConfig({
   } },
   server: {
     host: '127.0.0.1',
-    port: 5173,
+    port: Number(process.env.VITE_PORT || 5173),
     strictPort: true,
     fs: {
       allow: ['apps/web', 'node_modules', 'shared', 'packages/plugin-ui', 'packages/plugin-contracts'].map((path) => resolve(projectRoot, path)),
@@ -38,6 +47,9 @@ export default defineConfig({
         '**/*.pem',
       ],
     },
-    proxy: { '/api/': 'http://127.0.0.1:3010', '/plugins/': 'http://127.0.0.1:3010' },
+    proxy: {
+      '/api/': 'http://127.0.0.1:' + (process.env.PORT || 3010),
+      '/plugins/': 'http://127.0.0.1:' + (process.env.PORT || 3010),
+    },
   },
 });

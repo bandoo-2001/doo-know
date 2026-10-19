@@ -113,8 +113,17 @@ export function noteService(config: AppConfig, db: AppDatabase) {
       return undefined;
     }
   }
-  function tree(): TreeEntry[] {
+  function tree(ownerId?: string): TreeEntry[] {
     const files = scan();
+    const favorites = new Set(
+      ownerId
+        ? (
+            db.prepare('SELECT note_id FROM note_favorites WHERE owner_id=?').all(ownerId) as {
+              note_id: string;
+            }[]
+          ).map((n) => n.note_id)
+        : [],
+    );
     const all: TreeEntry[] = files.folders.map((path) => ({
       path,
       name: basename(path),
@@ -129,6 +138,7 @@ export function noteService(config: AppConfig, db: AppDatabase) {
         name: basename(n.path),
         type: 'note',
         updatedAt: modificationTime(n.path, 'note'),
+        ...(ownerId ? { favorite: favorites.has(n.id) } : {}),
       });
     const map = new Map(all.map((e) => [e.path, e])),
       roots: TreeEntry[] = [];
@@ -250,6 +260,20 @@ export function noteService(config: AppConfig, db: AppDatabase) {
     createFolder: (...args: Parameters<typeof createFolder>) =>
       workspaceWriteSync(db, { kind: 'folder.create' }, () => createFolder(...args)),
     exists,
+    setFavorite(ownerId: string, id: string, favorite: unknown) {
+      if (typeof favorite !== 'boolean') throw new HttpError(400, '收藏状态必须为布尔值');
+      return workspaceWriteSync(db, { kind: 'note.favorite' }, () => {
+        exists(id);
+        if (favorite)
+          db.prepare('INSERT OR IGNORE INTO note_favorites(owner_id,note_id) VALUES(?,?)').run(
+            ownerId,
+            id,
+          );
+        else
+          db.prepare('DELETE FROM note_favorites WHERE owner_id=? AND note_id=?').run(ownerId, id);
+        return { favorite };
+      });
+    },
   };
 }
 export type NoteService = ReturnType<typeof noteService>;

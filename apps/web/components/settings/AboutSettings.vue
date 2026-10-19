@@ -86,6 +86,37 @@ onMounted(() => void load());
       </ul>
     </section>
     <section class="settings-card">
+      <h2>更新与回退</h2>
+      <p class="settings-muted">
+        更新由部署者在运行 DooKnow 的主机上操作。这里显示的服务版本可用于更新后核对。
+      </p>
+      <details class="settings-muted">
+        <summary>查看操作顺序</summary>
+        <ol>
+          <li>先保存笔记和插件配置，再确认备份与恢复密钥可用。</li>
+          <li>
+            正式安装使用主机终端运行
+            <code>dooknow update</code
+            >。更新器会检查版本、准备候选并制作备份；不要关闭正在进行的更新。
+          </li>
+          <li>
+            完成后刷新本页，核对服务版本，再打开一篇笔记检查功能。开发环境请由维护者更新源码并重新启动。
+          </li>
+          <li>
+            候选启动失败会尝试恢复旧代码；需要人工回退时使用
+            <code>dooknow rollback</code
+            >。数据不兼容时，应在独立目录恢复备份，不能覆盖正在使用的资料。
+          </li>
+        </ol>
+        <a
+          href="https://github.com/bandoo-2001/doo-know#日常管理"
+          target="_blank"
+          rel="noopener noreferrer"
+          >查看安装、更新与恢复说明</a
+        >
+      </details>
+    </section>
+    <section class="settings-card">
       <h2>诊断与支持</h2>
       <p class="settings-muted">
         下载当前版本、功能状态与数量统计，便于排查问题。诊断不包含笔记正文、密码、密钥或私有目录路径。

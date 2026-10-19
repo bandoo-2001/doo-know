@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { MarkdownAction, MarkdownToolbarState } from '../markdown-format';
 import Icon from './Icon.vue';
-import { textColors } from '../markdown-style';
+import TextColorPicker from './TextColorPicker.vue';
 const props = defineProps<{ state: MarkdownToolbarState; disabled: boolean }>();
 const emit = defineEmits<{ format: [action: MarkdownAction]; upload: [] }>();
 const alignments = [
@@ -9,10 +9,10 @@ const alignments = [
   { action: 'alignCenter', label: '居中对齐', icon: 'align-center', value: 'center' },
   { action: 'alignRight', label: '右对齐', icon: 'align-right', value: 'right' },
 ] as const;
-function color(event: Event) {
-  const value = (event.target as HTMLInputElement | HTMLSelectElement).value;
+function color(value: string | null) {
   emit('format', value ? `color:${value as `#${string}`}` : 'colorDefault');
 }
+
 const blocks = [
   { action: 'quote', label: '引用', icon: 'quote', state: 'quote' },
   { action: 'bulletList', label: '无序列表', icon: 'list', state: 'bullet' },
@@ -122,38 +122,10 @@ function preserveSelection(event: MouseEvent) {
     </div>
     <span class="format-divider" aria-hidden="true"></span>
     <div class="format-group text-color-controls">
-      <span
-        class="text-color-symbol"
-        :style="{ borderColor: state.color || '#343c4a' }"
-        aria-hidden="true"
-        >A</span
-      >
-      <select
-        class="text-color-select"
-        aria-label="文字颜色"
-        :value="state.color || ''"
+      <TextColorPicker
+        :value="state.color"
         :disabled="disabled || state.styleDisabled"
-        @change="color"
-      >
-        <option value="">默认颜色</option>
-        <option v-for="item in textColors" :key="item.value" :value="item.value">
-          {{ item.name }}
-        </option>
-        <option
-          v-if="state.color && !textColors.some((item) => item.value === state.color)"
-          :value="state.color"
-        >
-          自定义颜色
-        </option>
-      </select>
-      <input
-        class="custom-text-color"
-        type="color"
-        aria-label="自定义文字颜色"
-        title="自定义文字颜色"
-        :value="state.color || '#343c4a'"
-        :disabled="disabled || state.styleDisabled"
-        @change="color"
+        @select="color"
       />
     </div>
     <span class="format-divider" aria-hidden="true"></span>

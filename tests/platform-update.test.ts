@@ -32,17 +32,53 @@ it.each([
     currentEpoch: 2,
     candidateEpoch: 2,
     explicit: true,
+    rejected: true,
+  },
+  {
+    name: 'latest metadata selects an older version in the same generation',
+    currentEpoch: 2,
+    candidateEpoch: 2,
+    explicit: false,
+    rejected: true,
+  },
+  {
+    name: 'RC versions compare numerically',
+    currentEpoch: 2,
+    candidateEpoch: 2,
+    current: '1.1.0-rc.9',
+    candidate: '1.1.0-rc.19',
+    explicit: false,
     rejected: false,
   },
+  {
+    name: 'an unorderable current release fails closed',
+    currentEpoch: 2,
+    candidateEpoch: 2,
+    current: '20261019',
+    candidate: '1.1.0-rc.21',
+    explicit: false,
+    rejected: true,
+    unorderable: true,
+  },
+  {
+    name: 'an explicit unorderable candidate fails closed',
+    currentEpoch: 2,
+    candidateEpoch: 2,
+    current: '1.1.0-rc.21',
+    candidate: '20261017',
+    explicit: true,
+    rejected: true,
+    unorderable: true,
+  },
 ])(
-  'enforces database compatibility before fetching the archive: $name',
-  async ({ currentEpoch, candidateEpoch, explicit, rejected }) => {
+  'enforces update direction and compatibility before fetching the archive: $name',
+  async ({ currentEpoch, candidateEpoch, current, candidate, explicit, rejected, unorderable }) => {
     const f = await createFixture();
     try {
       const installRoot = join(f.root, 'install'),
         source = join(f.root, 'releases-source'),
-        currentVersion = currentEpoch === 1 ? '1.1.0-rc.17' : '1.1.0-rc.18',
-        candidateVersion = currentEpoch === 1 ? '1.1.0-rc.18' : '1.1.0-rc.17';
+        currentVersion = current || (currentEpoch === 1 ? '1.1.0-rc.17' : '1.1.0-rc.18'),
+        candidateVersion = candidate || (currentEpoch === 1 ? '1.1.0-rc.18' : '1.1.0-rc.17');
       await mkdir(join(installRoot, 'releases', currentVersion), { recursive: true });
       await mkdir(source);
       await writeFile(
@@ -61,8 +97,8 @@ it.each([
           databaseCompatibility: candidateEpoch,
         }),
       );
-      // A forbidden generation must be refused without even needing an archive.
-      // Permitted generations continue to the existing integrity check.
+      // Rejected updates must stop before fetching an archive or touching current data.
+      // Permitted upgrades continue to the existing integrity check.
       if (!rejected) await writeFile(join(source, file), 'intentionally invalid release archive');
       const retained = join(f.knowledgeRoot, '00-Inbox', 'compatibility.md');
       await writeFile(retained, '# Preserve current data and source\n');
@@ -79,7 +115,15 @@ it.each([
             ...(explicit ? { version: candidateVersion } : {}),
           },
         ),
-      ).rejects.toThrow(rejected ? /兼容代次较低.*数据恢复/ : /校验/);
+      ).rejects.toThrow(
+        !rejected
+          ? /校验/
+          : unorderable
+            ? /无法比较.*dooknow rollback.*恢复/
+            : candidateEpoch < currentEpoch
+              ? /兼容代次较低.*数据恢复/
+              : /版本较旧.*dooknow rollback/,
+      );
       expect(await readlink(join(installRoot, 'current'))).toBe('releases/' + currentVersion);
       expect(await readFile(retained, 'utf8')).toBe('# Preserve current data and source\n');
       await expect(readFile(join(installRoot, 'update-transaction.json'))).rejects.toMatchObject({
@@ -97,13 +141,13 @@ it('rejects a corrupt release without switching the current release or changing 
   try {
     const installRoot = join(temp, 'install'),
       source = join(temp, 'source');
-    await mkdir(join(installRoot, 'releases', 'old'), { recursive: true });
+    await mkdir(join(installRoot, 'releases', '1.0.0'), { recursive: true });
     await mkdir(source);
     await writeFile(
-      join(installRoot, 'releases/old/release.json'),
-      JSON.stringify({ version: 'old', databaseCompatibility: 1 }),
+      join(installRoot, 'releases/1.0.0/release.json'),
+      JSON.stringify({ version: '1.0.0', databaseCompatibility: 1 }),
     );
-    await symlink('releases/old', join(installRoot, 'current'));
+    await symlink('releases/1.0.0', join(installRoot, 'current'));
     await writeFile(join(source, 'broken.tar.gz'), 'corrupt');
     await writeFile(
       join(source, 'release.json'),
@@ -127,7 +171,7 @@ it('rejects a corrupt release without switching the current release or changing 
         { source: pathToFileURL(source + '/').href },
       ),
     ).rejects.toThrow(/校验/);
-    expect(await readlink(join(installRoot, 'current'))).toBe('releases/old');
+    expect(await readlink(join(installRoot, 'current'))).toBe('releases/1.0.0');
   } finally {
     await f.close();
     await rm(temp, { recursive: true, force: true });

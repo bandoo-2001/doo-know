@@ -3,12 +3,14 @@ import { nextTick, ref, watch } from 'vue';
 import { NPopover } from 'naive-ui';
 import Icon from './Icon.vue';
 import type { SettingsSection } from '../../../shared/settings-contracts';
-defineProps<{ username: string; active?: string }>();
+defineProps<{ username: string; active?: string; collection?: 'notes' | 'recent' | 'favorites' }>();
 const emit = defineEmits<{
   settings: [section?: SettingsSection];
   trash: [];
   status: [];
   logout: [];
+  notes: [];
+  collection: [view: 'recent' | 'favorites'];
 }>();
 const open = ref(false),
   trigger = ref<HTMLButtonElement>(),
@@ -30,6 +32,37 @@ function settings(section: SettingsSection) {
 </script>
 <template>
   <footer class="workspace-footer sidebar-footer">
+    <nav class="rail-notes-navigation" aria-label="工作区">
+      <button
+        type="button"
+        :aria-current="
+          active !== 'settings' && active !== 'trash' && (!collection || collection === 'notes')
+            ? 'page'
+            : undefined
+        "
+        title="笔记"
+        @click="emit('notes')"
+      >
+        <Icon name="file" :size="21" /><span>笔记</span>
+      </button>
+      <button
+        v-for="item in [
+          { key: 'recent' as const, label: '最近', icon: 'clock' },
+          { key: 'favorites' as const, label: '收藏', icon: 'star' },
+        ]"
+        :key="item.key"
+        type="button"
+        :aria-current="
+          active !== 'settings' && active !== 'trash' && collection === item.key
+            ? 'page'
+            : undefined
+        "
+        :title="item.label"
+        @click="emit('collection', item.key)"
+      >
+        <Icon :name="item.icon" :size="21" /><span>{{ item.label }}</span>
+      </button>
+    </nav>
     <nav class="footer-tools" aria-label="常用工具">
       <button :aria-current="active === 'trash' ? 'page' : undefined" @click="emit('trash')">
         <Icon name="trash" :size="17" />回收站
@@ -47,6 +80,7 @@ function settings(section: SettingsSection) {
           ref="trigger"
           class="nav-action account-row"
           aria-label="个人账户"
+          :title="username"
           aria-haspopup="dialog"
           :aria-expanded="open"
           @keydown.esc.stop.prevent="close"

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
-import { NInput, NModal, NAlert, NSelect } from 'naive-ui';
+import { NInput, NModal, NAlert } from 'naive-ui';
 import {
   Button as AButton,
   Input as AInput,
@@ -15,6 +15,8 @@ import type { NoteDocument, TreeEntry } from '../../../shared/contracts';
 import { api, ApiError, resetCsrf } from '../api';
 import Icon from './Icon.vue';
 import TreeBranch from './TreeBranch.vue';
+import TreeContextMenu, { type TreeAction } from './TreeContextMenu.vue';
+import NoteCollection from './NoteCollection.vue';
 import MarkdownEditor from './MarkdownEditor.vue';
 import EditorToolbar from './EditorToolbar.vue';
 import DocumentBreadcrumb from './DocumentBreadcrumb.vue';
@@ -36,10 +38,12 @@ import NoteActions from './NoteActions.vue';
 import SidebarResizer from './SidebarResizer.vue';
 import DraftRecovery from './DraftRecovery.vue';
 import NoteMoveDialog from './NoteMoveDialog.vue';
+import DirectoryTreeSelect from './DirectoryTreeSelect.vue';
 import SetupImport from './SetupImport.vue';
 import { useNoteDraft } from '../useNoteDraft';
 import { filenameResults, mergeSearchResults } from '../search-results';
 import { noteDraftBase } from '../drafts';
+import { clearPluginDrafts } from '../plugin-drafts';
 import {
   createWorkspaceNavigation,
   readWorkspaceRoute,
@@ -61,16 +65,21 @@ const noteInfo = ref<NoteInfo>(),
 const initialNoteId = new URLSearchParams(window.location.search).get('note');
 const noteLine = ref<number | undefined>();
 const editorRef = ref<InstanceType<typeof MarkdownEditor>>();
+const mainRef = ref<HTMLElement>();
 const noteOpening = ref(false),
   editorTransfer = ref(false);
+const moveTarget = ref<NoteDocument>();
 const moveOpen = ref(false),
   importOpen = ref(false),
   quickBusy = ref(false);
 const parsedLine = Number(window.location.hash.match(/^#L([1-9]\d*)$/)?.[1]);
 const initialLine =
   Number.isSafeInteger(parsedLine) && parsedLine <= 20 * 1024 * 1024 ? parsedLine : undefined;
-const props = withDefaults(defineProps<{ username?: string }>(), { username: '当前账户' });
-const emit = defineEmits<{ logout: [] }>();
+const props = withDefaults(defineProps<{ username?: string; serviceUnavailable?: string }>(), {
+  username: '当前账户',
+  serviceUnavailable: '',
+});
+const emit = defineEmits<{ logout: []; 'retry-service': [] }>();
 const statusOpen = ref(false),
   createMenuOpen = ref(false);
 let returnRoute: WorkspaceRoute = {};
@@ -85,7 +94,7 @@ function storedSidebarWidth() {
     const width = Number(localStorage.getItem('dooknow.sidebarWidth'));
     if (Number.isFinite(width) && width >= 240 && width <= 400) return width;
   } catch {}
-  return 280;
+  return 260;
 }
 const sidebarCollapsed = ref(false);
 const editorState = ref(emptyToolbarState());
@@ -110,6 +119,89 @@ const tree = ref<TreeEntry[]>([]),
   busy = ref(false),
   error = ref(''),
   notice = ref('');
+const treeMenu = ref<InstanceType<typeof TreeContextMenu>>();
+const treeMenuPath = ref('');
+let treeRefreshEpoch = 0;
+const collection = ref<'notes' | 'recent' | 'favorites'>('notes');
+const favoriteBusy = ref(false);
+const favoriteIds = computed(() =>
+  flat.value.filter((entry) => entry.favorite && entry.id).map((entry) => entry.id!),
+);
+const currentFavorite = computed(() => !!note.value && favoriteIds.value.includes(note.value.id));
+const collectionEntries = computed(() =>
+  flat.value
+    .filter(
+      (entry) =>
+        entry.type === 'note' && entry.id && (collection.value !== 'favorites' || entry.favorite),
+    )
+    .sort(
+      (a, b) =>
+        (Date.parse(b.updatedAt || '') || 0) - (Date.parse(a.updatedAt || '') || 0) ||
+        a.path.localeCompare(b.path, 'zh-CN'),
+    ),
+);
+async function toggleFavorite(id: string) {
+  if (favoriteBusy.value) return;
+  favoriteBusy.value = true;
+  try {
+    const result = await api<{ favorite: boolean }>(`/api/notes/${id}/favorite`, 'PUT', {
+      favorite: !favoriteIds.value.includes(id),
+    });
+    // A tree read started before this mutation must not restore its old favorite state.
+    treeRefreshEpoch++;
+    const entry = flat.value.find((item) => item.id === id);
+    if (entry) entry.favorite = result.favorite;
+    tell(result.favorite ? '已收藏' : '已取消收藏');
+  } finally {
+    favoriteBusy.value = false;
+  }
+}
+async function showCollection(view: 'recent' | 'favorites') {
+  await openNotes();
+  collection.value = view;
+  query.value = '';
+  sidebarCollapsed.value = false;
+  drawer.value = true;
+  await run(refresh);
+}
+function showTreeMenu(entry: TreeEntry, event: MouseEvent | KeyboardEvent) {
+  treeMenu.value?.open(entry, event);
+}
+async function treeAction(entry: TreeEntry, action: TreeAction) {
+  await run(async () => {
+    if (action === 'favorite' && entry.id) {
+      await toggleFavorite(entry.id);
+    } else if (action === 'copy') {
+      await navigator.clipboard.writeText(entry.path);
+      tell('路径已复制');
+    } else if (action === 'new-note' || action === 'new-folder') {
+      create(action === 'new-note' ? 'note' : 'folder', entry.path);
+    } else if (action === 'import') {
+      importFolder.value = entry.path;
+      importOpen.value = true;
+    } else if (action === 'open') {
+      if (entry.type !== 'note' || note.value?.id !== entry.id) await select(entry);
+      else {
+        await retainNoteContext();
+        panel.value = 'note';
+        selected.value = entry.path;
+        drawer.value = false;
+        navigation.commit({ note: entry.id, line: noteLine.value });
+      }
+    } else if (action === 'download' && entry.id) {
+      await downloadNote({ id: entry.id, relativePath: entry.path });
+    } else if ((action === 'move' || action === 'delete') && entry.id) {
+      const apply = async () => {
+        if (note.value?.id !== entry.id) await openNote(entry.id!);
+        if (note.value?.id !== entry.id) return;
+        if (action === 'move') await showMove();
+        else confirmDelete();
+      };
+      if (note.value?.id !== entry.id) await guard(apply);
+      else await apply();
+    }
+  });
+}
 const dialogError = ref('');
 const searchMode = ref<'text' | 'semantic' | 'hybrid'>('hybrid'),
   searchDirectory = ref(''),
@@ -336,8 +428,30 @@ async function run(fn: () => Promise<void>) {
   }
 }
 async function refresh() {
-  tree.value = await api('/api/tree');
+  const epoch = ++treeRefreshEpoch;
+  const entries = await api<TreeEntry[]>('/api/tree');
+  if (epoch !== treeRefreshEpoch) return;
+  tree.value = entries;
   treeLoaded.value = true;
+}
+let collectionRefreshing = false;
+async function refreshCollection() {
+  if (
+    collection.value === 'notes' ||
+    document.hidden ||
+    collectionRefreshing ||
+    !treeLoaded.value ||
+    ['settings', 'trash'].includes(panel.value)
+  )
+    return;
+  collectionRefreshing = true;
+  try {
+    await refresh();
+  } catch (cause) {
+    showError(cause);
+  } finally {
+    collectionRefreshing = false;
+  }
 }
 async function openNote(id: string, line?: number, syncUrl = true) {
   await guard(async () => {
@@ -542,7 +656,7 @@ async function checkSave() {
   }
 }
 async function save(expected?: string, content?: string, revisionId?: string) {
-  if (!note.value || busy.value) return;
+  if (!note.value || busy.value || props.serviceUnavailable) return;
   if (
     noteInfo.value?.editorMode === 'full' &&
     !revisionId &&
@@ -735,24 +849,81 @@ async function copyShare() {
     tell('链接已复制');
   });
 }
-const createBusy = ref(false);
+const createBusy = ref(false),
+  inboxBusy = ref(false);
 const createOpen = ref(false),
   createKind = ref<'note' | 'folder'>('note'),
   newName = ref(''),
   newFolder = ref('');
+const rootFolderPurposes = [
+  { value: '00-Inbox', label: '收集箱 · 临时想法和待整理资料' },
+  { value: '10-Projects', label: '项目 · 正在推进的任务' },
+  { value: '20-Areas', label: '领域 · 长期关注与日常事务' },
+  { value: '30-Knowledge', label: '知识 · 主题笔记和学习整理' },
+  { value: '40-Resources', label: '资料 · 阅读参考和导入文件' },
+  { value: '50-Journal', label: '日记 · 日常记录和复盘' },
+  { value: '90-Archive', label: '归档 · 已完成或暂存的旧资料' },
+  { value: '99-System', label: '系统 · 知识库说明和维护资料' },
+];
+const inboxAvailable = computed(() =>
+  flat.value.some((entry) => entry.type === 'folder' && entry.path === '00-Inbox'),
+);
+const rootNoteNeedsFolder = computed(
+  () =>
+    createKind.value === 'note' &&
+    !newFolder.value &&
+    (newName.value.endsWith('.md') ? newName.value : newName.value + '.md') !== 'README.md',
+);
+const rootFolderNeedsPurpose = computed(
+  () =>
+    createKind.value === 'folder' &&
+    !newFolder.value &&
+    !rootFolderPurposes.some((purpose) => purpose.value === newName.value),
+);
 let createRequestId = crypto.randomUUID();
-function create(kind: 'note' | 'folder') {
+function create(kind: 'note' | 'folder', parent?: string) {
   if (!treeLoaded.value) return;
   dialogError.value = '';
   createRequestId = crypto.randomUUID();
   createKind.value = kind;
   newFolder.value =
-    folder.value || (folders.value.some((x) => x.value === '00-Inbox') ? '00-Inbox' : '');
+    parent ??
+    (folder.value || (folders.value.some((x) => x.value === '00-Inbox') ? '00-Inbox' : ''));
   newName.value = kind === 'note' && !newFolder.value ? 'README.md' : '';
   createOpen.value = true;
 }
+async function prepareInbox() {
+  if (inboxBusy.value || createBusy.value || quickBusy.value) return;
+  inboxBusy.value = true;
+  dialogError.value = '';
+  try {
+    let failure: unknown;
+    if (!inboxAvailable.value) {
+      try {
+        await api('/api/folders', 'POST', { parent: '', name: '00-Inbox' });
+      } catch (cause) {
+        failure = cause;
+      }
+    }
+    await refresh();
+    if (!inboxAvailable.value) throw failure || new Error('Inbox is not available');
+    newFolder.value = '00-Inbox';
+    createRequestId = crypto.randomUUID();
+  } catch {
+    dialogError.value = '暂时无法准备收集箱，请重试。文件名已保留。';
+  } finally {
+    inboxBusy.value = false;
+  }
+}
 async function submitCreate() {
-  if (createBusy.value || !newName.value.trim()) return;
+  if (
+    createBusy.value ||
+    inboxBusy.value ||
+    !newName.value.trim() ||
+    rootNoteNeedsFolder.value ||
+    rootFolderNeedsPurpose.value
+  )
+    return;
   createBusy.value = true;
   try {
     await run(async () => {
@@ -797,6 +968,13 @@ const panel = ref<'empty' | 'folder' | 'note' | 'trash' | 'settings'>('empty'),
   revisions = ref<any[]>([]),
   revisionCursor = ref<string>(),
   deleteOpen = ref(false);
+const deleteTarget = ref<NoteDocument>();
+function confirmDelete() {
+  if (!note.value) return;
+  deleteTarget.value = { ...note.value };
+  dialogError.value = '';
+  deleteOpen.value = true;
+}
 async function history(more = false) {
   const id = note.value!.id,
     epoch = viewEpoch;
@@ -846,7 +1024,11 @@ async function openTrash(syncUrl = true) {
 }
 async function retainNoteContext() {
   await localDrafts.flush();
-  if (!['settings', 'trash'].includes(panel.value)) returnRoute = navigation.currentRoute();
+  if (!['settings', 'trash'].includes(panel.value)) {
+    const route = navigation.currentRoute();
+    // A directly opened utility page must not become its own return destination.
+    if (!route.view) returnRoute = route;
+  }
   // Keep in-flight saves attached to the retained editor; only cancel a pending note open.
   if (noteOpening.value) viewEpoch++;
   noteOpening.value = false;
@@ -890,8 +1072,9 @@ async function checkDelete() {
 async function removeNote() {
   await run(async () => {
     if (pendingDelete.value) return checkDelete();
-    const target = note.value!,
+    const target = deleteTarget.value,
       epoch = viewEpoch;
+    if (!target) return;
     const pending = {
       noteId: target.id,
       expectedModifiedAt: target.modifiedAt,
@@ -913,6 +1096,13 @@ async function removeNote() {
   });
 }
 const activeSetting = ref<SettingsSection>('editor');
+watch(
+  [panel, activeSetting],
+  () => {
+    if (mainRef.value) mainRef.value.scrollTop = 0;
+  },
+  { flush: 'post' },
+);
 function rememberedSetting(): SettingsSection {
   try {
     return normalizeSettingsSection(sessionStorage.getItem('dooknow.lastSettings') || undefined);
@@ -952,6 +1142,11 @@ async function backFromSettings() {
   await applyRoute(returnRoute);
   navigation.commit(returnRoute);
 }
+async function openNotes() {
+  collection.value = 'notes';
+  sidebarCollapsed.value = false;
+  if (panel.value === 'settings' || panel.value === 'trash') await run(backFromSettings);
+}
 watch(
   () => editorPreferences.lineNumbers,
   (value) => (showLineNumbers.value = value),
@@ -982,8 +1177,11 @@ async function logout() {
     }),
   );
 }
-async function showMove() {
+async function showMove(expectedId = note.value?.id) {
   await guard(async () => {
+    if (!note.value || note.value.id !== expectedId)
+      throw new Error('笔记已切换，请重新打开菜单后再整理。');
+    moveTarget.value = { ...note.value };
     moveOpen.value = true;
   });
 }
@@ -1041,9 +1239,10 @@ async function imported(value: { id: string; relativePath: string }) {
   await run(refresh);
   tell('Markdown 已导入，可在目录中打开');
 }
-async function downloadNote() {
-  if (!note.value || downloading.value) return;
-  const target = note.value;
+async function downloadNote(
+  target: Pick<NoteDocument, 'id' | 'relativePath'> | undefined = note.value,
+) {
+  if (!target || downloading.value) return;
   downloading.value = true;
   await run(async () => {
     try {
@@ -1151,6 +1350,17 @@ function clickPreview(event: MouseEvent) {
   }
 }
 let searchEpoch = 0;
+function describeSearchFailure(cause: unknown) {
+  const code =
+    cause instanceof ApiError
+      ? String(cause.data.code || (cause.data.error as any)?.code || '')
+      : '';
+  if (code === 'TOKENIZER_UNAVAILABLE' || code === 'NOT_PREPARED')
+    return '内容搜索组件还未准备好，文件名搜索仍可使用。';
+  if (code === 'VECTOR_NOT_CONFIGURED') return '按意思搜索还未准备好，文件名搜索仍可使用。';
+  if (code === 'INDEX_NOT_READY') return '搜索索引还在准备中，可以稍后重试。';
+  return '暂时无法完成内容搜索，请检查连接或搜索设置后重试。文件名搜索仍可使用。';
+}
 async function searchPage(
   q: string,
   cursor?: string,
@@ -1198,6 +1408,7 @@ function beginSearch(q: string) {
   const epoch = ++searchEpoch;
   searchCursor.value = undefined;
   results.value = filenameResults(flat.value, q, searchDirectory.value);
+  searchDegraded.value = false;
   searchError.value = '';
   searchBusy.value = !!q.trim();
   searchWaiting.value = false;
@@ -1211,20 +1422,19 @@ function beginSearch(q: string) {
         const runtime = await api('/api/platform/search-runtime');
         if (epoch !== searchEpoch) return;
         vectorReady.value = !!runtime.components?.vectorReady;
-        if (!vectorReady.value)
-          throw new Error('语义检索尚未准备。请准备本地检索，或使用文本/混合检索。');
+        if (!vectorReady.value) throw new ApiError(503, { code: 'VECTOR_NOT_CONFIGURED' });
       }
       const response = await searchPage(q, undefined, epoch);
       if (epoch !== searchEpoch) return;
       searchWaiting.value = !!(
         response &&
         ++attempts < 15 &&
-        (response.index.pending || (!results.value.length && attempts < 3))
+        (response.index.pending || (!response.degraded && !results.value.length && attempts < 3))
       );
       if (searchWaiting.value) searchTimer = setTimeout(() => void search(), 1000);
     } catch (e) {
       if (epoch === searchEpoch) {
-        searchError.value = (e as Error).message;
+        searchError.value = describeSearchFailure(e);
         searchWaiting.value = false;
       }
     } finally {
@@ -1243,7 +1453,7 @@ async function moreSearch() {
   try {
     await searchPage(query.value, searchCursor.value, epoch);
   } catch (e) {
-    if (epoch === searchEpoch) searchError.value = (e as Error).message;
+    if (epoch === searchEpoch) searchError.value = describeSearchFailure(e);
   } finally {
     if (epoch === searchEpoch) searchBusy.value = false;
   }
@@ -1275,7 +1485,10 @@ onMounted(() => {
   void refreshPlugins().catch(() => {});
   pluginTimer = setInterval(() => {
     void refreshPlugins().catch(() => {});
+    void refreshCollection();
   }, 5000);
+  window.addEventListener('focus', refreshCollection);
+  document.addEventListener('visibilitychange', refreshCollection);
   window.addEventListener('dooknow-workspace-changed', workspaceChanged);
   window.addEventListener('dooknow-notice', pluginNotice);
   void run(async () => {
@@ -1291,8 +1504,11 @@ onMounted(() => {
   window.addEventListener('beforeunload', unload);
 });
 onBeforeUnmount(() => {
+  clearPluginDrafts();
   navigation.dispose();
   clearInterval(pluginTimer);
+  window.removeEventListener('focus', refreshCollection);
+  document.removeEventListener('visibilitychange', refreshCollection);
   void disposePluginUIs();
   window.removeEventListener('dooknow-workspace-changed', workspaceChanged);
   window.removeEventListener('dooknow-notice', pluginNotice);
@@ -1317,7 +1533,7 @@ onBeforeUnmount(() => {
       </div>
       <nav v-if="panel === 'settings'" class="settings-sidebar" aria-label="设置分类">
         <button class="settings-return" @click="backFromSettings">
-          <Icon name="back" :size="16" />返回笔记
+          <Icon name="back" :size="18" /><span>返回笔记</span>
         </button>
         <button
           v-for="item in settingsSections"
@@ -1344,7 +1560,7 @@ onBeforeUnmount(() => {
               aria-label="新建笔记"
               title="新建笔记"
               @click="create('note')"
-              ><template #icon><Icon name="plus" /></template></AButton
+              ><template #icon><Icon name="plus" :size="16" /></template><span>新建</span></AButton
             ><APopover v-model:open="createMenuOpen" trigger="click" placement="bottomRight">
               <template #content
                 ><div
@@ -1387,7 +1603,15 @@ onBeforeUnmount(() => {
           </div>
         </div>
         <div class="tree-heading">
-          <span>{{ query ? '搜索结果' : '笔记本' }}</span
+          <span>{{
+            query
+              ? '搜索结果'
+              : collection === 'recent'
+                ? '最近编辑'
+                : collection === 'favorites'
+                  ? '收藏'
+                  : '笔记本'
+          }}</span
           ><button
             class="icon-button"
             :disabled="!treeLoaded"
@@ -1435,8 +1659,8 @@ onBeforeUnmount(() => {
               ><small>{{ r.relativePath }}</small
               ><span>{{ r.snippet }}</span>
             </button>
-            <p v-if="searchDegraded && results.length" class="search-feedback">
-              当前显示可用的检索结果，部分检索能力或索引仍在准备。<button
+            <p v-if="searchDegraded && !searchError" class="search-feedback" role="status">
+              部分内容搜索或索引尚未准备好，结果可能不完整。<button
                 class="text-link"
                 @click="settings('search')"
               >
@@ -1460,6 +1684,7 @@ onBeforeUnmount(() => {
               <AButton size="small" @click="searchCursor ? moreSearch() : beginSearch(query)"
                 >重试搜索</AButton
               >
+              <AButton size="small" @click="settings('search')">检查搜索设置</AButton>
             </div>
             <AButton
               v-if="searchCursor && !searchError"
@@ -1469,12 +1694,29 @@ onBeforeUnmount(() => {
               >加载更多搜索结果</AButton
             >
             <p
-              v-if="!results.length && !searchBusy && !searchWaiting && !searchError"
+              v-if="
+                !results.length && !searchBusy && !searchWaiting && !searchError && !searchDegraded
+              "
               class="muted empty-search"
             >
               没有匹配的笔记
             </p></template
-          ><TreeBranch v-else :entries="tree" :selected="selected" @select="select" />
+          ><NoteCollection
+            v-else-if="collection !== 'notes'"
+            :entries="collectionEntries"
+            :selected="selected"
+            :kind="collection"
+            :menu-path="treeMenuPath"
+            @select="select"
+            @menu="showTreeMenu"
+          /><TreeBranch
+            v-else
+            :entries="tree"
+            :selected="selected"
+            :menu-path="treeMenuPath"
+            @select="select"
+            @menu="showTreeMenu"
+          />
         </div>
         <div
           v-if="
@@ -1492,19 +1734,35 @@ onBeforeUnmount(() => {
       <WorkspaceFooter
         :username="props.username"
         :active="panel"
+        :collection="collection"
+        @collection="showCollection"
         @settings="settings"
         @trash="openTrash()"
         @status="statusOpen = true"
         @logout="logout"
+        @notes="openNotes"
       />
     </aside>
     <SidebarResizer v-model="sidebarWidth" @commit="saveSidebarWidth" />
-    <main class="main-content">
+    <main
+      ref="mainRef"
+      :class="['main-content', { 'utility-scroll': panel === 'settings' || panel === 'trash' }]"
+      :tabindex="panel === 'settings' || panel === 'trash' ? 0 : undefined"
+    >
       <div class="mobile-bar">
         <button class="icon-button" aria-label="打开侧栏" @click="drawer = true">
           <Icon name="menu" /></button
         ><b>DooKnow</b><span>{{ dirty ? '未保存' : '私人笔记' }}</span>
       </div>
+      <NAlert
+        v-if="props.serviceUnavailable"
+        type="warning"
+        class="global-error service-unavailable"
+        role="alert"
+      >
+        {{ props.serviceUnavailable }}
+        <AButton size="small" @click="emit('retry-service')">重新检查服务</AButton>
+      </NAlert>
       <NAlert v-if="error" type="error" closable @close="error = ''" class="global-error">{{
         error
       }}</NAlert>
@@ -1593,6 +1851,16 @@ onBeforeUnmount(() => {
                 >核对删除结果</AButton
               >
               <AButton
+                class="favorite-button"
+                :class="{ 'is-favorite': currentFavorite }"
+                :title="currentFavorite ? '取消收藏' : '收藏'"
+                :aria-label="currentFavorite ? '取消收藏' : '收藏'"
+                :aria-pressed="currentFavorite"
+                :disabled="favoriteBusy || noteOpening"
+                @click="run(() => toggleFavorite(note!.id))"
+                ><template #icon><Icon name="star" /></template
+              ></AButton>
+              <AButton
                 class="share-button"
                 title="分享"
                 aria-label="分享"
@@ -1607,7 +1875,9 @@ onBeforeUnmount(() => {
                 aria-label="保存"
                 type="primary"
                 :loading="busy"
-                :disabled="busy || (!dirty && pendingSave?.noteId !== note.id)"
+                :disabled="
+                  busy || !!props.serviceUnavailable || (!dirty && pendingSave?.noteId !== note.id)
+                "
                 @click="save()"
                 ><template #icon><Icon name="save" /></template>保存
                 <span class="shortcut">Ctrl+S</span></AButton
@@ -1620,7 +1890,7 @@ onBeforeUnmount(() => {
                 @download="downloadNote"
                 @history="history()"
                 @upload="uploadInput?.click()"
-                @delete="deleteOpen = true"
+                @delete="confirmDelete"
                 ><PluginSlot slot-name="noteAction" :context="pluginContext"
               /></NoteActions>
             </div>
@@ -1687,6 +1957,7 @@ onBeforeUnmount(() => {
           :note="noteInfo"
           :assets="assets"
           :draft-scope="draftScope"
+          :service-unavailable="props.serviceUnavailable"
           :inert="noteOpening || editorTransfer ? '' : undefined"
           :initial-line="noteLine || (note.id === initialNoteId ? initialLine : undefined)"
           :key="note.id"
@@ -1783,15 +2054,22 @@ onBeforeUnmount(() => {
       <section v-else-if="panel === 'folder' && folder" class="folder-view">
         <header class="folder-header">
           <span class="breadcrumb">{{ folder.split('/').join('　/　') }}</span>
-          <h1>{{ folder.split('/').at(-1) }}</h1>
-          <div class="folder-info">
-            <span
-              >{{ folderEntries.filter((x) => x.type === 'folder').length }} 个文件夹 ·
-              {{ folderEntries.filter((x) => x.type === 'note').length }} 篇笔记</span
-            ><AButton @click="openImport">导入 Markdown</AButton
-            ><AButton @click="create('folder')"
-              ><template #icon><Icon name="plus" /></template>新建文件夹</AButton
-            >
+          <div class="folder-title-row">
+            <div class="folder-heading">
+              <h1>{{ folder.split('/').at(-1) }}</h1>
+              <p class="folder-info">
+                {{ folderEntries.filter((x) => x.type === 'folder').length }} 个文件夹 ·
+                {{ folderEntries.filter((x) => x.type === 'note').length }} 篇笔记
+              </p>
+            </div>
+            <div class="folder-actions">
+              <AButton type="primary" @click="create('note')"
+                ><template #icon><Icon name="plus" :size="16" /></template>新建笔记</AButton
+              >
+              <AButton @click="create('folder')"
+                ><template #icon><Icon name="plus" /></template>新建文件夹</AButton
+              ><AButton @click="openImport">导入 Markdown</AButton>
+            </div>
           </div>
         </header>
         <table class="folder-table">
@@ -1856,11 +2134,18 @@ onBeforeUnmount(() => {
       @open-note="openNote"
       @changed="run(refresh)"
     />
+    <TreeContextMenu
+      ref="treeMenu"
+      v-model:path="treeMenuPath"
+      :favorite-ids="favoriteIds"
+      :favorite-busy="favoriteBusy"
+      @action="treeAction"
+    />
     <NoteMoveDialog
       v-model:show="moveOpen"
-      :note-id="note?.id"
-      :relative-path="note?.relativePath"
-      :modified-at="note?.modifiedAt"
+      :note-id="moveTarget?.id"
+      :relative-path="moveTarget?.relativePath"
+      :modified-at="moveTarget?.modifiedAt"
       :folders="folders"
       @moved="moved"
     />
@@ -1874,17 +2159,16 @@ onBeforeUnmount(() => {
       :closable="!importBusy"
     >
       <label>导入到</label
-      ><NSelect
+      ><DirectoryTreeSelect
         v-model:value="importFolder"
-        aria-label="导入目录"
+        label="导入目录"
         :disabled="importBusy"
-        :options="[
+        :folders="[
           ...folders,
           ...(!folders.some((item) => item.value === '40-Resources')
             ? [{ label: '40-Resources（导入时创建）', value: '40-Resources' }]
             : []),
         ]"
-        filterable
       />
       <details class="batch-import-details">
         <summary>批量导入文件或目录</summary>
@@ -1990,50 +2274,88 @@ onBeforeUnmount(() => {
       preset="card"
       class="dialog-card"
       :title="createKind === 'note' ? '新建笔记' : '新建文件夹'"
-      ><form @submit.prevent="submitCreate">
+      :mask-closable="!createBusy && !inboxBusy"
+      :close-on-esc="!createBusy && !inboxBusy"
+      :closable="!createBusy && !inboxBusy"
+      ><form :aria-busy="createBusy || inboxBusy" @submit.prevent="submitCreate">
         <AButton
           v-if="createKind === 'note'"
           type="text"
           :loading="quickBusy"
-          :disabled="quickBusy || createBusy"
+          :disabled="quickBusy || createBusy || inboxBusy"
           @click="quickNote"
           >快速记录到收集箱</AButton
         >
         <AAlert v-if="dialogError" type="error" :message="dialogError" role="alert" />
         <label>所在目录</label
-        ><NSelect
+        ><DirectoryTreeSelect
           v-model:value="newFolder"
-          :options="folders"
-          filterable
-          aria-label="所在目录"
-          :disabled="createBusy"
-        /><label>{{ createKind === 'note' ? '文件名' : '文件夹名' }}</label
+          :folders="folders"
+          label="所在目录"
+          :disabled="createBusy || inboxBusy"
+        />
+        <template v-if="createKind === 'folder' && !newFolder">
+          <label for="root-folder-purpose">分类用途</label>
+          <ASelect
+            id="root-folder-purpose"
+            aria-label="分类用途"
+            style="width: 100%"
+            :value="
+              rootFolderPurposes.some((purpose) => purpose.value === newName) ? newName : undefined
+            "
+            :options="rootFolderPurposes"
+            :dropdown-style="{ zIndex: 3000 }"
+            :disabled="createBusy || inboxBusy"
+            placeholder="选择文件夹用途"
+            @change="(value) => (newName = String(value))"
+          />
+        </template>
+        <label>{{ createKind === 'note' ? '文件名' : '文件夹名' }}</label
         ><AInput
           v-model:value="newName"
-          :disabled="createBusy"
+          :disabled="createBusy || inboxBusy"
           autofocus
           :aria-label="createKind === 'note' ? '文件名' : '文件夹名'"
-          :placeholder="createKind === 'note' ? '例如：新的想法.md' : '例如：读书笔记'"
+          :placeholder="
+            createKind === 'note'
+              ? '例如：新的想法.md'
+              : !newFolder
+                ? '选择上方用途后自动填写'
+                : '例如：读书笔记'
+          "
         />
         <p class="muted">
           {{
             !newFolder
               ? createKind === 'note'
-                ? '根目录仅支持 README.md；其他笔记请先创建分类目录。'
-                : '根目录请使用 00-Inbox、10-Projects 等标准分类名称。'
+                ? '根目录仅支持 README.md；普通笔记可放入收集箱，填写的文件名会保留。'
+                : '先按用途选择分类，文件夹名会自动填写。'
               : createKind === 'note'
                 ? '创建后保存为真实 Markdown 文件，默认私有。'
                 : '在所选目录中创建子文件夹。'
           }}
         </p>
+        <AButton
+          v-if="createKind === 'note' && !newFolder"
+          :loading="inboxBusy"
+          :disabled="inboxBusy || createBusy || quickBusy"
+          @click="prepareInbox"
+          >{{ inboxAvailable ? '使用收集箱并继续' : '创建收集箱并继续' }}</AButton
+        >
         <div class="dialog-actions">
-          <AButton :disabled="createBusy" @click="createOpen = false">取消</AButton
+          <AButton :disabled="createBusy || inboxBusy" @click="createOpen = false">取消</AButton
           ><AButton
             html-type="submit"
             type="primary"
             aria-label="创建"
             :loading="createBusy"
-            :disabled="createBusy || !newName.trim()"
+            :disabled="
+              createBusy ||
+              inboxBusy ||
+              !newName.trim() ||
+              rootNoteNeedsFolder ||
+              rootFolderNeedsPurpose
+            "
             >创建</AButton
           >
         </div>
@@ -2057,7 +2379,12 @@ onBeforeUnmount(() => {
     >
     <NModal v-model:show="deleteOpen" preset="card" class="dialog-card" title="移入回收站？"
       ><AAlert v-if="dialogError" type="error" :message="dialogError" role="alert" />
-      <p>已保存原文将移入回收站，分享立即失效。{{ dirty ? '当前未保存输入将被放弃。' : '' }}</p>
+      <p class="tree-delete-path">{{ deleteTarget?.relativePath }}</p>
+      <p>
+        已保存原文将移入回收站，分享立即失效。{{
+          dirty && note?.id === deleteTarget?.id ? '当前未保存输入将被放弃。' : ''
+        }}
+      </p>
       <div class="dialog-actions">
         <AButton @click="deleteOpen = false">取消</AButton
         ><AButton v-if="pendingDelete" @click="run(checkDelete)">核对删除结果</AButton

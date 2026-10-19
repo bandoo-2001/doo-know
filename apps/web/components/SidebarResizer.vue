@@ -58,7 +58,7 @@ function key(event: KeyboardEvent) {
     @lostpointercapture="finish"
     @keydown="key"
     @dblclick="
-      update(280);
+      update(260);
       emit('commit');
     "
   ></div>

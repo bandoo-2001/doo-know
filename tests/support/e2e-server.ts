@@ -100,10 +100,18 @@ const login = await app.inject({
   payload: { username: 'owner', password: testPassword },
 });
 if (login.statusCode !== 200) throw new Error('e2e session initialization failed');
+// The reusable authenticated context already completed its initial CSRF exchange.
+// This prevents fixture-side API seeding from racing the app's first exchange.
+const sessionCookie = login.cookies.map((cookie) => `${cookie.name}=${cookie.value}`).join('; ');
+const initialCsrf = await app.inject({
+  url: '/api/security/csrf',
+  headers: { cookie: sessionCookie },
+});
+if (initialCsrf.statusCode !== 200) throw new Error('e2e CSRF initialization failed');
 await writeFile(
   '.local/e2e-cookies.json',
   JSON.stringify(
-    login.cookies.map((c) => ({
+    [...login.cookies, ...initialCsrf.cookies].map((c) => ({
       name: c.name,
       value: c.value,
       domain: '127.0.0.1',
@@ -120,6 +128,7 @@ const vite =
     ? undefined
     : await createServer({
         configFile: 'vite.config.ts',
+        cacheDir: join(root, 'vite-cache'),
         server: {
           port: 4179,
           host: '127.0.0.1',

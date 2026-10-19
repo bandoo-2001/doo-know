@@ -6,7 +6,7 @@ const content =
   '阅读段落。\n\n'.repeat(80) +
   '### 末尾章节\n\n最后的内容。';
 
-test('document layout keeps an H1–H5 outline beside the article and navigates in each mode', async ({
+test('document layout opens an H1–H5 outline on demand and navigates in each mode', async ({
   page,
   context,
 }, info) => {
@@ -28,10 +28,10 @@ test('document layout keeps an H1–H5 outline beside the article and navigates 
   await expect(page.locator('.cm-content')).toBeVisible();
   if (info.project.name === 'desktop') {
     await page.setViewportSize({ width: 1440, height: 900 });
-    await expect(page.locator('.document-outline')).toBeVisible();
+    await expect(page.locator('.document-outline')).toBeHidden();
     const article = (await page.locator('.document-surface').boundingBox())!;
-    const outline = (await page.locator('.document-outline').boundingBox())!;
-    expect(outline.x).toBeGreaterThanOrEqual(article.x + article.width - 1);
+    const workspace = (await page.locator('.document-body').boundingBox())!;
+    expect(article.width).toBeGreaterThanOrEqual(workspace.width - 1);
   }
   const chapterMenu = page.getByRole('button', { name: '章节目录', exact: true });
   async function outline() {
@@ -92,6 +92,7 @@ test('document layout keeps an H1–H5 outline beside the article and navigates 
     await chapterMenu.click();
     await expect(chapterMenu).toHaveAttribute('aria-expanded', 'false');
   }
+  await expect(page.locator('.outline-popup:visible')).toHaveCount(0);
   await page.setViewportSize({ width: 743, height: 604 });
   await expect(chapterMenu).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

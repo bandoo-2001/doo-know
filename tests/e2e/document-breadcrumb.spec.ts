@@ -7,6 +7,7 @@ test('short paths stay direct on wide screens and remain reachable on narrow scr
 }) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   await page.goto('/');
+  await expect(page.locator('.sidebar .brand')).toBeVisible();
   const csrf = await (await page.request.get('/api/security/csrf')).json();
   const response = await page.request.post('/api/notes', {
     headers: { origin: 'http://127.0.0.1:4179', 'x-csrf-token': csrf.token },
@@ -43,6 +44,7 @@ test('deep paths collapse into an accessible menu while preserving folder naviga
 }, info) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   await page.goto('/');
+  await expect(page.locator('.sidebar .brand')).toBeVisible();
   const csrf = await (await page.request.get('/api/security/csrf')).json();
   const headers = { origin: 'http://127.0.0.1:4179', 'x-csrf-token': csrf.token };
   const folders = ['30-Knowledge'];

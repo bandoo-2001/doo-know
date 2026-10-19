@@ -18,6 +18,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import Database from 'better-sqlite3';
+import { lt, valid } from 'semver';
 import type { HostConfig } from '../../../shared/platform-contracts.js';
 import { extractArchive } from './archive.js';
 import { releaseInfo } from './release.js';
@@ -338,7 +339,9 @@ export async function updatePlatform(
     const root = resolve(config.installRoot!),
       current = await realpath(join(root, 'current')),
       old = releaseInfo(current),
-      source = sourceURL(await githubUpdateSource(options.source || old.source || '', options.version, config));
+      source = sourceURL(
+        await githubUpdateSource(options.source || old.source || '', options.version, config),
+      );
     if (options.version && !/^[0-9][a-zA-Z0-9.+-]{0,79}$/.test(options.version))
       throw Error('发行版本不正确');
     const work = await mkdtemp(join(root, '.update-'));
@@ -361,7 +364,17 @@ export async function updatePlatform(
       )
         throw Error('发行元数据不正确');
       if (info.databaseCompatibility < old.databaseCompatibility)
-        throw Error('目标发行版的数据兼容代次较低，拒绝代码降级；请使用明确的数据恢复流程，保留最新原文');
+        throw Error(
+          '目标发行版的数据兼容代次较低，拒绝代码降级；请使用明确的数据恢复流程，保留最新原文',
+        );
+      if (!valid(old.version) || !valid(info.version))
+        throw Error(
+          '当前或目标发行版本无法比较升级方向，已保留当前版本和数据；请使用 dooknow rollback 或明确的数据恢复流程',
+        );
+      if (lt(info.version, old.version))
+        throw Error(
+          '目标发行版本较旧，已保留当前版本和数据；如需明确回退，请使用 dooknow rollback',
+        );
       if (info.version === old.version) return { version: old.version, unchanged: true };
       const archive = join(work, 'application.tar.gz');
       await download(config, new URL(info.file, source), archive, 2 * 1024 ** 3);

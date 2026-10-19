@@ -5,7 +5,9 @@ import { ConfigProvider as AConfigProvider, theme as antAlgorithms } from 'ant-d
 import zhCN from 'ant-design-vue/es/locale/zh_CN';
 import { antTheme } from './ant-design';
 import type { PlatformStatus } from '../../shared/platform-contracts';
-import { api, refreshCsrf } from './api';
+import { api, refreshCsrf, resetCsrf } from './api';
+import { clearPluginDrafts, hasUnsavedPluginDrafts } from './plugin-drafts';
+import { disposePluginUIs } from './plugins';
 import { initializeEditorPreferences, resolvedTheme } from './preferences';
 const Login = defineAsyncComponent(() => import('./components/Login.vue'));
 const Workspace = defineAsyncComponent(() => import('./components/Workspace.vue'));
@@ -18,6 +20,15 @@ const token = location.pathname.startsWith('/s/') ? location.pathname.slice(3) :
   expired = ref(false),
   ready = ref(false);
 const platform = ref<PlatformStatus>();
+const platformError = ref(''),
+  platformBusy = ref(false),
+  platformLogoutBusy = ref(false),
+  platformLogoutError = ref('');
+const workspaceServiceUnavailable = computed(() =>
+  platform.value && platform.value.phase !== 'ready'
+    ? '知识库服务尚未就绪，当前编辑和本地草稿已保留，暂时无法保存到服务器。请检查服务后重试。'
+    : '',
+);
 const ownerId = ref('');
 const username = ref('');
 const activeAntTheme = computed(() => ({
@@ -63,10 +74,42 @@ async function continueOAuth() {
   }
 }
 async function refreshPlatform() {
-  platform.value = await api('/api/platform/status');
-  const usable = platform.value?.phase === 'ready' && !platform.value.onboardingRequired;
-  mountedWorkspace.value = !!usable && !oauthMode;
-  if (usable && oauthMode === 'login') await continueOAuth();
+  if (platformBusy.value || platformLogoutBusy.value) return;
+  platformBusy.value = true;
+  platformError.value = '';
+  platformLogoutError.value = '';
+  try {
+    platform.value = await api('/api/platform/status');
+    const usable = platform.value?.phase === 'ready' && !platform.value.onboardingRequired;
+    if (!mountedWorkspace.value) mountedWorkspace.value = !!usable && !oauthMode;
+    if (usable && oauthMode === 'login') await continueOAuth();
+  } catch {
+    platformError.value = '登录信息已保留，请检查连接后重试。';
+  } finally {
+    platformBusy.value = false;
+  }
+}
+async function logoutPlatform() {
+  if (platformBusy.value || platformLogoutBusy.value) return;
+  platformLogoutBusy.value = true;
+  platformLogoutError.value = '';
+  try {
+    await api('/api/auth/sign-out', 'POST', {});
+    clearPluginDrafts();
+    void disposePluginUIs();
+    resetCsrf();
+    loggedIn.value = false;
+    mountedWorkspace.value = false;
+    expired.value = false;
+    platform.value = undefined;
+    platformError.value = '';
+    ownerId.value = '';
+    username.value = '';
+  } catch {
+    platformLogoutError.value = '暂时无法退出，请检查连接后重试。';
+  } finally {
+    platformLogoutBusy.value = false;
+  }
 }
 const lightTheme = {
   common: {
@@ -115,18 +158,30 @@ async function login() {
   }
   // The same owner keeps the mounted editor on reauthentication. A different
   // identity gets a new workspace and cannot inherit the previous draft scope.
+  if (ownerId.value && ownerId.value !== session.user.id) {
+    clearPluginDrafts();
+    void disposePluginUIs();
+    mountedWorkspace.value = false;
+    platform.value = undefined;
+  }
   ownerId.value = session.user.id;
   username.value =
     session.user.displayUsername || session.user.username || session.user.name || '当前账户';
   initializeEditorPreferences(ownerId.value);
   loggedIn.value = true;
-  await refreshPlatform();
   expired.value = false;
+  await refreshPlatform();
 }
 function sessionExpired() {
   expired.value = true;
 }
+function protectPluginDrafts(event: BeforeUnloadEvent) {
+  if (!hasUnsavedPluginDrafts()) return;
+  event.preventDefault();
+  event.returnValue = '';
+}
 onMounted(async () => {
+  window.addEventListener('beforeunload', protectPluginDrafts);
   if (!token) {
     window.addEventListener('dooknow-session-expired', sessionExpired);
     try {
@@ -141,7 +196,12 @@ onMounted(async () => {
     }
   } else ready.value = true;
 });
-onBeforeUnmount(() => window.removeEventListener('dooknow-session-expired', sessionExpired));
+onBeforeUnmount(() => {
+  window.removeEventListener('dooknow-session-expired', sessionExpired);
+  window.removeEventListener('beforeunload', protectPluginDrafts);
+  clearPluginDrafts();
+  void disposePluginUIs();
+});
 </script>
 <template>
   <AConfigProvider :locale="zhCN" :theme="activeAntTheme" :auto-insert-space-in-button="false"
@@ -174,10 +234,39 @@ onBeforeUnmount(() => window.removeEventListener('dooknow-session-expired', sess
           v-else-if="mountedWorkspace"
           :key="ownerId"
           :username="username"
+          :service-unavailable="workspaceServiceUnavailable"
+          @retry-service="refreshPlatform"
           @logout="
             loggedIn = false;
             mountedWorkspace = false;
           " /><Login v-else-if="!loggedIn" @login="login" />
+        <section
+          v-else-if="platformError || !platform"
+          class="share-error"
+          :aria-busy="platformBusy || platformLogoutBusy"
+        >
+          <template v-if="platformError">
+            <h1>暂时无法打开知识库</h1>
+            <p>{{ platformError }}</p>
+            <NAlert v-if="platformLogoutError" type="error" role="alert">{{
+              platformLogoutError
+            }}</NAlert>
+            <NButton
+              type="primary"
+              :loading="platformBusy"
+              :disabled="platformBusy || platformLogoutBusy"
+              @click="refreshPlatform"
+              >重新尝试</NButton
+            >
+            <NButton
+              :loading="platformLogoutBusy"
+              :disabled="platformBusy || platformLogoutBusy"
+              @click="logoutPlatform"
+              >退出并重新登录</NButton
+            >
+          </template>
+          <p v-else role="status">正在打开知识库…</p>
+        </section>
         <SetupWizard v-else-if="platform" :status="platform" @refresh="refreshPlatform" />
         <NModal
           :show="expired"

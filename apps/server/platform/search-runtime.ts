@@ -1,4 +1,5 @@
 import { createHash, randomBytes } from 'node:crypto';
+import { Readable } from 'node:stream';
 import { artifactFetch } from './distribution.js';
 import { existsSync, readFileSync, createReadStream } from 'node:fs';
 import {
@@ -226,12 +227,14 @@ export function searchRuntimeManager(
     const h = createHash('sha256');
     try {
       let stream: AsyncIterable<Buffer | Uint8Array>;
-      if (source.protocol === 'file:') stream = createReadStream(fileURLToPath(source));
+      if (source.protocol === 'file:') stream = createReadStream(fileURLToPath(source), { signal });
       else {
         const response = await artifactFetch(config, source, signal);
         if (!response.ok || Number(response.headers.get('content-length') || 0) > d.bytes)
           failure('SEARCH_DOWNLOAD_FAILED');
-        stream = response.body as any;
+        // Own the pending body read as well as the HTTP request. An abort must
+        // wake the iterator even when the transport is no longer forwarding it.
+        stream = Readable.fromWeb(response.body as any, { signal });
       }
       for await (const bytes of stream) {
         signal.throwIfAborted();
@@ -248,6 +251,9 @@ export function searchRuntimeManager(
       }
       if (total !== d.bytes || h.digest('hex') !== d.sha256) failure('SEARCH_CHECKSUM_MISMATCH');
       await fd.sync();
+    } catch (error) {
+      await rm(target + '.part', { force: true }).catch(() => {});
+      throw error;
     } finally {
       await fd.close();
     }

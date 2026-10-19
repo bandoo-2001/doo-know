@@ -1,6 +1,6 @@
 {
   "id": "mcp",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "apiVersion": "^1.0.0",
   "title": "MCP 服务",
   "description": "让 ChatGPT 通过授权连接知识库，查看连接与调用状态。",

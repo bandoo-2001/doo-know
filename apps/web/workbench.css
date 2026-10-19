@@ -1,0 +1,635 @@
+/* Compact navigation and writing surfaces share the existing workspace controls. */
+.main-content.utility-scroll {
+  overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.main-content.utility-scroll > :is(.settings-workspace, .trash-workspace) {
+  flex: 0 0 auto;
+}
+.main-content.utility-scroll > .mobile-bar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+:root {
+  --workbench-rail: #edf0f4;
+  --workbench-sidebar: #f8f9fb;
+  --workbench-paper: #fcfdff;
+  --workbench-line: #edf0f5;
+}
+.rail-notes-navigation {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.rail-notes-navigation button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  flex: 1;
+  min-height: 36px;
+  padding: 6px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.rail-notes-navigation button[aria-current='page'] {
+  color: var(--blue);
+  background: var(--blue-soft);
+}
+.note-collection {
+  list-style: none;
+  margin: 0;
+  padding: 0 12px;
+}
+.note-collection li {
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+  margin-block: 3px;
+}
+.note-collection li:hover,
+.note-collection li.selected {
+  background: var(--blue-soft);
+}
+.collection-open {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  flex: 1;
+  min-width: 0;
+  padding: 10px 5px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.collection-open > svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.collection-open > span {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.collection-open b,
+.collection-open small,
+.collection-open time {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.collection-open b {
+  font-size: 12px;
+  font-weight: 500;
+}
+.collection-open small,
+.collection-open time {
+  font-size: 10px;
+  color: var(--muted);
+}
+.collection-more {
+  flex-shrink: 0;
+}
+.favorite-button.is-favorite svg {
+  fill: currentColor;
+  color: #bd8c22;
+}
+.sidebar {
+  min-width: 0;
+  background: var(--workbench-sidebar);
+}
+.sidebar > .brand {
+  padding: 0 16px 18px;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.sidebar > .brand svg {
+  width: 23px;
+  height: 23px;
+}
+.sidebar-actions {
+  flex-direction: column;
+  align-items: stretch;
+  padding-inline: 16px;
+  gap: 12px;
+}
+.sidebar-actions > .ant-input-affix-wrapper {
+  width: 100%;
+  min-height: 32px;
+  background: var(--surface, #f1f3f6);
+  box-shadow: none;
+  font-size: 12px;
+}
+.sidebar-actions .ant-input {
+  background: transparent;
+  font-size: 12px;
+}
+.sidebar-create {
+  width: 100%;
+}
+.sidebar-create > .ant-btn {
+  flex: 1;
+  width: auto;
+  min-height: 34px;
+  height: 34px;
+  border-radius: 4px 0 0 4px;
+  box-shadow: none;
+}
+.sidebar-create .create-more {
+  width: 30px;
+  border-radius: 0 4px 4px 0;
+}
+.tree-heading {
+  margin: 16px 16px 3px;
+  padding: 10px 0 6px;
+  border-top: 1px solid var(--workbench-line);
+  color: var(--text);
+  font-size: 12px;
+}
+.tree-heading .icon-button {
+  min-width: 25px;
+  min-height: 25px;
+}
+.tree-heading > span {
+  flex: 1;
+}
+.tree-heading .icon-button svg {
+  width: 15px;
+  height: 15px;
+}
+.tree-row,
+.tree-row.selected {
+  min-height: 30px;
+  margin: 1px 12px;
+  border-radius: 3px;
+}
+.tree-select {
+  min-height: 30px;
+  padding-block: 3px;
+  gap: 6px;
+  font-size: 12px;
+}
+.tree-select > svg {
+  width: 15px;
+  height: 15px;
+}
+.tree-toggle {
+  min-height: 30px;
+  width: 16px;
+}
+.tree-spacer {
+  width: 16px;
+}
+.tree-row.selected.is-folder,
+.tree-row.selected.is-note {
+  background: var(--blue-soft);
+  color: var(--blue);
+  box-shadow: inset 2px 0 var(--blue);
+}
+.tree-row.selected .tree-select span {
+  font-weight: 500;
+}
+.tree-more {
+  width: 24px;
+  min-height: 26px;
+}
+.tree-scroll {
+  scrollbar-gutter: auto;
+  padding-bottom: 16px;
+}
+.main-content,
+.document-surface,
+.folder-view {
+  background: var(--workbench-paper);
+}
+.note-header {
+  padding: 0;
+  background: var(--workbench-paper);
+  border-bottom: 1px solid var(--workbench-line);
+  box-shadow: none;
+}
+.note-topline {
+  min-height: 46px;
+  padding: 7px 22px;
+  gap: 10px;
+}
+.document-navigation {
+  gap: 0;
+}
+.document-navigation .icon-button,
+.history-controls .icon-button {
+  width: 27px;
+  min-width: 27px;
+  height: 27px;
+}
+.document-breadcrumb > button,
+.note-header .document-title {
+  font-size: 12px;
+}
+.note-header .toolbar {
+  gap: 5px;
+}
+.note-header .save-state {
+  font-size: 10px;
+  margin-right: 3px;
+}
+.note-header .toolbar .ant-btn {
+  height: 29px;
+  padding-inline: 10px;
+  font-size: 12px;
+}
+.note-header .toolbar .save-button {
+  box-shadow: none;
+}
+.note-header .shortcut {
+  display: none;
+}
+.document-format-row {
+  min-height: 42px;
+  padding: 3px 22px;
+  gap: 12px;
+  border-top: 1px solid var(--workbench-line);
+}
+.format-toolbar {
+  gap: 8px;
+  padding-block: 0;
+  scrollbar-width: none;
+}
+.format-toolbar::-webkit-scrollbar {
+  display: none;
+}
+.format-group {
+  gap: 1px;
+}
+.format-toolbar button,
+.heading-select {
+  height: 30px;
+  color: var(--muted);
+}
+.format-toolbar button {
+  width: 28px;
+}
+.format-divider {
+  height: 15px;
+  background: var(--border);
+}
+.mode-tabs {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+.mode-tabs button {
+  font-size: 11px;
+  padding: 3px 7px;
+  min-height: 28px;
+}
+.mode-tabs button.active {
+  background: var(--blue-soft);
+  color: var(--blue);
+  box-shadow: none;
+}
+/* The outline opens on demand at every width, leaving the article uninterrupted. */
+.document-outline {
+  display: none;
+}
+.note-header .outline-toggle {
+  display: inline-flex;
+}
+.document-surface .cm-content {
+  padding-top: 30px;
+  padding-bottom: 88px;
+}
+.document-surface .preview-panel > .markdown {
+  padding-top: 30px;
+  padding-bottom: 88px;
+}
+.document-surface .cm-scroller,
+.document-surface .markdown {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd2de transparent;
+}
+.folder-header {
+  padding: 18px 28px 17px;
+  border-bottom: 1px solid var(--workbench-line);
+  background: var(--workbench-paper);
+}
+.folder-header > .breadcrumb {
+  display: block;
+  font-size: 11px;
+  margin-bottom: 8px;
+}
+.folder-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+.folder-heading {
+  min-width: 0;
+}
+.folder-header h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.folder-info {
+  display: block;
+  margin: 3px 0 0;
+  font-size: 11px;
+  color: var(--muted);
+}
+.folder-actions {
+  display: flex;
+  max-width: 100%;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.folder-actions .ant-btn {
+  height: 32px;
+  font-size: 12px;
+  padding-inline: 12px;
+  box-shadow: none;
+}
+.folder-actions .ant-btn:not(.ant-btn-primary) {
+  background: transparent;
+  border-color: var(--border);
+}
+.folder-actions svg {
+  width: 15px;
+  height: 15px;
+}
+.folder-table thead {
+  background: var(--surface-soft);
+}
+.folder-table th {
+  padding-block: 10px;
+  font-size: 11px;
+  font-weight: 400;
+  border-color: var(--workbench-line);
+}
+.folder-table td {
+  padding-block: 11px;
+  border-color: var(--workbench-line);
+}
+.folder-empty {
+  padding-top: clamp(40px, 10vh, 100px);
+}
+.tree-delete-path {
+  overflow-wrap: anywhere;
+}
+@media (min-width: 721px) {
+  .workspace {
+    grid-template-columns: 60px var(--sidebar-width, 260px) minmax(0, 1fr);
+  }
+  .workspace > .sidebar {
+    grid-column: 2;
+    grid-row: 1;
+    padding-top: 20px;
+  }
+  .workspace > .main-content {
+    grid-column: 3;
+    grid-row: 1;
+  }
+  .sidebar-resizer {
+    left: calc(60px + var(--sidebar-width, 260px) - 4px);
+  }
+  .workspace-footer {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 60px;
+    height: 100dvh;
+    padding: 16px 7px 12px;
+    margin: 0;
+    background: var(--workbench-rail);
+    border: 0;
+    border-right: 1px solid var(--workbench-line);
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  .workspace-footer .account-row {
+    order: -2;
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    min-height: 44px;
+    margin: 0;
+    padding: 0;
+  }
+  .workspace-footer .account-row .avatar {
+    width: 34px;
+    height: 34px;
+    font-size: 13px;
+  }
+  .workspace-footer .account-name,
+  .workspace-footer .account-row > svg {
+    display: none;
+  }
+  .rail-notes-navigation {
+    display: block;
+    order: -1;
+    width: 100%;
+    margin-top: 6px;
+  }
+  .rail-notes-navigation button,
+  .workspace-footer .footer-tools button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: 44px;
+    min-height: 48px;
+    padding: 6px 0;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--muted);
+    font: inherit;
+    font-size: 10px;
+    cursor: pointer;
+  }
+  .rail-notes-navigation button[aria-current='page'],
+  .rail-notes-navigation button:hover,
+  .workspace-footer .footer-tools button[aria-current='page'],
+  .workspace-footer .footer-tools button:hover {
+    background: var(--panel);
+    color: var(--blue);
+    box-shadow: 0 2px 6px #1e315408;
+  }
+  .workspace-footer .footer-tools {
+    display: flex;
+    flex-direction: column;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 5px;
+    width: 100%;
+    padding: 0;
+    margin: auto 0 0;
+    border: 0;
+  }
+  .workspace.sidebar-collapsed {
+    grid-template-columns: 60px 0 minmax(0, 1fr);
+  }
+  .workspace.sidebar-collapsed > .sidebar {
+    display: flex;
+    width: 0;
+    padding: 0;
+    overflow: visible;
+    border: 0;
+  }
+  .workspace.sidebar-collapsed > .sidebar > :not(.workspace-footer) {
+    display: none;
+  }
+}
+@media (max-width: 960px) {
+  .folder-title-row {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .folder-actions {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+}
+@media (max-width: 720px) {
+  .workspace {
+    display: block;
+  }
+  .sidebar > .brand {
+    padding-top: 0;
+    font-size: 20px;
+  }
+  .sidebar > .brand svg {
+    width: 26px;
+    height: 26px;
+  }
+  .sidebar-actions {
+    gap: 10px;
+  }
+  .tree-row,
+  .tree-row.selected,
+  .tree-select,
+  .tree-toggle {
+    min-height: 34px;
+  }
+  .tree-select {
+    font-size: 13px;
+  }
+  .tree-more {
+    min-height: 32px;
+    width: 30px;
+  }
+  .tree-heading {
+    margin-top: 12px;
+  }
+  .note-topline {
+    min-height: 46px;
+    padding: 6px 12px;
+    gap: 7px;
+  }
+  .document-format-row {
+    padding: 3px 12px;
+    gap: 6px;
+  }
+  .note-header .toolbar .share-button,
+  .note-header .toolbar .save-button {
+    width: 28px;
+    min-width: 28px;
+    padding: 0;
+    font-size: 0;
+  }
+  .folder-header {
+    padding: 14px 18px;
+  }
+  .folder-header h1 {
+    font-size: 19px;
+  }
+  .folder-actions {
+    gap: 6px;
+  }
+  .folder-actions .ant-btn {
+    height: 30px;
+    padding-inline: 9px;
+    font-size: 11px;
+  }
+  .mobile-bar {
+    background: var(--workbench-sidebar);
+    border-bottom-color: var(--workbench-line);
+  }
+}
+html[data-theme='dark'] {
+  --workbench-rail: #121c2d;
+  --workbench-sidebar: #172033;
+  --workbench-paper: #101827;
+  --workbench-line: #263248;
+}
+
+/* The sidebar can narrow the document even when the browser itself is wide. */
+@container document-area (max-width: 700px) {
+  .note-topline {
+    padding-inline: 14px;
+    gap: 8px;
+  }
+  .document-format-row {
+    padding-inline: 14px;
+    gap: 10px;
+  }
+  .note-header .toolbar {
+    gap: 4px;
+  }
+  .note-header .toolbar .share-button,
+  .note-header .toolbar .save-button {
+    width: 30px;
+    min-width: 30px;
+    height: 30px;
+    padding: 0;
+    font-size: 0;
+  }
+}
+
+@container document-area (max-width: 480px) {
+  .note-topline {
+    flex-wrap: wrap;
+    row-gap: 4px;
+  }
+  .document-identity.document-breadcrumb {
+    flex: 1 1 calc(100% - 40px);
+  }
+  .note-header .toolbar {
+    flex-basis: 100%;
+    justify-content: flex-end;
+  }
+}
+
+/* Include the path trigger offset and popover padding in the viewport budget. */
+.breadcrumb-menu {
+  max-width: calc(100vw - 96px);
+}
+
+/* An opening or closing menu must not enlarge the mobile positioning viewport. */
+.v-binder-follower-container:has(.breadcrumb-menu) {
+  position: fixed;
+  bottom: 0;
+  height: auto;
+  overflow: clip;
+}

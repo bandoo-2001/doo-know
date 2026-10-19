@@ -17,6 +17,7 @@ test('login and two-column workspace with manual Markdown editing', async ({ pag
   await page.getByLabel('用户名', { exact: true }).fill('owner');
   await page.getByLabel('密码', { exact: true }).fill(testPassword);
   await page.getByRole('button', { name: '登录', exact: true }).click();
+  await showSidebar(page);
   await expect(
     page.locator('.sidebar').getByRole('button', { name: '新建笔记', exact: true }),
   ).toBeVisible();
@@ -25,11 +26,13 @@ test('login and two-column workspace with manual Markdown editing', async ({ pag
     .locator('.sidebar')
     .getByRole('button', { name: '新建笔记', exact: true })
     .boundingBox();
-  expect(
-    Math.abs(search!.y + search!.height / 2 - create!.y - create!.height / 2),
-  ).toBeLessThanOrEqual(2);
-  expect(search!.x + search!.width).toBeLessThan(create!.x);
-  expect(create!.width).toBeLessThanOrEqual(40);
+  // Search and creation occupy separate rows in the notebook sidebar.
+  expect(search!.y + search!.height).toBeLessThanOrEqual(create!.y);
+  expect(create!.width).toBeGreaterThanOrEqual(30);
+  expect(create!.x + create!.width).toBeLessThanOrEqual(
+    (await page.locator('.sidebar').boundingBox())!.x +
+      (await page.locator('.sidebar').boundingBox())!.width,
+  );
   await expect(page.getByRole('button', { name: '全部笔记', exact: true })).toHaveCount(0);
   await expect(page.getByRole('heading', { name: '选择一篇笔记', exact: true })).toBeVisible();
   await expect(page.locator('.folder-view')).toHaveCount(0);
@@ -68,6 +71,7 @@ test('returns to an unselected workspace when a root note is deleted', async ({
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   try {
     await page.goto('/');
+    await showSidebar(page);
     await page.locator('.tree-scroll').getByRole('button', { name: fileName, exact: true }).click();
     await expect(page.locator('.cm-content')).toBeVisible();
     await clickNoteAction(page, '删除笔记');
@@ -284,7 +288,7 @@ test.describe('authenticated feature acceptance', () => {
     });
     const box = await page.locator('.main-content').boundingBox();
     const sidebar = await page.locator('.sidebar').boundingBox();
-    if (info.project.name === 'desktop') expect(box!.x).toBe(sidebar!.width);
+    if (info.project.name === 'desktop') expect(box!.x).toBe(sidebar!.x + sidebar!.width);
     else expect(box!.x).toBe(0);
     expect(box!.x + box!.width).toBe(page.viewportSize()!.width);
     expect(box!.y + box!.height).toBeCloseTo(page.viewportSize()!.height, 0);

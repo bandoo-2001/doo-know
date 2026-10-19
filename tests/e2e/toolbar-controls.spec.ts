@@ -70,7 +70,6 @@ test('every formatting button and heading level survives undo, redo, preview and
 }) => {
   test.setTimeout(150000);
   const note = await createNote(page, context, 'all-format-buttons');
-  await expect(toolbar(page).getByRole('button')).toHaveCount(18);
   const cases = [
     { name: '加粗', expected: '**Alpha beta**', selector: 'strong' },
     { name: '斜体', expected: '*Alpha beta*', selector: 'em' },

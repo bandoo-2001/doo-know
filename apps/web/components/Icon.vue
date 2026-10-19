@@ -36,6 +36,7 @@ const paths: Record<string, string> = {
   menu: 'M3 6h18M3 12h18M3 18h18',
   lock: 'M6 11V7a6 6 0 0 1 12 0v4M4 11h16v11H4Zm8 4v3',
   clock: 'M12 8v5l3 2M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0',
+  star: 'm12 3 2.78 5.63L21 9.54l-4.5 4.39 1.06 6.2L12 17.2l-5.56 2.93 1.06-6.2L3 9.54l6.22-.91Z',
   image: 'M3 3h18v18H3Zm0 14 5-5 4 4 3-3 6 6M8 7h.01',
   refresh: 'M3 11a9 9 0 0 1 15-7l3 3M21 3v4h-4M21 13a9 9 0 0 1-15 7l-3-3M3 21v-4h4',
   logout: 'M9 3H3v18h6M13 7l5 5-5 5M7 12h14',

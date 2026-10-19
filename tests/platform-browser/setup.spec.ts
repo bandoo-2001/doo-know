@@ -38,8 +38,8 @@ test('first login binds an empty knowledge base and creates its first root note,
     route.fulfill({
       json: {
         catalog: [
-          { id: 'mcp', title: 'ChatGPT 连接', version: '1.0.0' },
-          { id: 'git', title: '文件版本', version: '1.0.0' },
+          { id: 'mcp', title: 'ChatGPT 连接', version: '1.0.0', capabilities: [] },
+          { id: 'git', title: '文件版本', version: '1.0.0', capabilities: [] },
         ],
         installed: [
           {
@@ -66,7 +66,7 @@ test('first login binds an empty knowledge base and creates its first root note,
   await page.route('**/api/platform/plugins/mcp/install', (route) => route.fulfill({ json: {} }));
   await page.getByRole('button', { name: '添加连接设置', exact: true }).click();
   const prefixes = page.getByRole('textbox', { name: '允许的目录', exact: true });
-  await expect(prefixes).toHaveValue('[\n  "00-Inbox"\n]');
+  await expect(prefixes).toHaveValue('00-Inbox');
   await page.route('**/api/platform/plugins/git/install', (route) =>
     route.fulfill({ status: 503, json: { error: 'fixture unavailable' } }),
   );
@@ -142,7 +142,8 @@ test('first login binds an empty knowledge base and creates its first root note,
   await expect(dialog.getByRole('textbox', { name: '文件名', exact: true })).toHaveValue(
     'README.md',
   );
-  await expect(dialog.locator('.n-base-selection-label')).toContainText('知识库根目录');
+  await expect(dialog.getByRole('combobox', { name: '所在目录', exact: true })).toBeVisible();
+  await expect(dialog.locator('.directory-select')).toContainText('知识库根目录');
   await expect(dialog).toContainText('根目录仅支持 README.md');
   await dialog.getByRole('button', { name: '创建', exact: true }).click();
   await expect(page.locator('.cm-content')).toContainText('# README');
@@ -150,8 +151,13 @@ test('first login binds an empty knowledge base and creates its first root note,
 
   if (info.project.name === 'mobile') await page.getByRole('button', { name: '打开侧栏' }).click();
   await page.locator('.sidebar').getByRole('button', { name: '新建文件夹', exact: true }).click();
-  await dialog.locator('.n-base-selection').click();
-  await page.locator('.n-base-select-option').getByText('知识库根目录', { exact: true }).click();
+  const directory = dialog.getByRole('combobox', { name: '所在目录', exact: true });
+  await directory.focus();
+  await directory.press('ArrowDown');
+  await page
+    .locator('.directory-tree-popup:visible')
+    .getByTitle('知识库根目录', { exact: true })
+    .click();
   await dialog.getByRole('textbox', { name: '文件夹名', exact: true }).fill('00-Inbox');
   await dialog.getByRole('button', { name: '创建', exact: true }).click();
   await expect(page.getByText('文件夹已创建', { exact: true })).toBeVisible();
@@ -162,8 +168,12 @@ test('first login binds an empty knowledge base and creates its first root note,
   ]);
 
   await page.locator('.tree-scroll').getByRole('button', { name: '00-Inbox', exact: true }).click();
-  await page.locator('.folder-view').getByRole('button', { name: '新建笔记', exact: true }).click();
-  await expect(dialog.locator('.n-base-selection-label')).toContainText('00-Inbox');
+  await page
+    .locator('.folder-header')
+    .getByRole('button', { name: '新建笔记', exact: true })
+    .click();
+  await expect(dialog.getByRole('combobox', { name: '所在目录', exact: true })).toBeVisible();
+  await expect(dialog.locator('.directory-select')).toContainText('00-Inbox');
   await dialog.getByRole('textbox', { name: '文件名', exact: true }).fill('第一篇笔记');
   await dialog.getByRole('button', { name: '创建', exact: true }).click();
   await expect(page.locator('.cm-content')).toContainText('# 第一篇笔记');
