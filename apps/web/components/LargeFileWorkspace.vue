@@ -397,6 +397,24 @@ async function discard() {
   editorContent.value = original.value;
   renderEpoch++;
 }
+async function loadInitial() {
+  const range = recovery.value?.range;
+  await load(
+    range
+      ? {
+          maxBytes: Math.max(1, range.endByte - range.startByte),
+          range: {
+            startLine: range.startLine,
+            endLine: range.endLine,
+            lineByteOffset: range.lineByteOffset,
+          },
+        }
+      : props.initialLine
+        ? { range: { startLine: props.initialLine } }
+        : {},
+  );
+  await loadOutline();
+}
 watch(
   [() => props.note.id, () => props.draftScope?.ownerId, () => props.draftScope?.knowledgeId],
   async () => {
@@ -429,22 +447,7 @@ watch(
         }
       }
       if (current !== epoch) return;
-      const range = recovery.value?.range;
-      await load(
-        range
-          ? {
-              maxBytes: Math.max(1, range.endByte - range.startByte),
-              range: {
-                startLine: range.startLine,
-                endLine: range.endLine,
-                lineByteOffset: range.lineByteOffset,
-              },
-            }
-          : props.initialLine
-            ? { range: { startLine: props.initialLine } }
-            : {},
-      );
-      await loadOutline();
+      await loadInitial();
     }
   },
   { immediate: true },
@@ -521,7 +524,10 @@ defineExpose({ save, discard, reload, flushLocalDraft });
           :disabled="!page?.hasMore || busy || !!recovery"
           @click="navigate(() => load({ cursor: page!.nextCursor }))"
           >下一片段</NButton
-        ><NButton :disabled="busy || !!recovery" @click="navigate(() => load())">重新读取</NButton
+        ><NButton
+          :disabled="busy || (!!page && !!recovery)"
+          @click="page ? navigate(() => load()) : loadInitial()"
+          >重新读取</NButton
         ><a
           v-if="page"
           :href="`/api/notes/${note.id}/download?snapshotId=${encodeURIComponent(page.snapshotId)}`"

@@ -360,19 +360,22 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
         : (db
             .prepare('SELECT content_hash,source_revision FROM document_state WHERE note_id=?')
             .get(n.id) as any);
-    const row = db
-      .prepare(
-        'SELECT * FROM read_snapshots WHERE note_id=? AND source_key=? AND modified_at=? AND size_bytes=? AND source_hash<>? AND expires_at>? ORDER BY created_at DESC LIMIT 1',
+    const ready = db.transaction(() => {
+      const row = db
+        .prepare(
+          'SELECT * FROM read_snapshots WHERE note_id=? AND source_key=? AND modified_at=? AND size_bytes=? AND source_hash<>? AND expires_at>? ORDER BY created_at DESC LIMIT 1',
+        )
+        .get(n.id, id, s.mtimeNs.toString(), Number(s.size), 'preparing', Date.now()) as
+        | SnapshotRow
+        | undefined;
+      if (
+        row &&
+        (!state?.content_hash ||
+          (row.source_hash === state.content_hash && row.source_revision === state.source_revision))
       )
-      .get(n.id, id, s.mtimeNs.toString(), Number(s.size), 'preparing', Date.now()) as
-      | SnapshotRow
-      | undefined;
-    if (
-      row &&
-      (!state?.content_hash ||
-        (row.source_hash === state.content_hash && row.source_revision === state.source_revision))
-    )
-      return adopt(p, row);
+        return adopt(p, row);
+    }).immediate();
+    if (ready) return ready;
     return {
       operation: await prepare(
         p,
@@ -399,7 +402,7 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
   }
   function adopt(p: Principal, row: SnapshotRow) {
     if (row.principal === 'system:index-worker' && p.id !== 'system:index-worker')
-      db.transaction(() => {
+      return db.transaction(() => {
         const own = (
           db
             .prepare('SELECT coalesce(sum(size_bytes),0) n FROM read_snapshots WHERE principal=?')
@@ -413,28 +416,32 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
             .get(p.id) as any
         ).n;
         if (own + pending + row.size_bytes > 64 * 1024 * 1024) fail(429, 'SNAPSHOT_QUOTA_EXCEEDED');
-        db.prepare('UPDATE read_snapshots SET principal=? WHERE id=? AND principal=?').run(
-          p.id,
-          row.id,
-          'system:index-worker',
-        );
-        row.principal = p.id;
+        const claimed = db
+          .prepare('UPDATE read_snapshots SET principal=? WHERE id=? AND principal=?')
+          .run(p.id, row.id, 'system:index-worker');
+        if (!claimed.changes) return;
+        return { ...row, principal: p.id };
       }).immediate();
     return row;
   }
   async function releaseInternal(id: string) {
-    const row = db
-      .prepare(
-        "SELECT * FROM read_snapshots WHERE id=? AND principal='system:index-worker' AND refs=0 AND NOT EXISTS(SELECT 1 FROM read_sessions WHERE snapshot_id=? AND expires_at>?)",
-      )
-      .get(id, id, Date.now()) as SnapshotRow | undefined;
-    if (!row) return;
-    if (row.path !== join(config.dataRoot, 'read-snapshots', id + '.md'))
-      fail(500, 'INVALID_SNAPSHOT_PATH');
-    db.prepare(
-      "DELETE FROM read_snapshots WHERE id=? AND principal='system:index-worker' AND refs=0",
-    ).run(id);
-    await unlink(row.path).catch(() => {});
+    const removed = db.transaction(() => {
+      const row = db
+        .prepare(
+          "SELECT * FROM read_snapshots WHERE id=? AND principal='system:index-worker' AND refs=0 AND NOT EXISTS(SELECT 1 FROM read_sessions WHERE snapshot_id=? AND expires_at>?) AND NOT EXISTS(SELECT 1 FROM file_operations WHERE snapshot_id=? AND status IN ('queued','running','committing','needs_reconciliation'))",
+        )
+        .get(id, id, Date.now(), id) as SnapshotRow | undefined;
+      if (!row) return;
+      if (row.path !== join(config.dataRoot, 'read-snapshots', id + '.md'))
+        fail(500, 'INVALID_SNAPSHOT_PATH');
+      const deleted = db
+        .prepare(
+          "DELETE FROM read_snapshots WHERE id=? AND principal='system:index-worker' AND refs=0 AND NOT EXISTS(SELECT 1 FROM read_sessions WHERE snapshot_id=? AND expires_at>?) AND NOT EXISTS(SELECT 1 FROM file_operations WHERE snapshot_id=? AND status IN ('queued','running','committing','needs_reconciliation'))",
+        )
+        .run(id, id, Date.now(), id);
+      return deleted.changes ? row : undefined;
+    }).immediate();
+    if (removed) await unlink(removed.path).catch(() => {});
   }
   async function read(
     p: Principal,
@@ -673,24 +680,35 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
       .prepare('SELECT * FROM read_snapshots WHERE expires_at<=? AND refs=0')
       .all(Date.now()) as SnapshotRow[];
     for (const r of rows) {
-      if (
-        db
-          .prepare('SELECT 1 FROM read_sessions WHERE snapshot_id=? AND expires_at>?')
-          .get(r.id, Date.now()) ||
-        db
+      const removed = db.transaction(() => {
+        const current = db
+          .prepare('SELECT * FROM read_snapshots WHERE id=? AND expires_at<=? AND refs=0')
+          .get(r.id, Date.now()) as SnapshotRow | undefined;
+        if (!current) return;
+        if (
+          db
+            .prepare('SELECT 1 FROM read_sessions WHERE snapshot_id=? AND expires_at>?')
+            .get(current.id, Date.now()) ||
+          db
+            .prepare(
+              "SELECT 1 FROM file_operations WHERE snapshot_id=? AND status IN ('queued','running','committing','needs_reconciliation')",
+            )
+            .get(current.id)
+        )
+          return;
+        if (
+          !/^[0-9a-f-]{36}$/.test(current.id) ||
+          current.path !== join(config.dataRoot, 'read-snapshots', `${current.id}.md`)
+        )
+          fail(500, 'INVALID_SNAPSHOT_PATH');
+        const deleted = db
           .prepare(
-            "SELECT 1 FROM file_operations WHERE snapshot_id=? AND status IN ('queued','running','committing','needs_reconciliation')",
+            "DELETE FROM read_snapshots WHERE id=? AND expires_at<=? AND refs=0 AND NOT EXISTS(SELECT 1 FROM read_sessions WHERE snapshot_id=? AND expires_at>?) AND NOT EXISTS(SELECT 1 FROM file_operations WHERE snapshot_id=? AND status IN ('queued','running','committing','needs_reconciliation'))",
           )
-          .get(r.id)
-      )
-        continue;
-      if (
-        !/^[0-9a-f-]{36}$/.test(r.id) ||
-        r.path !== join(config.dataRoot, 'read-snapshots', `${r.id}.md`)
-      )
-        fail(500, 'INVALID_SNAPSHOT_PATH');
-      await unlink(r.path).catch(() => {});
-      db.prepare('DELETE FROM read_snapshots WHERE id=? AND refs=0').run(r.id);
+          .run(current.id, Date.now(), current.id, Date.now(), current.id);
+        return deleted.changes ? current : undefined;
+      }).immediate();
+      if (removed) await unlink(removed.path).catch(() => {});
     }
   }
   async function drain() {

@@ -4,6 +4,7 @@ import { openDatabase, type AppDatabase } from '../../packages/core/db.js';
 import { noteService } from '../../packages/core/notes.js';
 import { mutationCore, webPrincipal } from '../../packages/core/knowledge/core.js';
 import { snapshotService } from '../../packages/core/knowledge/snapshots.js';
+import { readFile } from 'node:fs/promises';
 
 // A second real WAL connection commits after a transaction's first SELECT.
 // Deferred transactions cannot then upgrade their stale snapshot to a writer.
@@ -170,6 +171,165 @@ it('adopts an indexer snapshot for a browser read despite a competing WAL writer
     ).toMatchObject({ principal: webPrincipal.id });
   } finally {
     contention?.restore();
+    await f.close();
+  }
+});
+
+it('does not return a snapshot deleted by an index worker between candidate selection and browser adoption', async () => {
+  const f = await isolatedSnapshots();
+  const otherSnapshots = snapshotService(
+    f.f.config,
+    f.other,
+    noteService(f.f.config, f.other),
+  );
+  const prepare = f.db.prepare.bind(f.db);
+  let raced = false,
+    release: Promise<void> | undefined;
+  try {
+    const indexer = { ...webPrincipal, id: 'system:index-worker', clientId: 'indexer' };
+    const operation = await f.snapshots.prepare(indexer, f.note.id, 'candidate-release-race');
+    await f.snapshots.drain();
+    const built = f.snapshots.operation(operation.operationId);
+    expect(built.status).toBe('succeeded');
+    f.db.prepare = ((sql: string) => {
+      const statement = prepare(sql);
+      if (sql.startsWith('SELECT * FROM read_snapshots WHERE note_id=? AND source_key=?')) {
+        const get = statement.get.bind(statement);
+        statement.get = ((...values: any[]) => {
+          const row = get(...values) as any;
+          if (!raced && row?.id === built.snapshotId) {
+            raced = true;
+            release = otherSnapshots.releaseInternal(row.id).catch((error) => {
+              if (error.code !== 'SQLITE_BUSY') throw error;
+            });
+          }
+          return row;
+        }) as any;
+      }
+      return statement;
+    }) as any;
+    await expect(f.snapshots.read(webPrincipal, f.note.id, {}, 'web')).resolves.toMatchObject({
+      kind: 'ready',
+      data: { content: f.content },
+    });
+    expect(raced).toBe(true);
+    await release;
+  } finally {
+    f.db.prepare = prepare;
+    await release;
+    await otherSnapshots.close();
+    await f.close();
+  }
+});
+
+it('does not unlink a snapshot after a concurrent browser adoption wins the index-worker release', async () => {
+  const f = await isolatedSnapshots();
+  const prepare = f.db.prepare.bind(f.db);
+  let raced = false;
+  try {
+    const indexer = { ...webPrincipal, id: 'system:index-worker', clientId: 'indexer' };
+    const operation = await f.snapshots.prepare(indexer, f.note.id, 'release-adoption-race');
+    await f.snapshots.drain();
+    const built = f.snapshots.operation(operation.operationId);
+    expect(built.status).toBe('succeeded');
+    f.db.prepare = ((sql: string) => {
+      const statement = prepare(sql);
+      if (sql.includes("FROM read_snapshots WHERE id=? AND principal='system:index-worker'")) {
+        const get = statement.get.bind(statement);
+        statement.get = ((...values: any[]) => {
+          const row = get(...values) as any;
+          if (!raced && row?.id === built.snapshotId) {
+            raced = true;
+            try {
+              f.other
+                .prepare('UPDATE read_snapshots SET principal=? WHERE id=? AND principal=?')
+                .run(webPrincipal.id, row.id, indexer.id);
+            } catch (error) {
+              if ((error as any).code !== 'SQLITE_BUSY') throw error;
+            }
+          }
+          return row;
+        }) as any;
+      }
+      return statement;
+    }) as any;
+    await f.snapshots.releaseInternal(built.snapshotId!);
+    expect(raced).toBe(true);
+    let page = await f.snapshots.read(webPrincipal, f.note.id, {}, 'web');
+    if (page.kind === 'accepted') {
+      await f.snapshots.drain();
+      page = await f.snapshots.read(webPrincipal, f.note.id, {}, 'web');
+    }
+    expect(page).toMatchObject({ kind: 'ready', data: { content: f.content } });
+  } finally {
+    f.db.prepare = prepare;
+    await f.close();
+  }
+});
+
+it('does not prune a snapshot used by a read session registered after the cleaner inspected it', async () => {
+  const f = await isolatedSnapshots();
+  const prepare = f.db.prepare.bind(f.db);
+  let raced = false,
+    sessionRegistered = false;
+  try {
+    const operation = await f.snapshots.prepare(webPrincipal, f.note.id, 'prune-session-race');
+    await f.snapshots.drain();
+    const built = f.snapshots.operation(operation.operationId);
+    const row = f.db.prepare('SELECT path FROM read_snapshots WHERE id=?').get(built.snapshotId) as {
+      path: string;
+    };
+    f.db.prepare('UPDATE read_snapshots SET expires_at=? WHERE id=?').run(
+      Date.now() - 1,
+      built.snapshotId,
+    );
+    f.db.prepare = ((sql: string) => {
+      const statement = prepare(sql);
+      if (sql === 'SELECT 1 FROM read_sessions WHERE snapshot_id=? AND expires_at>?') {
+        const get = statement.get.bind(statement);
+        statement.get = ((...values: any[]) => {
+          const result = get(...values);
+          if (!raced && values[0] === built.snapshotId) {
+            raced = true;
+            try {
+              f.other
+                .prepare(
+                  'INSERT INTO read_sessions(id,snapshot_id,principal,client_id,channel,expires_at) VALUES(?,?,?,?,?,?)',
+                )
+                .run(
+                  'concurrent-live-session',
+                  built.snapshotId,
+                  webPrincipal.id,
+                  webPrincipal.clientId,
+                  'web',
+                  Date.now() + 60000,
+                );
+              sessionRegistered = true;
+            } catch (error) {
+              if ((error as any).code !== 'SQLITE_BUSY') throw error;
+            }
+          }
+          return result;
+        }) as any;
+      }
+      return statement;
+    }) as any;
+    await f.snapshots.clean();
+    expect(raced).toBe(true);
+    if (sessionRegistered) {
+      expect(
+        f.db.prepare('SELECT id FROM read_sessions WHERE id=?').get('concurrent-live-session'),
+      ).toBeDefined();
+      expect(await readFile(row.path, 'utf8')).toBe(f.content);
+    }
+    let page = await f.snapshots.read(webPrincipal, f.note.id, {}, 'web');
+    if (page.kind === 'accepted') {
+      await f.snapshots.drain();
+      page = await f.snapshots.read(webPrincipal, f.note.id, {}, 'web');
+    }
+    expect(page).toMatchObject({ kind: 'ready', data: { content: f.content } });
+  } finally {
+    f.db.prepare = prepare;
     await f.close();
   }
 });

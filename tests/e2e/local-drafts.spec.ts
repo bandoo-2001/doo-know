@@ -277,3 +277,63 @@ for (const previousMode of ['full', 'large'] as const) {
     expect(await readFile(path, 'utf8')).toBe(replacement);
   });
 }
+
+for (const draftKind of ['note', 'fragment'] as const) {
+  test(`a failed initial fragment read keeps a ${draftKind} draft copyable and can retry without writing the source`, async ({
+    page,
+    context,
+  }, info) => {
+    await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
+    const config = JSON.parse(await readFile('.local/e2e-config.json', 'utf8'));
+    const fileName = `读取重试-${draftKind}-${info.project.name}.md`;
+    const path = join(config.knowledgeRoot, '00-Inbox', fileName);
+    const large = '# Large retry source\n' + 'retry source line\n'.repeat(150000);
+    await writeFile(path, draftKind === 'note' ? '# Small retry source\n' : large);
+    const noteId = await openFixtureNote(page, fileName);
+    await expect(page.locator('.cm-content')).toBeVisible();
+    let recordedRange: string | undefined;
+    if (draftKind === 'fragment') {
+      await page.getByRole('button', { name: '下一片段', exact: true }).click();
+      await expect(page.locator('.large-range')).not.toContainText('第 1–');
+      recordedRange = (await page.locator('.large-range').innerText()).split(' · ')[0];
+    }
+    const content = '# Keep this recovery text while retrying\n';
+    await page.locator('.cm-content').fill(content);
+    await waitForLocalDraft(page, noteId, content);
+    if (draftKind === 'note') await writeFile(path, large);
+    let writes = 0;
+    page.on('request', (request) => {
+      if (
+        (request.method() === 'PUT' &&
+          new URL(request.url()).pathname === `/api/notes/${noteId}`) ||
+        (request.method() === 'POST' &&
+          new URL(request.url()).pathname === `/api/notes/${noteId}/patch`)
+      )
+        writes++;
+    });
+    await page.route(
+      `**/api/notes/${noteId}/read`,
+      (route) => route.fulfill({ status: 500, json: { error: '片段读取暂时失败，请重新读取' } }),
+      { times: 1 },
+    );
+    await page.reload();
+    await expect(page.locator('.large-workspace')).toContainText('片段读取暂时失败，请重新读取');
+    await expect(page.locator('.cm-content')).toHaveCount(0);
+    await page.getByRole('button', { name: '复制恢复文本', exact: true }).click();
+    const recoveryText = page.getByRole('textbox', { name: '本地草稿恢复文本', exact: true });
+    await expect(recoveryText).toHaveValue(content);
+    const retry = page.getByRole('button', { name: '重新读取', exact: true });
+    await expect(retry).toBeEnabled();
+    await retry.click();
+    await expect(page.locator('.large-workspace .cm-content')).toContainText(
+      draftKind === 'note' ? 'Large retry source' : 'retry source line',
+    );
+    if (recordedRange) await expect(page.locator('.large-range')).toContainText(recordedRange);
+    await expect(recoveryText).toHaveValue(content);
+    await waitForLocalDraft(page, noteId, content);
+    await expect(retry).toBeDisabled();
+    await expect(page.getByRole('button', { name: '下一片段', exact: true })).toBeDisabled();
+    expect(writes).toBe(0);
+    expect(await readFile(path, 'utf8')).toBe(large);
+  });
+}
