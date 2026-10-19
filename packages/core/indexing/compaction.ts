@@ -205,7 +205,7 @@ export async function compactVectors(
       db.prepare("UPDATE vector_generations SET status='retired' WHERE id=?").run(base);
       db.prepare("UPDATE index_meta SET value=? WHERE key='active_generation'").run(generation);
       return true;
-    })();
+    }).immediate();
     if (!published) await client.call('/generations/retire', { generation });
     return published;
   } finally {

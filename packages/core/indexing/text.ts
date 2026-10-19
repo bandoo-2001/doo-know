@@ -70,7 +70,7 @@ export function textIndexService(db: AppDatabase, tokenizer: TokenizerClient) {
         const insert = db.prepare('INSERT OR IGNORE INTO chunk_terms VALUES(?,?)');
         for (const term of grams) insert.run(term, c.chunkId);
       }
-    })();
+    }).immediate();
   }
   function publish(version: SourceVersion, chunkerId: string, valid: () => boolean = () => true) {
     return db.transaction(() => {
@@ -119,7 +119,7 @@ export function textIndexService(db: AppDatabase, tokenizer: TokenizerClient) {
         "INSERT INTO index_meta VALUES('index_epoch','1') ON CONFLICT(key) DO UPDATE SET value=CAST(value AS INTEGER)+1",
       ).run();
       return 'published';
-    })();
+    }).immediate();
   }
   async function search(p: Principal, query: string, limit = 50, filters?: SearchInput['filters']) {
     requireScope(p, 'knowledge:read');

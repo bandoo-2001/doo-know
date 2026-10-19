@@ -46,7 +46,7 @@ export function acquireRead(db: AppDatabase, p: Principal, channel: ReadChannel)
       renew: () =>
         db.prepare('UPDATE read_leases SET expires_at=? WHERE id=?').run(Date.now() + 30000, id),
     });
-  })();
+  }).immediate();
 }
 export function chargeRate(db: AppDatabase, p: Principal, channel: ReadChannel, bytes: number) {
   const window = Math.floor(Date.now() / 60000);

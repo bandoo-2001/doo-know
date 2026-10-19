@@ -108,7 +108,7 @@ export function researchService(config: AppConfig, db: AppDatabase, notes: NoteS
       };
       if (Buffer.byteLength(text) > 16384 || messageSize(data) > 65536)
         fail(413, 'RESEARCH_OBJECT_TOO_LARGE');
-      db.transaction(() => chargeRate(db, p, 'mcp', Buffer.byteLength(text)))();
+      db.transaction(() => chargeRate(db, p, 'mcp', Buffer.byteLength(text))).immediate();
       return data;
     } finally {
       release();

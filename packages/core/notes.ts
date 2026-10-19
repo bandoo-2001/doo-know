@@ -59,7 +59,7 @@ export function noteService(config: AppConfig, db: AppDatabase) {
           !db.prepare('SELECT id FROM notes WHERE path=? AND active=1').get(path)
         )
           db.prepare('INSERT INTO notes(id,path) VALUES(?,?)').run(randomUUID(), path);
-    })();
+    }).immediate();
     return files;
   }
   function row(id: string, deleted = false) {

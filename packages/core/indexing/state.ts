@@ -27,5 +27,5 @@ export function observeSource(
       ).run(noteId);
     }
     return { noteId, sourceRevision: revision, contentHash: hash };
-  })();
+  }).immediate();
 }

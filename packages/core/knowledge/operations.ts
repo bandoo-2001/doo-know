@@ -15,7 +15,7 @@ export function releaseSnapshotRef(db: AppDatabase, operationId: string) {
       ).run(operationId);
       db.prepare('UPDATE read_snapshots SET refs=max(0,refs-1) WHERE id=?').run(row.snapshot_id);
     }
-  })();
+  }).immediate();
 }
 export const sha256 = (value: string | Uint8Array) =>
   createHash('sha256').update(value).digest('hex');

@@ -46,5 +46,5 @@ export async function stageTags(
         version.sourceRevision,
         tag,
       );
-  })();
+  }).immediate();
 }

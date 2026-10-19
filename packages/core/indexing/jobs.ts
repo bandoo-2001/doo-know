@@ -169,7 +169,7 @@ export function indexJobService(
         "UPDATE index_jobs SET status='pending',lease_until=NULL,attempts=max(0,attempts-1) WHERE id=? AND lease_epoch=?",
       ).run(job.id, job.leaseEpoch);
       return true;
-    })();
+    }).immediate();
   }
   function retry(noteIds?: string[]) {
     let count = 0;

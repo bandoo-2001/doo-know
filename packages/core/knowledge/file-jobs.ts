@@ -227,7 +227,7 @@ export function fileJobService(
         db.prepare(
           'INSERT INTO note_write_leases VALUES(?,?,?) ON CONFLICT(note_id) DO UPDATE SET owner=excluded.owner,lease_until=excluded.lease_until',
         ).run(id, `${opId}:${epoch}`, Date.now() + 60000);
-      })();
+      }).immediate();
       authorized(p, id);
       assertWritable(db);
       await snapshots.check(p, id, input.snapshotId);
@@ -265,7 +265,7 @@ export function fileJobService(
         );
         db.prepare("UPDATE file_operations SET status='committing' WHERE id=?").run(opId);
         db.prepare("UPDATE operations SET status='committing' WHERE id=?").run(opId);
-      })();
+      }).immediate();
       await rename(temp, file);
       temp = undefined;
       fsyncDirectory(dirname(file));

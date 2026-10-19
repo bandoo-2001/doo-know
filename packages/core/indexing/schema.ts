@@ -32,7 +32,7 @@ export function migrateKnowledge(db: AppDatabase) {
  CREATE TABLE IF NOT EXISTS vector_rows(generation TEXT NOT NULL,row INTEGER NOT NULL,chunk_id TEXT NOT NULL,note_id TEXT NOT NULL,source_hash TEXT NOT NULL,PRIMARY KEY(generation,row));
  INSERT OR IGNORE INTO knowledge_schema VALUES(1,strftime('%Y-%m-%dT%H:%M:%fZ','now'));
  `),
-  )();
+  ).immediate();
   const chunkColumns = db.pragma('table_info(chunks)') as { name: string }[];
   for (const column of ['start_byte', 'end_byte'])
     if (!chunkColumns.some((c) => c.name === column))

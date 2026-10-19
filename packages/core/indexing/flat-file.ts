@@ -301,7 +301,7 @@ export class FlatFileStore {
           .prepare('UPDATE document_state SET vector_indexed_hash=? WHERE note_id=?')
           .run(prepared.contentHash, prepared.noteId);
         return 'published';
-      })();
+      }).immediate();
       if (outcome === 'rebase') continue;
       if (outcome === 'paused') fail(503, 'SYNC_IN_PROGRESS');
       if (outcome === 'superseded')
@@ -414,7 +414,7 @@ export class FlatFileStore {
         this.db.prepare('DELETE FROM generation_segments WHERE generation=?').run(generation.id);
         this.db.prepare('DELETE FROM vector_generations WHERE id=?').run(generation.id);
         return true;
-      })();
+      }).immediate();
       if (
         removable &&
         generation.manifest_path === join(this.root, 'generations', generation.id + '.json')

@@ -192,7 +192,7 @@ export function reconcileService(config: AppConfig, db: AppDatabase) {
           removed++;
         }
       }
-    })();
+    }).immediate();
     const at = new Date().toISOString(),
       key = scopeKey(scopes),
       prior = getMeta(key),
