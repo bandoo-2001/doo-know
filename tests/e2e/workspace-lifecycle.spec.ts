@@ -198,7 +198,8 @@ test('typing during a committed full-to-large save remains copyable after the ed
     await page.keyboard.press('ControlOrMeta+s');
     await requestReceived;
     await expect(page.locator('.large-workspace')).toHaveCount(0);
-    await page.locator('.cm-content').fill(subsequent);
+    await page.locator('.cm-content').press('ControlOrMeta+a');
+    await page.keyboard.insertText(subsequent);
     // Release immediately, before the normal debounce can persist this input.
     // The mode transition itself must flush it before disabling full drafts.
     release();
