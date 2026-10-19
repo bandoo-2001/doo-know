@@ -601,7 +601,7 @@ async function prepareLargeTransition(submitted: string) {
     throw new Error('原文已保存，但后续输入未能暂存。请复制当前内容后再重新打开笔记。');
   if (draft.value === submitted && note.value) await localDrafts.clearSaved(note.value.id, version);
 }
-async function checkSave() {
+async function checkSave(): Promise<'succeeded' | 'failed' | undefined> {
   const pending = pendingSave.value,
     epoch = viewEpoch;
   if (!pending || busy.value) return;
@@ -657,11 +657,12 @@ async function checkSave() {
       pendingSave.value = undefined;
       editorTransfer.value = false;
       tell('保存结果已确认');
-      return;
+      return 'succeeded';
     }
     if (['failed', 'cancelled'].includes(op.status)) {
       pendingSave.value = undefined;
-      throw new Error('上次操作未完成，草稿已保留');
+      tell('上次操作未完成，草稿已保留');
+      return 'failed';
     }
     throw new Error('操作仍在处理，请稍后核对');
   } finally {
@@ -688,8 +689,18 @@ async function save(
     return;
   }
   if (!retry && pendingSave.value) {
-    await run(checkSave);
-    return;
+    const pendingNoteId = pendingSave.value.noteId,
+      targetId = note.value.id,
+      epoch = viewEpoch;
+    let outcome: Awaited<ReturnType<typeof checkSave>>;
+    await run(async () => {
+      outcome = await checkSave();
+    });
+    if (
+      !currentView(targetId, epoch) ||
+      (outcome !== 'failed' && !(outcome === 'succeeded' && pendingNoteId !== targetId))
+    )
+      return;
   }
   busy.value = true;
   error.value = '';
@@ -1863,7 +1874,11 @@ onBeforeUnmount(() => {
               <AButton
                 v-if="pendingSave?.noteId === note.id"
                 :disabled="busy"
-                @click="run(checkSave)"
+                @click="
+                  run(async () => {
+                    await checkSave();
+                  })
+                "
                 >核对保存结果</AButton
               >
               <AButton v-if="pendingDelete && !deleteOpen" @click="run(checkDelete)"

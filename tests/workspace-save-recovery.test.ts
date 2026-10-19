@@ -241,3 +241,76 @@ it('keeps version-conflict protection when retrying an undelivered request', asy
   expect(state.savedContent.value).toBe('# Old');
   expect(state.draft.value).toBe('# Submitted');
 });
+
+it.each(['failed', 'cancelled'])(
+  'saves once after reauthentication when the previous operation is confirmed %s',
+  async (status) => {
+    await mount();
+    await state.save();
+    const first = writes()[0]![2];
+    lookupFailure(new ApiError(401, { code: 'UNAUTHORIZED' }));
+    await state.save();
+    expect(writes()).toHaveLength(1);
+    expect(state.pendingSave.value.requestId).toBe(first.requestId);
+    mockApi.mockImplementation(async (url: string, method = 'GET') => {
+      if (url.startsWith('/api/operations?')) return { status };
+      if (method === 'PUT') return response();
+      return [];
+    });
+    await state.save();
+    expect(writes()).toHaveLength(2);
+    expect(writes()[1]![2]).toMatchObject({
+      content: '# Submitted',
+      expectedModifiedAt: 'base-one',
+    });
+    expect(writes()[1]![2].requestId).not.toBe(first.requestId);
+    expect(state.savedContent.value).toBe('# Submitted');
+    expect(state.pendingSave.value).toBeUndefined();
+    expect(state.dirty.value).toBe(false);
+  },
+);
+it('saves the current note once after discarding the previous note while its successful response was held', async () => {
+  await mount();
+  const second = {
+    ...original,
+    id: 'note-two',
+    relativePath: '00-Inbox/two.md',
+    content: '# Second original',
+    modifiedAt: 'base-two',
+  };
+  let release!: (value: unknown) => void;
+  const held = new Promise((resolve) => {
+    release = resolve;
+  });
+  mockApi.mockImplementation(async (url: string, method = 'GET', body: any) => {
+    if (url === '/api/notes/note-one' && method === 'PUT') return held;
+    if (url === '/api/notes/note-two' && method === 'PUT')
+      return { ...second, content: body.content, modifiedAt: 'second-saved' };
+    if (url === '/api/notes/note-two') return second;
+    if (url === '/api/notes/note-two/meta') return { ...meta, ...second };
+    if (url.startsWith('/api/operations?'))
+      return { status: 'succeeded', result: { modifiedAt: 'saved-two' } };
+    return [];
+  });
+  const savingFirst = state.save();
+  await vi.waitFor(() => expect(writes()).toHaveLength(1));
+  const first = writes()[0]![2];
+  await state.openNote(second.id);
+  expect(state.leaveOpen.value).toBe(true);
+  await state.leave('discard');
+  expect(state.note.value.id).toBe(second.id);
+  release(response());
+  await savingFirst;
+  state.draft.value = '# Second new content';
+  await state.save();
+  expect(writes()).toHaveLength(2);
+  expect(writes()[1]![0]).toBe('/api/notes/note-two');
+  expect(writes()[1]![2]).toMatchObject({
+    content: '# Second new content',
+    expectedModifiedAt: 'base-two',
+  });
+  expect(writes()[1]![2].requestId).not.toBe(first.requestId);
+  expect(state.note.value.id).toBe(second.id);
+  expect(state.savedContent.value).toBe('# Second new content');
+  expect(state.dirty.value).toBe(false);
+});
