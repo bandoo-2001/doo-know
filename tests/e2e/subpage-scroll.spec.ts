@@ -37,6 +37,12 @@ async function scrollDown(
   } else {
     await page.mouse.move(x, y);
     await page.mouse.wheel(0, 1600);
+    await page.evaluate(
+      () =>
+        new Promise<void>((resolve) =>
+          requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+        ),
+    );
   }
 }
 
@@ -58,6 +64,12 @@ test('all settings sections scroll with actual wheel or touch input and keep con
       await closeSidebar(page);
       const root = page.locator('.main-content');
       await expect(root.locator('h1')).toBeVisible();
+      if (section === 'backup') {
+        for (const name of ['刷新备份记录', '刷新任务'])
+          await expect(root.getByRole('button', { name, exact: true })).not.toHaveClass(
+            /ant-btn-loading/,
+          );
+      }
       if (section === 'plugins') {
         await expect(root.getByRole('button', { name: '刷新插件状态', exact: true })).toBeEnabled();
         if (await root.locator('.plugin-empty').isVisible()) {
@@ -89,9 +101,13 @@ test('all settings sections scroll with actual wheel or touch input and keep con
           break;
         await scrollDown(page, root, info.project.name === 'mobile');
       }
-      await expect
-        .poll(() => root.evaluate((el) => el.scrollHeight - el.clientHeight - el.scrollTop))
-        .toBeLessThanOrEqual(2);
+      await expect(async () => {
+        if (await root.evaluate((el) => el.scrollHeight - el.clientHeight - el.scrollTop > 2))
+          await scrollDown(page, root, info.project.name === 'mobile');
+        expect(
+          await root.evaluate((el) => el.scrollHeight - el.clientHeight - el.scrollTop),
+        ).toBeLessThanOrEqual(2);
+      }).toPass({ timeout: 5000 });
       expect(
         await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight + 1),
       ).toBe(true);

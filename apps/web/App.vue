@@ -95,21 +95,24 @@ async function logoutPlatform() {
   platformLogoutError.value = '';
   try {
     await api('/api/auth/sign-out', 'POST', {});
-    clearPluginDrafts();
-    void disposePluginUIs();
-    resetCsrf();
-    loggedIn.value = false;
-    mountedWorkspace.value = false;
-    expired.value = false;
-    platform.value = undefined;
-    platformError.value = '';
-    ownerId.value = '';
-    username.value = '';
+    completeLogout();
   } catch {
     platformLogoutError.value = '暂时无法退出，请检查连接后重试。';
   } finally {
     platformLogoutBusy.value = false;
   }
+}
+function completeLogout() {
+  clearPluginDrafts();
+  void disposePluginUIs();
+  resetCsrf();
+  loggedIn.value = false;
+  mountedWorkspace.value = false;
+  expired.value = false;
+  platform.value = undefined;
+  platformError.value = '';
+  ownerId.value = '';
+  username.value = '';
 }
 const lightTheme = {
   common: {
@@ -173,7 +176,7 @@ async function login() {
   await refreshPlatform();
 }
 function sessionExpired() {
-  expired.value = true;
+  if (loggedIn.value) expired.value = true;
 }
 function protectPluginDrafts(event: BeforeUnloadEvent) {
   if (!hasUnsavedPluginDrafts()) return;
@@ -236,10 +239,7 @@ onBeforeUnmount(() => {
           :username="username"
           :service-unavailable="workspaceServiceUnavailable"
           @retry-service="refreshPlatform"
-          @logout="
-            loggedIn = false;
-            mountedWorkspace = false;
-          " /><Login v-else-if="!loggedIn" @login="login" />
+          @logout="completeLogout" /><Login v-else-if="!loggedIn" @login="login" />
         <section
           v-else-if="platformError || !platform"
           class="share-error"
@@ -269,7 +269,7 @@ onBeforeUnmount(() => {
         </section>
         <SetupWizard v-else-if="platform" :status="platform" @refresh="refreshPlatform" />
         <NModal
-          :show="expired"
+          :show="loggedIn && expired"
           :mask-closable="false"
           :close-on-esc="false"
           preset="card"

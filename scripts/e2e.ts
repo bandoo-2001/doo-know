@@ -9,9 +9,19 @@ const args = process.argv.slice(2);
 // Each browser project gets a fresh owner, database and server. The session
 // endpoint's real 20/minute policy must not be consumed by another project.
 const explicitProject = args.some((arg) => arg === '--project' || arg.startsWith('--project='));
-const runs = explicitProject
-  ? [args]
-  : ['desktop', 'mobile'].map((project) => [...args, '--project', project]);
+function projectArgs(project: string) {
+  const run = [...args];
+  const index = run.findIndex((arg) => arg === '--output' || arg.startsWith('--output='));
+  let output = 'test-results';
+  if (index >= 0) {
+    if (run[index] === '--output') {
+      if (!run[index + 1]) return [...run, '--project', project];
+      output = run.splice(index, 2)[1];
+    } else output = run.splice(index, 1)[0].slice('--output='.length);
+  }
+  return [...run, '--project', project, '--output', resolve(output, project)];
+}
+const runs = explicitProject ? [args] : ['desktop', 'mobile'].map(projectArgs);
 let failed = false;
 for (const run of runs) {
   const code = await new Promise<number>((resolve) => {
