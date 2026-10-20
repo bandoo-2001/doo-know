@@ -63,6 +63,8 @@ const commands: [string, string[]][] = [
       'tests/guarded-process-cancellation.test.ts',
       'tests/guarded-process-streams.test.ts',
       'tests/workspace-error-preservation.test.ts',
+      'tests/workspace-process-identity.test.ts',
+      'tests/search-runtime-process-identity.test.ts',
       'tests/git-guarded-timeout.test.ts',
       'tests/github-publish.test.ts',
       'tests/release-verification.test.ts',

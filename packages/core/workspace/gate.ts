@@ -15,14 +15,21 @@ type Gate = {
 };
 const held = new AsyncLocalStorage<{ db: AppDatabase; token: string; exclusive: boolean }>();
 let boot: string | undefined;
+function currentBoot() {
+  return (boot ||= readFileSync('/proc/sys/kernel/random/boot_id', 'utf8').trim());
+}
 export function workspaceProcess(pid = process.pid) {
-  boot ||= readFileSync('/proc/sys/kernel/random/boot_id', 'utf8').trim();
+  const generation = currentBoot();
   const stat = readFileSync(`/proc/${pid}/stat`, 'utf8'),
     fields = stat
       .slice(stat.lastIndexOf(')') + 2)
       .trim()
       .split(/\s+/);
-  return { pid, start: boot + ':' + fields[19], zombie: fields[0] === 'Z' || fields[0] === 'X' };
+  return {
+    pid,
+    start: generation + ':' + fields[19],
+    zombie: fields[0] === 'Z' || fields[0] === 'X',
+  };
 }
 export function processIsAlive(pid: number, start: string) {
   if (pid <= 0) return false;
@@ -61,7 +68,33 @@ export function processGroupIsAlive(group: number) {
   return false;
 }
 export function guardIsAlive(p: { pid: number; process_start: string; process_group?: number }) {
-  return processIsAlive(p.pid, p.process_start) || processGroupIsAlive(p.process_group || 0);
+  const identity =
+    typeof p.process_start === 'string'
+      ? p.process_start.match(
+          /^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}):([0-9]{1,20})$/i,
+        )
+      : null;
+  // A numeric PGID from a previous boot can now identify an unrelated group.
+  if (identity) {
+    try {
+      if (identity[1].toLowerCase() !== currentBoot().toLowerCase()) return false;
+    } catch {
+      // Unavailable boot metadata must retain the existing conservative checks.
+    }
+  }
+  if (processIsAlive(p.pid, p.process_start)) return true;
+  const group = p.process_group || 0;
+  if (group <= 0) return false;
+  if (identity && p.pid === group) {
+    try {
+      const leader = workspaceProcess(group);
+      if (BigInt(leader.start.split(':')[1]) !== BigInt(identity[2])) return false;
+    } catch (error) {
+      if (!['ENOENT', 'ESRCH'].includes((error as NodeJS.ErrnoException).code || '')) return true;
+    }
+  }
+  // The original leader may have exited while its real workers remain alive.
+  return processGroupIsAlive(group);
 }
 function live(db: AppDatabase, row: Gate) {
   return (
