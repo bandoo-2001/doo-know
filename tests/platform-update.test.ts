@@ -7,6 +7,41 @@ import { updatePlatform, rollbackPlatform } from '../apps/server/platform/update
 import { createFixture } from './support/fixture.js';
 import Database from 'better-sqlite3';
 
+it.each([
+  ['damaged JSON', '{damaged'],
+  ['null record', 'null'],
+  ['array record', '[]'],
+  ['numeric previous version', '{"previous":42}'],
+  ['parent traversal', '{"previous":"../outside"}'],
+  ['absolute path', '{"previous":"/outside"}'],
+])('safely refuses invalid rollback installation metadata: %s', async (_, content) => {
+  const f = await createFixture();
+  try {
+    const installRoot = join(f.root, 'install');
+    await mkdir(join(installRoot, 'releases/1.2.3'), { recursive: true });
+    await writeFile(join(installRoot, 'releases/1.2.3/release.json'), JSON.stringify({ version: '1.2.3', databaseCompatibility: 2 }));
+    await symlink('releases/1.2.3', join(installRoot, 'current'));
+    await writeFile(join(installRoot, 'installation.json'), content);
+    const retained = join(f.knowledgeRoot, '00-Inbox/metadata.md');
+    await writeFile(retained, '# 最新内容\r\n');
+    await expect(rollbackPlatform({ ...f.config, installRoot, serviceManaged: false }))
+      .rejects.toThrow(/没有可用的上一发行版本.*当前程序与资料已保留/);
+    expect(await readlink(join(installRoot, 'current'))).toBe('releases/1.2.3');
+    expect(await readFile(join(installRoot, 'installation.json'), 'utf8')).toBe(content);
+    expect(await readFile(retained, 'utf8')).toBe('# 最新内容\r\n');
+    await expect(stat(join(installRoot, 'management.sqlite'))).rejects.toMatchObject({ code: 'ENOENT' });
+  } finally { await f.close(); }
+});
+
+it('preserves installation record filesystem failures instead of masking them as missing versions', async () => {
+  const f = await createFixture();
+  try {
+    const installRoot = join(f.root, 'install');
+    await mkdir(join(installRoot, 'installation.json'), { recursive: true });
+    await expect(rollbackPlatform({ ...f.config, installRoot })).rejects.toMatchObject({ code: 'EISDIR' });
+  } finally { await f.close(); }
+});
+
 it.each(['missing installation record', 'deleted previous release'])(
   'rejects rollback with an actionable message before changing data: %s',
   async (scenario) => {

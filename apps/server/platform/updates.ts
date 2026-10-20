@@ -485,9 +485,15 @@ export async function rollbackPlatform(config: HostConfig) {
   try {
     installation = JSON.parse(await readFile(join(root, 'installation.json'), 'utf8'));
   } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') throw unavailable();
+    if (error instanceof SyntaxError || (error as NodeJS.ErrnoException).code === 'ENOENT')
+      throw unavailable();
     throw error;
   }
+  if (
+    !installation || typeof installation !== 'object' || Array.isArray(installation) ||
+    typeof installation.previous !== 'string' ||
+    !/^[0-9A-Za-z][0-9A-Za-z.+-]{0,79}$/.test(installation.previous)
+  ) throw unavailable();
   const current = await realpath(join(root, 'current')),
     previous = join(root, 'releases', installation.previous || '');
   if (!installation.previous || !existsSync(previous)) throw unavailable();
