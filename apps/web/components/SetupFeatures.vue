@@ -61,7 +61,7 @@ async function configure(id: string) {
     await refreshPlugins();
     expanded.value = expanded.value === id ? '' : id;
   } catch (e) {
-    if (active) error.value = gitError(e);
+    if (active) error.value = gitError(e) + ' 你可以先跳过，以后在设置中添加。';
   } finally {
     busy.value = '';
   }

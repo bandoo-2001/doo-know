@@ -1,8 +1,14 @@
 import { test, expect } from '../support/browser-test';
-import { openSettingsSection, returnToNotes, showSidebar } from '../support/settings-navigation';
+import {
+  openSettingsSection,
+  returnToNotes,
+  showSidebar,
+  closeSidebar,
+} from '../support/settings-navigation';
 import { execFileSync } from 'node:child_process';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { expandFolderPath } from '../support/notebook-tree';
 
 test('connects an existing library, previews and pushes, then checks and pulls a real remote update', async ({
   page,
@@ -97,4 +103,81 @@ test('connects an existing library, previews and pushes, then checks and pulls a
   await expect(
     page.locator('.sidebar-tools').getByText('提交全部变更', { exact: true }),
   ).toBeAttached();
+});
+
+test('@git-onboarding imports from the initial page into a fresh knowledge library', async ({
+  page,
+  context,
+}, info) => {
+  test.skip(
+    process.env.DOOKNOW_E2E_GIT_ONBOARDING !== '1',
+    'Requires the isolated fresh unbound fixture variant.',
+  );
+  test.setTimeout(120000);
+  await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
+  const fixture = JSON.parse(await readFile('.local/e2e-config.json', 'utf8'));
+  const initial = await (await page.request.get('/api/platform/status')).json();
+  expect(initial.phase).toBe('setup_required');
+  expect((await (await page.request.get('/api/platform/plugins')).json()).installed).toEqual([]);
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: '准备你的知识库', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '从 GitHub／Gitee 导入', exact: true }).click();
+  const panel = page.getByRole('region', { name: '云端同步面板', exact: true });
+  await panel.getByLabel('仓库克隆地址', { exact: true }).fill(fixture.gitRemoteURL);
+  await panel.getByLabel('云端分支（选填）', { exact: true }).fill('main');
+  const name = `云端导入-${info.project.name}`;
+  await panel.getByLabel('导入后的知识库名称', { exact: true }).fill(name);
+  await panel.getByLabel('导入保存位置（选填）', { exact: true }).fill(fixture.gitImportParent);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
+  );
+  await page.screenshot({
+    path: info.outputPath('git-onboarding-form.png'),
+    fullPage: true,
+    animations: 'disabled',
+  });
+  let cloneRequests = 0;
+  page.on('request', (request) => {
+    if (
+      request.method() === 'POST' &&
+      request.url().endsWith('/api/platform/git/jobs') &&
+      request.postDataJSON()?.kind === 'clone'
+    )
+      cloneRequests++;
+  });
+  await panel.getByRole('button', { name: '导入并继续', exact: true }).click();
+  await expect(page.getByRole('heading', { name: '选择需要的功能', exact: true })).toBeVisible({
+    timeout: 45000,
+  });
+  expect(cloneRequests).toBe(1);
+  const current = await (await page.request.get('/api/platform/status')).json();
+  expect(current.phase).toBe('ready');
+  expect(current.knowledgeRoot).toBe(join(fixture.gitImportParent, name));
+  const registry = await (await page.request.get('/api/platform/plugins')).json();
+  expect(registry.installed.find((entry: any) => entry.id === 'git')).toMatchObject({
+    state: 'enabled',
+    installedVersion: '1.1.0',
+  });
+  expect(registry.installed.some((entry: any) => entry.id === 'mcp')).toBe(false);
+  expect(await readFile(join(current.knowledgeRoot, '00-Inbox/远端导入示例.md'), 'utf8')).toBe(
+    fixture.gitImportContent,
+  );
+  const gitStatus = await (await page.request.get('/api/platform/git/status')).json();
+  expect(gitStatus).toMatchObject({
+    pluginInstalled: true,
+    pluginEnabled: true,
+    repository: 'ready',
+    branch: 'main',
+    connection: { url: fixture.gitRemoteURL, branch: 'main' },
+  });
+  await page.getByRole('button', { name: '暂时跳过', exact: true }).click();
+  await expect(page.getByRole('heading', { name: '知识库准备好了', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '进入工作区', exact: true }).click();
+  await expect(page.locator('.workspace')).toBeVisible();
+  await showSidebar(page);
+  await expect(page.getByRole('button', { name: '云端同步', exact: true })).toBeVisible();
+  await expandFolderPath(page, '00-Inbox');
+  await page.getByRole('button', { name: '远端导入示例.md', exact: true }).click();
+  await expect(page.locator('.cm-content')).toContainText('从隔离远端克隆的原文');
+  await page.screenshot({ path: info.outputPath('git-onboarding-workspace.png'), fullPage: true });
 });

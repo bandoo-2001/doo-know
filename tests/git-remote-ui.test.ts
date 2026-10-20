@@ -6,7 +6,11 @@ import * as Vue from 'vue';
 import { ApiError } from '../apps/web/api';
 import * as sync from '../apps/web/git-sync';
 const api = vi.fn();
-const registry = Vue.shallowRef({ installed: [] as any[] });
+const registry = Vue.shallowRef({
+  installed: [] as any[],
+  catalog: [] as any[],
+  contributions: [] as any[],
+});
 const cleanups: (() => void)[] = [];
 let rendered: any;
 const status = () => ({
@@ -64,7 +68,7 @@ async function mount(file = 'GitRemotePanel.vue', props = {}) {
       if (id === '../api') return { api, ApiError };
       if (id === '../plugins') return { pluginRegistry: registry, refreshPlugins: async () => {} };
       if (id === '../git-sync') return sync;
-      if (id.endsWith('.vue')) return { default: {}, __esModule: true };
+      if (id.endsWith('.vue')) return { default: { render: () => null }, __esModule: true };
       throw Error('Unexpected dependency ' + id);
     },
     module,
@@ -132,6 +136,8 @@ beforeEach(() => {
   vi.stubGlobal('sessionStorage', { setItem: vi.fn(), getItem: vi.fn() });
   sync.gitUnsaved.value = false;
   registry.value = {
+    catalog: [],
+    contributions: [],
     installed: [
       {
         id: 'git',
@@ -382,4 +388,20 @@ it('reconciles a lost installation response before polling its accepted receipt'
   await work;
   expect(lists).toBe(2);
   expect(fetch.mock.calls.filter((call) => call[1]?.method === 'POST')).toHaveLength(1);
+});
+
+it('keeps the onboarding skip guidance after a plugin installation failure', async () => {
+  const view = await mount('SetupFeatures.vue');
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(async (url: string, init?: RequestInit) => {
+      if (url.endsWith('/csrf')) return new Response(JSON.stringify({ token: 'csrf' }));
+      if (init?.method === 'POST')
+        return new Response(JSON.stringify({ code: 'PLUGIN_INSTALL_FAILED' }), { status: 503 });
+      return new Response(JSON.stringify({ items: [] }));
+    }),
+  );
+  await view.configure('mcp');
+  expect(view.error).toContain('可以先跳过');
+  expect(view.busy).toBe('');
 });

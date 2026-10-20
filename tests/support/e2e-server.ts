@@ -14,6 +14,9 @@ import { pathToFileURL } from 'node:url';
 import { buildPlugins } from '../../scripts/build-plugins.mjs';
 import { pluginFixture } from './plugin-fixture.js';
 const root = await mkdtemp(join(tmpdir(), 'dooknow-browser-'));
+const gitOnboarding = process.env.DOOKNOW_E2E_GIT_ONBOARDING === '1';
+const gitImportParent = join(root, 'imported-libraries');
+const gitImportContent = '# 从隔离远端克隆的原文\n\n这份资料只存在于浏览器测试夹具中。\n';
 const knowledgeRoot = join(root, 'knowledge'),
   dataRoot = join(root, 'data');
 await mkdir(join(knowledgeRoot, '30-Knowledge/个人知识管理/方法'), { recursive: true });
@@ -27,9 +30,31 @@ const gitRemoteURL = 'https://github.com/browser-fixture/notes.git';
 const gitRemoteRoot = join(root, 'remote.git');
 const gitExternalRoot = join(root, 'external');
 execFileSync('git', ['init', '--bare', '--initial-branch=main', gitRemoteRoot], { stdio: 'pipe' });
+if (gitOnboarding) {
+  await mkdir(gitImportParent);
+  const seed = join(root, 'remote-seed');
+  await mkdir(join(seed, '00-Inbox'), { recursive: true });
+  await writeFile(join(seed, '00-Inbox/远端导入示例.md'), gitImportContent);
+  const git = (...args: string[]) => execFileSync('git', args, { stdio: 'pipe' });
+  git('-C', seed, 'init', '--initial-branch=main');
+  git('-C', seed, 'config', 'user.name', 'Isolated Clone Fixture');
+  git('-C', seed, 'config', 'user.email', 'clone-fixture@example.invalid');
+  git('-C', seed, 'add', '--', '00-Inbox/远端导入示例.md');
+  git('-C', seed, 'commit', '-m', 'Seed isolated onboarding repository');
+  git('-C', seed, 'push', '--', gitRemoteRoot, 'main');
+}
 await writeFile(
   '.local/e2e-config.json',
-  JSON.stringify({ knowledgeRoot, dataRoot, gitRemoteURL, gitRemoteRoot, gitExternalRoot }),
+  JSON.stringify({
+    knowledgeRoot,
+    dataRoot,
+    gitRemoteURL,
+    gitRemoteRoot,
+    gitExternalRoot,
+    gitOnboarding,
+    gitImportParent,
+    gitImportContent,
+  }),
 );
 let searchSource: ReturnType<typeof createHTTPServer> | undefined, searchDistribution: any;
 if (process.env.DOOKNOW_E2E_SEARCH_RUNTIME === '1') {
@@ -51,7 +76,7 @@ if (process.env.DOOKNOW_E2E_SEARCH_RUNTIME === '1') {
   };
 }
 const config = {
-  knowledgeRoot,
+  ...(gitOnboarding ? { allowedKnowledgeBases: [gitImportParent] } : { knowledgeRoot }),
   dataRoot,
   ...(searchDistribution
     ? {
