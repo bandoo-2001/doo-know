@@ -9,6 +9,7 @@ import {
   rm,
   copyFile,
   open,
+  stat,
 } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { artifactFetch, githubUpdateSource } from './distribution.js';
@@ -494,18 +495,27 @@ export async function rollbackPlatform(config: HostConfig) {
     releaseInfo(current).databaseCompatibility !== releaseInfo(previous).databaseCompatibility
   )
     throw Error('此迁移不支持普通代码回退；请使用明确的数据恢复流程，保留最新原文');
+  for (const file of ['runtime/node/bin/node', 'dist/server/scripts/manage.js']) {
+    try {
+      if (!(await stat(join(previous, file))).isFile()) throw unavailable();
+    } catch (error) {
+      if (['ENOENT', 'ENOTDIR'].includes((error as NodeJS.ErrnoException).code || ''))
+        throw unavailable();
+      throw error;
+    }
+  }
   return managementLock(config, async () => {
     const wasActive = serviceActive(config);
     return withQuiesced(
       config,
       async () => {
-        const clone = await mkdtemp(join(root, '.rollback-check-'));
         try {
-          await candidateCheck(config, previous, clone);
-        } finally {
-          await rm(clone, { recursive: true, force: true });
-        }
-        try {
+          const clone = await mkdtemp(join(root, '.rollback-check-'));
+          try {
+            await candidateCheck(config, previous, clone);
+          } finally {
+            await rm(clone, { recursive: true, force: true });
+          }
           await switchRelease(config, previous);
           await startHealthy(config, previous, wasActive);
         } catch (e) {
