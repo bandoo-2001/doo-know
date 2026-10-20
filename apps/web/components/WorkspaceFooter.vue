@@ -67,11 +67,11 @@ function settings(section: SettingsSection) {
       <button :aria-current="active === 'trash' ? 'page' : undefined" @click="emit('trash')">
         <Icon name="trash" :size="17" />回收站
       </button>
-      <button :aria-current="active === 'settings' ? 'page' : undefined" @click="emit('settings')">
-        <Icon name="settings" :size="17" />设置
-      </button>
       <button @click="emit('status')" aria-label="后台状态">
         <Icon name="task" :size="17" />状态
+      </button>
+      <button :aria-current="active === 'settings' ? 'page' : undefined" @click="emit('settings')">
+        <Icon name="settings" :size="17" />设置
       </button>
     </nav>
     <NPopover v-model:show="open" trigger="click" placement="top-start" :show-arrow="false">
