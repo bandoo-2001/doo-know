@@ -5,6 +5,35 @@ import { tmpdir } from 'node:os';
 import { pathToFileURL } from 'node:url';
 import { updatePlatform, rollbackPlatform } from '../apps/server/platform/updates.js';
 import { createFixture } from './support/fixture.js';
+import Database from 'better-sqlite3';
+
+it.each(['missing installation record', 'deleted previous release'])(
+  'rejects rollback with an actionable message before changing data: %s',
+  async (scenario) => {
+    const f = await createFixture();
+    try {
+      const installRoot = join(f.root, 'install');
+      await mkdir(join(installRoot, 'releases/1.2.3'), { recursive: true });
+      await writeFile(join(installRoot, 'releases/1.2.3/release.json'), JSON.stringify({ version: '1.2.3', databaseCompatibility: 2 }));
+      await symlink('releases/1.2.3', join(installRoot, 'current'));
+      if (scenario === 'deleted previous release')
+        await writeFile(join(installRoot, 'installation.json'), JSON.stringify({ current: '1.2.3', previous: '1.2.2', databaseCompatibility: 2 }));
+      const retained = join(f.knowledgeRoot, '00-Inbox/retained.md');
+      await writeFile(retained, '# Latest legal content\r\n');
+      const db = new Database(join(f.dataRoot, 'app.sqlite'), { readonly: true });
+      try {
+      const rows = db.prepare('SELECT * FROM notes ORDER BY id').all();
+      await expect(rollbackPlatform({ ...f.config, installRoot, serviceManaged: false }))
+        .rejects.toThrow(/没有可用的上一发行版本/);
+      expect(await readlink(join(installRoot, 'current'))).toBe('releases/1.2.3');
+      expect(await readFile(retained, 'utf8')).toBe('# Latest legal content\r\n');
+      expect(db.prepare('SELECT * FROM notes ORDER BY id').all()).toEqual(rows);
+      expect((db.prepare('SELECT active FROM maintenance WHERE id=1').get() as any).active).toBe(0);
+      } finally { db.close(); }
+    } finally { await f.close(); }
+  },
+);
+
 it.each([
   {
     name: 'latest metadata downgrade',

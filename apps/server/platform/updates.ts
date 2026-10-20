@@ -478,12 +478,19 @@ export async function updatePlatform(
 }
 export async function rollbackPlatform(config: HostConfig) {
   if (!config.installRoot) throw Error('回滚需要原生安装目录');
-  const root = resolve(config.installRoot),
+  const root = resolve(config.installRoot);
+  const unavailable = () => Error('没有可用的上一发行版本；当前程序与资料已保留，请重新安装受控版本或使用明确的数据恢复流程。');
+  let installation;
+  try {
     installation = JSON.parse(await readFile(join(root, 'installation.json'), 'utf8'));
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') throw unavailable();
+    throw error;
+  }
   const current = await realpath(join(root, 'current')),
     previous = join(root, 'releases', installation.previous || '');
+  if (!installation.previous || !existsSync(previous)) throw unavailable();
   if (
-    !installation.previous ||
     releaseInfo(current).databaseCompatibility !== releaseInfo(previous).databaseCompatibility
   )
     throw Error('此迁移不支持普通代码回退；请使用明确的数据恢复流程，保留最新原文');
