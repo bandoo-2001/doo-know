@@ -108,7 +108,7 @@ function classified(error: string): string {
   )
     return 'GIT_HOST_KEY_CHANGED';
   if (
-    /authentication failed|could not read username|terminal prompts disabled|permission denied \(publickey|invalid username or (?:password|token)|could not read password/i.test(
+    /authentication failed|could not read username|terminal prompts disabled|permission denied \(publickey|invalid username or (?:password|token)|could not read password|unable to get password from user/i.test(
       error,
     )
   )

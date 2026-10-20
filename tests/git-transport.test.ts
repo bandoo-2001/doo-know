@@ -274,6 +274,7 @@ it('binds the actual network argument to the approved remote rather than a secon
 it.each([
   ['REMOTE HOST IDENTIFICATION HAS CHANGED private-token', 'GIT_HOST_KEY_CHANGED'],
   ['remote: permission to repository denied private-token', 'GIT_PERMISSION_DENIED'],
+  ['fatal: unable to get password from user', 'GIT_AUTH_FAILED'],
   [
     'ERROR: The key you are authenticating with has been marked as read only.\nfatal: Could not read from remote repository.',
     'GIT_PERMISSION_DENIED',
