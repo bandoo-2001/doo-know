@@ -34,7 +34,7 @@ import type { HostConfig } from '../../../shared/platform-contracts.js';
 import type { AppDatabase } from '../../../packages/core/db.js';
 import { fail, KnowledgeError } from '../../../packages/core/knowledge/errors.js';
 import { sha256 } from '../../../packages/core/knowledge/operations.js';
-import { unpackPlugin, packagePath } from './packages.js';
+import { unpackPlugin, packagePath, type PluginInstallOptions } from './packages.js';
 import { remoteAuthGeneration } from '../../../packages/core/auth/remote-auth.js';
 
 type Handler = (call: PluginCall) => unknown | Promise<unknown>;
@@ -294,7 +294,7 @@ export function pluginHost(
         : {}),
     };
   }
-  async function install(id: string) {
+  async function install(id: string, options: PluginInstallOptions = {}) {
     if (closing) fail(503, 'PLUGIN_HOST_STOPPING');
     const entry = catalog.find((e) => e.id === id);
     if (!entry) fail(404, 'PLUGIN_NOT_IN_CATALOG');
@@ -302,7 +302,7 @@ export function pluginHost(
     const stage = join(root, `.install-${randomUUID()}`);
     mkdirSync(stage, { recursive: true, mode: 0o700 });
     try {
-      const files = await unpackPlugin(entry.artifact.url, entry.artifact.sha256, stage, config.distribution);
+      const files = await unpackPlugin(entry.artifact.url, entry.artifact.sha256, stage, config.distribution, options);
       const m = JSON.parse(readFileSync(join(stage, 'manifest.json'), 'utf8')) as PluginManifest;
       verifyManifest(m);
       if (
@@ -313,6 +313,8 @@ export function pluginHost(
         m.styles?.some((p) => !files[p])
       )
         fail(400, 'INVALID_PLUGIN_PACKAGE');
+      options.signal?.throwIfAborted();
+      options.onPhase?.('installing');
       const target = directory(m.id, m.version);
       mkdirSync(dirname(target), { recursive: true, mode: 0o700 });
       if (!existsSync(target)) renameSync(stage, target);
@@ -596,7 +598,7 @@ export function pluginHost(
         authGeneration: metadata?.auth_generation ?? -1,
       };
     },
-    install: (id: string) => serial(() => install(id)),
+    install: (id: string, options?: PluginInstallOptions) => serial(() => install(id, options)),
     configure: (id: string, input: Record<string, unknown>, version: number) =>
       serial(() => configure(id, input, version)),
     enable: (id: string) => serial(() => enable(id)),

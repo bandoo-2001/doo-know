@@ -10,18 +10,24 @@ export function packagePath(path: string) {
   return typeof path === 'string' && path.length <= 200 && /^[a-zA-Z0-9_./-]+$/.test(path)
     && !path.startsWith('/') && !path.split('/').some(p => p === '..' || p === '' || p.startsWith('.'));
 }
-export async function unpackPlugin(url: string, expected: string, destination: string, distribution?: DistributionCredential) {
+export interface PluginInstallOptions { signal?: AbortSignal; onPhase?: (phase: 'downloading' | 'verifying' | 'installing') => void }
+export async function unpackPlugin(url: string, expected: string, destination: string, distribution?: DistributionCredential, options: PluginInstallOptions = {}) {
+  options.signal?.throwIfAborted();
+  options.onPhase?.('downloading');
   const source = new URL(url);
   let bytes: Buffer;
   if (source.protocol === 'file:') bytes = readFileSync(fileURLToPath(source));
   else {
     if (source.protocol !== 'https:' && !(source.protocol === 'http:' && ['127.0.0.1', 'localhost', '[::1]'].includes(source.hostname))) fail(400, 'INVALID_PLUGIN_SOURCE');
-    const response = await artifactFetch({ distribution }, source, AbortSignal.timeout(120000));
+    const timeout = AbortSignal.timeout(120000);
+    const response = await artifactFetch({ distribution }, source, options.signal ? AbortSignal.any([timeout, options.signal]) : timeout);
     if (!response.ok || Number(response.headers.get('content-length') || 0) > 32 * 1024 * 1024) fail(502, 'PLUGIN_DOWNLOAD_FAILED');
     const chunks: Uint8Array[] = []; let total = 0;
     for await (const part of response.body as any) { total += part.length; if (total > 32 * 1024 * 1024) fail(413, 'PLUGIN_PACKAGE_TOO_LARGE'); chunks.push(part); }
     bytes = Buffer.concat(chunks);
   }
+  options.signal?.throwIfAborted();
+  options.onPhase?.('verifying');
   if (bytes.length > 32 * 1024 * 1024) fail(413, 'PLUGIN_PACKAGE_TOO_LARGE');
   if (sha256(bytes) !== expected) fail(400, 'PLUGIN_CHECKSUM_MISMATCH');
   let tar: Buffer;

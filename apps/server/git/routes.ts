@@ -13,11 +13,15 @@ export function registerGitRemoteRoutes(
   app.get('/api/platform/git/credentials', async (req) => ({
     items: service.credentials.list(owner(req)),
   }));
-  app.post('/api/platform/git/credentials', async (req) =>
-    service.credentials.save(owner(req), req.body as any),
-  );
+  app.post('/api/platform/git/credentials', async (req) => {
+    const id = owner(req),
+      saved = service.credentials.save(id, req.body as any);
+    service.credentialChanged(id, saved.id);
+    return saved;
+  });
   app.delete<{ Params: { id: string } }>('/api/platform/git/credentials/:id', async (req) => {
     service.credentials.remove(owner(req), req.params.id);
+    service.credentialChanged(owner(req), req.params.id);
     return { removed: true };
   });
   app.get('/api/platform/git/jobs', async (req) => ({ items: service.listJobs(owner(req)) }));

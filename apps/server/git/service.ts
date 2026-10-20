@@ -1,4 +1,5 @@
 import { randomUUID, createHash } from 'node:crypto';
+import { lstatSync } from 'node:fs';
 import { mkdir, rm, readdir, lstat, realpath, statfs } from 'node:fs/promises';
 import { join, resolve, dirname } from 'node:path';
 import type { HostConfig } from '../../../shared/platform-contracts.js';
@@ -113,14 +114,49 @@ export function gitRemoteService(
         .prepare('SELECT * FROM git_remote_jobs WHERE owner=? ORDER BY created_at DESC LIMIT 20')
         .all(owner) as Row[]
     ).map(view);
-  const binding = () => ({
-    root: platform.status().knowledgeRoot || null,
-    binding: platform.status().bindingVersion || 0,
-  });
+  const seenRoots = new Set<string>();
+  const binding = () => {
+    const status = platform.status();
+    if (status.knowledgeRoot && status.code) fail(503, status.code);
+    if (status.knowledgeRoot) seenRoots.add(status.knowledgeRoot);
+    return { root: status.knowledgeRoot || null, binding: status.bindingVersion || 0 };
+  };
+  function readableRoot(root: string) {
+    if (!seenRoots.has(root)) return;
+    const current = binding();
+    if (current.root !== root) fail(409, 'GIT_BINDING_CHANGED');
+  }
   const connection = (owner: string, root: string, version: number) =>
     db
       .prepare('SELECT * FROM git_remote_connections WHERE owner=? AND root=? AND binding=?')
       .get(owner, root, version) as Connection | undefined;
+  const identity = (c: Connection | undefined) =>
+    c
+      ? { url: c.url, branch: c.branch, remoteName: c.remote_name, credentialId: c.credential_id }
+      : null;
+  function jobBinding(r: Row) {
+    const current = binding();
+    if (!r.root || current.root !== r.root || current.binding !== r.binding)
+      fail(409, 'GIT_BINDING_CHANGED');
+    const params = JSON.parse(r.params),
+      snapshot = params._root;
+    if (snapshot) {
+      let s;
+      try {
+        s = lstatSync(r.root, { bigint: true });
+      } catch {
+        fail(503, 'SOURCE_UNAVAILABLE');
+      }
+      if (s.isSymbolicLink() || String(s.dev) !== snapshot.dev || String(s.ino) !== snapshot.ino)
+        fail(503, 'SOURCE_UNAVAILABLE');
+    }
+    if (
+      Object.hasOwn(params, '_connection') &&
+      JSON.stringify(params._connection) !==
+        JSON.stringify(identity(connection(r.owner, r.root, r.binding)))
+    )
+      fail(409, 'GIT_CONNECTION_CHANGED');
+  }
   const phase = (id: string, value: string, result?: unknown) =>
     db
       .prepare(
@@ -128,6 +164,7 @@ export function gitRemoteService(
       )
       .run(value, Date.now(), result === undefined ? null : JSON.stringify(result), id);
   async function raw(root: string, args: string[], signal?: AbortSignal) {
+    readableRoot(root);
     return transport.run(root, args, { signal });
   }
   async function text(root: string, args: string[], signal?: AbortSignal) {
@@ -177,6 +214,7 @@ export function gitRemoteService(
     };
   }
   async function safeTree(root: string, commit: string, signal?: AbortSignal) {
+    readableRoot(root);
     if (!oid(commit)) fail(409, 'INVALID_GIT_HEAD');
     const r = await transport.run(root, ['ls-tree', '-rz', commit], {
       signal,
@@ -204,6 +242,7 @@ export function gitRemoteService(
     credentialId: string | undefined,
     signal: AbortSignal,
   ) {
+    readableRoot(root);
     const remote = normalizeRemote(url),
       credential = secret(owner, credentialId, remote.host);
     const r = await transport.run(
@@ -229,6 +268,55 @@ export function gitRemoteService(
     }
     if (p?.state !== 'enabled') await plugins.enable('git');
   }
+  async function sameDirectory(path: string, proof: { dev: string; ino: string }) {
+    const s = await lstat(path, { bigint: true }).catch(() => undefined);
+    return (
+      !!s &&
+      s.isDirectory() &&
+      !s.isSymbolicLink() &&
+      String(s.dev) === proof.dev &&
+      String(s.ino) === proof.ino
+    );
+  }
+  async function publishClone(
+    proof: {
+      stage: string;
+      knowledgeRoot: string;
+      dev: string;
+      ino: string;
+      parentDev?: string;
+      parentIno?: string;
+    },
+    signal: AbortSignal,
+  ) {
+    const policy = setupDirectoryPolicy(config),
+      parent = dirname(proof.knowledgeRoot),
+      p = policy(parent, { browse: true });
+    policy(proof.knowledgeRoot, { missing: true });
+    if (proof.parentDev && (p.dev !== proof.parentDev || p.ino !== proof.parentIno))
+      fail(409, 'KNOWLEDGE_ROOT_CHANGED');
+    if (await sameDirectory(proof.knowledgeRoot, proof)) return;
+    if (await lstat(proof.knowledgeRoot).catch(() => undefined)) fail(409, 'DIRECTORY_EXISTS');
+    if (dirname(proof.stage) !== parent || !(await sameDirectory(proof.stage, proof)))
+      fail(409, 'KNOWLEDGE_ROOT_CHANGED');
+    await guardedProcess(
+      db,
+      { kind: 'workspace', token: workspacePermit(db, false) },
+      '/usr/bin/mv',
+      ['--no-clobber', '--no-target-directory', '--', proof.stage, proof.knowledgeRoot],
+      parent,
+      { signal, maxBytes: 4096, timeoutMs: 10000 },
+    ).wait;
+    if (!(await sameDirectory(proof.knowledgeRoot, proof))) fail(409, 'DIRECTORY_EXISTS');
+  }
+  async function resumeClone(owner: string, r: Row, input: GitJobInput, signal: AbortSignal) {
+    const proof = JSON.parse(r.result!);
+    if (r.phase === 'publishing') {
+      await publishClone(proof, signal);
+      phase(r.id, 'binding', { ...proof, cloned: true, publishing: false });
+    }
+    return bindClone(owner, r, input, proof, signal);
+  }
   async function bindClone(
     owner: string,
     r: Row,
@@ -251,6 +339,9 @@ export function gitRemoteService(
     )
       fail(409, 'GIT_CLONE_CHANGED');
     await ensurePlugin();
+    const finalIdentity = policy(target);
+    if (finalIdentity.dev !== proof.dev || finalIdentity.ino !== proof.ino)
+      fail(409, 'KNOWLEDGE_ROOT_CHANGED');
     let receipt: any = { knowledgeRoot: target, bindingVersion: bound.binding };
     if (!bound.root) {
       const validation = platform.settings.validate(owner, target);
@@ -277,6 +368,7 @@ export function gitRemoteService(
     return { ...receipt, knowledgeRoot: target, cloned: true, bound: true, branch: state.branch };
   }
   async function sync(owner: string, r: Row, input: GitJobInput, signal: AbortSignal) {
+    jobBinding(r);
     const current = binding();
     if (!r.root || r.root !== current.root || r.binding !== current.binding)
       fail(409, 'GIT_BINDING_CHANGED');
@@ -293,7 +385,12 @@ export function gitRemoteService(
       if (local.head !== input.expectedHead) fail(409, 'PREVIEW_STALE');
       phase(r.id, 'checking_remote');
       const refs = await remoteRefs(owner, root, c.url, c.credential_id || undefined, signal);
-      if (refs.branches[c.branch] !== input.expectedHead) {
+      const pushed = refs.branches[c.branch] !== input.expectedHead;
+      if (pushed) {
+        jobBinding(r);
+        const latest = await repo(root, signal);
+        if (latest?.branch !== c.branch || latest.head !== input.expectedHead)
+          fail(409, 'PREVIEW_STALE');
         phase(r.id, 'pushing');
         await transport.run(
           root,
@@ -302,9 +399,15 @@ export function gitRemoteService(
         );
       }
       db.prepare(
-        'UPDATE git_remote_connections SET remote_head=?,remote_exists=1,checked_at=?,write_verified=1 WHERE owner=? AND root=? AND binding=?',
-      ).run(input.expectedHead, Date.now(), owner, root, r.binding);
-      return { pushed: true, commit: input.expectedHead, localCommitPreserved: true };
+        'UPDATE git_remote_connections SET remote_head=?,remote_exists=1,checked_at=?,write_verified=CASE WHEN ? THEN 1 ELSE write_verified END WHERE owner=? AND root=? AND binding=?',
+      ).run(input.expectedHead, Date.now(), pushed ? 1 : 0, owner, root, r.binding);
+      return {
+        pushed,
+        unchanged: !pushed,
+        writeVerified: pushed || !!c.write_verified,
+        commit: input.expectedHead,
+        localCommitPreserved: true,
+      };
     }
     if (input.kind === 'pull' && local.changes) fail(409, 'GIT_LOCAL_CHANGES');
     const previous = local.head;
@@ -327,6 +430,7 @@ export function gitRemoteService(
     }
     const ref = 'refs/dooknow/' + digest(owner + '\0' + root + '\0' + r.binding).slice(0, 32);
     phase(r.id, 'fetching');
+    jobBinding(r);
     await transport.run(
       root,
       [
@@ -354,9 +458,15 @@ export function gitRemoteService(
         fail(409, 'GIT_DIVERGED');
     }
     await safeTree(root, fetched, signal);
+    jobBinding(r);
     phase(r.id, 'updating_files', { before: previous, target: fetched });
-    if (local.head) await text(root, ['merge', '--ff-only', '--no-edit', fetched], signal);
-    else await text(root, ['merge', '--ff-only', fetched], signal);
+    if (local.head)
+      await text(
+        root,
+        ['merge', '--ff-only', '--no-overwrite-ignore', '--no-edit', fetched],
+        signal,
+      );
+    else await text(root, ['merge', '--ff-only', '--no-overwrite-ignore', fetched], signal);
     return { pulled: true, commit: fetched, refreshRequired: true };
   }
   async function clone(owner: string, r: Row, input: GitJobInput, signal: AbortSignal) {
@@ -468,19 +578,22 @@ export function gitRemoteService(
       if (now.dev !== parentProof.dev || now.ino !== parentProof.ino)
         fail(409, 'KNOWLEDGE_ROOT_CHANGED');
       if (await lstat(target).catch(() => undefined)) fail(409, 'DIRECTORY_EXISTS');
-      // GNU mv uses renameat2(NOREPLACE) on Linux. Never replace even an empty directory
-      // created after the check; skipped publication leaves our stage in place.
-      const moved = await guardedProcess(
-        db,
-        { kind: 'workspace', token: workspacePermit(db, false) },
-        '/usr/bin/mv',
-        ['--no-clobber', '--no-target-directory', '--', stage, target],
-        parent,
-        { signal: combined, maxBytes: 4096, timeoutMs: 10000 },
-      ).wait;
-      if (moved.code || (await lstat(stage).catch(() => undefined))) fail(409, 'DIRECTORY_EXISTS');
+      const publication = {
+        stage,
+        knowledgeRoot: target,
+        dev: String(stageProof.dev),
+        ino: String(stageProof.ino),
+        parentDev: parentProof.dev,
+        parentIno: parentProof.ino,
+        cloned: false,
+        publishing: true,
+      };
+      phase(r.id, 'publishing', publication);
+      await publishClone(publication, combined);
       published = true;
       const proof = policy(target);
+      if (proof.dev !== String(stageProof.dev) || proof.ino !== String(stageProof.ino))
+        fail(409, 'KNOWLEDGE_ROOT_CHANGED');
       phase(r.id, 'binding', {
         knowledgeRoot: target,
         cloned: true,
@@ -499,10 +612,16 @@ export function gitRemoteService(
       throw e;
     } finally {
       clearInterval(quota);
-      if (!published) await rm(stage, { recursive: true, force: true });
+      if (
+        !published &&
+        (await sameDirectory(stage, { dev: String(stageProof.dev), ino: String(stageProof.ino) }))
+      )
+        await rm(stage, { recursive: true, force: true });
     }
   }
   async function work(owner: string, r: Row, input: GitJobInput, signal: AbortSignal) {
+    if (['check', 'push', 'pull'].includes(input.kind) && plugins.list().find((p) => p.id === 'git')?.state !== 'enabled')
+      fail(409, 'GIT_PLUGIN_DISABLED');
     const cwd = r.root || config.dataRoot;
     phase(r.id, 'checking_dependency');
     await dependency(cwd, signal);
@@ -512,6 +631,7 @@ export function gitRemoteService(
       return remoteRefs(owner, cwd, input.url!, input.credentialId, signal);
     }
     if (input.kind === 'clone') return clone(owner, r, input, signal);
+    jobBinding(r);
     const current = binding();
     if (!r.root || current.root !== r.root || current.binding !== r.binding)
       fail(409, 'GIT_BINDING_CHANGED');
@@ -525,6 +645,7 @@ export function gitRemoteService(
     }
     if (input.kind === 'connect') {
       await ensurePlugin();
+      jobBinding(r);
       let state = await repo(r.root, signal);
       if (!state) {
         await text(r.root, ['init', '--initial-branch=main'], signal);
@@ -536,6 +657,7 @@ export function gitRemoteService(
       await branchValid(r.root, branch, signal);
       phase(r.id, 'testing_connection');
       const refs = await remoteRefs(owner, r.root, input.url!, input.credentialId, signal);
+      jobBinding(r);
       let remoteName = 'origin';
       const old = await raw(r.root, ['remote', 'get-url', 'origin'], signal);
       if (!old.code) {
@@ -585,8 +707,8 @@ export function gitRemoteService(
       try {
         const input = JSON.parse(r.params) as GitJobInput;
         result = await workspaceExclusive(db, { kind: 'git.remote.' + r.kind }, () =>
-          r.kind === 'clone' && r.phase === 'binding' && r.result
-            ? bindClone(r.owner, r, input, JSON.parse(r.result), controller.signal)
+          r.kind === 'clone' && ['binding', 'publishing'].includes(r.phase) && r.result
+            ? resumeClone(r.owner, r, input, controller.signal)
             : work(r.owner, r, input, controller.signal),
         );
         if (result?.refreshRequired) {
@@ -616,8 +738,9 @@ export function gitRemoteService(
               'GIT_COMMAND_CANCELLED',
             ].includes(code)) ||
           (r.kind === 'clone' &&
-            (db.prepare('SELECT phase FROM git_remote_jobs WHERE id=?').get(r.id) as any).phase ===
-              'binding');
+            ['binding', 'publishing'].includes(
+              (db.prepare('SELECT phase FROM git_remote_jobs WHERE id=?').get(r.id) as any).phase,
+            ));
         db.prepare('UPDATE git_remote_jobs SET status=?,error=?,updated_at=? WHERE id=?').run(
           uncertain ? 'needs_reconciliation' : 'failed',
           code,
@@ -662,18 +785,35 @@ export function gitRemoteService(
       clean.url = normalizeRemote(clean.url!).url;
     if (clean.kind === 'ssh-host' && !['github.com', 'gitee.com'].includes(clean.host!))
       fail(400, 'GIT_INVALID_REMOTE');
-    const params = JSON.stringify(clean),
+    const request = JSON.stringify(clean),
       existing = db
         .prepare('SELECT * FROM git_remote_jobs WHERE owner=? AND request_id=?')
         .get(owner, input.requestId) as Row | undefined;
     if (existing) {
-      if (existing.params !== params) fail(409, 'REQUEST_ID_REUSED');
+      const previous = JSON.parse(existing.params);
+      delete previous._root;
+      delete previous._connection;
+      if (JSON.stringify(previous) !== request) fail(409, 'REQUEST_ID_REUSED');
       return view(existing);
     }
     if (db.prepare("SELECT 1 FROM git_remote_jobs WHERE status IN ('queued','running')").get())
       fail(409, 'GIT_TASK_BUSY');
     const b = binding(),
       now = Date.now();
+    let snapshot: Record<string, unknown> = {};
+    if (b.root) {
+      let s;
+      try {
+        s = lstatSync(b.root, { bigint: true });
+      } catch {
+        fail(503, 'SOURCE_UNAVAILABLE');
+      }
+      snapshot = {
+        _root: { dev: String(s.dev), ino: String(s.ino) },
+        _connection: identity(connection(owner, b.root, b.binding)),
+      };
+    }
+    const params = JSON.stringify({ ...clean, ...snapshot });
     const r: Row = {
       id: randomUUID(),
       owner,
@@ -781,7 +921,17 @@ export function gitRemoteService(
     return result;
   }
   return {
+    assertPluginIdle(id: string) {
+      if (id === 'git' && db.prepare("SELECT 1 FROM git_remote_jobs WHERE status IN ('queued','running')").get())
+        fail(409, 'GIT_TASK_BUSY');
+    },
     credentials,
+    credentialChanged: (owner: string, id: string) =>
+      db
+        .prepare(
+          'UPDATE git_remote_connections SET write_verified=0,checked_at=NULL WHERE owner=? AND credential_id=?',
+        )
+        .run(owner, id),
     status,
     start,
     job: (owner: string, id: string) => view(owned(owner, id)),
@@ -798,7 +948,7 @@ export function gitRemoteService(
       if (closing) fail(503, 'GIT_SERVICE_STOPPING');
       if (db.prepare("SELECT 1 FROM git_remote_jobs WHERE status IN ('queued','running')").get())
         fail(409, 'GIT_TASK_BUSY');
-      if (r.kind === 'clone' && r.phase === 'binding' && r.result) {
+      if (r.kind === 'clone' && ['binding', 'publishing'].includes(r.phase) && r.result) {
         r.status = 'queued';
         r.error = null;
         db.prepare(

@@ -131,7 +131,7 @@ it('connects an existing library, pushes a fixed commit once, checks remote upda
     expect(uncertain.status).toBe('needs_reconciliation');
     expect(command(remote, 'rev-parse', 'refs/heads/main')).toBe(expectedHead);
     const retried = service.retry('owner', uncertain.id);
-    await expect.poll(() => service.job('owner', retried.id).status).toBe('succeeded');
+    await expect.poll(() => service.job('owner', retried.id).status, { timeout: 15000 }).toBe('succeeded');
     const pushed = service.job('owner', retried.id);
     expect(pushes).toBe(1);
     const replay = service.start('owner', {

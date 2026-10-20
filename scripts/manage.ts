@@ -547,7 +547,7 @@ async function main() {
   throw new Error('未知命令：' + command);
 }
 withEnvironmentProxy(main, () => {
-  if (command !== 'update' || values.help) return;
+  if (!['update', 'serve'].includes(command || '') || values.help) return;
   const selected = resolveProfileFile(values.profile, process.env, {
     installRoot: values['install-root'],
   });

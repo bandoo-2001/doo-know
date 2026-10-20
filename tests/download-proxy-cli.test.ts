@@ -200,3 +200,55 @@ it('warns without changing successful update results when saving is unsafe', asy
     await f.close();
   }
 });
+
+it('serve reuses the saved download proxy before fetch and still bypasses local health', async () => {
+  const f = await fixture(),
+    probe = createProbe();
+  let serving: ReturnType<typeof f.run> | undefined;
+  try {
+    await f.run('migrate', { HTTP_PROXY: f.proxyAddress }, ['--profile', f.profile]);
+    await new Promise<void>((yes) => probe.listen(0, '127.0.0.1', yes));
+    const port = (probe.address() as any).port;
+    await new Promise<void>((yes) => probe.close(() => yes()));
+    const profile = JSON.parse(await readFile(f.profile, 'utf8'));
+    profile.port = port;
+    profile.origin = 'http://127.0.0.1:' + port;
+    await writeFile(f.profile, JSON.stringify(profile));
+    serving = f.run('serve', {}, ['--profile', f.profile]);
+    void serving.catch(() => {});
+    await expect
+      .poll(
+        async () => {
+          try {
+            return (await readFile('/proc/' + serving!.child.pid + '/cmdline', 'utf8'))
+              .split('\0')
+              .includes('--use-env-proxy');
+          } catch {
+            return false;
+          }
+        },
+        { timeout: 5000 },
+      )
+      .toBe(true);
+    const env = await readFile('/proc/' + serving.child.pid + '/environ', 'utf8');
+    expect(env.split('\0')).toContain('HTTP_PROXY=' + f.proxyAddress);
+    await expect
+      .poll(
+        async () => {
+          try {
+            return (await fetch(profile.origin + '/healthz')).status;
+          } catch {
+            return 0;
+          }
+        },
+        { timeout: 5000 },
+      )
+      .toBe(200);
+    expect(f.counts().proxyRequests).toBe(0);
+  } finally {
+    serving?.child.kill('SIGTERM');
+    await serving?.catch(() => {});
+    probe.close();
+    await f.close();
+  }
+}, 20000);

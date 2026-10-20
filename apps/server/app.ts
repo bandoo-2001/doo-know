@@ -39,6 +39,7 @@ import { registerTransferRoutes } from './platform/transfers.js';
 import { gitRemoteService } from './git/service.js';
 import { registerGitRemoteRoutes } from './git/routes.js';
 import type { GitExec } from './git/transport.js';
+import { pluginInstallJobs, registerPluginInstallRoutes } from './plugins/install-jobs.js';
 export async function createApp(config: HostConfig, dependencies: { gitExec?: (db: ReturnType<typeof openDatabase>) => GitExec } = {}) {
   const app = Fastify({ logger: false, bodyLimit: 2 * 1024 * 1024 });
   const db = openDatabase(config.dataRoot, 'server');
@@ -60,6 +61,7 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
   await platform.activate();
   await transports.start();
   const gitRemote = gitRemoteService(config, db, platform, plugins, { exec: dependencies.gitExec?.(db) });
+  const pluginInstallations = pluginInstallJobs(db, plugins, gitRemote.assertPluginIdle);
   const businessConfig = new Proxy(config as AppConfig, {
     get: (target, key) =>
       key === 'knowledgeRoot'
@@ -209,8 +211,9 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     '/api/platform/search-runtime/tasks/:id/cancel',
     async (req) => searchRuntime.cancel((req as any).ownerId, req.params.id),
   );
-  registerPluginRoutes(app, plugins);
+  registerPluginRoutes(app, plugins, gitRemote.assertPluginIdle);
   registerGitRemoteRoutes(app, gitRemote);
+  registerPluginInstallRoutes(app, pluginInstallations);
   registerMcpManagementRoutes(app, config, db, plugins, transports, auth);
   app.post('/api/platform/setup/directories', async (req) =>
     platform.settings.directories(req.body),
@@ -459,6 +462,7 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
   }
   app.addHook('onClose', async () => {
     await gitRemote.close();
+    await pluginInstallations.close();
     await searchRuntime.close();
     await transports.close();
     await platform.close();

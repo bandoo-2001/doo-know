@@ -1,6 +1,7 @@
 import { it, expect } from 'vitest';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { openDatabase } from '../packages/core/db.js';
 import { createFixture, loginFixtureOwner } from './support/fixture.js';
 
 it('requires owner authentication and CSRF, never returns credentials, and rejects unsafe remote jobs before execution', async () => {
@@ -67,4 +68,21 @@ it('requires owner authentication and CSRF, never returns credentials, and rejec
   } finally {
     await f.close();
   }
+});
+
+it('blocks plugin lifecycle changes while a remote task is pending', async () => {
+  const f = await createFixture();
+  try {
+    const headers = await loginFixtureOwner(f);
+    const db = openDatabase(f.dataRoot);
+    try {
+      db.prepare('INSERT INTO git_remote_jobs(id,owner,request_id,kind,params,root,binding,status,phase,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)')
+        .run('pending-fixture', 'owner', 'pending-fixture', 'push', '{}', f.knowledgeRoot, 0, 'running', 'pushing', Date.now(), Date.now());
+    } finally { db.close(); }
+    for (const url of ['/api/platform/plugins/git/disable', '/api/platform/plugins/git/uninstall', '/api/platform/plugins/git/upgrade', '/api/platform/plugin-installations']) {
+      const response = await f.app.inject({ method: 'POST', url, headers, payload: { id: 'git', requestId: 'pending-plugin-install' } });
+      expect(response.statusCode).toBe(409);
+      expect(response.json().code).toBe('GIT_TASK_BUSY');
+    }
+  } finally { await f.close(); }
 });
