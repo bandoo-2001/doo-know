@@ -136,6 +136,8 @@ function classified(error: string): string {
 function cleanError(error: unknown, signal?: AbortSignal): never {
   cancelled(signal);
   const code = (error as { code?: string })?.code;
+  if (code === 'PROCESS_CONTAINMENT_UNAVAILABLE')
+    fail(503, code, '后台任务暂时无法启动，请联系部署者检查安装和系统支持。');
   if (
     code &&
     [

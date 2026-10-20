@@ -7,6 +7,9 @@
     "node": ">=22.22.1"
   },
   "scripts": {
+    "predev": "node scripts/build-process-runner.mjs",
+    "prebuild": "node scripts/build-process-runner.mjs",
+    "postbuild": "node scripts/build-process-runner.mjs --copy-dist",
     "dev": "tsx scripts/dev.ts",
     "test": "vitest run",
     "test:e2e": "tsx scripts/e2e.ts",

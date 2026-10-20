@@ -1,6 +1,7 @@
 import { spawn, type ChildProcess } from 'node:child_process';
 import type { AppDatabase } from '../db.js';
 import { workspaceProcess, processGroupIsAlive } from '../workspace/gate.js';
+import { processRunner } from './runner.js';
 export type ProcessPermit =
   | { kind: 'workspace'; token: string }
   | { kind: 'search'; taskId: string; role: 'preparation' | 'runtime' };
@@ -11,7 +12,7 @@ export type ProcessOptions = {
   timeoutMs?: number;
   signal?: AbortSignal;
 };
-// The registered Node process becomes the executable without changing identity.
+// Registration, the native group policy and the executable retain one PID/start.
 const runner = String.raw`
 import {readFileSync} from 'node:fs';
 function identity(pid){const s=readFileSync('/proc/'+pid+'/stat','utf8'),f=s.slice(s.lastIndexOf(')')+2).trim().split(/\s+/);return {start:readFileSync('/proc/sys/kernel/random/boot_id','utf8').trim()+':'+f[19],dead:f[0]==='Z'||f[0]==='X'};}
@@ -35,7 +36,7 @@ process.once('message',async m=>{
    else db.prepare('INSERT INTO search_processes VALUES(?,?,?,?,?)').run(m.permit.taskId,m.permit.role,process.pid,self.start,process.pid);
   }).immediate();
   db.close();process.chdir(m.cwd);
-  process.execve(m.binary,[m.binary,...m.args],m.env);
+  process.execve(m.nativeRunner,[m.nativeRunner,'--',m.binary,...m.args],m.env);
  }catch{process.stderr.write('PROCESS_START_FAILED\n');process.exit(1);}
 });`;
 
@@ -48,7 +49,8 @@ export function guardedProcess(
   options: ProcessOptions = {},
 ) {
   const owner = workspaceProcess(),
-    env = options.env || {};
+    env = options.env || {},
+    nativeRunner = options.signal?.aborted ? '' : processRunner();
   let child!: ChildProcess;
   const wait = new Promise<{ stdout: Buffer; stderr: Buffer; code: number }>((resolve, reject) => {
     const runnerEnv = { ...process.env };
@@ -194,6 +196,7 @@ export function guardedProcess(
         owner,
         cwd,
         binary,
+        nativeRunner,
         args,
         env,
       },

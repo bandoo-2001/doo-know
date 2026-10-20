@@ -39,6 +39,20 @@ afterEach(() => {
   rmSync(root, { recursive: true, force: true });
 });
 const gate = <T>(work: () => Promise<T>) => workspaceWrite(db, { kind: 'git-test' }, work);
+it('retains the definite containment startup error before any remote command', async () => {
+  let remoteCommands = 0;
+  const exec: GitExec = async (_cwd, args) => {
+    if (args.includes('ls-remote')) remoteCommands++;
+    throw Object.assign(Error('fixture component unavailable'), {
+      code: 'PROCESS_CONTAINMENT_UNAVAILABLE',
+      statusCode: 503,
+    });
+  };
+  await expect(
+    gate(() => gitTransport(config, db, { exec }).run(repo, ['ls-remote', url], { url })),
+  ).rejects.toMatchObject({ code: 'PROCESS_CONTAINMENT_UNAVAILABLE', statusCode: 503 });
+  expect(remoteCommands).toBe(0);
+});
 it.each([
   'https://github.com/Owner/Repo',
   url,
