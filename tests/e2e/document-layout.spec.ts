@@ -45,7 +45,7 @@ test('document outline stays beside edit and preview, floats only in split, and 
     );
   }
   await expectDockedOutline();
-  await expect(nav.getByRole('button')).toHaveCount(7);
+  await expect(nav.locator('.outline-link')).toHaveCount(7);
   await page.screenshot({
     path: info.outputPath('document-edit.png'),
     animations: 'disabled',

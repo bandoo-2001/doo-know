@@ -22,7 +22,7 @@ import EditorToolbar from './EditorToolbar.vue';
 import DocumentBreadcrumb from './DocumentBreadcrumb.vue';
 import { emptyToolbarState, type MarkdownAction } from '../markdown-format';
 import DocumentOutline from './DocumentOutline.vue';
-import { outlineFromTokens } from '../document-outline';
+import { outlineFromTokens, type OutlineHeading } from '../document-outline';
 import LargeFileWorkspace from './LargeFileWorkspace.vue';
 import WorkspaceFooter from './WorkspaceFooter.vue';
 import SettingsWorkspace from './settings/SettingsWorkspace.vue';
@@ -224,6 +224,13 @@ const importFolder = ref('40-Resources'),
 watch(mode, () => {
   outlineOpen.value = false;
 });
+const collapsedOutline = ref<OutlineHeading[]>([]);
+watch(
+  () => note.value?.id,
+  () => {
+    collapsedOutline.value = [];
+  },
+);
 const query = ref(''),
   searchBusy = ref(false),
   searchError = ref(''),
@@ -2014,6 +2021,7 @@ onBeforeUnmount(() => {
               >
                 <template #content>
                   <DocumentOutline
+                    v-model:collapsed="collapsedOutline"
                     class="outline-popup"
                     :headings="normalOutline"
                     :active-line="activeHeading"
@@ -2098,6 +2106,7 @@ onBeforeUnmount(() => {
             </div>
             <aside v-if="mode !== 'split'" class="document-outline">
               <DocumentOutline
+                v-model:collapsed="collapsedOutline"
                 :headings="normalOutline"
                 :active-line="activeHeading"
                 @select="goToHeading"
