@@ -19,6 +19,7 @@ import { readDocument, safePath, scanFiles, validName } from './files.js';
 import { mutationCore, webPrincipal } from './knowledge/core.js';
 import { KnowledgeError } from './knowledge/errors.js';
 import { assertRoot } from './indexing/reconcile.js';
+import { recoverFolders } from './folders.js';
 export interface NoteRow {
   id: string;
   path: string;
@@ -29,6 +30,7 @@ export function noteService(config: AppConfig, db: AppDatabase) {
   const mutations = mutationCore(config, db);
   function scan() {
     assertRoot(config, db);
+    recoverFolders(config, db);
     if (
       db.prepare("SELECT 1 FROM sync_runs WHERE status IN ('running','needs_reconciliation')").get()
     )
@@ -229,6 +231,7 @@ export function noteService(config: AppConfig, db: AppDatabase) {
   function createFolder(parent: string, name: string) {
     if (!validName(name) || name === 'assets') throw new HttpError(400, '文件夹名不允许');
     assertRoot(config, db);
+    recoverFolders(config, db);
     const folder =
       parent === '' ? config.knowledgeRoot : safePath(config.knowledgeRoot, parent, 'folder');
     if (!lstatSync(folder).isDirectory()) throw new HttpError(400, '目标不是目录');

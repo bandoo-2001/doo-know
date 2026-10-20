@@ -50,6 +50,13 @@ const visibleItems = computed(() =>
   ),
 );
 const selectableItems = computed(() => visibleItems.value.filter((item) => item.available));
+const canPurgeSelected = computed(
+  () =>
+    selected.value.length > 0 &&
+    selected.value.every((id) =>
+      page.value?.items.some((item) => item.id === id && item.type !== 'folder'),
+    ),
+);
 const allSelected = computed(
   () =>
     selectableItems.value.length > 0 &&
@@ -79,18 +86,19 @@ function formatSize(value: number | null) {
 }
 function explain(code?: string) {
   const descriptions: Record<string, string> = {
-    NAME_CONFLICT: '原位置已有同名文件，请填写另一个文件名后重试。',
+    NAME_CONFLICT: '原位置已有同名项目，请填写另一个名称后重试。',
     NOT_FOUND: '项目已不在回收站，请刷新核对。',
     TRASH_CHANGED: '项目已发生变化，本次未移除。请刷新并重新选择。',
     TRASH_UNAVAILABLE: '回收站文件无法安全读取，本次未操作。',
     TRASH_SCOPE_MISMATCH: '所选项目与确认时的列表不一致，请刷新后重新选择。',
     TRASH_SNAPSHOT_EXPIRED: '列表确认已过期，请刷新后重新选择。',
     OPERATION_IN_PROGRESS: '该项目正在处理其他操作，请稍后刷新。',
-    INVALID_INPUT: '文件名无效，请使用不含路径的 Markdown 文件名。',
+    INVALID_INPUT: '名称无效，请使用不含路径的名称；笔记需要以 .md 结尾。',
     INVALID_PATH: '文件或目录无法安全访问，本次未操作。',
     WORKSPACE_BUSY: '知识库正在执行其他维护操作，请稍后重试。',
     RECOVERY_REQUIRED: '知识库有待核对的写入，请先在状态面板检查。',
     OPERATION_FAILED: '操作未完成，请刷新后核对项目状态。',
+    OPERATION_UNAPPLIED: '上次操作尚未执行，请重新确认后再试。',
   };
   return descriptions[code || ''] || (code ? `操作未完成（${code}）。` : '操作未完成，请重试。');
 }
@@ -309,7 +317,10 @@ async function restore(ids: string[], openId?: string) {
     return;
   }
   const fileNames: Record<string, string> = {};
+  if (openId && page.value?.items.find((item) => item.id === openId)?.type === 'folder')
+    openId = undefined;
   for (const id of ids) {
+    const isFolder = page.value?.items.find((item) => item.id === id)?.type === 'folder';
     const name = renames.value[id];
     if (name === undefined || name === '') continue;
     if (
@@ -317,11 +328,13 @@ async function restore(ids: string[], openId?: string) {
       /[\x00-\x1f\x7f/\\:]/.test(name) ||
       name.startsWith('.') ||
       name.endsWith(' ') ||
-      !name.toLowerCase().endsWith('.md') ||
+      (!isFolder && !name.toLowerCase().endsWith('.md')) ||
+      (isFolder && name === 'assets') ||
       name.toLowerCase() === 'agents.md'
     )
-      fieldErrors.value[id] =
-        '请填写不含路径的 .md 文件名，最长 180 字节，不能以点开头或空格结尾。';
+      fieldErrors.value[id] = isFolder
+        ? '请填写不含路径的文件夹名，最长 180 字节，不能以点开头或空格结尾。'
+        : '请填写不含路径的 .md 文件名，最长 180 字节，不能以点开头或空格结尾。';
     else fileNames[id] = name;
   }
   if (Object.keys(fieldErrors.value).length) return;
@@ -340,6 +353,10 @@ async function restore(ids: string[], openId?: string) {
 }
 function openPurge(ids: string[]) {
   if (locked.value || loading.value || !ids.length || !page.value) return;
+  if (ids.some((id) => page.value?.items.find((item) => item.id === id)?.type === 'folder')) {
+    mutationError.value = '文件夹支持整体恢复，暂不支持永久移除。';
+    return;
+  }
   const items = page.value.items.filter((item) => ids.includes(item.id) && item.available);
   if (items.length !== ids.length) {
     mutationError.value = '请选择本页中可读取的项目。';
@@ -408,7 +425,7 @@ onBeforeUnmount(() => {
       <div>
         <p class="eyebrow">知识库管理</p>
         <h1 id="trash-heading">回收站</h1>
-        <p class="muted">恢复保留原笔记标识；原位置被占用时，可以更换文件名。</p>
+        <p class="muted">笔记和文件夹均可恢复，保留原笔记标识；原位置被占用时，可以更换名称。</p>
       </div>
       <button class="action" type="button" @click="emit('back')">返回笔记</button>
     </header>
@@ -472,7 +489,7 @@ onBeforeUnmount(() => {
             恢复所选</button
           ><button
             class="action danger"
-            :disabled="locked || loading || !selected.length"
+            :disabled="locked || loading || !canPurgeSelected"
             @click="openPurge(selected)"
           >
             永久移除所选文件
@@ -495,6 +512,7 @@ onBeforeUnmount(() => {
               <span class="visually-hidden">原路径：</span>{{ item.relativePath }}
             </p>
             <p class="item-meta">
+              <span v-if="item.type === 'folder'">文件夹 · 整体恢复</span>
               <span>{{ formatTime(item.deletedAt) }}</span
               ><span>{{ formatSize(item.sizeBytes) }}</span
               ><span v-if="!item.available" class="unavailable">暂不可读取</span>
@@ -503,7 +521,9 @@ onBeforeUnmount(() => {
               原文件缺失、存在链接或暂时无法安全读取，请先检查服务器上的原文件。
             </p>
             <div v-if="renameOpen.includes(item.id)" class="rename-field">
-              <label :for="`trash-name-${item.id}`">恢复时使用的文件名</label>
+              <label :for="`trash-name-${item.id}`"
+                >恢复时使用的{{ item.type === 'folder' ? '文件夹名' : '文件名' }}</label
+              >
               <div class="rename-input">
                 <input
                   :id="`trash-name-${item.id}`"
@@ -525,7 +545,7 @@ onBeforeUnmount(() => {
                 :class="fieldErrors[item.id] ? 'field-error' : 'muted'"
                 :role="fieldErrors[item.id] ? 'alert' : undefined"
               >
-                {{ fieldErrors[item.id] || '仅更改文件名，仍恢复到原目录；不会覆盖已有文件。' }}
+                {{ fieldErrors[item.id] || '仅更改名称，仍恢复到原目录；不会覆盖已有项目。' }}
               </p>
             </div>
           </div>
@@ -535,7 +555,7 @@ onBeforeUnmount(() => {
               :disabled="locked || loading || !item.available"
               @click="restore([item.id], item.id)"
             >
-              恢复并打开</button
+              {{ item.type === 'folder' ? '恢复文件夹' : '恢复并打开' }}</button
             ><button
               class="action"
               :disabled="locked || loading || !item.available"
@@ -543,8 +563,9 @@ onBeforeUnmount(() => {
               :aria-expanded="renameOpen.includes(item.id)"
               @click="beginRename(item)"
             >
-              更换文件名</button
+              更换{{ item.type === 'folder' ? '文件夹名' : '文件名' }}</button
             ><button
+              v-if="item.type !== 'folder'"
               class="action danger quiet"
               :disabled="locked || loading || !item.available"
               @click="openPurge([item.id])"
@@ -574,7 +595,7 @@ onBeforeUnmount(() => {
                 ? '尝试其他文件名或原路径。'
                 : pageIndex
                   ? '可以返回上一页查看其他项目。'
-                  : '删除的笔记会显示在这里。'
+                  : '删除的笔记和文件夹会显示在这里。'
           }}
         </p>
       </div>
@@ -622,6 +643,7 @@ onBeforeUnmount(() => {
       </p>
     </section>
     <p class="retention-note muted">
+      文件夹支持整体恢复，暂不支持永久移除。
       永久移除仅针对所选回收站原文件，无法在此恢复；历史版本、备份及必要的元数据仍按各自的保留规则保存。
     </p>
     <AModal

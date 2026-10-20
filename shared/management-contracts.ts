@@ -52,6 +52,7 @@ export interface ManagementBatchResult {
   results: ManagementItemResult[];
 }
 export interface ManagementTrashItem {
+  type?: 'note' | 'folder';
   id: string;
   title: string;
   relativePath: string;

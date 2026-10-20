@@ -12,6 +12,8 @@ import { underPrefix, requireScope } from '../agent/auth.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
 import { gitState } from './git-state.js';
 import { pathFilter } from './text.js';
+import { recoverFolders } from '../folders.js';
+import { workspaceWrite } from '../workspace/gate.js';
 import {
   beginOperation,
   completeOperation,
@@ -62,6 +64,7 @@ export function reconcileService(config: AppConfig, db: AppDatabase) {
       | null;
   async function perform(scopes?: string[], fullHash = true, signal?: AbortSignal) {
     assertRoot(config, db);
+    recoverFolders(config, db);
     let files: ReturnType<typeof scanFiles>;
     try {
       files = scanFiles(config.knowledgeRoot);
@@ -209,7 +212,7 @@ export function reconcileService(config: AppConfig, db: AppDatabase) {
     let result: any;
     const run = tail.then(async () => {
       try {
-        result = await perform(scopes, fullHash, signal);
+        result = await workspaceWrite(db, { kind: 'index.reconcile' }, () => perform(scopes, fullHash, signal));
       } catch (e) {
         setMeta('source_error', 'SOURCE_UNAVAILABLE');
         throw e;

@@ -82,6 +82,35 @@ beforeEach(() => {
     url === '/api/auth/get-session' ? { user: { id: 'fixture-owner' } } : page(),
   );
 });
+it('restores folders with a directory name and prevents note-only actions on a folder', async () => {
+  const folder = {
+    ...sample('folder-one'),
+    type: 'folder' as const,
+    relativePath: '00-Inbox/资料',
+  };
+  mockApi.mockImplementation(async (url: string) =>
+    url === '/api/auth/get-session' ? { user: { id: 'fixture-owner' } } : page([folder]),
+  );
+  const f = await mount();
+  f.state.openPurge(['folder-one']);
+  expect(f.state.purgeDraft.value).toBeUndefined();
+  f.state.renames.value['folder-one'] = '恢复资料';
+  mockApi.mockImplementation(async (url: string) =>
+    url === '/api/manage/trash/restore'
+      ? { results: [{ id: 'folder-one', ok: true, relativePath: '00-Inbox/恢复资料' }] }
+      : page([]),
+  );
+  await f.state.restore(['folder-one'], 'folder-one');
+  expect(
+    mockApi.mock.calls.some(
+      (call) =>
+        call[0] === '/api/manage/trash/restore' && call[2].fileNames['folder-one'] === '恢复资料',
+    ),
+  ).toBe(true);
+  expect(f.events).toContainEqual({ event: 'changed' });
+  expect(f.events.some((event) => event.event === 'open-note')).toBe(false);
+  f.close();
+});
 it('reuses the original request after a lost restore response, including across remounts', async () => {
   const first = await mount();
   mockApi.mockRejectedValueOnce(new ApiError(0, { error: 'response lost' }));

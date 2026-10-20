@@ -18,6 +18,7 @@ export function openDatabase(dataRoot: string,role:'utility'|'server'|'file-work
  CREATE TABLE IF NOT EXISTS note_favorites(owner_id TEXT NOT NULL,note_id TEXT NOT NULL REFERENCES notes(id) ON DELETE CASCADE,PRIMARY KEY(owner_id,note_id));
  CREATE TABLE IF NOT EXISTS revisions(id TEXT PRIMARY KEY,note_id TEXT NOT NULL REFERENCES notes(id),file TEXT NOT NULL,created_at TEXT NOT NULL,modified_at TEXT NOT NULL);
  CREATE TABLE IF NOT EXISTS assets(id TEXT PRIMARY KEY,path TEXT UNIQUE NOT NULL);
+ CREATE TABLE IF NOT EXISTS folder_trash(id TEXT PRIMARY KEY,path TEXT NOT NULL,state TEXT NOT NULL,notes_json TEXT NOT NULL,identity TEXT NOT NULL,operation_id TEXT NOT NULL,restore_path TEXT,deleted_at INTEGER NOT NULL);
  CREATE TABLE IF NOT EXISTS maintenance(id INTEGER PRIMARY KEY CHECK(id=1),active INTEGER NOT NULL);
  INSERT OR IGNORE INTO maintenance VALUES(1,0);`);
   migrateKnowledge(db);

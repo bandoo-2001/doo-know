@@ -35,6 +35,8 @@ import { webPrincipal } from '../../packages/core/knowledge/core.js';
 import { KnowledgeError } from '../../packages/core/knowledge/errors.js';
 import { registerStorageRoutes } from './platform/storage.js';
 import { registerManagementRoutes } from './platform/management.js';
+import { archiveFolder } from '../../packages/core/folders.js';
+import { workspaceExclusive } from '../../packages/core/workspace/gate.js';
 import { registerTransferRoutes } from './platform/transfers.js';
 import { gitRemoteService } from './git/service.js';
 import { registerGitRemoteRoutes } from './git/routes.js';
@@ -290,6 +292,12 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     return reply
       .code(201)
       .send(notes.createFolder(text(b?.parent, '目录', 1000), text(b?.name, '名称', 180)));
+  });
+  app.delete('/api/folders', async (req) => {
+    const b = req.body as Record<string, unknown>;
+    return workspaceExclusive(db, { kind: 'folder.archive' }, async () =>
+      archiveFolder(platform.get().config, db, text(b?.path, '目录', 1000), text(b?.requestId, '请求标识', 128), () => notes.scan()),
+    );
   });
   const assets = lazyService(() => platform.get().assets);
   app.get('/api/search', async (req) => {

@@ -200,6 +200,14 @@ async function treeAction(entry: TreeEntry, action: TreeAction) {
       }
     } else if (action === 'download' && entry.id) {
       await downloadNote({ id: entry.id, relativePath: entry.path });
+    } else if (action === 'delete' && entry.type === 'folder') {
+      const confirm = async () => {
+        folderDeleteTarget.value = { path: entry.path, requestId: crypto.randomUUID() };
+        folderDeleteUncertain.value = false;
+        dialogError.value = '';
+      };
+      if (note.value?.relativePath.startsWith(entry.path + '/')) await guard(confirm);
+      else await confirm();
     } else if ((action === 'move' || action === 'delete') && entry.id) {
       const apply = async () => {
         if (note.value?.id !== entry.id) await openNote(entry.id!);
@@ -439,6 +447,7 @@ function showError(cause: unknown) {
     createOpen.value ||
     shareOpen.value ||
     deleteOpen.value ||
+    folderDeleteTarget.value ||
     revisionsOpen.value ||
     leaveOpen.value ||
     conflict.value
@@ -1038,6 +1047,52 @@ const panel = ref<'empty' | 'folder' | 'note' | 'trash' | 'settings'>('empty'),
   revisionCursor = ref<string>(),
   deleteOpen = ref(false);
 const deleteTarget = ref<NoteDocument>();
+const folderDeleteTarget = ref<{ path: string; requestId: string }>();
+const folderDeleteBusy = ref(false),
+  folderDeleteUncertain = ref(false);
+async function removeFolder() {
+  const target = folderDeleteTarget.value;
+  if (!target || folderDeleteBusy.value) return;
+  folderDeleteBusy.value = true;
+  dialogError.value = '';
+  try {
+    await api('/api/folders', 'DELETE', target);
+    folderDeleteTarget.value = undefined;
+    folderDeleteUncertain.value = false;
+    const contains = (path: string) => path === target.path || path.startsWith(target.path + '/');
+    if (noteOpening.value || (note.value && contains(note.value.relativePath))) {
+      viewEpoch++;
+      noteOpening.value = false;
+    }
+    if (note.value && contains(note.value.relativePath)) {
+      note.value = undefined;
+      noteInfo.value = undefined;
+      draft.value = savedContent.value = '';
+      largeDirty.value = false;
+      returnRoute = {};
+    }
+    if (contains(folder.value)) folder.value = target.path.split('/').slice(0, -1).join('/');
+    if (contains(selected.value)) selected.value = folder.value;
+    if (!['settings', 'trash'].includes(panel.value) && !note.value) {
+      panel.value = folder.value ? 'folder' : 'empty';
+      navigation.commit(folder.value ? { folder: folder.value } : {});
+    }
+    tell('文件夹已移入回收站');
+    await refresh();
+  } catch (cause) {
+    if (folderDeleteTarget.value) {
+      folderDeleteUncertain.value =
+        !(cause instanceof ApiError) ||
+        cause.status === 0 ||
+        cause.status >= 500 ||
+        ['OPERATION_OUTCOME_UNKNOWN', 'RECOVERY_REQUIRED'].includes(String(cause.data.code));
+      if (!folderDeleteUncertain.value) target.requestId = crypto.randomUUID();
+    }
+    showError(cause);
+  } finally {
+    folderDeleteBusy.value = false;
+  }
+}
 function confirmDelete() {
   if (!note.value) return;
   deleteTarget.value = { ...note.value };
@@ -2470,6 +2525,43 @@ onBeforeUnmount(() => {
         >
       </div></NModal
     >
+    <NModal
+      :show="!!folderDeleteTarget"
+      preset="card"
+      class="dialog-card"
+      title="文件夹移入回收站？"
+      :mask-closable="false"
+      :closable="!folderDeleteBusy && !folderDeleteUncertain"
+      :close-on-esc="!folderDeleteBusy && !folderDeleteUncertain"
+      @update:show="
+        (value) => {
+          if (!value && !folderDeleteBusy && !folderDeleteUncertain) folderDeleteTarget = undefined;
+        }
+      "
+    >
+      <AAlert v-if="dialogError" type="error" :message="dialogError" role="alert" />
+      <p class="tree-delete-path">{{ folderDeleteTarget?.path }}</p>
+      <p>
+        文件夹及其中的笔记、附件和子文件夹将一起移入回收站，可整体恢复。相关笔记的分享链接立即失效。
+      </p>
+      <p v-if="folderDeleteUncertain">操作结果尚未确认，请按原请求核对结果。</p>
+      <div class="dialog-actions">
+        <AButton
+          v-if="!folderDeleteUncertain"
+          :disabled="folderDeleteBusy"
+          @click="folderDeleteTarget = undefined"
+          >取消</AButton
+        >
+        <AButton
+          danger
+          type="primary"
+          :loading="folderDeleteBusy"
+          :disabled="folderDeleteBusy"
+          @click="removeFolder"
+          >{{ folderDeleteUncertain ? '核对删除结果' : '移入回收站' }}</AButton
+        >
+      </div>
+    </NModal>
     <NModal v-model:show="deleteOpen" preset="card" class="dialog-card" title="移入回收站？"
       ><AAlert v-if="dialogError" type="error" :message="dialogError" role="alert" />
       <p class="tree-delete-path">{{ deleteTarget?.relativePath }}</p>

@@ -43,7 +43,12 @@ const items = computed<{ key: TreeAction; label: string }[]>(() => [
         { key: 'download' as const, label: '下载 Markdown' },
       ]),
   { key: 'copy', label: '复制路径' },
-  ...(entry.value?.type === 'note' ? [{ key: 'delete' as const, label: '移入回收站' }] : []),
+  ...(entry.value?.type === 'note' ||
+  (entry.value?.type === 'folder' &&
+    !['90-Archive', '99-System'].includes(entry.value.path) &&
+    !entry.value.path.startsWith('99-System/'))
+    ? [{ key: 'delete' as const, label: '移入回收站' }]
+    : []),
 ]);
 function close(restoreFocus = false) {
   opening++;

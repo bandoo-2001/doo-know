@@ -30,6 +30,7 @@ import { workspaceWriteSync, workspaceExclusive } from '../../../packages/core/w
 import { releaseInfo } from './release.js';
 import { managementStorage } from './management-storage.js';
 import { trashFile, purgeTrashFile } from './management-trash.js';
+import { folderTrashSize, restoreFolder, recoverFolders } from '../../../packages/core/folders.js';
 
 type Platform = Pick<ReturnType<typeof platformRuntime>, 'get' | 'status' | 'settings'>;
 type TrashProof = { name: string; fingerprint: string };
@@ -144,7 +145,8 @@ export function registerManagementRoutes(
         ),
       )
       .immediate();
-    if (!started.fresh) return existingResult(started.operation);
+    if (!started.fresh && !(kind === 'trash_restore' && started.operation.status === 'prepared'))
+      return existingResult(started.operation);
     const result = { results: work() };
     completeOperation(db, started.operation.id, result);
     return result;
@@ -294,30 +296,41 @@ export function registerManagementRoutes(
     const ownerId = owner(req),
       runtime = platform.get(),
       { limit, filter, after, cursor } = pageQuery(req, 'trash');
+    recoverFolders(runtime.config, db);
     const rows = db
       .prepare(
-        `SELECT n.id,n.path,n.trash_path,(SELECT max(o.updated_at) FROM write_intents w JOIN operations o ON o.id=w.id WHERE w.note_id=n.id AND w.kind='archive' AND w.status='recorded') deleted_at FROM notes n WHERE n.active=0 AND n.trash_path IS NOT NULL AND n.id>? AND (?='' OR instr(lower(n.path),lower(?))>0) ORDER BY n.id LIMIT ?`,
+        `SELECT * FROM (SELECT n.id,n.path,n.trash_path,(SELECT max(o.updated_at) FROM write_intents w JOIN operations o ON o.id=w.id WHERE w.note_id=n.id AND w.kind='archive' AND w.status='recorded') deleted_at,'note' type,NULL identity FROM notes n WHERE n.active=0 AND n.trash_path IS NOT NULL UNION ALL SELECT id,path,NULL,deleted_at,'folder',identity FROM folder_trash WHERE state='trashed') WHERE id>? AND (?='' OR instr(lower(path),lower(?))>0) ORDER BY id LIMIT ?`,
       )
       .all(after, filter, filter, limit + 1) as {
       id: string;
       path: string;
       trash_path: string;
       deleted_at: number | null;
+      type: 'note' | 'folder';
+      identity: string;
     }[];
     const proof: Record<string, TrashProof> = Object.create(null);
     const items: ManagementTrashItem[] = rows.slice(0, limit).map((r) => {
       let sizeBytes: number | null = null;
       try {
-        trashFile(runtime.config.knowledgeRoot, r.id, r.trash_path, (_file, fingerprint, size) => {
-          sizeBytes = size;
-          proof[r.id] = { name: r.trash_path, fingerprint };
-        });
+        if (r.type === 'folder') sizeBytes = folderTrashSize(runtime.config, r);
+        else
+          trashFile(
+            runtime.config.knowledgeRoot,
+            r.id,
+            r.trash_path,
+            (_file, fingerprint, size) => {
+              sizeBytes = size;
+              proof[r.id] = { name: r.trash_path, fingerprint };
+            },
+          );
       } catch {
         /* Unavailable files stay visible but cannot be purged. */
       }
       return {
         id: r.id,
-        title: basename(r.path, '.md'),
+        title: r.type === 'folder' ? basename(r.path) : basename(r.path, '.md'),
+        type: r.type,
         relativePath: r.path,
         deletedAt: r.deleted_at ? new Date(r.deleted_at).toISOString() : null,
         sizeBytes,
@@ -352,10 +365,20 @@ export function registerManagementRoutes(
       )
     )
       fail(400, 'INVALID_FILE_NAMES');
-    return workspaceWriteSync(db, { kind: 'management.restore' }, () =>
+    return workspaceExclusive(db, { kind: 'management.restore', waitMs: 1000 }, async () =>
       batch(ownerId, 'trash_restore', input, { ids: input.ids, fileNames }, () =>
         input.ids.map((id) => {
           try {
+            if (id.startsWith('folder-')) {
+              const result = restoreFolder(
+                runtime.config,
+                db,
+                id,
+                fileNames[id] as string | undefined,
+                sha256(JSON.stringify([ownerId, input.requestId, id])),
+              );
+              return { id, ok: true, relativePath: result.relativePath };
+            }
             runtime.recovery.restore(
               id,
               fileNames[id] as string | undefined,
@@ -367,6 +390,12 @@ export function registerManagementRoutes(
             if (!row) fail(409, 'RESTORE_UNAVAILABLE');
             return { id, ok: true, relativePath: row.path };
           } catch (e) {
+            if (
+              id.startsWith('folder-') &&
+              e instanceof KnowledgeError &&
+              e.code === 'OPERATION_OUTCOME_UNKNOWN'
+            )
+              throw e;
             return itemError(id, e);
           }
         }),
