@@ -48,7 +48,7 @@ wget -qO- 'https://raw.githubusercontent.com/bandoo-2001/doo-know/txj/doo-know-p
 
 | 项目     | 首版支持                                                 |
 | -------- | -------------------------------------------------------- |
-| 系统     | Linux x86_64，glibc ≥ 2.34；验收 Ubuntu 22.04、Debian 12 |
+| 系统     | Linux x86_64，glibc ≥ 2.34，支持 seccomp filter；验收 Ubuntu 22.04、Debian 12 |
 | 运行用户 | 普通用户，默认安装 systemd 用户服务                      |
 | 下载工具 | curl 或 wget                                             |
 | Git 插件 | 另外需要系统 Git ≥ 2.39                                  |
