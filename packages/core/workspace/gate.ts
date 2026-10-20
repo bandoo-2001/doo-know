@@ -125,6 +125,25 @@ function release(db: AppDatabase, token: string) {
   db.prepare('DELETE FROM workspace_guards WHERE token=?').run(token);
   db.prepare('DELETE FROM workspace_gate WHERE token=?').run(token);
 }
+type WorkFailure = { error: unknown };
+function releasePreservingFailure(db: AppDatabase, token: string, failure?: WorkFailure) {
+  try {
+    release(db, token);
+  } catch (cleanupError) {
+    if (!failure) throw cleanupError;
+    // release keeps the abandoned gate/guards. Preserve the work's outcome code,
+    // with cleanup context available without adding it to serialized errors.
+    try {
+      if (failure.error && ['object', 'function'].includes(typeof failure.error))
+        Object.defineProperty(failure.error, 'workspaceReleaseError', {
+          value: cleanupError,
+          configurable: true,
+        });
+    } catch {
+      // Frozen or unusual thrown values still retain their original identity.
+    }
+  }
+}
 function acquireShared(db: AppDatabase, meta: Metadata) {
   initializeWorkspaceGate(db);
   const token = randomUUID();
@@ -139,10 +158,14 @@ function acquireShared(db: AppDatabase, meta: Metadata) {
 export function workspaceWriteSync<T>(db: AppDatabase, meta: Metadata, work: () => T): T {
   if (held.getStore()?.db === db) return work();
   const token = acquireShared(db, meta);
+  let failure: WorkFailure | undefined;
   try {
     return held.run({ db, token, exclusive: false }, work);
+  } catch (error) {
+    failure = { error };
+    throw error;
   } finally {
-    release(db, token);
+    releasePreservingFailure(db, token, failure);
   }
 }
 export async function workspaceWrite<T>(
@@ -161,11 +184,15 @@ export async function workspaceWrite<T>(
       );
   }, 15000);
   beat.unref();
+  let failure: WorkFailure | undefined;
   try {
     return await held.run({ db, token, exclusive: false }, work);
+  } catch (error) {
+    failure = { error };
+    throw error;
   } finally {
     clearInterval(beat);
-    release(db, token);
+    releasePreservingFailure(db, token, failure);
   }
 }
 export async function workspaceExclusive<T>(
@@ -181,7 +208,8 @@ export async function workspaceExclusive<T>(
   initializeWorkspaceGate(db);
   const token = randomUUID(),
     deadline = Date.now() + (meta.waitMs ?? 30000);
-  let inserted = false;
+  let inserted = false,
+    failure: WorkFailure | undefined;
   try {
     for (;;) {
       const ready = db
@@ -214,8 +242,11 @@ export async function workspaceExclusive<T>(
       await new Promise((r) => setTimeout(r, Math.min(25, Math.max(1, deadline - Date.now()))));
     }
     return await held.run({ db, token, exclusive: true }, work);
+  } catch (error) {
+    failure = { error };
+    throw error;
   } finally {
-    if (inserted) release(db, token);
+    if (inserted) releasePreservingFailure(db, token, failure);
   }
 }
 export function operationHasLiveWorkspaceWriter(db: AppDatabase, operationId: string) {
