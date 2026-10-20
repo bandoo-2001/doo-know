@@ -12,6 +12,7 @@ import {
 } from '../editor/rich-adapter';
 import { convertClipboard, plainTextMarkdown } from '../editor/clipboard';
 import { textEdit, parseSource } from '../editor/source-codec';
+import { syncDOMTextSelection } from '../editor/dom-selection';
 import type { EditorSession } from '../editor/session';
 import type { SelectionBookmark, TableAction } from '../editor/contracts';
 import {
@@ -308,7 +309,16 @@ onMounted(() => {
           return false;
         },
       },
-      handleKeyDown(_view, event) {
+      handleKeyDown(view, event) {
+        const key = event.key.toLowerCase();
+        if (!props.readOnly && !props.session.composing && !event.isComposing &&
+            (event.ctrlKey || event.metaKey) && !event.altKey &&
+            (['b', 'i', 'e', 'k'].includes(key) || (event.shiftKey && key === 'x'))) {
+          // End/arrows may have moved the DOM caret before selectionchange is
+          // delivered. Apply formatting to that caret, so the later selection
+          // update cannot clear a mark that was set at an obsolete position.
+          syncDOMTextSelection(view);
+        }
         if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
           event.preventDefault();
           execute('link');
