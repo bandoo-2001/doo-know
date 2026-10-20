@@ -163,6 +163,11 @@ export function guardedProcess(
     });
     child.stdin!.on('error', () => {});
     child.stdin!.end(options.input);
+    // An abort that predates the listener must never authorize the workload.
+    if (options.signal?.aborted) {
+      stop();
+      return;
+    }
     child.send!(
       {
         databaseModule: import.meta.resolve('better-sqlite3'),
