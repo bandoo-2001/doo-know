@@ -36,7 +36,10 @@ import { KnowledgeError } from '../../packages/core/knowledge/errors.js';
 import { registerStorageRoutes } from './platform/storage.js';
 import { registerManagementRoutes } from './platform/management.js';
 import { registerTransferRoutes } from './platform/transfers.js';
-export async function createApp(config: HostConfig) {
+import { gitRemoteService } from './git/service.js';
+import { registerGitRemoteRoutes } from './git/routes.js';
+import type { GitExec } from './git/transport.js';
+export async function createApp(config: HostConfig, dependencies: { gitExec?: (db: ReturnType<typeof openDatabase>) => GitExec } = {}) {
   const app = Fastify({ logger: false, bodyLimit: 2 * 1024 * 1024 });
   const db = openDatabase(config.dataRoot, 'server');
   const auth = await createAuth(config, db);
@@ -56,6 +59,7 @@ export async function createApp(config: HostConfig) {
   await plugins.start();
   await platform.activate();
   await transports.start();
+  const gitRemote = gitRemoteService(config, db, platform, plugins, { exec: dependencies.gitExec?.(db) });
   const businessConfig = new Proxy(config as AppConfig, {
     get: (target, key) =>
       key === 'knowledgeRoot'
@@ -206,6 +210,7 @@ export async function createApp(config: HostConfig) {
     async (req) => searchRuntime.cancel((req as any).ownerId, req.params.id),
   );
   registerPluginRoutes(app, plugins);
+  registerGitRemoteRoutes(app, gitRemote);
   registerMcpManagementRoutes(app, config, db, plugins, transports, auth);
   app.post('/api/platform/setup/directories', async (req) =>
     platform.settings.directories(req.body),
@@ -453,6 +458,7 @@ export async function createApp(config: HostConfig) {
     });
   }
   app.addHook('onClose', async () => {
+    await gitRemote.close();
     await searchRuntime.close();
     await transports.close();
     await platform.close();
