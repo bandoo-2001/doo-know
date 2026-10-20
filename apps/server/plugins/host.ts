@@ -294,7 +294,7 @@ export function pluginHost(
         : {}),
     };
   }
-  async function install(id: string, options: PluginInstallOptions = {}) {
+  async function install(id: string, options: PluginInstallOptions = {}, beforeAction?: () => void) {
     if (closing) fail(503, 'PLUGIN_HOST_STOPPING');
     const entry = catalog.find((e) => e.id === id);
     if (!entry) fail(404, 'PLUGIN_NOT_IN_CATALOG');
@@ -314,6 +314,7 @@ export function pluginHost(
       )
         fail(400, 'INVALID_PLUGIN_PACKAGE');
       options.signal?.throwIfAborted();
+      beforeAction?.();
       options.onPhase?.('installing');
       const target = directory(m.id, m.version);
       mkdirSync(dirname(target), { recursive: true, mode: 0o700 });
@@ -598,18 +599,26 @@ export function pluginHost(
         authGeneration: metadata?.auth_generation ?? -1,
       };
     },
-    install: (id: string, options?: PluginInstallOptions) => serial(() => install(id, options)),
+    install: (id: string, options?: PluginInstallOptions, beforeAction?: () => void) => serial(() => {
+      beforeAction?.();
+      return install(id, options, beforeAction);
+    }),
     configure: (id: string, input: Record<string, unknown>, version: number) =>
       serial(() => configure(id, input, version)),
-    enable: (id: string) => serial(() => enable(id)),
-    disable: (id: string) =>
+    enable: (id: string, beforeAction?: () => void) => serial(() => {
+      beforeAction?.();
+      return enable(id);
+    }),
+    disable: (id: string, beforeAction?: () => void) =>
       serial(async () => {
+        beforeAction?.();
         row(id);
         await stop(id, true);
         return view(row(id));
       }),
-    uninstall: (id: string) =>
+    uninstall: (id: string, beforeAction?: () => void) =>
       serial(async () => {
+        beforeAction?.();
         row(id);
         await stop(id, true);
         db.prepare('UPDATE platform_plugins SET installed=0,active_version=NULL WHERE id=?').run(

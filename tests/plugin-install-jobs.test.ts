@@ -36,6 +36,9 @@ it('returns a job immediately for a slow download and reconciles a lost installa
     expect(() => jobs.get('other-owner', first.id)).toThrow();
     release();
     await expect.poll(() => jobs.get('owner', first.id).status).toBe('succeeded');
+    expect(jobs.get('owner', first.id).result).toEqual({ pluginId: 'mcp', installedVersion: '1.0.2', installed: true });
+    expect(installs).toBe(1);
+    expect(jobs.start('owner', { id: 'mcp', requestId: 'another-click' }).id).toBe(first.id);
     expect(installs).toBe(1);
     await jobs.close();
     db.prepare("UPDATE plugin_install_jobs SET status='running',phase='installing' WHERE id=?").run(
@@ -43,6 +46,7 @@ it('returns a job immediately for a slow download and reconciles a lost installa
     );
     jobs = pluginInstallJobs(db, host);
     expect(jobs.get('owner', first.id)).toMatchObject({ status: 'succeeded', phase: 'complete' });
+    expect(jobs.start('owner', { id: 'mcp', requestId: 'another-click' }).id).toBe(first.id);
     expect(installs).toBe(1);
   } finally {
     release();

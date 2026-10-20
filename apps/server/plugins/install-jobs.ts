@@ -16,9 +16,16 @@ type Row = {
   created_at: number;
   updated_at: number;
 };
-export function pluginInstallJobs(db: AppDatabase, host: Host, beforeAction: (id: string) => void = () => {}) {
+export function pluginInstallJobs(
+  db: AppDatabase,
+  host: Host,
+  beforeAction: (id: string) => void = () => {},
+) {
   db.exec(
     'CREATE TABLE IF NOT EXISTS plugin_install_jobs(id TEXT PRIMARY KEY,owner TEXT NOT NULL,request_id TEXT NOT NULL,plugin_id TEXT NOT NULL,version TEXT NOT NULL,status TEXT NOT NULL,phase TEXT NOT NULL,error TEXT,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,UNIQUE(owner,request_id));',
+  );
+  db.exec(
+    'CREATE TABLE IF NOT EXISTS plugin_install_requests(owner TEXT NOT NULL,request_id TEXT NOT NULL,job_id TEXT NOT NULL REFERENCES plugin_install_jobs(id),PRIMARY KEY(owner,request_id));',
   );
   const active = new Map<string, { controller: AbortController; promise: Promise<void> }>();
   let closing = false;
@@ -32,6 +39,9 @@ export function pluginInstallJobs(db: AppDatabase, host: Host, beforeAction: (id
     ...(r.error ? { error: r.error } : {}),
     createdAt: r.created_at,
     updatedAt: r.updated_at,
+    ...(r.status === 'succeeded'
+      ? { result: { pluginId: r.plugin_id, installedVersion: r.version, installed: true } }
+      : {}),
   });
   const getRow = (owner: string, id: string) => {
     const r = db
@@ -65,16 +75,22 @@ export function pluginInstallJobs(db: AppDatabase, host: Host, beforeAction: (id
       !/^[A-Za-z0-9_.:-]{1,128}$/.test(input.requestId)
     )
       fail(400, 'INVALID_REQUEST_ID');
-    beforeAction(input.id);
-    const entry = host.catalog().find((p) => p.id === input.id);
-    if (!entry) fail(404, 'PLUGIN_NOT_IN_CATALOG');
-    const previous = db
-      .prepare('SELECT * FROM plugin_install_jobs WHERE owner=? AND request_id=?')
-      .get(owner, input.requestId) as Row | undefined;
+    const previous =
+      (db
+        .prepare('SELECT * FROM plugin_install_jobs WHERE owner=? AND request_id=?')
+        .get(owner, input.requestId) as Row | undefined) ||
+      (db
+        .prepare(
+          'SELECT j.* FROM plugin_install_requests a JOIN plugin_install_jobs j ON j.id=a.job_id WHERE a.owner=? AND a.request_id=?',
+        )
+        .get(owner, input.requestId) as Row | undefined);
     if (previous) {
       if (previous.plugin_id !== input.id) fail(409, 'REQUEST_ID_REUSED');
       return view(previous);
     }
+    beforeAction(input.id);
+    const entry = host.catalog().find((p) => p.id === input.id);
+    if (!entry) fail(404, 'PLUGIN_NOT_IN_CATALOG');
     const pending = db
       .prepare(
         "SELECT * FROM plugin_install_jobs WHERE plugin_id=? AND status IN ('queued','running')",
@@ -82,6 +98,11 @@ export function pluginInstallJobs(db: AppDatabase, host: Host, beforeAction: (id
       .get(input.id) as Row | undefined;
     if (pending) {
       if (pending.owner !== owner) fail(409, 'PLUGIN_INSTALL_BUSY');
+      db.prepare('INSERT INTO plugin_install_requests(owner,request_id,job_id) VALUES(?,?,?)').run(
+        owner,
+        input.requestId,
+        pending.id,
+      );
       return view(pending);
     }
     const now = Date.now(),
@@ -116,13 +137,17 @@ export function pluginInstallJobs(db: AppDatabase, host: Host, beforeAction: (id
         row.id,
       );
       try {
-        await host.install(row.plugin_id, {
-          signal: controller.signal,
-          onPhase: (phase) =>
-            db
-              .prepare('UPDATE plugin_install_jobs SET phase=?,updated_at=? WHERE id=?')
-              .run(phase, Date.now(), row.id),
-        });
+        await host.install(
+          row.plugin_id,
+          {
+            signal: controller.signal,
+            onPhase: (phase) =>
+              db
+                .prepare('UPDATE plugin_install_jobs SET phase=?,updated_at=? WHERE id=?')
+                .run(phase, Date.now(), row.id),
+          },
+          () => beforeAction(row.plugin_id),
+        );
         db.prepare(
           "UPDATE plugin_install_jobs SET status='succeeded',phase='complete',error=NULL,updated_at=? WHERE id=?",
         ).run(Date.now(), row.id);

@@ -97,3 +97,30 @@ it('requires a host restart after a plugin cleanup fails', async () => {
     await expect(host.enable('sample')).rejects.toMatchObject({ code: 'PLUGIN_RESTART_REQUIRED' });
   } finally { await host.close(); await f.close(); }
 });
+
+it('rechecks lifecycle permission inside the host queue before any mutation', async () => {
+  const f = await fixture(), host = pluginHost(f.config, f.db);
+  try {
+    await host.install('sample');
+    await host.enable('sample');
+    for (const action of ['install', 'enable', 'disable', 'uninstall'] as const) {
+      let remoteRunning = false;
+      const guard = () => {
+        if (remoteRunning) throw Object.assign(new Error('GIT_TASK_BUSY'), { code: 'GIT_TASK_BUSY' });
+      };
+      guard(); // The HTTP admission check passes before the queued action runs.
+      const pending = action === 'install' ? host.install('sample', undefined, guard) : host[action]('sample', guard);
+      remoteRunning = true;
+      await expect(pending).rejects.toMatchObject({ code: 'GIT_TASK_BUSY' });
+      expect(host.list()).toHaveLength(1);
+      expect(host.list()[0].state).toBe('enabled');
+    }
+    let remoteStartedDuringDownload = false;
+    await expect(host.install('sample', { onPhase: phase => {
+      if (phase === 'verifying') remoteStartedDuringDownload = true;
+    } }, () => {
+      if (remoteStartedDuringDownload) throw Object.assign(new Error('GIT_TASK_BUSY'), { code: 'GIT_TASK_BUSY' });
+    })).rejects.toMatchObject({ code: 'GIT_TASK_BUSY' });
+    expect(host.list()[0].state).toBe('enabled');
+  } finally { await host.close(); await f.close(); }
+});

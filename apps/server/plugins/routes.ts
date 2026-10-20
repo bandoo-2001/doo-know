@@ -7,7 +7,13 @@ export function registerPluginRoutes(app: FastifyInstance, host: ReturnType<type
     app.post<{ Params: { id: string } }>(`/api/platform/plugins/:id/${action}`, async req => {
       const id = req.params.id;
       beforeAction(id);
-      return action === 'upgrade' ? host.install(id) : action === 'uninstall' ? (await host.uninstall(id), { uninstalled: true, dataRetained: true }) : host[action](id);
+      const guard = () => beforeAction(id);
+      if (action === 'install' || action === 'upgrade') return host.install(id, undefined, guard);
+      if (action === 'uninstall') {
+        await host.uninstall(id, guard);
+        return { uninstalled: true, dataRetained: true };
+      }
+      return host[action](id, guard);
     });
   app.put<{ Params: { id: string } }>('/api/platform/plugins/:id/config', async req => {
     const b = req.body as any;
