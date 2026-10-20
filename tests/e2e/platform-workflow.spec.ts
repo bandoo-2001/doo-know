@@ -187,7 +187,7 @@ test('imports a Markdown note from the daily workspace and downloads the saved s
   expect(Buffer.concat(chunks).toString('utf8')).toBe(content);
 });
 
-test('the ordinary preview chapter menu jumps to its heading without leaving preview', async ({
+test('the persistent preview outline jumps to its heading without leaving preview', async ({
   page,
 }) => {
   const note = await createNote(
@@ -198,7 +198,8 @@ test('the ordinary preview chapter menu jumps to its heading without leaving pre
   await page.goto('/?note=' + note.id);
   await page.getByRole('button', { name: '预览', exact: true }).click();
   const chapterMenu = page.getByRole('button', { name: '章节目录', exact: true });
-  if (await chapterMenu.isVisible()) await chapterMenu.click();
+  await expect(chapterMenu).toHaveCount(0);
+  await expect(page.locator('.document-outline')).toBeVisible();
   await page
     .getByRole('navigation', { name: '本文章节', exact: true })
     .getByRole('button', { name: '本周结论', exact: true })

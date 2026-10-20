@@ -221,6 +221,9 @@ const importFolder = ref('40-Resources'),
   importBusy = ref(false),
   downloading = ref(false),
   outlineOpen = ref(false);
+watch(mode, () => {
+  outlineOpen.value = false;
+});
 const query = ref(''),
   searchBusy = ref(false),
   searchError = ref(''),
@@ -2003,7 +2006,12 @@ onBeforeUnmount(() => {
                   分屏
                 </button>
               </div>
-              <APopover v-model:open="outlineOpen" trigger="click" placement="bottomRight">
+              <APopover
+                v-if="mode === 'split'"
+                v-model:open="outlineOpen"
+                trigger="click"
+                placement="bottomRight"
+              >
                 <template #content>
                   <DocumentOutline
                     class="outline-popup"
@@ -2088,7 +2096,7 @@ onBeforeUnmount(() => {
                 </section>
               </div>
             </div>
-            <aside class="document-outline">
+            <aside v-if="mode !== 'split'" class="document-outline">
               <DocumentOutline
                 :headings="normalOutline"
                 :active-line="activeHeading"

@@ -298,10 +298,6 @@
   color: var(--blue);
   box-shadow: none;
 }
-/* The outline opens on demand at every width, leaving the article uninterrupted. */
-.document-outline {
-  display: none;
-}
 .note-header .outline-toggle {
   display: inline-flex;
 }

@@ -359,6 +359,7 @@ test('top navigation, share and more-actions preserve drafts and expose all buil
       .click();
   }
   await page.setViewportSize({ width: 743, height: 604 });
+  await button(page, '分屏').click();
   await button(page, '章节目录').click();
   await page
     .getByRole('navigation', { name: '本文章节', exact: true })

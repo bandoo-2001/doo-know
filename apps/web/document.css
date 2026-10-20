@@ -305,7 +305,7 @@
   scroll-margin-top: 32px;
 }
 .document-outline {
-  display: none;
+  display: flex;
   flex: 0 0 216px;
   min-width: 0;
   min-height: 0;
@@ -399,15 +399,11 @@
 .outline-popup .document-toc-scroll {
   padding-bottom: 4px;
 }
-@container document-area (min-width: 820px) {
-  .document-outline {
-    display: flex;
-  }
-  .note-header .outline-toggle {
-    display: none;
-  }
-}
 @container document-area (max-width: 700px) {
+  .document-outline {
+    flex-basis: 160px;
+    padding: 24px 12px;
+  }
   .note-topline {
     padding-inline: 14px;
     gap: 8px;
@@ -493,6 +489,10 @@
   }
 }
 @container document-area (max-width: 540px) {
+  .document-outline {
+    flex-basis: 120px;
+    padding-inline: 8px;
+  }
   .note-header .shortcut {
     display: none;
   }
