@@ -94,6 +94,7 @@ test('outline parents fold independently without navigation and retain their sta
   await expect(menu).toHaveAttribute('aria-expanded', 'false');
   await menu.click();
   await expect(title('展开 第二章')).toBeVisible();
+  await expect(page.locator('.ant-popover:visible')).toHaveCSS('opacity', '1');
   await page.screenshot({
     path: info.outputPath('outline-folded-split.png'),
     animations: 'disabled',
@@ -125,9 +126,12 @@ test('outline parents fold independently without navigation and retain their sta
 
   // Replacing a folded heading with a new draft heading cannot hide its children.
   await title('收起 第一章').click();
+  await page.getByRole('button', { name: '分屏', exact: true }).click();
+  await expect(menu).toHaveAttribute('aria-expanded', 'false');
   await page.locator('.cm-content').click();
   await page.keyboard.press('ControlOrMeta+a');
   await page.keyboard.insertText('# 草稿总览\n\n介绍。\n\n## 新章节\n\n### 新子节\n');
+  await menu.click();
   await expect(title('收起 新章节')).toBeVisible();
   await expect(title('新子节')).toBeVisible();
   await title('收起 新章节').click();

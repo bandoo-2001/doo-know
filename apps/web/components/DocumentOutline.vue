@@ -17,6 +17,7 @@ watch(
     );
     if (valid.length !== collapsed.value.length) collapsed.value = valid;
   },
+  { immediate: true },
 );
 function toggle(heading: OutlineHeading) {
   const remaining = collapsed.value.filter((saved) => saved.line !== heading.line);
