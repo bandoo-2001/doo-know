@@ -38,6 +38,8 @@ const taskErrorDescription = computed(() => {
       return '已停止准备，之后可继续。已校验的下载会保留。';
     case 'PREPARATION_INTERRUPTED':
       return '上次准备未完成，可以重新准备。已校验的下载会复用。';
+    case 'PROCESS_CONTAINMENT_UNAVAILABLE':
+      return '后台任务暂时无法启动，请联系部署者检查安装和系统支持。';
     default:
       return '搜索组件暂时没有准备好，可以重试。已校验的下载会保留。';
   }

@@ -13,6 +13,9 @@ import { pathToFileURL } from 'node:url';
 // @ts-expect-error build tool is plain ESM
 import { buildPlugins } from '../../scripts/build-plugins.mjs';
 import { pluginFixture } from './plugin-fixture.js';
+// @ts-expect-error native build tool is plain ESM
+import { buildProcessRunner } from '../../scripts/build-process-runner.mjs';
+buildProcessRunner();
 const root = await mkdtemp(join(tmpdir(), 'dooknow-browser-'));
 const gitOnboarding = process.env.DOOKNOW_E2E_GIT_ONBOARDING === '1';
 const gitImportParent = join(root, 'imported-libraries');
