@@ -10,10 +10,11 @@ beforeAll(async () => {
       import StarterKit from '@tiptap/starter-kit';
       import { NodeSelection } from '@tiptap/pm/state';
       import { syncDOMTextSelection } from './apps/web/editor/dom-selection.ts';
+      import { handleSaveShortcut } from './apps/web/editor/keyboard-shortcuts.ts';
       const mount = document.createElement('div'); document.body.appendChild(mount);
       const editor = new Editor({ element: mount, extensions: [StarterKit], content: '<p>正文</p><hr>', injectCSS: false });
       editor.commands.setTextSelection(1); editor.view.focus();
-      window.fixture = { editor, syncDOMTextSelection, NodeSelection };
+      window.fixture = { editor, syncDOMTextSelection, NodeSelection, handleSaveShortcut };
     ` },
     bundle: true, write: false, platform: 'browser', format: 'iife',
   });
@@ -89,4 +90,47 @@ it('keeps an active IME composition in control of its selection', async () => {
     return { composing: editor.view.composing, selection: editor.state.selection.toJSON() };
   });
   expect(state).toEqual({ composing: true, selection: { type: 'text', anchor: 1, head: 1 } });
+});
+
+it('saves once for each unmodified Control or Meta save shortcut', async () => {
+  const result = await page.evaluate(() => {
+    const { handleSaveShortcut } = (window as any).fixture;
+    let saves = 0;
+    const events = [{ ctrlKey: true }, { metaKey: true }].map(modifiers => {
+      const event = new KeyboardEvent('keydown', { key: 's', cancelable: true, ...modifiers });
+      handleSaveShortcut(event, () => saves++);
+      return event.defaultPrevented;
+    });
+    return { saves, events };
+  });
+  expect(result).toEqual({ saves: 2, events: [true, true] });
+});
+
+it('does not turn modified S shortcuts into a save request', async () => {
+  const result = await page.evaluate(() => {
+    const { handleSaveShortcut } = (window as any).fixture;
+    let saves = 0;
+    const events = [
+      { ctrlKey: true, shiftKey: true }, { metaKey: true, shiftKey: true },
+      { ctrlKey: true, altKey: true }, { metaKey: true, altKey: true }, {},
+    ].map(modifiers => {
+      const event = new KeyboardEvent('keydown', { key: 's', cancelable: true, ...modifiers });
+      handleSaveShortcut(event, () => saves++);
+      return event.defaultPrevented;
+    });
+    return { saves, events };
+  });
+  expect(result).toEqual({ saves: 0, events: [false, false, false, false, false] });
+});
+
+it('leaves a save key already consumed by its editor alone', async () => {
+  const saves = await page.evaluate(() => {
+    const { handleSaveShortcut } = (window as any).fixture;
+    let saves = 0;
+    const event = new KeyboardEvent('keydown', { key: 's', ctrlKey: true, cancelable: true });
+    event.preventDefault();
+    handleSaveShortcut(event, () => saves++);
+    return saves;
+  });
+  expect(saves).toBe(0);
 });

@@ -21,6 +21,7 @@ import TreeContextMenu, { type TreeAction } from './TreeContextMenu.vue';
 import NoteCollection from './NoteCollection.vue';
 import NoteEditorHost from './NoteEditorHost.vue';
 import {documentEditorEnabled} from '../editor/compatibility';
+import { handleSaveShortcut } from '../editor/keyboard-shortcuts';
 import type {EditorKind} from '../editor/contracts';
 import {captureAssetTarget,resolveAssetTarget,type AssetTarget} from '../editor/asset-bookmark';
 import EditorToolbar from './EditorToolbar.vue';
@@ -1557,10 +1558,7 @@ async function moreSearch() {
 }
 watch([query, searchMode, searchDirectory], () => beginSearch(query.value));
 function shortcut(e: KeyboardEvent) {
-  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
-    e.preventDefault();
-    if (panel.value === 'note') void save();
-  }
+  handleSaveShortcut(e, () => { if (panel.value === 'note') void save(); });
 }
 function unload(e: BeforeUnloadEvent) {
   if (dirty.value) {

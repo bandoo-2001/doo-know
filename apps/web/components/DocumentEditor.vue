@@ -313,7 +313,7 @@ onMounted(() => {
         const key = event.key.toLowerCase();
         if (!props.readOnly && !props.session.composing && !event.isComposing &&
             (event.ctrlKey || event.metaKey) && !event.altKey &&
-            (['b', 'i', 'e', 'k'].includes(key) || (event.shiftKey && key === 'x'))) {
+            (['b', 'i', 'e', 'k'].includes(key) || (event.shiftKey && key === 's'))) {
           // End/arrows may have moved the DOM caret before selectionchange is
           // delivered. Apply formatting to that caret, so the later selection
           // update cannot clear a mark that was set at an obsolete position.
