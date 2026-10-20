@@ -4,7 +4,7 @@ import type { AppDatabase } from '../db.js';
 import { workspacePermit } from './gate.js';
 import { guardedProcess, type ProcessOptions } from '../processes/guarded.js';
 import { fail } from '../knowledge/errors.js';
-export type ExecOptions = Omit<ProcessOptions, 'signal'>;
+export type ExecOptions = ProcessOptions;
 function systemGit() {
   for (const path of [
     '/usr/bin/git',
