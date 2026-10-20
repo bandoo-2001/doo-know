@@ -12,7 +12,13 @@ import type {
 } from '../../../shared/git-contracts';
 import { api, ApiError } from '../api';
 import { pluginRegistry, refreshPlugins } from '../plugins';
-import { gitUnsaved, gitError, jobPhases, jobPending } from '../git-sync';
+import {
+  gitUnsaved,
+  gitError,
+  jobPhases,
+  jobPending,
+  type WorkspaceChangeDetail,
+} from '../git-sync';
 const props = withDefaults(defineProps<{ mode?: 'sync' | 'import'; timeZone?: string }>(), {
   mode: 'sync',
   timeZone: 'Asia/Shanghai',
@@ -140,12 +146,21 @@ async function completed(next: GitJob) {
               ? '云端已包含此版本；读取核对不代表已验证推送权限。'
               : '已推送提交版本。'
             : next.kind === 'pull'
-              ? '云端更新已拉取，目录与索引已刷新。'
+              ? next.result?.indexRefreshPending
+                ? '云端文件已拉取，目录与搜索索引仍待刷新。请联系部署者检查并重试索引刷新，再核对目录与搜索结果。'
+                : '云端更新已拉取，目录与索引已刷新。'
               : next.kind === 'disconnect'
                 ? '已解除云端关联，本地资料与历史保留。'
                 : next.kind === 'check'
                   ? '云端检查完成。'
                   : '云端仓库已连接。';
+      // The file mutation is confirmed; closing this panel must not cancel workspace refresh.
+      if (next.kind === 'pull')
+        window.dispatchEvent(
+          new CustomEvent<WorkspaceChangeDetail>('dooknow-workspace-changed', {
+            detail: { scope: 'workspace' },
+          }),
+        );
       if (next.kind === 'push') committedHead.value = '';
       if (['connect', 'clone'].includes(next.kind)) await refreshPlugins().catch(() => {});
       if (!active) return;
@@ -156,7 +171,6 @@ async function completed(next: GitJob) {
         emit('imported', next.result.knowledgeRoot);
       else if (next.kind === 'clone' && next.result?.boundKnowledgeRoot)
         emit('imported', next.result.boundKnowledgeRoot);
-      if (next.kind === 'pull') window.dispatchEvent(new Event('dooknow-workspace-changed'));
     }
   } else if (next.status === 'failed' || next.status === 'needs_reconciliation')
     error.value = gitError(next.error || 'GIT_RESULT_UNKNOWN');

@@ -1,6 +1,11 @@
 import { ref } from 'vue';
 import { api, ApiError } from './api';
 export const gitUnsaved = ref(false);
+/** Existing plugin note updates use noteId; remote pulls refresh the whole workspace. */
+export interface WorkspaceChangeDetail {
+  scope?: 'workspace';
+  noteId?: string;
+}
 const messages: Record<string, string> = {
   GIT_INVALID_REMOTE: '请填写 GitHub 或 Gitee 的仓库克隆地址，地址不能包含密码、令牌或额外参数。',
   GIT_INVALID_BRANCH: '分支名称无法使用，请核对云端分支名称。',
@@ -115,15 +120,30 @@ function wait(signal?: AbortSignal) {
 /** Check server receipts before every new install, including after a browser reload/lost response. */
 export async function installPlugin(
   id: string,
-  options: { signal?: AbortSignal; onUpdate?: (job: PluginInstallation) => void } = {},
+  options: {
+    signal?: AbortSignal;
+    onUpdate?: (job: PluginInstallation) => void;
+    receiptId?: string;
+  } = {},
 ) {
   const current = () => {
     if (options.signal?.aborted) throw new DOMException('已离开页面', 'AbortError');
   };
   current();
-  const list = await api<{ items: PluginInstallation[] }>('/api/platform/plugin-installations');
+  // Resume a known receipt directly: terminal transitions must never become a new install.
+  const receipt = options.receiptId
+    ? await api<PluginInstallation>(
+        '/api/platform/plugin-installations/' + encodeURIComponent(options.receiptId),
+      )
+    : undefined;
   current();
-  let job = list.items.find((entry) => entry.pluginId === id && jobPending(entry));
+  if (receipt && receipt.pluginId !== id)
+    throw new ApiError(409, { code: 'PLUGIN_INSTALL_FAILED' });
+  const list = receipt
+    ? undefined
+    : await api<{ items: PluginInstallation[] }>('/api/platform/plugin-installations');
+  current();
+  let job = receipt || list?.items.find((entry) => entry.pluginId === id && jobPending(entry));
   if (!job) {
     const requestId = crypto.randomUUID();
     try {

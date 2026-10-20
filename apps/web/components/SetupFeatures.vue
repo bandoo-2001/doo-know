@@ -77,6 +77,7 @@ onMounted(async () => {
     if (pending) {
       busy.value = pending.pluginId;
       await installPlugin(pending.pluginId, {
+        receiptId: pending.id,
         signal: controller.signal,
         onUpdate: (job) => {
           if (active) installation.value = job;

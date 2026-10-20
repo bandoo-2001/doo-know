@@ -299,6 +299,7 @@ onMounted(() => {
       pending || response.items.find((entry) => entry.status === 'needs_reconciliation');
     if (pending)
       await installPlugin(pending.pluginId, {
+        receiptId: pending.id,
         signal: installationController.signal,
         onUpdate: (job) => {
           if (currentDraftSession()) installation.value = job;

@@ -64,10 +64,17 @@ async function mount(file = 'GitRemotePanel.vue', props = {}) {
           Input: 'input',
           Select: 'select',
           AutoComplete: 'input',
+          Empty: { render: () => null, PRESENTED_IMAGE_SIMPLE: 'empty' },
+          Tabs: { render: () => null },
+          TabPane: { render: () => null },
         };
       if (id === '../api') return { api, ApiError };
       if (id === '../plugins') return { pluginRegistry: registry, refreshPlugins: async () => {} };
       if (id === '../git-sync') return sync;
+      if (id === '../plugin-drafts')
+        return { pluginDrafts: {}, pluginDraftSession: () => 0, storePluginDraft: vi.fn() };
+      if (id === '../plugin-config') return { PluginConfigError: class extends Error {} };
+      if (id === '../../../packages/plugin-ui/host') return { pluginComponents: new Map() };
       if (id.endsWith('.vue')) return { default: { render: () => null }, __esModule: true };
       throw Error('Unexpected dependency ' + id);
     },
@@ -404,4 +411,93 @@ it('keeps the onboarding skip guidance after a plugin installation failure', asy
   await view.configure('mcp');
   expect(view.error).toContain('可以先跳过');
   expect(view.busy).toBe('');
+});
+
+it('publishes a workspace-wide change after pull and explains a pending index refresh', async () => {
+  const view = await mount();
+  await view.completed({
+    id: 'pull',
+    kind: 'pull',
+    requestId: 'pull',
+    status: 'succeeded',
+    phase: 'complete',
+    result: { indexRefreshPending: true },
+  });
+  expect(view.notice).toContain('待刷新');
+  expect(view.notice).not.toContain('索引已刷新');
+  const event = vi
+    .mocked(window.dispatchEvent)
+    .mock.calls.find(([event]) => event.type === 'dooknow-workspace-changed')![0];
+  expect((event as CustomEvent).detail).toEqual({ scope: 'workspace' });
+});
+
+it.each([
+  ['SetupFeatures.vue', 'succeeded'],
+  ['SetupFeatures.vue', 'failed'],
+  ['PluginManager.vue', 'succeeded'],
+  ['PluginManager.vue', 'failed'],
+] as const)(
+  '%s resumes the original installation when it becomes %s between mount lookup and polling',
+  async (file, status) => {
+    const pending = {
+      id: 'race',
+      pluginId: 'git',
+      version: '1.1.0',
+      status: 'running',
+      phase: 'downloading',
+    };
+    const terminal = {
+      ...pending,
+      status,
+      phase: status === 'succeeded' ? 'complete' : 'verifying',
+      ...(status === 'failed' ? { error: 'PLUGIN_INSTALL_FAILED' } : {}),
+    };
+    api.mockImplementation(async (url: string) =>
+      url.endsWith('/plugin-installations') ? { items: [pending] } : { items: [] },
+    );
+    const fetch = vi.fn(async (url: string, init?: RequestInit) => {
+      if (url.endsWith('/csrf')) return new Response(JSON.stringify({ token: 'csrf' }));
+      if (init?.method === 'POST')
+        return new Response(JSON.stringify({ ...terminal, id: 'duplicate' }));
+      return new Response(
+        JSON.stringify(url.endsWith('/plugin-installations') ? { items: [terminal] } : terminal),
+      );
+    });
+    vi.stubGlobal('fetch', fetch);
+    const view = await mount(file);
+    await vi.waitFor(() => expect(view.installation?.status).toBe(status));
+    expect(fetch.mock.calls.filter((call) => call[1]?.method === 'POST')).toHaveLength(0);
+    expect(view.installation.id).toBe('race');
+    expect(fetch.mock.calls.map((call) => call[0])).toEqual([
+      '/api/platform/plugin-installations/race',
+    ]);
+    if (status === 'failed') expect(view.installation.error).toBe('PLUGIN_INSTALL_FAILED');
+  },
+);
+
+it('notifies the workspace after successful pull even when the panel closes during its status refresh', async () => {
+  const view = await mount();
+  let finish!: (value: ReturnType<typeof status>) => void;
+  const pending = new Promise<ReturnType<typeof status>>((resolve) => {
+    finish = resolve;
+  });
+  api.mockImplementation(async (url: string) =>
+    url.endsWith('/status') ? pending : { items: [] },
+  );
+  const completed = view.completed({
+    id: 'pull-closed',
+    kind: 'pull',
+    requestId: 'pull-closed',
+    status: 'succeeded',
+    phase: 'complete',
+    result: {},
+  });
+  cleanups.pop()!();
+  finish(status());
+  await completed;
+  expect(
+    vi
+      .mocked(window.dispatchEvent)
+      .mock.calls.some(([event]) => event.type === 'dooknow-workspace-changed'),
+  ).toBe(true);
 });

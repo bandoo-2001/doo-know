@@ -315,3 +315,77 @@ it('saves the current note once after discarding the previous note while its suc
   expect(state.savedContent.value).toBe('# Second new content');
   expect(state.dirty.value).toBe(false);
 });
+
+it.each(['note', 'settings'])(
+  'reloads the selected clean note and tree after a workspace-wide remote update while preserving the %s panel',
+  async (panel) => {
+    await mount();
+    state.panel.value = panel;
+    state.draft.value = original.content;
+    const remote = { ...original, content: '# Updated in cloud', modifiedAt: 'remote-two' };
+    const tree = [
+      { type: 'note', path: '00-Inbox/cloud-new.md', id: 'cloud-new', name: 'cloud-new.md' },
+    ];
+    mockApi.mockImplementation(async (url: string) => {
+      if (url === '/api/tree') return tree;
+      if (url.endsWith('/meta')) return { ...meta, modifiedAt: remote.modifiedAt };
+      if (url === '/api/notes/note-one') return remote;
+      return [];
+    });
+    state.workspaceChanged(
+      new CustomEvent('dooknow-workspace-changed', { detail: { scope: 'workspace' } }),
+    );
+    await vi.waitFor(() => expect(state.tree.value).toEqual(tree));
+    await vi.waitFor(() => expect(state.draft.value).toBe(remote.content));
+    expect(state.note.value.modifiedAt).toBe(remote.modifiedAt);
+    expect(state.dirty.value).toBe(false);
+    expect(state.panel.value).toBe(panel);
+    expect(() => state.workspaceChanged(new Event('dooknow-workspace-changed'))).not.toThrow();
+  },
+);
+
+it('preserves a note draft typed while the post-pull tree refresh is pending', async () => {
+  await mount();
+  state.draft.value = original.content;
+  let finish!: (value: any[]) => void;
+  const reading = new Promise<any[]>((resolve) => {
+    finish = resolve;
+  });
+  mockApi.mockImplementation(async (url: string) => (url === '/api/tree' ? reading : []));
+  state.workspaceChanged(
+    new CustomEvent('dooknow-workspace-changed', { detail: { scope: 'workspace' } }),
+  );
+  state.draft.value = '# Typed while refresh was pending';
+  finish([{ type: 'folder', path: 'remote-folder', name: 'remote-folder' }]);
+  await vi.waitFor(() => expect(state.tree.value).toHaveLength(1));
+  expect(state.draft.value).toBe('# Typed while refresh was pending');
+  expect(state.note.value.content).toBe(original.content);
+  expect(state.notice.value).toContain('草稿会保留');
+  expect(state.leaveOpen.value).toBe(false);
+});
+
+it('preserves a draft typed while the clean selected note is being reloaded', async () => {
+  await mount();
+  state.draft.value = original.content;
+  let finish!: (value: typeof original) => void;
+  const reading = new Promise<typeof original>((resolve) => {
+    finish = resolve;
+  });
+  mockApi.mockImplementation(async (url: string) => {
+    if (url.endsWith('/meta')) return { ...meta, modifiedAt: 'remote-two' };
+    if (url === '/api/notes/note-one') return reading;
+    return [];
+  });
+  state.workspaceChanged(
+    new CustomEvent('dooknow-workspace-changed', { detail: { scope: 'workspace' } }),
+  );
+  await vi.waitFor(() =>
+    expect(mockApi.mock.calls.filter((call) => call[0] === '/api/notes/note-one')).toHaveLength(2),
+  );
+  state.draft.value = '# Typed while original was loading';
+  finish({ ...original, content: '# Cloud update', modifiedAt: 'remote-two' });
+  await vi.waitFor(() => expect(state.noteOpening.value).toBe(false));
+  expect(state.draft.value).toBe('# Typed while original was loading');
+  expect(state.note.value.content).toBe(original.content);
+  expect(state.notice.value).toContain('草稿会保留');
+});

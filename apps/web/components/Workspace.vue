@@ -35,7 +35,7 @@ import type { SettingsSection } from '../../../shared/settings-contracts';
 import PluginSlot from './PluginSlot.vue';
 import PluginPanel from './PluginPanel.vue';
 import GitRemotePanel from './GitRemotePanel.vue';
-import { gitUnsaved } from '../git-sync';
+import { gitUnsaved, type WorkspaceChangeDetail } from '../git-sync';
 import NoteActions from './NoteActions.vue';
 import SidebarResizer from './SidebarResizer.vue';
 import DraftRecovery from './DraftRecovery.vue';
@@ -362,12 +362,13 @@ function pluginNotice(event: Event) {
   tell((event as CustomEvent).detail.message);
 }
 function workspaceChanged(event: Event) {
-  const id = (event as CustomEvent).detail.noteId;
+  const change = (event as CustomEvent<WorkspaceChangeDetail>).detail;
+  const id = change?.scope === 'workspace' ? note.value?.id : change?.noteId;
   void run(async () => {
     await refresh();
     if (id && note.value?.id === id) {
       if (dirty.value) tell('原文已更新，当前未保存草稿会保留，请重新核对版本');
-      else await openNote(id);
+      else await openNote(id, noteLine.value, false, true);
     }
   });
 }
@@ -470,9 +471,11 @@ async function refreshCollection() {
     collectionRefreshing = false;
   }
 }
-async function openNote(id: string, line?: number, syncUrl = true) {
+async function openNote(id: string, line?: number, syncUrl = true, preserveDraft = false) {
   await guard(async () => {
     const useDefaultMode = note.value?.id !== id;
+    const originalDraft = draft.value,
+      originalSaved = savedContent.value;
     await localDrafts.flush();
     const epoch = ++viewEpoch;
     noteOpening.value = true;
@@ -504,6 +507,13 @@ async function openNote(id: string, line?: number, syncUrl = true) {
             };
       const attachments = await api<any[]>(`/api/notes/${id}/assets`).catch(() => []);
       if (epoch !== viewEpoch) return;
+      if (
+        preserveDraft &&
+        (dirty.value || draft.value !== originalDraft || savedContent.value !== originalSaved)
+      ) {
+        tell('原文已更新，当前未保存草稿会保留，请重新核对版本');
+        return;
+      }
       if (meta.editorMode === 'full') localDrafts.prepare();
       note.value = n;
       noteInfo.value = meta;
@@ -515,8 +525,10 @@ async function openNote(id: string, line?: number, syncUrl = true) {
         ? n.relativePath.split('/').slice(0, -1).join('/')
         : '';
       assets.value = attachments;
-      drawer.value = false;
-      panel.value = 'note';
+      if (!preserveDraft) {
+        drawer.value = false;
+        panel.value = 'note';
+      }
       if (useDefaultMode) mode.value = editorPreferences.mode;
       noteLine.value = line;
       if (syncUrl) navigation.commit({ note: id, line });

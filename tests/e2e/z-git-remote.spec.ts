@@ -30,7 +30,7 @@ test('connects an existing library, previews and pushes, then checks and pulls a
   await expect(
     panel.getByText('推送权限尚未验证。读取连接成功不代表可以推送。', { exact: true }),
   ).toBeVisible();
-  // This fresh, isolated note is the only file edited by this case. Earlier cases
+  // These fresh fixture notes are isolated to this case. Earlier cases
   // can leave other saved fixture notes; the real preview deliberately lists all.
   const csrf = await (await page.request.get('/api/security/csrf')).json();
   const headers = { origin: 'http://127.0.0.1:4179', 'x-csrf-token': csrf.token };
@@ -46,6 +46,18 @@ test('connects an existing library, previews and pushes, then checks and pulls a
   });
   expect(created.status()).toBe(201);
   const note = await created.json();
+  const removedName = `云端移除-${info.project.name}-${crypto.randomUUID()}.md`;
+  const removed = await page.request.post('/api/notes', {
+    headers,
+    data: {
+      folderPath: '00-Inbox',
+      fileName: removedName,
+      content: '# Removed by remote fixture\n',
+      requestId: crypto.randomUUID(),
+    },
+  });
+  expect(removed.status()).toBe(201);
+  const removedNote = await removed.json();
   const author = panel.getByLabel('同步提交作者', { exact: true });
   if (await author.isVisible()) {
     await author.fill('Remote Browser Fixture');
@@ -74,6 +86,22 @@ test('connects an existing library, previews and pushes, then checks and pulls a
     timeout: 30000,
   });
   expect(commits).toBe(1);
+  await returnToNotes(page);
+  await showSidebar(page);
+  // API fixture seeding happened after the initial navigation tree was loaded.
+  await page.getByRole('button', { name: '刷新目录', exact: true }).click();
+  await expandFolderPath(page, '00-Inbox');
+  await page
+    .locator('.tree-scroll')
+    .getByRole('button', { name: note.relativePath.split('/').at(-1), exact: true })
+    .click();
+  await expect(page.locator('.cm-content')).toContainText('Saved on the local server.');
+  await showSidebar(page);
+  await expect(
+    page.locator('.tree-scroll').getByRole('button', { name: removedName, exact: true }),
+  ).toBeVisible();
+  await page.getByRole('button', { name: '云端同步', exact: true }).click();
+  await expect(panel).toBeVisible();
   const git = (...args: string[]) =>
     execFileSync('git', args, { stdio: 'pipe', encoding: 'utf8' }).trim();
   expect(git('--git-dir', fixture.gitRemoteRoot, 'show', 'main:' + note.relativePath)).toBe(
@@ -84,7 +112,11 @@ test('connects an existing library, previews and pushes, then checks and pulls a
   git('-C', fixture.gitExternalRoot, 'config', 'user.email', 'external@example.invalid');
   const updated = original + '\nUpdated in another checkout.\n';
   await writeFile(join(fixture.gitExternalRoot, note.relativePath), updated);
-  git('-C', fixture.gitExternalRoot, 'add', '--', note.relativePath);
+  const addedName = `云端新增-${info.project.name}-${crypto.randomUUID()}.md`;
+  const addedPath = '00-Inbox/' + addedName;
+  await writeFile(join(fixture.gitExternalRoot, addedPath), '# Added in remote checkout\n');
+  git('-C', fixture.gitExternalRoot, 'add', '--', note.relativePath, addedPath);
+  git('-C', fixture.gitExternalRoot, 'rm', '--', removedNote.relativePath);
   git('-C', fixture.gitExternalRoot, 'commit', '-m', 'External remote fixture update');
   git('-C', fixture.gitExternalRoot, 'push', 'origin', 'main');
   await panel.getByRole('button', { name: '检查云端', exact: true }).click();
@@ -96,8 +128,18 @@ test('connects an existing library, previews and pushes, then checks and pulls a
   });
   expect(await readFile(join(fixture.knowledgeRoot, note.relativePath), 'utf8')).toBe(updated);
   expect((await (await page.request.get('/api/notes/' + note.id)).json()).content).toBe(updated);
-  await returnToNotes(page);
+  // The selected editor and tree must update without a page reload or opening the note again.
+  await page.keyboard.press('Escape');
+  await expect(panel).toHaveCount(0);
+  await expect(page.locator('.cm-content')).toContainText('Updated in another checkout.');
   await showSidebar(page);
+  await expandFolderPath(page, '00-Inbox');
+  await expect(
+    page.locator('.tree-scroll').getByRole('button', { name: addedName, exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.locator('.tree-scroll').getByRole('button', { name: removedName, exact: true }),
+  ).toHaveCount(0);
   await page.getByRole('button', { name: '云端同步', exact: true }).click();
   await expect(page.getByRole('region', { name: '云端同步面板', exact: true })).toBeVisible();
   await expect(
