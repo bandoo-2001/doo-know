@@ -193,12 +193,44 @@ it('warns without changing successful update results when saving is unsafe', asy
     await symlink(outside, f.profile + '.download-proxy.json');
     const result = await f.run('update', { HTTP_PROXY: f.proxyAddress });
     expect(JSON.parse(result.stdout)).toEqual({ version: '1.2.3', unchanged: true });
-    expect(result.stderr).toContain('本次操作已完成，但无法记住下载代理');
+    expect(result.stderr).toContain('无法记住下载代理');
+    expect(result.stderr).not.toContain('本次操作已完成');
     expect(result.stderr).not.toContain(f.proxyAddress);
     expect(await readFile(outside, 'utf8')).toBe('preserve original material');
   } finally {
     await f.close();
   }
+});
+
+it('does not report install completion when proxy persistence precedes a failed service start', async () => {
+  const f = await fixture(), probe = createProbe();
+  try {
+    await new Promise<void>(yes => probe.listen(0, '127.0.0.1', yes));
+    const port = (probe.address() as { port: number }).port;
+    await new Promise<void>(yes => probe.close(() => yes()));
+    const profile = JSON.parse(await readFile(f.profile, 'utf8'));
+    profile.port = port; profile.origin = 'http://127.0.0.1:' + port;
+    await writeFile(f.profile, JSON.stringify(profile));
+    await initializeOwner(loadHostConfig({ profileFile: f.profile }, {}), 'fixture_owner', 'fixture-proxy-warning-password');
+    const outside = join(f.root, 'untouched'), bin = join(f.root, 'bin');
+    await writeFile(outside, 'preserve original material');
+    await symlink(outside, f.profile + '.download-proxy.json');
+    await mkdir(bin);
+    await writeFile(join(bin, 'systemctl'), `#!${process.execPath}\n` +
+      "if (process.argv.includes('start')) { console.error('fixture service startup refused'); process.exit(1); }\n",
+      { mode: 0o700 });
+    const failure = await f.run('install', {
+      HTTP_PROXY: f.proxyAddress, PATH: bin + ':' + process.env.PATH,
+      XDG_CONFIG_HOME: join(f.root, 'config'),
+    }, ['--profile', f.profile, '--service-name', 'dooknow-proxy-warning-fixture.service'])
+      .then(() => { throw Error('fixture install unexpectedly succeeded'); }, error => error);
+    expect(failure.stderr).toContain('fixture service startup refused');
+    expect(failure.stderr).toContain('无法记住下载代理');
+    expect(failure.stderr).not.toContain('本次操作已完成');
+    expect(failure.stderr).toMatch(/服务.*代理/);
+    expect(failure.stderr).not.toContain(f.proxyAddress);
+    expect(await readFile(outside, 'utf8')).toBe('preserve original material');
+  } finally { await f.close(); }
 });
 
 it('serve reuses the saved download proxy before fetch and still bypasses local health', async () => {

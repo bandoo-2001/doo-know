@@ -94,7 +94,7 @@ function rememberProxy() {
     rememberDownloadProxy(profileFile);
   } catch {
     console.error(
-      '本次操作已完成，但无法记住下载代理；下次更新请继续设置 HTTP_PROXY / HTTPS_PROXY。',
+      '无法记住下载代理；新启动的服务可能无法使用本次代理。请检查代理配置文件权限，并在重试安装或更新时继续设置 HTTP_PROXY / HTTPS_PROXY。',
     );
   }
 }
