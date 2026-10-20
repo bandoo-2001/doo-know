@@ -103,13 +103,28 @@ export function guardedProcess(
       });
     // execve normally closes IPC. Only process close proves Git has stopped.
     child.once('error', () => {});
-    child.once('close', (code) => {
-      finished = true;
-      if (forceTimer) clearTimeout(forceTimer);
+    child.once('close', async (code) => {
       if (timer) clearTimeout(timer);
-      options.signal?.removeEventListener('abort', stop);
       try {
-        if (db.open && !processGroupIsAlive(child.pid ?? 0)) {
+        const group = child.pid ?? 0;
+        // Closing the leader's streams does not prove its workers have stopped.
+        // Keep the force signal armed until this operation's group is drained.
+        if (processGroupIsAlive(group)) {
+          stop();
+          const gracefulUntil = Date.now() + 1000;
+          while (processGroupIsAlive(group) && Date.now() < gracefulUntil)
+            await new Promise((done) => setTimeout(done, 25));
+          if (processGroupIsAlive(group)) {
+            signal('SIGKILL');
+            const forcedUntil = Date.now() + 1000;
+            while (processGroupIsAlive(group) && Date.now() < forcedUntil)
+              await new Promise((done) => setTimeout(done, 25));
+          }
+        }
+        const groupStopped = !processGroupIsAlive(group);
+        // If the kernel cannot reap it, retain the guard and report a timeout.
+        if (!groupStopped) timedOut = true;
+        if (db.open && groupStopped) {
           if (permit.kind === 'workspace')
             db.prepare('DELETE FROM workspace_guards WHERE token=? AND pid=?').run(
               permit.token,
@@ -125,6 +140,10 @@ export function guardedProcess(
       } catch (error) {
         reject(error);
         return;
+      } finally {
+        finished = true;
+        if (forceTimer) clearTimeout(forceTimer);
+        options.signal?.removeEventListener('abort', stop);
       }
       if (exceeded)
         return reject(
