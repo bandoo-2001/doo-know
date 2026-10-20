@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import {markdownTasks} from '../../../shared/markdown-tasks';
+
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
 import DOMPurify from 'dompurify';
 import { api, ApiError } from '../api';
@@ -53,7 +55,7 @@ async function readPage(cursor?: string) {
     if (result.kind !== 'ready') throw new Error();
     if (disposed) return;
     const page = result.data,
-      md = new MarkdownIt({ html: false, linkify: true }).use(markdownStyles);
+      md = new MarkdownIt({ html: false, linkify: true }).use(markdownStyles).use(markdownTasks);
     const tokens = md.parse(page.content, {});
     const visit = (items: typeof tokens) => {
       for (const token of items) {

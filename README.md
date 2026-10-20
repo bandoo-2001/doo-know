@@ -223,6 +223,8 @@ npm run build
 
 构建输出 `dist/web` 和 `dist/server`，原生管理入口为 `dist/server/scripts/manage.js`。检索回归另需独立 Python 环境与固定模型，离线制品测试通过 `DOOKNOW_SEARCH_ARTIFACT` 指定。插件构建、私有制品发布与客户端验收要求见下方文档。
 
+正式构建启用所见即所得的文档编辑，同时保留 Markdown 源码和阅读入口。开发预览可使用 `VITE_DOCUMENT_EDITOR_ENABLED=1 npm run dev`；已有偏好保持原来的源码视图。正文仍保存为 Markdown，无法安全转换的内容保留原文或使用源码。范围、验证及回退方式见[文档编辑验收记录](docs/验收记录/2026-10-20-document-editor.md)。
+
 ## 文档
 
 | 文档                                                   | 内容                                             |

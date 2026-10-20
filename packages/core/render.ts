@@ -1,10 +1,11 @@
+import {markdownTasks} from '../../shared/markdown-tasks.js';
 import MarkdownIt from 'markdown-it';
 import sanitizeHtml from 'sanitize-html';
 import { dirname, posix } from 'node:path';
 import { markdownStyles } from '../../shared/markdown-styles.js';
 export const markdown = new MarkdownIt({ html: false, linkify: true, breaks: false }).use(
   markdownStyles,
-);
+).use(markdownTasks);
 export function localReference(notePath: string, url: string): string | undefined {
   try {
     const decoded = decodeURIComponent(url.split('#')[0].split('?')[0]);
@@ -87,6 +88,8 @@ export function renderMarkdown(
     allowedAttributes: {
       a: ['href', 'rel', 'target'],
       img: ['src', 'alt', 'title'],
+      td: ['style'],
+      th: ['style'],
       div: ['style'],
       span: ['style'],
       h1: ['id'],
@@ -97,6 +100,8 @@ export function renderMarkdown(
       h6: ['id'],
     },
     allowedStyles: {
+      td: { 'text-align': [/^(?:left|center|right)$/] },
+      th: { 'text-align': [/^(?:left|center|right)$/] },
       div: { 'text-align': [/^(?:left|center|right)$/] },
       span: { color: [/^#[0-9a-fA-F]{6}$/] },
     },

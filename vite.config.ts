@@ -22,7 +22,7 @@ export default defineConfig({
     }] },
   }],
   root: 'apps/web',
-  build: { outDir: resolve(projectRoot, 'dist/web'), emptyOutDir: true, rollupOptions: {
+  build: { manifest: true, outDir: resolve(projectRoot, 'dist/web'), emptyOutDir: true, rollupOptions: {
     input: { app: resolve(projectRoot, 'apps/web/index.html'), 'plugin-runtime': resolve(projectRoot, 'apps/web/plugin-runtime.ts'), 'plugin-ui': resolve(projectRoot, 'packages/plugin-ui/index.ts') },
     preserveEntrySignatures: 'strict',
     output: { entryFileNames: 'assets/[name].js' },

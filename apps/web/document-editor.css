@@ -1,0 +1,234 @@
+.note-editor-host,
+.document-editor,
+.document-editor-mount {
+  min-height: 0;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  max-width: 100%;
+}
+.document-editor {
+  overflow: hidden;
+}
+.document-editor-mount {
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.document-editor .tiptap {
+  flex: 1;
+  width: 100%;
+  max-width: var(--reading-width, 860px);
+  margin-inline: auto;
+  min-height: 100%;
+  padding: 28px 32px 80px;
+  outline: none;
+  font-size: var(--editor-font-size, 15px);
+  line-height: 1.85;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  color: var(--text);
+}
+.document-editor .tiptap p {
+  margin: 0 0 1em;
+}
+.document-editor .tiptap h1 {
+  font-size: 1.8em;
+}
+.document-editor .tiptap h2 {
+  font-size: 1.5em;
+}
+.document-editor .tiptap h3 {
+  font-size: 1.25em;
+}
+.document-editor .tiptap :is(h1, h2, h3, h4, h5, h6) {
+  line-height: 1.5;
+  margin: 1.25em 0 0.7em;
+  color: inherit;
+}
+.document-editor .tiptap > :first-child {
+  margin-top: 0;
+}
+.document-editor .tiptap blockquote {
+  border-left: 3px solid var(--border);
+  margin: 1em 0;
+  padding: 0.25em 1em;
+  color: var(--muted);
+}
+.document-editor .tiptap code {
+  font-family: monospace;
+  background: var(--surface);
+  border-radius: 4px;
+  padding: 0.1em 0.3em;
+}
+.document-editor .tiptap pre {
+  background: var(--surface);
+  padding: 16px;
+  overflow: auto;
+  border-radius: 6px;
+  white-space: pre;
+}
+.document-editor .tiptap pre code {
+  padding: 0;
+}
+.document-editor .tiptap img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+.document-editor .tiptap table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  margin: 1em 0;
+}
+.document-editor .tiptap :is(td, th) {
+  border: 1px solid var(--border);
+  padding: 7px 10px;
+  vertical-align: top;
+  min-width: 60px;
+  position: relative;
+}
+.document-editor .tiptap :is(td, th) > p {
+  margin: 0;
+}
+.document-editor .tiptap th {
+  background: var(--surface);
+  font-weight: 600;
+}
+.document-editor .tiptap .selectedCell {
+  background: var(--blue-soft);
+}
+.document-editor .tiptap li > p {
+  margin: 0;
+}
+.document-editor .tiptap ul[data-type='taskList'] {
+  list-style: none;
+  padding-left: 0;
+}
+.document-editor .tiptap li:is([data-type='taskItem'], [data-checked]) {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+}
+.document-editor .tiptap li:is([data-type='taskItem'], [data-checked]) > label {
+  flex: 0 0 auto;
+  user-select: none;
+}
+.document-editor .tiptap li:is([data-type='taskItem'], [data-checked]) > div {
+  flex: 1;
+  min-width: 0;
+}
+.document-context-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 7px 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+  flex-shrink: 0;
+}
+.document-context-tools button,
+.document-context-tools input {
+  font: inherit;
+  font-size: 12px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--panel);
+  color: var(--text);
+  padding: 4px 7px;
+}
+.document-context-tools button:hover {
+  background: var(--blue-soft);
+}
+.document-context-tools input {
+  width: 110px;
+}
+.opaque-source-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+  margin: 12px 0;
+  border: 1px dashed var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 13px;
+  white-space: normal;
+}
+.opaque-source-card button {
+  color: var(--blue);
+  background: none;
+  border: 0;
+  white-space: nowrap;
+  padding: 7px;
+}
+.editor-warning {
+  margin: 0;
+  padding: 8px 14px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+  flex-shrink: 0;
+}
+.document-link-fields {
+  display: grid;
+  gap: 12px;
+}
+.document-link-fields label {
+  display: grid;
+  gap: 6px;
+}
+.document-link-fields input {
+  width: 100%;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 7px;
+}
+.source-preview-toggle {
+  font-size: 12px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+@media (max-width: 720px) {
+  .document-editor .tiptap {
+    padding: 20px 18px 100px;
+  }
+  .document-context-tools {
+    max-height: 104px;
+    overflow: auto;
+  }
+  .document-context-tools button {
+    min-height: 34px;
+  }
+  .opaque-source-card {
+    flex-wrap: wrap;
+  }
+  .mode-tabs button {
+    font-size: 11px;
+    padding-inline: 7px;
+  }
+}
+
+.document-editor .ProseMirror-selectednode {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.raw-source-copy {
+  width: 100%;
+  min-height: 160px;
+  max-height: 60vh;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 10px;
+}

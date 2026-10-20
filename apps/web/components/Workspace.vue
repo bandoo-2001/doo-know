@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
+import {markdownTasks} from '../../../shared/markdown-tasks';
+
+import { defineAsyncComponent, ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
 import { NInput, NModal, NAlert } from 'naive-ui';
 import {
   Button as AButton,
@@ -17,13 +19,16 @@ import Icon from './Icon.vue';
 import TreeBranch from './TreeBranch.vue';
 import TreeContextMenu, { type TreeAction } from './TreeContextMenu.vue';
 import NoteCollection from './NoteCollection.vue';
-import MarkdownEditor from './MarkdownEditor.vue';
+import NoteEditorHost from './NoteEditorHost.vue';
+import {documentEditorEnabled} from '../editor/compatibility';
+import type {EditorKind} from '../editor/contracts';
+import {captureAssetTarget,resolveAssetTarget,type AssetTarget} from '../editor/asset-bookmark';
 import EditorToolbar from './EditorToolbar.vue';
 import DocumentBreadcrumb from './DocumentBreadcrumb.vue';
-import { emptyToolbarState, type MarkdownAction } from '../markdown-format';
+import { emptyToolbarState, type MarkdownAction } from '../editor/toolbar-state';
 import DocumentOutline from './DocumentOutline.vue';
 import { outlineFromTokens, type OutlineHeading } from '../document-outline';
-import LargeFileWorkspace from './LargeFileWorkspace.vue';
+
 import WorkspaceFooter from './WorkspaceFooter.vue';
 import SettingsWorkspace from './settings/SettingsWorkspace.vue';
 import TransferPanel from './settings/TransferPanel.vue';
@@ -61,12 +66,19 @@ import type {
   SearchOutput,
   MoveNoteResult,
 } from '../../../shared/knowledge-contracts';
+const LargeFileWorkspace=defineAsyncComponent(()=>import('./LargeFileWorkspace.vue'));
 const noteInfo = ref<NoteInfo>(),
   largeRef = ref<InstanceType<typeof LargeFileWorkspace>>(),
   largeDirty = ref(false);
 const initialNoteId = new URLSearchParams(window.location.search).get('note');
 const noteLine = ref<number | undefined>();
-const editorRef = ref<InstanceType<typeof MarkdownEditor>>();
+const editorRef = ref<InstanceType<typeof NoteEditorHost>>();
+const documentEditingEnabled=documentEditorEnabled();
+const editorKind=ref<EditorKind>(documentEditingEnabled?editorPreferences.editorKind:'source');
+const editorComposing=ref(false),editorHint=ref('');
+watch(()=>editorPreferences.editorKind,value=>{editorKind.value=documentEditingEnabled?value:'source'});
+async function switchEditing(kind:EditorKind,sourceOffset?:number){if(editorKind.value===kind&&mode.value==='edit'&&sourceOffset===undefined)return;try{const saved=await editorRef.value?.flush();editorKind.value=kind;mode.value='edit';editorHint.value='';await nextTick();if(saved)editorRef.value?.focus(sourceOffset===undefined?saved.selection:{anchor:sourceOffset,head:sourceOffset,affinity:'after'});}catch(cause){showError(cause);}}
+async function changeNoteView(view:'edit'|'preview'|'split'){try{await editorRef.value?.flush();mode.value=view;}catch(cause){showError(cause);}}
 const mainRef = ref<HTMLElement>();
 const noteOpening = ref(false),
   editorTransfer = ref(false);
@@ -243,7 +255,7 @@ const currentView = (id: string, epoch: number) => note.value?.id === id && view
 let searchTimer: ReturnType<typeof setTimeout>;
 let noticeTimer: ReturnType<typeof setTimeout>;
 const dirty = computed(
-  () => !!note.value && (largeDirty.value || draft.value !== savedContent.value),
+  () => !!note.value && (editorComposing.value || largeDirty.value || draft.value !== savedContent.value),
 );
 watch(
   dirty,
@@ -261,7 +273,7 @@ const localDrafts = useNoteDraft(
     baseRevision: currentDraftBase(),
     content: draft.value,
     dirty: dirty.value,
-    enabled: noteInfo.value?.editorMode === 'full',
+    enabled: noteInfo.value?.editorMode === 'full' && !editorComposing.value,
   }),
   (text) => {
     draft.value = text;
@@ -382,7 +394,7 @@ function workspaceChanged(event: Event) {
     }
   });
 }
-const md = new MarkdownIt({ html: false, linkify: true }).use(markdownStyles);
+const md = new MarkdownIt({ html: false, linkify: true }).use(markdownStyles).use(markdownTasks);
 const flatten = (items: TreeEntry[]): TreeEntry[] =>
   items.flatMap((x) => [x, ...(x.children ? flatten(x.children) : [])]);
 const flat = computed(() => flatten(tree.value));
@@ -403,6 +415,8 @@ function localPath(url: string) {
     return '';
   }
 }
+function resolveEditorImage(url:string){const path=localPath(url);const asset=assets.value.find(a=>a.relativePath===path);return asset?`/api/assets/${asset.id}`:undefined;}
+function openEditorLink(url:string){const path=localPath(url),target=flat.value.find(x=>x.type==='note'&&x.path===path),asset=assets.value.find(a=>a.relativePath===path);if(target&&target.id){void run(()=>openNote(target.id!));return;}if(asset){window.open(`/api/assets/${asset.id}`,'_blank','noopener,noreferrer');return;}if(/^https?:\/\//i.test(url))window.open(url,'_blank','noopener,noreferrer');else tell('未找到此链接对应的笔记或附件，可在链接设置中核对地址');}
 const preview = computed(() => {
   const tokens = md.parse(draft.value, {});
   const visit = (list: typeof tokens) => {
@@ -568,6 +582,7 @@ async function select(entry: TreeEntry, syncUrl = true) {
 const leaveOpen = ref(false);
 let pendingNavigation: (() => Promise<void>) | undefined;
 async function guard(fn: () => Promise<void>) {
+  if(noteInfo.value?.editorMode === 'full') {try {await editorRef.value?.flush();}catch(cause){showError(cause);if(!dirty.value)return;}}
   if (dirty.value) {
     pendingNavigation = fn;
     leaveOpen.value = true;
@@ -716,6 +731,7 @@ async function save(
   retry?: NonNullable<typeof pendingSave.value>,
 ) {
   if (!note.value || (busy.value && !retry) || props.serviceUnavailable) return;
+  if(!retry && content === undefined && noteInfo.value?.editorMode === 'full'){const targetId=note.value.id;try{await editorRef.value?.flush();}catch(cause){showError(cause);return;}if(note.value?.id!==targetId || (busy.value && !retry))return;}
   if (
     noteInfo.value?.editorMode === 'full' &&
     !revisionId &&
@@ -1092,6 +1108,7 @@ async function openTrash(syncUrl = true) {
   });
 }
 async function retainNoteContext() {
+  if(noteInfo.value?.editorMode === 'full') await editorRef.value?.flush();
   await localDrafts.flush();
   if (!['settings', 'trash'].includes(panel.value)) {
     const route = navigation.currentRoute();
@@ -1390,10 +1407,14 @@ async function goToHeading(line: number) {
       ?.scrollIntoView({ block: 'start' });
 }
 const uploadInput = ref<HTMLInputElement>();
-async function upload(event: Event) {
-  const input = event.target as HTMLInputElement,
-    file = input.files?.[0];
-  if (!file || !note.value) return;
+let uploadTarget:AssetTarget|undefined;
+const pendingAsset=ref<{noteId:string;markdown:string;name:string}>();
+async function prepareUpload(){try{const snapshot=await editorRef.value?.flush();uploadTarget=snapshot?captureAssetTarget(snapshot):undefined;uploadInput.value?.click();}catch(cause){showError(cause);}}
+async function insertPendingAsset(){const asset=pendingAsset.value;if(!asset||asset.noteId!==note.value?.id)return;try{await editorRef.value?.flush();if(editorRef.value?.insertAsset(asset.markdown))pendingAsset.value=undefined;}catch(cause){showError(cause);}}
+
+async function upload(event:Event){const input=event.target as HTMLInputElement,file=input.files?.[0];if(!file)return;const target=uploadTarget;uploadTarget=undefined;try{await uploadFile(file,target);}finally{input.value='';}}
+async function uploadPastedFile(file:File){const id=note.value?.id,epoch=viewEpoch;try{const snapshot=await editorRef.value?.flush();if(!id||!currentView(id,epoch)){tell('笔记已切换，请在目标笔记重新粘贴附件');return;}await uploadFile(file,snapshot?captureAssetTarget(snapshot):undefined);}catch(cause){showError(cause);}}
+async function uploadFile(file:File,target?:AssetTarget){if(!note.value)return;if(target&&(target.noteId!==note.value.id||target.generation!==viewEpoch)){tell('插入位置已变化，请重新选择附件');return;}
   const id = note.value.id,
     epoch = viewEpoch;
   await run(async () => {
@@ -1402,14 +1423,21 @@ async function upload(event: Event) {
     const a = await api(`/api/notes/${id}/assets`, 'POST', data);
     const attachments = await api(`/api/notes/${id}/assets`);
     if (!currentView(id, epoch)) {
+      pendingAsset.value={noteId:id,markdown:`${a.mime === 'application/pdf' ? '[' : '!['}${file.name.replace(/[\\[\]]/g,'\\$&')}](${a.markdownPath})`,name:file.name};
       tell('附件已上传，可返回原笔记插入链接');
       return;
     }
     assets.value = attachments;
-    draft.value += `\n${a.mime === 'application/pdf' ? '[' : '!['}${file.name}](${a.markdownPath})\n`;
+    const label=file.name.replace(/[\\[\]]/g,'\\$&');
+    const markdown=`${a.mime === 'application/pdf' ? '[' : '!['}${label}](${a.markdownPath})`;
+    if(editorRef.value){
+      const current=await editorRef.value.flush();
+      if(!currentView(id,epoch))return;
+      const bookmark=documentEditingEnabled?(target?resolveAssetTarget(target,current):undefined):{anchor:current.markdown.length,head:current.markdown.length,affinity:'after' as const};
+      if(!bookmark||!editorRef.value.insertAsset(documentEditingEnabled?markdown:`\n${markdown}\n`,bookmark)){pendingAsset.value={noteId:id,markdown,name:file.name};tell('附件已上传，请选择位置后插入');return;}
+    }else{pendingAsset.value={noteId:id,markdown,name:file.name};tell('附件已上传，请打开编辑器后插入');return;}
     tell('附件已插入，请手动保存笔记');
   });
-  input.value = '';
 }
 function clickPreview(event: MouseEvent) {
   const a = (event.target as HTMLElement).closest('a');
@@ -1975,7 +2003,7 @@ onBeforeUnmount(() => {
                 @move="showMove"
                 @download="downloadNote"
                 @history="history()"
-                @upload="uploadInput?.click()"
+                @upload="prepareUpload"
                 @delete="confirmDelete"
                 ><PluginSlot slot-name="noteAction" :context="pluginContext"
               /></NoteActions>
@@ -1986,13 +2014,20 @@ onBeforeUnmount(() => {
           </div>
           <div v-if="noteInfo?.editorMode === 'full'" class="document-format-row">
             <EditorToolbar
+              :label="documentEditingEnabled ? '正文格式' : 'Markdown 格式'"
               :state="editorState"
               :disabled="formatDisabled"
               @format="formatNote"
-              @upload="uploadInput?.click()"
+              @upload="prepareUpload"
             />
             <div class="mode-row">
-              <div class="mode-tabs">
+              <div v-if="documentEditingEnabled" class="mode-tabs">
+                <button type="button" :aria-pressed="mode !== 'preview' && editorKind === 'document'" :class="{active:mode !== 'preview' && editorKind === 'document'}" @click="switchEditing('document')">文档编辑</button>
+                <button type="button" :aria-pressed="mode !== 'preview' && editorKind === 'source'" :class="{active:mode !== 'preview' && editorKind === 'source'}" @click="switchEditing('source')">Markdown 源码</button>
+                <button type="button" :aria-pressed="mode === 'preview'" :class="{active:mode === 'preview'}" @click="changeNoteView('preview')">阅读</button>
+              </div>
+              <label v-if="documentEditingEnabled && editorKind === 'source' && mode !== 'preview'" class="source-preview-toggle"><input type="checkbox" :checked="mode === 'split'" @change="changeNoteView(($event.target as HTMLInputElement).checked?'split':'edit')"/>同时预览</label>
+              <div v-if="!documentEditingEnabled" class="mode-tabs">
                 <button
                   :aria-pressed="mode === 'edit'"
                   :class="{ active: mode === 'edit' }"
@@ -2072,18 +2107,30 @@ onBeforeUnmount(() => {
             @restore="localDrafts.restore"
             @discard="run(localDrafts.discard)"
           />
+          <div v-if="pendingAsset?.noteId === note.id" class="editor-warning"><span>{{pendingAsset?.name}} 已上传，请选择插入位置。</span><AButton size="small" @click="insertPendingAsset">插入已上传附件</AButton></div>
+          <p v-if="editorHint" class="editor-warning" role="status">{{editorHint}}</p>
           <div class="document-body">
             <div class="document-surface">
               <div :class="['editor-panels', mode]">
                 <section v-show="mode !== 'preview'" class="editor-panel">
-                  <div class="panel-label">Markdown <span>手动保存 · Ctrl+S</span></div>
-                  <MarkdownEditor
+                  <div class="panel-label">{{documentEditingEnabled && editorKind === 'document'?'文档编辑':'Markdown'}} <span>手动保存 · Ctrl+S</span></div>
+                  <NoteEditorHost
+                    :note-id="note.id"
+                    :resolve-image="resolveEditorImage"
+                    @open-link="openEditorLink"
+                    @upload-file="uploadPastedFile"
+                    :generation="viewEpoch"
+                    :kind="documentEditingEnabled ? editorKind : 'source'"
+                    :visible="mode !== 'preview'"
+                    @fallback="reason=>{editorKind='source';editorHint=reason}"
+                    @source="switchEditing('source',$event)"
+                    @composing="editorComposing=$event"
                     ref="editorRef"
                     v-model="draft"
                     :read-only="
                       noteOpening || editorTransfer || draftLoading || draftBusy || !!recoveryDraft
                     "
-                    :key="note.id"
+                    :key="`${note.id}:${viewEpoch}`"
                     :initial-line="
                       noteLine || (note.id === initialNoteId ? initialLine : undefined)
                     "
@@ -2113,7 +2160,7 @@ onBeforeUnmount(() => {
               />
             </aside>
           </div>
-          <p v-if="draftSavedAt && dirty" class="local-draft-status" role="status">
+          <p v-if="draftSavedAt && dirty && !editorComposing" class="local-draft-status" role="status">
             本地草稿已暂存 · {{ new Date(draftSavedAt).toLocaleTimeString('zh-CN') }} ·
             原文仍需手动保存
           </p>

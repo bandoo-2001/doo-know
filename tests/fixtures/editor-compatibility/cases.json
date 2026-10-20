@@ -1,0 +1,192 @@
+[
+  {
+    "name": "empty",
+    "classification": "editable",
+    "markdown": ""
+  },
+  {
+    "name": "paragraph",
+    "classification": "editable",
+    "markdown": "普通段落。\n"
+  },
+  {
+    "name": "atx",
+    "classification": "editable",
+    "markdown": "# 标题\n\n正文。\n"
+  },
+  {
+    "name": "setext",
+    "classification": "editable",
+    "markdown": "标题\n====\n\n正文"
+  },
+  {
+    "name": "bold",
+    "classification": "editable",
+    "markdown": "**粗体** 与 __另一种粗体__\n"
+  },
+  {
+    "name": "italic",
+    "classification": "editable",
+    "markdown": "*斜体* 和 _斜体_\n"
+  },
+  {
+    "name": "strike",
+    "classification": "editable",
+    "markdown": "~~删除~~\n"
+  },
+  {
+    "name": "inline-code",
+    "classification": "editable",
+    "markdown": "`a < b && c`\n"
+  },
+  {
+    "name": "escape",
+    "classification": "editable",
+    "markdown": "\\*不是强调\\* 和 \\[文字\\]\n"
+  },
+  {
+    "name": "unicode",
+    "classification": "editable",
+    "markdown": "中文😀 café é\n\n另一段"
+  },
+  {
+    "name": "crlf",
+    "classification": "editable",
+    "markdown": "# 标题\r\n\r\n正文  \r\n换行\r\n"
+  },
+  {
+    "name": "bom",
+    "classification": "editable",
+    "markdown": "﻿# 开头\n\n原文\n"
+  },
+  {
+    "name": "trailing",
+    "classification": "editable",
+    "markdown": "保留两格  \n换行\n\n"
+  },
+  {
+    "name": "bullets",
+    "classification": "editable",
+    "markdown": "* 项目一\n* 项目二\n\n"
+  },
+  {
+    "name": "nested",
+    "classification": "editable",
+    "markdown": "- 父项目\n  - 子项目\n    - 孙项目\n"
+  },
+  {
+    "name": "ordered",
+    "classification": "editable",
+    "markdown": "3. 第三项\n4. 第四项\n"
+  },
+  {
+    "name": "tasks",
+    "classification": "editable",
+    "markdown": "- [ ] 未完成\n- [x] 已完成\n"
+  },
+  {
+    "name": "quote",
+    "classification": "editable",
+    "markdown": "> 引用\n>\n> 第二段\n"
+  },
+  {
+    "name": "fence",
+    "classification": "editable",
+    "markdown": "```ts\nconst a = `<script>`;\n```\n"
+  },
+  {
+    "name": "tilde",
+    "classification": "editable",
+    "markdown": "~~~~js\nconsole.log(```);\n~~~~\n"
+  },
+  {
+    "name": "indented",
+    "classification": "editable",
+    "markdown": "    const x = 1;\n\n正文\n"
+  },
+  {
+    "name": "table",
+    "classification": "editable",
+    "markdown": "| 名称 | 内容 |\n| --- | --- |\n| A | B |\n"
+  },
+  {
+    "name": "table-align",
+    "classification": "editable",
+    "markdown": "| A | B |\n| :--- | ---: |\n| X | Y |\n"
+  },
+  {
+    "name": "relative-link",
+    "classification": "editable",
+    "markdown": "[另一篇](../目录/笔记.md \"标题\")\n"
+  },
+  {
+    "name": "reference",
+    "classification": "source-only",
+    "markdown": "[引用][id]\n\n[id]: https://example.invalid \"原始定义\"\n"
+  },
+  {
+    "name": "image",
+    "classification": "editable",
+    "markdown": "![替代文字](assets/示例.png \"说明\")\n"
+  },
+  {
+    "name": "frontmatter",
+    "classification": "opaque",
+    "markdown": "---\ntitle: 资料\ntags: [one, two]\n---\n\n正常正文\n"
+  },
+  {
+    "name": "comment",
+    "classification": "opaque",
+    "markdown": "<!-- 保留此注释 -->\n\n普通正文。\n"
+  },
+  {
+    "name": "html",
+    "classification": "opaque",
+    "markdown": "<section data-private=\"keep\">原始 HTML</section>\n\n正文\n"
+  },
+  {
+    "name": "footnote",
+    "classification": "source-only",
+    "markdown": "正文[^n]\n\n[^n]: 脚注内容\n"
+  },
+  {
+    "name": "math",
+    "classification": "opaque",
+    "markdown": "$$\na^2+b^2=c^2\n$$\n\n正文\n"
+  },
+  {
+    "name": "directive",
+    "classification": "opaque",
+    "markdown": ":::custom\n保留原始扩展\n:::\n\n普通正文\n"
+  },
+  {
+    "name": "alignment",
+    "classification": "editable",
+    "markdown": "<div style=\"text-align:center\">\n\n居中段落\n\n</div>\n"
+  },
+  {
+    "name": "color",
+    "classification": "editable",
+    "markdown": "正常 <span style=\"color:#AABBCC\">彩色</span> 文字\n"
+  },
+  {
+    "name": "rule",
+    "classification": "editable",
+    "markdown": "正文\n\n---\n\n后文"
+  },
+  {
+    "name": "link-title",
+    "classification": "editable",
+    "markdown": "[链接](https://example.invalid/a?x=1&y=2 \"说明\")\n"
+  },
+  {
+    "name": "code-unknown",
+    "classification": "editable",
+    "markdown": "```unknown\n:::opaque\n<span style=\"color:red\">literal</span>\n```\n"
+  },
+  {
+    "name": "inline-html",
+    "classification": "opaque",
+    "markdown": "正文 <widget value=\"x\">原样</widget> 后文\n"
+  }
+]

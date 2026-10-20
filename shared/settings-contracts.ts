@@ -7,6 +7,7 @@ export type SettingsSection =
   | 'account'
   | 'about';
 export interface EditorPreferences {
+  editorKind: 'document' | 'source';
   mode: 'edit' | 'preview' | 'split';
   wrap: boolean;
   lineNumbers: boolean;

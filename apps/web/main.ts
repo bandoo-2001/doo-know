@@ -5,6 +5,7 @@ import './style.css';
 import './calm.css';
 import './ant-design.css';
 import './document.css';
+import './document-editor.css';
 import './management.css';
 import './workbench.css';
 const app = createApp(App);

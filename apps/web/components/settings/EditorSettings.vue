@@ -2,6 +2,8 @@
 import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue';
 import { Button as AButton, Select as ASelect, Switch as ASwitch } from 'ant-design-vue';
 import { editorPreferences, setEditorPreferences } from '../../preferences';
+import {documentEditorEnabled} from '../../editor/compatibility';
+const documentEditingEnabled=documentEditorEnabled();
 const emit = defineEmits<{ 'preferences-changed': [] }>();
 const draft = reactive({ ...editorPreferences });
 const notice = ref('');
@@ -41,12 +43,14 @@ function cancel() {
 
 watch(editorPreferences, (value) => Object.assign(draft, value));
 function save() {
-  setEditorPreferences({ ...draft });
+  setEditorPreferences({ ...draft, ...(!documentEditingEnabled && draft.mode === 'split' ? { editorKind: 'source' as const } : {}) });
+  Object.assign(draft, editorPreferences);
   notice.value = '编辑器偏好已保存';
   emit('preferences-changed');
 }
 function reset() {
   Object.assign(draft, {
+    editorKind: 'document',
     mode: 'edit',
     wrap: true,
     lineNumbers: false,
@@ -65,6 +69,7 @@ function reset() {
         设置保存在当前账户的这台浏览器中。保存后用于笔记显示，原文格式保持不变。
       </p>
       <form @submit.prevent="save" @change="notice = ''">
+        <div v-if="documentEditingEnabled" class="settings-row"><div><label for="pref-editor-kind">默认编辑方式</label><p class="settings-muted">文档编辑直接排版，Markdown 源码适合精确编辑。</p></div><ASelect id="pref-editor-kind" aria-label="默认编辑方式" v-model:value="draft.editorKind" :options="[{label:'文档编辑',value:'document'},{label:'Markdown 源码',value:'source'}]" style="min-width:150px" /></div>
         <div class="settings-row">
           <div>
             <label for="pref-mode">默认打开方式</label>
@@ -77,7 +82,7 @@ function reset() {
             :options="[
               { label: '编辑', value: 'edit' },
               { label: '预览', value: 'preview' },
-              { label: '分屏', value: 'split' },
+              { label: documentEditingEnabled ? '源码与预览分屏' : '分屏', value: 'split', disabled: documentEditingEnabled && draft.editorKind === 'document' },
             ]"
             style="min-width: 150px"
           />
@@ -85,14 +90,14 @@ function reset() {
         <div class="settings-row">
           <div>
             <label for="pref-wrap">自动换行</label>
-            <p class="settings-muted">长段落随编辑区域宽度换行。</p>
+            <p class="settings-muted">Markdown 源码中的长段落随编辑区域宽度换行。</p>
           </div>
           <ASwitch id="pref-wrap" aria-label="自动换行" v-model:checked="draft.wrap" />
         </div>
         <div class="settings-row">
           <div>
             <label for="pref-lines">显示行号</label>
-            <p class="settings-muted">便于定位原文中的段落。</p>
+            <p class="settings-muted">在 Markdown 源码中显示行号，便于定位原文段落。</p>
           </div>
           <ASwitch id="pref-lines" aria-label="显示行号" v-model:checked="draft.lineNumbers" />
         </div>

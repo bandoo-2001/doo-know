@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import {markdownTasks} from '../../../shared/markdown-tasks';
+
 import { ref, computed, watch, onBeforeUnmount } from 'vue';
 import { NButton, NAlert, NModal } from 'naive-ui';
 import type {
@@ -156,7 +158,7 @@ const previewOpen = ref(false);
 const previewAllowed = computed(() => new TextEncoder().encode(draft.value).length <= 128 * 1024);
 const previewHtml = computed(() => {
   if (!previewOpen.value || !previewAllowed.value) return '';
-  const md = new MarkdownIt({ html: false, linkify: true }).use(markdownStyles);
+  const md = new MarkdownIt({ html: false, linkify: true }).use(markdownStyles).use(markdownTasks);
   const tokens = md.parse(draft.value, {});
   const visit = (items: typeof tokens) => {
     for (const token of items) {

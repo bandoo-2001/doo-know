@@ -77,7 +77,7 @@ test('alignment and text colors preserve selections, undo, preview, saving and p
     await expect(page.locator('.preview-panel .markdown > h1')).toHaveText('样式检查');
     const paragraph = page.locator('.preview-panel p').filter({ hasText: text });
     await expect(paragraph).toHaveCSS('text-align', alignment);
-    await expect(paragraph.locator('span')).toHaveCSS('color', 'rgb(220, 38, 38)');
+    await expect(paragraph.locator('span[style*="color"]')).toHaveCSS('color', 'rgb(220, 38, 38)');
     await expect(colors).toBeDisabled();
     await expect(tools.getByRole('button', { name: '居中对齐', exact: true })).toBeDisabled();
     await mode('编辑').click();
@@ -111,7 +111,7 @@ test('alignment and text colors preserve selections, undo, preview, saving and p
   await expect(palette()).toBeHidden();
   expect((await (await page.request.get('/api/notes/' + note.id)).json()).content).toBe(original);
   await mode('预览').click();
-  await expect(page.locator('.preview-panel span').filter({ hasText: text })).toHaveCSS(
+  await expect(page.locator('.preview-panel span[style*="color"]').filter({ hasText: text })).toHaveCSS(
     'color',
     'rgb(8, 127, 140)',
   );
@@ -130,7 +130,7 @@ test('alignment and text colors preserve selections, undo, preview, saving and p
   await expect(editor).toBeVisible();
   await expect.poll(source).toBe(saved);
   await mode('预览').click();
-  await expect(page.locator('.preview-panel span').filter({ hasText: text })).toHaveCSS(
+  await expect(page.locator('.preview-panel span[style*="color"]').filter({ hasText: text })).toHaveCSS(
     'color',
     'rgb(8, 127, 140)',
   );
@@ -140,7 +140,7 @@ test('alignment and text colors preserve selections, undo, preview, saving and p
   try {
     const publicPage = await publicContext.newPage();
     await publicPage.goto('/s/' + token);
-    await expect(publicPage.locator('.markdown span').filter({ hasText: text })).toHaveCSS(
+    await expect(publicPage.locator('.markdown span[style*="color"]').filter({ hasText: text })).toHaveCSS(
       'color',
       'rgb(8, 127, 140)',
     );

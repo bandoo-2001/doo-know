@@ -2,7 +2,7 @@
 import type { MarkdownAction, MarkdownToolbarState } from '../markdown-format';
 import Icon from './Icon.vue';
 import TextColorPicker from './TextColorPicker.vue';
-const props = defineProps<{ state: MarkdownToolbarState; disabled: boolean }>();
+const props = defineProps<{ state: MarkdownToolbarState; disabled: boolean; label?: string }>();
 const emit = defineEmits<{ format: [action: MarkdownAction]; upload: [] }>();
 const alignments = [
   { action: 'alignLeft', label: '左对齐', icon: 'align-left', value: 'left' },
@@ -61,7 +61,7 @@ function preserveSelection(event: MouseEvent) {
   <div
     class="format-toolbar"
     role="toolbar"
-    aria-label="Markdown 格式"
+    :aria-label="label || 'Markdown 格式'"
     @keydown="keydown"
     @mousedown="preserveSelection"
   >
@@ -74,6 +74,7 @@ function preserveSelection(event: MouseEvent) {
         @change="heading"
       >
         <option value="0">正文</option>
+        <option v-if="state.heading === 6" :value="6" disabled>标题 6</option>
         <option v-for="level in 5" :key="level" :value="level">标题 {{ level }}</option>
       </select>
     </div>
