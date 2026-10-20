@@ -34,6 +34,8 @@ import { editorPreferences, setEditorPreferences } from '../preferences';
 import type { SettingsSection } from '../../../shared/settings-contracts';
 import PluginSlot from './PluginSlot.vue';
 import PluginPanel from './PluginPanel.vue';
+import GitRemotePanel from './GitRemotePanel.vue';
+import { gitUnsaved } from '../git-sync';
 import NoteActions from './NoteActions.vue';
 import SidebarResizer from './SidebarResizer.vue';
 import DraftRecovery from './DraftRecovery.vue';
@@ -80,6 +82,14 @@ const props = withDefaults(defineProps<{ username?: string; serviceUnavailable?:
   serviceUnavailable: '',
 });
 const emit = defineEmits<{ logout: []; 'retry-service': [] }>();
+function returnGitSave() {
+  gitSyncOpen.value = false;
+  openNotes();
+}
+const gitSyncOpen = ref(false);
+const gitAvailable = computed(() =>
+  pluginRegistry.value.installed?.some((entry) => entry.id === 'git' && entry.state === 'enabled'),
+);
 const statusOpen = ref(false),
   createMenuOpen = ref(false);
 let returnRoute: WorkspaceRoute = {};
@@ -224,6 +234,13 @@ let searchTimer: ReturnType<typeof setTimeout>;
 let noticeTimer: ReturnType<typeof setTimeout>;
 const dirty = computed(
   () => !!note.value && (largeDirty.value || draft.value !== savedContent.value),
+);
+watch(
+  dirty,
+  (value) => {
+    gitUnsaved.value = value;
+  },
+  { immediate: true },
 );
 function currentDraftBase() {
   return noteDraftBase({ modifiedAt: note.value?.modifiedAt || '' });
@@ -1530,10 +1547,12 @@ onMounted(() => {
       create('note');
     }
   });
+  window.addEventListener('dooknow-git-return-save', returnGitSave);
   window.addEventListener('keydown', shortcut);
   window.addEventListener('beforeunload', unload);
 });
 onBeforeUnmount(() => {
+  gitUnsaved.value = false;
   clearPluginDrafts();
   navigation.dispose();
   clearInterval(pluginTimer);
@@ -1544,6 +1563,7 @@ onBeforeUnmount(() => {
   window.removeEventListener('dooknow-notice', pluginNotice);
   clearTimeout(searchTimer);
   clearTimeout(noticeTimer);
+  window.removeEventListener('dooknow-git-return-save', returnGitSave);
   window.removeEventListener('keydown', shortcut);
   window.removeEventListener('beforeunload', unload);
 });
@@ -1750,6 +1770,7 @@ onBeforeUnmount(() => {
         </div>
         <div
           v-if="
+            gitAvailable ||
             pluginRegistry.contributions.some(
               (c) => c.slot === 'navigation' || c.slot === 'libraryAction',
             )
@@ -1757,6 +1778,7 @@ onBeforeUnmount(() => {
           class="sidebar-tools"
         >
           <span class="sidebar-section-title">扩展工具</span>
+          <AButton v-if="gitAvailable" type="text" @click="gitSyncOpen = true">云端同步</AButton>
           <PluginSlot slot-name="navigation" :context="pluginContext" />
           <PluginSlot slot-name="libraryAction" :context="pluginContext" />
         </div>
@@ -1773,6 +1795,14 @@ onBeforeUnmount(() => {
         @notes="openNotes"
       />
     </aside>
+    <NModal
+      v-model:show="gitSyncOpen"
+      preset="card"
+      class="dialog-card"
+      title="云端同步"
+      style="width: min(760px, calc(100vw - 24px)); max-height: 90vh; overflow-y: auto"
+      ><GitRemotePanel v-if="gitSyncOpen" @return-save="gitSyncOpen = false"
+    /></NModal>
     <SidebarResizer v-model="sidebarWidth" @commit="saveSidebarWidth" />
     <main
       ref="mainRef"

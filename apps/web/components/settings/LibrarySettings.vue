@@ -4,6 +4,7 @@ import { Alert as AAlert, Button as AButton } from 'ant-design-vue';
 import { api } from '../../api';
 import type { ManagementOverview } from '../../../../shared/management-contracts';
 import StorageSettings from '../StorageSettings.vue';
+import GitRemotePanel from '../GitRemotePanel.vue';
 import ShareManagement from './ShareManagement.vue';
 import TransferPanel from './TransferPanel.vue';
 const emit = defineEmits<{ 'open-note': [id: string]; changed: [] }>();
@@ -55,6 +56,7 @@ onMounted(() => void load());
       >
     </section>
     <section class="settings-card"><StorageSettings /></section>
+    <section class="settings-card"><GitRemotePanel @changed="emit('changed')" /></section>
     <TransferPanel
       @open-note="emit('open-note', $event)"
       @changed="emit('changed')"

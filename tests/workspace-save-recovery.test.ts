@@ -56,6 +56,7 @@ async function mount() {
           disposePluginUIs: async () => {},
           pluginRegistry: Vue.ref([]),
         };
+      if (id === '../git-sync') return { gitUnsaved: Vue.ref(false) };
       if (id === '../plugin-drafts') return { clearPluginDrafts: vi.fn() };
       if (id === '../useNoteDraft')
         return {

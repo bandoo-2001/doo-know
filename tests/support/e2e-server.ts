@@ -1,5 +1,7 @@
 import { createServer as createHTTPServer } from 'node:http';
 import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
+import { localGitTransport } from './git-remote-fixture.js';
 import { appendFile, mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -21,7 +23,14 @@ await writeFile(
   '# 搭建自己的知识库\n\n## 整理方法\n\n- 收集值得保留的想法\n- 按主题整理笔记\n\n> 让知识慢慢积累。\n\n| 步骤 | 内容 |\n| --- | --- |\n| 收集 | 记录想法 |',
 );
 await mkdir('.local', { recursive: true });
-await writeFile('.local/e2e-config.json', JSON.stringify({ knowledgeRoot, dataRoot }));
+const gitRemoteURL = 'https://github.com/browser-fixture/notes.git';
+const gitRemoteRoot = join(root, 'remote.git');
+const gitExternalRoot = join(root, 'external');
+execFileSync('git', ['init', '--bare', '--initial-branch=main', gitRemoteRoot], { stdio: 'pipe' });
+await writeFile(
+  '.local/e2e-config.json',
+  JSON.stringify({ knowledgeRoot, dataRoot, gitRemoteURL, gitRemoteRoot, gitExternalRoot }),
+);
 let searchSource: ReturnType<typeof createHTTPServer> | undefined, searchDistribution: any;
 if (process.env.DOOKNOW_E2E_SEARCH_RUNTIME === '1') {
   const bytes = Buffer.alloc(2 * 1024 * 1024, 65);
@@ -65,7 +74,9 @@ const config = {
   ...(process.env.DOOKNOW_E2E_PRODUCTION === '1' ? { staticRoot: resolve('dist/web') } : {}),
 };
 await initializeOwner(config, 'owner', testPassword);
-const app = await createApp(config);
+const app = await createApp(config, {
+  gitExec: (db) => localGitTransport(db, { [gitRemoteURL]: gitRemoteRoot }),
+});
 // Optional fixture-only diagnostics: keep request bodies, cookies and credentials
 // out of the log while retaining the underlying exception hidden by the API.
 if (process.env.DOOKNOW_E2E_ERROR_LOG) {

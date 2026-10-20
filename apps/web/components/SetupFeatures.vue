@@ -1,7 +1,14 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { Button as AButton, Alert as AAlert } from 'ant-design-vue';
 import { api } from '../api';
+import {
+  installPlugin,
+  jobPhases,
+  jobPending,
+  gitError,
+  type PluginInstallation,
+} from '../git-sync';
 import { pluginRegistry, refreshPlugins } from '../plugins';
 import PluginManager from './PluginManager.vue';
 import SearchRuntimeSettings from './SearchRuntimeSettings.vue';
@@ -9,6 +16,13 @@ import Icon from './Icon.vue';
 const expanded = ref(''),
   busy = ref(''),
   error = ref('');
+const installation = ref<PluginInstallation>();
+const controller = new AbortController();
+let active = true;
+onBeforeUnmount(() => {
+  active = false;
+  controller.abort();
+});
 const features = [
   {
     id: 'mcp',
@@ -23,7 +37,8 @@ const features = [
     icon: 'clock',
     title: '记录文件版本',
     description: '查看修改记录，在需要时恢复以前的内容。',
-    detail: '版本记录保存在本机，不能代替独立备份。添加后还需设置并初始化。',
+    detail:
+      '版本记录保存在本机，不能代替独立备份。添加后可设置署名，也可关联 GitHub／Gitee 手动同步。',
     technical: 'Git',
   },
 ];
@@ -35,11 +50,18 @@ async function configure(id: string) {
   error.value = '';
   busy.value = id;
   try {
-    if (!installed(id)) await api(`/api/platform/plugins/${id}/install`, 'POST', {});
+    if (!installed(id))
+      await installPlugin(id, {
+        signal: controller.signal,
+        onUpdate: (job) => {
+          if (active) installation.value = job;
+        },
+      });
+    if (!active) return;
     await refreshPlugins();
     expanded.value = expanded.value === id ? '' : id;
-  } catch {
-    error.value = '暂时没能添加这个功能。你可以重试，也可以先跳过，以后在设置中添加。';
+  } catch (e) {
+    if (active) error.value = gitError(e);
   } finally {
     busy.value = '';
   }
@@ -47,14 +69,47 @@ async function configure(id: string) {
 onMounted(async () => {
   try {
     await refreshPlugins();
-  } catch {
-    error.value = '暂时无法读取可选功能。你可以先跳过，以后再设置。';
+    if (!active) return;
+    const receipt = await api<{ items: PluginInstallation[] }>(
+      '/api/platform/plugin-installations',
+    );
+    const pending = receipt.items.find(jobPending);
+    if (pending) {
+      busy.value = pending.pluginId;
+      await installPlugin(pending.pluginId, {
+        signal: controller.signal,
+        onUpdate: (job) => {
+          if (active) installation.value = job;
+        },
+      });
+      if (active) {
+        await refreshPlugins();
+        busy.value = '';
+      }
+    }
+  } catch (e) {
+    if (active)
+      error.value = installation.value
+        ? gitError(e)
+        : '暂时无法读取可选功能。你可以先跳过，以后再设置。';
+  } finally {
+    if (active) busy.value = '';
   }
 });
 </script>
 <template>
   <div class="setup-features">
     <AAlert v-if="error" type="warning" show-icon role="alert" :message="error" />
+    <p v-if="installation" role="status">
+      {{ jobPhases[installation.phase] || '准备安装' }} ·
+      {{
+        jobPending(installation)
+          ? '任务在服务器上继续，可以稍后回来查看。'
+          : installation.status === 'succeeded'
+            ? '安装完成'
+            : '结果待核对，请刷新后重试。'
+      }}
+    </p>
     <article v-for="feature in features" :key="feature.id" class="feature">
       <div class="feature-main">
         <span class="feature-icon" aria-hidden="true"><Icon :name="feature.icon" /></span>

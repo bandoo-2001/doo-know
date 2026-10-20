@@ -17,6 +17,14 @@ import { pluginRegistry, pluginUIErrors, refreshPlugins } from '../plugins';
 import { pluginComponents } from '../../../packages/plugin-ui/host';
 import PluginBoundary from './PluginBoundary.vue';
 import MCPConnectionGuide from './MCPConnectionGuide.vue';
+import GitRemotePanel from './GitRemotePanel.vue';
+import {
+  installPlugin,
+  jobPhases,
+  gitError,
+  jobPending,
+  type PluginInstallation,
+} from '../git-sync';
 import { api, ApiError } from '../api';
 import { pluginDrafts as drafts, pluginDraftSession, storePluginDraft } from '../plugin-drafts';
 import {
@@ -57,11 +65,14 @@ const installedById = computed(
 const installed = computed(() =>
   pluginRegistry.value.installed.find((p) => p.id === selected.value),
 );
+const installation = ref<PluginInstallation>();
+const installationController = new AbortController();
 const draftSession = pluginDraftSession();
 let active = true;
 const currentDraftSession = () => active && draftSession === pluginDraftSession();
 onBeforeUnmount(() => {
   active = false;
+  installationController.abort();
 });
 const draft = computed(() => installed.value && drafts[installed.value.id]);
 const dirty = computed(() => !!draft.value && pluginDraftDirty(draft.value));
@@ -179,6 +190,7 @@ async function run(work: () => Promise<unknown>, action = 'refresh') {
       error.value = '暂时无法读取插件状态，请检查连接后重试。';
     else if (e instanceof ApiError && e.data.code === 'PLUGIN_RESTART_REQUIRED')
       error.value = '配置或版本需要重启生效，请重启 DooKnow 后再启用插件。';
+    else if (action.endsWith(':install') || action.endsWith(':upgrade')) error.value = gitError(e);
     else error.value = (e as Error).message;
     return false;
   } finally {
@@ -195,7 +207,14 @@ async function run(work: () => Promise<unknown>, action = 'refresh') {
 async function action(id: string, command: string) {
   await run(
     async () => {
-      await api(`/api/platform/plugins/${id}/${command}`, 'POST', {});
+      if (command === 'install' || command === 'upgrade') {
+        await installPlugin(id, {
+          signal: installationController.signal,
+          onUpdate: (job) => {
+            if (currentDraftSession()) installation.value = job;
+          },
+        });
+      } else await api(`/api/platform/plugins/${id}/${command}`, 'POST', {});
       selected.value = command === 'uninstall' ? '' : id;
       tab.value = 'installed';
     },
@@ -268,7 +287,24 @@ watch(
 );
 const pendingUninstall = ref('');
 onMounted(() => {
-  void run(async () => {});
+  void run(async () => {
+    const response = await api<{ items: PluginInstallation[] }>(
+      '/api/platform/plugin-installations',
+    );
+    if (!currentDraftSession()) return;
+    const pending = response.items.find(
+      (entry) => (!props.focusPlugin || entry.pluginId === props.focusPlugin) && jobPending(entry),
+    );
+    installation.value =
+      pending || response.items.find((entry) => entry.status === 'needs_reconciliation');
+    if (pending)
+      await installPlugin(pending.pluginId, {
+        signal: installationController.signal,
+        onUpdate: (job) => {
+          if (currentDraftSession()) installation.value = job;
+        },
+      });
+  });
 });
 </script>
 <template>
@@ -297,6 +333,18 @@ onMounted(() => {
       ><ATabPane key="installed" tab="已安装" /><ATabPane key="add" tab="添加插件"
     /></ATabs>
     <AAlert v-if="error" type="error" show-icon :message="error" class="plugin-feedback" />
+    <p v-if="installation" class="plugin-feedback" role="status">
+      {{ jobPhases[installation.phase] || '准备安装' }} ·
+      {{
+        installation.status === 'needs_reconciliation'
+          ? '结果待核对，请刷新安装状态后重试。'
+          : jobPending(installation)
+            ? '下载与安装在服务器上继续，离开后可以回来查看。'
+            : installation.status === 'succeeded'
+              ? '安装完成'
+              : '安装未完成，请刷新核对后重试。'
+      }}
+    </p>
     <AEmpty
       v-if="!catalog.length && !selected && !busy"
       class="plugin-empty"
@@ -394,7 +442,8 @@ onMounted(() => {
       <header class="settings-heading">
         <h3>{{ installed.manifest.title }}设置</h3>
         <p v-if="installed.id === 'git'" class="muted">
-          版本记录保存在当前知识库，不会自动上传到远端，也不能替代备份。远端同步需部署者单独配置。
+          版本记录保存在当前知识库。可在云端同步中关联
+          GitHub／Gitee，手动推送或拉取；版本记录不能替代备份。
         </p>
         <p class="muted">调整插件参数，管理运行状态。 · {{ stateLabels[installed.state] }}</p>
         <p v-if="installed.state !== 'enabled'" class="muted">
@@ -427,6 +476,7 @@ onMounted(() => {
           </ul>
         </details>
       </header>
+      <GitRemotePanel v-if="installed.id === 'git'" />
       <MCPConnectionGuide
         v-if="installed.id === 'mcp'"
         :plugin="installed"

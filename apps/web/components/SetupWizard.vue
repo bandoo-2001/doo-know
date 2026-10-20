@@ -11,10 +11,11 @@ import type { PlatformStatus } from '../../../shared/platform-contracts';
 import { api, ApiError } from '../api';
 import SetupFeatures from './SetupFeatures.vue';
 import SetupImport from './SetupImport.vue';
+import GitRepositoryImport from './GitRepositoryImport.vue';
 import Icon from './Icon.vue';
 const props = defineProps<{ status: PlatformStatus }>();
 const emit = defineEmits<{ refresh: [] }>();
-const mode = ref<'new' | 'existing'>('new'),
+const mode = ref<'new' | 'existing' | 'remote'>('new'),
   name = ref('我的知识库'),
   knowledgeRoot = ref('');
 const timeZone = ref(Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Shanghai');
@@ -98,7 +99,7 @@ async function browse(path?: string) {
     browserBusy.value = false;
   }
 }
-async function selectMode(value: 'new' | 'existing') {
+async function selectMode(value: 'new' | 'existing' | 'remote') {
   mode.value = value;
   error.value = '';
   if (value === 'existing' && !browser.value) await browse();
@@ -116,7 +117,11 @@ function zoneChanged() {
   bindRequest = crypto.randomUUID();
 }
 async function complete() {
-  if (busy.value || (mode.value === 'new' ? !name.value.trim() : !knowledgeRoot.value.trim()))
+  if (
+    mode.value === 'remote' ||
+    busy.value ||
+    (mode.value === 'new' ? !name.value.trim() : !knowledgeRoot.value.trim())
+  )
     return;
   busy.value = true;
   error.value = '';
@@ -211,7 +216,7 @@ onBeforeUnmount(() => clearInterval(timer));
         <p class="eyebrow">让资料有个自己的家</p>
         <h1 ref="heading" tabindex="-1">准备你的知识库</h1>
         <p class="intro">从一个新空间开始，或接入你已经整理好的资料。</p>
-        <form @submit.prevent="complete">
+        <component :is="mode === 'remote' ? 'div' : 'form'" @submit.prevent="complete">
           <p class="field-title">资料来源</p>
           <div class="mode-options" aria-label="知识库来源">
             <button
@@ -234,7 +239,22 @@ onBeforeUnmount(() => clearInterval(timer));
             >
               <strong>使用已有资料</strong><span>选择部署设备上的文件夹，保留原有文件。</span>
             </button>
+            <button
+              type="button"
+              aria-label="从 GitHub／Gitee 导入"
+              :class="{ selected: mode === 'remote' }"
+              :aria-pressed="mode === 'remote'"
+              :disabled="busy"
+              @click="selectMode('remote')"
+            >
+              <strong>从 GitHub／Gitee 导入</strong><span>下载云端仓库到新的知识库文件夹。</span>
+            </button>
           </div>
+          <GitRepositoryImport
+            v-if="mode === 'remote'"
+            :time-zone="timeZone"
+            @refresh="emit('refresh')"
+          />
           <div v-if="mode === 'new'" class="library-name-field">
             <label for="library-name">知识库名称</label>
             <AInput
@@ -315,7 +335,7 @@ onBeforeUnmount(() => clearInterval(timer));
             </div>
             <p class="hint">已有文件会保留，不会清空这个文件夹。</p>
           </div>
-          <details class="advanced">
+          <details v-if="mode !== 'remote'" class="advanced">
             <summary>高级设置</summary>
             <p class="hint">需要自定义保存位置或时区时再修改。</p>
             <template v-if="mode === 'new'"
@@ -364,8 +384,10 @@ onBeforeUnmount(() => clearInterval(timer));
               "
             />
           </details>
-          <p class="hint timezone">时间显示：{{ recommendedZone }}，可在高级设置中修改。</p>
-          <footer class="setup-footer">
+          <p v-if="mode !== 'remote'" class="hint timezone">
+            时间显示：{{ recommendedZone }}，可在高级设置中修改。
+          </p>
+          <footer v-if="mode !== 'remote'" class="setup-footer">
             <span>以后也可以继续添加和整理资料</span
             ><AButton
               html-type="submit"
@@ -375,7 +397,7 @@ onBeforeUnmount(() => clearInterval(timer));
               >确认并继续</AButton
             >
           </footer>
-        </form>
+        </component>
       </template>
       <template v-else-if="status.phase === 'ready'">
         <template v-if="step === 2">
