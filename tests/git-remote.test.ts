@@ -10,6 +10,56 @@ import { platformRuntime } from '../apps/server/platform/runtime.js';
 import { createAuth } from '../apps/server/auth.js';
 import { localGitTransport } from './support/git-remote-fixture.js';
 
+it.each(['non-fast-forward', 'timeout'])(
+  'preserves unknown push outcomes and local content for keyword branch %s', async (branch) => {
+    const root = await mkdtemp(join(tmpdir(), 'git-keyword-push-'));
+    const local = join(root, 'library'), remote = join(root, 'remote.git'), dataRoot = join(root, 'data');
+    await mkdir(local);
+    const command = (cwd: string, ...args: string[]) =>
+      execFileSync('git', ['-C', cwd, ...args], { encoding: 'utf8', stdio: 'pipe' }).trim();
+    execFileSync('git', ['init', '--bare', '--initial-branch=' + branch, remote], { stdio: 'pipe' });
+    command(local, 'init', '--initial-branch=' + branch);
+    command(local, 'config', 'user.name', 'Fixture');
+    command(local, 'config', 'user.email', 'fixture@example.invalid');
+    const content = '# 合法本地原文\r\n\r\n保持完整  \r\n';
+    await writeFile(join(local, 'note.md'), content);
+    command(local, 'add', '.'); command(local, 'commit', '-m', 'Retained local content');
+    const expectedHead = command(local, 'rev-parse', 'HEAD'), db = openDatabase(dataRoot);
+    const url = 'https://github.com/fixture/library.git', runner = localGitTransport(db, { [url]: remote });
+    let pushes = 0;
+    const platform: any = {
+      status: () => ({ knowledgeRoot: local, bindingVersion: 1 }),
+      get: () => ({ config: { knowledgeRoot: local }, knowledge: { indexing: { refresh: async () => ({}) } } }),
+    };
+    const plugins: any = { list: () => [{ id: 'git', state: 'enabled', installedVersion: '1.1.0' }] };
+    const service = gitRemoteService({ dataRoot, secret: 'fixture-only-long-enough-key', origin: 'http://localhost' } as any,
+      db, platform, plugins, { exec: (cwd, args, opts) => {
+        if (!args.includes('push')) return runner(cwd, args, opts);
+        pushes++;
+        return Promise.resolve({ code: 1, stdout: Buffer.from('To ' + url + '\n!\tHEAD:refs/heads/' + branch + '\t[remote failure] (remote failed to report status)\nDone\n'), stderr: Buffer.from('error: failed to push some refs\n') });
+      } });
+    async function finish(input: any) {
+      const started = service.start('owner', input);
+      await expect.poll(() => service.job('owner', started.id).status, { timeout: 15000 }).not.toMatch(/queued|running/);
+      return service.job('owner', started.id);
+    }
+    try {
+      expect((await finish({ kind: 'connect', url, branch, requestId: crypto.randomUUID() })).status).toBe('succeeded');
+      const input = { kind: 'push' as const, expectedHead, requestId: crypto.randomUUID() };
+      const outcome = await finish(input);
+      expect(outcome).toMatchObject({ status: 'needs_reconciliation', error: 'GIT_NETWORK_FAILED' });
+      expect(service.start('owner', input).id).toBe(outcome.id);
+      await new Promise(yes => setImmediate(yes));
+      expect(pushes).toBe(1);
+      expect(command(local, 'rev-parse', 'HEAD')).toBe(expectedHead);
+      expect(await readFile(join(local, 'note.md'), 'utf8')).toBe(content);
+      expect(command(remote, 'for-each-ref', '--format=%(refname)')).toBe('');
+    } finally {
+      await service.close(); db.close(); await rm(root, { recursive: true, force: true });
+    }
+  },
+);
+
 it('marks interrupted jobs for reconciliation after restart without replaying remote writes', async () => {
   const root = await mkdtemp(join(tmpdir(), 'git-job-recovery-')),
     db = openDatabase(join(root, 'data'));

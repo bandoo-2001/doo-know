@@ -11,6 +11,7 @@ import {
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
+import { createServer } from 'node:http';
 import { openDatabase } from '../packages/core/db.js';
 import { workspaceWrite } from '../packages/core/workspace/gate.js';
 import { workspaceExec } from '../packages/core/workspace/exec.js';
@@ -262,6 +263,33 @@ it('refuses SSH host scans for non-allowlisted targets without launching a proce
     [],
   );
 });
+it.each(['Repo', 'Repo403', 'non-fast-forward', 'timeout', 'TIMEOUT'])(
+  'keeps a real proxy transport failure independent of repository name: %s', async (name) => {
+    let requests = 0;
+    const proxy = createServer((_, response) => response.writeHead(502).end());
+    proxy.on('connect', (_, socket) => {
+      requests++;
+      socket.end('HTTP/1.1 502 Bad Gateway\r\nContent-Length: 0\r\nConnection: close\r\n\r\n');
+    });
+    await new Promise<void>(yes => proxy.listen(0, '127.0.0.1', yes));
+    try {
+      const proxyURL = 'http://127.0.0.1:' + (proxy.address() as { port: number }).port;
+      const remoteURL = 'https://github.com/Owner/' + name + '.git';
+      const exec: GitExec = (cwd, args, opts) => workspaceExec(db, cwd, args, {
+        ...opts, env: { ...opts?.env, HTTP_PROXY: proxyURL, HTTPS_PROXY: proxyURL,
+          http_proxy: proxyURL, https_proxy: proxyURL, NO_PROXY: '', no_proxy: '' },
+      });
+      await expect(gate(() => gitTransport(config, db, { exec }).run(repo,
+        ['ls-remote', remoteURL], { url: remoteURL, timeoutMs: 5000 })))
+        .rejects.toThrow(/^GIT_NETWORK_FAILED$/);
+      expect(requests).toBeGreaterThan(0);
+      expect(db.prepare('SELECT * FROM workspace_guards').all()).toEqual([]);
+    } finally {
+      proxy.closeAllConnections();
+      await new Promise<void>(yes => proxy.close(() => yes()));
+    }
+  },
+);
 it('binds the actual network argument to the approved remote rather than a second target', async () => {
   const transport = gitTransport(config, db, { exec: async () => okay });
   await expect(
@@ -284,6 +312,11 @@ it.each([
   ],
   ['! [rejected] main -> main (non-fast-forward) private-token', 'GIT_REMOTE_REJECTED'],
   ['failed to connect private-token', 'GIT_NETWORK_FAILED'],
+  ['fatal: unable to access https://github.com/Owner/Repo/: SSL connection timeout', 'GIT_COMMAND_TIMEOUT'],
+  ['fatal: unable to access https://github.com/Owner/Repo/: Connection timed out after 10000 milliseconds', 'GIT_COMMAND_TIMEOUT'],
+  ['From https://github.com/Owner/Repo\n * [new branch] timeout -> origin/timeout\nfatal: early EOF\n', 'GIT_NETWORK_FAILED'],
+  ['From https://github.com/Owner/Repo\n * [new branch] non-fast-forward -> origin/non-fast-forward\nfatal: early EOF\n', 'GIT_NETWORK_FAILED'],
+  ['fatal: timeout expired', 'GIT_COMMAND_TIMEOUT'],
 ])('returns only the classified network error for %s', async (stderr, expected) => {
   const transport = gitTransport(config, db, {
     exec: async (cwd, args, options) =>
@@ -299,6 +332,18 @@ it.each([
     expect(JSON.stringify(error)).not.toContain('private-token');
   }
 });
+
+it.each(['non-fast-forward', 'timeout'])(
+  'keeps an unknown porcelain remote failure uncertain for branch %s', async (branch) => {
+    const transport = gitTransport(config, db, {
+      exec: async (cwd, args, options) => args.includes('push')
+        ? { code: 1, stdout: Buffer.from('To https://github.com/Owner/Repo.git\n!\tHEAD:refs/heads/' + branch + '\t[remote failure] (remote failed to report status)\nDone\n'), stderr: Buffer.from('error: failed to push some refs\n') }
+        : workspaceExec(db, cwd, args, options),
+    });
+    await expect(gate(() => transport.run(repo, ['push', '--porcelain', '--', url, 'HEAD:refs/heads/' + branch], { url })))
+      .rejects.toThrow(/^GIT_NETWORK_FAILED$/);
+  },
+);
 
 it('reports a porcelain non-fast-forward rejection from stdout as a remote refusal', async () => {
   const transport = gitTransport(config, db, {
