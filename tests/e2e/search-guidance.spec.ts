@@ -3,6 +3,8 @@ import type { Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
 import { showSidebar } from '../support/settings-navigation';
 
+test.use({ sourceEditorPreference: true });
+
 async function selectSearchOption(page: Page, label: string, option: string) {
   const input = page.getByRole('combobox', { name: label, exact: true });
   await input.focus();

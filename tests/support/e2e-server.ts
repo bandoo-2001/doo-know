@@ -96,7 +96,9 @@ const config = {
       baseURL: pathToFileURL(join(root, 'plugins') + '/').href,
     })),
   ],
-  ...(process.env.DOOKNOW_E2E_PRODUCTION === '1' ? { staticRoot: resolve('dist/web') } : {}),
+  ...(process.env.DOOKNOW_E2E_PRODUCTION === '1'
+    ? { staticRoot: resolve(process.env.DOOKNOW_E2E_STATIC_ROOT || 'dist/web') }
+    : {}),
 };
 await initializeOwner(config, 'owner', testPassword);
 const app = await createApp(config, {

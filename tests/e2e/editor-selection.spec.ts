@@ -2,6 +2,8 @@ import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
 
+test.use({ sourceEditorPreference: true });
+
 // Sample the rendered pixels above the glyphs: a styled selection layer can
 // exist in the DOM while an opaque active-line background still hides it.
 async function blueContrast(page: Page, rect: { x: number; y: number }) {

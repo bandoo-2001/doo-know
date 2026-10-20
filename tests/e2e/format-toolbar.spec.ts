@@ -1,5 +1,8 @@
+import { showSource, showRead } from '../support/editor-navigation';
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
+
+test.use({ sourceEditorPreference: true });
 
 test('the document formatting toolbar preserves selections, undo history, and explicit saving', async ({
   page,
@@ -23,7 +26,7 @@ test('the document formatting toolbar preserves selections, undo history, and ex
   await page.goto('/?note=' + note.id);
   const editor = page.locator('.cm-content');
   await expect(editor).toBeVisible();
-  const tools = page.getByRole('toolbar', { name: 'Markdown 格式', exact: true });
+  const tools = page.getByRole('toolbar', { name: /^(正文格式|Markdown 格式)$/, exact: true });
   await expect(tools).toBeVisible();
   expect((await page.locator('.note-header').boundingBox())!.height).toBeLessThanOrEqual(130);
   const pathRow = (await page.locator('.document-breadcrumb').boundingBox())!;
@@ -51,10 +54,10 @@ test('the document formatting toolbar preserves selections, undo history, and ex
   await expect(editor).not.toContainText('**需要排版的文字**');
   await page.getByRole('button', { name: '重做', exact: true }).click();
   await expect(editor).toContainText('**需要排版的文字**');
-  await page.getByRole('button', { name: '预览', exact: true }).click();
+  await showRead(page);
   await expect(tools.getByRole('button', { name: '加粗', exact: true })).toBeDisabled();
   await expect(page.locator('.preview-panel strong')).toContainText('需要排版的文字');
-  await page.getByRole('button', { name: '编辑', exact: true }).click();
+  await showSource(page);
   await page.getByRole('button', { name: '撤销', exact: true }).click();
   await expect(editor).toContainText('需要排版的文字');
   await expect(editor).not.toContainText('**');

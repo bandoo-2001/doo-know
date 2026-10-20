@@ -14,6 +14,17 @@ test.beforeEach(async ({ page, context }) => {
   expect(r.status()).toBe(201);
   await page.goto('/?note=' + (await r.json()).id);
 });
+test('新浏览器默认直接打开文档编辑，无需选择模式即可输入和保存', async ({ page }) => {
+  const id = new URL(page.url()).searchParams.get('note');
+  const editor = page.getByRole('textbox', { name: '文档正文', exact: true });
+  await expect(editor).toBeVisible();
+  await expect(page.locator('.cm-content')).toHaveCount(0);
+  await editor.locator('p').first().fill('直接输入的新内容。');
+  await page.locator('.toolbar').getByRole('button', { name: '保存', exact: true }).click();
+  await expect(page.locator('.save-state')).toContainText('已保存');
+  expect((await (await page.request.get('/api/notes/' + id)).json()).content)
+    .toBe('# 原标题\n\n直接输入的新内容。\n\n第二段保持。\n');
+});
 test('可视化标题和正文，切换不写入或改写 Markdown', async ({ page }) => {
   let writes = 0;
   page.on('request', (r) => {

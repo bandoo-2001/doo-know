@@ -2,6 +2,8 @@ import { readFile } from 'node:fs/promises';
 import { test, expect } from '../support/browser-test';
 import { testPassword } from '../support/credentials.js';
 
+test.use({ sourceEditorPreference: true });
+
 test('a failed platform check after login can retry with the same signed-in session', async ({
   page,
 }) => {

@@ -1,6 +1,8 @@
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
 
+test.use({ sourceEditorPreference: true });
+
 test('settings pages isolate content, show persistent tools, and restore the note editor', async ({
   page,
   context,

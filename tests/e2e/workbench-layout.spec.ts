@@ -1,6 +1,9 @@
+import { showSplit } from '../support/editor-navigation';
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
 import { showSidebar } from '../support/settings-navigation';
+
+test.use({ sourceEditorPreference: true });
 
 test.beforeEach(async ({ page, context }) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
@@ -83,7 +86,7 @@ test('desktop rail remains available in focus mode and returns from trash with t
   const outline = page.getByRole('button', { name: '章节目录', exact: true });
   await expect(outline).toHaveCount(0);
   await expect(page.locator('.document-outline')).toBeVisible();
-  await page.getByRole('button', { name: '分屏', exact: true }).click();
+  await showSplit(page);
   await expect(outline).toBeVisible();
   await expect(page.locator('.document-outline')).toBeHidden();
   await outline.click();

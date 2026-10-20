@@ -9,6 +9,8 @@ import { testPassword } from '../support/credentials';
 import type { TransferTask } from '../../shared/transfer-contracts';
 import type { ManagementTrashPurgeInput } from '../../shared/management-contracts';
 
+test.use({ sourceEditorPreference: true });
+
 const origin = 'http://127.0.0.1:4179';
 test.setTimeout(150_000);
 

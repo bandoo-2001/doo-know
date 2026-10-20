@@ -1,5 +1,8 @@
+import { showSource, showRead } from '../support/editor-navigation';
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
+
+test.use({ sourceEditorPreference: true });
 
 test('alignment and text colors preserve selections, undo, preview, saving and public reading', async ({
   page,
@@ -24,7 +27,7 @@ test('alignment and text colors preserve selections, undo, preview, saving and p
   const note = await response.json();
   await page.goto('/?note=' + note.id);
   const editor = page.locator('.cm-content');
-  const tools = page.getByRole('toolbar', { name: 'Markdown 格式', exact: true });
+  const tools = page.getByRole('toolbar', { name: /^(正文格式|Markdown 格式)$/, exact: true });
   const source = () =>
     editor
       .locator('.cm-line')
@@ -73,14 +76,14 @@ test('alignment and text colors preserve selections, undo, preview, saving and p
     await tools.getByRole('button', { name, exact: true }).click();
     await expect.poll(source).toContain(`text-align:${alignment}`);
     expect((await source()).match(/<div /g)).toHaveLength(1);
-    await mode('预览').click();
+    await showRead(page);
     await expect(page.locator('.preview-panel .markdown > h1')).toHaveText('样式检查');
     const paragraph = page.locator('.preview-panel p').filter({ hasText: text });
     await expect(paragraph).toHaveCSS('text-align', alignment);
     await expect(paragraph.locator('span[style*="color"]')).toHaveCSS('color', 'rgb(220, 38, 38)');
     await expect(colors).toBeDisabled();
     await expect(tools.getByRole('button', { name: '居中对齐', exact: true })).toBeDisabled();
-    await mode('编辑').click();
+    await showSource(page);
   }
   await chooseColor('蓝色 #2563eb');
   await expect.poll(source).toContain('color:#2563eb');
@@ -110,7 +113,7 @@ test('alignment and text colors preserve selections, undo, preview, saving and p
   await page.keyboard.press('Escape');
   await expect(palette()).toBeHidden();
   expect((await (await page.request.get('/api/notes/' + note.id)).json()).content).toBe(original);
-  await mode('预览').click();
+  await showRead(page);
   await expect(page.locator('.preview-panel span[style*="color"]').filter({ hasText: text })).toHaveCSS(
     'color',
     'rgb(8, 127, 140)',
@@ -129,7 +132,7 @@ test('alignment and text colors preserve selections, undo, preview, saving and p
   await page.reload();
   await expect(editor).toBeVisible();
   await expect.poll(source).toBe(saved);
-  await mode('预览').click();
+  await showRead(page);
   await expect(page.locator('.preview-panel span[style*="color"]').filter({ hasText: text })).toHaveCSS(
     'color',
     'rgb(8, 127, 140)',

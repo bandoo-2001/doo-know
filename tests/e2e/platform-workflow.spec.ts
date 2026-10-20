@@ -1,7 +1,10 @@
+import { showRead } from '../support/editor-navigation';
 import { showSidebar } from '../support/settings-navigation';
 import { expandFolderPath } from '../support/notebook-tree';
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
+
+test.use({ sourceEditorPreference: true });
 
 async function createNote(
   page: import('@playwright/test').Page,
@@ -196,7 +199,7 @@ test('the persistent preview outline jumps to its heading without leaving previe
     '# 阅读记录\n\n' + '需要阅读的段落。\n\n'.repeat(90) + '## 本周结论\n\n保留清晰的结论。\n',
   );
   await page.goto('/?note=' + note.id);
-  await page.getByRole('button', { name: '预览', exact: true }).click();
+  await showRead(page);
   const chapterMenu = page.getByRole('button', { name: '章节目录', exact: true });
   await expect(chapterMenu).toHaveCount(0);
   await expect(page.locator('.document-outline')).toBeVisible();

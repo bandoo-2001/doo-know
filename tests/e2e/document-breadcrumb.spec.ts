@@ -1,6 +1,8 @@
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
 
+test.use({ sourceEditorPreference: true });
+
 test('short paths stay direct on wide screens and remain reachable on narrow screens', async ({
   page,
   context,

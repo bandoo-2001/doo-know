@@ -1,7 +1,10 @@
+import { showSource, showRead, showSplit } from '../support/editor-navigation';
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
 import { showSidebar } from '../support/settings-navigation';
 import { expandFolderPath } from '../support/notebook-tree';
+
+test.use({ sourceEditorPreference: true });
 
 const content =
   '# 总览\n\n介绍。\n\n## 第一章\n\n### 重复子节\n\n#### 要点\n\n正文。\n\n## 第二章\n\n### 重复子节\n\n另一段正文。\n\n## 独立末章\n';
@@ -73,10 +76,10 @@ test('outline parents fold independently without navigation and retain their sta
     animations: 'disabled',
   });
 
-  await page.getByRole('button', { name: '预览', exact: true }).click();
+  await showRead(page);
   await expect(title('展开 第一章')).toBeVisible();
   await expect(second.getByRole('button', { name: '重复子节', exact: true })).toBeVisible();
-  await page.getByRole('button', { name: '分屏', exact: true }).click();
+  await showSplit(page);
   const menu = page.getByRole('button', { name: '章节目录', exact: true });
   await menu.click();
   await expect(title('展开 第一章')).toBeVisible();
@@ -99,7 +102,7 @@ test('outline parents fold independently without navigation and retain their sta
     path: info.outputPath('outline-folded-split.png'),
     animations: 'disabled',
   });
-  await page.getByRole('button', { name: '编辑', exact: true }).click();
+  await showSource(page);
   await expect(title('展开 第二章')).toBeVisible();
   await expect(first.getByRole('button', { name: '展开 重复子节', exact: true })).toBeVisible();
   await expect(page.locator('.outline-popup:visible')).toHaveCount(0);
@@ -126,7 +129,7 @@ test('outline parents fold independently without navigation and retain their sta
 
   // Replacing a folded heading with a new draft heading cannot hide its children.
   await title('收起 第一章').click();
-  await page.getByRole('button', { name: '分屏', exact: true }).click();
+  await showSplit(page);
   await expect(menu).toHaveAttribute('aria-expanded', 'false');
   await page.locator('.cm-content').click();
   await page.keyboard.press('ControlOrMeta+a');

@@ -1,8 +1,11 @@
+import { showSource, showRead, showSplit } from '../support/editor-navigation';
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
 import type { Page, BrowserContext } from '@playwright/test';
 import { expandFolderPath } from '../support/notebook-tree';
 import { clickNoteAction } from '../support/note-actions';
+
+test.use({ sourceEditorPreference: true });
 
 test.use({ actionTimeout: 10000 });
 const original = '# Toolbar audit\n\nSaved original.';
@@ -44,7 +47,7 @@ async function replaceAndSelect(page: Page, content: string, mod = 'ControlOrMet
 async function disk(page: Page, id: string) {
   return (await (await page.request.get('/api/notes/' + id)).json()).content as string;
 }
-const toolbar = (page: Page) => page.getByRole('toolbar', { name: 'Markdown 格式', exact: true });
+const toolbar = (page: Page) => page.getByRole('toolbar', { name: /^(正文格式|Markdown 格式)$/, exact: true });
 const button = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
 
 async function navigateToReadyNote(
@@ -113,7 +116,7 @@ test('every formatting button and heading level survives undo, redo, preview and
       await expect.poll(() => source(page)).toBe(base);
       await button(page, '重做').click();
       await expect.poll(() => source(page)).toBe(item.expected);
-      await button(page, '预览').click();
+      await showRead(page);
       const rendered = page.locator('.preview-panel .markdown').locator(item.selector);
       await expect(rendered).toBeVisible();
       if (item.selector !== 'hr')
@@ -128,7 +131,7 @@ test('every formatting button and heading level survives undo, redo, preview and
       await page.locator('.toolbar').getByRole('button', { name: '保存', exact: true }).click();
       await expect(page.locator('.save-state')).toContainText('已保存');
       expect(await disk(page, note.id)).toBe(item.expected);
-      await button(page, '编辑').click();
+      await showSource(page);
       await button(page, '撤销').click();
       await expect.poll(() => source(page)).toBe(base);
       await expect(page.locator('.save-state')).toContainText('未保存');
@@ -180,7 +183,7 @@ async function checkShortcuts(page: Page, context: BrowserContext, mod: string) 
   page.on('request', (request) => {
     if (request.method() === 'PUT' && request.url().endsWith('/api/notes/' + note.id)) saves++;
   });
-  await button(page, '分屏').click();
+  await showSplit(page);
   await expect(page.locator('.editor-panel')).toBeVisible();
   await expect(page.locator('.preview-panel a')).toHaveAttribute(
     'href',
@@ -250,11 +253,11 @@ test('toolbar arrow/Home/End navigation skips disabled code-context controls and
   await quote.focus();
   await page.keyboard.press('ArrowLeft');
   await expect(tools.getByRole('button', { name: '行内代码', exact: true })).toBeFocused();
-  await button(page, '预览').click();
+  await showRead(page);
   const before = await page.locator('.preview-panel .markdown').innerHTML();
   await page.keyboard.press('ControlOrMeta+b');
   expect(await page.locator('.preview-panel .markdown').innerHTML()).toBe(before);
-  await button(page, '编辑').click();
+  await showSource(page);
   await expect.poll(() => source(page)).toBe('`literal`');
 });
 
@@ -292,7 +295,7 @@ test('upload button handles PNG and PDF, supports undo/redo and saves from previ
     await expect.poll(() => source(page)).toBe(after);
   }
   const final = await source(page);
-  await button(page, '预览').click();
+  await showRead(page);
   const image = page.locator('.preview-panel img');
   await expect(image).toBeVisible();
   expect(await image.evaluate((el) => (el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
@@ -359,7 +362,7 @@ test('top navigation, share and more-actions preserve drafts and expose all buil
       .click();
   }
   await page.setViewportSize({ width: 743, height: 604 });
-  await button(page, '分屏').click();
+  await showSplit(page);
   await button(page, '章节目录').click();
   await page
     .getByRole('navigation', { name: '本文章节', exact: true })

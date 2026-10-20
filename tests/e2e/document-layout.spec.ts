@@ -1,5 +1,8 @@
+import { showSource, showRead, showSplit } from '../support/editor-navigation';
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
+
+test.use({ sourceEditorPreference: true });
 
 const content =
   '# 总览\n\n介绍。\n\n## 第一章\n\n正文。\n\n### 第一节\n\n细节。\n\n#### 子主题\n\n更多细节。\n\n##### 要点\n\n内容。\n\n###### 六级标题\n\n```md\n## 代码里的假标题\n```\n\n## 第二章\n\n' +
@@ -64,7 +67,7 @@ test('document outline stays beside edit and preview, floats only in split, and 
     'aria-current',
     'location',
   );
-  await page.getByRole('button', { name: '预览', exact: true }).click();
+  await showRead(page);
   await expectDockedOutline();
   await nav.getByRole('button', { name: '末尾章节', exact: true }).click();
   await expect(page.locator('.preview-panel')).toBeVisible();
@@ -76,7 +79,7 @@ test('document outline stays beside edit and preview, floats only in split, and 
     'location',
   );
   await page.screenshot({ path: info.outputPath('document-preview.png'), animations: 'disabled' });
-  await page.getByRole('button', { name: '分屏', exact: true }).click();
+  await showSplit(page);
   await expect(page.locator('.document-outline')).toHaveCount(0);
   await expect(chapterMenu).toBeVisible();
   await expect(chapterMenu).toHaveAttribute('aria-expanded', 'false');
@@ -96,7 +99,7 @@ test('document outline stays beside edit and preview, floats only in split, and 
   await expect(nav).toBeVisible();
   await page.screenshot({ path: info.outputPath('document-split.png'), animations: 'disabled' });
   // Switching away with the popover open must leave only the persistent outline.
-  await page.getByRole('button', { name: '编辑', exact: true }).click();
+  await showSource(page);
   await expectDockedOutline();
   await expect(nav).toHaveCount(1);
   await page.locator('.cm-content').click();
@@ -105,15 +108,15 @@ test('document outline stays beside edit and preview, floats only in split, and 
   await expect(nav.getByRole('button', { name: '新的子章节', exact: true })).toBeVisible();
   await expect(nav.getByRole('button', { name: '第一章', exact: true })).toHaveCount(0);
   expect((await (await page.request.get('/api/notes/' + note.id)).json()).content).toBe(content);
-  await page.getByRole('button', { name: '分屏', exact: true }).click();
+  await showSplit(page);
   await expect(chapterMenu).toHaveAttribute('aria-expanded', 'false');
   await chapterMenu.click();
   await expect(nav.getByRole('button', { name: '新的子章节', exact: true })).toBeVisible();
-  await page.getByRole('button', { name: '预览', exact: true }).click();
+  await showRead(page);
   await expectDockedOutline();
   await expect(page.locator('.preview-panel')).toContainText('未保存的正文。');
   await page.setViewportSize({ width: 743, height: 604 });
   await expectDockedOutline();
-  await page.getByRole('button', { name: '编辑', exact: true }).click();
+  await showSource(page);
   await expectDockedOutline();
 });

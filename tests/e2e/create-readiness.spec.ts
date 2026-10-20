@@ -2,6 +2,8 @@ import { readFile } from 'node:fs/promises';
 import { test, expect } from '../support/browser-test';
 import { showSidebar } from '../support/settings-navigation';
 
+test.use({ sourceEditorPreference: true });
+
 test('new-note creation waits for the initial folder list before choosing its destination', async ({
   page,
   context,
