@@ -274,6 +274,10 @@ it('binds the actual network argument to the approved remote rather than a secon
 it.each([
   ['REMOTE HOST IDENTIFICATION HAS CHANGED private-token', 'GIT_HOST_KEY_CHANGED'],
   ['remote: permission to repository denied private-token', 'GIT_PERMISSION_DENIED'],
+  [
+    'ERROR: The key you are authenticating with has been marked as read only.\nfatal: Could not read from remote repository.',
+    'GIT_PERMISSION_DENIED',
+  ],
   ['! [rejected] main -> main (non-fast-forward) private-token', 'GIT_REMOTE_REJECTED'],
   ['failed to connect private-token', 'GIT_NETWORK_FAILED'],
 ])('returns only the classified network error for %s', async (stderr, expected) => {
@@ -290,6 +294,16 @@ it.each([
     expect((error as Error).message).toBe(expected);
     expect(JSON.stringify(error)).not.toContain('private-token');
   }
+});
+
+it('reports a porcelain non-fast-forward rejection from stdout as a remote refusal', async () => {
+  const transport = gitTransport(config, db, {
+    exec: async (cwd, args, options) => args.includes('push')
+      ? { code: 1, stdout: Buffer.from('To ssh://github.com/Owner/Repo.git\n!\tHEAD:refs/heads/main\t[rejected] (non-fast-forward)\nDone\n'), stderr: Buffer.from("error: failed to push some refs to 'ssh://github.com/Owner/Repo.git'\n") }
+      : workspaceExec(db, cwd, args, options),
+  });
+  await expect(gate(() => transport.run(repo, ['push', '--porcelain', '--', url, 'HEAD:refs/heads/main'], { url })))
+    .rejects.toThrow(/^GIT_REMOTE_REJECTED$/);
 });
 it.each([
   ['core.alternateRefsCommand', 'printf "$DOOKNOW_GIT_AUTH_HEADER"'],

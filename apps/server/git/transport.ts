@@ -114,7 +114,7 @@ function classified(error: string): string {
   )
     return 'GIT_AUTH_FAILED';
   if (
-    /403|permission .*denied|access denied|write access .*not granted|repository not found|does not appear to be a git repository/i.test(
+    /403|permission .*denied|access denied|write access .*not granted|key [^\r\n]*marked as read[ -]only|repository not found|does not appear to be a git repository/i.test(
       error,
     )
   )
@@ -327,7 +327,8 @@ export function gitTransport(
           execution,
         );
         cancelled(opts.signal);
-        if (remote && result.code !== 0) fail(502, classified(result.stderr.toString()));
+        if (remote && result.code !== 0)
+          fail(502, classified(Buffer.concat([result.stderr, result.stdout]).toString()));
         // Successful network stderr may contain remote-controlled text. It is never needed by callers.
         return remote ? { ...result, stderr: Buffer.alloc(0) } : result;
       } catch (error) {
