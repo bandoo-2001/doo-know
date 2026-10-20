@@ -1,6 +1,6 @@
 import { randomUUID, createHash } from 'node:crypto';
 import { lstatSync } from 'node:fs';
-import { mkdir, rm, readdir, lstat, realpath, statfs } from 'node:fs/promises';
+import { mkdir, rm, lstat, realpath, statfs } from 'node:fs/promises';
 import { join, resolve, dirname } from 'node:path';
 import type { HostConfig } from '../../../shared/platform-contracts.js';
 import type { AppDatabase } from '../../../packages/core/db.js';
@@ -16,6 +16,7 @@ import { setupDirectoryPolicy } from '../platform/setup-directories.js';
 import { fail } from '../../../packages/core/knowledge/errors.js';
 import { webPrincipal } from '../../../packages/core/knowledge/core.js';
 import { gitCredentials } from './credentials.js';
+import { measureImport, checkImportSpace, checkImportTree } from './import-budget.js';
 import { gitTransport, normalizeRemote, type GitExec } from './transport.js';
 import type { GitJob, GitJobInput, GitJobKind, GitRemoteStatus } from './types.js';
 
@@ -260,13 +261,17 @@ export function gitRemoteService(
     }
     return { ...remote, branches, defaultBranch, readVerified: true, writeVerified: false };
   }
-  async function ensurePlugin() {
+  async function ensurePlugin(r: Row, signal: AbortSignal) {
+    signal.throwIfAborted();
     let p = plugins.list().find((p) => p.id === 'git');
     if (!p) {
-      await plugins.install('git');
+      await plugins.install('git', { signal, onPhase: (value) => phase(r.id, value) });
+      signal.throwIfAborted();
       p = plugins.list().find((p) => p.id === 'git');
     }
-    if (p?.state !== 'enabled') await plugins.enable('git');
+    signal.throwIfAborted();
+    if (p?.state !== 'enabled') await plugins.enable('git', () => signal.throwIfAborted());
+    signal.throwIfAborted();
   }
   async function sameDirectory(path: string, proof: { dev: string; ino: string }) {
     const s = await lstat(path, { bigint: true }).catch(() => undefined);
@@ -309,9 +314,18 @@ export function gitRemoteService(
     ).wait;
     if (!(await sameDirectory(proof.knowledgeRoot, proof))) fail(409, 'DIRECTORY_EXISTS');
   }
+  function cloneReceipt(r: Row) {
+    if (r.kind !== 'clone' || !r.result) return false;
+    const proof = JSON.parse(r.result);
+    return (
+      ['binding', 'publishing'].includes(r.phase) ||
+      ((proof.cloned === true || proof.publishing === true) &&
+        typeof proof.knowledgeRoot === 'string')
+    );
+  }
   async function resumeClone(owner: string, r: Row, input: GitJobInput, signal: AbortSignal) {
     const proof = JSON.parse(r.result!);
-    if (r.phase === 'publishing') {
+    if (r.phase === 'publishing' || proof.publishing === true) {
       await publishClone(proof, signal);
       phase(r.id, 'binding', { ...proof, cloned: true, publishing: false });
     }
@@ -338,7 +352,7 @@ export function gitRemoteService(
       remote.url
     )
       fail(409, 'GIT_CLONE_CHANGED');
-    await ensurePlugin();
+    await ensurePlugin(r, signal);
     const finalIdentity = policy(target);
     if (finalIdentity.dev !== proof.dev || finalIdentity.ino !== proof.ino)
       fail(409, 'KNOWLEDGE_ROOT_CHANGED');
@@ -366,6 +380,59 @@ export function gitRemoteService(
       input.credentialId || null,
     );
     return { ...receipt, knowledgeRoot: target, cloned: true, bound: true, branch: state.branch };
+  }
+  function pendingLocalGit(r: Row) {
+    if (
+      !db
+        .prepare(
+          "SELECT 1 FROM sqlite_master WHERE type='table' AND name='plugin_operation_intents'",
+        )
+        .get()
+    )
+      return;
+    const pending = db
+      .prepare(
+        `SELECT 1 FROM plugin_operation_intents
+      WHERE plugin_id='git' AND json_extract(details,'$.preview.root')=?
+      AND json_extract(details,'$.preview.binding')=?
+      AND coalesce(json_extract(details,'$.phase'),'') NOT IN ('finished','aborted','acknowledged') LIMIT 1`,
+      )
+      .get(r.root, r.binding);
+    if (pending) fail(409, 'GIT_RECONCILIATION_REQUIRED');
+  }
+  async function applyPull(
+    r: Row,
+    branch: string,
+    before: string | null,
+    target: string,
+    signal: AbortSignal,
+  ) {
+    jobBinding(r);
+    pendingLocalGit(r);
+    const local = await repo(r.root!, signal);
+    if (!local || local.branch !== branch) fail(409, 'GIT_BRANCH_CHANGED');
+    if (local.changes) fail(409, 'GIT_LOCAL_CHANGES');
+    if (local.head !== before && local.head !== target) fail(409, 'GIT_RECONCILIATION_REQUIRED');
+    if (local.head !== target) {
+      if (
+        local.head &&
+        (await raw(r.root!, ['merge-base', '--is-ancestor', local.head, target], signal)).code
+      )
+        fail(409, 'GIT_DIVERGED');
+      await safeTree(r.root!, target, signal);
+      jobBinding(r);
+      const latest = await repo(r.root!, signal);
+      if (latest?.branch !== branch || latest.head !== before || latest.changes)
+        fail(409, 'GIT_LOCAL_CHANGES');
+      phase(r.id, 'updating_files', { before, target });
+      await text(
+        r.root!,
+        ['merge', '--ff-only', '--no-overwrite-ignore', '--no-edit', target],
+        signal,
+      );
+    }
+    // The saved intent remains durable until the directory/index refresh finishes.
+    return { pulled: true, commit: target, refreshRequired: true };
   }
   async function sync(owner: string, r: Row, input: GitJobInput, signal: AbortSignal) {
     jobBinding(r);
@@ -409,7 +476,16 @@ export function gitRemoteService(
         localCommitPreserved: true,
       };
     }
-    if (input.kind === 'pull' && local.changes) fail(409, 'GIT_LOCAL_CHANGES');
+    if (input.kind === 'pull') {
+      pendingLocalGit(r);
+      if (local.changes) fail(409, 'GIT_LOCAL_CHANGES');
+      const saved = r.result ? JSON.parse(r.result) : undefined;
+      if (saved && Object.hasOwn(saved, 'target')) {
+        if (!oid(saved.target) || !(saved.before === null || oid(saved.before)))
+          fail(409, 'GIT_RECONCILIATION_REQUIRED');
+        return applyPull(r, c.branch, saved.before, saved.target, signal);
+      }
+    }
     const previous = local.head;
     phase(r.id, 'checking_remote');
     const refs = await remoteRefs(owner, root, c.url, c.credential_id || undefined, signal);
@@ -457,17 +533,7 @@ export function gitRemoteService(
       if ((await raw(root, ['merge-base', '--is-ancestor', local.head, fetched], signal)).code)
         fail(409, 'GIT_DIVERGED');
     }
-    await safeTree(root, fetched, signal);
-    jobBinding(r);
-    phase(r.id, 'updating_files', { before: previous, target: fetched });
-    if (local.head)
-      await text(
-        root,
-        ['merge', '--ff-only', '--no-overwrite-ignore', '--no-edit', fetched],
-        signal,
-      );
-    else await text(root, ['merge', '--ff-only', '--no-overwrite-ignore', fetched], signal);
-    return { pulled: true, commit: fetched, refreshRequired: true };
+    return applyPull(r, c.branch, previous, fetched, signal);
   }
   async function clone(owner: string, r: Row, input: GitJobInput, signal: AbortSignal) {
     if (binding().root) fail(409, 'SETUP_ALREADY_COMPLETE');
@@ -509,7 +575,7 @@ export function gitRemoteService(
     const free = await statfs(parent);
     if (Number(free.bavail) * Number(free.bsize) < 512 * 1024 * 1024)
       fail(409, 'INSUFFICIENT_DISK_SPACE');
-    await ensurePlugin();
+    await ensurePlugin(r, signal);
     const remote = normalizeRemote(input.url!);
     const credential = secret(owner, input.credentialId, remote.host);
     if (input.branch) await branchValid(parent, input.branch, signal);
@@ -518,20 +584,24 @@ export function gitRemoteService(
     const stageProof = await lstat(stage, { bigint: true });
     const budget = new AbortController(),
       combined = AbortSignal.any([signal, budget.signal]);
-    let quotaError = '';
+    let quotaError = '',
+      checking: Promise<void> | undefined;
     const quota = setInterval(() => {
-      void statfs(parent)
-        .then((s) => {
-          if (Number(s.bavail) * Number(s.bsize) < 512 * 1024 * 1024) {
-            quotaError = 'INSUFFICIENT_DISK_SPACE';
-            budget.abort();
-          }
-        })
-        .catch(() => {
-          quotaError = 'DIRECTORY_NOT_WRITABLE';
+      if (checking || budget.signal.aborted) return;
+      checking = (async () => {
+        await checkImportSpace(parent);
+        await measureImport(stage);
+      })()
+        .catch((error) => {
+          quotaError = ['GIT_CLONE_TOO_LARGE', 'INSUFFICIENT_DISK_SPACE'].includes(error?.code)
+            ? error.code
+            : 'DIRECTORY_NOT_WRITABLE';
           budget.abort();
+        })
+        .finally(() => {
+          checking = undefined;
         });
-    }, 1000);
+    }, 250);
     quota.unref();
     let published = false;
     try {
@@ -556,23 +626,24 @@ export function gitRemoteService(
       );
       const state = await repo(stage, combined);
       if (!state) fail(409, 'GIT_CLONE_FAILED');
+      const staged = await measureImport(stage);
       if (state.head) {
-        await safeTree(stage, state.head, combined);
         phase(r.id, 'checking_files');
+        const tree = await transport.run(stage, ['ls-tree', '-rlz', state.head], {
+          signal: combined,
+          maxBytes: 16 * 1024 * 1024,
+        });
+        if (tree.code) fail(409, 'GIT_COMMAND_FAILED');
+        const expanded = checkImportTree(tree.stdout, staged);
+        await checkImportSpace(parent, expanded);
+        combined.throwIfAborted();
         await text(stage, ['checkout', '--force', 'HEAD'], combined);
       }
-      let size = 0,
-        entries = 0;
-      const measure = async (path: string): Promise<void> => {
-        for (const entry of await readdir(path, { withFileTypes: true })) {
-          if (++entries > 100000) fail(413, 'GIT_CLONE_TOO_LARGE');
-          const p = join(path, entry.name);
-          if (entry.isDirectory()) await measure(p);
-          else size += Number((await lstat(p)).size);
-          if (size > 1024 * 1024 * 1024) fail(413, 'GIT_CLONE_TOO_LARGE');
-        }
-      };
-      await measure(stage);
+      await measureImport(stage);
+      await checkImportSpace(parent);
+      clearInterval(quota);
+      await checking;
+      combined.throwIfAborted();
       if (binding().root) fail(409, 'SETUP_ALREADY_COMPLETE');
       const now = policy(parent, { browse: true });
       if (now.dev !== parentProof.dev || now.ino !== parentProof.ino)
@@ -612,6 +683,7 @@ export function gitRemoteService(
       throw e;
     } finally {
       clearInterval(quota);
+      await checking;
       if (
         !published &&
         (await sameDirectory(stage, { dev: String(stageProof.dev), ino: String(stageProof.ino) }))
@@ -620,10 +692,14 @@ export function gitRemoteService(
     }
   }
   async function work(owner: string, r: Row, input: GitJobInput, signal: AbortSignal) {
-    if (['check', 'push', 'pull'].includes(input.kind) && plugins.list().find((p) => p.id === 'git')?.state !== 'enabled')
+    if (
+      ['check', 'push', 'pull'].includes(input.kind) &&
+      plugins.list().find((p) => p.id === 'git')?.state !== 'enabled'
+    )
       fail(409, 'GIT_PLUGIN_DISABLED');
     const cwd = r.root || config.dataRoot;
-    phase(r.id, 'checking_dependency');
+    if (!(r.kind === 'pull' && r.result && Object.hasOwn(JSON.parse(r.result), 'target')))
+      phase(r.id, 'checking_dependency');
     await dependency(cwd, signal);
     if (input.kind === 'ssh-host') return transport.scanHost(input.host!, signal);
     if (input.kind === 'test') {
@@ -644,7 +720,7 @@ export function gitRemoteService(
       return { disconnected: true, repositoryPreserved: true };
     }
     if (input.kind === 'connect') {
-      await ensurePlugin();
+      await ensurePlugin(r, signal);
       jobBinding(r);
       let state = await repo(r.root, signal);
       if (!state) {
@@ -707,7 +783,7 @@ export function gitRemoteService(
       try {
         const input = JSON.parse(r.params) as GitJobInput;
         result = await workspaceExclusive(db, { kind: 'git.remote.' + r.kind }, () =>
-          r.kind === 'clone' && ['binding', 'publishing'].includes(r.phase) && r.result
+          cloneReceipt(r)
             ? resumeClone(r.owner, r, input, controller.signal)
             : work(r.owner, r, input, controller.signal),
         );
@@ -737,10 +813,7 @@ export function gitRemoteService(
               'GIT_TASK_INTERRUPTED',
               'GIT_COMMAND_CANCELLED',
             ].includes(code)) ||
-          (r.kind === 'clone' &&
-            ['binding', 'publishing'].includes(
-              (db.prepare('SELECT phase FROM git_remote_jobs WHERE id=?').get(r.id) as any).phase,
-            ));
+          cloneReceipt(db.prepare('SELECT * FROM git_remote_jobs WHERE id=?').get(r.id) as Row);
         db.prepare('UPDATE git_remote_jobs SET status=?,error=?,updated_at=? WHERE id=?').run(
           uncertain ? 'needs_reconciliation' : 'failed',
           code,
@@ -922,7 +995,10 @@ export function gitRemoteService(
   }
   return {
     assertPluginIdle(id: string) {
-      if (id === 'git' && db.prepare("SELECT 1 FROM git_remote_jobs WHERE status IN ('queued','running')").get())
+      if (
+        id === 'git' &&
+        db.prepare("SELECT 1 FROM git_remote_jobs WHERE status IN ('queued','running')").get()
+      )
         fail(409, 'GIT_TASK_BUSY');
     },
     credentials,
@@ -948,7 +1024,10 @@ export function gitRemoteService(
       if (closing) fail(503, 'GIT_SERVICE_STOPPING');
       if (db.prepare("SELECT 1 FROM git_remote_jobs WHERE status IN ('queued','running')").get())
         fail(409, 'GIT_TASK_BUSY');
-      if (r.kind === 'clone' && ['binding', 'publishing'].includes(r.phase) && r.result) {
+      if (
+        cloneReceipt(r) ||
+        (r.kind === 'pull' && r.result && Object.hasOwn(JSON.parse(r.result), 'target'))
+      ) {
         r.status = 'queued';
         r.error = null;
         db.prepare(
