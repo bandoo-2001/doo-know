@@ -101,14 +101,17 @@ export function guardedProcess(
           stop();
         } else output.push(b);
       });
-    // execve normally closes IPC. Only process close proves Git has stopped.
-    child.once('error', () => {});
-    child.once('close', async (code) => {
-      if (timer) clearTimeout(timer);
-      try {
+    let draining: Promise<boolean> | undefined;
+    const closeReaders = () => {
+      child.stdout!.destroy();
+      child.stderr!.destroy();
+    };
+    const drain = () => {
+      draining ||= (async () => {
+        if (timer) clearTimeout(timer);
         const group = child.pid ?? 0;
-        // Closing the leader's streams does not prove its workers have stopped.
-        // Keep the force signal armed until this operation's group is drained.
+        // Workers can keep inherited pipes open after the leader exits, so
+        // initiate cleanup on exit rather than waiting for stream closure.
         if (processGroupIsAlive(group)) {
           stop();
           const gracefulUntil = Date.now() + 1000;
@@ -123,7 +126,22 @@ export function guardedProcess(
         }
         const groupStopped = !processGroupIsAlive(group);
         // If the kernel cannot reap it, retain the guard and report a timeout.
-        if (!groupStopped) timedOut = true;
+        if (!groupStopped) {
+          timedOut = true;
+          closeReaders();
+        }
+        return groupStopped;
+      })();
+      return draining;
+    };
+    // execve normally closes IPC. Stream closure and group drain are both needed.
+    child.once('error', () => {});
+    child.once('exit', () => {
+      void drain().catch(closeReaders);
+    });
+    child.once('close', async (code) => {
+      try {
+        const groupStopped = await drain();
         if (db.open && groupStopped) {
           if (permit.kind === 'workspace')
             db.prepare('DELETE FROM workspace_guards WHERE token=? AND pid=?').run(
