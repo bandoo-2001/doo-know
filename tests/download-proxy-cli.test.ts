@@ -158,7 +158,7 @@ it('native install remembers its successful download environment without changin
   }
 });
 
-it('only update reads the fallback and explicit settings can bypass damaged saved state', async () => {
+it('status ignores the fallback and explicit update settings can bypass damaged saved state', async () => {
   const f = await fixture();
   try {
     await f.run('migrate', {}, ['--profile', f.profile]);
