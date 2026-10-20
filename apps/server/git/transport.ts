@@ -114,7 +114,7 @@ function classified(error: string): string {
   )
     return 'GIT_AUTH_FAILED';
   if (
-    /403|permission .*denied|access denied|write access .*not granted|key [^\r\n]*marked as read[ -]only|repository not found|does not appear to be a git repository/i.test(
+    /returned error:\s*403\b|\bHTTP(?:\/\d+(?:\.\d+)?)?\s+403\b|permission .*denied|access denied|write access .*not granted|key [^\r\n]*marked as read[ -]only|repository not found|does not appear to be a git repository/i.test(
       error,
     )
   )

@@ -275,6 +275,9 @@ it.each([
   ['REMOTE HOST IDENTIFICATION HAS CHANGED private-token', 'GIT_HOST_KEY_CHANGED'],
   ['remote: permission to repository denied private-token', 'GIT_PERMISSION_DENIED'],
   ['fatal: unable to get password from user', 'GIT_AUTH_FAILED'],
+  ['fatal: unable to access https://github.com/Owner/Repo403.git/: Could not resolve host: github.com', 'GIT_NETWORK_FAILED'],
+  ['fatal: The requested URL returned error: 403', 'GIT_PERMISSION_DENIED'],
+  ['error: RPC failed; HTTP/2 403 curl 22', 'GIT_PERMISSION_DENIED'],
   [
     'ERROR: The key you are authenticating with has been marked as read only.\nfatal: Could not read from remote repository.',
     'GIT_PERMISSION_DENIED',
@@ -300,7 +303,7 @@ it.each([
 it('reports a porcelain non-fast-forward rejection from stdout as a remote refusal', async () => {
   const transport = gitTransport(config, db, {
     exec: async (cwd, args, options) => args.includes('push')
-      ? { code: 1, stdout: Buffer.from('To ssh://github.com/Owner/Repo.git\n!\tHEAD:refs/heads/main\t[rejected] (non-fast-forward)\nDone\n'), stderr: Buffer.from("error: failed to push some refs to 'ssh://github.com/Owner/Repo.git'\n") }
+      ? { code: 1, stdout: Buffer.from('To https://github.com/Owner/Repo.git\n!\t0123456789abcdef0123456789abcdef01234403:refs/heads/main\t[rejected] (non-fast-forward)\nDone\n'), stderr: Buffer.from("error: failed to push some refs to 'ssh://github.com/Owner/Repo.git'\n") }
       : workspaceExec(db, cwd, args, options),
   });
   await expect(gate(() => transport.run(repo, ['push', '--porcelain', '--', url, 'HEAD:refs/heads/main'], { url })))
