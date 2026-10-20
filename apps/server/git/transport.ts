@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
-import { mkdir, mkdtemp, writeFile, rm } from 'node:fs/promises';
-import { join } from 'node:path';
+import { mkdir, mkdtemp, writeFile, rm, lstat } from 'node:fs/promises';
+import { join, isAbsolute } from 'node:path';
 import type { AppDatabase } from '../../../packages/core/db.js';
 import { fail } from '../../../packages/core/knowledge/errors.js';
 import { workspaceExec, type ExecOptions } from '../../../packages/core/workspace/exec.js';
@@ -57,6 +57,7 @@ export function normalizeRemote(value: string): GitRemote {
 const fixedConfig = [
   'core.hooksPath=/dev/null',
   'core.fsmonitor=false',
+  'core.alternateRefsCommand=/bin/false',
   'core.attributesFile=/dev/null',
   'credential.helper=',
   'credential.interactive=false',
@@ -185,13 +186,16 @@ export function gitTransport(
         /^(url\.|http\.|https\.|credential\.|filter\.|include\.|includeif\.|protocol\.|alias\.|submodule\.)/.test(
           key,
         ) ||
-        /^core\.(sshcommand|gitproxy|fsmonitor|hookspath)$/.test(key) ||
+        /^core\.(sshcommand|gitproxy|fsmonitor|hookspath|alternaterefscommand)$/.test(key) ||
         key === 'extensions.worktreeconfig' ||
         /^remote\..*\.(pushurl|uploadpack|receivepack|proxy|proxyauthmethod|vcs|foreignvcs|serveroption)$/.test(
           key,
         )
       )
         fail(400, 'GIT_UNSAFE_CONFIG');
+      // Git resolves remote names before URLs, including a name equal to the URL itself.
+      const remoteName = key.match(/^remote\.(.*)\.[^.]+$/)?.[1];
+      if (remoteName && /[:@]/.test(remoteName)) fail(400, 'GIT_UNSAFE_CONFIG');
       if (/^remote\..*\.url$/.test(key)) {
         try {
           normalizeRemote(value);
@@ -199,6 +203,36 @@ export function gitTransport(
           fail(400, 'GIT_UNSAFE_CONFIG');
         }
       }
+    }
+    // Resolve through Git so this also covers bare repositories and linked worktrees.
+    // rev-parse does not enumerate alternate refs and receives no credential environment.
+    const objectPaths = await exec(
+      cwd,
+      [
+        ...hardening,
+        'rev-parse',
+        '--path-format=absolute',
+        '--git-path',
+        'objects/info/alternates',
+        '--git-path',
+        'objects/info/http-alternates',
+        '--git-path',
+        'info/grafts',
+      ],
+      opts,
+    );
+    const paths = objectPaths.stdout.toString().trimEnd().split('\n');
+    if (objectPaths.code !== 0 || paths.length !== 3 || paths.some((path) => !isAbsolute(path)))
+      fail(400, 'GIT_UNSAFE_CONFIG');
+    for (const path of paths) {
+      try {
+        // Any existing file, directory or dangling symlink is unsafe; do not read its contents.
+        await lstat(path);
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code === 'ENOENT') continue;
+        fail(400, 'GIT_UNSAFE_CONFIG');
+      }
+      fail(400, 'GIT_UNSAFE_CONFIG');
     }
   }
   return {

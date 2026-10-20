@@ -203,12 +203,12 @@ it('uses real bare Git through a test-only executor while rejecting file URLs in
 });
 it('sanitizes network errors, preserves local nonzero probes, and refuses an already aborted request', async () => {
   const transport = gitTransport(config, db, {
-    exec: async (_cwd, args) =>
+    exec: async (cwd, args, options) =>
       args.includes('ls-remote')
         ? { ...okay, code: 128, stderr: Buffer.from('fatal: Authentication failed private-token') }
-        : okay,
+        : workspaceExec(db, cwd, args, options),
   });
-  await expect(transport.run(repo, ['ls-remote', url], { url })).rejects.toThrow(
+  await expect(gate(() => transport.run(repo, ['ls-remote', url], { url }))).rejects.toThrow(
     /^GIT_AUTH_FAILED$/,
   );
   await expect(
@@ -278,14 +278,73 @@ it.each([
   ['failed to connect private-token', 'GIT_NETWORK_FAILED'],
 ])('returns only the classified network error for %s', async (stderr, expected) => {
   const transport = gitTransport(config, db, {
-    exec: async (_cwd, args) =>
-      args.includes('ls-remote') ? { ...okay, code: 128, stderr: Buffer.from(stderr) } : okay,
+    exec: async (cwd, args, options) =>
+      args.includes('ls-remote')
+        ? { ...okay, code: 128, stderr: Buffer.from(stderr) }
+        : workspaceExec(db, cwd, args, options),
   });
   try {
-    await transport.run(repo, ['ls-remote', url], { url });
+    await gate(() => transport.run(repo, ['ls-remote', url], { url }));
     throw Error('expected rejection');
   } catch (error) {
     expect((error as Error).message).toBe(expected);
     expect(JSON.stringify(error)).not.toContain('private-token');
   }
 });
+it.each([
+  ['core.alternateRefsCommand', 'printf "$DOOKNOW_GIT_AUTH_HEADER"'],
+  [`remote.${url}.url`, 'https://github.com/Attacker/Other.git'],
+  ['remote.git@github.com:Owner/Repo.git.url', 'https://github.com/Attacker/Other.git'],
+])(
+  'rejects executable alternates or URL-shadowing config before exposing credentials: %s',
+  async (key, value) => {
+    execFileSync('/usr/bin/git', ['-C', repo, 'config', key, value]);
+    let network = false;
+    const exposed: string[] = [];
+    const exec: GitExec = async (cwd, args, options) => {
+      if (options?.env?.DOOKNOW_GIT_AUTH_HEADER) exposed.push(options.env.DOOKNOW_GIT_AUTH_HEADER);
+      if (args.includes('fetch')) {
+        network = true;
+        return okay;
+      }
+      return workspaceExec(db, cwd, args, options);
+    };
+    await expect(
+      gate(() =>
+        gitTransport(config, db, { exec }).run(repo, ['fetch', '--', url], {
+          url,
+          credential: {
+            id: 'c',
+            name: 'private',
+            kind: 'https',
+            host: 'github.com',
+            token: 'fixture-secret',
+            updatedAt: 1,
+          },
+        }),
+      ),
+    ).rejects.toThrow('GIT_UNSAFE_CONFIG');
+    expect(network).toBe(false);
+    expect(exposed).toEqual([]);
+  },
+);
+it.each(['objects/info/alternates', 'objects/info/http-alternates', 'info/grafts'])(
+  'rejects a repository object redirection file before network: %s',
+  async (path) => {
+    const location = join(repo, '.git', path);
+    writeFileSync(location, '/outside/knowledge/objects\n');
+    let network = false;
+    const exec: GitExec = async (cwd, args, options) => {
+      expect(options?.env?.DOOKNOW_GIT_AUTH_HEADER).toBeUndefined();
+      if (args.includes('fetch')) {
+        network = true;
+        return okay;
+      }
+      return workspaceExec(db, cwd, args, options);
+    };
+    await expect(
+      gate(() => gitTransport(config, db, { exec }).run(repo, ['fetch', '--', url], { url })),
+    ).rejects.toThrow('GIT_UNSAFE_CONFIG');
+    expect(network).toBe(false);
+  },
+);
