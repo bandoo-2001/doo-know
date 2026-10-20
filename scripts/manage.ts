@@ -282,6 +282,8 @@ async function install() {
     await initializeOwner(config, input.username, input.password);
     console.log('初始账号已创建。');
   } else console.log('账号已存在，保留原有账号、密钥与配置。');
+  // The first service process must see the same download environment as the installer.
+  rememberProxy();
   if (!values['no-service']) {
     writeService(config, applicationRoot(), process.execPath);
     systemctl(['enable', unitName(config)]);
@@ -305,7 +307,6 @@ async function install() {
     if (linger !== 'yes') console.log('用户服务已启用；无人登录时常驻需管理员启用 linger。');
   }
   if (config.installRoot) bindInstallationProfile(config.installRoot, profileFile);
-  rememberProxy();
   console.log(
     `DooKnow：${config.origin}\n登录后选择服务器知识库目录。\n管理：dooknow status / start / stop / restart / doctor`,
   );

@@ -252,3 +252,54 @@ it('serve reuses the saved download proxy before fetch and still bypasses local 
     await f.close();
   }
 }, 20000);
+
+it('makes the install proxy available to the very first service process', async () => {
+  const f = await fixture(), probe = createProbe();
+  let servicePid: number | undefined;
+  try {
+    await new Promise<void>((yes) => probe.listen(0, '127.0.0.1', yes));
+    const port = (probe.address() as any).port;
+    await new Promise<void>((yes) => probe.close(() => yes()));
+    const profile = JSON.parse(await readFile(f.profile, 'utf8'));
+    profile.port = port;
+    profile.origin = 'http://127.0.0.1:' + port;
+    await writeFile(f.profile, JSON.stringify(profile));
+    await initializeOwner(loadHostConfig({ profileFile: f.profile }, {}), 'fixture_owner', 'fixture-first-service-password');
+    const bin = join(f.root, 'bin'), pidFile = join(f.root, 'service.pid');
+    await mkdir(bin);
+    // Substitute the systemd boundary, while launching the real CLI in a fresh service environment.
+    await writeFile(join(bin, 'systemctl'), `#!${process.execPath}\n` + `
+      const fs = require('node:fs'), { spawn } = require('node:child_process');
+      if (process.argv.includes('start')) {
+        const saved = ${JSON.stringify(f.profile + '.download-proxy.json')};
+        if (!fs.existsSync(saved)) { console.error('download proxy unavailable at service startup'); process.exit(1); }
+        const child = spawn(${JSON.stringify(process.execPath)}, ['--import', 'tsx', ${JSON.stringify(resolve('scripts/manage.ts'))}, 'serve', '--profile', ${JSON.stringify(f.profile)}], {
+          cwd: ${JSON.stringify(resolve('.'))}, detached: true, stdio: 'ignore',
+          env: { PATH: process.env.PATH, TMPDIR: process.env.TMPDIR, XDG_CONFIG_HOME: process.env.XDG_CONFIG_HOME, INDEXING_ENABLED: '0' }
+        });
+        fs.writeFileSync(${JSON.stringify(pidFile)}, String(child.pid)); child.unref();
+      }
+    `, { mode: 0o700 });
+    const result = await f.run('install', {
+      PATH: bin + ':' + process.env.PATH,
+      XDG_CONFIG_HOME: join(f.root, 'config'),
+      HTTPS_PROXY: f.proxyAddress,
+    }, ['--profile', f.profile]);
+    expect(result.stdout).toContain('账号已存在');
+    servicePid = Number(await readFile(pidFile, 'utf8'));
+    const args = (await readFile('/proc/' + servicePid + '/cmdline', 'utf8')).split('\0');
+    expect(args).toContain('--use-env-proxy');
+    expect((await readFile('/proc/' + servicePid + '/environ', 'utf8')).split('\0')).toContain('HTTPS_PROXY=' + f.proxyAddress);
+    expect((await fetch(profile.origin + '/healthz')).status).toBe(200);
+  } finally {
+    if (!servicePid) {
+      try { servicePid = Number(await readFile(join(f.root, 'service.pid'), 'utf8')); } catch {}
+    }
+    if (servicePid) {
+      try { process.kill(servicePid, 'SIGTERM'); } catch {}
+      await expect.poll(() => { try { process.kill(servicePid!, 0); return false; } catch { return true; } }, { timeout: 5000 }).toBe(true);
+    }
+    probe.close();
+    await f.close();
+  }
+}, 25000);
