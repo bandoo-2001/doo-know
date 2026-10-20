@@ -348,3 +348,36 @@ it.each(['objects/info/alternates', 'objects/info/http-alternates', 'info/grafts
     expect(network).toBe(false);
   },
 );
+it('rejects a local status clean filter before it can execute repository-controlled code', async () => {
+  const sentinel = join(root, 'filter-executed');
+  writeFileSync(join(repo, '.gitattributes'), '*.txt filter=attack\n');
+  writeFileSync(join(repo, 'note.txt'), 'first\n');
+  execFileSync('/usr/bin/git', ['-C', repo, 'add', '.']);
+  execFileSync('/usr/bin/git', [
+    '-C',
+    repo,
+    '-c',
+    'user.name=Fixture',
+    '-c',
+    'user.email=fixture@example.test',
+    'commit',
+    '-qm',
+    'fixture',
+  ]);
+  execFileSync('/usr/bin/git', [
+    '-C',
+    repo,
+    'config',
+    'filter.attack.clean',
+    `touch '${sentinel}'; cat`,
+  ]);
+  writeFileSync(join(repo, 'note.txt'), 'other\n');
+  let rejected: unknown;
+  try {
+    await gate(() => gitTransport(config, db).run(repo, ['status', '--porcelain']));
+  } catch (error) {
+    rejected = error;
+  }
+  expect(existsSync(sentinel)).toBe(false);
+  expect(rejected).toMatchObject({ code: 'GIT_UNSAFE_CONFIG' });
+});

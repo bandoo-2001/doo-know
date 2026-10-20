@@ -269,7 +269,7 @@ export function gitTransport(
       };
       let temporary: string | undefined;
       try {
-        if (remote) await checkConfig(cwd, execution);
+        await checkConfig(cwd, execution);
         cancelled(opts.signal);
         const extra: string[] = [];
         if (remote) {
