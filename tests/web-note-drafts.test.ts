@@ -4,10 +4,12 @@ const storage = vi.hoisted(() => ({
   records: new Map<string, any>(),
   sequence: 0,
   gate: undefined as Promise<void> | undefined,
+  failure: undefined as Error | undefined,
 }));
 vi.mock('../apps/web/drafts', () => ({
   createDraftStore: () => ({
     async put(input: any) {
+      if (storage.failure) throw storage.failure;
       const snapshot = structuredClone(input),
         version = String(++storage.sequence);
       await storage.gate;
@@ -61,6 +63,7 @@ beforeEach(() => {
   storage.records.clear();
   storage.sequence = 0;
   storage.gate = undefined;
+  storage.failure = undefined;
   state = reactive({
     noteId: 'n',
     baseRevision: 'base-1',
@@ -90,6 +93,31 @@ afterEach(async () => {
 });
 
 describe('note local draft coordination', () => {
+  test('a rejected latest write clears its earlier durable timestamp and returns no saved version', async () => {
+    state.content = 'earlier own durable text';
+    state.dirty = true;
+    await drafts.flush();
+    expect(drafts.savedAt.value).toEqual(expect.any(Number));
+    storage.records.set('n', {
+      noteId: 'n',
+      content: 'foreign durable text',
+      version: 'foreign',
+      baseRevision: 'base-1',
+      kind: 'note',
+      updatedAt: 1,
+      scope: { ownerId: 'o', knowledgeId: 'k' },
+    });
+    storage.failure = Object.assign(new Error('本地草稿已在其他页面变化，本页未覆盖。'), {
+      code: 'conflict',
+    });
+    state.content = 'latest current unsaved text';
+    const version = await drafts.flush();
+    expect(version).toBeUndefined();
+    expect(drafts.savedAt.value).toBeUndefined();
+    expect(drafts.error.value).toContain('其他页面');
+    expect(state.content).toBe('latest current unsaved text');
+  });
+
   test('an earlier large-file fragment stays copyable when the current note becomes a full document', async () => {
     storage.records.set('n', {
       noteId: 'n',
