@@ -61,6 +61,8 @@ test('all settings sections scroll with actual wheel or touch input and keep con
   for (const section of ['editor', 'library', 'search', 'backup', 'plugins', 'account', 'about']) {
     await test.step(section, async () => {
       await page.goto('/?view=settings&section=' + section);
+      // The initial empty-workspace heading can appear before the requested route is restored.
+      await expect(page.locator('.settings-workspace h1')).toBeVisible();
       await closeSidebar(page);
       const root = page.locator('.main-content');
       await expect(root.locator('h1')).toBeVisible();
