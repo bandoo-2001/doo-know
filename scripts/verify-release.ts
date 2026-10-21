@@ -77,6 +77,7 @@ const commands: [string, string[]][] = [
       'tests/workspace-save-recovery.test.ts',
       'tests/session-bootstrap-retry.test.ts',
       'tests/api-csrf-timeout.test.ts',
+      'tests/static-asset-cache.test.ts',
       'tests/editor-image-navigation.test.ts',
       'tests/git-web-regressions.test.ts',
       'tests/knowledge/snapshot-lifecycle.test.ts',
