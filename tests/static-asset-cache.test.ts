@@ -85,6 +85,10 @@ it('does not cache a late file-open error after a fingerprinted asset is repaire
     const failed = await f.app.inject({ url: '/assets/chunk-AbCd0123.js' });
     expect(failed.statusCode).toBe(500);
     expect(failed.headers['cache-control']).toBe('no-store');
+    expect(Object.keys(failed.json())).toEqual(['error']);
+    expect(failed.body).not.toContain('FST_ERR');
+    expect(failed.body).not.toContain(f.web);
+    expect(Number(failed.headers['content-length'])).toBe(failed.rawPayload.length);
     await chmod(file, 0o600);
     const repaired = await f.app.inject({ url: '/assets/chunk-AbCd0123.js' });
     expect(repaired.statusCode).toBe(200);
