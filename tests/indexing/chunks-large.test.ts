@@ -38,11 +38,15 @@ it('covers a real 20 MiB UTF-8 long line with bounded incremental chunks and exa
         .data.items[0],
       page = (await readyRead(f, n.id)).json().data.data;
     expect(page.sourceHash).toBe(source.digest('hex'));
-    const baseline = process.memoryUsage().rss,
+    const baselineMemory = process.memoryUsage(),
+      baseline = baselineMemory.rss,
       actual = createHash('sha256');
     let covered = 0,
       count = 0,
       peak = baseline,
+      peakMemory = baselineMemory,
+      lastMemory = baselineMemory,
+      peakChunk = 0,
       first = '',
       last = '';
     for await (const chunk of chunkService(f.config, db, tokenizer).chunkDocument(
@@ -61,14 +65,25 @@ it('covers a real 20 MiB UTF-8 long line with bounded incremental chunks and exa
       if (!count) first = chunk.content;
       last = chunk.content;
       count++;
-      peak = Math.max(peak, process.memoryUsage().rss);
+      lastMemory = process.memoryUsage();
+      if (lastMemory.rss > peak) {
+        peak = lastMemory.rss;
+        peakMemory = lastMemory;
+        peakChunk = count;
+      }
     }
     expect(covered).toBe(size);
     expect(actual.digest('hex')).toBe(page.sourceHash);
     expect(first).toContain('BEGIN');
     expect(last).toContain('END_EXACT_TAIL');
     expect(count).toBeGreaterThan(100);
-    expect(peak - baseline).toBeLessThanOrEqual(64 * 1024 * 1024);
+    expect(
+      peak - baseline,
+      'QA013_MEMORY_CONTEXT ' + JSON.stringify({
+        node: process.version, chunks: count, peakChunk,
+        baseline: baselineMemory, peak: peakMemory, last: lastMemory,
+      }),
+    ).toBeLessThanOrEqual(64 * 1024 * 1024);
   } finally {
     await tokenizer.close();
     db.close();
