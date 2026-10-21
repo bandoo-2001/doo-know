@@ -1,6 +1,8 @@
 import { test, expect } from '../support/browser-test';
-import { readFile } from 'node:fs/promises';
-import type { BrowserContext } from '@playwright/test';
+import { readFile, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import type { BrowserContext, Page } from '@playwright/test';
+import { showSidebar } from '../support/settings-navigation';
 
 const original = '# 启动完整性\r\n\r\n原文与草稿归属必须保留。\r\n\r\n<!-- 不改写 -->\r\n';
 
@@ -23,6 +25,125 @@ function gate() {
   const pending = new Promise<void>((resolve) => { release = resolve; });
   return { pending, release };
 }
+
+async function unpreparedNote(context: BrowserContext, content = original) {
+  await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
+  const config = JSON.parse(await readFile('.local/e2e-config.json', 'utf8'));
+  const fileName = `preparing-${crypto.randomUUID()}.md`;
+  await writeFile(join(config.knowledgeRoot, '00-Inbox', fileName), content);
+  const entries = await (await context.request.get('/api/tree')).json();
+  const find = (items: any[]): any => items.map((item) => item.name === fileName ? item : find(item.children || [])).find(Boolean);
+  return find(entries).id as string;
+}
+
+// Replay the metadata view at a real accepted preparation boundary. Only the
+// preparing discriminator is derived: the initial metadata, accepted operation,
+// operation completion, final metadata and document all come from the backend.
+// Holding delivery does not claim that the physical snapshot worker is stalled.
+async function holdSmallPreparation(page: Page, context: BrowserContext, id: string) {
+  const completion = gate();
+  let operationId = '', pending = false;
+  let accepted: any;
+  await page.route('**/api/notes/' + id + '/meta', async (route) => {
+    const response = await route.fetch(), metadata = await response.json();
+    if (!operationId) {
+      expect(metadata.readState).toBe('unknown');
+      expect(metadata.editorMode).toBe('large');
+      expect(metadata.sizeBytes).toBe(Buffer.byteLength(original));
+      accepted = await (await context.request.get('/api/notes/' + id + '/outline')).json();
+      expect(accepted.kind).toBe('accepted');
+      expect(['queued', 'running']).toContain(accepted.operation.status);
+      operationId = accepted.operation.operationId;
+      await route.fulfill({ response, json: { ...metadata, readState: 'preparing' } });
+    } else await route.fulfill({ response });
+  });
+  await page.route('**/api/notes/' + id + '/outline', async (route) => {
+    // Deliver the actual earlier accepted reply even if the worker has since
+    // finished; subsequent operation reads remain real backend responses.
+    pending = true;
+    await completion.pending;
+    await route.fulfill({ json: accepted }).catch(() => {});
+  });
+  return { release: completion.release, pending: () => pending, operationId: () => operationId };
+}
+
+for (const source of [false, true]) test.describe(source ? '准备中的 Markdown' : '准备中的文档', () => {
+  test.use({ sourceEditorPreference: source });
+  test('小笔记已有准备任务时等待完整正文，保持所选编辑器与原文字节', async ({ page, context }) => {
+    const id = await unpreparedNote(context), preparation = await holdSmallPreparation(page, context, id);
+    let writes = 0;
+    page.on('request', (request) => { if (['PUT', 'PATCH', 'DELETE'].includes(request.method()) || request.url().endsWith('/patch')) writes++; });
+    const editor = source ? page.locator('.cm-content') : page.getByRole('textbox', { name: '文档正文', exact: true });
+    try {
+      await page.goto('/?note=' + id);
+      await expect.poll(preparation.pending).toBe(true);
+      await expect(page.locator('.large-workspace')).toHaveCount(0);
+      await expect(editor).toHaveCount(0);
+    } finally { preparation.release(); }
+    await expect(editor).toBeEditable();
+    await expect(editor).toContainText('原文与草稿归属必须保留');
+    await expect(page.locator('.large-workspace')).toHaveCount(0);
+    expect((await (await context.request.get('/api/notes/' + id + '/meta')).json()).editorMode).toBe('full');
+    expect((await (await context.request.get('/api/notes/' + id)).json()).content).toBe(original);
+    const config = JSON.parse(await readFile('.local/e2e-config.json', 'utf8'));
+    const note = await (await context.request.get('/api/notes/' + id)).json();
+    expect(await readFile(join(config.knowledgeRoot, note.relativePath), 'utf8')).toBe(original);
+    expect(writes).toBe(0);
+  });
+});
+
+test('等待小笔记准备期间进入设置，迟到的任务完成不会重新打开笔记', async ({ page, context }) => {
+  const id = await unpreparedNote(context), preparation = await holdSmallPreparation(page, context, id);
+  await page.clock.install();
+  const outline = page.waitForResponse((response) => new URL(response.url()).pathname === '/api/notes/' + id + '/outline');
+  let fullReads = 0, writes = 0;
+  page.on('request', (request) => {
+    if (new URL(request.url()).pathname === '/api/notes/' + id && request.method() === 'GET') fullReads++;
+    if (request.method() === 'PUT' || request.url().endsWith('/patch')) writes++;
+  });
+  try {
+    await page.goto('/?note=' + id);
+    await expect.poll(preparation.pending).toBe(true);
+    await showSidebar(page);
+    await page.getByRole('button', { name: '设置', exact: true }).click();
+    await expect(page.getByRole('heading', { name: '编辑器与外观', exact: true })).toBeVisible();
+  } finally { preparation.release(); }
+  await (await outline).finished();
+  // Cross the existing operation-poll timer after delivering its accepted reply,
+  // so absence of a stale open is checked after the suspended continuation runs.
+  await page.clock.runFor(1000);
+  await expect.poll(async () => (await (await context.request.get('/api/operations/' + preparation.operationId())).json()).status).toBe('succeeded');
+  await expect(page).toHaveURL(/view=settings/);
+  await expect(page.getByRole('heading', { name: '编辑器与外观', exact: true })).toBeVisible();
+  await expect(page.locator('.cm-content')).toHaveCount(0);
+  await expect(page.getByRole('textbox', { name: '文档正文', exact: true })).toHaveCount(0);
+  expect(fullReads).toBe(0);
+  expect(writes).toBe(0);
+});
+
+for (const [label, content] of [
+  ['长行', '# Long line\n' + 'x'.repeat(32769) + '\n'],
+  ['大文件', '# Large\n' + 'unchanged line\n'.repeat(80000) + 'UNLOADED_SENTINEL'],
+]) test(`${label}准备后仍使用受限片段，不请求完整正文或隐式保存`, async ({ page, context }) => {
+  await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
+  const config = JSON.parse(await readFile('.local/e2e-config.json', 'utf8'));
+  const fileName = `bounded-${crypto.randomUUID()}.md`, path = join(config.knowledgeRoot, '00-Inbox', fileName);
+  await writeFile(path, content);
+  const entries = await (await context.request.get('/api/tree')).json();
+  const find = (items: any[]): any => items.map((item) => item.name === fileName ? item : find(item.children || [])).find(Boolean);
+  const id = find(entries).id;
+  let fullReads = 0, writes = 0;
+  page.on('request', (request) => {
+    if (new URL(request.url()).pathname === '/api/notes/' + id && request.method() === 'GET') fullReads++;
+    if (request.method() === 'PUT' || request.url().endsWith('/patch')) writes++;
+  });
+  await page.goto('/?note=' + id);
+  await expect(page.locator('.large-workspace')).toBeVisible();
+  await expect(page.locator('.large-workspace .cm-content')).toBeEditable();
+  expect(fullReads).toBe(0);
+  expect(writes).toBe(0);
+  expect(await readFile(path, 'utf8')).toBe(content);
+});
 
 for (const last of ['安全令牌', '服务状态']) test(`登录确认后并行核对安全与服务，${last}最后完成前不开启工作区`, async ({ page, context }) => {
   const id = await seed(context), security = gate(), service = gate();

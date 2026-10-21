@@ -581,7 +581,7 @@ async function openNote(id: string, line?: number, syncUrl = true, preserveDraft
     try {
       let meta = await api<NoteInfo>(`/api/notes/${id}/meta`);
       if (!currentIntent(intent)) return;
-      if (meta.readState === 'unknown' && meta.sizeBytes <= 1024 * 1024) {
+      if ((meta.readState === 'unknown' || meta.readState === 'preparing') && meta.sizeBytes <= 1024 * 1024) {
         const prep = await api<FileReply<OutlinePage>>(`/api/notes/${id}/outline`);
         if (prep.kind === 'accepted') {
           let op = prep.operation;
