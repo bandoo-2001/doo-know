@@ -5,7 +5,7 @@ import { ConfigProvider as AConfigProvider, theme as antAlgorithms } from 'ant-d
 import zhCN from 'ant-design-vue/es/locale/zh_CN';
 import { antTheme } from './ant-design';
 import type { PlatformStatus } from '../../shared/platform-contracts';
-import { api, refreshCsrf, resetCsrf } from './api';
+import { api, ApiError, refreshCsrf, resetCsrf } from './api';
 import { clearPluginDrafts, hasUnsavedPluginDrafts } from './plugin-drafts';
 import { disposePluginUIs } from './plugins';
 import { initializeEditorPreferences, resolvedTheme } from './preferences';
@@ -19,6 +19,8 @@ const token = location.pathname.startsWith('/s/') ? location.pathname.slice(3) :
   mountedWorkspace = ref(false),
   expired = ref(false),
   ready = ref(false);
+const sessionCheckBusy = ref(false),
+  sessionCheckError = ref('');
 const platform = ref<PlatformStatus>();
 const platformError = ref(''),
   platformBusy = ref(false),
@@ -153,8 +155,11 @@ const activeNaiveTheme = computed(() =>
       }
     : lightTheme,
 );
-async function login() {
-  const session = await api('/api/auth/get-session');
+async function acceptSession(
+  session: {
+    user?: { id?: string; displayUsername?: string; username?: string; name?: string };
+  } | null,
+) {
   if (typeof session?.user?.id !== 'string' || !session.user.id) {
     expired.value = true;
     return;
@@ -175,6 +180,31 @@ async function login() {
   expired.value = false;
   await refreshPlatform();
 }
+async function login() {
+  await acceptSession(await api('/api/auth/get-session'));
+}
+async function checkInitialSession() {
+  if (sessionCheckBusy.value) return;
+  sessionCheckBusy.value = true;
+  try {
+    const session = await api('/api/auth/get-session');
+    if (session?.user) {
+      await refreshCsrf();
+      await acceptSession(session);
+    }
+    sessionCheckError.value = '';
+  } catch (error) {
+    sessionCheckError.value =
+      error instanceof ApiError && error.status === 401
+        ? ''
+        : error instanceof ApiError && error.status === 429
+          ? '登录状态检查过于频繁，请稍后重试。'
+          : '暂时无法连接服务，请检查连接后重试。';
+  } finally {
+    sessionCheckBusy.value = false;
+    ready.value = true;
+  }
+}
 function sessionExpired() {
   if (loggedIn.value) expired.value = true;
 }
@@ -187,16 +217,7 @@ onMounted(async () => {
   window.addEventListener('beforeunload', protectPluginDrafts);
   if (!token) {
     window.addEventListener('dooknow-session-expired', sessionExpired);
-    try {
-      const session = await api('/api/auth/get-session');
-      if (session?.user) {
-        await refreshCsrf();
-        await login();
-      }
-    } catch {
-    } finally {
-      ready.value = true;
-    }
+    await checkInitialSession();
   } else ready.value = true;
 });
 onBeforeUnmount(() => {
@@ -212,8 +233,23 @@ onBeforeUnmount(() => {
       :theme="resolvedTheme === 'dark' ? darkTheme : null"
       :theme-overrides="activeNaiveTheme"
       ><ShareReader v-if="token" :token="token" /><template v-else-if="ready"
-        ><OAuthConsent
-          v-if="
+        ><section
+          v-if="sessionCheckError || sessionCheckBusy"
+          class="share-error"
+          :aria-busy="sessionCheckBusy"
+        >
+          <h1>暂时无法确认登录状态</h1>
+          <p>{{ sessionCheckError || '正在检查登录状态…' }}</p>
+          <NButton
+            type="primary"
+            :loading="sessionCheckBusy"
+            :disabled="sessionCheckBusy"
+            @click="checkInitialSession"
+            >重试连接</NButton
+          >
+        </section>
+        <OAuthConsent
+          v-else-if="
             loggedIn &&
             platform?.phase === 'ready' &&
             !platform.onboardingRequired &&
