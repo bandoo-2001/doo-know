@@ -38,6 +38,7 @@ import StatusDrawer from './StatusDrawer.vue';
 import TrashWorkspace from './TrashWorkspace.vue';
 import { settingsSections, normalizeSettingsSection } from '../settings';
 import { editorPreferences, setEditorPreferences } from '../preferences';
+import { createEditorViewTransitions } from '../editor/view-transitions';
 import type { SettingsSection } from '../../../shared/settings-contracts';
 import PluginSlot from './PluginSlot.vue';
 import PluginPanel from './PluginPanel.vue';
@@ -79,8 +80,26 @@ const documentEditingEnabled=documentEditorEnabled();
 const editorKind=ref<EditorKind>(documentEditingEnabled?editorPreferences.editorKind:'source');
 const editorComposing=ref(false),editorHint=ref('');
 watch(()=>editorPreferences.editorKind,value=>{editorKind.value=documentEditingEnabled?value:'source'});
-async function switchEditing(kind:EditorKind,sourceOffset?:number){if(editorKind.value===kind&&mode.value==='edit'&&sourceOffset===undefined)return;try{const saved=await editorRef.value?.flush();editorKind.value=kind;mode.value='edit';editorHint.value='';await nextTick();if(saved)editorRef.value?.focus(sourceOffset===undefined?saved.selection:{anchor:sourceOffset,head:sourceOffset,affinity:'after'});}catch(cause){showError(cause);}}
-async function changeNoteView(view:'edit'|'preview'|'split'){try{await editorRef.value?.flush();mode.value=view;}catch(cause){showError(cause);}}
+const editorViews = createEditorViewTransitions({
+  current: () => ({ kind: editorKind.value, mode: mode.value }),
+  flush: () => editorRef.value?.flush() ?? Promise.resolve(undefined),
+  apply(change) {
+    if ('kind' in change) {
+      editorKind.value = change.kind;
+      mode.value = 'edit';
+      editorHint.value = '';
+    } else mode.value = change.mode;
+  },
+  afterRender: () => nextTick(),
+  focus: (bookmark) => editorRef.value?.focus(bookmark),
+  error: showError,
+});
+function switchEditing(kind: EditorKind, sourceOffset?: number) {
+  return editorViews.select({ kind, sourceOffset });
+}
+function changeNoteView(view: 'edit' | 'preview' | 'split') {
+  return editorViews.select({ mode: view });
+}
 const mainRef = ref<HTMLElement>();
 const noteOpening = ref(false),
   editorTransfer = ref(false);
@@ -1601,6 +1620,7 @@ onMounted(() => {
   window.addEventListener('beforeunload', unload);
 });
 onBeforeUnmount(() => {
+  editorViews.cancel();
   gitUnsaved.value = false;
   clearPluginDrafts();
   navigation.dispose();
