@@ -291,6 +291,8 @@ it.each(['root', 'ancestor'])(
 
 it('keeps pending preview streams alive across a synchronous move', async () => {
   await preview();
+  // Observe the complete scheduled batch before testing that a move preserves it.
+  await expect.poll(() => active.size).toBe(3);
   const before = serial,
     beforeActive = active.size;
   await page.evaluate(() => {
