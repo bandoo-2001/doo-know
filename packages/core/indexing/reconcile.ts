@@ -1,6 +1,5 @@
 import { lstatSync, realpathSync, readdirSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
-import { join } from 'node:path';
 import type { AppConfig } from '../../../shared/contracts.js';
 import type { AppDatabase } from '../db.js';
 import { scanFiles, safePath, isMissingSource } from '../files.js';
@@ -203,15 +202,9 @@ export function reconcileService(config: AppConfig, db: AppDatabase) {
         ) {
           // The scan predates asynchronous Git/hash reads. A writer may have
           // created or restored this file while those reads were in progress.
-          try {
-            if (lstatSync(join(config.knowledgeRoot, row.path)).isFile()) {
-              safePath(config.knowledgeRoot, row.path, 'note');
-              continue;
-            }
-          } catch (e) {
-            if (!['ENOENT', 'ENOTDIR'].includes((e as NodeJS.ErrnoException).code || ''))
-              fail(503, 'SOURCE_UNAVAILABLE', '原文读取不可用', true);
-          }
+          // Validate every parent and the leaf even if a raw lstat would report
+          // a non-file or a missing child through a newly substituted symlink.
+          if (observe(row.path)) continue;
           db.prepare('UPDATE notes SET active=0 WHERE id=?').run(row.id);
           db.prepare('UPDATE shares SET enabled=0 WHERE note_id=?').run(row.id);
           db.prepare(

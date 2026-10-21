@@ -141,6 +141,63 @@ for (const target of ['current file', 'later file'] as const) {
   });
 }
 
+for (const restored of ['leaf symlink', 'parent symlink', 'missing child behind parent symlink', 'regular file'] as const) {
+  it(`rechecks a missing path restored as a ${restored} while another source is hashing`, async () => {
+    const fixture = await createFixture({ fileTasks: { embedded: false }, indexing: { enabled: false, watch: false } });
+    await fixture.app.close();
+    const db = openDatabase(fixture.dataRoot), core = mutationCore(fixture.config, db);
+    let barrier: Awaited<ReturnType<typeof gitReadBarrier>> | undefined;
+    let pending: ReturnType<ReturnType<typeof reconcileService>['reconcile']> | undefined;
+    let release!: () => void;
+    const gate = new Promise<void>(yes => { release = yes; });
+    const realHash = sourceReader.hashFile;
+    let hashing = false;
+    const hook = vi.spyOn(sourceReader, 'hashFile').mockImplementation(async (...args) => {
+      if (args[0].endsWith('/z-later.md')) { hashing = true; await gate; }
+      return realHash(...args);
+    });
+    try {
+      await mkdir(join(fixture.knowledgeRoot, '00-Inbox/first'));
+      const note = core.create(webPrincipal, '00-Inbox/first', 'a.md', '# Retained original\r\n', randomUUID());
+      core.create(webPrincipal, '00-Inbox', 'z-later.md', '# Later source\r\n', randomUUID());
+      db.prepare('INSERT INTO shares(note_id,token,enabled) VALUES(?,?,1)').run(note.id, randomUUID());
+      const file = join(fixture.knowledgeRoot, note.relativePath);
+      const parent = restored.includes('parent symlink');
+      const retained = join(fixture.root, parent ? 'retained-folder' : 'retained.md');
+      barrier = await gitReadBarrier(fixture.root);
+      pending = reconcileService(fixture.config, db).reconcile();
+      const settled = pending.then(value => ({ value, error: undefined }), error => ({ value: undefined, error }));
+      await barrier.entered();
+      renameSync(parent ? join(fixture.knowledgeRoot, '00-Inbox/first') : file, retained);
+      barrier.release();
+      await vi.waitFor(() => expect(hashing).toBe(true), { timeout: 5000 });
+      if (restored === 'regular file') renameSync(retained, file);
+      else {
+        const target = restored === 'missing child behind parent symlink' ? join(fixture.root, 'empty-folder') : retained;
+        if (target !== retained) await mkdir(target);
+        symlinkSync(target, parent ? join(fixture.knowledgeRoot, '00-Inbox/first') : file);
+      }
+      release();
+      const outcome = await settled;
+      if (restored === 'regular file') expect(outcome).toMatchObject({ value: { complete: true }, error: undefined });
+      else expect.soft(outcome.error).toMatchObject({ code: 'SOURCE_UNAVAILABLE', statusCode: 503 });
+      expect.soft(db.prepare('SELECT active FROM notes WHERE id=?').get(note.id)).toEqual({ active: 1 });
+      expect.soft(db.prepare('SELECT enabled FROM shares WHERE note_id=?').get(note.id)).toEqual({ enabled: 1 });
+      expect(readFileSync(restored === 'missing child behind parent symlink' ? join(retained, 'a.md') : file))
+        .toEqual(Buffer.from('# Retained original\r\n'));
+      expect(db.pragma('integrity_check', { simple: true })).toBe('ok');
+    } finally {
+      barrier?.release();
+      release();
+      await pending?.catch(() => {});
+      hook.mockRestore();
+      vi.unstubAllEnvs();
+      db.close();
+      await fixture.close();
+    }
+  });
+}
+
 it('uses a catalog identity registered while an untracked source is being hashed', async () => {
   const fixture = await createFixture({ fileTasks: { embedded: false }, indexing: { enabled: false, watch: false } });
   await fixture.app.close();
