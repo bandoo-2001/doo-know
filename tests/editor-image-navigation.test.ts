@@ -187,6 +187,58 @@ it('releases removed preview images even when the root binding is disposed in th
   await expect.poll(() => active.size, { timeout: 1500 }).toBe(0);
 });
 
+it.each(['root', 'ancestor'])(
+  'releases pending preview streams when its whole %s is removed without explicit disposal',
+  async (kind) => {
+    await preview();
+    await page.evaluate((kind) => {
+      const { root } = (window as any).fixture.preview;
+      const wrapper = document.createElement('article');
+      root.before(wrapper);
+      wrapper.append(root);
+      (kind === 'root' ? root : wrapper).remove();
+    }, kind);
+    await expect.poll(() => active.size, { timeout: 1500 }).toBe(0);
+  },
+);
+
+it('keeps pending preview streams alive across a synchronous move', async () => {
+  await preview();
+  const before = serial;
+  await page.evaluate(() => {
+    const { root } = (window as any).fixture.preview;
+    root.remove();
+    document.body.append(root);
+  });
+  await page.evaluate(() => new Promise<void>((resolve) => setTimeout(resolve, 0)));
+  expect(await page.locator('#preview img[src]').count()).toBe(6);
+  expect(active.size).toBe(6);
+  expect(serial).toBe(before);
+});
+
+it('does not cancel an unrelated image removed outside the bound preview', async () => {
+  await preview();
+  await page.evaluate(() => {
+    const root = (window as any).fixture.preview.root;
+    [...root.querySelectorAll('img')].slice(1).forEach((image: any) => image.remove());
+  });
+  await expect.poll(() => active.size).toBe(1);
+  await page.evaluate(() => {
+    const image = document.createElement('img');
+    image.src = '/api/assets/unrelated';
+    image.id = 'outside';
+    document.body.append(image);
+    (window as any).outsideImage = image;
+  });
+  await expect.poll(() => active.size).toBe(2);
+  await page.evaluate(() => (window as any).outsideImage.remove());
+  await page.evaluate(() => new Promise<void>((resolve) => setTimeout(resolve, 0)));
+  expect(await page.evaluate(() => (window as any).outsideImage.getAttribute('src'))).toBe(
+    '/api/assets/unrelated',
+  );
+  expect(active.size).toBe(2);
+});
+
 it('uses the current editor source if an image changes while an attempted leave is canceled', async () => {
   await page.evaluate(() => {
     window.addEventListener('beforeunload', () => {

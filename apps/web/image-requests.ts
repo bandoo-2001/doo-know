@@ -65,17 +65,28 @@ function createScope(document: Document) {
     timers.add(timer);
   }
   function releaseRemoved(records: MutationRecord[]) {
+    const ownedTrees: Element[] = [...roots];
     for (const record of records)
       for (const node of record.removedNodes) {
         if (node.nodeType !== 1) continue;
-        for (const image of imagesIn(node as Element)) if (!image.isConnected) release(image);
+        const element = node as Element;
+        // Observe a stable ancestor so removing the root itself is visible,
+        // while leaving unrelated page images outside our ownership alone.
+        if (ownedTrees.some((root) => root.contains(record.target))) {
+          ownedTrees.push(element);
+          for (const image of imagesIn(element)) if (!image.isConnected) release(image);
+        } else {
+          for (const root of roots)
+            if (element.contains(root))
+              for (const image of imagesIn(root)) if (!image.isConnected) release(image);
+        }
       }
   }
   const observer = new view.MutationObserver(releaseRemoved);
   function observeRoots() {
     releaseRemoved(observer.takeRecords());
     observer.disconnect();
-    for (const root of roots) observer.observe(root, { childList: true, subtree: true });
+    if (roots.size) observer.observe(document, { childList: true, subtree: true });
   }
   function stopIfUnused() {
     if (roots.size || owned.size) return;
@@ -121,7 +132,10 @@ export function bindImageRequests(root: HTMLElement) {
   scope?.roots.add(root);
   scope?.observeRoots();
   return () => {
-    if (!scope?.roots.delete(root)) return;
+    if (!scope?.roots.has(root)) return;
+    // Consume removals before dropping the root that establishes ownership.
+    scope.observeRoots();
+    scope.roots.delete(root);
     for (const image of imagesIn(root)) scope.release(image);
     scope.observeRoots();
     scope.stopIfUnused();
