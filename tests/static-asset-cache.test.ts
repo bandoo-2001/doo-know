@@ -1,6 +1,6 @@
 import { beforeAll, afterAll, it, expect } from 'vitest';
 import { chromium, type Browser } from '@playwright/test';
-import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
+import { mkdtemp, mkdir, writeFile, chmod, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { AddressInfo } from 'node:net';
@@ -75,4 +75,19 @@ it('keeps entries, unversioned files, missing assets and private API responses r
       expect(response.headers['cache-control'] || '').not.toMatch(/immutable|(?:s-)?max-age=[1-9]/);
     }
   } finally { await f.dispose(); }
+});
+
+
+it('does not cache a late file-open error after a fingerprinted asset is repaired', async () => {
+  const f = await staticFixture(), file = join(f.web, 'assets/chunk-AbCd0123.js');
+  try {
+    await chmod(file, 0);
+    const failed = await f.app.inject({ url: '/assets/chunk-AbCd0123.js' });
+    expect(failed.statusCode).toBe(500);
+    expect(failed.headers['cache-control']).toBe('no-store');
+    await chmod(file, 0o600);
+    const repaired = await f.app.inject({ url: '/assets/chunk-AbCd0123.js' });
+    expect(repaired.statusCode).toBe(200);
+    expect(repaired.body).toBe('export const value = "first release";');
+  } finally { await chmod(file, 0o600); await f.dispose(); }
 });

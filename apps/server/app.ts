@@ -69,6 +69,8 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
         : (target as any)[key],
   });
   app.setErrorHandler((err, req, reply) => {
+    // A static file may fail after its successful metadata lookup set caching.
+    reply.header('Cache-Control', 'no-store');
     if (req.url.startsWith('/api/public/') && !platform.status().components.knowledge)
       return reply.code(404).send({ error: '分享不存在或已不可用' });
     const error = err as Error & { statusCode?: number };
