@@ -298,7 +298,7 @@ test('upload button handles PNG and PDF, supports undo/redo and saves from previ
   await showRead(page);
   const image = page.locator('.preview-panel img');
   await expect(image).toBeVisible();
-  expect(await image.evaluate((el) => (el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+  await expect.poll(() => image.evaluate((el) => (el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
   const pdf = page.locator('.preview-panel a').filter({ hasText: 'toolbar.pdf' });
   await expect(pdf).toBeVisible();
   const asset = await page.request.get((await pdf.getAttribute('href'))!);
