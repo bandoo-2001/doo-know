@@ -1,9 +1,11 @@
-import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
+import { type ChildProcessWithoutNullStreams } from 'node:child_process';
 import { resolve, join } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { fail, KnowledgeError } from '../knowledge/errors.js';
+import { interactiveProcess } from '../processes/interactive.js';
 export class TokenizerClient {
   private child?: ChildProcessWithoutNullStreams;
+  private owned?: ReturnType<typeof interactiveProcess>;
   private buffer = Buffer.alloc(0);
   private pending = new Map<
     string,
@@ -17,38 +19,44 @@ export class TokenizerClient {
   private start() {
     if (this.child) return this.child;
     const root = resolve(this.options.runtimeRoot || 'runtime/vector-service'),
-      child = spawn(
+      owned = interactiveProcess(
         this.options.python || join(root, '.venv/bin/python'),
         [join(root, 'tokenizer_cli.py')],
         {
-          env: {
-            ...process.env,
-            DOOKNOW_MODEL_DIR: resolve(this.options.modelDir || '.local/models/bge-small-zh-v1.5'),
-            HF_HUB_OFFLINE: '1',
-            TRANSFORMERS_OFFLINE: '1',
-            HF_HUB_DISABLE_TELEMETRY: '1',
-            PYTHONUNBUFFERED: '1',
-          },
-          stdio: ['pipe', 'pipe', 'pipe'],
+          ...process.env,
+          DOOKNOW_MODEL_DIR: resolve(this.options.modelDir || '.local/models/bge-small-zh-v1.5'),
+          HF_HUB_OFFLINE: '1',
+          TRANSFORMERS_OFFLINE: '1',
+          HF_HUB_DISABLE_TELEMETRY: '1',
+          PYTHONUNBUFFERED: '1',
         },
-      );
+      ),
+      child = owned.child;
     this.child = child;
-    const rejectAll = () => {
+    this.owned = owned;
+    const rejectAll = (release: boolean) => {
+      if (this.owned !== owned) return;
       for (const item of this.pending.values()) {
         clearTimeout(item.timer);
         item.reject(new KnowledgeError(503, 'TOKENIZER_UNAVAILABLE', '本地分词进程不可用', true));
       }
       this.pending.clear();
-      this.child = undefined;
+      if (release) {
+        this.child = undefined;
+        this.owned = undefined;
+      }
       this.buffer = Buffer.alloc(0);
     };
-    child.on('error', rejectAll);
-    child.on('exit', rejectAll);
+    void owned.wait.then(
+      () => rejectAll(true),
+      () => rejectAll(!owned.alive()),
+    );
     child.stderr.resume();
     child.stdout.on('data', (bytes: Buffer) => {
+      if (this.owned !== owned) return;
       this.buffer = Buffer.concat([this.buffer, bytes]);
       if (this.buffer.length > 1024 * 1024) {
-        child.kill();
+        owned.terminate();
         return;
       }
       let end: number;
@@ -65,7 +73,7 @@ export class TokenizerClient {
             item.reject(new KnowledgeError(503, String(reply.error), '分词未完成', true));
           else item.resolve(reply.data);
         } catch {
-          child.kill();
+          owned.terminate();
         }
       }
     });
@@ -110,28 +118,6 @@ export class TokenizerClient {
     return this.call('tokenize', { texts });
   }
   async close() {
-    const child = this.child;
-    if (!child) return;
-    await new Promise<void>((resolve) => {
-      const terminateTimer = setTimeout(() => {
-        child.kill('SIGTERM');
-      }, 2000);
-      const killTimer = setTimeout(() => {
-        child.kill('SIGKILL');
-      }, 4000);
-      terminateTimer.unref();
-      killTimer.unref();
-      const finished = () => {
-        clearTimeout(terminateTimer);
-        clearTimeout(killTimer);
-        child.removeListener('exit', finished);
-        child.removeListener('close', finished);
-        resolve();
-      };
-      // Failed spawns close without exit; exited children can leave inherited pipes open.
-      child.once('exit', finished);
-      child.once('close', finished);
-      child.stdin.end();
-    });
+    await this.owned?.close();
   }
 }
