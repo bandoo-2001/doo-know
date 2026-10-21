@@ -18,6 +18,7 @@ import {markdownTasks} from '../shared/markdown-tasks';
 import * as editorCompatibility from '../apps/web/editor/compatibility';
 import * as assetBookmarks from '../apps/web/editor/asset-bookmark';
 import * as keyboardShortcuts from '../apps/web/editor/keyboard-shortcuts';
+import * as viewTransitions from '../apps/web/editor/view-transitions';
 
 const mockApi = vi.fn();
 const cleanups: (() => void)[] = [];
@@ -51,6 +52,7 @@ async function mount() {
       if (id === '../editor/compatibility') return editorCompatibility;
       if (id === '../editor/asset-bookmark') return assetBookmarks;
       if (id === '../editor/keyboard-shortcuts') return keyboardShortcuts;
+      if (id === '../editor/view-transitions') return viewTransitions;
       if (id === '../editor/toolbar-state') return format;
       if (id === '../api') return { api: mockApi, ApiError, resetCsrf: vi.fn() };
       if (id === '../navigation') return navigation;
