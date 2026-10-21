@@ -87,6 +87,18 @@ function createScope(document: Document) {
   function display(owner: Owner, resource: Resource) {
     if (!owner.alive || owner.resource !== resource || !owner.image.isConnected || !resource.url)
       return;
+    // The attachment resolver may change without an editor transaction.
+    // Never publish bytes for a source that is no longer authorized/current.
+    let current: string | null;
+    try {
+      current = allowedSource(owner.getter().src);
+    } catch {
+      current = null;
+    }
+    if (current !== resource.source) {
+      refresh(owner);
+      return;
+    }
     owner.image.src = resource.url;
     owner.image.removeAttribute('aria-busy');
   }

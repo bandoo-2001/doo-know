@@ -348,6 +348,42 @@ it('uses the current editor source if an image changes while an attempted leave 
   });
 });
 
+it.each(['changed', 'unavailable', 'throwing'] as const)(
+  'rechecks a %s resolver when pending bytes finish without a model transaction',
+  async (state) => {
+    await page.evaluate(() => (window as any).fixture.editor.destroy());
+    await expect.poll(() => active.size).toBe(0);
+    await page.evaluate(() => {
+      const f = (window as any).fixture;
+      const image = document.createElement('img');
+      image.id = 'resolver-image';
+      image.alt = 'resolver fixture';
+      document.body.append(image);
+      f.resolverState = 'original';
+      f.trackImageRequest(image, () => {
+        if (f.resolverState === 'throwing') throw Error('Resolver unavailable');
+        return { src: f.resolverState === 'unavailable' ? null :
+          '/api/assets/' + (f.resolverState === 'changed' ? 'resolver-current' : 'resolver-old') };
+      });
+    });
+    await expect.poll(() => requestedPaths.includes('/api/assets/resolver-old')).toBe(true);
+    await page.evaluate((state) => { (window as any).fixture.resolverState = state; }, state);
+    const image = page.locator('#resolver-image');
+    if (state === 'changed') {
+      await expect.poll(() => requestedPaths.includes('/api/assets/resolver-current'), { timeout: 4500 }).toBe(true);
+      expect(await image.getAttribute('src')).toBeNull();
+      await expect.poll(() => image.evaluate((node) => (node as HTMLImageElement).naturalWidth), { timeout: 4500 }).toBe(1);
+      expect(await image.getAttribute('data-dooknow-image-src')).toBe('/api/assets/resolver-current');
+    } else {
+      await expect.poll(() => active.size, { timeout: 4500 }).toBe(0);
+      expect(await image.getAttribute('src')).toBeNull();
+      expect(await image.getAttribute('data-dooknow-image-src')).toBeNull();
+    }
+    expect(await image.getAttribute('alt')).toBe('resolver fixture');
+    expect(await page.evaluate(() => (window as any).fixture.serialize())).toMatchObject({ok: true, markdown: original});
+  },
+);
+
 it('restores unaffected images if another image cannot resolve its current source', async () => {
   await preview();
   const errors: string[] = [];
