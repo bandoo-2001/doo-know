@@ -68,6 +68,7 @@ const commands: [string, string[]][] = [
       'tests/workspace-error-preservation.test.ts',
       'tests/workspace-process-identity.test.ts',
       'tests/search-runtime-process-identity.test.ts',
+      'tests/tokenizer-lifecycle.test.ts',
       'tests/git-guarded-timeout.test.ts',
       'tests/github-publish.test.ts',
       'tests/release-verification.test.ts',
