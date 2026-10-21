@@ -12,6 +12,8 @@ const png = Buffer.from(
   'base64',
 );
 const active = new Set<number>();
+let holdHeaders = false;
+let requestedPaths: string[] = [];
 let server: Server,
   browser: Browser,
   context: BrowserContext,
@@ -25,12 +27,12 @@ beforeAll(async () => {
       contents: `
     import { Editor } from '@tiptap/core';
     import { createRichProjection, richExtensions } from './apps/web/editor/rich-adapter.ts';
-    import { bindImageRequests, trackImageRequest } from './apps/web/image-requests.ts';
+    import { bindImageRequests, trackImageRequest, deferRenderedImages } from './apps/web/image-requests.ts';
     const original = ${JSON.stringify(original)}, projection = createRichProjection(original);
     let changes = 0;
     const editor = new Editor({element:document.querySelector('#editor'), extensions:richExtensions(undefined, src=>'/api/assets/'+src), content:projection.json, injectCSS:false, onUpdate(){changes++;}});
     window.fixture = { editor, trackImageRequest, serialize:()=>projection.serialize(editor.getJSON()), changes:()=>changes,
-      createPreview(){ const root=document.createElement('section'); root.id='preview'; document.body.append(root); root.innerHTML=Array.from({length:6},(_,i)=>'<img src="/api/assets/preview-'+i+'">').join(''); const stop=bindImageRequests(root); window.fixture.preview={root,stop}; }
+      createPreview(html){ const root=document.createElement('section'); root.id='preview'; document.body.append(root); root.innerHTML=deferRenderedImages(html ?? Array.from({length:6},(_,i)=>'<img src="/api/assets/preview-'+i+'">').join('')); const stop=bindImageRequests(root); window.fixture.preview={root,stop}; }
     };
   `,
     },
@@ -42,21 +44,75 @@ beforeAll(async () => {
   });
   server = createServer((q, r) => {
     if (q.url?.startsWith('/api/assets/')) {
+      requestedPaths.push(q.url);
       const id = ++serial;
       active.add(id);
-      r.writeHead(200, {
+      if (
+        q.url === '/api/assets/denied' ||
+        q.url === '/api/assets/redirect' ||
+        q.url === '/api/assets/oversized'
+      ) {
+        r.on('close', () => active.delete(id));
+        if (q.url.endsWith('redirect')) {
+          r.writeHead(302, { location: '/api/assets/should-not-follow' });
+          r.end();
+        } else if (q.url.endsWith('denied')) {
+          r.writeHead(403, { 'content-type': 'image/png' });
+          r.end(png);
+        } else {
+          r.writeHead(200, { 'content-type': 'image/png' });
+          r.end(Buffer.concat([png, Buffer.alloc(10 * 1024 * 1024 + 1)]));
+        }
+        return;
+      }
+      if (q.url === '/api/assets/bad-type') {
+        r.writeHead(200, { 'content-type': 'application/json', 'content-length': 1000 });
+        r.write('{');
+        r.on('close', () => active.delete(id));
+        return;
+      }
+      if (q.url === '/api/assets/progress-image') {
+        r.writeHead(200, { 'content-type': 'image/png', 'content-length': png.length });
+        r.write(png.subarray(0, 8));
+        let offset = 8;
+        const timer = setInterval(() => {
+          const next = Math.min(offset + 16, png.length);
+          r.write(png.subarray(offset, next));
+          offset = next;
+          if (offset === png.length) {
+            clearInterval(timer);
+            r.end();
+          }
+        }, 4000);
+        r.on('close', () => {
+          clearInterval(timer);
+          active.delete(id);
+        });
+        return;
+      }
+      const headers = {
         'content-type': 'image/png',
         'content-length': png.length,
         'cache-control': 'no-store',
-      });
-      r.write(png.subarray(0, 8));
+      };
+      if (!holdHeaders) {
+        r.writeHead(200, headers);
+        r.write(png.subarray(0, 8));
+      }
       // Real HTTP/1.1 streams fill all six browser connections until canceled
       // or completed. Route interception would not exercise that connection pool.
-      const timer = setTimeout(() => r.end(png.subarray(8)), 3000);
+      const headersHeld = holdHeaders;
+      const timer = setTimeout(() => {
+        if (headersHeld) r.writeHead(200, headers);
+        r.end(headersHeld ? png : png.subarray(8));
+      }, 3000);
       r.on('close', () => {
         clearTimeout(timer);
         active.delete(id);
       });
+    } else if (q.url === '/control') {
+      r.writeHead(200, { 'content-type': 'application/json' });
+      r.end('{}');
     } else if (q.url === '/app.js') {
       r.writeHead(200, { 'content-type': 'text/javascript', 'cache-control': 'no-store' });
       r.end(compiled.outputFiles[0].text);
@@ -77,11 +133,13 @@ afterAll(async () => {
   if (server) await new Promise<void>((yes) => server.close(() => yes()));
 });
 beforeEach(async () => {
+  holdHeaders = false;
+  requestedPaths = [];
   context = await browser.newContext();
   page = await context.newPage();
   await page.goto(origin, { waitUntil: 'commit' });
   await page.waitForFunction(() => !!(window as any).fixture);
-  await expect.poll(() => active.size).toBe(6);
+  await expect.poll(() => active.size).toBeGreaterThan(0);
 });
 afterEach(async () => {
   await context?.close();
@@ -91,6 +149,30 @@ afterEach(async () => {
 it('releases outstanding editor images before a full-page navigation can be starved of connections', async () => {
   const started = Date.now();
   await page.reload({ waitUntil: 'commit', timeout: 10000 });
+  expect(Date.now() - started).toBeLessThan(1500);
+});
+
+it('releases image requests whose response headers have not arrived before navigating', async () => {
+  await page.evaluate(() => (window as any).fixture.editor.destroy());
+  await expect.poll(() => active.size).toBe(0);
+  holdHeaders = true;
+  await page.reload({ waitUntil: 'commit', timeout: 10000 });
+  await page.waitForFunction(() => !!(window as any).fixture);
+  await expect.poll(() => active.size).toBeGreaterThan(0);
+  const started = Date.now();
+  await page.reload({ waitUntil: 'commit', timeout: 10000 });
+  expect(Date.now() - started).toBeLessThan(1500);
+});
+
+it('keeps a control request responsive while six image response headers are pending', async () => {
+  await page.evaluate(() => (window as any).fixture.editor.destroy());
+  await expect.poll(() => active.size).toBe(0);
+  holdHeaders = true;
+  await page.reload({ waitUntil: 'commit', timeout: 10000 });
+  await page.waitForFunction(() => !!(window as any).fixture);
+  await expect.poll(() => active.size).toBeGreaterThan(0);
+  const started = Date.now();
+  expect(await page.evaluate(async () => (await fetch('/control')).status)).toBe(200);
   expect(Date.now() - started).toBeLessThan(1500);
 });
 
@@ -123,7 +205,7 @@ it('keeps image sources, original CRLF Markdown and editor state when leaving is
   expect(canceled).toBe(true);
   // ProseMirror also creates spacer img elements without a src; those are not
   // document images and must not be mistaken for failed restoration.
-  await expect.poll(() => page.locator('#editor img[src]').count()).toBe(6);
+  await expect.poll(() => page.locator('#editor img[src]').count(), { timeout: 10000 }).toBe(6);
   expect(await page.evaluate(() => (window as any).fixture.serialize())).toEqual({
     ok: true,
     markdown: original,
@@ -140,12 +222,17 @@ it('stops requests belonging to a destroyed editor rather than leaving them behi
 });
 
 it('does not restart completed image downloads when a later leave is canceled', async () => {
-  await expect.poll(() => active.size, { timeout: 5000 }).toBe(0);
-  await page.waitForFunction(() =>
-    [...document.querySelectorAll<HTMLImageElement>('#editor img[src]')].every(
-      (image) => image.complete,
-    ),
+  await page.waitForFunction(
+    () => {
+      const images = [...document.querySelectorAll<HTMLImageElement>('#editor img[alt^="图片"]')];
+      return (
+        images.length === 6 && images.every((image) => image.complete && image.naturalWidth > 0)
+      );
+    },
+    {},
+    { timeout: 10000 },
   );
+  await expect.poll(() => active.size).toBe(0);
   const before = serial;
   await page.locator('#editor').click();
   await page.evaluate(() =>
@@ -168,7 +255,7 @@ async function preview() {
   await page.evaluate(() => (window as any).fixture.editor.destroy());
   await expect.poll(() => active.size).toBe(0);
   await page.evaluate(() => (window as any).fixture.createPreview());
-  await expect.poll(() => active.size).toBe(6);
+  await expect.poll(() => active.size).toBeGreaterThan(0);
 }
 it('releases image connections from a read-only HTML surface before navigation', async () => {
   await preview();
@@ -204,15 +291,16 @@ it.each(['root', 'ancestor'])(
 
 it('keeps pending preview streams alive across a synchronous move', async () => {
   await preview();
-  const before = serial;
+  const before = serial,
+    beforeActive = active.size;
   await page.evaluate(() => {
     const { root } = (window as any).fixture.preview;
     root.remove();
     document.body.append(root);
   });
   await page.evaluate(() => new Promise<void>((resolve) => setTimeout(resolve, 0)));
-  expect(await page.locator('#preview img[src]').count()).toBe(6);
-  expect(active.size).toBe(6);
+  expect(await page.locator('#preview img').count()).toBe(6);
+  expect(active.size).toBe(beforeActive);
   expect(serial).toBe(before);
 });
 
@@ -252,7 +340,7 @@ it('uses the current editor source if an image changes while an attempted leave 
     });
     window.dispatchEvent(new Event('beforeunload'));
   });
-  await expect.poll(() => page.locator('#editor img[src]').count()).toBe(5);
+  await expect.poll(() => page.locator('#editor img[src]').count(), { timeout: 10000 }).toBe(5);
   expect(await page.locator('#editor img[alt="图片0"]').getAttribute('src')).toBeNull();
   expect(await page.evaluate(() => (window as any).fixture.serialize())).toMatchObject({
     ok: true,
@@ -271,6 +359,113 @@ it('restores unaffected images if another image cannot resolve its current sourc
     });
     window.dispatchEvent(new Event('beforeunload'));
   });
-  await expect.poll(() => page.locator('#preview img[src]').count(), { timeout: 1500 }).toBe(5);
+  await expect.poll(() => page.locator('#preview img[src]').count(), { timeout: 10000 }).toBe(5);
   expect(errors).toEqual([]);
+});
+
+it('aborts an unusable image response instead of retaining its connection', async () => {
+  await page.evaluate(() => (window as any).fixture.editor.destroy());
+  await expect.poll(() => active.size).toBe(0);
+  const before = serial;
+  await page.evaluate(() =>
+    (window as any).fixture.createPreview('<img alt="unavailable" src="/api/assets/bad-type">'),
+  );
+  await expect.poll(() => serial).toBe(before + 1);
+  await expect.poll(() => active.size, { timeout: 1500 }).toBe(0);
+  expect(await page.locator('#preview img').getAttribute('alt')).toBe('unavailable');
+});
+it('allows a progressing image transfer to finish beyond the control-request deadline', async () => {
+  await page.evaluate(() => (window as any).fixture.editor.destroy());
+  await expect.poll(() => active.size).toBe(0);
+  await page.evaluate(() =>
+    (window as any).fixture.createPreview('<img alt="progress" src="/api/assets/progress-image">'),
+  );
+  await expect
+    .poll(
+      () =>
+        page.locator('#preview img').evaluate((image) => (image as HTMLImageElement).naturalWidth),
+      { timeout: 18000 },
+    )
+    .toBe(1);
+});
+
+it('shares a simultaneous download without retaining the object URL after its last view is removed', async () => {
+  await page.evaluate(() => (window as any).fixture.editor.destroy());
+  await expect.poll(() => active.size).toBe(0);
+  const before = serial;
+  await page.evaluate(() =>
+    (window as any).fixture.createPreview(
+      '<img alt="one" src="/api/assets/shared"><img alt="two" src="/api/assets/shared">',
+    ),
+  );
+  await page.waitForFunction(
+    () => {
+      const images = [...document.querySelectorAll<HTMLImageElement>('#preview img')];
+      return images.length === 2 && images.every((image) => image.naturalWidth === 1);
+    },
+    {},
+    { timeout: 5000 },
+  );
+  expect(serial - before).toBe(1);
+  const urls = await page
+    .locator('#preview img')
+    .evaluateAll((images) => images.map((image) => image.getAttribute('src')));
+  expect(new Set(urls).size).toBe(1);
+  await page.evaluate(() => (window as any).fixture.preview.root.firstElementChild.remove());
+  expect(
+    await page.evaluate(
+      async (url) => (await (await fetch(url!)).arrayBuffer()).byteLength,
+      urls[0],
+    ),
+  ).toBe(png.length);
+  await page.evaluate(() => (window as any).fixture.preview.root.remove());
+  await expect
+    .poll(() =>
+      page.evaluate(async (url) => {
+        try {
+          await fetch(url!);
+          return false;
+        } catch {
+          return true;
+        }
+      }, urls[0]),
+    )
+    .toBe(true);
+});
+
+it.each(['denied', 'redirect', 'oversized'])(
+  'does not display a %s response or follow it into another resource',
+  async (kind) => {
+    await page.evaluate(() => (window as any).fixture.editor.destroy());
+    await expect.poll(() => active.size).toBe(0);
+    const before = serial;
+    await page.evaluate(
+      (kind) =>
+        (window as any).fixture.createPreview(
+          '<img alt="retained" src="/api/assets/' + kind + '">',
+        ),
+      kind,
+    );
+    await expect.poll(() => serial).toBe(before + 1);
+    await page.waitForFunction(
+      () => !document.querySelector('#preview img')!.hasAttribute('aria-busy'),
+    );
+    expect(await page.locator('#preview img').getAttribute('src')).toBeNull();
+    expect(await page.locator('#preview img').getAttribute('alt')).toBe('retained');
+    expect(requestedPaths).not.toContain('/api/assets/should-not-follow');
+    await expect.poll(() => active.size).toBe(0);
+  },
+);
+it('does not trust a deferred-source attribute supplied without a rendered authorized source', async () => {
+  await page.evaluate(() => (window as any).fixture.editor.destroy());
+  await expect.poll(() => active.size).toBe(0);
+  const before = serial;
+  await page.evaluate(() =>
+    (window as any).fixture.createPreview(
+      '<img alt="retained" data-dooknow-image-src="/api/assets/forged">',
+    ),
+  );
+  await page.evaluate(() => new Promise<void>((yes) => requestAnimationFrame(() => yes())));
+  expect(serial).toBe(before);
+  expect(await page.locator('#preview img').getAttribute('data-dooknow-image-src')).toBeNull();
 });

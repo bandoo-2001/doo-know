@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { deferImageSource } from '../image-requests';
 import {markdownTasks} from '../../../shared/markdown-tasks';
 
 import { defineAsyncComponent, ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
@@ -429,7 +430,7 @@ const preview = computed(() => {
         const path = localPath(url),
           asset = assets.value.find((a) => a.relativePath === path),
           target = flat.value.find((x) => x.type === 'note' && x.path === path);
-        if (asset) t.attrSet(attr, `/api/assets/${asset.id}`);
+        if (asset) { if (t.type === 'image') deferImageSource(t, `/api/assets/${asset.id}`); else t.attrSet(attr, `/api/assets/${asset.id}`); }
         else if (target && t.type === 'link_open') t.attrSet(attr, `#note-${target.id}`);
         else if (url.startsWith('#')) {
         } else if (t.type === 'link_open' && /^https?:\/\//i.test(url)) {

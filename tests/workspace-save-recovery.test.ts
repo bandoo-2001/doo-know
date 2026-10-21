@@ -6,6 +6,7 @@ import MarkdownIt from 'markdown-it';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { ApiError } from '../apps/web/api';
 import * as navigation from '../apps/web/navigation';
+import * as imageRequests from '../apps/web/image-requests';
 import * as preferences from '../apps/web/preferences';
 import * as settings from '../apps/web/settings';
 import * as format from '../apps/web/markdown-format';
@@ -53,6 +54,7 @@ async function mount() {
       if (id === '../editor/toolbar-state') return format;
       if (id === '../api') return { api: mockApi, ApiError, resetCsrf: vi.fn() };
       if (id === '../navigation') return navigation;
+      if (id === '../image-requests') return imageRequests;
       if (id === '../preferences') return preferences;
       if (id === '../settings') return settings;
       if (id === '../markdown-format') return format;

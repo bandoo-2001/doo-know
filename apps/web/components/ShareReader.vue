@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { deferImageSource, deferRenderedImages } from '../image-requests';
 import {markdownTasks} from '../../../shared/markdown-tasks';
 
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
@@ -67,11 +68,11 @@ async function readPage(cursor?: string) {
             !url.includes('\\') &&
             !/^[a-z][a-z0-9+.-]*:/i.test(url) &&
             !url.startsWith('#')
-          )
-            token.attrSet(
-              attr,
-              `/api/public/shares/${encodeURIComponent(props.token)}/asset?source=${encodeURIComponent(url)}`,
-            );
+          ) {
+            const mapped = `/api/public/shares/${encodeURIComponent(props.token)}/asset?source=${encodeURIComponent(url)}`;
+            if (token.type === 'image') deferImageSource(token, mapped);
+            else token.attrSet(attr, mapped);
+          }
           else if (token.type === 'link_open' && /^https?:\/\//i.test(url)) {
             token.attrSet('rel', 'noopener noreferrer');
             token.attrSet('target', '_blank');
@@ -115,7 +116,7 @@ async function loadShare() {
     } else {
       const result = await api(`/api/public/shares/${encodeURIComponent(props.token)}`);
       if (disposed) return;
-      doc.value = { ...result, html: DOMPurify.sanitize(result.html) };
+      doc.value = { ...result, html: deferRenderedImages(DOMPurify.sanitize(result.html)) };
     }
     if (doc.value && !error.value) document.title = `${doc.value.title} · DooKnow 分享`;
   } catch (cause) {

@@ -60,7 +60,16 @@ test('上传图片显示授权地址，源码保留相对路径且可编辑替�
       'base64',
     ),
   });
-  await expect(editor.locator('img[src]')).toHaveAttribute('src', /^\/api\/assets\//);
+  await expect(editor.locator('img[src]')).toHaveAttribute(
+    'data-dooknow-image-src',
+    /^\/api\/assets\//,
+  );
+  await expect(editor.locator('img[src]')).toHaveAttribute('src', /^blob:/);
+  await expect
+    .poll(() =>
+      editor.locator('img[src]').evaluate((image) => (image as HTMLImageElement).naturalWidth),
+    )
+    .toBeGreaterThan(0);
   await editor.locator('img[src]').click();
   await page.getByRole('textbox', { name: '图片替代文字', exact: true }).fill('示例图片');
   await page.getByRole('button', { name: '应用图片说明', exact: true }).click();
@@ -134,7 +143,16 @@ test('粘贴图片文件沿用上传流程，不在正文里留下空白占位',
       new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true }),
     );
   });
-  await expect(editor.locator('img[src]')).toHaveAttribute('src', /^\/api\/assets\//);
+  await expect(editor.locator('img[src]')).toHaveAttribute(
+    'data-dooknow-image-src',
+    /^\/api\/assets\//,
+  );
+  await expect(editor.locator('img[src]')).toHaveAttribute('src', /^blob:/);
+  await expect
+    .poll(() =>
+      editor.locator('img[src]').evaluate((image) => (image as HTMLImageElement).naturalWidth),
+    )
+    .toBeGreaterThan(0);
   await saveDocument(page);
   expect((await (await page.request.get('/api/notes/' + note.id)).json()).content).toContain(
     'pasted.png',
@@ -153,8 +171,11 @@ test('任务完成状态、定义列表和上下标粘贴需明确选择，不�
     await editor.click();
     await editor.evaluate((el, html) => {
       const data = new DataTransfer();
-      data.setData('text/html', html); data.setData('text/plain', '保留文字');
-      el.dispatchEvent(new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true }));
+      data.setData('text/html', html);
+      data.setData('text/plain', '保留文字');
+      el.dispatchEvent(
+        new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true }),
+      );
     }, html);
     await expect(page.getByRole('dialog')).toBeVisible();
     await page.getByRole('button', { name: '取消', exact: true }).click();
@@ -168,7 +189,9 @@ test('已有链接的显示文字和地址一起修改，可一次撤销', async
   await editor.locator('a').click();
   await page.getByRole('button', { name: '插入链接', exact: true }).click();
   await page.getByRole('textbox', { name: '链接文字', exact: true }).fill('新文字');
-  await page.getByRole('textbox', { name: '链接地址', exact: true }).fill('https://example.invalid/new');
+  await page
+    .getByRole('textbox', { name: '链接地址', exact: true })
+    .fill('https://example.invalid/new');
   await page.getByRole('button', { name: '保存链接', exact: true }).click();
   await expect(editor.locator('a')).toHaveText('新文字');
   await expect(editor.locator('a')).toHaveAttribute('href', 'https://example.invalid/new');
@@ -180,10 +203,20 @@ test('上传失败保留原文，上传中继续输入后需重新确认插入�
   const note = await openDocumentNote(page, context, '原文');
   const editor = page.getByRole('textbox', { name: '文档正文', exact: true });
   const assetURL = `**/api/notes/${note.id}/assets`;
-  await page.route(assetURL, async (route) => route.request().method() === 'POST'
-    ? route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ error: '测试附件服务暂不可用' }) })
-    : route.continue());
-  const file = { name: 'deferred.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.4\nfixture\n%%EOF') };
+  await page.route(assetURL, async (route) =>
+    route.request().method() === 'POST'
+      ? route.fulfill({
+          status: 503,
+          contentType: 'application/json',
+          body: JSON.stringify({ error: '测试附件服务暂不可用' }),
+        })
+      : route.continue(),
+  );
+  const file = {
+    name: 'deferred.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.from('%PDF-1.4\nfixture\n%%EOF'),
+  };
   let choosing = page.waitForEvent('filechooser');
   await page.getByRole('button', { name: '上传附件', exact: true }).click();
   await (await choosing).setFiles(file);
@@ -191,10 +224,16 @@ test('上传失败保留原文，上传中继续输入后需重新确认插入�
   await expect(editor).toHaveText('原文');
   await expect(page.locator('.save-state')).toContainText('已保存');
   await page.unroute(assetURL);
-  let release!: () => void, started = false;
-  const hold = new Promise<void>((resolve) => { release = resolve; });
+  let release!: () => void,
+    started = false;
+  const hold = new Promise<void>((resolve) => {
+    release = resolve;
+  });
   await page.route(assetURL, async (route) => {
-    if (route.request().method() === 'POST') { started = true; await hold; }
+    if (route.request().method() === 'POST') {
+      started = true;
+      await hold;
+    }
     await route.continue();
   });
   await editor.click();

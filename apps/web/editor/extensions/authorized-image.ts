@@ -15,9 +15,7 @@ export function authorizedImage(resolve?: (url: string) => string | undefined) {
         function update(next: typeof node) {
           if (next.type.name !== 'image') return false;
           current = next;
-          const url = currentSource();
-          if (url) img.setAttribute('src', url);
-          else img.removeAttribute('src');
+          stopRequest.refresh();
           img.alt = next.attrs.alt || '图片';
           if (next.attrs.title) img.title = next.attrs.title;
           else img.removeAttribute('title');
@@ -28,6 +26,7 @@ export function authorizedImage(resolve?: (url: string) => string | undefined) {
           dom: img,
           update,
           destroy: stopRequest,
+          ignoreMutation: (mutation) => mutation.type !== 'selection',
           selectNode() {
             img.classList.add('ProseMirror-selectednode');
           },

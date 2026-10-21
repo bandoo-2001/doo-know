@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { deferImageSource } from '../image-requests';
 import {markdownTasks} from '../../../shared/markdown-tasks';
 
 import { ref, computed, watch, onBeforeUnmount } from 'vue';
@@ -181,7 +182,7 @@ const previewHtml = computed(() => {
             if (asset) mapped = '/api/assets/' + encodeURIComponent(asset.id);
           }
         } catch {}
-        if (mapped) token.attrSet(attr, mapped);
+        if (mapped) { if (token.type === 'image') deferImageSource(token, mapped); else token.attrSet(attr, mapped); }
         else if (token.type === 'link_open' && /^https?:\/\//i.test(url)) {
           token.attrSet('target', '_blank');
           token.attrSet('rel', 'noopener noreferrer');
