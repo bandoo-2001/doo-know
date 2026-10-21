@@ -123,3 +123,34 @@ test('提前加载界面失败不损坏登录状态，安全检查后仍能打�
   expect(writes).toBe(0);
   expect((await (await context.request.get('/api/notes/' + id)).json()).content).toBe(original);
 });
+
+test('正式构建阻断启动后的异步样式，恢复后目录操作样式仍完整', async ({ page, context }) => {
+  test.skip(process.env.DOOKNOW_E2E_PRODUCTION !== '1', '此项验证生产打包的异步CSS；开发构建直接注入样式');
+  const id = await seed(context), csrf = gate();
+  let available = false, workspaceURL = '', deferredStyles = 0;
+  page.on('request', (request) => {
+    if (/\/assets\/Workspace-[^/]+\.js$/.test(new URL(request.url()).pathname)) workspaceURL = request.url();
+  });
+  await page.addInitScript(() => {
+    window.addEventListener('vite:preloadError', (event) => {
+      if (String((event as any).payload?.message).includes('CSS')) (window as any).__startupCssFailed = true;
+    });
+  });
+  await page.route('**/api/security/csrf', async (route) => { await csrf.pending; await route.continue(); });
+  await page.route((url) => /\/assets\/Workspace-[^/]+\.css$/.test(url.pathname), async (route) => {
+    deferredStyles++;
+    if (!available) return route.abort('connectionfailed');
+    await route.continue();
+  });
+  try {
+    await page.goto('/?note=' + id, { waitUntil: 'domcontentloaded' });
+    await expect.poll(() => workspaceURL).not.toBe('');
+    expect(await page.evaluate(async (url) => {
+      try { await import(url); return true; } catch { return false; }
+    }, workspaceURL)).toBe(true);
+    if (deferredStyles) await page.waitForFunction(() => (window as any).__startupCssFailed === true);
+  } finally { available = true; csrf.release(); }
+  await expect(page.getByRole('textbox', { name: '文档正文', exact: true })).toContainText('启动完整性');
+  await expect(page.locator('.tree-more').first()).toHaveCSS('display', 'flex');
+  expect((await (await context.request.get('/api/notes/' + id)).json()).content).toBe(original);
+});

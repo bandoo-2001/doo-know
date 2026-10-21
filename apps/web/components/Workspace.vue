@@ -1619,6 +1619,9 @@ onMounted(() => {
     if (epoch === treeRefreshEpoch) {
       tree.value = entries;
       treeLoaded.value = true;
+    } else {
+      // A user action superseded the prefetch while draft identity was pending.
+      await refresh();
     }
     await applyRoute(readWorkspaceRoute());
     if (sessionStorage.getItem('dooknow-welcome-action') === 'create-note') {

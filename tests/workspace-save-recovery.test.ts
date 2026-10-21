@@ -200,6 +200,39 @@ it('starts body and attachment reads together but opens only the complete note',
   expect(writes()).toHaveLength(0);
 });
 
+it.each(['folder', 'welcome'] as const)('keeps initial %s actions after a refresh supersedes the prefetched tree', async (route) => {
+  const request = mockApi.getMockImplementation()!;
+  const entries = [{ type: 'folder', name: '00-Inbox', path: '00-Inbox', children: [] }];
+  let identityReady!: (value: unknown) => void, refreshReady!: (value: unknown) => void;
+  const identity = new Promise((resolve) => { identityReady = resolve; });
+  const manual = new Promise((resolve) => { refreshReady = resolve; });
+  const storage = { getItem: vi.fn(() => route === 'welcome' ? 'create-note' : null), removeItem: vi.fn() };
+  vi.stubGlobal('sessionStorage', storage);
+  window.location.search = route === 'folder' ? '?folder=00-Inbox' : '';
+  window.location.href = 'http://isolated.invalid/' + window.location.search;
+  let holdNextTree = false;
+  mockApi.mockImplementation((...args) => {
+    if (args[0] === '/api/auth/get-session') return identity;
+    if (args[0] === '/api/tree') {
+      if (holdNextTree) { holdNextTree = false; return manual; }
+      return Promise.resolve(entries);
+    }
+    return request(...args);
+  });
+  await mount(false);
+  holdNextTree = true;
+  const refreshed = state.refresh();
+  try {
+    identityReady({ user: { id: 'owner' } });
+    await vi.waitFor(() => expect(storage.getItem).toHaveBeenCalledWith('dooknow-welcome-action'));
+  } finally { refreshReady(entries); await refreshed; }
+  expect(state.treeLoaded.value).toBe(true);
+  if (route === 'folder') {
+    expect(state.panel.value).toBe('folder');
+    expect(state.folder.value).toBe('00-Inbox');
+  } else expect(state.createOpen.value).toBe(true);
+});
+
 it.each(['save', 'checkSave'])(
   'one explicit %s retries an undelivered save with its original identity, content and base',
   async (action) => {
