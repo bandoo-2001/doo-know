@@ -10,7 +10,8 @@ import { clearPluginDrafts, hasUnsavedPluginDrafts } from './plugin-drafts';
 import { disposePluginUIs } from './plugins';
 import { initializeEditorPreferences, resolvedTheme } from './preferences';
 const Login = defineAsyncComponent(() => import('./components/Login.vue'));
-const Workspace = defineAsyncComponent(() => import('./components/Workspace.vue'));
+const loadWorkspace = () => import('./components/Workspace.vue');
+const Workspace = defineAsyncComponent(loadWorkspace);
 const ShareReader = defineAsyncComponent(() => import('./components/ShareReader.vue'));
 const SetupWizard = defineAsyncComponent(() => import('./components/SetupWizard.vue'));
 const OAuthConsent = defineAsyncComponent(() => import('./components/OAuthConsent.vue'));
@@ -189,6 +190,8 @@ async function checkInitialSession() {
   try {
     const session = await api('/api/auth/get-session');
     if (session?.user) {
+      if (!oauthMode && typeof session.user.id === 'string' && session.user.id)
+        void loadWorkspace().catch(() => {});
       await refreshCsrf();
       await acceptSession(session);
     }

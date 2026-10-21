@@ -539,10 +539,10 @@ async function openNote(id: string, line?: number, syncUrl = true, preserveDraft
         }
         meta = await api<NoteInfo>(`/api/notes/${id}/meta`);
       }
-      const n: NoteDocument =
+      const documentRequest: Promise<NoteDocument> =
         meta.editorMode === 'full'
-          ? await api<NoteDocument>(`/api/notes/${id}`)
-          : {
+          ? api<NoteDocument>(`/api/notes/${id}`)
+          : Promise.resolve({
               id: meta.id,
               title: meta.title,
               relativePath: meta.relativePath,
@@ -550,8 +550,11 @@ async function openNote(id: string, line?: number, syncUrl = true, preserveDraft
               modifiedAt: meta.modifiedAt,
               updatedAt: new Date().toISOString(),
               shared: meta.shared,
-            };
-      const attachments = await api<any[]>(`/api/notes/${id}/assets`).catch(() => []);
+            });
+      const [n, attachments] = await Promise.all([
+        documentRequest,
+        api<any[]>(`/api/notes/${id}/assets`).catch(() => []),
+      ]);
       if (epoch !== viewEpoch) return;
       if (
         preserveDraft &&
@@ -1608,8 +1611,15 @@ onMounted(() => {
   window.addEventListener('dooknow-workspace-changed', workspaceChanged);
   window.addEventListener('dooknow-notice', pluginNotice);
   void run(async () => {
-    await initializeDrafts();
-    await refresh();
+    const epoch = ++treeRefreshEpoch;
+    const [, entries] = await Promise.all([
+      initializeDrafts(),
+      api<TreeEntry[]>('/api/tree'),
+    ]);
+    if (epoch === treeRefreshEpoch) {
+      tree.value = entries;
+      treeLoaded.value = true;
+    }
     await applyRoute(readWorkspaceRoute());
     if (sessionStorage.getItem('dooknow-welcome-action') === 'create-note') {
       sessionStorage.removeItem('dooknow-welcome-action');

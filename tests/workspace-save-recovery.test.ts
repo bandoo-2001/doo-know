@@ -39,7 +39,7 @@ const compiled = compileScript(descriptor, { id: 'workspace-save-recovery' });
 const source = ts.transpileModule(compiled.content, {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
 }).outputText;
-async function mount() {
+async function mount(waitForNote = true) {
   const output: { exports: any } = { exports: {} };
   new Function('require', 'module', 'exports', source)(
     (id: string) => {
@@ -119,6 +119,7 @@ async function mount() {
   const app = renderer.createApp(component);
   app.mount({});
   cleanups.push(() => app.unmount());
+  if (!waitForNote) return;
   await vi.waitFor(() => expect(state.note.value?.id).toBe(original.id));
   state.draft.value = '# Submitted';
   await Vue.nextTick();
@@ -166,6 +167,37 @@ beforeEach(() => {
 afterEach(() => {
   for (const cleanup of cleanups.splice(0)) cleanup();
   vi.unstubAllGlobals();
+});
+
+it('starts initial reads together but publishes no tree or note before draft identity resolves', async () => {
+  const request = mockApi.getMockImplementation()!;
+  let finish!: (value: unknown) => void;
+  const identity = new Promise((resolve) => { finish = resolve; });
+  mockApi.mockImplementation((...args) => args[0] === '/api/auth/get-session' ? identity : request(...args));
+  await mount(false);
+  try {
+    await vi.waitFor(() => expect(mockApi.mock.calls.some(([url]) => url === '/api/tree')).toBe(true));
+    expect(state.treeLoaded.value).toBe(false);
+    expect(state.note.value).toBeUndefined();
+    expect(mockApi.mock.calls.some(([url]) => url === '/api/notes/note-one/meta')).toBe(false);
+  } finally { finish({ user: { id: 'owner' } }); }
+  await vi.waitFor(() => expect(state.note.value?.content).toBe(original.content));
+  expect(state.treeLoaded.value).toBe(true);
+});
+
+it('starts body and attachment reads together but opens only the complete note', async () => {
+  const request = mockApi.getMockImplementation()!;
+  let finish!: (value: unknown) => void;
+  const document = new Promise((resolve) => { finish = resolve; });
+  mockApi.mockImplementation((...args) => args[0] === '/api/notes/note-one' ? document : request(...args));
+  await mount(false);
+  try {
+    await vi.waitFor(() => expect(mockApi.mock.calls.some(([url]) => url === '/api/notes/note-one')).toBe(true));
+    expect(mockApi.mock.calls.some(([url]) => url === '/api/notes/note-one/assets')).toBe(true);
+    expect(state.note.value).toBeUndefined();
+  } finally { finish({ ...original }); }
+  await vi.waitFor(() => expect(state.note.value?.content).toBe(original.content));
+  expect(writes()).toHaveLength(0);
 });
 
 it.each(['save', 'checkSave'])(
