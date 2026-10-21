@@ -20,6 +20,7 @@ function fixture(afterRender: () => Promise<unknown> = async () => {}) {
       else state.mode = change.mode;
     },
     afterRender,
+    cancelPendingFocus() {},
     focus(bookmark) {
       focused = bookmark;
     },
@@ -31,6 +32,36 @@ function fixture(afterRender: () => Promise<unknown> = async () => {}) {
 }
 
 describe('editor view requests', () => {
+  it('cancels a queued child-editor focus when a newer view is selected', async () => {
+    const session = createEditorSession({ noteId: 'own', generation: 1, markdown: '正文' });
+    const state: EditorViewState = { kind: 'document', mode: 'edit' };
+    let pending: SelectionBookmark | undefined;
+    let active = 'preview control';
+    const views = createEditorViewTransitions({
+      current: () => state,
+      flush: () => session.flush(),
+      apply(change) {
+        if ('kind' in change) Object.assign(state, { kind: change.kind, mode: 'edit' });
+        else state.mode = change.mode;
+      },
+      afterRender: async () => {},
+      focus(bookmark) {
+        pending = bookmark;
+      },
+      cancelPendingFocus() {
+        pending = undefined;
+      },
+      error(cause) {
+        throw cause;
+      },
+    });
+    await views.select({ kind: 'source', sourceOffset: 0 });
+    await views.select({ mode: 'split' });
+    if (pending) active = 'editor';
+    expect(active).toBe('preview control');
+    expect(state).toEqual({ kind: 'source', mode: 'split' });
+    expect(session.snapshot().markdown).toBe('正文');
+  });
   it.each<EditorViewChange>([{ kind: 'source' }, { mode: 'preview' }])(
     'keeps the final document choice after composition delayed $kind $mode',
     async (pendingView) => {

@@ -11,12 +11,14 @@ export function createEditorViewTransitions(options: {
   apply: (change: EditorViewChange) => void;
   afterRender: () => Promise<unknown>;
   focus: (bookmark: SelectionBookmark) => void;
+  cancelPendingFocus: () => void;
   error: (cause: unknown) => void;
 }) {
   let request = 0;
   return {
     async select(change: EditorViewChange) {
       const selected = ++request;
+      options.cancelPendingFocus();
       const current = options.current();
       if (
         'kind' in change &&
@@ -48,6 +50,7 @@ export function createEditorViewTransitions(options: {
     },
     cancel() {
       request++;
+      options.cancelPendingFocus();
     },
   };
 }

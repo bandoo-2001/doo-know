@@ -1,5 +1,43 @@
 import { test, expect } from '../support/browser-test';
 import { openDocumentNote } from '../support/document-editor';
+test('源码加载期间选择同时预览后不会被旧请求抢走焦点', async ({ page, context }) => {
+  let release!: () => void;
+  const pendingSource = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  let held = false;
+  await page.route(
+    (url) =>
+      url.pathname.endsWith('/components/MarkdownEditor.vue') ||
+      /\/assets\/MarkdownEditor-[^/]+\.js$/.test(url.pathname),
+    async (route) => {
+      held = true;
+      await pendingSource;
+      await route.continue().catch(() => {});
+    },
+  );
+  try {
+    const original = 'abcdef\n\n<!-- 目标注释 -->\n\nuvwxyz\n';
+    const note = await openDocumentNote(page, context, original);
+    const editor = page.getByRole('textbox', { name: '文档正文', exact: true });
+    await editor
+      .locator('.opaque-source-card')
+      .getByRole('button', { name: '在源码中编辑', exact: true })
+      .click();
+    await expect.poll(() => held).toBe(true);
+    const simultaneous = page.getByRole('checkbox', { name: '同时预览', exact: true });
+    await simultaneous.focus();
+    await simultaneous.press('Space');
+    await expect(simultaneous).toBeChecked();
+    await expect(simultaneous).toBeFocused();
+    release();
+    await expect(page.locator('.cm-content')).toBeVisible();
+    await expect(simultaneous).toBeFocused();
+    expect((await (await page.request.get('/api/notes/' + note.id)).json()).content).toBe(original);
+  } finally {
+    release();
+  }
+});
 test('切换二十次不改写原文、不发保存请求，源码编辑后可跨模式撤销', async ({ page, context }) => {
   const raw = '标题\n====\n\n__原始粗体__\n\n* 原始列表\n';
   const note = await openDocumentNote(page, context, raw);
@@ -70,7 +108,13 @@ test('源码反向选区插入附件替换选中文字，并保留撤销历史',
   expect(await page.evaluate(() => window.getSelection()?.toString())).toBe('cd');
   const choosing = page.waitForEvent('filechooser');
   await page.getByRole('button', { name: '上传附件', exact: true }).click();
-  await (await choosing).setFiles({ name: 'selection.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.4\nfixture\n%%EOF') });
+  await (
+    await choosing
+  ).setFiles({
+    name: 'selection.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.from('%PDF-1.4\nfixture\n%%EOF'),
+  });
   await expect(source).toHaveText(/^ab\[selection\.pdf\]\([^\n]+\)ef$/);
   await page.getByRole('button', { name: '撤销', exact: true }).click();
   await expect(source).toHaveText('abcdef');

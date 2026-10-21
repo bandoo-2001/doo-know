@@ -92,6 +92,7 @@ const editorViews = createEditorViewTransitions({
   },
   afterRender: () => nextTick(),
   focus: (bookmark) => editorRef.value?.focus(bookmark),
+  cancelPendingFocus: () => editorRef.value?.cancelPendingFocus(),
   error: showError,
 });
 function switchEditing(kind: EditorKind, sourceOffset?: number) {
