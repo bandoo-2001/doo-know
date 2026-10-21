@@ -76,11 +76,24 @@ export function safePath(
       if ((e as NodeJS.ErrnoException).code === 'ENOENT' && missingLeaf && i === parts.length - 1)
         break;
       if (e instanceof HttpError) throw e;
-      throw new HttpError(404, '文件或目录不存在');
+      const error = new HttpError(404, '文件或目录不存在');
+      // Keep filesystem provenance internally; details is serialized to clients.
+      Object.defineProperty(error, 'cause', { value: e, writable: true, configurable: true });
+      throw error;
     }
   }
   if (!current.startsWith(base + sep)) throw new HttpError(400, '路径不允许');
   return current;
+}
+export function sourceErrorCode(error: unknown): string | undefined {
+  if (!error || typeof error !== 'object') return;
+  const source = (error as Error).cause ?? error;
+  if (!source || typeof source !== 'object') return;
+  const code = (source as NodeJS.ErrnoException).code;
+  return typeof code === 'string' ? code : undefined;
+}
+export function isMissingSource(error: unknown) {
+  return ['ENOENT', 'ENOTDIR'].includes(sourceErrorCode(error) || '');
 }
 export function readDocument(root: string, path: string) {
   const file = safePath(root, path, 'note');

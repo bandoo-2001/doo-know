@@ -77,6 +77,8 @@ const commands: [string, string[]][] = [
       'tests/workspace-save-recovery.test.ts',
       'tests/git-web-regressions.test.ts',
       'tests/knowledge/snapshot-lifecycle.test.ts',
+      'tests/knowledge/reconcile-source-race.test.ts',
+      'tests/knowledge/note-read-permissions.test.ts',
       'tests/update-command.test.ts',
       'tests/download-proxy.test.ts',
       'tests/download-proxy-process.test.ts',
