@@ -18,7 +18,10 @@ export class ApiError extends Error {
   }
 }
 export async function refreshCsrf() {
-  const r = await fetch('/api/security/csrf', { cache: 'no-store' });
+  const r = await fetch('/api/security/csrf', {
+    cache: 'no-store',
+    signal: AbortSignal.timeout(15000),
+  });
   if (!r.ok) throw new ApiError(r.status, await r.json());
   csrfToken = (await r.json()).token;
 }
