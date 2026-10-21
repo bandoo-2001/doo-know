@@ -17,13 +17,13 @@ jobs:
       - run: npm run typecheck
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e -- tests/e2e/git.spec.ts --grep "installs Git interactions" --project desktop
-      - run: npm run test:e2e -- tests/e2e/document-editor-selection-race.spec.ts tests/e2e/document-editor-content.spec.ts tests/e2e/editor-mode-switch.spec.ts tests/e2e/session-bootstrap-retry.spec.ts tests/e2e/startup-latency.spec.ts tests/e2e/image-surfaces.spec.ts
+      - run: npm run test:e2e -- tests/e2e/document-editor-selection-race.spec.ts tests/e2e/document-editor-content.spec.ts tests/e2e/editor-mode-switch.spec.ts tests/e2e/session-bootstrap-retry.spec.ts tests/e2e/startup-latency.spec.ts tests/e2e/startup-draft-identity.spec.ts tests/e2e/image-surfaces.spec.ts
         env:
           VITE_DOCUMENT_EDITOR_ENABLED: '1'
       - run: npx vitest run tests/install-launcher.test.ts tests/install-template.test.ts tests/account-prompt.test.ts tests/auth.test.ts tests/platform-cli.test.ts tests/platform-config.test.ts tests/platform-update.test.ts tests/platform-rollback-service.test.ts tests/git-transport.test.ts tests/git-remote.test.ts tests/guarded-process-lifecycle.test.ts tests/guarded-process-cancellation.test.ts tests/guarded-process-streams.test.ts tests/guarded-process-session.test.ts tests/process-runner-unavailable.test.ts tests/git-containment-failure.test.ts tests/workspace-error-preservation.test.ts tests/workspace-process-identity.test.ts tests/search-runtime-process-identity.test.ts tests/git-guarded-timeout.test.ts tests/github-publish.test.ts tests/release-verification.test.ts tests/maintenance-storage.test.ts tests/backup-reconciliation.test.ts tests/knowledge/snapshot-lifecycle.test.ts tests/knowledge/reconcile-source-race.test.ts tests/knowledge/note-read-permissions.test.ts tests/update-command.test.ts tests/download-proxy.test.ts tests/download-proxy-process.test.ts tests/download-proxy-cli.test.ts tests/editor-dom-selection.test.ts tests/editor-image-navigation.test.ts tests/editor-asset-bookmark.test.ts tests/editor-clipboard.test.ts tests/editor-compatibility.test.ts tests/editor-content-security.test.ts tests/editor-history.test.ts tests/editor-opaque-source.test.ts tests/editor-preferences-mode.test.ts tests/editor-rich-adapter.test.ts tests/editor-session.test.ts tests/editor-view-transitions.test.ts tests/editor-source-codec.test.ts tests/markdown-task-render.test.ts tests/workspace-save-recovery.test.ts tests/session-bootstrap-retry.test.ts tests/api-csrf-timeout.test.ts tests/static-asset-cache.test.ts tests/web-note-drafts.test.ts tests/web-drafts.test.ts
       - run: npm run build
         env:
           VITE_DOCUMENT_EDITOR_ENABLED: '1'
-      - run: npm run test:e2e -- tests/e2e/startup-latency.spec.ts
+      - run: npm run test:e2e -- tests/e2e/startup-latency.spec.ts tests/e2e/startup-draft-identity.spec.ts
         env:
           DOOKNOW_E2E_PRODUCTION: '1'

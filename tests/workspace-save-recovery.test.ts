@@ -19,6 +19,7 @@ import * as editorCompatibility from '../apps/web/editor/compatibility';
 import * as assetBookmarks from '../apps/web/editor/asset-bookmark';
 import * as keyboardShortcuts from '../apps/web/editor/keyboard-shortcuts';
 import * as viewTransitions from '../apps/web/editor/view-transitions';
+import { useNoteDraft as realNoteDraft } from '../apps/web/useNoteDraft';
 
 const mockApi = vi.fn();
 const cleanups: (() => void)[] = [];
@@ -31,6 +32,7 @@ const original = {
 };
 const meta = { ...original, editorMode: 'full', sizeBytes: 5 };
 let state: any;
+let realDraftLifecycle = false;
 let flush: ReturnType<typeof vi.fn>, clearSaved: ReturnType<typeof vi.fn>;
 const descriptor = parse(
   readFileSync(new URL('../apps/web/components/Workspace.vue', import.meta.url), 'utf8'),
@@ -73,7 +75,7 @@ async function mount(waitForNote = true) {
       if (id === '../plugin-drafts') return { clearPluginDrafts: vi.fn() };
       if (id === '../useNoteDraft')
         return {
-          useNoteDraft: () => ({
+          useNoteDraft: (context: any, restore: any) => realDraftLifecycle ? realNoteDraft(context, restore) : ({
             scope: Vue.ref(),
             recovered: Vue.ref(),
             loading: Vue.ref(false),
@@ -140,6 +142,7 @@ function lookupFailure(error: unknown) {
   });
 }
 beforeEach(() => {
+  realDraftLifecycle = false;
   mockApi.mockReset();
   clearSaved = vi.fn(async () => {});
   flush = vi.fn(async () => 'current-local-version');
@@ -163,6 +166,165 @@ beforeEach(() => {
     if (url === '/api/tree' || url.endsWith('/assets')) return [];
     return {};
   });
+});
+
+function holdIdentity() {
+  // Namespace hashing has its own browser coverage; keep this lifecycle test on
+  // the supported no-SubtleCrypto path so draining one turn settles the reply.
+  vi.stubGlobal('crypto', { randomUUID: crypto.randomUUID.bind(crypto) });
+  const request = mockApi.getMockImplementation()!;
+  let resolve!: (value: unknown) => void;
+  const pending = new Promise((done) => { resolve = done; });
+  mockApi.mockImplementation((...args) => args[0] === '/api/auth/get-session' ? pending : request(...args));
+  return () => resolve({ user: { id: 'owner' } });
+}
+// Drain the current work without completing the explicitly held identity request.
+const turn = () => new Promise<void>((resolve) => setImmediate(resolve));
+
+it('manual refresh cannot publish an editable directory before draft ownership is confirmed', async () => {
+  const release = holdIdentity();
+  await mount(false);
+  const refreshed = state.refresh();
+  try {
+    await turn();
+    expect(state.treeLoaded.value).toBe(false);
+    expect(state.note.value).toBeUndefined();
+  } finally { release(); await refreshed; }
+  await vi.waitFor(() => expect(state.note.value?.id).toBe(original.id));
+});
+
+it('a direct note open joins ownership validation before reading or exposing the note', async () => {
+  const release = holdIdentity();
+  await mount(false);
+  const opened = state.openNote(original.id);
+  try {
+    await turn();
+    expect(state.note.value).toBeUndefined();
+    expect(mockApi.mock.calls.some(([url]) => url === '/api/notes/note-one/meta')).toBe(false);
+  } finally { release(); await opened; }
+  await vi.waitFor(() => expect(state.note.value?.content).toBe(original.content));
+});
+
+it('failed ownership validation leaves the editor closed until an explicit successful retry', async () => {
+  const request = mockApi.getMockImplementation()!;
+  let valid = false;
+  mockApi.mockImplementation((...args) => args[0] === '/api/auth/get-session' && !valid ? Promise.resolve({}) : request(...args));
+  await mount(false);
+  await vi.waitFor(() => expect(state.draftError.value).not.toBe(''));
+  await turn();
+  expect(state.note.value).toBeUndefined();
+  expect(state.treeLoaded.value).toBe(false);
+  valid = true;
+  await state.run(() => state.openNote(original.id));
+  expect(state.note.value?.content).toBe(original.content);
+});
+
+it('settings supersedes queued startup and note navigation while identity is pending', async () => {
+  const release = holdIdentity();
+  await mount(false);
+  const opened = state.openNote(original.id);
+  await state.settings('editor');
+  expect(state.panel.value).toBe('settings');
+  release();
+  await opened;
+  await turn();
+  expect(state.panel.value).toBe('settings');
+  expect(state.note.value).toBeUndefined();
+});
+
+it('late ownership replies cannot initialize a draft store or open a note after unmount', async () => {
+  realDraftLifecycle = true;
+  const release = holdIdentity();
+  await mount(false);
+  cleanups.pop()!();
+  release();
+  await turn();
+  expect(state.draftScope.value).toBeUndefined();
+  expect(state.note.value).toBeUndefined();
+  expect(state.treeLoaded.value).toBe(false);
+});
+
+it('newer settings navigation preserves an unconsumed welcome action during startup', async () => {
+  const release = holdIdentity();
+  const storage = { getItem: (key: string) => key === 'dooknow-welcome-action' ? 'create-note' : null, removeItem: vi.fn() };
+  vi.stubGlobal('sessionStorage', storage);
+  await mount(false);
+  await state.settings('editor');
+  release();
+  await turn();
+  expect(state.panel.value).toBe('settings');
+  expect(state.createOpen.value).toBe(false);
+  expect(storage.removeItem).not.toHaveBeenCalled();
+});
+
+it('the newest requested note owns navigation when multiple opens wait for identity', async () => {
+  const request = mockApi.getMockImplementation()!;
+  const second = { ...original, id: 'note-two', content: '# Newer selection', relativePath: '00-Inbox/two.md' };
+  mockApi.mockImplementation((...args) => {
+    if (args[0] === '/api/notes/note-two/meta') return Promise.resolve({ ...second, editorMode: 'full', sizeBytes: 17 });
+    if (args[0] === '/api/notes/note-two') return Promise.resolve(second);
+    return request(...args);
+  });
+  const release = holdIdentity();
+  await mount(false);
+  const first = state.openNote(original.id), newest = state.openNote(second.id);
+  release();
+  await Promise.all([first, newest]);
+  await turn();
+  expect(state.note.value?.id).toBe('note-two');
+  expect(state.draft.value).toBe('# Newer selection');
+  expect(state.selected.value).toBe('00-Inbox/two.md');
+});
+
+it('logout invalidates a pending draft identity before its old response can initialize storage', async () => {
+  realDraftLifecycle = true;
+  const release = holdIdentity();
+  await mount(false);
+  await state.logout();
+  release();
+  await turn();
+  expect(state.draftScope.value).toBeUndefined();
+  expect(state.draftIdentityReady.value).toBe(false);
+  expect(state.note.value).toBeUndefined();
+});
+
+it('a refused logout holds the retained editor until fresh ownership validation finishes', async () => {
+  await mount();
+  state.draft.value = original.content;
+  await Vue.nextTick();
+  const release = holdIdentity();
+  const held = mockApi.getMockImplementation()!;
+  mockApi.mockImplementation((...args) => args[0] === '/api/auth/sign-out' ? Promise.reject(new Error('Sign-out unavailable')) : held(...args));
+  const loggedOut = state.logout();
+  await vi.waitFor(() => expect(state.draftIdentityReady.value).toBe(false));
+  expect(state.formatDisabled.value).toBe(true);
+  const reopened = state.openNote(original.id);
+  release();
+  await Promise.all([loggedOut, reopened]);
+  expect(state.draftIdentityReady.value).toBe(true);
+  expect(state.note.value?.content).toBe(original.content);
+  expect(state.formatDisabled.value).toBe(false);
+});
+
+it('a folder history route waits for the winning initial directory read after refresh supersession', async () => {
+  const request = mockApi.getMockImplementation()!;
+  const entries = [{ type: 'folder', name: '00-Inbox', path: '00-Inbox', children: [] }];
+  let trees = 0, releaseTree!: (entries: unknown) => void;
+  const winningTree = new Promise((resolve) => { releaseTree = resolve; });
+  mockApi.mockImplementation((...args) => args[0] === '/api/tree'
+    ? (++trees >= 3 ? winningTree : Promise.resolve(entries)) : request(...args));
+  const releaseIdentity = holdIdentity();
+  await mount(false);
+  const routed = state.applyRoute({ folder: '00-Inbox' });
+  const refreshed = state.refresh();
+  releaseIdentity();
+  await turn();
+  releaseTree(entries);
+  await Promise.all([routed, refreshed]);
+  await turn();
+  expect(state.treeLoaded.value).toBe(true);
+  expect(state.panel.value).toBe('folder');
+  expect(state.folder.value).toBe('00-Inbox');
 });
 afterEach(() => {
   for (const cleanup of cleanups.splice(0)) cleanup();
@@ -224,8 +386,11 @@ it.each(['folder', 'welcome'] as const)('keeps initial %s actions after a refres
   const refreshed = state.refresh();
   try {
     identityReady({ user: { id: 'owner' } });
-    await vi.waitFor(() => expect(storage.getItem).toHaveBeenCalledWith('dooknow-welcome-action'));
+    // Startup may now join the winning manual read instead of issuing another
+    // read. Release that real prerequisite before waiting for its route/action.
+    await turn();
   } finally { refreshReady(entries); await refreshed; }
+  await vi.waitFor(() => expect(storage.getItem).toHaveBeenCalledWith('dooknow-welcome-action'));
   expect(state.treeLoaded.value).toBe(true);
   if (route === 'folder') {
     expect(state.panel.value).toBe('folder');

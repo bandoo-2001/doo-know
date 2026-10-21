@@ -166,6 +166,7 @@ const tree = ref<TreeEntry[]>([]),
 const treeMenu = ref<InstanceType<typeof TreeContextMenu>>();
 const treeMenuPath = ref('');
 let treeRefreshEpoch = 0;
+let treeRefreshRequest: Promise<void> | undefined;
 const collection = ref<'notes' | 'recent' | 'favorites'>('notes');
 const favoriteBusy = ref(false);
 const favoriteIds = computed(() =>
@@ -201,7 +202,9 @@ async function toggleFavorite(id: string) {
   }
 }
 async function showCollection(view: 'recent' | 'favorites') {
-  await openNotes();
+  const intent = ++navigationIntent;
+  await openNotes(intent);
+  if (!currentIntent(intent)) return;
   collection.value = view;
   query.value = '';
   sidebarCollapsed.value = false;
@@ -273,6 +276,11 @@ const query = ref(''),
   results = ref<any[]>([]),
   assets = ref<any[]>([]);
 let viewEpoch = 0;
+let alive = true, navigationIntent = 0;
+const currentIntent = (intent: number) => alive && intent === navigationIntent;
+const draftIdentityReady = ref(false);
+let draftIdentityGeneration = 0, signingOut = false;
+let draftIdentityRequest: Promise<boolean> | undefined;
 const currentView = (id: string, epoch: number) => note.value?.id === id && viewEpoch === epoch;
 let searchTimer: ReturnType<typeof setTimeout>;
 let noticeTimer: ReturnType<typeof setTimeout>;
@@ -312,6 +320,7 @@ const formatDisabled = computed(
     !note.value ||
     noteInfo.value?.editorMode !== 'full' ||
     mode.value === 'preview' ||
+    !draftIdentityReady.value ||
     noteOpening.value ||
     editorTransfer.value ||
     draftLoading.value ||
@@ -325,9 +334,11 @@ function editHistory(action: 'undo' | 'redo') {
   if (!formatDisabled.value) editorRef.value?.editHistory(action);
 }
 async function browseRoot() {
+  const intent = ++navigationIntent;
   await run(() =>
     guard(async () => {
       await localDrafts.flush();
+      if (!currentIntent(intent)) return;
       viewEpoch++;
       note.value = undefined;
       panel.value = 'empty';
@@ -335,7 +346,7 @@ async function browseRoot() {
       selected.value = '';
       drawer.value = false;
       navigation.commit({});
-    }),
+    }, intent),
   );
 }
 const navigation = createWorkspaceNavigation({
@@ -350,48 +361,75 @@ const navigation = createWorkspaceNavigation({
     navigationState.value = state;
   },
 });
-async function initializeDrafts() {
-  try {
-    const [session, status] = await Promise.all([
-      api('/api/auth/get-session'),
-      api('/api/platform/status'),
-    ]);
-    if (!session?.user?.id || !status.knowledgeRoot)
-      throw new Error('未能确认本地草稿所属账户与知识库，请手动保存原文。');
-    const identity = JSON.stringify([status.knowledgeRoot, status.bindingVersion]);
-    const knowledgeId = crypto.subtle
-      ? Array.from(
-          new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(identity))),
-          (x) => x.toString(16).padStart(2, '0'),
-        ).join('')
-      : identity;
-    localDrafts.setup({ ownerId: session.user.id, knowledgeId });
-  } catch (cause) {
-    draftError.value =
-      cause instanceof Error ? cause.message : '本地草稿保护暂不可用，请手动保存原文。';
-  }
+function invalidateDraftIdentity() {
+  draftIdentityGeneration++;
+  draftIdentityReady.value = false;
+  draftIdentityRequest = undefined;
 }
-async function applyRoute(route: WorkspaceRoute) {
+function initializeDrafts(force = false): Promise<boolean> {
+  if (!alive || signingOut) return Promise.resolve(false);
+  if (force) invalidateDraftIdentity();
+  if (draftIdentityReady.value) return Promise.resolve(true);
+  if (draftIdentityRequest) return draftIdentityRequest;
+  const generation = ++draftIdentityGeneration;
+  const current = () => alive && generation === draftIdentityGeneration;
+  draftIdentityRequest = (async () => {
+    try {
+      const [session, status] = await Promise.all([
+        api('/api/auth/get-session'),
+        api('/api/platform/status'),
+      ]);
+      if (!session?.user?.id || !status.knowledgeRoot)
+        throw new Error('未能确认本地草稿所属账户与知识库，请手动保存原文。');
+      const identity = JSON.stringify([status.knowledgeRoot, status.bindingVersion]);
+      const knowledgeId = crypto.subtle
+        ? Array.from(
+            new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(identity))),
+            (x) => x.toString(16).padStart(2, '0'),
+          ).join('')
+        : identity;
+      if (!current()) return false;
+      localDrafts.setup({ ownerId: session.user.id, knowledgeId });
+      draftIdentityReady.value = true;
+      draftError.value = '';
+      return true;
+    } catch (cause) {
+      if (!current()) return false;
+      draftError.value =
+        cause instanceof Error ? cause.message : '本地草稿保护暂不可用，请手动保存原文。';
+      throw cause;
+    } finally {
+      if (current()) draftIdentityRequest = undefined;
+    }
+  })();
+  return draftIdentityRequest;
+}
+async function applyRoute(route: WorkspaceRoute, intent = ++navigationIntent) {
+  if (!currentIntent(intent)) return;
   if (route.note && ['settings', 'trash'].includes(panel.value) && note.value?.id === route.note) {
+    if (!await initializeDrafts() || !currentIntent(intent)) return;
     panel.value = 'note';
     drawer.value = false;
     return;
   }
-  if (route.note) return openNote(route.note, route.line, false);
-  if (route.view === 'trash') return openTrash(false);
-  if (route.view === 'settings') return settings(route.section, false);
+  if (route.note) return openNote(route.note, route.line, false, false, intent);
+  if (route.view === 'trash') return openTrash(false, intent);
+  if (route.view === 'settings') return settings(route.section, false, intent);
+  if (route.folder && !treeLoaded.value) await refresh();
+  if (!currentIntent(intent) || (route.folder && !treeLoaded.value)) return;
   const entry = route.folder
     ? flat.value.find((item) => item.type === 'folder' && item.path === route.folder)
     : undefined;
-  if (entry) return select(entry, false);
+  if (entry) return select(entry, false, intent);
   await guard(async () => {
     await localDrafts.flush();
+    if (!currentIntent(intent)) return;
     viewEpoch++;
     note.value = undefined;
     panel.value = 'empty';
     folder.value = '';
     selected.value = '';
-  });
+  }, intent);
 }
 const pluginContext = computed(() => ({
   noteId: note.value?.id,
@@ -493,10 +531,23 @@ async function run(fn: () => Promise<void>) {
 }
 async function refresh() {
   const epoch = ++treeRefreshEpoch;
-  const entries = await api<TreeEntry[]>('/api/tree');
-  if (epoch !== treeRefreshEpoch) return;
-  tree.value = entries;
-  treeLoaded.value = true;
+  const request = (async () => {
+    const [ready, entries] = await Promise.all([
+      initializeDrafts(), api<TreeEntry[]>('/api/tree'),
+    ]);
+    if (!ready || !alive || epoch !== treeRefreshEpoch) return;
+    tree.value = entries;
+    treeLoaded.value = true;
+  })();
+  treeRefreshRequest = request;
+  let waiting = request;
+  // Initial folder lookup needs a published tree. A superseded read must join
+  // the current read, rather than returning an empty directory as success.
+  for (;;) {
+    await waiting;
+    if (!alive || treeLoaded.value || !treeRefreshRequest || waiting === treeRefreshRequest) return;
+    waiting = treeRefreshRequest;
+  }
 }
 let collectionRefreshing = false;
 async function refreshCollection() {
@@ -517,23 +568,26 @@ async function refreshCollection() {
     collectionRefreshing = false;
   }
 }
-async function openNote(id: string, line?: number, syncUrl = true, preserveDraft = false) {
+async function openNote(id: string, line?: number, syncUrl = true, preserveDraft = false, intent = ++navigationIntent) {
+  if (!currentIntent(intent) || !await initializeDrafts() || !currentIntent(intent)) return;
   await guard(async () => {
     const useDefaultMode = note.value?.id !== id;
     const originalDraft = draft.value,
       originalSaved = savedContent.value;
     await localDrafts.flush();
+    if (!currentIntent(intent)) return;
     const epoch = ++viewEpoch;
     noteOpening.value = true;
     try {
       let meta = await api<NoteInfo>(`/api/notes/${id}/meta`);
+      if (!currentIntent(intent)) return;
       if (meta.readState === 'unknown' && meta.sizeBytes <= 1024 * 1024) {
         const prep = await api<FileReply<OutlinePage>>(`/api/notes/${id}/outline`);
         if (prep.kind === 'accepted') {
           let op = prep.operation;
           while (['queued', 'running'].includes(op.status)) {
             await new Promise((r) => setTimeout(r, 1000));
-            if (epoch !== viewEpoch) return;
+            if (epoch !== viewEpoch || !currentIntent(intent)) return;
             op = await api<FileOperation>(`/api/operations/${op.operationId}`);
           }
         }
@@ -555,7 +609,7 @@ async function openNote(id: string, line?: number, syncUrl = true, preserveDraft
         documentRequest,
         api<any[]>(`/api/notes/${id}/assets`).catch(() => []),
       ]);
-      if (epoch !== viewEpoch) return;
+      if (epoch !== viewEpoch || !currentIntent(intent) || !draftIdentityReady.value) return;
       if (
         preserveDraft &&
         (dirty.value || draft.value !== originalDraft || savedContent.value !== originalSaved)
@@ -583,17 +637,19 @@ async function openNote(id: string, line?: number, syncUrl = true, preserveDraft
       if (syncUrl) navigation.commit({ note: id, line });
       if (meta.editorMode === 'full') await localDrafts.load(id, currentDraftBase(), n.content);
       await nextTick();
+      if (epoch !== viewEpoch || !currentIntent(intent)) return;
       if (line) editorRef.value?.goToLine(line);
     } finally {
       if (epoch === viewEpoch) noteOpening.value = false;
     }
-  });
+  }, intent);
 }
-async function select(entry: TreeEntry, syncUrl = true) {
+async function select(entry: TreeEntry, syncUrl = true, intent = ++navigationIntent) {
   await run(async () => {
-    if (entry.type === 'note') await openNote(entry.id!);
+    if (entry.type === 'note') await openNote(entry.id!, undefined, syncUrl, false, intent);
     else
       await guard(async () => {
+        if (!currentIntent(intent)) return;
         viewEpoch++;
         folder.value = entry.path;
         selected.value = entry.path;
@@ -601,17 +657,19 @@ async function select(entry: TreeEntry, syncUrl = true) {
         drawer.value = false;
         panel.value = 'folder';
         if (syncUrl) navigation.commit({ folder: entry.path });
-      });
+      }, intent);
   });
 }
 const leaveOpen = ref(false);
 let pendingNavigation: (() => Promise<void>) | undefined;
-async function guard(fn: () => Promise<void>) {
+async function guard(fn: () => Promise<void>, intent = navigationIntent) {
   if(noteInfo.value?.editorMode === 'full') {try {await editorRef.value?.flush();}catch(cause){showError(cause);if(!dirty.value)return;}}
+  if (!currentIntent(intent)) return;
+  const apply = async () => { if (currentIntent(intent)) await fn(); };
   if (dirty.value) {
-    pendingNavigation = fn;
+    pendingNavigation = apply;
     leaveOpen.value = true;
-  } else await fn();
+  } else await apply();
 }
 async function leave(action: 'save' | 'discard' | 'cancel') {
   if (action === 'cancel') {
@@ -991,8 +1049,8 @@ const rootFolderNeedsPurpose = computed(
     !rootFolderPurposes.some((purpose) => purpose.value === newName.value),
 );
 let createRequestId = crypto.randomUUID();
-function create(kind: 'note' | 'folder', parent?: string) {
-  if (!treeLoaded.value) return;
+function create(kind: 'note' | 'folder', parent?: string, intent = navigationIntent) {
+  if (!currentIntent(intent) || !treeLoaded.value || !draftIdentityReady.value) return;
   dialogError.value = '';
   createRequestId = crypto.randomUUID();
   createKind.value = kind;
@@ -1035,6 +1093,7 @@ async function submitCreate() {
   )
     return;
   createBusy.value = true;
+  const intent = navigationIntent;
   try {
     await run(async () => {
       if (createKind.value === 'folder') {
@@ -1045,7 +1104,6 @@ async function submitCreate() {
       } else {
         await guard(async () => {
           const name = newName.value.endsWith('.md') ? newName.value : newName.value + '.md';
-          const epoch = viewEpoch;
           let n: NoteDocument;
           try {
             n = await api<NoteDocument>('/api/notes', 'POST', {
@@ -1061,12 +1119,12 @@ async function submitCreate() {
           }
           createOpen.value = false;
           await refresh();
-          if (epoch !== viewEpoch) {
+          if (!currentIntent(intent)) {
             tell('笔记已创建，可在目录中打开');
             return;
           }
-          await openNote(n.id);
-        });
+          await openNote(n.id, undefined, true, false, intent);
+        }, intent);
       }
     });
   } finally {
@@ -1124,17 +1182,19 @@ async function readRevision(r: any) {
     r.cursor = reply.data.nextCursor;
   }
 }
-async function openTrash(syncUrl = true) {
+async function openTrash(syncUrl = true, intent = ++navigationIntent) {
   await run(async () => {
-    await retainNoteContext();
+    await retainNoteContext(intent);
+    if (!currentIntent(intent)) return;
     panel.value = 'trash';
     drawer.value = false;
     if (syncUrl) navigation.commit({ view: 'trash' });
   });
 }
-async function retainNoteContext() {
+async function retainNoteContext(intent = navigationIntent) {
   if(noteInfo.value?.editorMode === 'full') await editorRef.value?.flush();
   await localDrafts.flush();
+  if (!currentIntent(intent)) return;
   if (!['settings', 'trash'].includes(panel.value)) {
     const route = navigation.currentRoute();
     // A directly opened utility page must not become its own return destination.
@@ -1229,34 +1289,37 @@ function scrollSetting(section: SettingsSection, syncUrl = true) {
   if (syncUrl && panel.value === 'settings') navigation.commit({ view: 'settings', section });
   drawer.value = false;
 }
-async function settings(section?: string, syncUrl = true) {
+async function settings(section?: string, syncUrl = true, intent = ++navigationIntent) {
+  if (!currentIntent(intent)) return;
   const target = section ? normalizeSettingsSection(section) : rememberedSetting();
   if (panel.value === 'settings') {
     scrollSetting(target, syncUrl);
     return;
   }
   await run(async () => {
-    await retainNoteContext();
+    await retainNoteContext(intent);
+    if (!currentIntent(intent)) return;
     panel.value = 'settings';
     drawer.value = false;
     scrollSetting(target, false);
     if (syncUrl) navigation.commit({ view: 'settings', section: target });
   });
 }
-async function backFromSettings() {
+async function backFromSettings(intent = ++navigationIntent) {
   if (returnRoute.note && note.value?.id === returnRoute.note) {
+    if (!await initializeDrafts() || !currentIntent(intent)) return;
     panel.value = 'note';
     drawer.value = false;
     navigation.commit(returnRoute);
     return;
   }
-  await applyRoute(returnRoute);
-  navigation.commit(returnRoute);
+  await applyRoute(returnRoute, intent);
+  if (currentIntent(intent)) navigation.commit(returnRoute);
 }
-async function openNotes() {
+async function openNotes(intent = ++navigationIntent) {
   collection.value = 'notes';
   sidebarCollapsed.value = false;
-  if (panel.value === 'settings' || panel.value === 'trash') await run(backFromSettings);
+  if (panel.value === 'settings' || panel.value === 'trash') await run(() => backFromSettings(intent));
 }
 watch(
   () => editorPreferences.lineNumbers,
@@ -1270,22 +1333,29 @@ watch(
   (value) => (mode.value = value),
 );
 async function logout() {
+  const intent = ++navigationIntent;
   await run(() =>
     guard(async () => {
+      signingOut = true;
+      invalidateDraftIdentity();
+      treeRefreshEpoch++;
+      searchEpoch++;
       try {
         await localDrafts.logout();
         await api('/api/auth/sign-out', 'POST', {});
       } catch (cause) {
-        await initializeDrafts();
+        signingOut = false;
+        await initializeDrafts(true);
         throw cause;
       }
+      if (!alive) return;
       viewEpoch++;
       resetCsrf();
       tree.value = [];
       note.value = undefined;
       draft.value = '';
       emit('logout');
-    }),
+    }, intent),
   );
 }
 async function showMove(expectedId = note.value?.id) {
@@ -1314,6 +1384,7 @@ let quickPending:
   | undefined;
 async function quickNote() {
   if (quickBusy.value) return;
+  const intent = navigationIntent;
   await run(() =>
     guard(async () => {
       quickBusy.value = true;
@@ -1337,13 +1408,14 @@ async function quickNote() {
         quickPending = undefined;
         createOpen.value = false;
         await refresh();
-        await openNote(created.id);
+        if (!currentIntent(intent)) { tell('笔记已创建，可在目录中打开'); return; }
+        await openNote(created.id, undefined, true, false, intent);
         await nextTick();
-        editorRef.value?.goToLine(3);
+        if (currentIntent(intent)) editorRef.value?.goToLine(3);
       } finally {
         quickBusy.value = false;
       }
-    }),
+    }, intent),
   );
 }
 async function imported(value: { id: string; relativePath: string }) {
@@ -1611,22 +1683,19 @@ onMounted(() => {
   window.addEventListener('dooknow-workspace-changed', workspaceChanged);
   window.addEventListener('dooknow-notice', pluginNotice);
   void run(async () => {
-    const epoch = ++treeRefreshEpoch;
-    const [, entries] = await Promise.all([
-      initializeDrafts(),
-      api<TreeEntry[]>('/api/tree'),
-    ]);
-    if (epoch === treeRefreshEpoch) {
-      tree.value = entries;
-      treeLoaded.value = true;
-    } else {
+    const intent = navigationIntent;
+    await refresh();
+    if (!alive) return;
+    if (!treeLoaded.value) {
       // A user action superseded the prefetch while draft identity was pending.
       await refresh();
     }
-    await applyRoute(readWorkspaceRoute());
+    if (!currentIntent(intent)) return;
+    await applyRoute(readWorkspaceRoute(), intent);
+    if (!currentIntent(intent)) return;
     if (sessionStorage.getItem('dooknow-welcome-action') === 'create-note') {
-      sessionStorage.removeItem('dooknow-welcome-action');
-      create('note');
+      create('note', undefined, intent);
+      if (createOpen.value) sessionStorage.removeItem('dooknow-welcome-action');
     }
   });
   window.addEventListener('dooknow-git-return-save', returnGitSave);
@@ -1634,6 +1703,12 @@ onMounted(() => {
   window.addEventListener('beforeunload', unload);
 });
 onBeforeUnmount(() => {
+  alive = false;
+  navigationIntent++;
+  invalidateDraftIdentity();
+  treeRefreshEpoch++;
+  viewEpoch++;
+  searchEpoch++;
   editorViews.cancel();
   gitUnsaved.value = false;
   clearPluginDrafts();
@@ -1665,7 +1740,7 @@ onBeforeUnmount(() => {
         </button>
       </div>
       <nav v-if="panel === 'settings'" class="settings-sidebar" aria-label="设置分类">
-        <button class="settings-return" @click="backFromSettings">
+        <button class="settings-return" @click="backFromSettings()">
           <Icon name="back" :size="18" /><span>返回笔记</span>
         </button>
         <button
@@ -2118,7 +2193,7 @@ onBeforeUnmount(() => {
           :assets="assets"
           :draft-scope="draftScope"
           :service-unavailable="props.serviceUnavailable"
-          :inert="noteOpening || editorTransfer ? '' : undefined"
+          :inert="!draftIdentityReady || noteOpening || editorTransfer ? '' : undefined"
           :initial-line="noteLine || (note.id === initialNoteId ? initialLine : undefined)"
           :key="note.id"
           @dirty="(v) => (largeDirty = v)"
@@ -2161,7 +2236,7 @@ onBeforeUnmount(() => {
                     ref="editorRef"
                     v-model="draft"
                     :read-only="
-                      noteOpening || editorTransfer || draftLoading || draftBusy || !!recoveryDraft
+                      !draftIdentityReady || noteOpening || editorTransfer || draftLoading || draftBusy || !!recoveryDraft
                     "
                     :key="`${note.id}:${viewEpoch}`"
                     :initial-line="
@@ -2352,7 +2427,7 @@ onBeforeUnmount(() => {
           @open-note="
             (id) => {
               importOpen = false;
-              openNote(id);
+              run(() => openNote(id));
             }
           "
         />
