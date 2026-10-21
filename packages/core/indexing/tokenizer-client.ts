@@ -113,13 +113,25 @@ export class TokenizerClient {
     const child = this.child;
     if (!child) return;
     await new Promise<void>((resolve) => {
-      child.once('exit', () => resolve());
-      child.stdin.end();
-      const timer = setTimeout(() => {
-        child.kill();
+      const terminateTimer = setTimeout(() => {
+        child.kill('SIGTERM');
       }, 2000);
-      timer.unref();
-      child.once('exit', () => clearTimeout(timer));
+      const killTimer = setTimeout(() => {
+        child.kill('SIGKILL');
+      }, 4000);
+      terminateTimer.unref();
+      killTimer.unref();
+      const finished = () => {
+        clearTimeout(terminateTimer);
+        clearTimeout(killTimer);
+        child.removeListener('exit', finished);
+        child.removeListener('close', finished);
+        resolve();
+      };
+      // Failed spawns close without exit; exited children can leave inherited pipes open.
+      child.once('exit', finished);
+      child.once('close', finished);
+      child.stdin.end();
     });
   }
 }
