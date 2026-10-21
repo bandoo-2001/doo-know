@@ -6,6 +6,8 @@ import { interactiveProcess } from '../processes/interactive.js';
 export class TokenizerClient {
   private child?: ChildProcessWithoutNullStreams;
   private owned?: ReturnType<typeof interactiveProcess>;
+  private retiring = false;
+  private retire?: () => void;
   private buffer = Buffer.alloc(0);
   private pending = new Map<
     string,
@@ -17,6 +19,8 @@ export class TokenizerClient {
   >();
   constructor(private options: { runtimeRoot?: string; modelDir?: string; python?: string } = {}) {}
   private start() {
+    if (this.retiring)
+      throw new KnowledgeError(503, 'TOKENIZER_UNAVAILABLE', '本地分词进程正在恢复', true);
     if (this.child) return this.child;
     const root = resolve(this.options.runtimeRoot || 'runtime/vector-service'),
       owned = interactiveProcess(
@@ -44,8 +48,17 @@ export class TokenizerClient {
       if (release) {
         this.child = undefined;
         this.owned = undefined;
+        this.retire = undefined;
+        this.retiring = false;
       }
       this.buffer = Buffer.alloc(0);
+    };
+    this.retire = () => {
+      if (this.owned !== owned) return;
+      this.retiring = true;
+      rejectAll(false);
+      child.stdin.destroy();
+      owned.terminate();
     };
     void owned.wait.then(
       () => rejectAll(true),
@@ -84,11 +97,13 @@ export class TokenizerClient {
     const id = randomUUID(),
       body = JSON.stringify({ id, method, ...fields }) + '\n';
     if (Buffer.byteLength(body) > 1024 * 1024) fail(413, 'TOKENIZER_REQUEST_TOO_LARGE');
-    const child = this.start();
+    const child = this.start(),
+      retire = this.retire!;
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
-        this.pending.delete(id);
+        if (!this.pending.delete(id)) return;
         reject(new KnowledgeError(504, 'TOKENIZER_TIMEOUT', '分词超时', true));
+        retire();
       }, 10000);
       timer.unref();
       this.pending.set(id, { resolve, reject, timer });

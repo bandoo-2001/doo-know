@@ -44,6 +44,7 @@ async function fixture(
     | 'escape'
     | 'fast-failure'
     | 'slow-response'
+    | 'blocked-input-once'
     | 'reply-exit',
 ) {
   const root = await mkdtemp(join(tmpdir(), 'dooknow-tokenizer-lifecycle-'));
@@ -94,6 +95,19 @@ async function fixture(
       const fs = require('node:fs'), readline = require('node:readline');
       const ready = ${JSON.stringify(ready)}, events = ${JSON.stringify(events)};
       ${stamp}
+      ${
+        mode === 'blocked-input-once'
+          ? `
+        const blocked = ${JSON.stringify(join(root, 'blocked-once'))};
+        if (!fs.existsSync(blocked)) {
+          fs.writeFileSync(blocked, 'synthetic first workload does not read stdin');
+          process.on('SIGTERM', () => {});
+          setInterval(() => {}, 1000);
+          return;
+        }
+      `
+          : ''
+      }
       ${mode === 'fast-failure' ? 'process.exit(7);' : ''}
       const event = name => fs.appendFileSync(events, JSON.stringify({ event: name }) + '\\n');
       process.on('SIGTERM', () => event('SIGTERM'));
@@ -460,6 +474,77 @@ describe.skipIf(process.platform !== 'linux')('tokenizer lifecycle', () => {
         });
         expect(await closedWithin(client.close())).toBe(true);
       }
+    } finally {
+      await f.close();
+    }
+  });
+
+  it('retires timed-out unread input before admitting more work and retries on a fresh process', async () => {
+    const f = await fixture('blocked-input-once'),
+      client = f.client(),
+      payload = 'x'.repeat(512 * 1024);
+    try {
+      const first = client.count([payload]).then(
+        (value) => ({ value }),
+        (error) => ({ code: error.code }),
+      );
+      const child = (client as unknown as { child: ReturnType<typeof spawn> }).child;
+      await expect.poll(() => existsSync(join(f.root, 'tokenizer.json'))).toBe(true);
+      const workload = await f.identity();
+      f.track(workload);
+      expect(await first).toEqual({ code: 'TOKENIZER_TIMEOUT' });
+      const firstQueuedBytes = child.stdin!.writableLength;
+      const duringRetirement = await client.count([payload]).then(
+        (value) => ({ value }),
+        (error) => ({ code: error.code }),
+      );
+      if (process.env.DOOKNOW_TEST_BACKPRESSURE_RECEIPT)
+        await appendFile(
+          process.env.DOOKNOW_TEST_BACKPRESSURE_RECEIPT,
+          JSON.stringify({
+            firstQueuedBytes,
+            afterRetryQueuedBytes: child.stdin!.writableLength,
+            firstWorkloadStillAlive: processIsAlive(workload.pid, workload.start),
+            duringRetirement,
+          }) + '\n',
+        );
+      expect(duringRetirement).toEqual({ code: 'TOKENIZER_UNAVAILABLE' });
+      await expect
+        .poll(() => processIsAlive(workload.pid, workload.start), { timeout: 3000 })
+        .toBe(false);
+      expect(await closedWithin(client.close())).toBe(true);
+      if (process.env.DOOKNOW_TEST_BACKPRESSURE_RECEIPT)
+        await appendFile(
+          process.env.DOOKNOW_TEST_BACKPRESSURE_RECEIPT,
+          JSON.stringify({
+            phase: 'retirement-complete',
+            oldQueuedBytes: child.stdin!.writableLength,
+            oldInputDestroyed: child.stdin!.destroyed,
+            oldWorkloadAlive: processIsAlive(workload.pid, workload.start),
+          }) + '\n',
+        );
+      expect(await client.count(['fresh request'])).toEqual([1]);
+      expect((await f.identity()).pid).not.toBe(workload.pid);
+      expect(await closedWithin(client.close())).toBe(true);
+    } finally {
+      await f.close();
+    }
+  });
+
+  it('rejects other outstanding requests when a timed-out tokenizer is retired', async () => {
+    const f = await fixture('blocked-input-once'),
+      client = f.client();
+    try {
+      const result = (texts: string[]) =>
+        client.count(texts).then(
+          (value) => ({ value }),
+          (error) => ({ code: error.code }),
+        );
+      expect(await Promise.all([result(['first']), result(['peer'])])).toEqual([
+        { code: 'TOKENIZER_TIMEOUT' },
+        { code: 'TOKENIZER_UNAVAILABLE' },
+      ]);
+      expect(await closedWithin(client.close())).toBe(true);
     } finally {
       await f.close();
     }
