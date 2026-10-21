@@ -25,7 +25,12 @@ export async function refreshCsrf() {
   if (!r.ok) throw new ApiError(r.status, await r.json());
   csrfToken = (await r.json()).token;
 }
-export async function api<T = any>(url: string, method = 'GET', body?: unknown): Promise<T> {
+export async function api<T = any>(
+  url: string,
+  method = 'GET',
+  body?: unknown,
+  options: { notifySessionExpired?: boolean } = {},
+): Promise<T> {
   const headers: Record<string, string> = {};
   if (method !== 'GET') {
     if (!csrfToken && !url.startsWith('/api/auth/') && !url.startsWith('/api/public/'))
@@ -45,7 +50,7 @@ export async function api<T = any>(url: string, method = 'GET', body?: unknown):
     throw new ApiError(0, { error: '响应未完成，请重试；保存操作请先核对结果' });
   });
   if (!r.ok) {
-    if (r.status === 401 && !url.startsWith('/api/auth/'))
+    if (r.status === 401 && !url.startsWith('/api/auth/') && options.notifySessionExpired !== false)
       window.dispatchEvent(new Event('dooknow-session-expired'));
     throw new ApiError(r.status, data);
   }

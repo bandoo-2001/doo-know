@@ -24,6 +24,68 @@ function gate() {
   return { pending, release };
 }
 
+for (const last of ['安全令牌', '服务状态']) test(`登录确认后并行核对安全与服务，${last}最后完成前不开启工作区`, async ({ page, context }) => {
+  const id = await seed(context), security = gate(), service = gate();
+  let securityPending = false, servicePending = false, statusReads = 0, workspaceReads = 0;
+  page.on('request', (request) => {
+    const path = new URL(request.url()).pathname;
+    if (path === '/api/tree' || path.startsWith('/api/notes/')) workspaceReads++;
+  });
+  await page.route('**/api/security/csrf', async (route) => {
+    securityPending = true;
+    await security.pending;
+    await route.continue().catch(() => {});
+  });
+  await page.route('**/api/platform/status', async (route) => {
+    if (++statusReads === 1) { servicePending = true; await service.pending; }
+    await route.continue().catch(() => {});
+  });
+  try {
+    await page.goto('/?note=' + id, { waitUntil: 'domcontentloaded' });
+    await expect.poll(() => securityPending).toBe(true);
+    await expect.poll(() => servicePending).toBe(true);
+    expect(workspaceReads).toBe(0);
+    await expect(page.locator('.sidebar .brand')).toHaveCount(0);
+    const completed = page.waitForResponse((response) => new URL(response.url()).pathname ===
+      (last === '安全令牌' ? '/api/platform/status' : '/api/security/csrf'));
+    if (last === '安全令牌') service.release(); else security.release();
+    expect((await completed).status()).toBe(200);
+    await expect(page.locator('.sidebar .brand')).toHaveCount(0);
+    expect(workspaceReads).toBe(0);
+  } finally { security.release(); service.release(); }
+  await expect(page.getByRole('textbox', { name: '文档正文', exact: true })).toBeEditable();
+  expect((await (await context.request.get('/api/notes/' + id)).json()).content).toBe(original);
+});
+
+test('并行服务核对提前发现会话失效，安全核对完成后仍显示重新登录', async ({ page, context }) => {
+  const id = await seed(context), security = gate();
+  let statusReads = 0, rejected = false, workspaceReads = 0;
+  page.on('request', (request) => {
+    const path = new URL(request.url()).pathname;
+    if (path === '/api/tree' || path.startsWith('/api/notes/')) workspaceReads++;
+  });
+  await page.route('**/api/security/csrf', async (route) => {
+    await security.pending;
+    await route.continue().catch(() => {});
+  });
+  await page.route('**/api/platform/status', async (route) => {
+    if (++statusReads === 1) {
+      await route.fulfill({ status: 401, json: { error: 'Session expired' } });
+      rejected = true;
+    } else await route.continue();
+  });
+  try {
+    await page.goto('/?note=' + id, { waitUntil: 'domcontentloaded' });
+    await expect.poll(() => rejected).toBe(true);
+    await expect(page.getByLabel('用户名', { exact: true })).toHaveCount(0);
+    expect(workspaceReads).toBe(0);
+  } finally { security.release(); }
+  await expect(page.getByLabel('用户名', { exact: true })).toBeVisible();
+  await expect(page.locator('.sidebar .brand')).toHaveCount(0);
+  expect(workspaceReads).toBe(0);
+  expect((await (await context.request.get('/api/notes/' + id)).json()).content).toBe(original);
+});
+
 test('已确认登录后并行加载工作区界面，安全检查完成前不开启编辑', async ({ page, context }) => {
   const id = await seed(context), csrf = gate();
   let csrfPending = false, workspaceRequested = false, noteRequests = 0;

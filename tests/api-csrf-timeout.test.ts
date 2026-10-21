@@ -19,6 +19,9 @@ beforeAll(async () => {
   import {api} from './apps/web/api.ts';
   const original=${JSON.stringify(original)};
   window.result={phase:'pending',original};
+  window.expiryNotifications=0;
+  window.addEventListener('dooknow-session-expired',()=>window.expiryNotifications++);
+  window.checkSession=async(defer)=>{try{await api('/api/session-probe','GET',undefined,defer?{notifySessionExpired:false}:undefined);return {status:200};}catch(error){return {status:error.status};}};
   window.send=async()=>{window.result.phase='pending';try{await api('/api/protected','POST',{content:original});window.result.phase='complete';}catch{window.result.phase='failed';}};
   void window.send();
  `,
@@ -29,7 +32,10 @@ beforeAll(async () => {
     format: 'iife',
   });
   server = createServer((q, r) => {
-    if (q.url === '/api/security/csrf') {
+    if (q.url === '/api/session-probe') {
+      r.writeHead(401, { 'content-type': 'application/json' });
+      r.end(JSON.stringify({ error: 'Session expired' }));
+    } else if (q.url === '/api/security/csrf') {
       csrfRequests++;
       if (available) {
         r.writeHead(200, { 'content-type': 'application/json' });
@@ -67,6 +73,17 @@ beforeAll(async () => {
   await new Promise<void>((yes) => server.listen(0, '127.0.0.1', yes));
   origin = 'http://127.0.0.1:' + (server.address() as { port: number }).port;
   browser = await chromium.launch();
+});
+
+it.each([false, true])('retains a 401 rejection with session notification deferred=%s', async (defer) => {
+  available = true;
+  await page.goto(origin, { waitUntil: 'domcontentloaded' });
+  await expect.poll(() => page.evaluate(() => (window as any).result.phase)).toBe('complete');
+  expect(await page.evaluate((defer) => (window as any).checkSession(defer), defer)).toEqual({ status: 401 });
+  expect(await page.evaluate(() => (window as any).expiryNotifications)).toBe(defer ? 0 : 1);
+  expect(await page.evaluate(() => (window as any).result.original)).toBe(original);
+  expect(csrfRequests).toBe(1);
+  expect(writes).toEqual([{ token: 'recovered-token', body: { content: original } }]);
 });
 afterAll(async () => {
   await browser?.close();

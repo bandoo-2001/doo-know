@@ -76,21 +76,45 @@ async function continueOAuth() {
     resumingOAuth.value = false;
   }
 }
-async function refreshPlatform() {
+type PlatformRead = { ok: true; status: PlatformStatus } | { ok: false; cause: unknown };
+async function readPlatform(): Promise<PlatformRead> {
+  try {
+    return {
+      ok: true,
+      status: await api<PlatformStatus>('/api/platform/status', 'GET', undefined, {
+        notifySessionExpired: false,
+      }),
+    };
+  } catch (cause) {
+    // The initial read may finish before CSRF, including a rejected response.
+    // Hold that outcome until the checks permit accepting the session.
+    return { ok: false, cause };
+  }
+}
+async function completePlatformRead(prepared?: Promise<PlatformRead>) {
   if (platformBusy.value || platformLogoutBusy.value) return;
   platformBusy.value = true;
   platformError.value = '';
   platformLogoutError.value = '';
   try {
-    platform.value = await api('/api/platform/status');
+    const result = await (prepared || readPlatform());
+    if (!result.ok) throw result.cause;
+    platform.value = result.status;
     const usable = platform.value?.phase === 'ready' && !platform.value.onboardingRequired;
     if (!mountedWorkspace.value) mountedWorkspace.value = !!usable && !oauthMode;
     if (usable && oauthMode === 'login') await continueOAuth();
-  } catch {
+  } catch (cause) {
+    // Publish expiry only for an accepted read. An abandoned preload must not
+    // expire a later successful session.
+    if (cause instanceof ApiError && cause.status === 401)
+      window.dispatchEvent(new Event('dooknow-session-expired'));
     platformError.value = '登录信息已保留，请检查连接后重试。';
   } finally {
     platformBusy.value = false;
   }
+}
+async function refreshPlatform() {
+  await completePlatformRead();
 }
 async function logoutPlatform() {
   if (platformBusy.value || platformLogoutBusy.value) return;
@@ -160,6 +184,7 @@ async function acceptSession(
   session: {
     user?: { id?: string; displayUsername?: string; username?: string; name?: string };
   } | null,
+  preparedPlatform?: Promise<PlatformRead>,
 ) {
   if (typeof session?.user?.id !== 'string' || !session.user.id) {
     expired.value = true;
@@ -179,7 +204,7 @@ async function acceptSession(
   initializeEditorPreferences(ownerId.value);
   loggedIn.value = true;
   expired.value = false;
-  await refreshPlatform();
+  await completePlatformRead(preparedPlatform);
 }
 async function login() {
   await acceptSession(await api('/api/auth/get-session'));
@@ -190,10 +215,12 @@ async function checkInitialSession() {
   try {
     const session = await api('/api/auth/get-session');
     if (session?.user) {
-      if (!oauthMode && typeof session.user.id === 'string' && session.user.id)
+      const confirmedOwner = typeof session.user.id === 'string' && !!session.user.id;
+      if (!oauthMode && confirmedOwner)
         void loadWorkspace().catch(() => {});
+      const preparedPlatform = confirmedOwner ? readPlatform() : undefined;
       await refreshCsrf();
-      await acceptSession(session);
+      await acceptSession(session, preparedPlatform);
     }
     sessionCheckError.value = '';
   } catch (error) {
