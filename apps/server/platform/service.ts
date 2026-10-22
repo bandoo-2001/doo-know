@@ -68,11 +68,7 @@ export function writeService(config: HostConfig, root: string, node: string) {
   systemctl(['daemon-reload']);
   return file;
 }
-export async function withQuiesced<T>(
-  config: HostConfig,
-  work: () => Promise<T>,
-  options: { resume?: boolean; keepMaintenanceOnError?: boolean } = {},
-) {
+export function assertManagedDatabaseOwnership(config: HostConfig) {
   const instance = readInstance(config.dataRoot),
     others = activeDatabaseProcesses(config.dataRoot).filter((p) => p.pid !== instance?.pid);
   if (others.length)
@@ -80,24 +76,32 @@ export async function withQuiesced<T>(
       '存在独立的数据进程；请先停止相关 worker 后重试：' +
         [...new Set(others.map((p) => p.role + ':' + p.pid))].join(', '),
     );
+  if (!instance && serviceActive(config))
+    throw Error('服务正在启动或来自旧版本；请先正常停止后重试');
+  if (instance) {
+    assertServiceOwnership(config);
+    if (instance.profile_file !== resolve(config.profileFile || ''))
+      throw Error('数据库由另一个配置的服务使用，拒绝停机');
+    let main = 0;
+    try {
+      main = Number(systemctl(['show', unitName(config), '--property=MainPID', '--value']).trim());
+    } catch {}
+    if (main !== instance.pid) throw Error('前台运行中的应用需要先正常停止，再执行备份或升级');
+  }
+  return !!instance;
+}
+export async function withQuiesced<T>(
+  config: HostConfig,
+  work: () => Promise<T>,
+  options: { resume?: boolean; keepMaintenanceOnError?: boolean } = {},
+) {
+  const managed = assertManagedDatabaseOwnership(config);
   let restart = false,
     previous = 0,
     maintenanceSet = false,
     succeeded = false;
   try {
-    if (!instance && serviceActive(config))
-      throw Error('服务正在启动或来自旧版本；请先正常停止后重试');
-    if (instance) {
-      assertServiceOwnership(config);
-      if (instance.profile_file !== resolve(config.profileFile || ''))
-        throw Error('数据库由另一个配置的服务使用，拒绝停机');
-      let main = 0;
-      try {
-        main = Number(
-          systemctl(['show', unitName(config), '--property=MainPID', '--value']).trim(),
-        );
-      } catch {}
-      if (main !== instance.pid) throw Error('前台运行中的应用需要先正常停止，再执行备份或升级');
+    if (managed) {
       systemctl(['stop', unitName(config)]);
       restart = true;
     }

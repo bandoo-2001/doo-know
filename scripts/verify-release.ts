@@ -54,6 +54,8 @@ const commands: [string, string[]][] = [
       'tests/account-prompt.test.ts',
       'tests/auth.test.ts',
       'tests/platform-cli.test.ts',
+      'tests/platform-backup-service.test.ts',
+      'tests/backup-plugin-consistency.test.ts',
       'tests/platform-config.test.ts',
       'tests/platform-update.test.ts',
       'tests/platform-rollback-service.test.ts',

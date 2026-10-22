@@ -34,6 +34,7 @@ import {
   unitName,
   serviceActive,
   assertServiceOwnership,
+  assertManagedDatabaseOwnership,
   writeService,
   withQuiesced,
   waitHealthy,
@@ -446,14 +447,22 @@ async function main() {
   }
   if (command === 'backup') {
     if (!values.destination) throw Error('备份需要 --destination <文件>');
-    const result = await managementLock(config, () =>
-      withQuiesced(config, () =>
-        createPlatformBackup(config, {
-          destination: values.destination!,
-          keyFile: values['key-file'],
-        }),
-      ),
-    );
+    const result = await managementLock(config, async () => {
+      assertManagedDatabaseOwnership(config);
+      const db = new Database(join(config.dataRoot, 'app.sqlite'), { fileMustExist: true });
+      try {
+        if ((db.prepare('SELECT active FROM maintenance WHERE id=1').get() as any).active)
+          throw Error('工作区已处于维护状态，请先核对未完成操作');
+      } finally {
+        db.close();
+      }
+      // Use the same exclusive workspace gate and WAL snapshot as online exports.
+      // A cancelled CLI must not leave the managed service stopped or maintained.
+      return createPlatformBackup(config, {
+        destination: values.destination!,
+        keyFile: values['key-file'],
+      });
+    });
     console.log(JSON.stringify(result, null, 2));
     console.log('恢复私钥须另行受控保存；备份不包含该私钥。');
     return;
