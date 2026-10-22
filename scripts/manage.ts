@@ -20,9 +20,6 @@ import { randomBytes, createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { loadHostConfig, applicationRoot } from '../apps/server/platform/config.js';
 import { openDatabase } from '../packages/core/db.js';
-import { initializeOwner, resetOwnerPassword } from '../apps/server/auth.js';
-import { createApp } from '../apps/server/app.js';
-import { createAuth } from '../apps/server/auth.js';
 import {
   acquireInstance,
   readInstance,
@@ -47,7 +44,6 @@ import {
   rollbackPlatform,
 } from '../apps/server/platform/updates.js';
 import { platformSettings } from '../apps/server/platform/settings.js';
-import { pluginHost } from '../apps/server/plugins/host.js';
 import { satisfies } from 'semver';
 import { HOST_PLUGIN_API } from '../packages/plugin-contracts/index.js';
 import { rmSync } from 'node:fs';
@@ -280,6 +276,7 @@ async function install() {
   }
   if (!hasOwner) {
     const input = await promptAccount();
+    const { initializeOwner } = await import('../apps/server/auth.js');
     await initializeOwner(config, input.username, input.password);
     console.log('初始账号已创建。');
   } else console.log('账号已存在，保留原有账号、密钥与配置。');
@@ -363,8 +360,9 @@ async function main() {
     version = releaseInfo().version;
   if (command === 'serve') {
     const release = acquireInstance(config, version);
-    let app: Awaited<ReturnType<typeof createApp>> | undefined;
+    let app: Awaited<ReturnType<typeof import('../apps/server/app.js').createApp>> | undefined;
     try {
+      const { createApp } = await import('../apps/server/app.js');
       app = await createApp(config);
       await app.listen({ host: config.host, port: config.port });
     } catch (e) {
@@ -397,6 +395,10 @@ async function main() {
       throw Error('迁移前必须停止所有数据进程');
     const db = openDatabase(config.dataRoot);
     try {
+      const [{ createAuth }, { pluginHost }] = await Promise.all([
+        import('../apps/server/auth.js'),
+        import('../apps/server/plugins/host.js'),
+      ]);
       await createAuth(config, db);
       platformSettings(config, db).configured();
       pluginHost(config, db);
@@ -469,6 +471,7 @@ async function main() {
   }
   if (command === 'reset-password') {
     const input = await promptAccount(true);
+    const { resetOwnerPassword } = await import('../apps/server/auth.js');
     await managementLock(config, () =>
       withQuiesced(config, () => resetOwnerPassword(config, input.password)),
     );

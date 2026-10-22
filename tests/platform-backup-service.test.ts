@@ -105,10 +105,11 @@ async function runningBackupFixture() {
     destination,
     keyFile,
     db,
-    backup: () =>
+    backup: (preload?: string) =>
       execute(
         process.execPath,
         [
+          ...(preload ? ['--import', preload] : []),
           '--import',
           'tsx',
           'scripts/manage.ts',
@@ -148,7 +149,23 @@ async function runningBackupFixture() {
 it('backs up a running managed library without stopping its service or replacing its instance', async () => {
   const f = await runningBackupFixture();
   try {
-    const reply = await f.backup();
+    const preload = join(f.root, 'backup-import-guard.mjs');
+    await writeFile(
+      preload,
+      `import { registerHooks } from 'node:module';
+registerHooks({resolve(specifier, context, next) {
+  const result = next(specifier, context);
+  const parts = new URL(result.url).pathname.split('/');
+  const server = parts.findIndex((part, index) => part === 'apps' && parts[index + 1] === 'server');
+  const tail = parts.slice(server + 2).join('/');
+  if (server >= 0 && ['app.ts', 'app.js', 'auth.ts', 'auth.js', 'plugins/host.ts', 'plugins/host.js'].includes(tail))
+    throw Error('BACKUP_IMPORTED_UNRELATED_HTTP_OR_ACCOUNT_RUNTIME');
+  return result;
+}});
+`,
+      { mode: 0o600 },
+    );
+    const reply = await f.backup(preload);
     expect(JSON.parse(reply.stdout.slice(0, reply.stdout.lastIndexOf('}') + 1))).toMatchObject({
       file: f.destination,
     });

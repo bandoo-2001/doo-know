@@ -553,7 +553,7 @@ it('does not publish a pending old image into a document that rejected its sourc
   await expect
     .poll(() => requestedPaths.filter((path) => path === '/api/assets/adopted-old').length)
     .toBe(1);
-  expect(oldRequestId).toBeDefined();
+  await expect.poll(() => oldRequestId, { timeout: 1000 }).toBeDefined();
   expect(await page.locator('#transferred-image').getAttribute('src')).toBe(null);
   await page.evaluate(() => {
     const frame = document.createElement('iframe');
