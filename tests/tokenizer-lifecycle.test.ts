@@ -46,6 +46,7 @@ async function fixture(
     | 'slow-response'
     | 'blocked-input-once'
     | 'reply-exit',
+  assertion: typeof expect = expect,
 ) {
   const root = await mkdtemp(join(tmpdir(), 'dooknow-tokenizer-lifecycle-'));
   const python = join(root, 'synthetic-python.cjs'),
@@ -179,7 +180,7 @@ async function fixture(
         for (const owned of supervisors) {
           const fallbackKill = processIsAlive(owned.pid, owned.start);
           if (fallbackKill) process.kill(owned.pid, 'SIGKILL');
-          await expect
+          await assertion
             .poll(() => processIsAlive(owned.pid, owned.start), { timeout: 2000 })
             .toBe(false);
           receipt.push({ ...owned, fallbackKill, alive: processIsAlive(owned.pid, owned.start) });
@@ -188,7 +189,7 @@ async function fixture(
       } finally {
         await rm(root, { recursive: true, force: true });
       }
-      expect(existsSync(root)).toBe(false);
+      assertion(existsSync(root)).toBe(false);
       if (process.env.DOOKNOW_TEST_OWNERSHIP_RECEIPT)
         await appendFile(
           process.env.DOOKNOW_TEST_OWNERSHIP_RECEIPT,
@@ -479,8 +480,8 @@ describe.skipIf(process.platform !== 'linux')('tokenizer lifecycle', () => {
     }
   });
 
-  it('retires timed-out unread input before admitting more work and retries on a fresh process', async () => {
-    const f = await fixture('blocked-input-once'),
+  it('retires timed-out unread input before admitting more work and retries on a fresh process', async ({ expect }) => {
+    const f = await fixture('blocked-input-once', expect),
       client = f.client(),
       payload = 'x'.repeat(512 * 1024);
     try {
@@ -531,8 +532,8 @@ describe.skipIf(process.platform !== 'linux')('tokenizer lifecycle', () => {
     }
   });
 
-  it('rejects other outstanding requests when a timed-out tokenizer is retired', async () => {
-    const f = await fixture('blocked-input-once'),
+  it('rejects other outstanding requests when a timed-out tokenizer is retired', async ({ expect }) => {
+    const f = await fixture('blocked-input-once', expect),
       client = f.client();
     try {
       const result = (texts: string[]) =>
