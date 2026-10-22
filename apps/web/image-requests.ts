@@ -85,6 +85,10 @@ function createScope(document: Document) {
     if (resource.url) view.URL.revokeObjectURL(resource.url);
   }
   function display(owner: Owner, resource: Resource) {
+    if (owner.image.ownerDocument !== document) {
+      dispose(owner);
+      return;
+    }
     if (!owner.alive || owner.resource !== resource || !owner.image.isConnected || !resource.url)
       return;
     // The attachment resolver may change without an editor transaction.
@@ -175,6 +179,10 @@ function createScope(document: Document) {
   }
   function refresh(owner: Owner) {
     if (!owner.alive) return;
+    if (owner.image.ownerDocument !== document) {
+      dispose(owner);
+      return;
+    }
     let source: string | null;
     try {
       source = allowedSource(owner.getter().src);
@@ -227,9 +235,13 @@ function createScope(document: Document) {
     detach(owner);
     owners.delete(owner.image);
     tombstones.add(owner.image);
-    owner.image.removeAttribute(deferredImageSource);
-    owner.image.removeAttribute('aria-busy');
-    releaseNative(owner.image);
+    // A new Document may already have taken ownership of this element.
+    // Release our resource without clearing the new owner's current source.
+    if (owner.image.ownerDocument === document) {
+      owner.image.removeAttribute(deferredImageSource);
+      owner.image.removeAttribute('aria-busy');
+      releaseNative(owner.image);
+    }
     stopIfUnused();
   }
   function own(image: HTMLImageElement, getter: Getter) {
@@ -278,7 +290,8 @@ function createScope(document: Document) {
                 if (!image.isConnected && !owners.has(image)) releaseNative(image);
       }
     for (const owner of [...owners.values()])
-      if (owner.connected && !owner.image.isConnected) dispose(owner);
+      if (owner.image.ownerDocument !== document || (owner.connected && !owner.image.isConnected))
+        dispose(owner);
     for (const record of records)
       for (const node of record.addedNodes) if (node.nodeType === 1) scan(node as Element);
   }

@@ -364,25 +364,43 @@ it.each(['changed', 'unavailable', 'throwing'] as const)(
       f.resolverState = 'original';
       f.trackImageRequest(image, () => {
         if (f.resolverState === 'throwing') throw Error('Resolver unavailable');
-        return { src: f.resolverState === 'unavailable' ? null :
-          '/api/assets/' + (f.resolverState === 'changed' ? 'resolver-current' : 'resolver-old') };
+        return {
+          src:
+            f.resolverState === 'unavailable'
+              ? null
+              : '/api/assets/' +
+                (f.resolverState === 'changed' ? 'resolver-current' : 'resolver-old'),
+        };
       });
     });
     await expect.poll(() => requestedPaths.includes('/api/assets/resolver-old')).toBe(true);
-    await page.evaluate((state) => { (window as any).fixture.resolverState = state; }, state);
+    await page.evaluate((state) => {
+      (window as any).fixture.resolverState = state;
+    }, state);
     const image = page.locator('#resolver-image');
     if (state === 'changed') {
-      await expect.poll(() => requestedPaths.includes('/api/assets/resolver-current'), { timeout: 4500 }).toBe(true);
+      await expect
+        .poll(() => requestedPaths.includes('/api/assets/resolver-current'), { timeout: 4500 })
+        .toBe(true);
       expect(await image.getAttribute('src')).toBeNull();
-      await expect.poll(() => image.evaluate((node) => (node as HTMLImageElement).naturalWidth), { timeout: 4500 }).toBe(1);
-      expect(await image.getAttribute('data-dooknow-image-src')).toBe('/api/assets/resolver-current');
+      await expect
+        .poll(() => image.evaluate((node) => (node as HTMLImageElement).naturalWidth), {
+          timeout: 4500,
+        })
+        .toBe(1);
+      expect(await image.getAttribute('data-dooknow-image-src')).toBe(
+        '/api/assets/resolver-current',
+      );
     } else {
       await expect.poll(() => active.size, { timeout: 4500 }).toBe(0);
       expect(await image.getAttribute('src')).toBeNull();
       expect(await image.getAttribute('data-dooknow-image-src')).toBeNull();
     }
     expect(await image.getAttribute('alt')).toBe('resolver fixture');
-    expect(await page.evaluate(() => (window as any).fixture.serialize())).toMatchObject({ok: true, markdown: original});
+    expect(await page.evaluate(() => (window as any).fixture.serialize())).toMatchObject({
+      ok: true,
+      markdown: original,
+    });
   },
 );
 
@@ -506,4 +524,215 @@ it('does not trust a deferred-source attribute supplied without a rendered autho
   await page.evaluate(() => new Promise<void>((yes) => requestAnimationFrame(() => yes())));
   expect(serial).toBe(before);
   expect(await page.locator('#preview img').getAttribute('data-dooknow-image-src')).toBeNull();
+});
+
+it('does not publish a pending old image into a document that rejected its source', async () => {
+  await page.evaluate(() => (window as any).fixture.editor.destroy());
+  await expect.poll(() => active.size).toBe(0);
+  const session = await context.newCDPSession(page);
+  await session.send('Network.enable');
+  let oldRequestId: string | undefined;
+  let oldEnded = false;
+  session.on('Network.requestWillBeSent', (event) => {
+    if (event.request.url === origin + '/api/assets/adopted-old') oldRequestId = event.requestId;
+  });
+  session.on('Network.loadingFinished', (event) => {
+    if (event.requestId === oldRequestId) oldEnded = true;
+  });
+  session.on('Network.loadingFailed', (event) => {
+    if (event.requestId === oldRequestId) oldEnded = true;
+  });
+  await page.evaluate(() => {
+    const image = document.createElement('img');
+    image.id = 'transferred-image';
+    document.body.append(image);
+    (window as any).fixture.oldImageStop = (window as any).fixture.trackImageRequest(image, () => ({
+      src: '/api/assets/adopted-old',
+    }));
+  });
+  await expect
+    .poll(() => requestedPaths.filter((path) => path === '/api/assets/adopted-old').length)
+    .toBe(1);
+  expect(oldRequestId).toBeDefined();
+  expect(await page.locator('#transferred-image').getAttribute('src')).toBe(null);
+  await page.evaluate(() => {
+    const frame = document.createElement('iframe');
+    frame.id = 'image-document';
+    document.body.append(frame);
+    const nextDocument = frame.contentDocument!;
+    const image = nextDocument.adoptNode(
+      document.querySelector<HTMLImageElement>('#transferred-image')!,
+    );
+    nextDocument.body.append(image);
+    (window as any).fixture.trackImageRequest(image, () => ({ src: null }));
+  });
+  // Let the real HTTP body finish. The old constant getter remains valid, so
+  // an old display task cannot be made safe merely by re-reading that getter.
+  await expect.poll(() => oldEnded, { timeout: 5000 }).toBe(true);
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+      ),
+  );
+  await session.detach();
+  expect(await page.frameLocator('#image-document').locator('img').getAttribute('src')).toBe(null);
+  expect(
+    await page
+      .frameLocator('#image-document')
+      .locator('img')
+      .getAttribute('data-dooknow-image-src'),
+  ).toBe(null);
+  expect(
+    await page
+      .frameLocator('#image-document')
+      .locator('img')
+      .evaluate((image) => (image as HTMLImageElement).naturalWidth),
+  ).toBe(0);
+});
+
+it('revokes the last old image URL after its element moves to another document', async () => {
+  await page.evaluate(() => (window as any).fixture.editor.destroy());
+  await expect.poll(() => active.size).toBe(0);
+  await page.evaluate(() => {
+    const image = document.createElement('img');
+    image.id = 'transferred-image';
+    document.body.append(image);
+    (window as any).fixture.trackImageRequest(image, () => ({ src: '/api/assets/adopted-old' }));
+  });
+  await page.waitForFunction(
+    () => document.querySelector<HTMLImageElement>('#transferred-image')?.naturalWidth === 1,
+  );
+  const oldUrl = await page.locator('#transferred-image').getAttribute('src');
+  expect(oldUrl).toMatch(/^blob:/);
+  expect(await page.evaluate(async (url) => (await fetch(url!)).ok, oldUrl)).toBe(true);
+  await page.evaluate(() => {
+    const frame = document.createElement('iframe');
+    frame.id = 'image-document';
+    document.body.append(frame);
+    const nextDocument = frame.contentDocument!;
+    const image = nextDocument.adoptNode(
+      document.querySelector<HTMLImageElement>('#transferred-image')!,
+    );
+    nextDocument.body.append(image);
+    (window as any).fixture.trackImageRequest(image, () => ({ src: null }));
+  });
+  await expect
+    .poll(() =>
+      page.evaluate(async (url) => {
+        try {
+          await fetch(url!);
+          return true;
+        } catch {
+          return false;
+        }
+      }, oldUrl),
+    )
+    .toBe(false);
+});
+
+it.each(['dispose', 'refresh'] as const)(
+  'keeps a new document image source when an old document %s runs',
+  async (action) => {
+    await page.evaluate(() => (window as any).fixture.editor.destroy());
+    await expect.poll(() => active.size).toBe(0);
+    await page.evaluate((action) => {
+      const image = document.createElement('img');
+      image.id = 'transferred-image';
+      document.body.append(image);
+      let oldSource = '/api/assets/adopted-old';
+      const stopOld = (window as any).fixture.trackImageRequest(image, () => ({ src: oldSource }));
+      const frame = document.createElement('iframe');
+      frame.id = 'image-document';
+      document.body.append(frame);
+      const nextDocument = frame.contentDocument!;
+      nextDocument.body.append(nextDocument.adoptNode(image));
+      (window as any).fixture.trackImageRequest(image, () => ({ src: '/api/assets/adopted-new' }));
+      if (action === 'dispose') stopOld();
+      else {
+        oldSource = '/api/assets/stale-after-move';
+        stopOld.refresh();
+      }
+    }, action);
+    await expect
+      .poll(() =>
+        page.frameLocator('#image-document').locator('img').getAttribute('data-dooknow-image-src'),
+      )
+      .toBe('/api/assets/adopted-new');
+    await page
+      .frameLocator('#image-document')
+      .locator('img')
+      .evaluate((image) => {
+        if ((image as HTMLImageElement).naturalWidth === 1) return;
+        return new Promise<void>((resolve, reject) => {
+          image.addEventListener('load', () => resolve(), { once: true });
+          image.addEventListener('error', () => reject(Error('new document image failed')), {
+            once: true,
+          });
+        });
+      });
+    expect(
+      await page
+        .frameLocator('#image-document')
+        .locator('img')
+        .evaluate((image) => (image as HTMLImageElement).naturalWidth),
+    ).toBe(1);
+  },
+);
+
+it('retains a shared image URL until its final owner in the original document is removed', async () => {
+  await page.evaluate(() => (window as any).fixture.editor.destroy());
+  await expect.poll(() => active.size).toBe(0);
+  await page.evaluate(() => {
+    for (const id of ['transferred-image', 'retained-image']) {
+      const image = document.createElement('img');
+      image.id = id;
+      document.body.append(image);
+      (window as any).fixture.trackImageRequest(image, () => ({
+        src: '/api/assets/shared-doc-image',
+      }));
+    }
+  });
+  await page.waitForFunction(() =>
+    ['transferred-image', 'retained-image'].every(
+      (id) => document.querySelector<HTMLImageElement>('#' + id)?.naturalWidth === 1,
+    ),
+  );
+  const oldUrl = await page.locator('#retained-image').getAttribute('src');
+  expect(oldUrl).toMatch(/^blob:/);
+  expect(await page.locator('#transferred-image').getAttribute('src')).toBe(oldUrl);
+  expect(requestedPaths.filter((path) => path === '/api/assets/shared-doc-image').length).toBe(1);
+  await page.evaluate(() => {
+    const frame = document.createElement('iframe');
+    frame.id = 'image-document';
+    document.body.append(frame);
+    const nextDocument = frame.contentDocument!;
+    const image = nextDocument.adoptNode(
+      document.querySelector<HTMLImageElement>('#transferred-image')!,
+    );
+    nextDocument.body.append(image);
+    (window as any).fixture.trackImageRequest(image, () => ({ src: null }));
+  });
+  await page.evaluate(() => new Promise<void>((resolve) => setTimeout(resolve, 0)));
+  expect(await page.locator('#retained-image').getAttribute('src')).toBe(oldUrl);
+  expect(
+    await page
+      .locator('#retained-image')
+      .evaluate((image) => (image as HTMLImageElement).naturalWidth),
+  ).toBe(1);
+  expect(await page.evaluate(async (url) => (await fetch(url!)).ok, oldUrl)).toBe(true);
+  expect(await page.frameLocator('#image-document').locator('img').getAttribute('src')).toBe(null);
+  await page.locator('#retained-image').evaluate((image) => image.remove());
+  await expect
+    .poll(() =>
+      page.evaluate(async (url) => {
+        try {
+          await fetch(url!);
+          return true;
+        } catch {
+          return false;
+        }
+      }, oldUrl),
+    )
+    .toBe(false);
 });
