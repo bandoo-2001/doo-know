@@ -1,12 +1,21 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-const props = defineProps<{ modelValue: number }>();
+const props = withDefaults(defineProps<{
+  modelValue: number;
+  side?: 'left' | 'right';
+  min?: number;
+  max?: number;
+  defaultWidth?: number;
+  label?: string;
+  controls?: string;
+}>(), { side: 'left', min: 240, max: 400, defaultWidth: 260,
+  label: '调整侧栏宽度', controls: 'notebook-navigation' });
 const emit = defineEmits<{ 'update:modelValue': [width: number]; commit: [] }>();
 const dragging = ref(false);
 let startX = 0,
   startWidth = 0;
 function update(width: number) {
-  emit('update:modelValue', Math.max(240, Math.min(400, Math.round(width))));
+  emit('update:modelValue', Math.max(props.min, Math.min(props.max, Math.round(width))));
 }
 function start(event: PointerEvent) {
   if (event.button !== 0) return;
@@ -24,13 +33,13 @@ function finish() {
 function key(event: KeyboardEvent) {
   const width =
     event.key === 'Home'
-      ? 240
+      ? props.min
       : event.key === 'End'
-        ? 400
+        ? props.max
         : event.key === 'ArrowLeft'
-          ? props.modelValue - 16
+          ? props.modelValue + (props.side === 'right' ? 16 : -16)
           : event.key === 'ArrowRight'
-            ? props.modelValue + 16
+            ? props.modelValue + (props.side === 'right' ? -16 : 16)
             : undefined;
   if (width === undefined) return;
   event.preventDefault();
@@ -41,24 +50,24 @@ function key(event: KeyboardEvent) {
 <template>
   <div
     class="sidebar-resizer"
-    :class="{ dragging }"
+    :class="{ dragging, 'outline-resizer': side === 'right' }"
     role="separator"
     tabindex="0"
-    aria-label="调整侧栏宽度"
+    :aria-label="label"
     aria-orientation="vertical"
     :aria-valuenow="modelValue"
-    :aria-valuemin="240"
-    :aria-valuemax="400"
-    aria-controls="notebook-navigation"
+    :aria-valuemin="min"
+    :aria-valuemax="max"
+    :aria-controls="controls"
     title="拖动调整目录宽度，双击还原"
     @pointerdown="start"
-    @pointermove="dragging && update(startWidth + $event.clientX - startX)"
+    @pointermove="dragging && update(startWidth + ($event.clientX - startX) * (side === 'right' ? -1 : 1))"
     @pointerup="finish"
     @pointercancel="finish"
     @lostpointercapture="finish"
     @keydown="key"
     @dblclick="
-      update(260);
+      update(defaultWidth);
       emit('commit');
     "
   ></div>

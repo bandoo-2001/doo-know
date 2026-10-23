@@ -542,3 +542,34 @@ for (const kind of ['image', 'link'] as const) {
     await expect(page.locator('.save-state')).toContainText('已保存');
   });
 }
+
+
+test('右侧章节目录支持拖拽、键盘调整、刷新记忆和双击还原', async ({ page, context }) => {
+  await page.setViewportSize({ width: 1600, height: 900 });
+  await openDocumentNote(page, context, '# 目录宽度测试\n\n## 较长的章节标题\n\n正文保持不变。');
+  const outline = page.locator('.document-outline');
+  const handle = page.getByRole('separator', { name: '调整章节目录宽度', exact: true });
+  await expect(handle).toBeVisible();
+  const initial = (await outline.boundingBox())!.width;
+  const box = (await handle.boundingBox())!;
+  await page.mouse.move(box.x + box.width / 2, box.y + 120);
+  await page.mouse.down();
+  await page.mouse.move(box.x - 90, box.y + 120);
+  await page.mouse.up();
+  const resized = (await outline.boundingBox())!.width;
+  expect(resized).toBeGreaterThan(initial + 70);
+  await handle.focus();
+  await page.keyboard.press('ArrowLeft');
+  await expect.poll(async () => (await outline.boundingBox())!.width).toBe(resized + 16);
+  await page.reload();
+  await expect(handle).toBeVisible();
+  await expect.poll(async () => (await outline.boundingBox())!.width).toBe(resized + 16);
+  await handle.dblclick();
+  await expect.poll(async () => (await outline.boundingBox())!.width).toBe(228);
+  await handle.focus();
+  await page.keyboard.press('End');
+  await expect.poll(async () => (await outline.boundingBox())!.width).toBe(420);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.setViewportSize({ width: 800, height: 700 });
+  await expect(handle).toHaveCount(0);
+});

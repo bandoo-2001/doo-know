@@ -292,6 +292,17 @@ const importFolder = ref('40-Resources'),
   downloading = ref(false),
   outlineOpen = ref(false);
 const outlineDocked = ref(true), narrowDocument = ref(false);
+const outlineWidth = ref(storedOutlineWidth());
+function storedOutlineWidth() {
+  try {
+    const width = Number(localStorage.getItem('dooknow.outlineWidth'));
+    if (Number.isFinite(width) && width >= 200 && width <= 420) return width;
+  } catch {}
+  return 228;
+}
+function saveOutlineWidth() {
+  try { localStorage.setItem('dooknow.outlineWidth', String(outlineWidth.value)); } catch {}
+}
 const outlineTrigger = ref<InstanceType<typeof AButton>>();
 const outlineUsesPopup = computed(() => narrowDocument.value || mode.value === 'split');
 let documentResizeObserver: ResizeObserver | undefined;
@@ -2070,7 +2081,7 @@ onBeforeUnmount(() => {
 <template>
   <div
     :class="['workspace', { 'sidebar-collapsed': sidebarCollapsed && panel === 'note' }]"
-    :style="{ '--sidebar-width': sidebarWidth + 'px' }"
+    :style="{ '--sidebar-width': sidebarWidth + 'px', '--outline-width': outlineWidth + 'px' }"
   >
     <div v-if="drawer" class="drawer-scrim" @click="drawer = false"></div>
     <aside id="notebook-navigation" :class="['sidebar', { open: drawer }]" aria-label="笔记导航">
@@ -2661,7 +2672,17 @@ onBeforeUnmount(() => {
                 </section>
               </div>
             </div>
-            <aside v-if="!outlineUsesPopup && outlineDocked" class="document-outline">
+            <aside v-if="!outlineUsesPopup && outlineDocked" id="document-outline" class="document-outline">
+              <SidebarResizer
+                v-model="outlineWidth"
+                side="right"
+                :min="200"
+                :max="420"
+                :default-width="228"
+                label="调整章节目录宽度"
+                controls="document-outline"
+                @commit="saveOutlineWidth"
+              />
               <DocumentOutline
                 v-model:collapsed="collapsedOutline"
                 :headings="normalOutline"
