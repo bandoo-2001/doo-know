@@ -6,6 +6,7 @@ import Database from 'better-sqlite3';
 import { createFixture } from './support/fixture.js';
 import { acquireInstance } from '../apps/server/platform/instance.js';
 import { rollbackPlatform } from '../apps/server/platform/updates.js';
+import { noteService } from '../packages/core/notes.js';
 
 // Exercise real rollback, database snapshot and candidate execution. Only the host's
 // systemd boundary is substituted; these tests must never control a real unit.
@@ -63,7 +64,11 @@ async function rollbackFixture(active = true) {
   const source = '# 最新合法写入\r\n\r\n保留表格 | 和尾随空格  \r\n';
   await writeFile(retained, source);
   const db = new Database(join(f.dataRoot, 'app.sqlite'));
+  // Register the external fixture file before taking the rollback baseline.
+  // Otherwise startup reconciliation can legitimately add it after the snapshot.
+  noteService(config, db).scan();
   const rows = db.prepare('SELECT * FROM notes ORDER BY id').all();
+  expect(rows).toHaveLength(1);
   return {
     config, previous, installRoot,
     unchanged: async () => {

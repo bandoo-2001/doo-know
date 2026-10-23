@@ -311,6 +311,10 @@ it('keeps pending preview streams alive across a synchronous move', async () => 
 
 it('does not cancel an unrelated image removed outside the bound preview', async () => {
   await preview();
+  // Wait until the server has observed the whole scheduled preview batch.
+  // Otherwise a request aborted during removal can arrive after the count
+  // temporarily reaches one, masking the surviving preview stream.
+  await expect.poll(() => active.size).toBe(3);
   await page.evaluate(() => {
     const root = (window as any).fixture.preview.root;
     [...root.querySelectorAll('img')].slice(1).forEach((image: any) => image.remove());
