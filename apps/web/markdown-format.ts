@@ -1,6 +1,12 @@
-import { EditorSelection, type EditorState, type Transaction } from '@codemirror/state';
+import {
+  EditorSelection,
+  type EditorState,
+  type Transaction,
+  type TransactionSpec,
+} from '@codemirror/state';
 import { isolateHistory, undoDepth, redoDepth } from '@codemirror/commands';
 import { syntaxTree, ensureSyntaxTree } from '@codemirror/language';
+import { parseSource } from './editor/source-codec';
 import {
   isStyleAction,
   styleState,
@@ -9,8 +15,16 @@ import {
   type Alignment,
 } from './markdown-style';
 
-import {emptyToolbarState,type MarkdownAction,type MarkdownToolbarState} from './editor/toolbar-state';
-export {emptyToolbarState,type MarkdownAction,type MarkdownToolbarState} from './editor/toolbar-state';
+import {
+  emptyToolbarState,
+  type MarkdownAction,
+  type MarkdownToolbarState,
+} from './editor/toolbar-state';
+export {
+  emptyToolbarState,
+  type MarkdownAction,
+  type MarkdownToolbarState,
+} from './editor/toolbar-state';
 const markers = { bold: '**', italic: '*', strike: '~~', inlineCode: '`' };
 const nodeNames = {
   bold: 'StrongEmphasis',
@@ -267,6 +281,141 @@ function blockTransaction(state: EditorState, action: 'codeBlock' | 'table' | 'r
     };
   });
 }
+function clearFormattingTransaction(state: EditorState): TransactionSpec | undefined {
+  let current = state,
+    changes = state.changes([]);
+  const protectedSource = parseSource(state.doc.toString()).units.filter((unit) => unit.opaque);
+  const protectedAt = (from: number, to: number) =>
+    protectedSource.some((unit) => {
+      const start = changes.mapPos(unit.from, 1),
+        end = changes.mapPos(unit.to, -1);
+      return from === to ? from >= start && from < end : from < end && to > start;
+    });
+  const apply = (spec: TransactionSpec) => {
+    const transaction = current.update(spec);
+    changes = changes.compose(transaction.changes);
+    current = transaction.state;
+  };
+  // Reuse the color command's source-aware span splitting and selection mapping.
+  const color = styleTransaction(current, 'colorDefault');
+  if (color) {
+    const transaction = current.update(color),
+      edits: { from: number; to: number; insert: string }[] = [];
+    transaction.changes.iterChanges((from, to, _fromB, _toB, insert) => {
+      if (!protectedAt(from, to)) edits.push({ from, to, insert: insert.toString() });
+    });
+    const step = current.changes(edits);
+    apply({ changes: step, selection: current.selection.map(step) });
+  }
+  for (;;) {
+    const tree = ensureSyntaxTree(current, current.doc.length, 100);
+    if (!tree) return;
+    let candidate:
+      | {
+          from: number;
+          to: number;
+          bodyFrom: number;
+          bodyTo: number;
+          marker: string;
+          code: boolean;
+        }
+      | undefined;
+    tree.iterate({
+      enter(node) {
+        if (
+          (protectedAt(node.from, node.to) && node.name !== 'Document') ||
+          [
+            'FencedCode',
+            'CodeBlock',
+            'HTMLBlock',
+            'CommentBlock',
+            'Image',
+            'LinkReference',
+          ].includes(node.name)
+        )
+          return false;
+        if (!['StrongEmphasis', 'Emphasis', 'Strikethrough', 'InlineCode'].includes(node.name))
+          return;
+        const first = node.node.firstChild,
+          last = node.node.lastChild;
+        if (!first || !last || first === last) return;
+        const body = current.sliceDoc(first.to, last.from),
+          code = node.name === 'InlineCode',
+          padding = code && body.startsWith(' ') && body.endsWith(' ') && body.trim() ? 1 : 0;
+        if (
+          current.selection.ranges.some((range) =>
+            range.empty
+              ? range.head >= first.to && range.head <= last.from
+              : range.from < last.from && range.to > first.to,
+          )
+        ) {
+          // Descendants replace this candidate, so nested marks clear first.
+          candidate = {
+            from: node.from,
+            to: node.to,
+            bodyFrom: first.to + padding,
+            bodyTo: last.from - padding,
+            marker: current.sliceDoc(first.from, first.to),
+            code,
+          };
+        }
+      },
+    });
+    if (!candidate) break;
+    const { from, to, bodyFrom, bodyTo, marker, code } = candidate;
+    const selected = current.selection.ranges
+      .flatMap((range) => {
+        if (range.empty && range.head >= bodyFrom && range.head <= bodyTo)
+          return [{ from: bodyFrom, to: bodyTo }];
+        const start = Math.max(bodyFrom, range.from),
+          end = Math.min(bodyTo, range.to);
+        return end > start ? [{ from: start, to: end }] : [];
+      })
+      .sort((a, b) => a.from - b.from);
+    const edits: { from: number; to?: number; insert?: string }[] = [
+      { from, to: bodyFrom },
+      { from: bodyTo, to },
+    ];
+    const retain = (start: number, end: number) => {
+      const text = current.sliceDoc(start, end),
+        leading = text.match(/^\s*/)?.[0].length || 0,
+        trailing = text.match(/\s*$/)?.[0].length || 0;
+      if (code) {
+        if (!text) return;
+        const padding =
+          /^`|`$/.test(text) || (text.startsWith(' ') && text.endsWith(' ') && text.trim())
+            ? ' '
+            : '';
+        edits.push(
+          { from: start, insert: marker + padding },
+          { from: end, insert: padding + marker },
+        );
+        return;
+      }
+      if (end - start <= leading + trailing) return;
+      edits.push(
+        { from: start + leading, insert: marker },
+        { from: end - trailing, insert: marker },
+      );
+    };
+    let start = bodyFrom;
+    for (const range of selected) {
+      retain(start, range.from);
+      if (code) {
+        const literal = current
+          .sliceDoc(range.from, range.to)
+          .replace(/\r?\n/g, ' ')
+          .replace(/([\\`*_{}\[\]<>#+|!~.()\-])/g, '\\$1');
+        edits.push({ from: range.from, to: range.to, insert: literal });
+      }
+      start = Math.max(start, range.to);
+    }
+    retain(start, bodyTo);
+    const step = current.changes(edits.sort((a, b) => a.from - b.from));
+    apply({ changes: step, selection: current.selection.map(step) });
+  }
+  return { changes, selection: current.selection };
+}
 export function markdownTransaction(
   state: EditorState,
   action: MarkdownAction,
@@ -276,13 +425,16 @@ export function markdownTransaction(
     (['bold', 'italic', 'strike', 'link'].includes(action) && enclosingInline(state, 'inlineCode'))
   )
     return;
-  const spec = isStyleAction(action)
-    ? styleTransaction(state, action)
-    : action in markers || action === 'link'
-      ? inlineTransaction(state, action as InlineAction | 'link')
-      : action === 'codeBlock' || action === 'table' || action === 'rule'
-        ? blockTransaction(state, action)
-        : lineTransaction(state, action);
+  const spec =
+    action === 'clearFormatting'
+      ? clearFormattingTransaction(state)
+      : isStyleAction(action)
+        ? styleTransaction(state, action)
+        : action in markers || action === 'link'
+          ? inlineTransaction(state, action as InlineAction | 'link')
+          : action === 'codeBlock' || action === 'table' || action === 'rule'
+            ? blockTransaction(state, action)
+            : lineTransaction(state, action);
   if (!spec) return;
   return state.update({
     ...spec,
@@ -296,7 +448,7 @@ export function toolbarState(state: EditorState): MarkdownToolbarState {
   const line = currentLine.text;
   const active = (action: InlineAction) => !!enclosingInline(state, action);
   const node = headingAtLine(state, currentLine);
-  const heading = node && Number(node.name.at(-1)) <= 5 ? Number(node.name.at(-1)) : 0;
+  const heading = node ? Number(node.name.at(-1)) : 0;
   return {
     ...styleState(state),
     heading,

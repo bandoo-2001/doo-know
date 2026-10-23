@@ -12,6 +12,8 @@ import { ProjectTextStyle, ProjectColor, ProjectAlignment } from './extensions/p
 import { opaqueSourceExtension } from './extensions/opaque-source';
 import { parseSource } from './source-codec';
 import type { SourceUnit } from './contracts';
+import { createKnowledgePreviewer } from '../../../shared/knowledge-markdown';
+import { diagramPreviewGroups, parseDiagramBinding } from '../../../shared/diagram-portability';
 const origin = Extension.create({
   name: 'sourceOrigin',
   addGlobalAttributes() {
@@ -39,6 +41,7 @@ export function richExtensions(
   resolveImage?: (url: string) => string | undefined,
   deleteOpaque?: (id: string) => void,
   copyOpaque?: (id: string) => void,
+  openLink?: (url: string) => void,
 ): AnyExtension[] {
   return [
     StarterKit.configure({
@@ -61,7 +64,7 @@ export function richExtensions(
     ProjectColor,
     ProjectAlignment,
     origin,
-    opaqueSourceExtension(openSource, deleteOpaque, copyOpaque),
+    opaqueSourceExtension(openSource, deleteOpaque, copyOpaque, resolveImage, openLink),
   ];
 }
 const extensions = richExtensions();
@@ -81,7 +84,7 @@ function sorted(value: any): any {
   if (value && typeof value === 'object') {
     return Object.fromEntries(
       Object.keys(value)
-        .filter((k) => k !== 'sourceId')
+        .filter((k) => !['sourceId', 'previewCodeHash', 'previewSourceHash'].includes(k))
         .sort()
         .map((k) => [k, sorted(value[k])]),
     );
@@ -180,6 +183,8 @@ export function createRichProjection(original: string) {
   const source = parseSource(original);
   const ledger = new Map<string, { unit: SourceUnit; fingerprint: string }>();
   const nodes: JSONContent[] = [];
+  const preview = createKnowledgePreviewer(original);
+  const previewGroups = original.includes('dooknow:diagram-preview') ? diagramPreviewGroups(original) : new Map();
   for (const u of source.units) {
     if (u.kind === 'blank' && !u.raw.trim()) {
       const blank = parseRichUnit(u.raw)[0] || { type: 'paragraph' };
@@ -200,7 +205,11 @@ export function createRichProjection(original: string) {
       fingerprint(node);
     } catch {
       u.opaque = true;
-      node = { type: 'opaqueSource' };
+      node = { type: 'opaqueSource', attrs: { internal: !!parseDiagramBinding(u.raw), previewHtml: u.kind === 'frontmatter' ? '' : preview(u.raw, u.id) } };
+    }
+    if (node.type === 'codeBlock') {
+      const group = previewGroups.get(u.from);
+      if (group) node.attrs = { ...node.attrs, previewCodeHash: group.binding.codeHash, previewSourceHash: group.binding.sourceHash };
     }
     node.attrs = { ...node.attrs, sourceId: u.id };
     nodes.push(node);

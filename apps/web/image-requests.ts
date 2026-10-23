@@ -1,3 +1,5 @@
+import { SVG_MIME, SVG_POLICY, validateSvgSource } from '../../shared/svg-policy.js';
+
 type Sources = { src: string | null; srcset?: string | null };
 type Getter = () => Sources;
 export const deferredImageSource = 'data-dooknow-image-src';
@@ -9,6 +11,8 @@ export function deferImageSource(
   token.attrSet(deferredImageSource, source);
 }
 function allowedSource(source: string | null) {
+  if (!source || new URLSearchParams(source.slice(source.indexOf('?') + 1)).has('download'))
+    return null;
   return source &&
     (/^\/api\/assets\/[a-zA-Z0-9-]+(?:\?[^#]*)?$/.test(source) ||
       /^\/api\/public\/shares\/[a-zA-Z0-9_-]+\/(?:assets\/[a-zA-Z0-9-]+(?:\?[^#]*)?|asset\?source=[^#]*)$/.test(
@@ -129,11 +133,13 @@ function createScope(document: Document) {
             cache: 'no-store',
             redirect: 'error',
           });
+          const contentType = response.headers.get('content-type') || '',
+            svg = /^image\/svg\+xml(?:;|$)/i.test(contentType),
+            limit = svg ? SVG_POLICY.maxBytes : 10 * 1024 * 1024;
           if (
             !response.ok ||
-            !/^image\/(?:png|jpeg|gif|webp)(?:;|$)/i.test(
-              response.headers.get('content-type') || '',
-            )
+            /^attachment(?:;|$)/i.test(response.headers.get('content-disposition') || '') ||
+            !/^image\/(?:png|jpeg|gif|webp|svg\+xml)(?:;|$)/i.test(contentType)
           )
             throw Error('Image unavailable');
           if (!response.body) throw Error('Image unavailable');
@@ -148,14 +154,19 @@ function createScope(document: Document) {
               bytes += next.value.byteLength;
               // Match the existing server attachment limit, without timing out
               // a legitimate slow transfer that continues making progress.
-              if (bytes > 10 * 1024 * 1024) throw Error('Image too large');
+              if (bytes > limit) throw Error('Image too large');
               chunks.push(next.value.slice().buffer as ArrayBuffer);
               resetIdleDeadline();
             }
           } finally {
             reader.releaseLock();
           }
-          const blob = new view.Blob(chunks, { type: response.headers.get('content-type') || '' });
+          let blob = new view.Blob(chunks, { type: contentType });
+          if (svg) {
+            const result = validateSvgSource(new Uint8Array(await blob.arrayBuffer()));
+            if (!result.ok) throw Error('SVG unavailable');
+            blob = new view.Blob([result.presentation], { type: SVG_MIME });
+          }
           if (resource.state !== 'loading' || !resource.owners.size) return;
           resource.url = view.URL.createObjectURL(blob);
           resource.state = 'loaded';

@@ -245,3 +245,51 @@ it('refuses nested/container fences and ignores a non-closing indented fence mar
     await f.close();
   }
 });
+
+it('keeps display math opaque across a streamed 2MiB body and resumes at its closing line', async () => {
+  const f = await fixture();
+  try {
+    await large(f.file, '$$\n', '![hidden](assets/photo.png)\n\n$$');
+    expect(await hasSavedAssetReference(f.file, notePath, image)).toBe(false);
+    await large(f.file, '$$\n', '![hidden](assets/photo.png)\n\n$$\n\n![visible](assets/photo.png)');
+    expect(await hasSavedAssetReference(f.file, notePath, image)).toBe(true);
+  } finally {
+    await f.close();
+  }
+});
+
+it('resolves a footnote across 2MiB and follows only rendered definitions', async () => {
+  const f = await fixture();
+  try {
+    await large(f.file, 'reference[^a]\n\n', '[^a]: first paragraph\n\n    ![photo](assets/photo.png)');
+    expect(await hasSavedAssetReference(f.file, notePath, image)).toBe(true);
+    await writeFile(f.file, 'reference[^a]\n\n[^a]: see[^b]\n\n[^b]: ![photo](assets/photo.png)\n');
+    expect(await hasSavedAssetReference(f.file, notePath, image)).toBe(true);
+    await writeFile(f.file, 'reference[^a]\n\n[^a]: see[^b]\n\n[^b]: back[^a]\n');
+    expect(await hasSavedAssetReference(f.file, notePath, image)).toBe(false);
+  } finally {
+    await f.close();
+  }
+});
+
+it('keeps complete footnote units within the existing parser budget', async () => {
+  const f = await fixture();
+  try {
+    await writeFile(f.file, 'reference[^a]\n\n[^a]: first\n\n' + '    continuation\n\n'.repeat(3000));
+    await expect(hasSavedAssetReference(f.file, notePath, image)).rejects.toMatchObject({
+      code: 'ASSET_REFERENCE_TOO_COMPLEX',
+    });
+  } finally {
+    await f.close();
+  }
+});
+
+it('retains a closed direct proof before a footnote and a later complex container', async () => {
+  const f = await fixture();
+  try {
+    await writeFile(f.file, '![photo](assets/photo.png)\n[^a]: explanation\n\n> ```\n> hidden\n> ```\n');
+    expect(await hasSavedAssetReference(f.file, notePath, image)).toBe(true);
+  } finally {
+    await f.close();
+  }
+});

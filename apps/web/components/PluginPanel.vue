@@ -41,7 +41,7 @@ const item = computed(() =>
     </div>
   </NModal>
 </template>
-<style scoped>
+<style>
 .plugin-dialog {
   width: min(820px, calc(100vw - 40px));
   max-height: calc(100dvh - 48px);
@@ -56,19 +56,19 @@ const item = computed(() =>
   overscroll-behavior: contain;
   overflow-wrap: anywhere;
 }
-.plugin-dialog :deep(.n-card-header) {
+.plugin-dialog .n-card-header {
   align-items: flex-start;
   gap: 12px;
 }
-.plugin-dialog :deep(.n-card-header__main) {
+.plugin-dialog .n-card-header__main {
   min-width: 0;
   overflow-wrap: anywhere;
   line-height: 1.6;
 }
-.plugin-dialog :deep(.n-card-header__extra) {
+.plugin-dialog .n-card-header__extra {
   flex-shrink: 0;
 }
-.plugin-panel-content :deep(> *) {
+.plugin-panel-content > * {
   min-width: 0;
 }
 @media (max-width: 600px) {

@@ -1,6 +1,15 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue';
-import { Popover as APopover } from 'ant-design-vue';
+import {
+  computed,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  useId,
+  watch,
+  type CSSProperties,
+} from 'vue';
+import { createFloatingTools } from '../editor/floating-tools';
 import Icon from './Icon.vue';
 
 const props = defineProps<{ value: number; disabled: boolean }>();
@@ -8,28 +17,22 @@ const emit = defineEmits<{ select: [level: number] }>();
 const menuId = useId();
 const trigger = ref<HTMLButtonElement>();
 const panel = ref<HTMLElement>();
+const popup = ref<HTMLElement>();
+const popupStyle = ref<CSSProperties>({ visibility: 'hidden' });
 const open = ref(false);
 const active = ref(0);
-const placement = ref<'topLeft' | 'bottomLeft'>('bottomLeft');
 const maxHeight = ref(420);
 let focusFrame: number | undefined;
-const options = computed(() => [0, 1, 2, 3, 4, 5, ...(props.value === 6 ? [6] : [])]);
+let positioner: ReturnType<typeof createFloatingTools> | undefined;
+const options = [0, 1, 2, 3, 4, 5, 6];
 const label = computed(() => (props.value ? `标题 ${props.value}` : '正文'));
 
-function measure() {
-  if (!open.value || !trigger.value) return;
-  const rect = trigger.value.getBoundingClientRect();
-  const above = Math.max(0, rect.top - 12);
-  const below = Math.max(0, innerHeight - rect.bottom - 12);
-  placement.value = below >= above ? 'bottomLeft' : 'topLeft';
-  maxHeight.value = Math.max(72, Math.min(420, Math.max(above, below) - 8));
-}
 function close(restoreFocus = false) {
   open.value = false;
   if (restoreFocus) trigger.value?.focus({ preventScroll: true });
 }
 function choose(level: number) {
-  if (props.disabled || level === 6) return;
+  if (props.disabled) return;
   close();
   emit('select', level);
 }
@@ -71,15 +74,29 @@ function keydown(event: KeyboardEvent) {
   }
   if (event.key === 'Enter' || event.key === ' ') choose(active.value);
   else if (event.key === 'Home') move(0);
-  else if (event.key === 'End') move(5);
-  else if (event.key === 'ArrowDown') move(active.value >= 5 ? 0 : active.value + 1);
-  else move(active.value <= 0 || active.value === 6 ? 5 : active.value - 1);
+  else if (event.key === 'End') move(6);
+  else if (event.key === 'ArrowDown') move(active.value >= 6 ? 0 : active.value + 1);
+  else move(active.value <= 0 ? 6 : active.value - 1);
 }
-watch([open, panel], async ([shown]) => {
+watch([open, popup], async ([shown]) => {
   if (focusFrame !== undefined) cancelAnimationFrame(focusFrame);
-  if (!shown) return;
-  active.value = options.value.includes(props.value) ? props.value : 0;
-  measure();
+  positioner?.stop();
+  positioner = undefined;
+  if (!shown || !popup.value || !trigger.value) {
+    popupStyle.value = { visibility: 'hidden' };
+    return;
+  }
+  active.value = options.includes(props.value) ? props.value : 0;
+  positioner = createFloatingTools(
+    trigger.value,
+    popup.value,
+    { padding: 12, maxHeight: 420 },
+    (style) => {
+      popupStyle.value = style;
+      maxHeight.value = Number.parseFloat(String(style.maxHeight));
+    },
+  );
+  await positioner.update();
   await nextTick();
   focusPanel();
 });
@@ -89,23 +106,26 @@ watch(
     if (disabled) close();
   },
 );
-onMounted(() => window.addEventListener('resize', measure));
+function outside(event: Event) {
+  const target = event.target as Node;
+  if (open.value && !popup.value?.contains(target) && !trigger.value?.contains(target)) close();
+}
+onMounted(() => document.addEventListener('pointerdown', outside, true));
 onBeforeUnmount(() => {
-  window.removeEventListener('resize', measure);
+  document.removeEventListener('pointerdown', outside, true);
+  positioner?.stop();
   if (focusFrame !== undefined) cancelAnimationFrame(focusFrame);
 });
 </script>
 
 <template>
-  <APopover
-    v-model:open="open"
-    trigger="click"
-    :placement="placement"
-    :arrow="false"
-    overlay-class-name="editor-menu-popover heading-menu-popover"
-    :overlay-inner-style="{ padding: 0 }"
-  >
-    <template #content>
+  <Teleport to="body">
+    <div
+      v-if="open"
+      ref="popup"
+      class="editor-menu-popover heading-menu-popover"
+      :style="popupStyle"
+    >
       <div class="heading-menu" :style="{ maxHeight: maxHeight + 'px' }">
         <div class="heading-menu-header" aria-hidden="true">
           <span>段落格式</span>
@@ -129,7 +149,6 @@ onBeforeUnmount(() => {
             role="option"
             :aria-label="level ? `标题 ${level}` : '正文'"
             :aria-selected="value === level"
-            :aria-disabled="level === 6 || undefined"
             :data-level="level"
             :tabindex="active === level ? 0 : -1"
             @focus="active = level"
@@ -146,23 +165,24 @@ onBeforeUnmount(() => {
           </button>
         </div>
       </div>
-    </template>
-    <button
-      ref="trigger"
-      type="button"
-      class="heading-picker-trigger"
-      role="combobox"
-      aria-label="段落格式"
-      aria-haspopup="listbox"
-      :aria-controls="open ? menuId : undefined"
-      :aria-expanded="open"
-      :disabled="disabled"
-      @keydown="keydown"
-    >
-      <span>{{ label }}</span>
-      <Icon name="chevron" :size="12" />
-    </button>
-  </APopover>
+    </div>
+  </Teleport>
+  <button
+    ref="trigger"
+    type="button"
+    class="heading-picker-trigger"
+    role="combobox"
+    aria-label="段落格式"
+    aria-haspopup="listbox"
+    :aria-controls="open ? menuId : undefined"
+    :aria-expanded="open"
+    :disabled="disabled"
+    @keydown="keydown"
+    @click="open = !open"
+  >
+    <span>{{ label }}</span>
+    <Icon name="chevron" :size="12" />
+  </button>
 </template>
 
 <style>
@@ -192,7 +212,9 @@ onBeforeUnmount(() => {
 .heading-picker-trigger[aria-expanded='true'] > svg {
   transform: rotate(270deg);
 }
-.heading-menu-popover.ant-popover .ant-popover-inner {
+.heading-menu-popover {
+  position: fixed;
+  z-index: 2050;
   overflow: hidden;
   border: 1px solid var(--border);
   border-radius: 12px;

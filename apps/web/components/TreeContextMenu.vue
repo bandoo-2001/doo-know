@@ -12,7 +12,8 @@ export type TreeAction =
   | 'delete';
 </script>
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onBeforeUnmount, ref } from 'vue';
+import { computed, nextTick, onMounted, onBeforeUnmount, ref, type CSSProperties } from 'vue';
+import { createFloatingTools, virtualAnchor } from '../editor/floating-tools';
 import type { TreeEntry } from '../../../shared/contracts';
 const props = defineProps<{ path?: string; favoriteIds?: string[]; favoriteBusy?: boolean }>();
 const emit = defineEmits<{
@@ -24,6 +25,8 @@ const menu = ref<HTMLElement>();
 const x = ref(0),
   y = ref(0),
   positioned = ref(false);
+const menuStyle = ref<CSSProperties>();
+let positioner: ReturnType<typeof createFloatingTools> | undefined;
 let trigger: HTMLElement | undefined;
 let triggerRect: DOMRect | undefined;
 let opening = 0;
@@ -32,7 +35,7 @@ const items = computed<{ key: TreeAction; label: string }[]>(() => [
   ...(entry.value?.type === 'folder'
     ? [
         { key: 'new-note' as const, label: '新建笔记' },
-        { key:'new-whiteboard' as const,label:'新建白板' },
+        { key: 'new-whiteboard' as const, label: '新建白板' },
         { key: 'new-folder' as const, label: '新建子文件夹' },
         { key: 'import' as const, label: '导入 Markdown' },
       ]
@@ -42,7 +45,12 @@ const items = computed<{ key: TreeAction; label: string }[]>(() => [
           label: props.favoriteIds?.includes(entry.value?.id || '') ? '取消收藏' : '收藏',
         },
         { key: 'move' as const, label: '重命名或移动' },
-        { key: 'download' as const, label: /\.excalidraw$/i.test(entry.value?.path||'')?'下载白板原文件':'下载 Markdown' },
+        {
+          key: 'download' as const,
+          label: /\.excalidraw$/i.test(entry.value?.path || '')
+            ? '下载白板原文件'
+            : '下载 Markdown',
+        },
       ]),
   { key: 'copy', label: '复制路径' },
   ...(entry.value?.type === 'note' ||
@@ -54,16 +62,21 @@ const items = computed<{ key: TreeAction; label: string }[]>(() => [
 ]);
 function close(restoreFocus = false) {
   opening++;
+  positioner?.stop();
+  positioner = undefined;
   entry.value = undefined;
   emit('update:path', '');
   if (restoreFocus && trigger?.isConnected) trigger.focus({ preventScroll: true });
 }
 async function open(target: TreeEntry, event: MouseEvent | KeyboardEvent) {
   const epoch = ++opening;
+  positioner?.stop();
   const source = event.target as HTMLElement;
   trigger =
     source.closest<HTMLElement>('button') ||
-    (event.currentTarget as HTMLElement).querySelector<HTMLElement>('.tree-select, .folder-entry-open') ||
+    (event.currentTarget as HTMLElement).querySelector<HTMLElement>(
+      '.tree-select, .folder-entry-open',
+    ) ||
     undefined;
   const rect = trigger?.getBoundingClientRect();
   triggerRect = rect;
@@ -76,10 +89,21 @@ async function open(target: TreeEntry, event: MouseEvent | KeyboardEvent) {
   emit('update:path', target.path);
   await nextTick();
   if (!menu.value || epoch !== opening) return;
-  const box = menu.value.getBoundingClientRect();
-  x.value = Math.max(8, Math.min(x.value, window.innerWidth - box.width - 8));
-  y.value = Math.max(8, Math.min(y.value, window.innerHeight - box.height - 8));
-  positioned.value = true;
+  const anchor =
+    pointer || !trigger
+      ? virtualAnchor(() => new DOMRect(x.value, y.value, 0, 0), trigger)
+      : trigger;
+  positioner = createFloatingTools(
+    anchor,
+    menu.value,
+    { padding: 8, gap: pointer ? 0 : 4 },
+    (style) => {
+      if (epoch !== opening) return;
+      menuStyle.value = style;
+      positioned.value = true;
+    },
+  );
+  await positioner.update();
   await nextTick();
   if (epoch !== opening) return;
   menu.value.querySelector<HTMLButtonElement>('button')?.focus({ preventScroll: true });
@@ -115,18 +139,14 @@ function outside(event: Event) {
   }
   close();
 }
-function resize() {
-  close();
-}
 onMounted(() => {
   document.addEventListener('pointerdown', outside, true);
   document.addEventListener('scroll', outside, true);
-  window.addEventListener('resize', resize);
 });
 onBeforeUnmount(() => {
   document.removeEventListener('pointerdown', outside, true);
   document.removeEventListener('scroll', outside, true);
-  window.removeEventListener('resize', resize);
+  positioner?.stop();
 });
 defineExpose({ open });
 </script>
@@ -139,7 +159,7 @@ defineExpose({ open });
       role="menu"
       :aria-label="`${entry.name} 的操作`"
       class="tree-context-menu"
-      :style="{ left: x + 'px', top: y + 'px', visibility: positioned ? 'visible' : 'hidden' }"
+      :style="{ ...menuStyle, visibility: positioned ? 'visible' : 'hidden' }"
       @keydown="keydown"
       @contextmenu.prevent
     >

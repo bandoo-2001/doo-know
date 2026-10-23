@@ -595,3 +595,5 @@
   bottom: 0;
   display: block;
 }
+
+.batch-upload-panel{padding:10px 16px;border-bottom:1px solid var(--border);background:var(--panel);font-size:12px}.batch-upload-item{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:4px 0}.batch-upload-item>span:first-child{max-width:40vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

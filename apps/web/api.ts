@@ -29,9 +29,10 @@ export async function api<T = any>(
   url: string,
   method = 'GET',
   body?: unknown,
-  options: { notifySessionExpired?: boolean } = {},
+  options: { notifySessionExpired?: boolean; uploadRequestId?: string } = {},
 ): Promise<T> {
   const headers: Record<string, string> = {};
+  if (options.uploadRequestId) headers['x-dooknow-upload-id'] = options.uploadRequestId;
   if (method !== 'GET') {
     if (!csrfToken && !url.startsWith('/api/auth/') && !url.startsWith('/api/public/'))
       await refreshCsrf();

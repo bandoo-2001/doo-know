@@ -117,7 +117,7 @@ beforeAll(async () => {
       r.writeHead(200, { 'content-type': 'application/json' });
       r.end('{}');
     } else if (q.url === '/app.js') {
-      r.writeHead(200, { 'content-type': 'text/javascript', 'cache-control': 'no-store' });
+      r.writeHead(200, { 'content-type': 'text/javascript; charset=utf-8', 'cache-control': 'no-store' });
       r.end(compiled.outputFiles[0].text);
     } else {
       r.writeHead(200, { 'content-type': 'text/html', 'cache-control': 'no-store' });

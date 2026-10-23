@@ -3,17 +3,46 @@ import { createHash } from 'node:crypto';
 import { chmod, mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { markdown, localReference, references } from '../render.js';
+import MarkdownIt from 'markdown-it';
+import { localReference } from '../render.js';
+import { markdownStyles } from '../../../shared/markdown-styles.js';
+import { markdownTasks } from '../../../shared/markdown-tasks.js';
+import { knowledgeMarkdown } from '../../../shared/knowledge-markdown.js';
+import { diagramFences } from '../../../shared/diagram-fences.js';
 import { readBlocks, stableStat, sameFile } from './file-reader.js';
 import { fail } from './errors.js';
 import { limits } from './limits.js';
 
 const paragraphBudget = 32768;
+// Match the reading parser, with a private rule wrapper that records actual
+// footnote boundaries without mutating the renderer's shared parser.
+const markdown = new MarkdownIt({ html: false, linkify: true, breaks: false })
+  .use(markdownStyles).use(markdownTasks).use(knowledgeMarkdown).use(diagramFences);
 type Tokens = ReturnType<typeof markdown.parse>;
+type FootnoteRange = { label: string; from: number; to: number };
+const footnoteDefinition = (markdown.block.ruler as any).__rules__
+  .find((rule: any) => rule.name === 'footnote_def').fn;
+markdown.block.ruler.at('footnote_def', (state: any, start: number, end: number, silent: boolean) => {
+  const tokenStart = state.tokens.length;
+  const accepted = footnoteDefinition(state, start, end, silent);
+  if (accepted && !silent) {
+    const label = state.tokens[tokenStart]?.meta?.label;
+    if (typeof label !== 'string') fail(413, 'ASSET_REFERENCE_TOO_COMPLEX');
+    state.env.sourceFootnotes.push({ label, from: start, to: state.line });
+  }
+  return accepted;
+}, { alt: ['paragraph', 'reference'] });
+
+function mathLineEnd(text: string) {
+  let end = text.length;
+  while (end && markdown.utils.isWhiteSpace(text.charCodeAt(end - 1))) end--;
+  return text.slice(0, end);
+}
 
 /** A bounded parser unit is always a complete paragraph, never a guessed long-line window.
- * Container/indented fences are intentionally refused: splitting their CommonMark container
- * state could turn fenced text into an apparent live reference. A prior closed proof is safe.
+ * Footnote continuations stay in the same bounded unit. Display math is opaque
+ * across blank lines, like fences. Container math/fences are refused when their
+ * CommonMark state cannot be established within a unit. A prior closed proof is safe.
  */
 async function scan(file: string, block: (text: string) => void, proven: () => boolean) {
   const hash = createHash('sha256'),
@@ -22,18 +51,35 @@ async function scan(file: string, block: (text: string) => void, proven: () => b
     line = '',
     paragraph = '',
     paragraphBytes = 0,
-    previousCR = false;
+    previousCR = false,
+    footnote = false,
+    footnoteBlank = false,
+    math = false,
+    mathEnd = '',
+    mathRawEnd = '';
   let fence: { marker: string; length: number } | undefined,
     discardedNonWhitespace = false;
   const flush = () => {
     const text = paragraph;
     paragraph = '';
     paragraphBytes = 0;
+    footnote = footnoteBlank = false;
     if (text && !proven()) block(text);
+  };
+  const append = (current: string) => {
+    const size = Buffer.byteLength(current) + 1;
+    if (paragraphBytes + size > paragraphBudget) fail(413, 'ASSET_REFERENCE_TOO_COMPLEX');
+    paragraph += current + '\n';
+    paragraphBytes += size;
   };
   const completeLine = () => {
     const current = line;
     line = '';
+    if (math) {
+      if (mathEnd === '$$') math = false;
+      mathEnd = mathRawEnd = '';
+      return;
+    }
     if (fence) {
       const close = current.match(/^ {0,3}(`+|~+)[ \t]*$/);
       if (
@@ -46,10 +92,16 @@ async function scan(file: string, block: (text: string) => void, proven: () => b
       discardedNonWhitespace = false;
       return;
     }
+    if (footnote && footnoteBlank && current.trim() && !/^(?: {4}|\t)/.test(current)) {
+      flush();
+      if (proven()) return;
+    }
     if (
       /^[ \t]+(?:`{3,}|~{3,})/.test(current) ||
       /^(?: {0,3}>[ \t]?)+.*(?:`{3,}|~{3,})/.test(current) ||
-      /^ {0,3}(?:[-+*]|\d+[.)])[ \t]+(?:`{3,}|~{3,})/.test(current)
+      /^ {0,3}(?:[-+*]|\d+[.)])[ \t]+(?:`{3,}|~{3,})/.test(current) ||
+      /^(?: {0,3}>[ \t]?)+.*(?:\$\$|\[\^[^\] ]+\]:)/.test(current) ||
+      /^ {0,3}(?:[-+*]|\d+[.)])[ \t]+(?:\$\$|\[\^[^\] ]+\]:)/.test(current)
     )
       fail(413, 'ASSET_REFERENCE_TOO_COMPLEX');
     const open = current.match(/^(`{3,}|~{3,})(.*)$/);
@@ -59,17 +111,34 @@ async function scan(file: string, block: (text: string) => void, proven: () => b
       if (!proven()) fence = { marker: open[1][0], length: open[1].length };
       return;
     }
+    if (/^ {0,3}\$\$/.test(current)) {
+      // Ask the actual rule whether this is a block opener; inline dollar
+      // pairs followed by more text must retain their ordinary link semantics.
+      const tokens = markdown.parse(current + '\n', { sourceFootnotes: [] });
+      if (tokens[0]?.type === 'math_block') {
+        if (footnote) fail(413, 'ASSET_REFERENCE_TOO_COMPLEX');
+        flush();
+        if (!proven()) math = mathLineEnd(current).trimStart().length < 4 || !mathLineEnd(current).endsWith('$$');
+        return;
+      }
+    }
+    if (/^ {0,3}\[\^[^\] ]+\]:/.test(current)) footnote = true;
     if (!current.trim()) {
-      flush();
+      if (footnote) {
+        append(current);
+        footnoteBlank = true;
+      } else flush();
       return;
     }
-    const size = Buffer.byteLength(current) + 1;
-    if (paragraphBytes + size > paragraphBudget) fail(413, 'ASSET_REFERENCE_TOO_COMPLEX');
-    paragraph += current + '\n';
-    paragraphBytes += size;
+    footnoteBlank = false;
+    append(current);
   };
   const piece = (text: string) => {
-    if (fence) {
+    if (math) {
+      const ending = mathLineEnd(text);
+      if (ending) mathEnd = (mathRawEnd + ending).slice(-2);
+      mathRawEnd = (mathRawEnd + text).slice(-2);
+    } else if (fence) {
       const keep = Math.max(0, 256 - line.length);
       line += text.slice(0, keep);
       if (/[^ \t]/.test(text.slice(keep))) discardedNonWhitespace = true;
@@ -140,44 +209,84 @@ export async function hasSavedAssetReference(
     db.pragma('cache_size = -1024');
     db.pragma('temp_store = FILE');
     db.exec(
-      'CREATE TABLE definitions(label TEXT PRIMARY KEY,href TEXT NOT NULL,title TEXT NOT NULL)',
+      `CREATE TABLE definitions(label TEXT PRIMARY KEY,href TEXT NOT NULL,title TEXT NOT NULL);
+       CREATE TABLE footnotes(label TEXT PRIMARY KEY,source TEXT NOT NULL,pending INTEGER NOT NULL DEFAULT 0,visited INTEGER NOT NULL DEFAULT 0);
+       CREATE INDEX pending_footnotes ON footnotes(pending,visited)`,
     );
     const lookup = db.prepare('SELECT href,title FROM definitions WHERE label=?'),
-      insert = db.prepare('INSERT OR IGNORE INTO definitions VALUES(?,?,?)');
-    let definitions = 0,
-      found = false;
+      insert = db.prepare('INSERT OR IGNORE INTO definitions VALUES(?,?,?)'),
+      footnoteLookup = db.prepare('SELECT source FROM footnotes WHERE label=?'),
+      footnoteInsert = db.prepare('INSERT OR REPLACE INTO footnotes(label,source) VALUES(?,?)'),
+      needFootnote = db.prepare('UPDATE footnotes SET pending=1 WHERE label=?'),
+      nextFootnote = db.prepare('SELECT label,source FROM footnotes WHERE pending=1 AND visited=0 LIMIT 1'),
+      visitedFootnote = db.prepare('UPDATE footnotes SET visited=1 WHERE label=?');
+    let found = false, collecting = true;
     const referenceTable = new Proxy(Object.create(null), {
       get: (_target, key) => (typeof key === 'string' ? lookup.get(key) : undefined),
       set: (_target, key, value) => {
         if (typeof key === 'string' && value?.href)
-          definitions += insert.run(key, String(value.href), String(value.title || '')).changes;
+          insert.run(key, String(value.href), String(value.title || ''));
         return true;
       },
     });
     const matching = (url: string) => localReference(notePath, url) === assetPath;
-    const visit = (tokens: Tokens): boolean => {
+    const visit = (tokens: Tokens, activeFootnote?: string): boolean => {
+      let skippedFootnote = false;
       for (const token of tokens) {
+        if (token.type === 'footnote_open' && token.meta?.label) {
+          const label = String(token.meta.label);
+          if (!collecting) needFootnote.run(label);
+          skippedFootnote = collecting || label !== activeFootnote;
+          continue;
+        }
+        if (token.type === 'footnote_close') { skippedFootnote = false; continue; }
+        if (skippedFootnote) continue;
+        if (!collecting && token.type === 'footnote_ref' && token.meta?.label)
+          needFootnote.run(String(token.meta.label));
         if (
           (token.type === 'image' && matching(String(token.attrGet('src') || ''))) ||
           (token.type === 'link_open' && matching(String(token.attrGet('href') || '')))
         )
           return true;
-        if (token.children && visit(token.children)) return true;
+        if (token.children && visit(token.children, activeFootnote)) return true;
       }
       return false;
     };
-    const parse = (text: string) => {
+    const parse = (text: string, activeFootnote?: string) => {
       if (!text.includes('[')) return;
-      const tokens = markdown.parse(text, { references: referenceTable });
-      // Existing helper is exact when no global definitions exist. With definitions,
-      // use the same parser with the disk-backed first-definition environment.
-      found = definitions ? visit(tokens) : references(text).some(matching);
+      const sourceFootnotes: FootnoteRange[] = [];
+      const ids = new Map<string, number>();
+      const refs = new Proxy(Object.create(null), {
+        get: (_target, key) => typeof key === 'string' && (ids.has(key)
+          ? ids.get(key) : footnoteLookup.get(key.slice(1)) ? -1 : undefined),
+        set: (_target, key, value) => { if (typeof key === 'string') ids.set(key, value); return true; },
+      });
+      const tokens = markdown.parse(text, { references: referenceTable, footnotes: { refs }, sourceFootnotes });
+      if (collecting && sourceFootnotes.length) {
+        const lines = text.split('\n');
+        // Last definition wins, matching markdown-it-footnote. Only resolve
+        // these references after the complete first scan has fixed that choice.
+        for (const range of sourceFootnotes) {
+          const source = lines.slice(range.from, range.to).join('\n');
+          if (!/^ {0,3}\[\^/.test(source)) fail(413, 'ASSET_REFERENCE_TOO_COMPLEX');
+          footnoteInsert.run(range.label, source);
+        }
+      }
+      found = visit(tokens, activeFootnote);
     };
     const firstHash = await scan(file, parse, () => found);
     if (!sameFile(before, await stableStat(file))) fail(409, 'SOURCE_CHANGED');
+    collecting = false;
     const secondHash = await scan(file, parse, () => found);
     if (!sameFile(before, await stableStat(file)) || firstHash !== secondHash)
       fail(409, 'SOURCE_CHANGED');
+    while (!found) {
+      const footnote = nextFootnote.get() as { label: string; source: string } | undefined;
+      if (!footnote) break;
+      visitedFootnote.run(footnote.label);
+      parse(`[^${footnote.label}]\n\n${footnote.source}`, footnote.label);
+    }
+    if (!sameFile(before, await stableStat(file))) fail(409, 'SOURCE_CHANGED');
     return found;
   } finally {
     db?.close();

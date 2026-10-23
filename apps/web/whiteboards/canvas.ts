@@ -10,7 +10,12 @@ import {
 } from '@excalidraw/excalidraw';
 import type { ExcalidrawImperativeAPI, AppState, BinaryFiles } from '@excalidraw/excalidraw/types';
 import type { ExcalidrawElement } from '@excalidraw/excalidraw/element/types';
-import { withWhiteboardId, type WhiteboardScene } from '../../../shared/whiteboard';
+import {
+  parseWhiteboard,
+  withWhiteboardId,
+  type WhiteboardScene,
+} from '../../../shared/whiteboard';
+import { previewDimensions } from '../diagrams/preview-artifact';
 import '@excalidraw/excalidraw/index.css';
 
 declare global {
@@ -28,6 +33,20 @@ export function mountCanvas(
     root: Root | undefined = createRoot(container),
     first = true;
   const initialData = { ...scene, scrollToContent: true };
+  function serialize(elements: readonly ExcalidrawElement[], state: AppState, files: BinaryFiles) {
+    const content = serializeAsJSON(
+      elements,
+      {
+        viewBackgroundColor: state.viewBackgroundColor,
+        gridSize: state.gridSize,
+        gridStep: state.gridStep,
+        gridModeEnabled: state.gridModeEnabled,
+      },
+      files,
+      'local',
+    );
+    return scene.dooknow ? withWhiteboardId(content, scene.dooknow.id) : content;
+  }
   const theme = () => (document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light');
   const render = () =>
     root?.render(
@@ -39,20 +58,10 @@ export function mountCanvas(
           api = value;
         },
         onChange: (elements: readonly ExcalidrawElement[], state: AppState, files: BinaryFiles) => {
-          const content = serializeAsJSON(
-            elements,
-            {
-              viewBackgroundColor: state.viewBackgroundColor,
-              gridSize: state.gridSize,
-              gridStep: state.gridStep,
-              gridModeEnabled: state.gridModeEnabled,
-            },
-            files,
-            'local',
-          );
+          const content = serialize(elements, state, files);
           const initial = first;
           first = false;
-          changed(scene.dooknow ? withWhiteboardId(content, scene.dooknow.id) : content, initial);
+          changed(content, initial);
           if (initial && elements.length)
             requestAnimationFrame(() =>
               api?.scrollToContent(elements, {
@@ -83,26 +92,45 @@ export function mountCanvas(
       root = undefined;
       api = undefined;
     },
-    async png() {
+    snapshot() {
       if (!api) throw Error('画布仍在加载');
-      return exportToBlob({
-        elements: api.getSceneElements(),
-        appState: api.getAppState(),
-        files: api.getFiles(),
-        mimeType: 'image/png',
-      });
+      return serialize(api.getSceneElements(), api.getAppState(), api.getFiles());
+    },
+    async png() {
+      return scenePng(parseWhiteboard(this.snapshot()));
     },
   };
 }
 export async function sceneSvg(scene: WhiteboardScene) {
+  scene = parseWhiteboard(JSON.stringify(scene));
   const elements = restoreElements(scene.elements as any, null);
   const svg = await exportToSvg({
-    elements,
+    elements: elements.map((element) => ({ ...element, link: null })),
     files: scene.files as any,
     appState: { ...scene.appState, exportBackground: true, exportWithDarkMode: false },
     exportPadding: 24,
+    renderEmbeddables: false,
   });
   return svg.outerHTML;
+}
+export async function scenePng(scene: WhiteboardScene) {
+  scene = parseWhiteboard(JSON.stringify(scene));
+  return exportToBlob({
+    elements: restoreElements(scene.elements as any, null),
+    files: scene.files as any,
+    appState: {
+      ...scene.appState,
+      exportBackground: true,
+      exportWithDarkMode: false,
+      exportScale: 1,
+    },
+    exportPadding: 24,
+    mimeType: 'image/png',
+    getDimensions: (width: number, height: number) => ({
+      ...previewDimensions(width, height),
+      scale: 1,
+    }),
+  });
 }
 export async function mermaidScene(code: string): Promise<WhiteboardScene> {
   const { parseMermaidToExcalidraw } = await import('@excalidraw/mermaid-to-excalidraw');

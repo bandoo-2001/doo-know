@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
+import { findText, type TextMatch } from '../editor/search';
+import { countCharacters, type DocumentStatistics } from '../editor/document-stats';
 import { EditorView, keymap } from '@codemirror/view';
 import { undo, redo } from '@codemirror/commands';
 import {
@@ -32,6 +34,8 @@ const emit = defineEmits<{
   'line-change': [line: number];
   'state-change': [state: MarkdownToolbarState];
   'history-boundary': [];
+  'stats-change': [statistics: DocumentStatistics];
+  'upload-files': [files: File[]];
 }>();
 const mount = ref<HTMLElement>();
 let view: EditorView | undefined;
@@ -55,6 +59,25 @@ onMounted(() => {
       ),
       gutters.of(gutterTheme()),
       markdown({ base: markdownLanguage }),
+      EditorView.domEventHandlers({
+        paste(event) {
+          const files = event.clipboardData?.files;
+          if (!files?.length) return false;
+          event.preventDefault();
+          if (!props.readOnly && !view?.composing) emit('upload-files', Array.from(files));
+          return true;
+        },
+        drop(event, current) {
+          const files = event.dataTransfer?.files;
+          if (!files?.length) return false;
+          event.preventDefault();
+          if (props.readOnly || current.composing) return true;
+          const point = current.posAtCoords({ x: event.clientX, y: event.clientY });
+          if (point !== null) current.dispatch({ selection: { anchor: point } });
+          emit('upload-files', Array.from(files));
+          return true;
+        },
+      }),
       editorTextStyles,
       keymap.of([
         { key: 'Mod-b', run: () => format('bold'), preventDefault: true },
@@ -146,8 +169,10 @@ onMounted(() => {
         }
         // The shared history must record the old selection before publishing the
         // new selection. Otherwise undo restores offsets from the edited text.
-        if (update.docChanged || update.selectionSet || update.transactions.length)
+        if (update.docChanged || update.selectionSet || update.transactions.length) {
           emit('state-change', toolbarState(update.state));
+          emit('stats-change', statistics());
+        }
         if (update.selectionSet && update.view.hasFocus)
           emit('line-change', update.state.doc.lineAt(update.state.selection.main.head).number);
       }),
@@ -155,6 +180,7 @@ onMounted(() => {
   });
   view.scrollDOM.addEventListener('scroll', reportVisibleLine, { passive: true });
   emit('state-change', toolbarState(view.state));
+  emit('stats-change', statistics());
   if (props.initialLine) {
     const line = view.state.doc.line(Math.min(props.initialLine, view.state.doc.lines));
     view.dispatch({ selection: { anchor: line.from }, scrollIntoView: true });
@@ -199,6 +225,33 @@ watch(
       effects: editability.reconfigure([EditorView.editable.of(!v), EditorState.readOnly.of(!!v)]),
     }),
 );
+function searchText(query: string, caseSensitive = false) {
+  return view ? findText(view.state.doc.toString(), query, { caseSensitive }) : [];
+}
+function selectTextMatch(match: TextMatch) {
+  if (!view || match.to > view.state.doc.length) return;
+  view.dispatch({
+    selection: { anchor: match.from, head: match.to },
+    effects: EditorView.scrollIntoView(match.from),
+  });
+  view.focus();
+}
+function replaceTextMatches(
+  query: string,
+  replacement: string,
+  all: boolean,
+  index = 0,
+  caseSensitive = false,
+) {
+  if (!view || props.readOnly || view.composing) return false;
+  const matches = searchText(query, caseSensitive);
+  if (!matches.length) return false;
+  const selected = all ? matches : [matches[Math.max(0, Math.min(index, matches.length - 1))]];
+  emit('history-boundary');
+  view.dispatch({ changes: selected.map((match) => ({ ...match, insert: replacement })) });
+  emit('history-boundary');
+  return true;
+}
 function goToLine(number: number, align: 'start' | 'center' = 'center') {
   if (!view || !Number.isInteger(number) || number < 1) return;
   const line = view.state.doc.line(Math.min(number, view.state.doc.lines));
@@ -215,7 +268,7 @@ watch(
   },
 );
 function format(action: MarkdownAction) {
-  if (!view || props.readOnly) return false;
+  if (!view || props.readOnly || view.composing) return false;
   const transaction = markdownTransaction(view.state, action);
   if (!transaction) return false;
   emit('history-boundary');
@@ -230,9 +283,42 @@ function editHistory(action: 'undo' | 'redo') {
   view.focus();
   return changed;
 }
-function selection() { const range=view?.state.selection.main; return {anchor:range?.anchor||0,head:range?.head||0,affinity:'after' as const}; }
-function focus(bookmark?: {anchor:number;head:number}) { if(!view)return; if(bookmark)view.dispatch({selection:{anchor:Math.min(bookmark.anchor,view.state.doc.length),head:Math.min(bookmark.head,view.state.doc.length)}});view.focus(); }
-defineExpose({ goToLine, format, editHistory, focus, selection });
+function selection() {
+  const range = view?.state.selection.main;
+  return { anchor: range?.anchor || 0, head: range?.head || 0, affinity: 'after' as const };
+}
+function statistics(): DocumentStatistics {
+  return {
+    characters: countCharacters(view?.state.doc.toString() || ''),
+    selectedCharacters:
+      view?.state.selection.ranges.reduce(
+        (total, range) => total + countCharacters(view!.state.sliceDoc(range.from, range.to)),
+        0,
+      ) || 0,
+  };
+}
+function focus(bookmark?: { anchor: number; head: number }) {
+  if (!view) return;
+  if (bookmark)
+    view.dispatch({
+      selection: {
+        anchor: Math.min(bookmark.anchor, view.state.doc.length),
+        head: Math.min(bookmark.head, view.state.doc.length),
+      },
+    });
+  view.focus();
+}
+defineExpose({
+  searchText,
+  selectTextMatch,
+  replaceTextMatches,
+  statistics,
+  goToLine,
+  format,
+  editHistory,
+  focus,
+  selection,
+});
 onBeforeUnmount(() => {
   view?.scrollDOM.removeEventListener('scroll', reportVisibleLine);
   view?.destroy();

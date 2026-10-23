@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount, ref, watch, useId } from 'vue';
+import { onMounted, onBeforeUnmount, ref, watch, useId, type CSSProperties } from 'vue';
 import { Editor, Extension, type JSONContent } from '@tiptap/core';
 import { Plugin, TextSelection } from '@tiptap/pm/state';
 import { NModal } from 'naive-ui';
@@ -14,6 +14,21 @@ import { convertClipboard, plainTextMarkdown } from '../editor/clipboard';
 import { contextAt, contextSlots } from '../editor/context-slot';
 import { textEdit, parseSource } from '../editor/source-codec';
 import { syncDOMTextSelection } from '../editor/dom-selection';
+import { CODE_BLOCK_ACTION } from '../editor/code-block-view';
+import {
+  isTableMoveAction,
+  moveMarkdownTable,
+  tableMoveActions,
+  tableMoveAvailability,
+  type TableMoveAction,
+} from '../editor/table-move';
+import { documentMatches, type TextMatch } from '../editor/search';
+import {
+  countCharacters,
+  visibleDocumentText,
+  type DocumentStatistics,
+} from '../editor/document-stats';
+import { createFloatingTools, virtualAnchor } from '../editor/floating-tools';
 import type { EditorSession } from '../editor/session';
 import type { ImageReplacementTarget, SelectionBookmark, TableAction } from '../editor/contracts';
 import {
@@ -38,6 +53,8 @@ const emit = defineEmits<{
   composing: [value: boolean];
   'open-link': [url: string];
   'upload-file': [file: File];
+  'upload-files': [files: File[]];
+  'stats-change': [statistics: DocumentStatistics];
   'replace-image': [target: ImageReplacementTarget];
 }>();
 const root = ref<HTMLElement>(),
@@ -47,15 +64,16 @@ const root = ref<HTMLElement>(),
   tableToolsHeight = ref(46),
   message = ref(''),
   tableActive = ref(false),
-  codeActive = ref(false),
   imageActive = ref(false),
   imageAlt = ref(''),
   imageTitle = ref(''),
-  activeLink = ref(''),
-  language = ref('');
-const tablePosition = ref<{ left: string; top: string; maxWidth: string }>(),
-  tableDetails = ref({ rows: 0, columns: 0, alignment: 'left' });
+  activeLink = ref('');
+const tablePosition = ref<CSSProperties>(),
+  tableDetails = ref({ rows: 0, columns: 0, alignment: 'left', disabledActions: [] as TableAction[] });
 let positionFrame: number | undefined, layoutObserver: ResizeObserver | undefined;
+let tablePositioner: ReturnType<typeof createFloatingTools> | undefined,
+  positionedTable: Element | undefined,
+  tableAnchorRect: DOMRect | undefined;
 const newProjectionId = () => Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
 let projectionId = newProjectionId();
 let editor: Editor | undefined,
@@ -64,7 +82,7 @@ let editor: Editor | undefined,
   blocked = false,
   pendingOpaqueDeletion = '',
   imageIdentity = '',
-  codeIdentity = '',
+  editingContext = '',
   imagePosition = 0,
   compositionTimer: ReturnType<typeof setTimeout> | undefined;
 const deletingOpaque = ref(''),
@@ -75,18 +93,21 @@ const linkOpen = ref(false),
   linkTitle = ref(''),
   linkText = ref(''),
   linkError = ref(''),
-  codeCopied = ref(false),
   imagePreviewOpen = ref(false),
   imagePreviewUrl = ref(''),
-  imagePreviewScale = ref(100),
-  codeCopyFallback = ref<string>();
+  imagePreviewScale = ref(100);
 const linkErrorId = useId();
-let copiedTimer: ReturnType<typeof setTimeout> | undefined;
 let linkTarget: { from: number; to: number; revision: number; text: string } | undefined;
 const pasteChoice = ref<{ text: string; reason: string }>();
 function error(text: string) {
   message.value = text;
   emit('error', text);
+}
+function hideTableTools() {
+  tablePositioner?.stop();
+  tablePositioner = undefined;
+  positionedTable = undefined;
+  tablePosition.value = undefined;
 }
 function positionTableTools() {
   positionFrame = undefined;
@@ -99,14 +120,14 @@ function positionTableTools() {
     !mount.value ||
     !tableOverlay.value
   ) {
-    tablePosition.value = undefined;
+    hideTableTools();
     return;
   }
   const at = editor.state.selection.$from;
   let depth = at.depth;
   while (depth > 0 && at.node(depth).type.name !== 'table') depth--;
   if (!depth) {
-    tablePosition.value = undefined;
+    hideTableTools();
     return;
   }
   const node = editor.view.nodeDOM(at.before(depth));
@@ -117,12 +138,11 @@ function positionTableTools() {
         : node.querySelector('table')
       : null;
   if (!table) {
-    tablePosition.value = undefined;
+    hideTableTools();
     return;
   }
   const bounds = table.getBoundingClientRect(),
     viewport = mount.value.getBoundingClientRect(),
-    container = root.value.getBoundingClientRect(),
     tools = tableOverlay.value.getBoundingClientRect();
   if (tools.height && tableToolsHeight.value !== tools.height)
     tableToolsHeight.value = tools.height;
@@ -139,7 +159,7 @@ function positionTableTools() {
     bottom - top < tools.height ||
     right <= left
   ) {
-    tablePosition.value = undefined;
+    hideTableTools();
     return;
   }
   const reserved =
@@ -160,15 +180,29 @@ function positionTableTools() {
     if (current && current.top - tools.height - 8 >= tableTop) y = current.top - tools.height - 8;
     else if (current && current.bottom + 8 + tools.height <= tableBottom) y = current.bottom + 8;
     else {
-      tablePosition.value = undefined;
+      hideTableTools();
       return;
     }
   }
-  tablePosition.value = {
-    left: `${Math.max(left, Math.min(bounds.left, right - Math.min(tools.width, right - left))) - container.left}px`,
-    top: `${Math.max(top, Math.min(y, bottom - tools.height)) - container.top}px`,
-    maxWidth: `${right - left}px`,
-  };
+  tableAnchorRect = new DOMRect(bounds.left, y, 0, 0);
+  if (!tablePositioner || positionedTable !== table) {
+    tablePositioner?.stop();
+    positionedTable = table;
+    tablePositioner = createFloatingTools(
+      virtualAnchor(() => tableAnchorRect!, table),
+      tableOverlay.value,
+      {
+        gap: 0,
+        flip: false,
+        boundary: mount.value,
+        padding: { left: 12, right: 12, top: 8, bottom: 8 },
+      },
+      (style) => {
+        tablePosition.value = style;
+      },
+    );
+  }
+  void tablePositioner.update();
 }
 function scheduleTableTools() {
   if (positionFrame === undefined) positionFrame = requestAnimationFrame(positionTableTools);
@@ -266,6 +300,7 @@ function toolbar() {
     for (let depth = at.depth; depth > 0; depth--) {
       if (at.node(depth).type.name !== 'table') continue;
       const table = at.node(depth);
+      const moves = tableMoveAvailability(editor.state);
       tableDetails.value = {
         rows: table.childCount,
         columns: table.firstChild?.childCount || 0,
@@ -273,6 +308,7 @@ function toolbar() {
           editor.getAttributes('tableCell').align ||
           editor.getAttributes('tableHeader').align ||
           'left',
+        disabledActions: tableMoveActions.filter(action => !moves[action]),
       };
       break;
     }
@@ -290,20 +326,25 @@ function toolbar() {
     }
   }
   activeLink.value = editor.isActive('link') ? editor.getAttributes('link').href || '' : '';
-  codeActive.value = editor.isActive('codeBlock');
-  const code = editor.getAttributes('codeBlock');
-  const codeKey = codeActive.value
-    ? JSON.stringify([editor.state.selection.$from.start(), code.language])
-    : '';
-  if (codeKey !== codeIdentity) {
-    codeIdentity = codeKey;
-    language.value = code.language || '';
-  }
   return s;
+}
+function sealEditingContext() {
+  if (!editor) return;
+  const context = contextAt(editor.state);
+  const next = context?.kind === 'code' ? `code:${context.position}` : 'body';
+  if (
+    editingContext &&
+    next !== editingContext &&
+    (next.startsWith('code:') || editingContext.startsWith('code:'))
+  )
+    props.session.sealHistory();
+  editingContext = next;
 }
 function report() {
   if (!editor) return;
+  sealEditingContext();
   emit('state-change', toolbar());
+  emit('stats-change', statistics());
   const b = bookmark();
   props.session.setSelection(b);
   emit('line-change', props.session.snapshot().markdown.slice(0, b.anchor).split('\n').length);
@@ -441,6 +482,7 @@ onMounted(() => {
             void navigator.clipboard?.writeText(raw).catch(() => {});
           }
         },
+        (url) => emit('open-link', url),
       ),
       guard,
       contextSlots(() => !props.readOnly, scheduleTableTools),
@@ -479,9 +521,14 @@ onMounted(() => {
       },
       handleKeyDown(view, event) {
         const key = event.key.toLowerCase();
-        if (!props.readOnly && !props.session.composing && !event.isComposing &&
-            (event.ctrlKey || event.metaKey) && !event.altKey &&
-            (['b', 'i', 'e', 'k'].includes(key) || (event.shiftKey && key === 's'))) {
+        if (
+          !props.readOnly &&
+          !props.session.composing &&
+          !event.isComposing &&
+          (event.ctrlKey || event.metaKey) &&
+          !event.altKey &&
+          (['b', 'i', 'e', 'k'].includes(key) || (event.shiftKey && key === 's'))
+        ) {
           // Synchronize the DOM caret before a pending selectionchange can clear
           // formatting applied at an obsolete position.
           syncDOMTextSelection(view);
@@ -494,7 +541,7 @@ onMounted(() => {
         return false;
       },
       attributes: {
-        'data-note-id':props.session.snapshot().noteId,
+        'data-note-id': props.session.snapshot().noteId,
         role: 'textbox',
         'aria-label': '文档正文',
         'aria-multiline': 'true',
@@ -506,7 +553,8 @@ onMounted(() => {
         if (!data) return false;
         if (data.files.length) {
           event.preventDefault();
-          emit('upload-file', data.files[0]);
+          if (data.files.length === 1) emit('upload-file', data.files[0]);
+          else emit('upload-files', Array.from(data.files));
           return true;
         }
         if (editor?.isActive('codeBlock')) {
@@ -539,16 +587,34 @@ onMounted(() => {
         insertMarkdown(result.markdown);
         return true;
       },
+      handleDrop(view, event, _slice, moved) {
+        const files = event.dataTransfer?.files;
+        if (moved || !files?.length) return false;
+        event.preventDefault();
+        if (props.readOnly || blocked || props.session.composing) return true;
+        const point = view.posAtCoords({ left: event.clientX, top: event.clientY });
+        if (point)
+          view.dispatch(
+            view.state.tr.setSelection(TextSelection.near(view.state.doc.resolve(point.pos))),
+          );
+        if (files.length === 1) emit('upload-file', files[0]);
+        else emit('upload-files', Array.from(files));
+        return true;
+      },
     },
-    onTransaction() {
-      if (!loading && !props.session.composing) report();
+    onTransaction({ transaction }) {
+      if (loading) return;
+      if (transaction.getMeta(CODE_BLOCK_ACTION)) props.session.sealHistory();
+      sealEditingContext();
+      // Keep the pre-edit bookmark until publish records it in shared history.
+      if (!transaction.docChanged && !props.session.composing) report();
     },
     onUpdate() {
       if (recoveryPending.value) finishComposition();
       else if (!props.session.composing) publish();
     },
-    onSelectionUpdate() {
-      if (!loading) report();
+    onSelectionUpdate({ transaction }) {
+      if (!loading && !transaction.docChanged) report();
     },
     onCreate() {
       report();
@@ -647,13 +713,16 @@ function goToLine(line: number) {
   focus({ anchor: offset, head: offset, affinity: 'after' });
 }
 function execute(action: MarkdownAction): boolean {
-  if (!editor || props.readOnly) return false;
+  if (!editor || props.readOnly || blocked || props.session.composing || editor.view.composing)
+    return false;
   props.session.sealHistory();
   const chain = editor.chain().focus();
   if (action === 'bold') return chain.toggleBold().run();
   if (action === 'italic') return chain.toggleItalic().run();
   if (action === 'strike') return chain.toggleStrike().run();
   if (action === 'inlineCode') return chain.toggleCode().run();
+  if (action === 'clearFormatting')
+    return chain.unsetBold().unsetItalic().unsetStrike().unsetCode().unsetColor().run();
   if (action === 'quote') return chain.toggleBlockquote().run();
   if (action === 'bulletList') return chain.toggleBulletList().run();
   if (action === 'orderedList') return chain.toggleOrderedList().run();
@@ -662,8 +731,8 @@ function execute(action: MarkdownAction): boolean {
   if (action === 'rule') return chain.setHorizontalRule().run();
   if (action === 'table') return chain.insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
   if (action === 'paragraph') return chain.setParagraph().run();
-  if (/^heading[1-5]$/.test(action))
-    return chain.toggleHeading({ level: Number(action.at(-1)) as 1 | 2 | 3 | 4 | 5 }).run();
+  if (/^heading[1-6]$/.test(action))
+    return chain.toggleHeading({ level: Number(action.at(-1)) as 1 | 2 | 3 | 4 | 5 | 6 }).run();
   if (action === 'indent')
     return chain.sinkListItem(editor.isActive('taskList') ? 'taskItem' : 'listItem').run();
   if (action === 'outdent')
@@ -738,6 +807,7 @@ async function openRawSource(id: string) {
   }
 }
 function editHistory(action: 'undo' | 'redo') {
+  if (props.readOnly || blocked || props.session.composing) return false;
   const result = props.session[action]();
   if (!result.ok) return false;
   load(result.markdown);
@@ -830,23 +900,16 @@ function deleteImage() {
   props.session.sealHistory();
   editor.chain().focus().setNodeSelection(imagePosition).deleteSelection().run();
 }
-async function copyCode() {
-  if (!editor || !codeActive.value) return;
-  const text = editor.state.selection.$from.parent.textContent;
-  try {
-    await navigator.clipboard.writeText(text);
-    codeCopied.value = true;
-    clearTimeout(copiedTimer);
-    copiedTimer = setTimeout(() => {
-      codeCopied.value = false;
-    }, 2000);
-  } catch {
-    codeCopyFallback.value = text;
-  }
-}
 function executeTable(action: TableAction) {
-  if (!editor || props.readOnly) return false;
+  if (!editor || props.readOnly || blocked || props.session.composing || editor.view.composing) return false;
+  syncDOMTextSelection(editor.view);
   props.session.sealHistory();
+  if (isTableMoveAction(action)) {
+    editor.view.focus();
+    const result = moveMarkdownTable(action)(editor.state, tr => editor!.view.dispatch(tr));
+    props.session.sealHistory();
+    return result;
+  }
   const chain = editor.chain().focus();
   if (action.startsWith('align')) {
     const align = action === 'alignLeft' ? 'left' : action === 'alignCenter' ? 'center' : 'right';
@@ -874,7 +937,7 @@ function executeTable(action: TableAction) {
       })
       .run();
   }
-  return chain[action as Exclude<TableAction, 'alignLeft' | 'alignCenter' | 'alignRight'>]().run();
+  return chain[action as Exclude<TableAction, TableMoveAction | 'alignLeft' | 'alignCenter' | 'alignRight'>]().run();
 }
 function confirmOpaqueDelete() {
   if (!editor || props.readOnly) return;
@@ -906,21 +969,64 @@ function applyImage() {
     editor.chain().focus().setNodeSelection(imagePosition).updateAttributes('image', attrs).run();
   }
 }
-function setLanguage() {
-  if (editor && !props.readOnly) {
-    props.session.sealHistory();
-    editor
-      .chain()
-      .updateAttributes('codeBlock', { language: language.value || null })
-      .run();
-  }
-}
 async function flush() {
   if (recoveryPending.value) throw Error('当前输入尚不能安全保存，请先保留恢复副本或调整格式');
   if (!blocked && !props.session.composing && publish() === false) throw Error(message.value);
   return props.session.flush();
 }
+function searchText(query: string, caseSensitive = false) {
+  return editor ? documentMatches(editor.state.doc, query, caseSensitive) : [];
+}
+function selectTextMatch(match: TextMatch) {
+  if (
+    !editor ||
+    props.session.composing ||
+    editor.view.composing ||
+    match.from < 0 ||
+    match.to > editor.state.doc.content.size
+  )
+    return;
+  editor.view.dispatch(
+    editor.state.tr
+      .setSelection(TextSelection.create(editor.state.doc, match.from, match.to))
+      .scrollIntoView(),
+  );
+  editor.view.focus();
+}
+function replaceTextMatches(
+  query: string,
+  replacement: string,
+  all: boolean,
+  index = 0,
+  caseSensitive = false,
+) {
+  if (!editor || props.readOnly || blocked || props.session.composing || editor.view.composing)
+    return false;
+  const matches = searchText(query, caseSensitive);
+  if (!matches.length) return false;
+  const selected = all ? matches : [matches[Math.max(0, Math.min(index, matches.length - 1))]];
+  props.session.sealHistory();
+  const transaction = editor.state.tr;
+  for (const match of [...selected].reverse())
+    transaction.insertText(replacement, match.from, match.to);
+  editor.view.dispatch(transaction.scrollIntoView());
+  props.session.sealHistory();
+  return transaction.docChanged && editor.state.doc.eq(transaction.doc);
+}
+function statistics(): DocumentStatistics {
+  if (!editor) return { characters: 0, selectedCharacters: 0 };
+  const { from, to } = editor.state.selection;
+  return {
+    characters: countCharacters(visibleDocumentText(editor.state.doc)),
+    selectedCharacters: countCharacters(visibleDocumentText(editor.state.doc, from, to)),
+  };
+}
 defineExpose({
+  sourceRange: (id: string) => projection.sourceRange(id),
+  searchText,
+  selectTextMatch,
+  replaceTextMatches,
+  statistics,
   flush,
   format: execute,
   execute,
@@ -936,8 +1042,8 @@ defineExpose({
   load,
 });
 onBeforeUnmount(() => {
+  tablePositioner?.stop();
   clearTimeout(compositionTimer);
-  clearTimeout(copiedTimer);
   if (positionFrame !== undefined) cancelAnimationFrame(positionFrame);
   layoutObserver?.disconnect();
   window.removeEventListener('resize', scheduleTableTools);
@@ -976,38 +1082,6 @@ onBeforeUnmount(() => {
       />
     </div>
     <Teleport v-if="contextSlot && contextSlot.dataset.editorContext !== 'table'" :to="contextSlot">
-      <div
-        v-if="codeActive"
-        class="document-context-tools document-code-tools"
-        role="group"
-        aria-label="代码块设置"
-        @mousedown="preserveContextSelection"
-      >
-        <div class="context-tools-heading">
-          <span class="context-tools-icon"><Icon name="code" :size="17" /></span>
-          <span>代码块<small>设置代码语言</small></span>
-        </div>
-        <label class="context-tools-field"
-          >代码语言
-          <input
-            v-model="language"
-            aria-label="代码语言"
-            placeholder="纯文本"
-            :disabled="readOnly"
-            spellcheck="false"
-            @change="setLanguage"
-            @keydown.enter.prevent="
-              setLanguage();
-              editor?.view.focus();
-            "
-          />
-        </label>
-        <button type="button" aria-label="复制代码" @click="copyCode">
-          <Icon :name="codeCopied ? 'check' : 'copy'" :size="15" />{{
-            codeCopied ? '已复制' : '复制代码'
-          }}
-        </button>
-      </div>
       <div
         v-if="imageActive"
         class="document-context-tools document-image-tools"
@@ -1122,26 +1196,6 @@ onBeforeUnmount(() => {
           :style="{ transform: `scale(${imagePreviewScale / 100})` }"
         />
       </div>
-    </NModal>
-    <NModal
-      :show="codeCopyFallback !== undefined"
-      preset="card"
-      title="复制代码"
-      class="dialog-card editor-dialog"
-      @update:show="
-        (v) => {
-          if (!v) codeCopyFallback = undefined;
-        }
-      "
-    >
-      <p>选择下方代码进行复制。</p>
-      <textarea
-        class="raw-source-copy"
-        aria-label="代码内容"
-        :value="codeCopyFallback"
-        readonly
-        @focus="($event.target as HTMLTextAreaElement).select()"
-      ></textarea>
     </NModal>
     <NModal
       :show="copyingRaw !== undefined"

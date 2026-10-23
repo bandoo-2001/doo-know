@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { deferImageSource } from '../image-requests';
 import {markdownTasks} from '../../../shared/markdown-tasks';
+import {knowledgeMarkdown} from '../../../shared/knowledge-markdown';
 
 import { ref, computed, watch, onBeforeUnmount } from 'vue';
 import { NButton, NAlert, NModal } from 'naive-ui';
@@ -159,7 +160,7 @@ const previewOpen = ref(false);
 const previewAllowed = computed(() => new TextEncoder().encode(draft.value).length <= 128 * 1024);
 const previewHtml = computed(() => {
   if (!previewOpen.value || !previewAllowed.value) return '';
-  const md = new MarkdownIt({ html: false, linkify: true }).use(markdownStyles).use(markdownTasks);
+  const md = new MarkdownIt({ html: false, linkify: true }).use(markdownStyles).use(markdownTasks).use(knowledgeMarkdown);
   const tokens = md.parse(draft.value, {});
   const visit = (items: typeof tokens) => {
     for (const token of items) {

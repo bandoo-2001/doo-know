@@ -112,7 +112,7 @@ async function mount(id: string) {
       input.props!['onUpdate:value'](value);
     },
     canRestore: () => buttons('恢复此版本').some((node) => !node.props?.disabled),
-    difference: () => nodes().find((node) => node.type === 'pre')?.children,
+    difference: () => nodes().find((node) => node.type === 'pre')?.children ?? nodes().find((node) => node.props && 'diff' in node.props)?.props?.diff,
     notices: () =>
       nodes()
         .filter((node) => node.type === 'aside')

@@ -13,11 +13,13 @@ export function plainTextMarkdown(text: string) {
 export function convertClipboard(input: {
   text: string;
   html?: string;
+  mode?: 'plain' | 'markdown';
   resolveImage?: (url: string) => string | undefined;
 }):
   | { kind: 'supported'; markdown: string }
   | { kind: 'plain-text-choice'; text: string; reason: string } {
-  if (!input.html) return { kind: 'supported', markdown: plainTextMarkdown(input.text) };
+  if (input.mode === 'markdown') return { kind: 'supported', markdown: input.text };
+  if (input.mode === 'plain' || !input.html) return { kind: 'supported', markdown: plainTextMarkdown(input.text) };
   const choice = (reason: string) => ({
     kind: 'plain-text-choice' as const,
     text: input.text,

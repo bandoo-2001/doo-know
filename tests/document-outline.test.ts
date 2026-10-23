@@ -16,14 +16,19 @@ describe('document outline', () => {
     expect(tree[0].children[0].children[0].children[0].children[0].title).toBe('要点');
     expect(items.map((item) => item.line)).toEqual([1, 3, 5, 7, 9, 11]);
   });
-  it('ignores code fences and H6, accepts setext headings and strips inline formatting', () => {
+  it('includes H6, ignores code fences, accepts setext headings and strips inline formatting', () => {
     const items = outlineFromTokens(
       new MarkdownIt().parse(
         '标题\n====\n\n## **重点** 与 [链接](https://example.invalid) `代码`\n\n```md\n## 假标题\n```\n\n###### 六级\n',
         {},
       ),
     );
-    expect(items.map((item) => item.title)).toEqual(['标题', '重点 与 链接 代码']);
+    expect(items.map((item) => item.title)).toEqual(['标题', '重点 与 链接 代码', '六级']);
+  });
+  it('excludes YAML headings without changing actual body source lines', () => {
+    const markdown='--- \ntitle: metadata\n---\n\n# Body\n\n###### Detail\n';
+    const items=outlineFromTokens(new MarkdownIt().parse(markdown,{}),3);
+    expect(items).toEqual([{line:5,level:1,title:'Body'},{line:7,level:6,title:'Detail'}]);
   });
   it('handles skipped heading levels and duplicate titles without losing their source lines', () => {
     const items = [

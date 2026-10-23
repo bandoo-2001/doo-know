@@ -1,4 +1,4 @@
-import {isWhiteboard,isDocument,whiteboardId} from '../../../shared/whiteboard.js';
+import {isWhiteboard,whiteboardId} from '../../../shared/whiteboard.js';
 import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import {
   createReadStream,
@@ -49,6 +49,7 @@ import {
   importPreview,
   entryBytes,
   rewriteImportReferences,
+  isImportDocument,
 } from './transfer-import.js';
 
 type Job = {
@@ -360,7 +361,7 @@ export function registerTransferRoutes(
       items = JSON.parse(j.items) as ImportItem[];
     const mapping = new Map(items.map((i) => [i.path, i.targetPath]));
     const sceneIds=new Map<string,string[]>();
-    for(const entry of b.entries.filter(entry=>isWhiteboard(entry.path))){
+    for(const entry of b.entries.filter(entry=>isWhiteboard(entry.path)&&isImportDocument(entry.path))){
       const id=JSON.parse(entryBytes(entry).toString('utf8')).dooknow?.id;
       if(typeof id==='string'&&whiteboardId(id))sceneIds.set(id,[...(sceneIds.get(id)||[]),entry.path]);
     }
@@ -399,7 +400,7 @@ export function registerTransferRoutes(
               created = true;
             } catch (e) {
               if ((e as any).code !== 'EEXIST') throw e;
-              const existing = runtime.assets.file(item.targetPath).bytes;
+              const asset = runtime.assets.file(item.targetPath), existing = asset.sourceBytes ?? asset.bytes;
               if (digest(existing) !== digest(bytes))
                 throw new HttpError(409, '附件目标已被其他内容占用');
             }
@@ -539,7 +540,7 @@ export function registerTransferRoutes(
           for (const url of isWhiteboard(path) ? [] : references(content)) {
             const p = localReference(path, url);
             if (!p) continue;
-            if (isDocument(p)) {
+            if (isImportDocument(p)) {
               if (!selected.includes(p)) warnings.push(`${path}: 引用笔记不在导出范围 ${p}`);
             } else assets.add(p);
           }
@@ -556,7 +557,8 @@ export function registerTransferRoutes(
             return;
           }
           try {
-            await copy(path, runtime.assets.file(path).bytes);
+            const asset = runtime.assets.file(path);
+            await copy(path, asset.sourceBytes ?? asset.bytes);
             assetCount++;
           } catch (error) {
             if (error instanceof HttpError && error.statusCode === 413) throw error;

@@ -8,6 +8,7 @@ import { noteDraftBase, type DraftScope } from '../drafts';
 import { parseWhiteboard, MAX_WHITEBOARD_BYTES } from '../../../shared/whiteboard';
 import type { NoteDocument } from '../../../shared/contracts';
 import { downloadBlob } from '../whiteboards/download';
+import { preparePreview } from '../diagrams/preview-artifact';
 const props = defineProps<{ boardId: string; embedded?: boolean; draftScope?: DraftScope }>();
 const emit = defineEmits<{ close: []; dirty: [value: boolean]; saved: [document: NoteDocument] }>();
 const root = ref<HTMLElement>(),
@@ -23,6 +24,8 @@ const content = ref(''),
   conflict = ref(false),
   closing = ref(false),
   exporting = ref(false),
+  preparingPortable = ref(false),
+  previewError = ref(''),
   draftNotice = ref('');
 const dirty = computed(() => ready.value && content.value !== savedContent.value);
 const draft = useNoteDraft(
@@ -210,6 +213,46 @@ async function png() {
     exporting.value = false;
   }
 }
+async function preparePortablePreview() {
+  if (!canvas || !ready.value || loading.value || conflict.value || draft.recovered.value)
+    throw Error('请先处理当前白板的载入或恢复状态');
+  const generation = epoch,
+    boardId = props.boardId,
+    currentCanvas = canvas;
+  const source = currentCanvas.snapshot();
+  await draft.flush();
+  const prepared = await preparePreview({ kind: 'excalidraw', source });
+  if (
+    disposed ||
+    generation !== epoch ||
+    props.boardId !== boardId ||
+    currentCanvas !== canvas ||
+    currentCanvas.snapshot() !== source
+  )
+    throw Error('白板已发生变化，请重新生成通用预览');
+  return { png: prepared.preview, content: source };
+}
+async function portableNote() {
+  if (preparingPortable.value) return;
+  const boardId = props.boardId,
+    generation = epoch;
+  preparingPortable.value = true;
+  previewError.value = '';
+  try {
+    const { png, content } = await preparePortablePreview();
+    if (disposed || generation !== epoch || boardId !== props.boardId) return;
+    window.dispatchEvent(
+      new CustomEvent('dooknow-portable-whiteboard', {
+        detail: { boardId, png, content },
+      }),
+    );
+  } catch (e) {
+    if (!disposed && generation === epoch)
+      previewError.value = '无法生成 Markdown 预览笔记，设计源码已保留：' + (e as Error).message;
+  } finally {
+    if (!disposed && generation === epoch) preparingPortable.value = false;
+  }
+}
 async function importScene(event: Event) {
   const input = event.target as HTMLInputElement,
     file = input.files?.[0];
@@ -257,7 +300,13 @@ onBeforeUnmount(() => {
   window.removeEventListener('beforeunload', unload);
   emit('dirty', false);
 });
-defineExpose({ save, discard, requestClose: close, flush: () => draft.flush() });
+defineExpose({
+  save,
+  discard,
+  requestClose: close,
+  flush: () => draft.flush(),
+  preparePortablePreview,
+});
 </script>
 <template>
   <section
@@ -311,6 +360,13 @@ defineExpose({ save, discard, requestClose: close, flush: () => draft.flush() })
         <button type="button" :disabled="!ready || exporting" @click="png">导出 PNG</button>
         <button
           type="button"
+          :disabled="!ready || saving || conflict || !!draft.recovered.value || preparingPortable"
+          @click="portableNote"
+        >
+          {{ preparingPortable ? '正在生成预览…' : '生成 Markdown 预览笔记' }}
+        </button>
+        <button
+          type="button"
           class="primary"
           aria-label="保存白板"
           :disabled="!ready || saving || conflict"
@@ -326,6 +382,7 @@ defineExpose({ save, discard, requestClose: close, flush: () => draft.flush() })
       ><button v-if="conflict" @click="load">重新读取</button
       ><button v-else :disabled="saving" @click="ready ? save() : load()">重试</button>
     </div>
+    <div v-if="previewError" class="whiteboard-feedback" role="alert">{{ previewError }}</div>
     <p v-if="draftNotice" class="whiteboard-hint" role="status">{{ draftNotice }}</p>
     <DraftRecovery
       v-if="draft.recovered.value"

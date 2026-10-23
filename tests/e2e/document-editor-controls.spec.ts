@@ -190,8 +190,9 @@ for (const kind of ['code', 'image', 'link'] as const) {
       name: kind === 'code' ? '代码块设置' : kind === 'image' ? '图片设置' : '链接操作',
       exact: true,
     });
-    await expectToolsNear(tools, target);
-    await expectNoOverlap(tools, target);
+    const selectedObject = kind === 'code' ? editor.locator('.document-code-block .cm-editor') : target;
+    await expectToolsNear(tools, selectedObject);
+    await expectNoOverlap(tools, selectedObject);
   });
 }
 

@@ -1,6 +1,35 @@
-import { defineComponent, h, ref, shallowRef, onMounted, onUnmounted } from 'vue';
+import {
+  defineAsyncComponent,
+  defineComponent,
+  h,
+  ref,
+  shallowRef,
+  onMounted,
+  onUnmounted,
+} from 'vue';
 import { NButton, NInput, NAlert, type PluginUIApi } from '@dooknow/plugin-ui';
 import { gitDecoration } from './decoration';
+
+const RawDiffFallback = defineComponent({
+  props: ['diff', 'truncated', 'error'],
+  setup: (props) => () =>
+    h('div', [
+      !props.truncated &&
+        h(
+          'p',
+          { role: 'status' },
+          props.error ? '差异视图加载失败，已保留原始差异。' : '正在准备差异视图…',
+        ),
+      h('pre', props.truncated ? '差异超过 256 KiB，请在服务器查看。' : props.diff),
+    ]),
+});
+
+const GitDiffView = defineAsyncComponent({
+  loader: () => import('./diff-view').then((module) => module.GitDiffView),
+  loadingComponent: RawDiffFallback,
+  errorComponent: RawDiffFallback,
+  delay: 0,
+});
 
 const styles = `
 .dooknow-git-view { min-width: 0; color: var(--text, #262b36); font-size: 13px; line-height: 1.65; }
@@ -376,6 +405,7 @@ export function activate(api: PluginUIApi) {
         const rows = ref<any[]>([]),
           cursor = ref<string>(),
           diff = ref(''),
+          diffTruncated = ref(false),
           diffCommit = ref<string>(),
           diffLoading = ref(false),
           error = ref(''),
@@ -410,6 +440,7 @@ export function activate(api: PluginUIApi) {
           diffCommit.value = undefined;
           restoreBlockedCode.value = '';
           diff.value = '';
+          diffTruncated.value = false;
           diffLoading.value = true;
           error.value = '';
           confirmRestore.value = false;
@@ -417,6 +448,7 @@ export function activate(api: PluginUIApi) {
             const result = await api.call('provider', 'git.diff', { noteId: noteId(), commit });
             if (request !== diffRequest) return;
             diff.value = result.truncated ? '差异超过 256 KiB，请在服务器查看。' : result.diff;
+            diffTruncated.value = result.truncated === true;
             restoreBlockedCode.value =
               result.restore?.supported === false
                 ? result.restore.code || 'GIT_RESTORE_UNSUPPORTED'
@@ -542,7 +574,12 @@ export function activate(api: PluginUIApi) {
               h('div', { class: 'git-diff' }, [
                 h('p', { class: 'git-diff-label' }, `版本差异 · ${selected.value.slice(0, 12)}`),
                 diffLoading.value && h('p', { role: 'status' }, '正在读取版本差异…'),
-                h('pre', diff.value),
+                diffCommit.value === selected.value &&
+                  h(GitDiffView, {
+                    key: diffCommit.value,
+                    diff: diff.value,
+                    truncated: diffTruncated.value,
+                  }),
                 diffCommit.value === selected.value &&
                   h(
                     NButton,

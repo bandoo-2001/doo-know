@@ -16,7 +16,8 @@ export type MarkdownAction =
   | 'indent'
   | 'outdent'
   | 'paragraph'
-  | `heading${1 | 2 | 3 | 4 | 5}`;
+  | 'clearFormatting'
+  | `heading${1 | 2 | 3 | 4 | 5 | 6}`;
 export interface MarkdownToolbarState {
   disabledActions?: readonly MarkdownAction[];
   headingDisabled?: boolean;

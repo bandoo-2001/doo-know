@@ -15,6 +15,13 @@ const emit = defineEmits<{
   'insert-table': [rows: number, columns: number];
   upload: [];
   whiteboard: [];
+  search: [];
+  'insert-menu': [];
+  properties: [];
+  'paste-markdown': [];
+  backlinks: [];
+  'export-html': [];
+  print: [];
 }>();
 function actionDisabled(action: MarkdownAction) {
   return props.disabled || !!props.state.disabledActions?.includes(action);
@@ -136,6 +143,15 @@ function preserveSelection(event: MouseEvent) {
       >
         <Icon name="inline-code" :size="18" />
       </button>
+      <button
+        type="button"
+        aria-label="清除格式"
+        title="清除选中文字样式"
+        :disabled="actionDisabled('clearFormatting') || state.styleDisabled"
+        @click="format('clearFormatting')"
+      >
+        T×
+      </button>
     </div>
     <span class="format-divider" aria-hidden="true"></span>
     <div class="format-group text-color-controls">
@@ -206,7 +222,82 @@ function preserveSelection(event: MouseEvent) {
       </button>
       <span v-if="uploading" class="toolbar-upload-status" role="status">正在上传附件</span>
     </div>
-    <div class="format-group"><button type="button" aria-label="插入白板" title="插入白板" :disabled="disabled" @click="emit('whiteboard')"><Icon name="whiteboard" :size="17"/></button></div>
+    <div class="format-group">
+      <button
+        type="button"
+        aria-label="插入白板"
+        title="插入白板"
+        :disabled="disabled"
+        @click="emit('whiteboard')"
+      >
+        <Icon name="whiteboard" :size="17" />
+      </button>
+    </div>
+    <span class="format-divider" aria-hidden="true"></span>
+    <div class="format-group">
+      <button
+        type="button"
+        aria-label="查找替换"
+        title="查找替换 · Ctrl/Cmd+F"
+        @click="emit('search')"
+      >
+        <Icon name="search" :size="18" />
+      </button>
+      <button
+        type="button"
+        aria-label="快捷插入"
+        title="快捷插入"
+        :disabled="disabled"
+        @click="emit('insert-menu')"
+      >
+        ＋
+      </button>
+      <button
+        type="button"
+        aria-label="笔记属性"
+        title="笔记属性"
+        :disabled="disabled"
+        @click="emit('properties')"
+      >
+        <Icon name="settings" :size="18" />
+      </button>
+      <button type="button" aria-label="按 Markdown 粘贴" title="按 Markdown 粘贴" :disabled="disabled" @click="emit('paste-markdown')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5H5v16h14V5h-4M9 3h6v4H9zM8 12h8M8 16h5" /></svg>
+      </button>
+      <button type="button" aria-label="反向引用" title="查看提及此笔记的链接" @click="emit('backlinks')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 5-5 5 5 5M3 10h10a7 7 0 0 1 7 7v2M12 5h8" /></svg>
+      </button>
+      <button type="button" aria-label="导出 HTML" title="导出 HTML" @click="emit('export-html')">
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M12 3v13m-5-5 5 5 5-5M4 15v6h16v-6" />
+        </svg>
+      </button>
+      <button type="button" aria-label="打印笔记" title="打印笔记" @click="emit('print')">
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M6 8V3h12v5M6 17H3V8h18v9h-3M6 14h12v7H6ZM17 11h1" />
+        </svg>
+      </button>
+    </div>
   </div>
 </template>
 <style scoped>

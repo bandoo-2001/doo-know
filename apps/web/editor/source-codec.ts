@@ -1,5 +1,8 @@
 import MarkdownIt from 'markdown-it';
 import { markdownStyles } from '../../../shared/markdown-styles';
+import { hasKnowledgeSyntax } from '../../../shared/knowledge-markdown';
+import { footnoteLineRanges } from '../../../shared/markdown-source-ranges';
+import { frontmatterRange } from '../../../shared/frontmatter-range';
 import { evaluateDocumentEligibility } from './compatibility';
 import {
   emptySelection,
@@ -18,6 +21,8 @@ function isOpaque(raw: string, kind: string) {
     return !/^[a-zA-Z0-9_+#.-]*$/.test(info);
   }
   const material = raw.replace(/(`+)([\s\S]*?)\1/g, '');
+  const notation = material.replace(/\\./g, '');
+  if (hasKnowledgeSyntax(notation)) return true;
   if (material.includes('<!--')) return true;
   const stack: string[] = [];
   for (const match of material.matchAll(/<\/?[a-zA-Z][^>]*>/g)) {
@@ -41,12 +46,12 @@ function isOpaque(raw: string, kind: string) {
     if (close && stack.pop() === close[1]) continue;
     return true;
   }
-  if (/!?\[\[[^\]\n]+\]\]|(^|\n)\s*>\s*\[![A-Za-z]+\]|\{[#.][^}\n]+\}|==[^=\n]+==/.test(material))
+  if (/!?\[\[[^\]\n]+\]\]|(^|\n)\s*>\s*\[![A-Za-z]+\]|\{[#.][^}\n]+\}|==[^=\n]+==/.test(notation))
     return true;
   return (
     stack.length > 0 ||
-    /(^|\n)[ \t]*(?:\$\$|:::)/.test(material) ||
-    /(?<!\\)\$[^\s$][^\n$]*\$/.test(material)
+    /(^|\n)[ \t]*(?:\$\$|:::)/.test(notation) ||
+    /(?<!\\)\$[^\s$][^\n$]*\$/.test(notation)
   );
 }
 export function parseSource(markdown: string, revision = 0): SourceDocument {
@@ -64,10 +69,23 @@ export function parseSource(markdown: string, revision = 0): SourceDocument {
     depth += t.nesting;
     maxDepth = Math.max(maxDepth, depth);
   }
-  const front = /^\uFEFF?---\r?\n[\s\S]*?\r?\n(?:---|\.\.\.)[ \t]*\r?(?:\n|$)/.exec(markdown);
+  const front = frontmatterRange(markdown);
   let starts = roots.map((r) => ({ from: offsets[r.line] ?? 0, kind: r.kind }));
+  // Footnote continuation paragraphs must not become independent editable blocks.
+  // The rendering plugin's own block rule supplies the complete source boundary.
+  let footnoteEnd = -1;
+  for (const range of footnoteLineRanges(markdown)) {
+    const from = offsets[range.fromLine] ?? 0, to = offsets[range.toLine] ?? markdown.length;
+    if (from < footnoteEnd) continue;
+    const container = starts.filter(item=>item.from<=from).at(-1);
+    const begin = container && ['blockquote','bullet_list','ordered_list'].includes(container.kind) ? container.from : from;
+    starts = starts.filter(item=>item.from<begin||item.from>=to);
+    starts.push({from:begin,kind:'opaque'});
+    starts.sort((a,b)=>a.from-b.from);
+    footnoteEnd=to;
+  }
   if (front) {
-    starts = starts.filter((r) => r.from >= front[0].length);
+    starts = starts.filter((r) => r.from >= front.end);
     starts.unshift({ from: 0, kind: 'frontmatter' });
   }
   // Unknown fenced constructs are one atomic unit, including their interior paragraphs.
@@ -117,8 +135,8 @@ export function parseSource(markdown: string, revision = 0): SourceDocument {
     .join('\n');
   // References inside lists/quotes are still global dependencies. Source regexes
   // alone miss their container prefixes and cannot make per-unit parsing safe.
-  const linked = Object.keys(environment.references || {}).length > 0 ||
-    /(^|\n) {0,3}\[[^\]\n]+\]:|!?\[[^\]\n]*\]\[[^\]\n]*\]|\[\^[^\]\n]+\]/.test(nonCode);
+  const linked = Object.keys(environment.references || {}).some(key => !key.startsWith('^')) ||
+    /(^|\n) {0,3}\[(?!\^)[^\]\n]+\]:|!?\[(?!\^)[^\]\n]*\]\[(?!\^)[^\]\n]*\]/.test(nonCode);
   const eligibility = evaluateDocumentEligibility({
     editorMode: 'full',
     markdown,

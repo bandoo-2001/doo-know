@@ -5,6 +5,7 @@ import {syncDiagrams,clearDiagrams} from '../whiteboards/diagrams';
 import {watch} from 'vue';
 import { deferImageSource, deferRenderedImages } from '../image-requests';
 import {markdownTasks} from '../../../shared/markdown-tasks';
+import {knowledgeMarkdown} from '../../../shared/knowledge-markdown';
 
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
 import DOMPurify from 'dompurify';
@@ -60,7 +61,7 @@ async function readPage(cursor?: string) {
     if (result.kind !== 'ready') throw new Error();
     if (disposed) return;
     const page = result.data,
-      md = new MarkdownIt({ html: false, linkify: true }).use(markdownStyles).use(markdownTasks).use(diagramFences);
+      md = new MarkdownIt({ html: false, linkify: true }).use(markdownStyles).use(markdownTasks).use(knowledgeMarkdown).use(diagramFences);
     const tokens = md.parse(page.content, {});
     const visit = (items: typeof tokens) => {
       for (const token of items) {

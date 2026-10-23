@@ -1,6 +1,15 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue';
-import { Popover as APopover } from 'ant-design-vue';
+import {
+  computed,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  useId,
+  watch,
+  type CSSProperties,
+} from 'vue';
+import { createFloatingTools } from '../editor/floating-tools';
 import Icon from './Icon.vue';
 
 const props = defineProps<{ disabled: boolean }>();
@@ -8,14 +17,16 @@ const emit = defineEmits<{ select: [rows: number, columns: number] }>();
 const panelId = useId();
 const trigger = ref<HTMLButtonElement>();
 const panel = ref<HTMLFormElement>();
+const popup = ref<HTMLElement>();
+const popupStyle = ref<CSSProperties>({ visibility: 'hidden' });
 const rowInput = ref<HTMLInputElement>();
 const open = ref(false);
 const rows = ref<number | string>(3);
 const columns = ref<number | string>(3);
-const placement = ref<'topLeft' | 'bottomLeft'>('bottomLeft');
 const maxHeight = ref(420);
 const presets = [2, 3, 4];
 let focusFrame: number | undefined;
+let positioner: ReturnType<typeof createFloatingTools> | undefined;
 const validRows = computed(
   () => Number.isInteger(Number(rows.value)) && Number(rows.value) >= 1 && Number(rows.value) <= 20,
 );
@@ -29,17 +40,6 @@ const valid = computed(() => validRows.value && validColumns.value);
 const previewRows = computed(() => (validRows.value ? Number(rows.value) : 3));
 const previewColumns = computed(() => (validColumns.value ? Number(columns.value) : 3));
 
-function measure() {
-  if (!open.value || !trigger.value) return;
-  const bounds = trigger.value.getBoundingClientRect();
-  const visible = window.visualViewport;
-  const top = visible?.offsetTop ?? 0;
-  const bottom = top + (visible?.height ?? innerHeight);
-  const above = Math.max(0, Math.min(bounds.top, bottom) - top - 12);
-  const below = Math.max(0, bottom - Math.max(bounds.bottom, top) - 12);
-  placement.value = below >= above ? 'bottomLeft' : 'topLeft';
-  maxHeight.value = Math.max(72, Math.min(420, Math.max(above, below) - 8));
-}
 function close(restoreFocus = false) {
   open.value = false;
   if (restoreFocus) trigger.value?.focus({ preventScroll: true });
@@ -74,11 +74,25 @@ function triggerKeydown(event: KeyboardEvent) {
     open.value = true;
   } else keydown(event);
 }
-watch([open, panel], async ([shown]) => {
+watch([open, popup], async ([shown]) => {
   if (focusFrame !== undefined) cancelAnimationFrame(focusFrame);
-  if (!shown) return;
+  positioner?.stop();
+  positioner = undefined;
+  if (!shown || !popup.value || !trigger.value) {
+    popupStyle.value = { visibility: 'hidden' };
+    return;
+  }
   preset(3);
-  measure();
+  positioner = createFloatingTools(
+    trigger.value,
+    popup.value,
+    { padding: 12, maxHeight: 420 },
+    (style) => {
+      popupStyle.value = style;
+      maxHeight.value = Number.parseFloat(String(style.maxHeight));
+    },
+  );
+  await positioner.update();
   await nextTick();
   focusPanel();
 });
@@ -88,29 +102,26 @@ watch(
     if (disabled) close();
   },
 );
-onMounted(() => {
-  window.addEventListener('resize', measure);
-  window.visualViewport?.addEventListener('resize', measure);
-  window.visualViewport?.addEventListener('scroll', measure);
-});
+function outside(event: Event) {
+  const target = event.target as Node;
+  if (open.value && !popup.value?.contains(target) && !trigger.value?.contains(target)) close();
+}
+onMounted(() => document.addEventListener('pointerdown', outside, true));
 onBeforeUnmount(() => {
-  window.removeEventListener('resize', measure);
-  window.visualViewport?.removeEventListener('resize', measure);
-  window.visualViewport?.removeEventListener('scroll', measure);
+  document.removeEventListener('pointerdown', outside, true);
+  positioner?.stop();
   if (focusFrame !== undefined) cancelAnimationFrame(focusFrame);
 });
 </script>
 
 <template>
-  <APopover
-    v-model:open="open"
-    trigger="click"
-    :placement="placement"
-    :arrow="false"
-    overlay-class-name="editor-menu-popover table-picker-popover"
-    :overlay-inner-style="{ padding: 0 }"
-  >
-    <template #content>
+  <Teleport to="body">
+    <div
+      v-if="open"
+      ref="popup"
+      class="editor-menu-popover table-picker-popover"
+      :style="popupStyle"
+    >
       <form
         :id="panelId"
         ref="panel"
@@ -198,23 +209,24 @@ onBeforeUnmount(() => {
           </div>
         </div>
       </form>
-    </template>
-    <button
-      ref="trigger"
-      type="button"
-      class="table-picker-trigger"
-      aria-label="插入表格"
-      title="插入表格"
-      aria-haspopup="dialog"
-      :aria-controls="open ? panelId : undefined"
-      :aria-expanded="open"
-      :disabled="disabled"
-      @keydown="triggerKeydown"
-    >
-      <Icon name="table" :size="18" />
-      <Icon name="chevron" :size="10" />
-    </button>
-  </APopover>
+    </div>
+  </Teleport>
+  <button
+    ref="trigger"
+    type="button"
+    class="table-picker-trigger"
+    aria-label="插入表格"
+    title="插入表格"
+    aria-haspopup="dialog"
+    :aria-controls="open ? panelId : undefined"
+    :aria-expanded="open"
+    :disabled="disabled"
+    @keydown="triggerKeydown"
+    @click="open = !open"
+  >
+    <Icon name="table" :size="18" />
+    <Icon name="chevron" :size="10" />
+  </button>
 </template>
 
 <style>
@@ -234,7 +246,9 @@ onBeforeUnmount(() => {
 .table-picker-trigger[aria-expanded='true'] > svg:last-child {
   transform: rotate(270deg);
 }
-.table-picker-popover.ant-popover .ant-popover-inner {
+.table-picker-popover {
+  position: fixed;
+  z-index: 2050;
   overflow: hidden;
   border: 1px solid var(--border);
   border-radius: 12px;

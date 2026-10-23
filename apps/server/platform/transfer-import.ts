@@ -7,6 +7,10 @@ import { safePath, validName, validateRelative } from '../../../packages/core/fi
 import { HttpError } from '../../../packages/core/errors.js';
 import { localReference, references } from '../../../packages/core/render.js';
 import MarkdownIt from 'markdown-it';
+import { knowledgeMarkdown } from '../../../shared/knowledge-markdown.js';
+import { SVG_MIME } from '../../../shared/svg-policy.js';
+import { validateSvgSource } from '../../../packages/core/svg.js';
+import { DIAGRAM_SOURCE_MIMES, validateDiagramSource } from '../../../packages/core/knowledge/diagram-artifacts.js';
 
 export const IMPORT_BODY_LIMIT = 30 * 1024 ** 2;
 const mimeTypes: Record<string, string> = {
@@ -16,7 +20,11 @@ const mimeTypes: Record<string, string> = {
   '.gif': 'image/gif',
   '.webp': 'image/webp',
   '.pdf': 'application/pdf',
+  '.svg': SVG_MIME,
+  ...DIAGRAM_SOURCE_MIMES,
 };
+/** Editable design snapshots beneath assets are attachments, never standalone whiteboard notes. */
+export const isImportDocument = (path: string) => isDocument(path) && !path.split('/').includes('assets');
 export const digest = (bytes: string | Buffer) => createHash('sha256').update(bytes).digest('hex');
 export function relativeInput(value: unknown): string {
   if (
@@ -33,6 +41,17 @@ export function relativeInput(value: unknown): string {
 }
 export function assetMime(path: string, bytes: Buffer) {
   const type = mimeTypes[extname(path).toLowerCase()];
+  if (type === SVG_MIME) {
+    const validation = validateSvgSource(bytes);
+    if (!validation.ok) throw new HttpError(validation.code === 'size-limit' ? 413 : 400, validation.message);
+    return type;
+  }
+  if (type === DIAGRAM_SOURCE_MIMES['.excalidraw'] || type === DIAGRAM_SOURCE_MIMES['.mmd']) {
+    if (type === DIAGRAM_SOURCE_MIMES['.excalidraw'] && !path.split('/').includes('assets'))
+      throw new HttpError(400, '白板源快照必须位于 assets 目录');
+    validateDiagramSource(type === DIAGRAM_SOURCE_MIMES['.mmd'] ? 'mermaid' : 'excalidraw', bytes);
+    return type;
+  }
   const actual = bytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))
     ? 'image/png'
     : bytes[0] === 255 && bytes[1] === 216 && bytes[2] === 255
@@ -96,7 +115,7 @@ export function parseImport(input: unknown): ImportRequest {
     if (seen.has(path)) throw new HttpError(400, '文件路径重复');
     seen.add(path);
     const bytes = entryBytes(entry);
-    const note = isDocument(path);
+    const note = isImportDocument(path);
     if (bytes.length > (note ? (isWhiteboard(path) ? MAX_WHITEBOARD_BYTES : 1024 ** 2) : 10 * 1024 ** 2))
       throw new HttpError(413, '单个文件超过导入上限');
     if (note) {
@@ -126,7 +145,7 @@ export function importPreview(root: string, b: ImportRequest): ImportPreview {
   const reserved = new Set<string>();
   let totalBytes = 0;
   const items = b.entries.map((entry) => {
-    const kind = isDocument(entry.path) ? ('note' as const) : ('asset' as const);
+    const kind = isImportDocument(entry.path) ? ('note' as const) : ('asset' as const);
     let path = posix.join(b.folderPath || '', entry.path);
     targetPath(root, path, kind);
     const collision = existsSync(join(root, path)) || reserved.has(path);
@@ -172,6 +191,7 @@ interface DestinationSpan {
   start: number;
   end: number;
   url: string;
+  wiki?: { label: string; fragment: string; table: boolean };
 }
 /**
  * Parse destinations with Markdown's own rules, then edit only their original source spans.
@@ -179,7 +199,7 @@ interface DestinationSpan {
  * fences/indented code as opaque tokens; inline rules keep backticks and escapes opaque too.
  */
 function markdownDestinationSpans(original: string): DestinationSpan[] {
-  const parser = new MarkdownIt({ html: false, linkify: true, breaks: false });
+  const parser = new MarkdownIt({ html: false, linkify: true, breaks: false }).use(knowledgeMarkdown);
   const originalOffsets: number[] = [];
   let source = '';
   // Markdown normalizes newlines and NUL before parsing. Retain their original byte-for-byte
@@ -194,9 +214,9 @@ function markdownDestinationSpans(original: string): DestinationSpan[] {
   const starts = [0];
   for (let n = 0; n < source.length; n++) if (source[n] === '\n') starts.push(n + 1);
   const spans: DestinationSpan[] = [];
-  let active: { source: string; positions: number[] } | undefined;
+  let active: { source: string; positions: number[]; table: boolean } | undefined;
 
-  function record(url: string, start: number, end: number, positions: number[]) {
+  function record(url: string, start: number, end: number, positions: number[], wiki?: DestinationSpan['wiki']) {
     if (end <= start || positions[start] === undefined || positions[end - 1] === undefined) return;
     // A table removes backslashes before literal pipes. Those escapes belong to the
     // destination's physical span; stripped quote/list prefixes remain outside it.
@@ -211,10 +231,47 @@ function markdownDestinationSpans(original: string): DestinationSpan[] {
     }
     spans.push({
       url,
+      ...(wiki ? { wiki } : {}),
       start: originalOffsets[positions[start]],
       end: originalOffsets[positions[end - 1] + 1],
     });
   }
+  // Instrument the same wiki rule used for reading. Its destination is encoded by that rule,
+  // while its label remains plain text; retain both meanings when the target is renamed.
+  const wikiRule = (parser.inline.ruler as any).__rules__.find((r: any) => r.name === 'knowledge_wikilink').fn;
+  parser.inline.ruler.at('knowledge_wikilink', (state: any, silent: boolean) => {
+    const start = state.pos, tokenStart = state.tokens.length, context = active;
+    const accepted = wikiRule(state, silent);
+    if (accepted && !silent && context && state.src === context.source) {
+      // A rule's first push may flush pending paragraph text before its own link tokens.
+      const emitted = state.tokens.slice(tokenStart), link = emitted.findIndex((token: any) => token.type === 'link_open');
+      const token = emitted[link], label = emitted[link + 1];
+      const rawDestination = state.src.slice(start + 2, state.pos - 2).split('|')[0];
+      const hash = rawDestination.indexOf('#');
+      record(token.attrGet('href'), start, state.pos, context.positions, {
+        label: label.content,
+        fragment: hash < 0 ? '' : rawDestination.slice(hash),
+        table: context.table,
+      });
+    }
+    return accepted;
+  });
+  // Inline footnotes recursively parse a substring. Give their children the corresponding
+  // source-position slice instead of losing ownership of their original physical spans.
+  const inlineFootnoteRule = (parser.inline.ruler as any).__rules__.find((r: any) => r.name === 'footnote_inline').fn;
+  parser.inline.ruler.at('footnote_inline', (state: any, silent: boolean) => {
+    const context = active, start = state.pos;
+    if (silent || !context || state.src !== context.source || !state.src.startsWith('^[', start))
+      return inlineFootnoteRule(state, silent);
+    const end = parser.helpers.parseLinkLabel(state, start + 1);
+    if (end < 0) return inlineFootnoteRule(state, silent);
+    active = { source: state.src.slice(start + 2, end), positions: context.positions.slice(start + 2, end), table: context.table };
+    try {
+      return inlineFootnoteRule(state, silent);
+    } finally {
+      active = context;
+    }
+  });
   function destination(text: string, start: number) {
     while (start < text.length && /[ \t\n]/.test(text[start])) start++;
     const parsed = parser.helpers.parseLinkDestination(text, start, text.length);
@@ -342,7 +399,7 @@ function markdownDestinationSpans(original: string): DestinationSpan[] {
           !token.map,
           token.map ? starts[range[0]] : tableCursor,
         );
-      active = mapped ? { source: token.content, positions: mapped.positions } : undefined;
+      active = mapped ? { source: token.content, positions: mapped.positions, table: !token.map && !!tableRow } : undefined;
       if (!token.map && mapped) tableCursor = mapped.last;
       parser.inline.parse(token.content, parser, state.env, token.children);
       active = undefined;
@@ -378,12 +435,27 @@ export function rewriteImportReferences(
     return content;
   const replacements = markdownDestinationSpans(content)
     .flatMap((span) => {
-      const replacement = destinationFor(span.url);
+      let replacement = destinationFor(span.url);
       if (replacement === undefined || replacement === span.url) return [];
+      if (span.wiki) {
+        const path = decodeURIComponent(replacement.split(/[?#]/)[0]);
+        // Wiki delimiters cannot express every valid filename. Fall back to an ordinary
+        // explicit link while escaping its formerly plain-text label, rather than changing it.
+        if (/[|#?\]\\\u0000-\u001f]/.test(path)) {
+          replacement = `[${parserEscapeLabel(span.wiki.label)}](<${replacement}>)`;
+        } else {
+          replacement = `[[${path}${span.wiki.fragment}|${span.wiki.label}]]`;
+          if (span.wiki.table) replacement = replacement.replaceAll('|', '\\|');
+        }
+      }
       return [{ ...span, replacement }];
     })
     .sort((a, b) => b.start - a.start);
   for (const span of replacements)
     content = content.slice(0, span.start) + span.replacement + content.slice(span.end);
   return content;
+}
+
+function parserEscapeLabel(label: string) {
+  return label.replace(/[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]/g, '\\$&');
 }

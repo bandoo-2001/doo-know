@@ -1,7 +1,7 @@
 import {isWhiteboard,MAX_WHITEBOARD_BYTES,whiteboardId,whiteboardReference} from '../../shared/whiteboard.js';
 import Fastify from 'fastify';
 import { statSync } from 'node:fs';
-import { join, relative, sep } from 'node:path';
+import { basename, join, relative, sep } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import cookie from '@fastify/cookie';
 import csrf from '@fastify/csrf-protection';
@@ -30,6 +30,8 @@ import { shareService } from '../../packages/core/shares.js';
 import { renderMarkdown, renderMarkdownReferences, localReference } from '../../packages/core/render.js';
 import { recoveryService } from '../../packages/core/recovery.js';
 import { assetService } from '../../packages/core/assets.js';
+import { diagramArtifactService, DIAGRAM_SOURCE_MIMES } from '../../packages/core/knowledge/diagram-artifacts.js';
+import { backlinkService } from '../../packages/core/knowledge/backlinks.js';
 import { registerAgentRoutes } from './agent/routes.js';
 import { registerWebKnowledgeRoutes } from './knowledge/web-routes.js';
 import { webPrincipal } from '../../packages/core/knowledge/core.js';
@@ -273,6 +275,10 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
   app.get<{ Params: { id: string } }>('/api/notes/:id', async (req) =>
     notes.getNote(req.params.id),
   );
+  const backlinks = backlinkService(businessConfig, db, notes, webPrincipal);
+  app.get<{ Params: { id: string }; Querystring: { cursor?: string } }>('/api/notes/:id/backlinks', async (req) =>
+    backlinks.page(req.params.id, req.query.cursor),
+  );
   app.post('/api/notes', {bodyLimit: 10 * 1024 * 1024}, async (req, reply) => {
     const b = req.body as Record<string, unknown>;
     return reply
@@ -331,16 +337,33 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     const part = await req.file();
     if (!part) throw new HttpError(400, '请选择附件');
     const bytes = await part.toBuffer();
-    return reply.code(201).send(assets.upload(req.params.id, part.filename, part.mimetype, bytes));
+    const requestId = req.headers['x-dooknow-upload-id'];
+    return reply.code(201).send(assets.upload(req.params.id, part.filename, part.mimetype, bytes, requestId));
   });
-  const sendAsset = (reply: import('fastify').FastifyReply, a: { bytes: Buffer; mime: string }) =>
-    reply
+  const diagramArtifacts = diagramArtifactService(db, notes, assets, webPrincipal);
+  app.post<{ Params: { id: string } }>('/api/notes/:id/diagram-artifacts', { bodyLimit: 32 * 1024 * 1024 }, async (req, reply) =>
+    reply.code(201).send(diagramArtifacts.prepare(req.params.id, req.body)),
+  );
+  const sendAsset = (
+    reply: import('fastify').FastifyReply,
+    a: { bytes: Buffer; sourceBytes?: Buffer; mime: string; path: string },
+    download?: string,
+  ) => {
+    const attachment = download === '1' || Object.values(DIAGRAM_SOURCE_MIMES).some(mime => mime === a.mime);
+    return reply
       .header('Content-Security-Policy', "default-src 'none'; sandbox")
-      .header('Content-Disposition', 'inline')
-      .type(a.mime)
-      .send(a.bytes);
-  app.get<{ Params: { id: string } }>('/api/assets/:id', async (req, reply) =>
-    sendAsset(reply, assets.byId(req.params.id)),
+      .header(
+        'Content-Disposition',
+        attachment
+          ? `attachment; filename="${basename(a.path).replace(/[^A-Za-z0-9._-]/g, '_')}"`
+          : 'inline',
+      )
+      .type(attachment ? 'application/octet-stream' : a.mime)
+      .send(download === '1' ? a.sourceBytes ?? a.bytes : a.bytes);
+  };
+  app.get<{ Params: { id: string }; Querystring: { download?: string } }>(
+    '/api/assets/:id',
+    async (req, reply) => sendAsset(reply, assets.byId(req.params.id), req.query.download),
   );
   const recovery = lazyService(() => platform.get().recovery);
   app.get<{ Params: { id: string } }>('/api/notes/:id/revisions', async (req) => {
@@ -461,24 +484,24 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
       ),
     };
   });
-  app.get<{ Params: { token: string; assetId: string } }>(
+  app.get<{ Params: { token: string; assetId: string }; Querystring: { download?: string } }>(
     '/api/public/shares/:token/assets/:assetId',
     async (req, reply) => {
       const note = shares.lookup(req.params.token);
       const asset = await assets.publicAsset(note.id, req.params.assetId);
       if (shares.lookup(req.params.token).id !== note.id)
         throw new HttpError(404, '分享不存在或已取消');
-      return sendAsset(reply, asset);
+      return sendAsset(reply, asset, req.query.download);
     },
   );
-  app.get<{ Params: { token: string }; Querystring: { source?: string } }>(
+  app.get<{ Params: { token: string }; Querystring: { source?: string; download?: string } }>(
     '/api/public/shares/:token/asset',
     async (req, reply) => {
       const note = shares.lookup(req.params.token);
       const asset = await assets.publicSource(note.id, text(req.query.source, '附件引用', 8192));
       if (shares.lookup(req.params.token).id !== note.id)
         throw new HttpError(404, '分享不存在或已取消');
-      return sendAsset(reply, asset);
+      return sendAsset(reply, asset, req.query.download);
     },
   );
   if (config.staticRoot) {

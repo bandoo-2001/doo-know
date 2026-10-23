@@ -6,6 +6,7 @@ defineProps<{
   rows?: number;
   columns?: number;
   alignment?: string;
+  disabledActions?: readonly TableAction[];
 }>();
 const emit = defineEmits<{ action: [value: TableAction]; exit: [] }>();
 const groups = [
@@ -14,6 +15,8 @@ const groups = [
     actions: [
       { key: 'addRowBefore', label: '上方插入行', icon: 'row-before' },
       { key: 'addRowAfter', label: '下方插入行', icon: 'row-after' },
+      { key: 'moveRowUp', label: '上移行', icon: 'back', rotation: 90 },
+      { key: 'moveRowDown', label: '下移行', icon: 'back', rotation: -90 },
       { key: 'deleteRow', label: '删除行', icon: 'row-delete' },
     ],
   },
@@ -22,6 +25,8 @@ const groups = [
     actions: [
       { key: 'addColumnBefore', label: '左侧插入列', icon: 'column-before' },
       { key: 'addColumnAfter', label: '右侧插入列', icon: 'column-after' },
+      { key: 'moveColumnLeft', label: '左移列', icon: 'back' },
+      { key: 'moveColumnRight', label: '右移列', icon: 'forward' },
       { key: 'deleteColumn', label: '删除列', icon: 'column-delete' },
     ],
   },
@@ -35,7 +40,7 @@ const groups = [
   },
 ] satisfies {
   label: string;
-  actions: { key: TableAction; label: string; icon: string; value?: string }[];
+  actions: { key: TableAction; label: string; icon: string; value?: string; rotation?: number }[];
 }[];
 function keydown(event: KeyboardEvent) {
   if (event.key === 'Escape') {
@@ -88,12 +93,16 @@ function keydown(event: KeyboardEvent) {
         type="button"
         :aria-label="item.label"
         :title="item.label"
-        :disabled="disabled"
+        :disabled="disabled || disabledActions?.includes(item.key)"
         :aria-pressed="'value' in item ? alignment === item.value : undefined"
         :class="{ 'table-tools-delete': item.key.startsWith('delete') }"
         @click="emit('action', item.key)"
       >
-        <Icon :name="item.icon" :size="16" />
+        <Icon
+          :name="item.icon"
+          :size="16"
+          :style="'rotation' in item ? { transform: `rotate(${item.rotation}deg)` } : undefined"
+        />
       </button>
     </div>
     <div class="table-tools-group">

@@ -71,6 +71,142 @@
 .document-editor .tiptap pre code {
   padding: 0;
 }
+.document-code-block {
+  max-width: 100%;
+  min-width: 0;
+  margin: 1em 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface);
+  white-space: normal;
+}
+.document-code-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.document-code-header :is(input, button) {
+  min-height: 30px;
+  min-width: 0;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  padding: 4px 7px;
+  color: var(--text);
+  background: transparent;
+  font: inherit;
+}
+.document-code-header .document-code-language {
+  flex: 1 1 110px;
+  width: 110px;
+  max-width: 240px;
+  margin-right: auto;
+  border-color: var(--border);
+}
+.document-code-header button {
+  cursor: pointer;
+}
+.document-code-header button:hover,
+.document-code-header button[aria-pressed='true'] {
+  color: var(--blue);
+  background: var(--blue-soft);
+}
+.document-code-header :is(input, button):focus-visible,
+.document-code-preview:focus-visible {
+  outline: 2px solid var(--focus, var(--blue));
+  outline-offset: -2px;
+}
+.document-code-header input:disabled {
+  opacity: 0.6;
+}
+.document-editor .tiptap .document-code-preview {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 0;
+  white-space: pre-wrap;
+  font: 13px/1.65 "SFMono-Regular", Consolas, "Noto Sans Mono", monospace;
+  cursor: text;
+}
+.document-editor .tiptap .document-code-preview code {
+  background: none;
+  border-radius: 0;
+  font: inherit;
+}
+.document-code-preview .tok-keyword,
+.document-code-preview .tok-operator,
+.document-code-preview .tok-meta {
+  color: var(--blue, #1688ff);
+}
+.document-code-preview :is(.tok-string, .tok-string2, .tok-inserted) {
+  color: color-mix(in srgb, #21845c 80%, var(--text, #343c4a));
+}
+.document-code-preview :is(.tok-number, .tok-atom, .tok-bool, .tok-literal) {
+  color: color-mix(in srgb, #a76a2b 80%, var(--text, #343c4a));
+}
+.document-code-preview :is(.tok-typeName, .tok-className, .tok-namespace, .tok-definition) {
+  color: color-mix(in srgb, #9460bd 80%, var(--text, #343c4a));
+}
+.document-code-preview .tok-comment {
+  color: var(--muted, #7188a3);
+  font-style: italic;
+}
+.document-code-preview :is(.tok-invalid, .tok-deleted) {
+  color: #d44b57;
+}
+.document-code-block .cm-editor {
+  color: var(--text);
+  background: var(--surface);
+  font-size: 13px;
+  text-align: left;
+  overflow-wrap: normal;
+}
+.document-code-block .cm-editor.cm-focused {
+  outline: none;
+}
+.document-code-block .cm-scroller {
+  overflow: auto;
+  font-family: "SFMono-Regular", Consolas, "Noto Sans Mono", monospace;
+  line-height: 1.65;
+}
+.document-code-block .cm-content {
+  min-height: 42px;
+  padding: 10px 0;
+  caret-color: var(--text);
+}
+.document-code-block .cm-line {
+  padding: 0 12px;
+}
+.document-code-block .cm-gutters {
+  border: 0;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 11px;
+}
+.document-code-block .cm-cursor {
+  border-left-color: var(--text);
+}
+.document-code-block .cm-selectionBackground,
+.document-code-block .cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground {
+  background: var(--blue-soft);
+}
+.document-code-copy {
+  display: block;
+  width: calc(100% - 20px);
+  min-height: 100px;
+  margin: 10px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+}
+.document-context-slot[data-editor-context='code'] {
+  display: none;
+}
 .document-editor .tiptap img {
   max-width: 100%;
   height: auto;

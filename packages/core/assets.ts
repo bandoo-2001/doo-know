@@ -1,5 +1,5 @@
 import { workspaceWriteSync } from './workspace/gate.js';
-import { randomUUID } from 'node:crypto';
+import { randomUUID, createHash } from 'node:crypto';
 import {
   mkdirSync,
   readdirSync,
@@ -21,6 +21,9 @@ import { safePath } from './files.js';
 import { references, localReference } from './render.js';
 import { hasSavedAssetReference } from './knowledge/asset-references.js';
 import { KnowledgeError } from './knowledge/errors.js';
+import { SVG_MIME, SVG_POLICY } from '../../shared/svg-policy.js';
+import { validateSvgSource } from './svg.js';
+import { DIAGRAM_SOURCE_MIMES, validateDiagramSource } from './knowledge/diagram-artifacts.js';
 const allowed: Record<string, string> = {
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
@@ -28,6 +31,8 @@ const allowed: Record<string, string> = {
   '.gif': 'image/gif',
   '.webp': 'image/webp',
   '.pdf': 'application/pdf',
+  '.svg': SVG_MIME,
+  ...DIAGRAM_SOURCE_MIMES,
 };
 const max = 10 * 1024 * 1024;
 function sniff(bytes: Buffer) {
@@ -48,8 +53,20 @@ export function assetService(config: AppConfig, db: AppDatabase, notes: NoteServ
     const fd = openSync(p, constants.O_RDONLY | constants.O_NOFOLLOW);
     try {
       const s = fstatSync(fd);
-      if (!s.isFile() || s.size > max) throw new HttpError(404, '附件不存在');
+      if (!s.isFile() || s.size > (mime === SVG_MIME ? SVG_POLICY.maxBytes : max))
+        throw new HttpError(404, '附件不存在');
       const bytes = readFileSync(fd);
+      if (mime === SVG_MIME) {
+        const result = validateSvgSource(bytes);
+        if (!result.ok) throw new HttpError(404, '附件类型不允许');
+        return { bytes: Buffer.from(result.presentation, 'utf8'), sourceBytes: bytes, mime };
+      }
+      if (mime === DIAGRAM_SOURCE_MIMES['.mmd'] || mime === DIAGRAM_SOURCE_MIMES['.excalidraw']) {
+        if (mime === DIAGRAM_SOURCE_MIMES['.excalidraw'] && !path.split('/').includes('assets'))
+          throw new HttpError(404, '附件不存在');
+        validateDiagramSource(mime === DIAGRAM_SOURCE_MIMES['.mmd'] ? 'mermaid' : 'excalidraw', bytes);
+        return { bytes, mime };
+      }
       if (sniff(bytes) !== mime) throw new HttpError(404, '附件类型不允许');
       return { bytes, mime };
     } finally {
@@ -114,12 +131,24 @@ export function assetService(config: AppConfig, db: AppDatabase, notes: NoteServ
       }
     });
   }
-  function upload(id: string, name: string, mime: string, bytes: Buffer) {
+  function upload(id: string, name: string, mime: string, bytes: Buffer, requestId?: unknown) {
+    if (requestId !== undefined && (typeof requestId !== 'string' || !/^[A-Za-z0-9_-]{8,100}$/.test(requestId)))
+      throw new HttpError(400, '上传请求标识不正确');
     const n = notes.exists(id);
     if (bytes.length > max) throw new HttpError(413, '附件不能超过 10 MiB');
     const ext = extname(name).toLowerCase();
-    if (!allowed[ext] || allowed[ext] !== mime || sniff(bytes) !== mime)
-      throw new HttpError(400, '仅允许真实 PNG/JPEG/GIF/WebP 图片和 PDF');
+    if (!allowed[ext] || allowed[ext] !== mime)
+      throw new HttpError(400, '仅允许真实 PNG/JPEG/GIF/WebP 图片、受限 SVG 和 PDF');
+    if (mime === SVG_MIME) {
+      const result = validateSvgSource(bytes);
+      if (!result.ok)
+        throw new HttpError(result.code === 'size-limit' ? 413 : 400, result.message, {
+          code: result.code,
+        });
+    } else if (mime === DIAGRAM_SOURCE_MIMES['.mmd'] || mime === DIAGRAM_SOURCE_MIMES['.excalidraw']) {
+      validateDiagramSource(mime === DIAGRAM_SOURCE_MIMES['.mmd'] ? 'mermaid' : 'excalidraw', bytes);
+    } else if (sniff(bytes) !== mime)
+      throw new HttpError(400, '仅允许真实 PNG/JPEG/GIF/WebP 图片、受限 SVG 和 PDF');
     const folder = dirname(n.path);
     const rel = folder === '.' ? 'assets' : `${folder}/assets`;
     const directory = safePath(config.knowledgeRoot, rel, 'asset', true);
@@ -130,14 +159,29 @@ export function assetService(config: AppConfig, db: AppDatabase, notes: NoteServ
     }
     if (lstatSync(directory).isSymbolicLink() || !lstatSync(directory).isDirectory())
       throw new HttpError(400, '附件目录不允许');
-    const path = `${rel}/${randomUUID()}${ext}`,
+    const uploadKey = requestId ? (requestId.startsWith('diagram-') ? 'diagram-' : 'upload-') + createHash('sha256').update(id + '\0' + requestId).digest('hex') : randomUUID();
+    const path = `${rel}/${uploadKey}${ext}`,
       target = safePath(config.knowledgeRoot, path, 'asset', true);
+    if (requestId) {
+      for (const candidateExt of Object.keys(allowed)) {
+        const candidate = safePath(config.knowledgeRoot, `${rel}/${uploadKey}${candidateExt}`, 'asset', true);
+        try {
+          const info = lstatSync(candidate);
+          if (candidateExt !== ext || !info.isFile() || info.isSymbolicLink() || info.nlink !== 1 ||
+              !readFileSync(candidate).equals(bytes)) throw new HttpError(409, '同一上传请求的附件内容已变化');
+          return { ...register(path), markdownPath: posix.relative(folder, path) };
+        } catch (cause) {
+          if ((cause as NodeJS.ErrnoException).code !== 'ENOENT') throw cause;
+        }
+      }
+    }
     writeFileSync(target, bytes, { flag: 'wx', mode: 0o600 });
     try {
       const a = register(path);
       return { ...a, markdownPath: posix.relative(folder, path) };
     } catch (e) {
-      unlinkSync(target);
+      // Stable upload IDs are retry receipts: keep immutable partial files for the same request.
+      if (!requestId) unlinkSync(target);
       throw e;
     }
   }

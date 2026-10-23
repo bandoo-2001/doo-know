@@ -52,7 +52,7 @@ test('段落菜单支持键盘浏览、保留选区、关闭与撤销', async ({
   await page.keyboard.press('Enter');
   await expect(list).toBeVisible();
   await page.keyboard.press('End');
-  await expect(list.getByRole('option', { name: '标题 5', exact: true })).toBeFocused();
+  await expect(list.getByRole('option', { name: '标题 6', exact: true })).toBeFocused();
   await page.keyboard.press('Home');
   await expect(list.getByRole('option', { name: '正文', exact: true })).toBeFocused();
   await page.keyboard.press('ArrowDown');

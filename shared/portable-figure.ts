@@ -18,9 +18,12 @@ function relativeDestination(path: string) {
   }).join('/');
 }
 
+export function renderPortableImage(altText: string, path: string): string {
+  const alt = altText.replace(/[\r\n]/g, ' ').replace(/[\\\[\]]/g, '\\$&');
+  return `![${alt}](${relativeDestination(path)})`;
+}
 export function renderPortableFigure(input: PortableFigure): string {
-  const alt = input.alt.replace(/[\r\n]/g, ' ').replace(/[\\\[\]]/g, '\\$&');
-  const image = `![${alt}](${relativeDestination(input.previewPath)})`;
+  const image = renderPortableImage(input.alt, input.previewPath);
   if (input.source.type === 'file')
     return `${image}\n\n[图形源文件](${relativeDestination(input.source.path)})\n`;
   if (!input.source.code || !['svg', 'mermaid'].includes(input.source.language)) throw Error('图形源码为空或类型不支持');

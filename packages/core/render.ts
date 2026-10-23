@@ -1,4 +1,5 @@
 import {markdownTasks} from '../../shared/markdown-tasks.js';
+import {knowledgeMarkdown} from '../../shared/knowledge-markdown.js';
 import {diagramFences} from '../../shared/diagram-fences.js';
 import {whiteboardReference} from '../../shared/whiteboard.js';
 import MarkdownIt from 'markdown-it';
@@ -7,7 +8,7 @@ import { dirname, posix } from 'node:path';
 import { markdownStyles } from '../../shared/markdown-styles.js';
 export const markdown = new MarkdownIt({ html: false, linkify: true, breaks: false }).use(
   markdownStyles,
-).use(markdownTasks).use(diagramFences);
+).use(markdownTasks).use(knowledgeMarkdown).use(diagramFences);
 export function renderMarkdownReferences(content: string): string[] {
   return markdown.parse(content, {}).filter(t => t.type === 'fence' && t.info.trim() === 'excalidraw')
     .map(t => whiteboardReference(t.content)).filter((id): id is string => !!id);
@@ -101,12 +102,13 @@ export function renderMarkdown(
   const html = sanitizeHtml(markdown.renderer.render(tokens, markdown.options, {}), {
     allowedTags: [...sanitizeHtml.defaults.allowedTags, 'img'],
     allowedAttributes: {
-      a: ['href', 'rel', 'target'],
+      a: ['href', 'rel', 'target', 'id', 'class'],
       img: ['src', 'alt', 'title'],
       td: ['style'],
       th: ['style'],
-      div: ['style', 'data-diagram', 'data-code'],
-      span: ['style'],
+      div: ['style', 'class', 'data-diagram', 'data-code', 'data-math-source', 'data-math-display', 'data-source-line', 'data-preview-code-hash', 'data-preview-source-hash'],
+      span: ['style', 'class', 'data-math-source', 'data-math-display'],
+      sup: ['class'], ol: ['class'], li: ['class', 'id'], section: ['class'], p: ['class'], hr: ['class'],
       h1: ['id'],
       h2: ['id'],
       h3: ['id'],

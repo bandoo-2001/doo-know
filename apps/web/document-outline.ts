@@ -9,10 +9,10 @@ export interface OutlineNode extends OutlineHeading {
   children: OutlineNode[];
 }
 
-export function outlineFromTokens(tokens: Token[]): OutlineHeading[] {
+export function outlineFromTokens(tokens: Token[], ignoreBeforeLine = 0): OutlineHeading[] {
   return tokens.flatMap((token, index) => {
     const level = Number(token.tag.slice(1));
-    if (token.type !== 'heading_open' || !token.map || level < 1 || level > 5) return [];
+    if (token.type !== 'heading_open' || !token.map || token.map[0] < ignoreBeforeLine || level < 1 || level > 6) return [];
     const inline = tokens[index + 1];
     const title = inline?.children
       ?.map((child) =>

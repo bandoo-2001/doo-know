@@ -1,10 +1,19 @@
 <script setup lang="ts">
 import '../whiteboards/whiteboards.css';
 import {diagramFences} from '../../../shared/diagram-fences';
+import {createEditorSnippet, type EditorSnippet} from '../../../shared/editor-snippets';
+import {findDiagramRange,withDiagramPreview} from '../editor/diagram-edits';
+import {hashDiagramCode,stripDiagramPreviews,type DiagramSaveNeed} from '../../../shared/diagram-portability';
+import {renderPortableFigure} from '../../../shared/portable-figure';
+import {frontmatterRange} from '../../../shared/frontmatter-range';
+import {collectCurrentDiagramSaveNeeds} from '../diagrams/save-policy';
+import {createUploadQueue, type UploadItem} from '../editor/upload-queue';
+import type {EditorSnapshot} from '../editor/contracts';
 import {isWhiteboard,emptyWhiteboard,whiteboardFence,whiteboardId} from '../../../shared/whiteboard';
 import {syncDiagrams,clearDiagrams} from '../whiteboards/diagrams';
 import { deferImageSource } from '../image-requests';
 import {markdownTasks} from '../../../shared/markdown-tasks';
+import {knowledgeMarkdown} from '../../../shared/knowledge-markdown';
 
 import { defineAsyncComponent, ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
 import { NInput, NModal, NAlert } from 'naive-ui';
@@ -77,11 +86,110 @@ import type {
   SearchOutput,
   MoveNoteResult,
 } from '../../../shared/knowledge-contracts';
+const DocumentProperties=defineAsyncComponent(()=>import('./DocumentProperties.vue'));
+const EditorInsertMenu=defineAsyncComponent(()=>import('./EditorInsertMenu.vue'));
+const MarkdownPaste=defineAsyncComponent(()=>import('./MarkdownPaste.vue'));
+const NoteBacklinks=defineAsyncComponent(()=>import('./NoteBacklinks.vue'));
+const DiagramSaveDialog=defineAsyncComponent(()=>import('./DiagramSaveDialog.vue'));
+const diagramSaveContext=ref<{id:string;epoch:number;markdown:string;needs:DiagramSaveNeed[]}>();
+const diagramSaveBusy=ref(false),diagramSaveError=ref('');
+const backlinksOpen=ref(false);
+async function openBacklink(id:string){backlinksOpen.value=false;await run(()=>openNote(id));}
+async function finishDiagramSave(generate:boolean){
+  const target=diagramSaveContext.value;
+  if(!target||diagramSaveBusy.value)return;
+  const isCurrent=()=>currentView(target.id,target.epoch)&&draft.value===target.markdown;
+  if(!isCurrent()){diagramSaveContext.value=undefined;tell('正文已变化，请重新保存');return;}
+  diagramSaveBusy.value=true;diagramSaveError.value='';
+  try{
+    let markdown=target.markdown;
+    if(generate){
+      const {prepareDiagramSource}=await import('../diagrams/prepare-source');
+      const {persistDiagramPreview}=await import('../diagrams/persist-preview');
+      if(target.needs.length>32)throw Error('本次图形较多，请分批生成通用预览，也可以仅保存源码');
+      for(const need of [...target.needs].sort((a,b)=>b.from-a.from)){
+        const prepared=await prepareDiagramSource({kind:need.kind,code:need.code,noteId:target.id});
+        if(!isCurrent())throw Error('正文已变化，已准备的附件保留，请重新确认保存');
+        const result=await persistDiagramPreview({noteId:target.id,notePath:note.value?.relativePath,kind:need.kind,source:prepared.source,png:prepared.png});
+        if(!isCurrent())throw Error('笔记已变化，请重新确认保存');
+        markdown=withDiagramPreview(markdown,need,result.preview.markdownPath,result.source?.markdownPath,{kind:need.kind,codeHash:need.codeHash,sourceHash:result.sourceHash});
+      }
+      if((await collectCurrentDiagramSaveNeeds(markdown,markdown,target.id)).length)throw Error('白板设计在生成预览时已变化，请重新生成');
+      if(!isCurrent())throw Error('正文已变化，请重新确认保存');
+      const attachments=await api(`/api/notes/${target.id}/assets`);
+      if(!isCurrent())throw Error('正文已变化，请重新确认保存');
+      assets.value=attachments;
+    }else markdown=stripDiagramPreviews(markdown,target.needs);
+    if(!isCurrent()||!editorRef.value?.replaceMarkdown(markdown,target.markdown))throw Error('正文已变化，请重新确认保存');
+    diagramSaveContext.value=undefined;
+    await save(undefined,markdown);
+    if(!dirty.value&&leaveOpen.value&&pendingNavigation)await leave('save');
+  }catch(cause){
+    if(currentView(target.id,target.epoch))diagramSaveError.value=cause instanceof Error?cause.message:String(cause);
+  }finally{diagramSaveBusy.value=false;}
+}
 const WhiteboardWorkspace=defineAsyncComponent(()=>import('./WhiteboardWorkspace.vue'));
 const embeddedBoardRef=ref<InstanceType<typeof WhiteboardWorkspace>>();
 const boardRef=ref<InstanceType<typeof WhiteboardWorkspace>>(), boardDirty=ref(false), embeddedBoardId=ref<string>(),
   boardPickerOpen=ref(false),boardCreating=ref(false);
 let boardInsertTarget:{id:string;epoch:number;content:string;selection:SelectionBookmark}|undefined;
+const propertiesOpen=ref(false),insertMenuOpen=ref(false),markdownPasteOpen=ref(false),readingExportBusy=ref(false);
+let editorDialogSnapshot:{id:string;epoch:number;snapshot:EditorSnapshot}|undefined;
+const propertiesSource=ref('');
+async function captureEditorDialog() {
+  if(!note.value||formatDisabled.value)return false;
+  const id=note.value.id,epoch=viewEpoch,snapshot=await editorRef.value?.flush();
+  if(!snapshot||!currentView(id,epoch))return false;
+  editorDialogSnapshot={id,epoch,snapshot};propertiesSource.value=snapshot.markdown;return true;
+}
+async function openProperties(){try{if(await captureEditorDialog())propertiesOpen.value=true;}catch(cause){showError(cause);}}
+async function openInsertMenu(){try{if(await captureEditorDialog())insertMenuOpen.value=true;}catch(cause){showError(cause);}}
+async function openMarkdownPaste(){try{if(await captureEditorDialog())markdownPasteOpen.value=true;}catch(cause){showError(cause);}}
+function pasteMarkdown(markdown:string){
+  const target=editorDialogSnapshot;
+  if(!target||!currentView(target.id,target.epoch)||!editorRef.value?.pasteMarkdown(markdown,target.snapshot.markdown,target.snapshot.selection)){
+    tell('正文已变化，请重新选择粘贴位置');return;
+  }
+  markdownPasteOpen.value=false;
+}
+function applyProperties(markdown:string){
+  const target=editorDialogSnapshot;
+  if(!target||!currentView(target.id,target.epoch)||!editorRef.value?.replaceMarkdown(markdown,target.snapshot.markdown)){
+    tell('正文已变化，请重新打开属性后修改');return;
+  }
+  propertiesOpen.value=false;tell('属性已应用，请手动保存笔记');
+}
+function insertSnippet(item:EditorSnippet){
+  const target=editorDialogSnapshot;
+  if(!target||!currentView(target.id,target.epoch)){tell('笔记已切换，请重新选择插入位置');return;}
+  const snippet=createEditorSnippet(item.id,target.snapshot.markdown);
+  if(!editorRef.value?.insertSourceSnippet(snippet.markdown,target.snapshot.markdown,target.snapshot.selection)){
+    tell('正文已变化，请重新选择插入位置');return;
+  }
+  insertMenuOpen.value=false;
+}
+async function exportReading(print=false){
+  if(!note.value||readingExportBusy.value)return;
+  const printWindow=print?window.open('','_blank'):null;
+  const id=note.value.id,epoch=viewEpoch,title=note.value.title,relativePath=note.value.relativePath;
+  readingExportBusy.value=true;
+  try{
+    const snapshot=await editorRef.value?.flush();
+    let markdown=snapshot?.markdown??draft.value;
+    if(!currentView(id,epoch)){printWindow?.close();return;}
+    const resolverAssets=[...assets.value];
+    const stale=await collectCurrentDiagramSaveNeeds(markdown,markdown,id);
+    markdown=stripDiagramPreviews(markdown,stale);
+    const {buildReadingHtml,downloadReadingHtml,printReadingHtml}=await import('../reading-export');
+    const html=await buildReadingHtml({title,markdown,unavailablePreviews:stale.length,resolveImage:async(source)=>{
+      const path=localPath(source,relativePath),asset=resolverAssets.find(a=>a.relativePath===path);
+      if(!asset||!/^image\//.test(asset.mime||''))return undefined;
+      const response=await fetch('/api/assets/'+asset.id,{credentials:'same-origin',redirect:'error',signal:AbortSignal.timeout(15000)});
+      if(!response.ok)throw Error('附件暂时无法导出，请重试');return response.blob();
+    }});
+    if(print)await printReadingHtml(html,printWindow);else downloadReadingHtml(html,title);
+  }catch(cause){printWindow?.close();showError(cause);}finally{readingExportBusy.value=false;}
+}
 const LargeFileWorkspace=defineAsyncComponent(()=>import('./LargeFileWorkspace.vue'));
 const noteInfo = ref<NoteInfo>(),
   largeRef = ref<InstanceType<typeof LargeFileWorkspace>>(),
@@ -324,6 +432,7 @@ watch(
   () => {
     collapsedOutline.value = [];
     outlineOpen.value = false;
+    propertiesOpen.value=false;insertMenuOpen.value=false;markdownPasteOpen.value=false;backlinksOpen.value=false;diagramSaveContext.value=undefined;editorDialogSnapshot=undefined;
   },
 );
 const query = ref(''),
@@ -514,7 +623,7 @@ function workspaceChanged(event: Event) {
     }
   });
 }
-const md = new MarkdownIt({ html: false, linkify: true }).use(markdownStyles).use(markdownTasks).use(previewSource).use(diagramFences);
+const md = new MarkdownIt({ html: false, linkify: true }).use(markdownStyles).use(markdownTasks).use(knowledgeMarkdown).use(previewSource).use(diagramFences);
 const flatten = (items: TreeEntry[]): TreeEntry[] =>
   items.flatMap((x) => [x, ...(x.children ? flatten(x.children) : [])]);
 const flat = computed(() => flatten(tree.value));
@@ -526,9 +635,8 @@ const folderEntries = computed(() => {
   if (!folder.value) return [];
   return flat.value.find((x) => x.path === folder.value)?.children || [];
 });
-function localPath(url: string) {
+function localPath(url: string, base = note.value?.relativePath || '') {
   try {
-    const base = note.value?.relativePath || '';
     const target = new URL(url, `https://notes.invalid/${base}`).pathname;
     return decodeURIComponent(target.slice(1));
   } catch {
@@ -561,7 +669,7 @@ const preview = computed(() => {
   visit(tokens);
   return DOMPurify.sanitize(md.renderer.render(tokens, md.options, {}));
 });
-watch([preview,mode,previewRef],async()=>{await nextTick();if(previewRef.value)syncDiagrams(previewRef.value,{noteId:note.value?.id});},{flush:'post'});
+watch([preview,mode,previewRef],async()=>{await nextTick();if(previewRef.value)syncDiagrams(previewRef.value,{noteId:note.value?.id,editable:mode.value!=='preview'});},{flush:'post'});
 function onBoardSaved(document:NoteDocument){
   if(note.value?.id!==document.id)return;
   note.value=document;draft.value=document.content;savedContent.value=document.content;
@@ -613,6 +721,59 @@ async function openDiagramEvent(event:Event){
       notice.value='';
     }else if(typeof detail?.id==='string'&&whiteboardId(detail.id))embeddedBoardId.value=detail.id;
   }catch(cause){showError(cause);}finally{boardCreating.value=false;}
+}
+const portableBusy=ref(false);
+type PortableDiagramEvent={kind:'svg'|'mermaid'|'excalidraw';code:string;noteId?:string;boardId?:string;sourceId?:string;sourceLine?:number;sourceContent?:string;png:Blob};
+async function portableDiagram(event:Event){
+  const detail=(event as CustomEvent<PortableDiagramEvent>).detail;
+  if(!detail||!['svg','mermaid','excalidraw'].includes(detail.kind)||!(detail.png instanceof Blob)||!note.value||
+    isWhiteboard(note.value.relativePath)||formatDisabled.value||portableBusy.value||detail.noteId&&detail.noteId!==note.value.id)return;
+  const id=note.value.id,epoch=viewEpoch;portableBusy.value=true;
+  try{
+    const snapshot=await editorRef.value?.flush();
+    if(!snapshot||!currentView(id,epoch))return;
+    const range=findDiagramRange(snapshot.markdown,{kind:detail.kind,code:detail.code,line:detail.sourceLine,
+      range:detail.sourceId?editorRef.value?.diagramRange(detail.sourceId):undefined});
+    const source=detail.kind==='excalidraw'?detail.sourceContent:detail.code;
+    if(!source)throw Error('图形源文件尚未读取，请重试');
+    const {persistDiagramPreview}=await import('../diagrams/persist-preview');
+    const result=await persistDiagramPreview({noteId:id,notePath:note.value?.relativePath,kind:detail.kind,source,png:detail.png});
+    if(!currentView(id,epoch))return;
+    const current=await editorRef.value?.flush();
+    if(!current||current.markdown!==snapshot.markdown){tell('图形附件已准备，正文已变化，请重新生成以确认位置');return;}
+    const attachments=await api(`/api/notes/${id}/assets`);
+    if(!currentView(id,epoch))return;
+    assets.value=attachments;
+    const next=withDiagramPreview(snapshot.markdown,range,result.preview.markdownPath,result.source?.markdownPath,{kind:detail.kind,codeHash:await hashDiagramCode(detail.code),sourceHash:result.sourceHash});
+    if((await collectCurrentDiagramSaveNeeds(next,next,id)).some(need=>need.kind==='excalidraw'))throw Error('白板设计已变化，请重新生成通用预览');
+    if(!currentView(id,epoch)||!editorRef.value?.replaceMarkdown(next,snapshot.markdown))throw Error('正文已变化，请重新确认图形位置');
+    tell('通用预览已插入，请手动保存笔记');
+  }catch(cause){showError(cause);}finally{portableBusy.value=false;}
+}
+async function editDiagramSource(event:Event){
+  const detail=(event as CustomEvent<PortableDiagramEvent>).detail;
+  if(!note.value||detail.noteId&&detail.noteId!==note.value.id||formatDisabled.value)return;
+  const id=note.value.id,epoch=viewEpoch;
+  try{
+    const snapshot=await editorRef.value?.flush();if(!snapshot||!currentView(id,epoch))return;
+    const range=findDiagramRange(snapshot.markdown,{kind:detail.kind,code:detail.code,line:detail.sourceLine,
+      range:detail.sourceId?editorRef.value?.diagramRange(detail.sourceId):undefined});
+    await switchEditing('source',range.from);
+  }catch(cause){showError(cause);}
+}
+async function portableWhiteboard(event:Event){
+  const detail=(event as CustomEvent<{boardId:string;png:Blob;content:string}>).detail;
+  if(!note.value||note.value.id!==detail?.boardId||!isWhiteboard(note.value.relativePath)||portableBusy.value)return;
+  const board=note.value;portableBusy.value=true;
+  try{
+    const {persistDiagramPreview}=await import('../diagrams/persist-preview');
+    const result=await persistDiagramPreview({noteId:board.id,notePath:board.relativePath,kind:'excalidraw',source:detail.content,png:detail.png});
+    if(!result.source)throw Error('白板源快照尚未准备好');
+    const markdown=renderPortableFigure({alt:board.title,previewPath:result.preview.markdownPath,source:{type:'file',path:result.source.markdownPath}});
+    const parent=board.relativePath.split('/').slice(0,-1).join('/'),stem=board.title.replace(/[\\/:*?"<>|\u0000-\u001f]/g,' ').trim().slice(0,45)||'白板';
+    await api('/api/notes','POST',{folderPath:parent,fileName:stem+'-预览-'+result.sourceHash.slice(0,8)+'-'+result.preview.id.slice(0,6)+'.md',content:markdown,requestId:'portable-'+board.id+'-'+result.preview.id});
+    await refresh();tell('Markdown 预览笔记已创建，原白板保存状态保持原样');
+  }catch(cause){showError(cause);}finally{portableBusy.value=false;}
 }
 function tell(s: string) {
   notice.value = s;
@@ -935,7 +1096,7 @@ async function save(
   revisionId?: string,
   retry?: NonNullable<typeof pendingSave.value>,
 ) {
-  if (!note.value || (busy.value && !retry) || props.serviceUnavailable) return;
+  if (!note.value || (busy.value && !retry) || (!retry&&content===undefined&&diagramSaveBusy.value) || props.serviceUnavailable) return;
   if (isWhiteboard(note.value.relativePath) && !revisionId) { await boardRef.value?.save(); return; }
   if(!retry && content === undefined && noteInfo.value?.editorMode === 'full'){const targetId=note.value.id;try{await editorRef.value?.flush();}catch(cause){showError(cause);return;}if(note.value?.id!==targetId || (busy.value && !retry))return;}
   if (
@@ -962,6 +1123,14 @@ async function save(
       (outcome !== 'failed' && !(outcome === 'succeeded' && pendingNoteId !== targetId))
     )
       return;
+  }
+  if(!retry&&!revisionId&&content===undefined){
+    const id=note.value.id,epoch=viewEpoch,markdown=draft.value;
+    try{
+      const needs=await collectCurrentDiagramSaveNeeds(markdown,savedContent.value,id);
+      if(!currentView(id,epoch)||draft.value!==markdown)return;
+      if(needs.length){diagramSaveError.value='';diagramSaveContext.value={id,epoch,markdown,needs};return;}
+    }catch(cause){showError(cause);return;}
   }
   busy.value = true;
   error.value = '';
@@ -1633,7 +1802,9 @@ async function downloadNote(
 }
 const normalOutline = computed(() => {
   if (!note.value || noteInfo.value?.editorMode !== 'full') return [];
-  return outlineFromTokens(md.parse(draft.value, {}));
+  const front=frontmatterRange(draft.value);
+  const metadataLines=front?draft.value.slice(0,front.end).split('\n').length-1:0;
+  return outlineFromTokens(md.parse(draft.value, {}),metadataLines);
 });
 const articleLine = ref(1);
 const activeHeading = computed(() => {
@@ -1713,6 +1884,7 @@ type UploadRequest = {
   generation: number;
   target?: AssetTarget;
   replacement?: ImageReplacementTarget;
+  requestId?: string;
 };
 type PendingAsset = { noteId: string; markdown: string; name: string };
 let uploadRequest: UploadRequest | undefined;
@@ -1733,10 +1905,11 @@ async function prepareUpload(replacement?: ImageReplacementTarget) {
       replacement: replacement ? { ...replacement } : undefined,
     };
     // Keep file filtering in sync before opening the native picker.
+    if (uploadInput.value) uploadInput.value.multiple = !replacement;
     if (uploadInput.value)
       uploadInput.value.accept = replacement
-        ? 'image/png,image/jpeg,image/gif,image/webp'
-        : 'image/png,image/jpeg,image/gif,image/webp,application/pdf';
+        ? 'image/png,image/jpeg,image/gif,image/webp,image/svg+xml'
+        : 'image/png,image/jpeg,image/gif,image/webp,image/svg+xml,application/pdf';
     uploadInput.value?.click();
   } catch (cause) {
     showError(cause);
@@ -1766,7 +1939,8 @@ async function upload(event: Event) {
   uploadRequest = undefined;
   try {
     if (!request) { tell('插入位置已变化，请重新选择附件'); return; }
-    await uploadFile(file, request);
+    const files=Array.from(input.files||[]);
+    if(files.length>1&&!request.replacement)await uploadFiles(files,request);else await uploadFile(file, request);
   } finally {
     input.value = '';
   }
@@ -1789,6 +1963,54 @@ async function uploadPastedFile(file: File) {
     showError(cause);
   }
 }
+type QueuedAttachment={file:File;request:UploadRequest;inserted:boolean};
+type UploadedAttachment={id:string;markdownPath:string;mime:string;relativePath:string;markdown:string};
+const batchTick=ref(0);
+let batchContext:UploadRequest|undefined;
+const uploadQueue=createUploadQueue<QueuedAttachment,UploadedAttachment>(async(item)=>{
+  const data=new FormData();data.append('file',item.data.file);
+  const asset=await api(`/api/notes/${item.data.request.noteId}/assets`,'POST',data,{uploadRequestId:item.requestId});
+  const label=item.data.file.name.replace(/[\\[\]]/g,'\\$&');
+  return {...asset,markdown:`${/^image\//.test(asset.mime)?'![':'['}${label}](${asset.markdownPath})`};
+},()=>{batchTick.value++;});
+const batchItems=computed(()=>{batchTick.value;return [...uploadQueue.items];});
+async function runUploadQueue(){
+  uploadBusy.value=true;
+  try{await uploadQueue.run();if(uploadQueue.items.every(item=>['succeeded','cancelled'].includes(item.state)))await insertBatch(false);}
+  finally{uploadBusy.value=false;uploadName.value='';}
+}
+async function uploadFiles(files:File[],request?:UploadRequest){
+  if(!files.length||uploadBusy.value||uploadPreparing.value||!note.value)return;
+  if(files.length===1&&!request){await uploadPastedFile(files[0]);return;}
+  try{
+    if(batchItems.value.some(item=>!item.data.inserted&&item.state!=='cancelled')){tell('请先处理上一批附件，再添加新附件');return;}
+    const id=note.value.id,epoch=viewEpoch,snapshot=await editorRef.value?.flush();
+    if(!snapshot||!currentView(id,epoch))return;
+    batchContext=request||{noteId:id,generation:epoch,target:captureAssetTarget(snapshot)};
+    uploadQueue.items.splice(0);
+    uploadQueue.add(files.map(file=>({file,request:batchContext!,inserted:false})));
+    uploadName.value=files.map(file=>file.name).join('、');
+    await runUploadQueue();
+  }catch(cause){showError(cause);}
+}
+async function insertBatch(explicit=true){
+  const context=batchContext;
+  const completed=uploadQueue.items.filter(item=>item.state==='succeeded'&&!item.data.inserted);
+  if(!context||!completed.length||note.value?.id!==context.noteId)return;
+  const id=note.value.id,epoch=viewEpoch;
+  const attachments=await api(`/api/notes/${id}/assets`);
+  if(!currentView(id,epoch))return;
+  const current=await editorRef.value?.flush();
+  if(!current||!currentView(id,epoch))return;
+  assets.value=attachments;
+  const target=explicit?current.selection:context.target&&resolveAssetTarget(context.target,current);
+  if(!target){tell('附件已上传，请选择位置后插入');return;}
+  if(!editorRef.value?.insertAsset(completed.map(item=>item.result!.markdown).join('\n\n'),target))return;
+  completed.forEach(item=>item.data.inserted=true);batchTick.value++;
+  tell('附件已插入，请手动保存笔记');
+}
+async function retryBatch(item:UploadItem<QueuedAttachment,UploadedAttachment>){uploadQueue.retry(item.id);await runUploadQueue();}
+function dismissBatch(){uploadQueue.items.forEach(item=>uploadQueue.cancel(item.id));if(!uploadBusy.value){uploadQueue.items.splice(0);batchTick.value++;}}
 async function retryUpload() {
   const failure = uploadFailure.value;
   if (!failure || uploadBusy.value) return;
@@ -1816,9 +2038,9 @@ async function uploadFile(file: File, request: UploadRequest) {
   try {
     const data = new FormData();
     data.append('file', file);
-    const asset = await api(`/api/notes/${id}/assets`, 'POST', data);
+    const asset = await api(`/api/notes/${id}/assets`, 'POST', data, {uploadRequestId:request.requestId ||= crypto.randomUUID()});
     const label = file.name.replace(/[\\[\]]/g, '\\$&');
-    const markdown = `${asset.mime === 'application/pdf' ? '[' : '!['}${label}](${asset.markdownPath})`;
+    const markdown = `${/^image\//.test(asset.mime) ? '![' : '['}${label}](${asset.markdownPath})`;
     uploaded = { noteId: id, markdown, name: file.name };
     const attachments = await api(`/api/notes/${id}/assets`);
     if (!currentView(id, epoch)) {
@@ -1840,7 +2062,7 @@ async function uploadFile(file: File, request: UploadRequest) {
       return;
     }
     if (request.replacement) {
-      if (!['image/png', 'image/jpeg', 'image/gif', 'image/webp'].includes(asset.mime)) {
+      if (!['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/svg+xml'].includes(asset.mime)) {
         pendingAsset.value = uploaded;
         tell('所选附件不是受支持的图片，原图片已保留，可选择位置后插入附件链接');
         return;
@@ -2046,6 +2268,9 @@ onMounted(() => {
     }
   });
   window.addEventListener('dooknow-open-whiteboard', openDiagramEvent);
+  window.addEventListener('dooknow-portable-diagram', portableDiagram);
+  window.addEventListener('dooknow-edit-diagram-source', editDiagramSource);
+  window.addEventListener('dooknow-portable-whiteboard', portableWhiteboard);
   window.addEventListener('dooknow-git-return-save', returnGitSave);
   window.addEventListener('keydown', shortcut);
   window.addEventListener('beforeunload', unload);
@@ -2054,6 +2279,7 @@ onBeforeUnmount(() => {
   documentResizeObserver?.disconnect();
   window.removeEventListener('resize', measureDocumentWidth);
   alive = false;
+  uploadQueue.items.forEach(item=>uploadQueue.cancel(item.id));
   navigationIntent++;
   invalidateDraftIdentity();
   treeRefreshEpoch++;
@@ -2072,6 +2298,9 @@ onBeforeUnmount(() => {
   clearTimeout(searchTimer);
   clearTimeout(noticeTimer);
   window.removeEventListener('dooknow-open-whiteboard', openDiagramEvent);
+  window.removeEventListener('dooknow-portable-diagram', portableDiagram);
+  window.removeEventListener('dooknow-edit-diagram-source', editDiagramSource);
+  window.removeEventListener('dooknow-portable-whiteboard', portableWhiteboard);
   if(previewRef.value)clearDiagrams(previewRef.value);
   window.removeEventListener('dooknow-git-return-save', returnGitSave);
   window.removeEventListener('keydown', shortcut);
@@ -2341,6 +2570,11 @@ onBeforeUnmount(() => {
         @dirty-change="gitPanelDirty = $event"
       />
     </SettingsOverlay>
+    <DocumentProperties v-if="propertiesOpen" :markdown="propertiesSource" :read-only="formatDisabled" @apply="applyProperties" @close="propertiesOpen=false" />
+    <MarkdownPaste v-if="markdownPasteOpen" :read-only="formatDisabled" @insert="pasteMarkdown" @close="markdownPasteOpen=false" />
+    <NoteBacklinks v-if="backlinksOpen && note" :note-id="note.id" @open="openBacklink" @close="backlinksOpen=false" />
+    <DiagramSaveDialog v-if="diagramSaveContext" :needs="diagramSaveContext.needs" :busy="diagramSaveBusy" :error="diagramSaveError" @generate="finishDiagramSave(true)" @source-only="finishDiagramSave(false)" @close="diagramSaveContext=undefined" />
+    <EditorInsertMenu v-if="insertMenuOpen" :open="insertMenuOpen" :read-only="formatDisabled" @insert="insertSnippet" @close="insertMenuOpen=false" />
     <SidebarResizer v-model="sidebarWidth" @commit="saveSidebarWidth" />
     <main
       ref="mainRef"
@@ -2371,6 +2605,15 @@ onBeforeUnmount(() => {
       <div v-if="uploadFailure && note?.id === uploadFailure.request.noteId && panel === 'note'" class="asset-upload-status upload-failure" role="alert">
         <span>{{ uploadFailure.file.name }} 上传失败：{{ uploadFailure.message }}</span>
         <AButton size="small" :disabled="uploadBusy" @click="retryUpload">重试上传</AButton>
+      </div>
+      <div v-if="batchItems.length && note?.id===batchContext?.noteId && panel==='note'" class="batch-upload-panel" aria-label="批量附件上传">
+        <div v-for="item in batchItems" :key="item.id" class="batch-upload-item">
+          <span>{{ item.data.file.name }}</span><span>{{ item.data.inserted?'已插入':({queued:'等待上传',uploading:'正在上传',succeeded:'待插入',failed:'上传失败',cancelled:'已取消'})[item.state] }}</span>
+          <span v-if="item.error" role="alert">{{ item.error }}</span>
+          <AButton v-if="item.state==='failed'" size="small" :disabled="uploadBusy" @click="retryBatch(item)">重试此附件</AButton>
+        </div>
+        <AButton v-if="batchItems.some(item=>item.state==='succeeded'&&!item.data.inserted)" size="small" :disabled="uploadBusy" @click="insertBatch(true)">插入已上传附件</AButton>
+        <AButton size="small" :disabled="uploadBusy" @click="dismissBatch">清除上传记录</AButton>
       </div>
       <CollectionWorkspace v-if="panel === 'collection' && collection !== 'notes'" :kind="collection" :feed="collectionFeed" :favorite-busy="favoriteBusy" :menu-path="treeMenuPath" @select="select" @menu="showTreeMenu" @favorite="favoriteCard" @create="createFromCollection" />
       <WhiteboardWorkspace v-if="note && isWhiteboard(note.relativePath)" v-show="panel==='note'" ref="boardRef" :key="note.id" :board-id="note.id" :draft-scope="draftScope" @dirty="boardDirty=$event" @saved="onBoardSaved" @close="select({type:'folder',name:folder,path:folder})"/>
@@ -2504,6 +2747,11 @@ onBeforeUnmount(() => {
                 @download="downloadNote"
                 @history="history()"
                 @upload="prepareUpload"
+              @search="editorRef?.openSearch()"
+              @insert-menu="openInsertMenu"
+              @properties="openProperties"
+              @export-html="exportReading(false)"
+              @print="exportReading(true)"
                 @delete="confirmDelete"
                 ><PluginSlot slot-name="noteAction" :context="pluginContext"
               /></NoteActions>
@@ -2522,6 +2770,13 @@ onBeforeUnmount(() => {
               @insert-table="(rows, columns) => editorRef?.insertTable(rows, columns)"
               @whiteboard="openBoardPicker"
               @upload="prepareUpload"
+              @paste-markdown="openMarkdownPaste"
+              @backlinks="backlinksOpen=true"
+              @search="editorRef?.openSearch()"
+              @insert-menu="openInsertMenu"
+              @properties="openProperties"
+              @export-html="exportReading(false)"
+              @print="exportReading(true)"
             />
             <div class="mode-row">
               <div v-if="documentEditingEnabled" class="mode-tabs">
@@ -2638,6 +2893,8 @@ onBeforeUnmount(() => {
                     :resolve-image="resolveEditorImage"
                     @open-link="openEditorLink"
                     @upload-file="uploadPastedFile"
+                    @upload-files="uploadFiles"
+                    @insert-menu="openInsertMenu"
                     @replace-image="prepareImageReplacement"
                     :generation="viewEpoch"
                     :kind="documentEditingEnabled ? editorKind : 'source'"
@@ -2699,7 +2956,7 @@ onBeforeUnmount(() => {
         <input
           ref="uploadInput"
           type="file"
-          accept="image/png,image/jpeg,image/gif,image/webp,application/pdf"
+          accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml,application/pdf" multiple
           :disabled="uploadBusy"
           hidden
           @change="upload"
