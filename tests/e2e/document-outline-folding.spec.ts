@@ -3,6 +3,8 @@ import { readFile } from 'node:fs/promises';
 import { showSidebar } from '../support/settings-navigation';
 import { expandFolderPath } from '../support/notebook-tree';
 
+test.use({ sourceEditorPreference: true });
+
 const content =
   '# 总览\n\n介绍。\n\n## 第一章\n\n### 重复子节\n\n#### 要点\n\n正文。\n\n## 第二章\n\n### 重复子节\n\n另一段正文。\n\n## 独立末章\n';
 

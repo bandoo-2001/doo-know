@@ -253,6 +253,7 @@ defineExpose({
   execute: format,
   editHistory,
   focus,
+  cancelPendingFocus,
   goToLine,
   selection,
   insertAsset,

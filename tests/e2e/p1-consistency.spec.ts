@@ -3,6 +3,8 @@ import { clickNoteAction } from '../support/note-actions';
 import { showSidebar } from '../support/settings-navigation';
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
+
+test.use({ sourceEditorPreference: true });
 async function open(page: any, context: any, name: string) {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   const csrf = await page.request.get('/api/security/csrf');

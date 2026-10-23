@@ -3,6 +3,8 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { showSidebar } from '../support/settings-navigation';
 
+test.use({ sourceEditorPreference: true });
+
 async function openFixtureNote(page: import('@playwright/test').Page, fileName: string) {
   await page.goto('/');
   await expect(page.locator('.workspace')).toBeVisible();

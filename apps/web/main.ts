@@ -1,6 +1,7 @@
 import { createApp } from 'vue';
 import App from './App.vue';
 import { installAntDesign } from './ant-design';
+import { bindImageRequests } from './image-requests';
 import './style.css';
 import './calm.css';
 import './ant-design.css';
@@ -11,3 +12,5 @@ import './workbench.css';
 const app = createApp(App);
 installAntDesign(app);
 app.mount('#app');
+const root = document.getElementById('app');
+if (root) app.onUnmount(bindImageRequests(root));

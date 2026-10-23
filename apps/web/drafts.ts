@@ -26,13 +26,15 @@ export type DraftStore = {
   clearScope(): Promise<void>;
 };
 export class DraftStorageError extends Error {
-  constructor(public code: 'unavailable' | 'quota' | 'failed' | 'scope-cleared') {
+  constructor(public code: 'unavailable' | 'quota' | 'failed' | 'scope-cleared' | 'conflict') {
     super(
       {
         unavailable: '浏览器无法使用本地草稿存储。请保留当前页面或复制未保存内容。',
         quota: '本地存储空间不足，草稿未写入。请复制未保存内容或手动保存原文。',
         failed: '本地草稿未能保存。请保留当前页面或复制未保存内容。',
         'scope-cleared': '当前账号已退出，本地草稿已停止保存。',
+        conflict:
+          '本地草稿已在其他页面变化，本页未覆盖。请保留当前页面，复制未保存内容或手动保存原文。',
       }[code],
     );
     this.name = 'DraftStorageError';
@@ -180,6 +182,7 @@ function version(): string {
 export function createDraftStore(options: { scope: DraftScope }): DraftStore {
   const scope = { ...options.scope };
   if (!scope.ownerId || !scope.knowledgeId) throw new DraftStorageError('unavailable');
+  const observedVersions = new Map<string, string | undefined>();
   const generation = ownerGenerations.get(scope.ownerId) ?? 0;
   // Start capturing the durable owner epoch when the store is created, before
   // any later debounce callback can run. A handled result avoids an unhandled
@@ -198,9 +201,14 @@ export function createDraftStore(options: { scope: DraftScope }): DraftStore {
   const key = (noteId: string) => [scope.ownerId, scope.knowledgeId, noteId];
   return {
     async load(noteId) {
-      return transaction<DraftRecord | undefined>('readonly', (store, value) => {
+      const record = await transaction<DraftRecord | undefined>('readonly', (store, value) => {
         store.get(key(noteId)).onsuccess = (event) => value((event.target as IDBRequest).result);
       });
+      observedVersions.set(
+        noteId,
+        typeof record?.version === 'string' && record.version ? record.version : undefined,
+      );
+      return record;
     },
     async put(input) {
       guard();
@@ -212,9 +220,11 @@ export function createDraftStore(options: { scope: DraftScope }): DraftStore {
         version: version(),
         updatedAt: Date.now(),
       });
+      // A later load must not grant ownership to this already queued write.
+      const expectedVersion = observedVersions.get(record.noteId);
       const expected = await durableGeneration;
       if ('error' in expected) throw expected.error;
-      return transaction<DraftRecord>(
+      const saved = await transaction<DraftRecord>(
         'readwrite',
         (store, value, tx, abort) => {
           const read = tx.objectStore('owners').get(scope.ownerId);
@@ -223,19 +233,32 @@ export function createDraftStore(options: { scope: DraftScope }): DraftStore {
               abort(new DraftStorageError('scope-cleared'));
               return;
             }
-            try {
-              store.put(record);
-              value(record);
-            } catch (cause) {
-              abort(cause);
-            }
+            const current = store.get(key(record.noteId));
+            current.onsuccess = () => {
+              if (
+                expectedVersion === undefined
+                  ? current.result !== undefined
+                  : current.result?.version !== expectedVersion
+              ) {
+                abort(new DraftStorageError('conflict'));
+                return;
+              }
+              try {
+                store.put(record);
+                value(record);
+              } catch (cause) {
+                abort(cause);
+              }
+            };
           };
         },
         guard,
       );
+      observedVersions.set(record.noteId, saved.version);
+      return saved;
     },
     async remove(noteId, expectedVersion) {
-      return transaction<boolean>('readwrite', (store, value) => {
+      const removed = await transaction<boolean>('readwrite', (store, value) => {
         const request = store.get(key(noteId));
         request.onsuccess = () => {
           if (!expectedVersion || request.result?.version !== expectedVersion) {
@@ -246,6 +269,8 @@ export function createDraftStore(options: { scope: DraftScope }): DraftStore {
           value(true);
         };
       });
+      if (removed) observedVersions.set(noteId, undefined);
+      return removed;
     },
     async clearScope() {
       await transaction<void>('readwrite', (store, value) => {
@@ -259,6 +284,7 @@ export function createDraftStore(options: { scope: DraftScope }): DraftStore {
           } else value();
         };
       });
+      observedVersions.clear();
     },
   };
 }

@@ -2,6 +2,8 @@ import { clickNoteAction } from '../support/note-actions';
 import { test, expect } from '../support/browser-test';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+
+test.use({ sourceEditorPreference: true });
 test('resends an undelivered patch with its original ID and immutable payload', async ({
   page,
   context,

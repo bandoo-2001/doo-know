@@ -1,6 +1,8 @@
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
 
+test.use({ sourceEditorPreference: true });
+
 const content =
   '# 总览\n\n介绍。\n\n## 第一章\n\n正文。\n\n### 第一节\n\n细节。\n\n#### 子主题\n\n更多细节。\n\n##### 要点\n\n内容。\n\n###### 六级标题\n\n```md\n## 代码里的假标题\n```\n\n## 第二章\n\n' +
   '阅读段落。\n\n'.repeat(80) +

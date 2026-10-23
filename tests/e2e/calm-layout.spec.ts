@@ -1,5 +1,8 @@
+import { showSplit } from '../support/editor-navigation';
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
+
+test.use({ sourceEditorPreference: true });
 
 test('opens in focused editing and keeps a long document path and actions usable on narrow screens', async ({
   page,
@@ -48,7 +51,7 @@ test('opens in focused editing and keeps a long document path and actions usable
   await page.keyboard.press('ControlOrMeta+s');
   await expect(page.locator('.save-state')).toContainText('已保存');
   expect((await (await page.request.get('/api/notes/' + note.id)).json()).content).toBe(content);
-  await page.getByRole('button', { name: '分屏', exact: true }).click();
+  await showSplit(page);
   await expect(page.locator('.cm-content')).toBeVisible();
   await expect(page.locator('.preview-panel')).toContainText('只有显式保存才写入原文。');
 });

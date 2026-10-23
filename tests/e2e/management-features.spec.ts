@@ -12,6 +12,8 @@ import type {
   ManagementTrashRestoreInput,
 } from '../../shared/management-contracts';
 
+test.use({ sourceEditorPreference: true });
+
 const origin = 'http://127.0.0.1:4179';
 test.setTimeout(150_000);
 test.use({ actionTimeout: 10_000 });

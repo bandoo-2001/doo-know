@@ -1,8 +1,11 @@
+import { showRead, showSplit } from '../support/editor-navigation';
 import { showSidebar, returnToNotes } from '../support/settings-navigation';
 import { expandFolderPath } from '../support/notebook-tree';
 import { test, expect } from '../support/browser-test';
 import { readFile, writeFile, rm } from 'node:fs/promises';
 import { join } from 'node:path';
+
+test.use({ sourceEditorPreference: true });
 
 test('keeps navigation reachable and content scrolling inside the window with a long directory', async ({
   page,
@@ -98,7 +101,7 @@ test('keeps navigation reachable and content scrolling inside the window with a 
       });
       expect(await scroller.evaluate((el) => el.scrollTop)).toBeGreaterThan(0);
       await inWindow('.editor-panels');
-      await page.getByRole('button', { name: '预览', exact: true }).click();
+      await showRead(page);
       await inWindow('.preview-panel');
       expect(
         await page.locator('.markdown').evaluate((el) => el.scrollHeight > el.clientHeight),
@@ -109,7 +112,7 @@ test('keeps navigation reachable and content scrolling inside the window with a 
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
         true,
       );
-      await page.getByRole('button', { name: '分屏', exact: true }).click();
+      await showSplit(page);
       await inWindow('.editor-panel');
       await inWindow('.preview-panel');
       expect(await page.locator('.cm-scroller').evaluate((el) => el.clientHeight)).toBeGreaterThan(

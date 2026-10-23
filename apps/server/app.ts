@@ -1,7 +1,7 @@
 import {isWhiteboard,MAX_WHITEBOARD_BYTES,whiteboardId,whiteboardReference} from '../../shared/whiteboard.js';
 import Fastify from 'fastify';
 import { statSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, relative, sep } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import cookie from '@fastify/cookie';
 import csrf from '@fastify/csrf-protection';
@@ -72,6 +72,9 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
         : (target as any)[key],
   });
   app.setErrorHandler((err, req, reply) => {
+    // Direct file-stream errors can retain the file's entity headers.
+    reply.removeHeader('Content-Type').removeHeader('Content-Length');
+    reply.header('Cache-Control', 'no-store');
     if (req.url.startsWith('/api/public/') && !platform.status().components.knowledge)
       return reply.code(404).send({ error: '分享不存在或已不可用' });
     const error = err as Error & { statusCode?: number };
@@ -485,7 +488,18 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     app.get('/s/:token', async (_req, reply) =>
       reply.header('X-Robots-Tag', 'noindex, nofollow').sendFile('index.html'),
     );
-    await app.register(staticPlugin, { root: config.staticRoot, index: false });
+    const staticRoot = config.staticRoot;
+    await app.register(staticPlugin, {
+      root: staticRoot,
+      index: false,
+      setHeaders(reply, filePath) {
+        // Bundle fingerprints change with their content. Unversioned entries
+        // keep revalidating so upgrades remain visible.
+        const file = relative(staticRoot, filePath).split(sep).join('/');
+        if (/^assets\/[^/]+-[A-Za-z0-9_-]{8}\.(?:js|css)$/.test(file))
+          reply.header('Cache-Control', 'public, max-age=31536000, immutable');
+      },
+    });
     app.setNotFoundHandler((req, reply) => {
       if (req.url.startsWith('/api/') || (!req.url.startsWith('/s/') && req.url !== '/'))
         return reply.code(404).send({ error: '页面不存在' });

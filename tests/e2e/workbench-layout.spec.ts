@@ -2,6 +2,8 @@ import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
 import { showSidebar } from '../support/settings-navigation';
 
+test.use({ sourceEditorPreference: true });
+
 test.beforeEach(async ({ page, context }) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   await page.goto('/');

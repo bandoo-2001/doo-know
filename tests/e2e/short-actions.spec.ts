@@ -2,6 +2,8 @@ import { expandFolderPath } from '../support/notebook-tree';
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
 
+test.use({ sourceEditorPreference: true });
+
 test('keeps all note actions reachable in a short window without scrolling the whole page', async ({
   page,
   context,

@@ -50,7 +50,7 @@ wget -qO- 'https://raw.githubusercontent.com/bandoo-2001/doo-know/txj/doo-know-p
 
 | 项目     | 首版支持                                                 |
 | -------- | -------------------------------------------------------- |
-| 系统     | Linux x86_64，glibc ≥ 2.34；验收 Ubuntu 22.04、Debian 12 |
+| 系统     | Linux x86_64，glibc ≥ 2.34，支持 seccomp filter；验收 Ubuntu 22.04、Debian 12 |
 | 运行用户 | 普通用户，默认安装 systemd 用户服务                      |
 | 下载工具 | curl 或 wget                                             |
 | Git 插件 | 另外需要系统 Git ≥ 2.39                                  |
@@ -199,7 +199,7 @@ doo-know/
 
 ## 开发
 
-开发环境需要 Node.js ≥ 22.22.1。使用锁定依赖和独立示例库：
+开发环境需要 Node.js ≥ 22.22.1，以及 Linux x86_64 的 C 编译器和系统头文件。开发启动、测试和构建会在忽略目录编译任务启动程序；正式安装包已携带该程序，安装端无需编译器或 sudo。使用锁定依赖和独立示例库：
 
 ```bash
 npm ci

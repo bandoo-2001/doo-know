@@ -101,36 +101,43 @@ function cancelled(signal?: AbortSignal) {
   if (signal?.aborted) fail(409, 'GIT_COMMAND_CANCELLED');
 }
 function classified(error: string): string {
+  // Remote URLs and porcelain ref columns are identifiers, not failure reasons.
+  const diagnostic = error
+    .replace(/\b(?:https?|ssh):\/\/[^\s"'<>]+|\bgit@[a-z0-9.-]+:[^\s"'<>]+/gi, '[remote]')
+    .replace(/^[ *+=!\-]\t[^\t\r\n]*\t/gm, '[push] ');
   if (
     /REMOTE HOST IDENTIFICATION HAS CHANGED|host key verification failed|offending .* key/i.test(
-      error,
+      diagnostic,
     )
   )
     return 'GIT_HOST_KEY_CHANGED';
   if (
-    /authentication failed|could not read username|terminal prompts disabled|permission denied \(publickey|invalid username or (?:password|token)|could not read password/i.test(
-      error,
+    /authentication failed|could not read username|terminal prompts disabled|permission denied \(publickey|invalid username or (?:password|token)|could not read password|unable to get password from user/i.test(
+      diagnostic,
     )
   )
     return 'GIT_AUTH_FAILED';
   if (
-    /403|permission .*denied|access denied|write access .*not granted|repository not found|does not appear to be a git repository/i.test(
-      error,
+    /returned error:\s*403\b|\bHTTP(?:\/\d+(?:\.\d+)?)?\s+403\b|permission .*denied|access denied|write access .*not granted|key [^\r\n]*marked as read[ -]only|repository not found|does not appear to be a git repository/i.test(
+      diagnostic,
     )
   )
     return 'GIT_PERMISSION_DENIED';
   if (
-    /non-fast-forward|fetch first|\[rejected\]|\[remote rejected\]|pre-receive hook declined|protected branch/i.test(
-      error,
+    /\((?:non-fast-forward|fetch first)\)|\[rejected\]|\[remote rejected\]|pre-receive hook declined|protected branch/i.test(
+      diagnostic,
     )
   )
     return 'GIT_REMOTE_REJECTED';
-  if (/timed out|timeout/i.test(error)) return 'GIT_COMMAND_TIMEOUT';
+  if (/timed out|\b(?:SSL\s+)?(?:connection|operation|request|socket|connect|handshake)\s+timeout\b|\btimeout\s+(?:expired|reached)\b/i.test(diagnostic))
+    return 'GIT_COMMAND_TIMEOUT';
   return 'GIT_NETWORK_FAILED';
 }
 function cleanError(error: unknown, signal?: AbortSignal): never {
   cancelled(signal);
   const code = (error as { code?: string })?.code;
+  if (code === 'PROCESS_CONTAINMENT_UNAVAILABLE')
+    fail(503, code, '后台任务暂时无法启动，请联系部署者检查安装和系统支持。');
   if (
     code &&
     [
@@ -327,7 +334,8 @@ export function gitTransport(
           execution,
         );
         cancelled(opts.signal);
-        if (remote && result.code !== 0) fail(502, classified(result.stderr.toString()));
+        if (remote && result.code !== 0)
+          fail(502, classified(Buffer.concat([result.stderr, result.stdout]).toString()));
         // Successful network stderr may contain remote-controlled text. It is never needed by callers.
         return remote ? { ...result, stderr: Buffer.alloc(0) } : result;
       } catch (error) {

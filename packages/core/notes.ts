@@ -16,7 +16,7 @@ import { join, dirname, basename } from 'node:path';
 import type { AppConfig, NoteDocument, TreeEntry } from '../../shared/contracts.js';
 import type { AppDatabase } from './db.js';
 import { HttpError, text } from './errors.js';
-import { readDocument, safePath, scanFiles, validName } from './files.js';
+import { readDocument, safePath, scanFiles, validName, isMissingSource, sourceErrorCode } from './files.js';
 import { mutationCore, webPrincipal } from './knowledge/core.js';
 import { KnowledgeError } from './knowledge/errors.js';
 import { assertRoot } from './indexing/reconcile.js';
@@ -94,29 +94,36 @@ export function noteService(config: AppConfig, db: AppDatabase) {
         shared: !!db.prepare('SELECT 1 FROM shares WHERE note_id=? AND enabled=1').get(id),
       };
     } catch (e) {
-      if (e instanceof HttpError && e.statusCode === 404) {
-        if (
-          db
-            .prepare(
-              "SELECT 1 FROM write_intents WHERE note_id=? AND kind='move' AND status IN ('prepared','conflicted')",
-            )
-            .get(id)
-        )
-          throw new KnowledgeError(
-            409,
-            'OPERATION_OUTCOME_UNKNOWN',
-            '移动尚未完成，请核对操作状态',
-            true,
-          );
-        if (
-          db
-            .prepare("SELECT 1 FROM sync_runs WHERE status IN ('running','needs_reconciliation')")
-            .get()
-        )
-          throw new KnowledgeError(503, 'SYNC_IN_PROGRESS', '原文同步中', true);
-        db.prepare('UPDATE shares SET enabled=0 WHERE note_id=?').run(id);
-        db.prepare('UPDATE notes SET active=0 WHERE id=?').run(id);
+      if (isMissingSource(e)) {
+        const confirmedMissing = db.transaction(() => {
+          // A changed root, completed move or reappearing file must not let an
+          // obsolete read failure delete the current identity or its grants.
+          assertRoot(config, db);
+          const current = db.prepare('SELECT * FROM notes WHERE id=?').get(id) as NoteRow | undefined;
+          if (!current || !current.active) return true;
+          if (current.path !== n.path) return false;
+          if (
+            db.prepare("SELECT 1 FROM write_intents WHERE note_id=? AND kind='move' AND status IN ('prepared','conflicted')").get(id)
+          )
+            throw new KnowledgeError(409, 'OPERATION_OUTCOME_UNKNOWN', '移动尚未完成，请核对操作状态', true);
+          if (db.prepare("SELECT 1 FROM sync_runs WHERE status IN ('running','needs_reconciliation')").get())
+            throw new KnowledgeError(503, 'SYNC_IN_PROGRESS', '原文同步中', true);
+          try {
+            safePath(config.knowledgeRoot, current.path, 'note');
+          } catch (confirmation) {
+            if (!isMissingSource(confirmation))
+              throw new KnowledgeError(503, 'SOURCE_UNAVAILABLE', '原文读取不可用', true);
+            db.prepare('UPDATE shares SET enabled=0 WHERE note_id=?').run(id);
+            db.prepare('UPDATE notes SET active=0 WHERE id=?').run(id);
+            return true;
+          }
+          return false;
+        }).immediate();
+        if (!confirmedMissing)
+          throw new KnowledgeError(503, 'SOURCE_UNAVAILABLE', '原文读取期间变化，请重试', true);
       }
+      if (['EACCES', 'EPERM', 'EIO', 'ESTALE', 'EMFILE', 'ENFILE', 'ETIMEDOUT'].includes(sourceErrorCode(e) || ''))
+        throw new KnowledgeError(503, 'SOURCE_UNAVAILABLE', '原文读取不可用', true);
       throw e;
     }
   }

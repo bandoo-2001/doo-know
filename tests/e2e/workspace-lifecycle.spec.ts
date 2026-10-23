@@ -5,6 +5,8 @@ import type { Page } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
+test.use({ sourceEditorPreference: true });
+
 type FixtureNote = { id: string; relativePath: string; content: string };
 
 async function createNote(page: Page, fileName: string, content: string): Promise<FixtureNote> {

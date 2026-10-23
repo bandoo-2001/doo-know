@@ -1,9 +1,13 @@
-import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
+import { type ChildProcessWithoutNullStreams } from 'node:child_process';
 import { resolve, join } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { fail, KnowledgeError } from '../knowledge/errors.js';
+import { interactiveProcess } from '../processes/interactive.js';
 export class TokenizerClient {
   private child?: ChildProcessWithoutNullStreams;
+  private owned?: ReturnType<typeof interactiveProcess>;
+  private retiring = false;
+  private retire?: () => void;
   private buffer = Buffer.alloc(0);
   private pending = new Map<
     string,
@@ -15,40 +19,57 @@ export class TokenizerClient {
   >();
   constructor(private options: { runtimeRoot?: string; modelDir?: string; python?: string } = {}) {}
   private start() {
+    if (this.retiring)
+      throw new KnowledgeError(503, 'TOKENIZER_UNAVAILABLE', '本地分词进程正在恢复', true);
     if (this.child) return this.child;
     const root = resolve(this.options.runtimeRoot || 'runtime/vector-service'),
-      child = spawn(
+      owned = interactiveProcess(
         this.options.python || join(root, '.venv/bin/python'),
         [join(root, 'tokenizer_cli.py')],
         {
-          env: {
-            ...process.env,
-            DOOKNOW_MODEL_DIR: resolve(this.options.modelDir || '.local/models/bge-small-zh-v1.5'),
-            HF_HUB_OFFLINE: '1',
-            TRANSFORMERS_OFFLINE: '1',
-            HF_HUB_DISABLE_TELEMETRY: '1',
-            PYTHONUNBUFFERED: '1',
-          },
-          stdio: ['pipe', 'pipe', 'pipe'],
+          ...process.env,
+          DOOKNOW_MODEL_DIR: resolve(this.options.modelDir || '.local/models/bge-small-zh-v1.5'),
+          HF_HUB_OFFLINE: '1',
+          TRANSFORMERS_OFFLINE: '1',
+          HF_HUB_DISABLE_TELEMETRY: '1',
+          PYTHONUNBUFFERED: '1',
         },
-      );
+      ),
+      child = owned.child;
     this.child = child;
-    const rejectAll = () => {
+    this.owned = owned;
+    const rejectAll = (release: boolean) => {
+      if (this.owned !== owned) return;
       for (const item of this.pending.values()) {
         clearTimeout(item.timer);
         item.reject(new KnowledgeError(503, 'TOKENIZER_UNAVAILABLE', '本地分词进程不可用', true));
       }
       this.pending.clear();
-      this.child = undefined;
+      if (release) {
+        this.child = undefined;
+        this.owned = undefined;
+        this.retire = undefined;
+        this.retiring = false;
+      }
       this.buffer = Buffer.alloc(0);
     };
-    child.on('error', rejectAll);
-    child.on('exit', rejectAll);
+    this.retire = () => {
+      if (this.owned !== owned) return;
+      this.retiring = true;
+      rejectAll(false);
+      child.stdin.destroy();
+      owned.terminate();
+    };
+    void owned.wait.then(
+      () => rejectAll(true),
+      () => rejectAll(!owned.alive()),
+    );
     child.stderr.resume();
     child.stdout.on('data', (bytes: Buffer) => {
+      if (this.owned !== owned) return;
       this.buffer = Buffer.concat([this.buffer, bytes]);
       if (this.buffer.length > 1024 * 1024) {
-        child.kill();
+        owned.terminate();
         return;
       }
       let end: number;
@@ -65,7 +86,7 @@ export class TokenizerClient {
             item.reject(new KnowledgeError(503, String(reply.error), '分词未完成', true));
           else item.resolve(reply.data);
         } catch {
-          child.kill();
+          owned.terminate();
         }
       }
     });
@@ -76,11 +97,13 @@ export class TokenizerClient {
     const id = randomUUID(),
       body = JSON.stringify({ id, method, ...fields }) + '\n';
     if (Buffer.byteLength(body) > 1024 * 1024) fail(413, 'TOKENIZER_REQUEST_TOO_LARGE');
-    const child = this.start();
+    const child = this.start(),
+      retire = this.retire!;
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
-        this.pending.delete(id);
+        if (!this.pending.delete(id)) return;
         reject(new KnowledgeError(504, 'TOKENIZER_TIMEOUT', '分词超时', true));
+        retire();
       }, 10000);
       timer.unref();
       this.pending.set(id, { resolve, reject, timer });
@@ -110,16 +133,6 @@ export class TokenizerClient {
     return this.call('tokenize', { texts });
   }
   async close() {
-    const child = this.child;
-    if (!child) return;
-    await new Promise<void>((resolve) => {
-      child.once('exit', () => resolve());
-      child.stdin.end();
-      const timer = setTimeout(() => {
-        child.kill();
-      }, 2000);
-      timer.unref();
-      child.once('exit', () => clearTimeout(timer));
-    });
+    await this.owned?.close();
   }
 }

@@ -1,6 +1,8 @@
 import { readFile } from 'node:fs/promises';
 import { test, expect } from '../support/browser-test';
 
+test.use({ sourceEditorPreference: true });
+
 async function openNote(page: any, context: any, name: string) {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   const csrf = await page.request.get('/api/security/csrf');

@@ -4,6 +4,8 @@ import { join } from 'node:path';
 import { showSidebar, closeSidebar } from '../support/settings-navigation';
 import { expandFolderPath } from '../support/notebook-tree';
 
+test.use({ sourceEditorPreference: true });
+
 test('recent edits update from external writes and favorite controls stay in sync after reload', async ({
   page,
   context,

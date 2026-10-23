@@ -1,6 +1,7 @@
 import { spawn, type ChildProcess } from 'node:child_process';
 import type { AppDatabase } from '../db.js';
 import { workspaceProcess, processGroupIsAlive } from '../workspace/gate.js';
+import { processRunner } from './runner.js';
 export type ProcessPermit =
   | { kind: 'workspace'; token: string }
   | { kind: 'search'; taskId: string; role: 'preparation' | 'runtime' };
@@ -11,7 +12,7 @@ export type ProcessOptions = {
   timeoutMs?: number;
   signal?: AbortSignal;
 };
-// The registered Node process becomes the executable without changing identity.
+// Registration, the native group policy and the executable retain one PID/start.
 const runner = String.raw`
 import {readFileSync} from 'node:fs';
 function identity(pid){const s=readFileSync('/proc/'+pid+'/stat','utf8'),f=s.slice(s.lastIndexOf(')')+2).trim().split(/\s+/);return {start:readFileSync('/proc/sys/kernel/random/boot_id','utf8').trim()+':'+f[19],dead:f[0]==='Z'||f[0]==='X'};}
@@ -35,7 +36,7 @@ process.once('message',async m=>{
    else db.prepare('INSERT INTO search_processes VALUES(?,?,?,?,?)').run(m.permit.taskId,m.permit.role,process.pid,self.start,process.pid);
   }).immediate();
   db.close();process.chdir(m.cwd);
-  process.execve(m.binary,[m.binary,...m.args],m.env);
+  process.execve(m.nativeRunner,[m.nativeRunner,'--',m.binary,...m.args],m.env);
  }catch{process.stderr.write('PROCESS_START_FAILED\n');process.exit(1);}
 });`;
 
@@ -48,7 +49,8 @@ export function guardedProcess(
   options: ProcessOptions = {},
 ) {
   const owner = workspaceProcess(),
-    env = options.env || {};
+    env = options.env || {},
+    nativeRunner = options.signal?.aborted ? '' : processRunner();
   let child!: ChildProcess;
   const wait = new Promise<{ stdout: Buffer; stderr: Buffer; code: number }>((resolve, reject) => {
     const runnerEnv = { ...process.env };
@@ -101,15 +103,48 @@ export function guardedProcess(
           stop();
         } else output.push(b);
       });
-    // execve normally closes IPC. Only process close proves Git has stopped.
+    let draining: Promise<boolean> | undefined;
+    const closeReaders = () => {
+      child.stdout!.destroy();
+      child.stderr!.destroy();
+    };
+    const drain = () => {
+      draining ||= (async () => {
+        if (timer) clearTimeout(timer);
+        const group = child.pid ?? 0;
+        // Workers can keep inherited pipes open after the leader exits, so
+        // initiate cleanup on exit rather than waiting for stream closure.
+        if (processGroupIsAlive(group)) {
+          stop();
+          const gracefulUntil = Date.now() + 1000;
+          while (processGroupIsAlive(group) && Date.now() < gracefulUntil)
+            await new Promise((done) => setTimeout(done, 25));
+          if (processGroupIsAlive(group)) {
+            signal('SIGKILL');
+            const forcedUntil = Date.now() + 1000;
+            while (processGroupIsAlive(group) && Date.now() < forcedUntil)
+              await new Promise((done) => setTimeout(done, 25));
+          }
+        }
+        const groupStopped = !processGroupIsAlive(group);
+        // If the kernel cannot reap it, retain the guard and report a timeout.
+        if (!groupStopped) {
+          timedOut = true;
+          closeReaders();
+        }
+        return groupStopped;
+      })();
+      return draining;
+    };
+    // execve normally closes IPC. Stream closure and group drain are both needed.
     child.once('error', () => {});
-    child.once('close', (code) => {
-      finished = true;
-      if (forceTimer) clearTimeout(forceTimer);
-      if (timer) clearTimeout(timer);
-      options.signal?.removeEventListener('abort', stop);
+    child.once('exit', () => {
+      void drain().catch(closeReaders);
+    });
+    child.once('close', async (code) => {
       try {
-        if (db.open && !processGroupIsAlive(child.pid ?? 0)) {
+        const groupStopped = await drain();
+        if (db.open && groupStopped) {
           if (permit.kind === 'workspace')
             db.prepare('DELETE FROM workspace_guards WHERE token=? AND pid=?').run(
               permit.token,
@@ -125,6 +160,10 @@ export function guardedProcess(
       } catch (error) {
         reject(error);
         return;
+      } finally {
+        finished = true;
+        if (forceTimer) clearTimeout(forceTimer);
+        options.signal?.removeEventListener('abort', stop);
       }
       if (exceeded)
         return reject(
@@ -144,6 +183,11 @@ export function guardedProcess(
     });
     child.stdin!.on('error', () => {});
     child.stdin!.end(options.input);
+    // An abort that predates the listener must never authorize the workload.
+    if (options.signal?.aborted) {
+      stop();
+      return;
+    }
     child.send!(
       {
         databaseModule: import.meta.resolve('better-sqlite3'),
@@ -152,6 +196,7 @@ export function guardedProcess(
         owner,
         cwd,
         binary,
+        nativeRunner,
         args,
         env,
       },

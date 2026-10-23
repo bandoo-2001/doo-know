@@ -249,6 +249,311 @@ describe('browser local draft recovery', () => {
     expect(result.localStorageLength).toBe(0);
   });
 
+  test.each([
+    { name: 'an unknown version', loadFirst: false, base: 'v1', kind: 'note', winner: 'note' },
+    {
+      name: 'a shared original revision',
+      loadFirst: true,
+      base: 'v1',
+      kind: 'note',
+      winner: 'note',
+    },
+    {
+      name: 'a different original revision',
+      loadFirst: true,
+      base: 'v2',
+      kind: 'note',
+      winner: 'note',
+    },
+    { name: 'a competing fragment', loadFirst: true, base: 'v2', kind: 'fragment', winner: 'note' },
+    { name: 'an existing fragment', loadFirst: true, base: 'v1', kind: 'note', winner: 'fragment' },
+  ])('preserves a foreign durable draft against $name', async (input) => {
+    const result = await page.evaluate(async (input) => {
+      const { createDraftStore } = (window as any).draftModule;
+      const scope = { ownerId: 'shared-owner', knowledgeId: 'knowledge' };
+      const writer = createDraftStore({ scope }),
+        contender = createDraftStore({ scope });
+      if (input.loadFirst) await contender.load('n');
+      const range = {
+        startLine: 1,
+        endLine: 1,
+        lineByteOffset: 0,
+        startByte: 0,
+        endByte: 10,
+        rangeHash: 'range',
+      };
+      const first = await writer.put({
+        noteId: 'n',
+        kind: input.winner,
+        content: 'B durable text',
+        baseRevision: 'v1',
+        ...(input.winner === 'fragment' ? { range } : {}),
+      });
+      let error: any;
+      try {
+        await contender.put({
+          noteId: 'n',
+          kind: input.kind,
+          content: 'A competing text',
+          baseRevision: input.base,
+          ...(input.kind === 'fragment' ? { range } : {}),
+        });
+      } catch (cause) {
+        error = { code: (cause as any).code, message: (cause as any).message };
+      }
+      const after = await createDraftStore({ scope }).load('n');
+      return {
+        error,
+        content: after?.content,
+        kind: after?.kind,
+        sameVersion: after?.version === first.version,
+      };
+    }, input);
+    expect(result.error?.code).toBe('conflict');
+    expect(result.error?.message).toContain('其他页面');
+    expect(result.error?.message).not.toContain('B durable text');
+    expect(result.content).toBe('B durable text');
+    expect(result.kind).toBe(input.winner);
+    expect(result.sameVersion).toBe(true);
+  });
+
+  test.each([undefined, null, '', 0])(
+    'preserves a present record with unusable version %s',
+    async (invalidVersion) => {
+      const result = await page.evaluate(async (invalidVersion) => {
+        const { createDraftStore } = (window as any).draftModule;
+        const scope = { ownerId: 'owner', knowledgeId: 'knowledge' };
+        const contender = createDraftStore({ scope });
+        await contender.load('n');
+        const db = await new Promise<IDBDatabase>((resolve, reject) => {
+          const opening = indexedDB.open('dooknow-local-drafts');
+          opening.onsuccess = () => resolve(opening.result);
+          opening.onerror = () => reject(opening.error);
+        });
+        await new Promise<void>((resolve, reject) => {
+          const tx = db.transaction('drafts', 'readwrite');
+          tx.objectStore('drafts').put({
+            scope,
+            noteId: 'n',
+            kind: 'note',
+            content: 'existing recovery text',
+            baseRevision: 'v1',
+            updatedAt: 1,
+            ...(invalidVersion === undefined ? {} : { version: invalidVersion }),
+          });
+          tx.oncomplete = () => resolve();
+          tx.onabort = () => reject(tx.error);
+        });
+        db.close();
+        await contender.load('n');
+        const code = await contender
+          .put({
+            noteId: 'n',
+            kind: 'note',
+            content: 'must not replace malformed record',
+            baseRevision: 'v1',
+          })
+          .then(
+            () => 'written',
+            (error: any) => error.code,
+          );
+        return { code, after: (await contender.load('n'))?.content };
+      }, invalidVersion);
+      expect(result.code).toBe('conflict');
+      expect(result.after).toBe('existing recovery text');
+    },
+  );
+
+  test('a pending load cannot authorize a write that was already called without its version', async () => {
+    const result = await page.evaluate(async () => {
+      const { createDraftStore } = (window as any).draftModule;
+      const scope = { ownerId: 'owner', knowledgeId: 'knowledge' };
+      const writer = createDraftStore({ scope });
+      const first = await writer.put({
+        noteId: 'n',
+        kind: 'note',
+        content: 'already durable B',
+        baseRevision: 'v1',
+      });
+      const contender = createDraftStore({ scope });
+      const loading = contender.load('n');
+      const writing = contender
+        .put({
+          noteId: 'n',
+          kind: 'note',
+          content: 'queued before observing B',
+          baseRevision: 'v1',
+        })
+        .then(
+          () => 'written',
+          (error: any) => error.code,
+        );
+      const observed = await loading;
+      return {
+        observedFirst: observed?.version === first.version,
+        write: await writing,
+        after: (await writer.load('n'))?.content,
+      };
+    });
+    expect(result.observedFirst).toBe(true);
+    expect(result.write).toBe('conflict');
+    expect(result.after).toBe('already durable B');
+  });
+
+  test('a failed stale removal does not adopt another writer version for a later write', async () => {
+    const result = await page.evaluate(async () => {
+      const { createDraftStore } = (window as any).draftModule;
+      const scope = { ownerId: 'owner', knowledgeId: 'knowledge' };
+      const writer = createDraftStore({ scope }),
+        contender = createDraftStore({ scope });
+      const first = await writer.put({
+        noteId: 'n',
+        kind: 'note',
+        content: 'B first',
+        baseRevision: 'v1',
+      });
+      await contender.load('n');
+      const newer = await writer.put({
+        noteId: 'n',
+        kind: 'note',
+        content: 'B newer durable',
+        baseRevision: 'v1',
+      });
+      const removed = await contender.remove('n', first.version);
+      const code = await contender
+        .put({ noteId: 'n', kind: 'note', content: 'A stale update', baseRevision: 'v1' })
+        .then(
+          () => 'written',
+          (error: any) => error.code,
+        );
+      const after = await writer.load('n');
+      return {
+        removed,
+        code,
+        content: after?.content,
+        sameVersion: after?.version === newer.version,
+      };
+    });
+    expect(result.removed).toBe(false);
+    expect(result.code).toBe('conflict');
+    expect(result.content).toBe('B newer durable');
+    expect(result.sameVersion).toBe(true);
+  });
+
+  test('a stale writer cannot resurrect a removed draft until it explicitly observes the absence', async () => {
+    const result = await page.evaluate(async () => {
+      const { createDraftStore } = (window as any).draftModule;
+      const scope = { ownerId: 'owner', knowledgeId: 'knowledge' };
+      const writer = createDraftStore({ scope }),
+        contender = createDraftStore({ scope });
+      const first = await writer.put({
+        noteId: 'n',
+        kind: 'note',
+        content: 'old draft',
+        baseRevision: 'v1',
+      });
+      await contender.load('n');
+      await writer.remove('n', first.version);
+      const code = await contender
+        .put({ noteId: 'n', kind: 'note', content: 'stale resurrected text', baseRevision: 'v1' })
+        .then(
+          () => 'written',
+          (error: any) => error.code,
+        );
+      const afterRejected = await writer.load('n');
+      await contender.load('n');
+      await contender.put({
+        noteId: 'n',
+        kind: 'note',
+        content: 'new explicitly observed work',
+        baseRevision: 'v2',
+      });
+      return { code, afterRejected, afterExplicitLoad: (await contender.load('n'))?.content };
+    });
+    expect(result.code).toBe('conflict');
+    expect(result.afterRejected).toBeUndefined();
+    expect(result.afterExplicitLoad).toBe('new explicitly observed work');
+  });
+
+  test.each(['one store', 'separate stores'])(
+    'only one racing unobserved write can commit through %s',
+    async (kind) => {
+      const result = await page.evaluate(async (kind) => {
+        const { createDraftStore } = (window as any).draftModule;
+        const scope = { ownerId: 'owner', knowledgeId: 'knowledge' };
+        const first = createDraftStore({ scope }),
+          second = kind === 'one store' ? first : createDraftStore({ scope });
+        await Promise.all([first.load('n'), second.load('n')]);
+        const settled = await Promise.allSettled([
+          first.put({
+            noteId: 'n',
+            kind: 'note',
+            content: 'first competing text',
+            baseRevision: 'v1',
+          }),
+          second.put({
+            noteId: 'n',
+            kind: 'note',
+            content: 'second competing text',
+            baseRevision: 'v1',
+          }),
+        ]);
+        return {
+          successful: settled.filter((item) => item.status === 'fulfilled').length,
+          errors: settled
+            .filter((item): item is PromiseRejectedResult => item.status === 'rejected')
+            .map((item) => item.reason.code),
+          content: (await createDraftStore({ scope }).load('n'))?.content,
+        };
+      }, kind);
+      expect(result.successful).toBe(1);
+      expect(result.errors).toEqual(['conflict']);
+      expect(['first competing text', 'second competing text']).toContain(result.content);
+    },
+  );
+
+  test('serialized own writes remain writable after successful removal and scope clearing', async () => {
+    const result = await page.evaluate(async () => {
+      const store = (window as any).draftModule.createDraftStore({
+        scope: { ownerId: 'owner', knowledgeId: 'knowledge' },
+      });
+      const first = await store.put({
+        noteId: 'n',
+        kind: 'note',
+        content: 'first',
+        baseRevision: 'v1',
+      });
+      const second = await store.put({
+        noteId: 'n',
+        kind: 'note',
+        content: 'second',
+        baseRevision: 'v1',
+      });
+      const removed = await store.remove('n', second.version);
+      await store.put({
+        noteId: 'n',
+        kind: 'note',
+        content: 'after own removal',
+        baseRevision: 'v2',
+      });
+      await store.clearScope();
+      await store.put({
+        noteId: 'n',
+        kind: 'note',
+        content: 'after own scope clear',
+        baseRevision: 'v3',
+      });
+      return {
+        differentVersion: first.version !== second.version,
+        removed,
+        content: (await store.load('n'))?.content,
+      };
+    });
+    expect(result.differentVersion).toBe(true);
+    expect(result.removed).toBe(true);
+    expect(result.content).toBe('after own scope clear');
+  });
+
   test('clears only the submitted version and keeps edits made while a save is running', async () => {
     const result = await page.evaluate(async () => {
       const store = (window as any).draftModule.createDraftStore({

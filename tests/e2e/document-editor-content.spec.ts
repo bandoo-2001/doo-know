@@ -1,5 +1,41 @@
 import { test, expect } from '../support/browser-test';
 import { openDocumentNote, saveDocument, insertTable } from '../support/document-editor';
+for (const pendingView of ['Markdown 源码', '阅读'])
+  test(`组合输入结束后保留最后选择的文档视图与完整草稿（先选择${pendingView}）`, async ({
+    page,
+    context,
+  }) => {
+    const original = '原文\r\n\r\n<!-- 保留原文 -->\r\n';
+    const note = await openDocumentNote(page, context, original);
+    const editor = page.getByRole('textbox', { name: '文档正文', exact: true });
+    await editor.locator('p').click();
+    await page.keyboard.press('End');
+    await editor.dispatchEvent('compositionstart', { data: '' });
+    await page.keyboard.insertText('中文组合');
+    let writes = 0;
+    page.on('request', (request) => {
+      if (request.method() === 'PUT' && new URL(request.url()).pathname === '/api/notes/' + note.id)
+        writes++;
+    });
+    await page.getByRole('button', { name: pendingView, exact: true }).click();
+    await page.getByRole('button', { name: '文档编辑', exact: true }).click();
+    await editor.dispatchEvent('compositionend', { data: '中文组合' });
+    expect(writes).toBe(0);
+    expect((await (await page.request.get('/api/notes/' + note.id)).json()).content).toBe(original);
+    await saveDocument(page);
+    await expect(page.getByRole('button', { name: '文档编辑', exact: true })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    await expect(editor).toContainText('原文中文组合');
+    await page.getByRole('button', { name: 'Markdown 源码', exact: true }).click();
+    await expect(page.locator('.cm-content')).toContainText('原文中文组合');
+    await expect(page.locator('.cm-content')).toContainText('<!-- 保留原文 -->');
+    expect(writes).toBe(1);
+    expect((await (await page.request.get('/api/notes/' + note.id)).json()).content).toBe(
+      original.replace('原文', '原文中文组合'),
+    );
+  });
 test('回车、表格编辑和列操作可保存为 Markdown', async ({ page, context }) => {
   const note = await openDocumentNote(page, context, '正文');
   const editor = page.getByRole('textbox', { name: '文档正文', exact: true });
@@ -60,7 +96,16 @@ test('上传图片显示授权地址，源码保留相对路径且可编辑替�
       'base64',
     ),
   });
-  await expect(editor.locator('img[src]')).toHaveAttribute('src', /^\/api\/assets\//);
+  await expect(editor.locator('img[src]')).toHaveAttribute(
+    'data-dooknow-image-src',
+    /^\/api\/assets\//,
+  );
+  await expect(editor.locator('img[src]')).toHaveAttribute('src', /^blob:/);
+  await expect
+    .poll(() =>
+      editor.locator('img[src]').evaluate((image) => (image as HTMLImageElement).naturalWidth),
+    )
+    .toBeGreaterThan(0);
   await editor.locator('img[src]').click();
   await page.getByRole('textbox', { name: '图片替代文字', exact: true }).fill('示例图片');
   await page.getByRole('button', { name: '应用图片说明', exact: true }).click();
@@ -134,7 +179,16 @@ test('粘贴图片文件沿用上传流程，不在正文里留下空白占位',
       new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true }),
     );
   });
-  await expect(editor.locator('img[src]')).toHaveAttribute('src', /^\/api\/assets\//);
+  await expect(editor.locator('img[src]')).toHaveAttribute(
+    'data-dooknow-image-src',
+    /^\/api\/assets\//,
+  );
+  await expect(editor.locator('img[src]')).toHaveAttribute('src', /^blob:/);
+  await expect
+    .poll(() =>
+      editor.locator('img[src]').evaluate((image) => (image as HTMLImageElement).naturalWidth),
+    )
+    .toBeGreaterThan(0);
   await saveDocument(page);
   expect((await (await page.request.get('/api/notes/' + note.id)).json()).content).toContain(
     'pasted.png',

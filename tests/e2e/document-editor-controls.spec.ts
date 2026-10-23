@@ -20,9 +20,11 @@ async function uploadImage(page: Page, name: string) {
   await formatFor(page).getByRole('button', { name: '上传附件', exact: true }).click();
   await (await choosing).setFiles(imageFile(name));
   await expect(editorFor(page).getByRole('img', { name, exact: true })).toHaveAttribute(
-    'src',
+    'data-dooknow-image-src',
     /^\/api\/assets\//,
   );
+  await expect.poll(() => editorFor(page).getByRole('img', { name, exact: true })
+    .evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0)).toBe(true);
 }
 
 async function openOutline(page: Page) {
@@ -309,7 +311,7 @@ test('图片预览缩放只影响查看，关闭后 Markdown 和保存状态保�
   await page.getByRole('button', { name: '预览图片', exact: true }).click();
   const preview = page.locator('.editor-dialog:visible');
   await expect(preview).toContainText('图片预览');
-  await expect(preview.locator('img')).toHaveAttribute('src', (await image.getAttribute('src'))!);
+  await expect(preview.locator('img')).toHaveAttribute('src', (await image.getAttribute('data-dooknow-image-src'))!);
   const zoom = preview.getByRole('slider', { name: '图片缩放', exact: true });
   await zoom.focus();
   const before = await zoom.inputValue();
@@ -371,7 +373,7 @@ test('上传期间显示文件名并禁用重复入口，失败后可重试原�
   await page.getByRole('button', { name: '重试上传', exact: true }).click();
   await expect(editor.locator('img[src]')).toHaveCount(1);
   await expect(editor.getByRole('img', { name: 'retry-image.png', exact: true })).toHaveAttribute(
-    'src',
+    'data-dooknow-image-src',
     /^\/api\/assets\//,
   );
   await expect(page.getByRole('button', { name: '重试上传', exact: true })).toHaveCount(0);
@@ -388,7 +390,7 @@ test('替换图片上传时正文发生修改，则保留原图并提供明确�
   await uploadImage(page, 'original.png');
   await saveDocument(page);
   const image = editor.getByRole('img', { name: 'original.png', exact: true });
-  const originalSrc = await image.getAttribute('src');
+  const originalSrc = await image.getAttribute('data-dooknow-image-src');
   await image.click();
   let release!: () => void;
   const hold = new Promise<void>((resolve) => {
@@ -412,7 +414,7 @@ test('替换图片上传时正文发生修改，则保留原图并提供明确�
     release();
   }
   await expect(page.getByRole('button', { name: '插入已上传附件', exact: true })).toBeVisible();
-  await expect(image).toHaveAttribute('src', originalSrc!);
+  await expect(image).toHaveAttribute('data-dooknow-image-src', originalSrc!);
   await expect(editor.locator('img[src]')).toHaveCount(1);
   await saveDocument(page);
   const saved = (await (await page.request.get('/api/notes/' + note.id)).json()).content;
@@ -433,8 +435,8 @@ test('替换图片仍修改最初选中的图片，移动光标后不误替换�
   await saveDocument(page);
   const first = editor.getByRole('img', { name: 'first-image.png', exact: true });
   const second = editor.getByRole('img', { name: 'second-image.png', exact: true });
-  const oldFirst = await first.getAttribute('src'),
-    oldSecond = await second.getAttribute('src');
+  const oldFirst = await first.getAttribute('data-dooknow-image-src'),
+    oldSecond = await second.getAttribute('data-dooknow-image-src');
   await first.click();
   let release!: () => void;
   const hold = new Promise<void>((resolve) => {
@@ -455,13 +457,13 @@ test('替换图片仍修改最初选中的图片，移动光标后不误替换�
   } finally {
     release();
   }
-  await expect(first).not.toHaveAttribute('src', oldFirst!);
-  await expect(first).toHaveAttribute('src', /^\/api\/assets\//);
-  await expect(second).toHaveAttribute('src', oldSecond!);
+  await expect(first).not.toHaveAttribute('data-dooknow-image-src', oldFirst!);
+  await expect(first).toHaveAttribute('data-dooknow-image-src', /^\/api\/assets\//);
+  await expect(second).toHaveAttribute('data-dooknow-image-src', oldSecond!);
   await expect(editor.locator('img[src]')).toHaveCount(2);
   await page.getByRole('button', { name: '撤销', exact: true }).click();
-  await expect(first).toHaveAttribute('src', oldFirst!);
-  await expect(second).toHaveAttribute('src', oldSecond!);
+  await expect(first).toHaveAttribute('data-dooknow-image-src', oldFirst!);
+  await expect(second).toHaveAttribute('data-dooknow-image-src', oldSecond!);
 });
 
 test('替换图片选择 PDF 时保留原图，并提供附件的明确插入入口', async ({ page, context }) => {
@@ -473,7 +475,7 @@ test('替换图片选择 PDF 时保留原图，并提供附件的明确插入入
   await saveDocument(page);
   const savedBefore = (await (await page.request.get('/api/notes/' + note.id)).json()).content;
   const image = editor.getByRole('img', { name: 'keep-original.png', exact: true });
-  const originalSrc = await image.getAttribute('src');
+  const originalSrc = await image.getAttribute('data-dooknow-image-src');
   await image.click();
   const choosing = page.waitForEvent('filechooser');
   await page.getByRole('button', { name: '替换图片', exact: true }).click();
@@ -491,7 +493,7 @@ test('替换图片选择 PDF 时保留原图，并提供附件的明确插入入
       exact: true,
     }),
   ).toBeVisible();
-  await expect(image).toHaveAttribute('src', originalSrc!);
+  await expect(image).toHaveAttribute('data-dooknow-image-src', originalSrc!);
   await expect(editor.locator('img[src]')).toHaveCount(1);
   await expect(editor.locator('a')).toHaveCount(0);
   await expect(page.locator('.save-state')).toContainText('已保存');
@@ -504,7 +506,7 @@ test('替换图片选择 PDF 时保留原图，并提供附件的明确插入入
   await expect(
     editor.getByRole('link', { name: 'replacement-document.pdf', exact: true }),
   ).toBeVisible();
-  await expect(image).toHaveAttribute('src', originalSrc!);
+  await expect(image).toHaveAttribute('data-dooknow-image-src', originalSrc!);
   await expect(editor.locator('img[src]')).toHaveCount(1);
 });
 

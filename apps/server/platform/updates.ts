@@ -9,6 +9,7 @@ import {
   rm,
   copyFile,
   open,
+  stat,
 } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { artifactFetch, githubUpdateSource } from './distribution.js';
@@ -478,27 +479,49 @@ export async function updatePlatform(
 }
 export async function rollbackPlatform(config: HostConfig) {
   if (!config.installRoot) throw Error('回滚需要原生安装目录');
-  const root = resolve(config.installRoot),
+  const root = resolve(config.installRoot);
+  const unavailable = () => Error('没有可用的上一发行版本；当前程序与资料已保留，请重新安装受控版本或使用明确的数据恢复流程。');
+  let installation;
+  try {
     installation = JSON.parse(await readFile(join(root, 'installation.json'), 'utf8'));
+  } catch (error) {
+    if (error instanceof SyntaxError || (error as NodeJS.ErrnoException).code === 'ENOENT')
+      throw unavailable();
+    throw error;
+  }
+  if (
+    !installation || typeof installation !== 'object' || Array.isArray(installation) ||
+    typeof installation.previous !== 'string' ||
+    !/^[0-9A-Za-z][0-9A-Za-z.+-]{0,79}$/.test(installation.previous)
+  ) throw unavailable();
   const current = await realpath(join(root, 'current')),
     previous = join(root, 'releases', installation.previous || '');
+  if (!installation.previous || !existsSync(previous)) throw unavailable();
   if (
-    !installation.previous ||
     releaseInfo(current).databaseCompatibility !== releaseInfo(previous).databaseCompatibility
   )
     throw Error('此迁移不支持普通代码回退；请使用明确的数据恢复流程，保留最新原文');
+  for (const file of ['runtime/node/bin/node', 'dist/server/scripts/manage.js']) {
+    try {
+      if (!(await stat(join(previous, file))).isFile()) throw unavailable();
+    } catch (error) {
+      if (['ENOENT', 'ENOTDIR'].includes((error as NodeJS.ErrnoException).code || ''))
+        throw unavailable();
+      throw error;
+    }
+  }
   return managementLock(config, async () => {
     const wasActive = serviceActive(config);
     return withQuiesced(
       config,
       async () => {
-        const clone = await mkdtemp(join(root, '.rollback-check-'));
         try {
-          await candidateCheck(config, previous, clone);
-        } finally {
-          await rm(clone, { recursive: true, force: true });
-        }
-        try {
+          const clone = await mkdtemp(join(root, '.rollback-check-'));
+          try {
+            await candidateCheck(config, previous, clone);
+          } finally {
+            await rm(clone, { recursive: true, force: true });
+          }
           await switchRelease(config, previous);
           await startHealthy(config, previous, wasActive);
         } catch (e) {

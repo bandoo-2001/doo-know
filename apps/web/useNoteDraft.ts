@@ -76,7 +76,10 @@ export function useNoteDraft(context: () => Context, restoreContent: (text: stri
         return saved;
       })
       .catch((cause) => {
-        if (target === store && current === epoch) report(cause);
+        if (target === store && current === epoch) {
+          savedAt.value = undefined;
+          report(cause);
+        }
         return undefined;
       });
     queue = write.then(() => undefined);

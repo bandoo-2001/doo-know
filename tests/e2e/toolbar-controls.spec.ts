@@ -5,6 +5,8 @@ import { expandFolderPath } from '../support/notebook-tree';
 import { clickNoteAction } from '../support/note-actions';
 import { insertTable } from '../support/document-editor';
 
+test.use({ sourceEditorPreference: true });
+
 test.use({ actionTimeout: 10000 });
 const original = '# Toolbar audit\n\nSaved original.';
 async function createNote(page: Page, context: BrowserContext, label: string) {
@@ -300,7 +302,7 @@ test('upload button handles PNG and PDF, supports undo/redo and saves from previ
   await button(page, '阅读').click();
   const image = page.locator('.preview-panel img');
   await expect(image).toBeVisible();
-  expect(await image.evaluate((el) => (el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+  await expect.poll(() => image.evaluate((el) => (el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
   const pdf = page.locator('.preview-panel a').filter({ hasText: 'toolbar.pdf' });
   await expect(pdf).toBeVisible();
   const asset = await page.request.get((await pdf.getAttribute('href'))!);

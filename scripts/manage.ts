@@ -20,9 +20,6 @@ import { randomBytes, createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { loadHostConfig, applicationRoot } from '../apps/server/platform/config.js';
 import { openDatabase } from '../packages/core/db.js';
-import { initializeOwner, resetOwnerPassword } from '../apps/server/auth.js';
-import { createApp } from '../apps/server/app.js';
-import { createAuth } from '../apps/server/auth.js';
 import {
   acquireInstance,
   readInstance,
@@ -34,6 +31,7 @@ import {
   unitName,
   serviceActive,
   assertServiceOwnership,
+  assertManagedDatabaseOwnership,
   writeService,
   withQuiesced,
   waitHealthy,
@@ -46,7 +44,6 @@ import {
   rollbackPlatform,
 } from '../apps/server/platform/updates.js';
 import { platformSettings } from '../apps/server/platform/settings.js';
-import { pluginHost } from '../apps/server/plugins/host.js';
 import { satisfies } from 'semver';
 import { HOST_PLUGIN_API } from '../packages/plugin-contracts/index.js';
 import { rmSync } from 'node:fs';
@@ -94,7 +91,7 @@ function rememberProxy() {
     rememberDownloadProxy(profileFile);
   } catch {
     console.error(
-      '本次操作已完成，但无法记住下载代理；下次更新请继续设置 HTTP_PROXY / HTTPS_PROXY。',
+      '无法记住下载代理；新启动的服务可能无法使用本次代理。请检查代理配置文件权限，并在重试安装或更新时继续设置 HTTP_PROXY / HTTPS_PROXY。',
     );
   }
 }
@@ -279,9 +276,12 @@ async function install() {
   }
   if (!hasOwner) {
     const input = await promptAccount();
+    const { initializeOwner } = await import('../apps/server/auth.js');
     await initializeOwner(config, input.username, input.password);
     console.log('初始账号已创建。');
   } else console.log('账号已存在，保留原有账号、密钥与配置。');
+  // The first service process must see the same download environment as the installer.
+  rememberProxy();
   if (!values['no-service']) {
     writeService(config, applicationRoot(), process.execPath);
     systemctl(['enable', unitName(config)]);
@@ -305,7 +305,6 @@ async function install() {
     if (linger !== 'yes') console.log('用户服务已启用；无人登录时常驻需管理员启用 linger。');
   }
   if (config.installRoot) bindInstallationProfile(config.installRoot, profileFile);
-  rememberProxy();
   console.log(
     `DooKnow：${config.origin}\n登录后选择服务器知识库目录。\n管理：dooknow status / start / stop / restart / doctor`,
   );
@@ -361,8 +360,9 @@ async function main() {
     version = releaseInfo().version;
   if (command === 'serve') {
     const release = acquireInstance(config, version);
-    let app: Awaited<ReturnType<typeof createApp>> | undefined;
+    let app: Awaited<ReturnType<typeof import('../apps/server/app.js').createApp>> | undefined;
     try {
+      const { createApp } = await import('../apps/server/app.js');
       app = await createApp(config);
       await app.listen({ host: config.host, port: config.port });
     } catch (e) {
@@ -395,6 +395,10 @@ async function main() {
       throw Error('迁移前必须停止所有数据进程');
     const db = openDatabase(config.dataRoot);
     try {
+      const [{ createAuth }, { pluginHost }] = await Promise.all([
+        import('../apps/server/auth.js'),
+        import('../apps/server/plugins/host.js'),
+      ]);
       await createAuth(config, db);
       platformSettings(config, db).configured();
       pluginHost(config, db);
@@ -445,20 +449,29 @@ async function main() {
   }
   if (command === 'backup') {
     if (!values.destination) throw Error('备份需要 --destination <文件>');
-    const result = await managementLock(config, () =>
-      withQuiesced(config, () =>
-        createPlatformBackup(config, {
-          destination: values.destination!,
-          keyFile: values['key-file'],
-        }),
-      ),
-    );
+    const result = await managementLock(config, async () => {
+      assertManagedDatabaseOwnership(config);
+      const db = new Database(join(config.dataRoot, 'app.sqlite'), { fileMustExist: true });
+      try {
+        if ((db.prepare('SELECT active FROM maintenance WHERE id=1').get() as any).active)
+          throw Error('工作区已处于维护状态，请先核对未完成操作');
+      } finally {
+        db.close();
+      }
+      // Use the same exclusive workspace gate and WAL snapshot as online exports.
+      // A cancelled CLI must not leave the managed service stopped or maintained.
+      return createPlatformBackup(config, {
+        destination: values.destination!,
+        keyFile: values['key-file'],
+      });
+    });
     console.log(JSON.stringify(result, null, 2));
     console.log('恢复私钥须另行受控保存；备份不包含该私钥。');
     return;
   }
   if (command === 'reset-password') {
     const input = await promptAccount(true);
+    const { resetOwnerPassword } = await import('../apps/server/auth.js');
     await managementLock(config, () =>
       withQuiesced(config, () => resetOwnerPassword(config, input.password)),
     );

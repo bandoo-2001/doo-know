@@ -1,6 +1,8 @@
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
 
+test.use({ sourceEditorPreference: true });
+
 test('the document formatting toolbar preserves selections, undo history, and explicit saving', async ({
   page,
   context,

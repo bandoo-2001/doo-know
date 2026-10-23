@@ -5,12 +5,13 @@ import { ConfigProvider as AConfigProvider, theme as antAlgorithms } from 'ant-d
 import zhCN from 'ant-design-vue/es/locale/zh_CN';
 import { antTheme } from './ant-design';
 import type { PlatformStatus } from '../../shared/platform-contracts';
-import { api, refreshCsrf, resetCsrf } from './api';
+import { api, ApiError, refreshCsrf, resetCsrf } from './api';
 import { clearPluginDrafts, hasUnsavedPluginDrafts } from './plugin-drafts';
 import { disposePluginUIs } from './plugins';
 import { initializeEditorPreferences, resolvedTheme } from './preferences';
 const Login = defineAsyncComponent(() => import('./components/Login.vue'));
-const Workspace = defineAsyncComponent(() => import('./components/Workspace.vue'));
+const loadWorkspace = () => import('./components/Workspace.vue');
+const Workspace = defineAsyncComponent(loadWorkspace);
 const ShareReader = defineAsyncComponent(() => import('./components/ShareReader.vue'));
 const SetupWizard = defineAsyncComponent(() => import('./components/SetupWizard.vue'));
 const OAuthConsent = defineAsyncComponent(() => import('./components/OAuthConsent.vue'));
@@ -19,6 +20,8 @@ const token = location.pathname.startsWith('/s/') ? location.pathname.slice(3) :
   mountedWorkspace = ref(false),
   expired = ref(false),
   ready = ref(false);
+const sessionCheckBusy = ref(false),
+  sessionCheckError = ref('');
 const platform = ref<PlatformStatus>();
 const platformError = ref(''),
   platformBusy = ref(false),
@@ -73,21 +76,45 @@ async function continueOAuth() {
     resumingOAuth.value = false;
   }
 }
-async function refreshPlatform() {
+type PlatformRead = { ok: true; status: PlatformStatus } | { ok: false; cause: unknown };
+async function readPlatform(): Promise<PlatformRead> {
+  try {
+    return {
+      ok: true,
+      status: await api<PlatformStatus>('/api/platform/status', 'GET', undefined, {
+        notifySessionExpired: false,
+      }),
+    };
+  } catch (cause) {
+    // The initial read may finish before CSRF, including a rejected response.
+    // Hold that outcome until the checks permit accepting the session.
+    return { ok: false, cause };
+  }
+}
+async function completePlatformRead(prepared?: Promise<PlatformRead>) {
   if (platformBusy.value || platformLogoutBusy.value) return;
   platformBusy.value = true;
   platformError.value = '';
   platformLogoutError.value = '';
   try {
-    platform.value = await api('/api/platform/status');
+    const result = await (prepared || readPlatform());
+    if (!result.ok) throw result.cause;
+    platform.value = result.status;
     const usable = platform.value?.phase === 'ready' && !platform.value.onboardingRequired;
     if (!mountedWorkspace.value) mountedWorkspace.value = !!usable && !oauthMode;
     if (usable && oauthMode === 'login') await continueOAuth();
-  } catch {
+  } catch (cause) {
+    // Publish expiry only for an accepted read. An abandoned preload must not
+    // expire a later successful session.
+    if (cause instanceof ApiError && cause.status === 401)
+      window.dispatchEvent(new Event('dooknow-session-expired'));
     platformError.value = '登录信息已保留，请检查连接后重试。';
   } finally {
     platformBusy.value = false;
   }
+}
+async function refreshPlatform() {
+  await completePlatformRead();
 }
 async function logoutPlatform() {
   if (platformBusy.value || platformLogoutBusy.value) return;
@@ -153,8 +180,12 @@ const activeNaiveTheme = computed(() =>
       }
     : lightTheme,
 );
-async function login() {
-  const session = await api('/api/auth/get-session');
+async function acceptSession(
+  session: {
+    user?: { id?: string; displayUsername?: string; username?: string; name?: string };
+  } | null,
+  preparedPlatform?: Promise<PlatformRead>,
+) {
   if (typeof session?.user?.id !== 'string' || !session.user.id) {
     expired.value = true;
     return;
@@ -173,7 +204,36 @@ async function login() {
   initializeEditorPreferences(ownerId.value);
   loggedIn.value = true;
   expired.value = false;
-  await refreshPlatform();
+  await completePlatformRead(preparedPlatform);
+}
+async function login() {
+  await acceptSession(await api('/api/auth/get-session'));
+}
+async function checkInitialSession() {
+  if (sessionCheckBusy.value) return;
+  sessionCheckBusy.value = true;
+  try {
+    const session = await api('/api/auth/get-session');
+    if (session?.user) {
+      const confirmedOwner = typeof session.user.id === 'string' && !!session.user.id;
+      if (!oauthMode && confirmedOwner)
+        void loadWorkspace().catch(() => {});
+      const preparedPlatform = confirmedOwner ? readPlatform() : undefined;
+      await refreshCsrf();
+      await acceptSession(session, preparedPlatform);
+    }
+    sessionCheckError.value = '';
+  } catch (error) {
+    sessionCheckError.value =
+      error instanceof ApiError && error.status === 401
+        ? ''
+        : error instanceof ApiError && error.status === 429
+          ? '登录状态检查过于频繁，请稍后重试。'
+          : '暂时无法连接服务，请检查连接后重试。';
+  } finally {
+    sessionCheckBusy.value = false;
+    ready.value = true;
+  }
 }
 function sessionExpired() {
   if (loggedIn.value) expired.value = true;
@@ -187,16 +247,7 @@ onMounted(async () => {
   window.addEventListener('beforeunload', protectPluginDrafts);
   if (!token) {
     window.addEventListener('dooknow-session-expired', sessionExpired);
-    try {
-      const session = await api('/api/auth/get-session');
-      if (session?.user) {
-        await refreshCsrf();
-        await login();
-      }
-    } catch {
-    } finally {
-      ready.value = true;
-    }
+    await checkInitialSession();
   } else ready.value = true;
 });
 onBeforeUnmount(() => {
@@ -212,8 +263,23 @@ onBeforeUnmount(() => {
       :theme="resolvedTheme === 'dark' ? darkTheme : null"
       :theme-overrides="activeNaiveTheme"
       ><ShareReader v-if="token" :token="token" /><template v-else-if="ready"
-        ><OAuthConsent
-          v-if="
+        ><section
+          v-if="sessionCheckError || sessionCheckBusy"
+          class="share-error"
+          :aria-busy="sessionCheckBusy"
+        >
+          <h1>暂时无法确认登录状态</h1>
+          <p>{{ sessionCheckError || '正在检查登录状态…' }}</p>
+          <NButton
+            type="primary"
+            :loading="sessionCheckBusy"
+            :disabled="sessionCheckBusy"
+            @click="checkInitialSession"
+            >重试连接</NButton
+          >
+        </section>
+        <OAuthConsent
+          v-else-if="
             loggedIn &&
             platform?.phase === 'ready' &&
             !platform.onboardingRequired &&

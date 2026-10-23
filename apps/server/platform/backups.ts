@@ -47,6 +47,15 @@ async function copyIfPresent(source: string, target: string) {
       dereference: false,
     });
 }
+async function optionalInventory(root: string) {
+  try {
+    await lstat(root);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return undefined;
+    throw error;
+  }
+  return inventory(root);
+}
 async function safeTarget(path: string) {
   let current = resolve(path);
   for (;;) {
@@ -77,27 +86,38 @@ export async function createPlatformBackup(
   independent(keyFile, destination);
   await mkdir(dirname(destination), { recursive: true, mode: 0o700 });
   if (existsSync(destination)) throw Error('备份文件已存在，拒绝覆盖');
-  const stage = await mkdtemp(join(dirname(destination), '.backup-')),
-    db = openDatabase(config.dataRoot);
+  const stage = await mkdtemp(join(dirname(destination), '.backup-'));
+  let db: ReturnType<typeof openDatabase> | undefined;
   try {
-    return await workspaceExclusive(db, { kind: 'platform.backup' }, async () => {
-      const business = platformSettings(config, db).configured();
+    const database = openDatabase(config.dataRoot);
+    db = database;
+    return await workspaceExclusive(database, { kind: 'platform.backup' }, async () => {
+      const business = platformSettings(config, database).configured();
       if (business) independent(destination, business.knowledgeRoot);
+      const pluginRoot = config.pluginRoot || join(config.dataRoot, '..', 'plugins');
+      const originalSecrets = config.secretFile
+        ? dirname(config.secretFile)
+        : join(config.dataRoot, 'secrets');
+      const pluginSources = [
+        pluginRoot,
+        join(config.dataRoot, 'plugins'),
+        join(originalSecrets, 'plugins'),
+      ];
+      const pluginsBefore = await Promise.all(pluginSources.map(optionalInventory));
       const empty = join(stage, 'empty');
       await mkdir(empty);
       const snapshot = join(stage, 'snapshot');
       await backup({ ...config, knowledgeRoot: business?.knowledgeRoot || empty }, snapshot);
-      const pluginRoot = config.pluginRoot || join(config.dataRoot, '..', 'plugins');
       await copyIfPresent(pluginRoot, join(snapshot, 'plugin-packages'));
       await copyIfPresent(join(config.dataRoot, 'plugins'), join(snapshot, 'data/plugins'));
       const secrets = join(snapshot, 'secrets');
       await mkdir(secrets, { mode: 0o700 });
       await writeFile(join(secrets, 'auth.key'), config.secret, { mode: 0o600 });
-      const originalSecrets = config.secretFile
-        ? dirname(config.secretFile)
-        : join(config.dataRoot, 'secrets');
       await copyIfPresent(join(originalSecrets, 'plugins'), join(secrets, 'plugins'));
       await copyIfPresent(join(originalSecrets, 'vector.key'), join(secrets, 'vector.key'));
+      const pluginsAfter = await Promise.all(pluginSources.map(optionalInventory));
+      if (JSON.stringify(pluginsBefore) !== JSON.stringify(pluginsAfter))
+        throw Error('备份期间插件文件变化，请暂停相关操作后重新备份');
       const rawProfile =
         config.profileFile && existsSync(config.profileFile)
           ? JSON.parse(await readFile(config.profileFile, 'utf8'))
@@ -160,8 +180,11 @@ export async function createPlatformBackup(
       }
     });
   } finally {
-    db.close();
-    await rm(stage, { recursive: true, force: true });
+    try {
+      db?.close();
+    } finally {
+      await rm(stage, { recursive: true, force: true });
+    }
   }
 }
 export async function restorePlatformBackup(options: {

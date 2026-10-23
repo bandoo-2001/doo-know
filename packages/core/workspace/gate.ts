@@ -15,14 +15,21 @@ type Gate = {
 };
 const held = new AsyncLocalStorage<{ db: AppDatabase; token: string; exclusive: boolean }>();
 let boot: string | undefined;
+function currentBoot() {
+  return (boot ||= readFileSync('/proc/sys/kernel/random/boot_id', 'utf8').trim());
+}
 export function workspaceProcess(pid = process.pid) {
-  boot ||= readFileSync('/proc/sys/kernel/random/boot_id', 'utf8').trim();
+  const generation = currentBoot();
   const stat = readFileSync(`/proc/${pid}/stat`, 'utf8'),
     fields = stat
       .slice(stat.lastIndexOf(')') + 2)
       .trim()
       .split(/\s+/);
-  return { pid, start: boot + ':' + fields[19], zombie: fields[0] === 'Z' || fields[0] === 'X' };
+  return {
+    pid,
+    start: generation + ':' + fields[19],
+    zombie: fields[0] === 'Z' || fields[0] === 'X',
+  };
 }
 export function processIsAlive(pid: number, start: string) {
   if (pid <= 0) return false;
@@ -61,7 +68,33 @@ export function processGroupIsAlive(group: number) {
   return false;
 }
 export function guardIsAlive(p: { pid: number; process_start: string; process_group?: number }) {
-  return processIsAlive(p.pid, p.process_start) || processGroupIsAlive(p.process_group || 0);
+  const identity =
+    typeof p.process_start === 'string'
+      ? p.process_start.match(
+          /^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}):([0-9]{1,20})$/i,
+        )
+      : null;
+  // A numeric PGID from a previous boot can now identify an unrelated group.
+  if (identity) {
+    try {
+      if (identity[1].toLowerCase() !== currentBoot().toLowerCase()) return false;
+    } catch {
+      // Unavailable boot metadata must retain the existing conservative checks.
+    }
+  }
+  if (processIsAlive(p.pid, p.process_start)) return true;
+  const group = p.process_group || 0;
+  if (group <= 0) return false;
+  if (identity && p.pid === group) {
+    try {
+      const leader = workspaceProcess(group);
+      if (BigInt(leader.start.split(':')[1]) !== BigInt(identity[2])) return false;
+    } catch (error) {
+      if (!['ENOENT', 'ESRCH'].includes((error as NodeJS.ErrnoException).code || '')) return true;
+    }
+  }
+  // The original leader may have exited while its real workers remain alive.
+  return processGroupIsAlive(group);
 }
 function live(db: AppDatabase, row: Gate) {
   return (
@@ -125,6 +158,25 @@ function release(db: AppDatabase, token: string) {
   db.prepare('DELETE FROM workspace_guards WHERE token=?').run(token);
   db.prepare('DELETE FROM workspace_gate WHERE token=?').run(token);
 }
+type WorkFailure = { error: unknown };
+function releasePreservingFailure(db: AppDatabase, token: string, failure?: WorkFailure) {
+  try {
+    release(db, token);
+  } catch (cleanupError) {
+    if (!failure) throw cleanupError;
+    // release keeps the abandoned gate/guards. Preserve the work's outcome code,
+    // with cleanup context available without adding it to serialized errors.
+    try {
+      if (failure.error && ['object', 'function'].includes(typeof failure.error))
+        Object.defineProperty(failure.error, 'workspaceReleaseError', {
+          value: cleanupError,
+          configurable: true,
+        });
+    } catch {
+      // Frozen or unusual thrown values still retain their original identity.
+    }
+  }
+}
 function acquireShared(db: AppDatabase, meta: Metadata) {
   initializeWorkspaceGate(db);
   const token = randomUUID();
@@ -139,10 +191,14 @@ function acquireShared(db: AppDatabase, meta: Metadata) {
 export function workspaceWriteSync<T>(db: AppDatabase, meta: Metadata, work: () => T): T {
   if (held.getStore()?.db === db) return work();
   const token = acquireShared(db, meta);
+  let failure: WorkFailure | undefined;
   try {
     return held.run({ db, token, exclusive: false }, work);
+  } catch (error) {
+    failure = { error };
+    throw error;
   } finally {
-    release(db, token);
+    releasePreservingFailure(db, token, failure);
   }
 }
 export async function workspaceWrite<T>(
@@ -161,11 +217,15 @@ export async function workspaceWrite<T>(
       );
   }, 15000);
   beat.unref();
+  let failure: WorkFailure | undefined;
   try {
     return await held.run({ db, token, exclusive: false }, work);
+  } catch (error) {
+    failure = { error };
+    throw error;
   } finally {
     clearInterval(beat);
-    release(db, token);
+    releasePreservingFailure(db, token, failure);
   }
 }
 export async function workspaceExclusive<T>(
@@ -181,7 +241,8 @@ export async function workspaceExclusive<T>(
   initializeWorkspaceGate(db);
   const token = randomUUID(),
     deadline = Date.now() + (meta.waitMs ?? 30000);
-  let inserted = false;
+  let inserted = false,
+    failure: WorkFailure | undefined;
   try {
     for (;;) {
       const ready = db
@@ -214,8 +275,11 @@ export async function workspaceExclusive<T>(
       await new Promise((r) => setTimeout(r, Math.min(25, Math.max(1, deadline - Date.now()))));
     }
     return await held.run({ db, token, exclusive: true }, work);
+  } catch (error) {
+    failure = { error };
+    throw error;
   } finally {
-    if (inserted) release(db, token);
+    if (inserted) releasePreservingFailure(db, token, failure);
   }
 }
 export function operationHasLiveWorkspaceWriter(db: AppDatabase, operationId: string) {

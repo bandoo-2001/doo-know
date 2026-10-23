@@ -1,8 +1,11 @@
+import { showRead, showSplit } from '../support/editor-navigation';
 import { expandFolderPath } from '../support/notebook-tree';
 import { clickNoteAction } from '../support/note-actions';
 import { showSidebar } from '../support/settings-navigation';
 import { test, expect } from '../support/browser-test';
 import { testPassword } from '../support/credentials.js';
+
+test.use({ sourceEditorPreference: true });
 test('login and two-column workspace with manual Markdown editing', async ({ page }, info) => {
   await page.goto('/');
   for (const path of ['apps/server/auth.ts', 'packages/core/db.ts', '.local/e2e-cookies.json']) {
@@ -49,7 +52,7 @@ test('login and two-column workspace with manual Markdown editing', async ({ pag
   await expect(page.locator('.save-state')).toContainText('未保存');
   await page.keyboard.press('ControlOrMeta+s');
   await expect(page.locator('.save-state')).toContainText('已保存');
-  await page.getByRole('button', { name: '预览', exact: true }).click();
+  await showRead(page);
   await expect(page.locator('.markdown').getByRole('heading', { name: '网页修改' })).toBeVisible();
   await page.screenshot({
     path: `test-results/${info.project.name}-editor.png`,
@@ -175,7 +178,7 @@ test.describe('authenticated feature acceptance', () => {
     browser,
   }, info) => {
     const { n, h } = await newNote(page, '搭建自己的知识库-' + info.project.name);
-    await page.getByRole('button', { name: '分屏', exact: true }).click();
+    await showSplit(page);
     await page.screenshot({
       path: `test-results/${info.project.name}-split.png`,
       fullPage: true,
@@ -224,7 +227,11 @@ test.describe('authenticated feature acceptance', () => {
     await writeFile(join(knowledgeRoot, n.relativePath), '# 本地更新也公开');
     await reader.reload();
     await expect(reader.locator('.reader-title')).toContainText('本地更新也公开');
-    await page.locator('input[type=file]').setInputFiles({
+    await page.locator('.cm-content').click();
+    await page.keyboard.press('ControlOrMeta+End');
+    const chooser = page.waitForEvent('filechooser');
+    await clickNoteAction(page, '插入图片或 PDF');
+    await (await chooser).setFiles({
       name: '示例.png',
       mimeType: 'image/png',
       buffer: Buffer.from(
@@ -236,7 +243,7 @@ test.describe('authenticated feature acceptance', () => {
     await page.locator('.toolbar').getByRole('button', { name: /^保存/ }).click();
     await page.getByRole('button', { name: '确定覆盖', exact: true }).click();
     await expect(page.locator('.save-state')).toContainText('已保存');
-    await page.getByRole('button', { name: '预览', exact: true }).click();
+    await showRead(page);
     await expect(page.locator('.markdown img')).toBeVisible();
     await reader.reload();
     await expect(reader.locator('.markdown img')).toBeVisible();

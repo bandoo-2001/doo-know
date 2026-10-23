@@ -1,6 +1,8 @@
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
 
+test.use({ sourceEditorPreference: true });
+
 test('alignment and text colors preserve selections, undo, preview, saving and public reading', async ({
   page,
   context,

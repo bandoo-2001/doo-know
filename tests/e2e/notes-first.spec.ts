@@ -2,6 +2,8 @@ import { configurePlugin } from '../support/settings-navigation';
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
 
+test.use({ sourceEditorPreference: true });
+
 test('keeps note identity, secondary actions and editor preferences usable without losing the draft', async ({
   page,
   context,

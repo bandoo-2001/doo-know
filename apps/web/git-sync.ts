@@ -17,6 +17,7 @@ const messages: Record<string, string> = {
   GIT_COMMAND_CANCELLED: '任务已取消，请刷新核对状态后再继续。',
   GIT_TASK_BUSY: '另一个仓库任务正在进行，请等待完成。',
   GIT_DEPENDENCY_MISSING: '系统 Git 尚未准备好，请让部署者安装 Git 2.39 或更新版本。',
+  PROCESS_CONTAINMENT_UNAVAILABLE: '后台任务暂时无法启动，请联系部署者检查安装和系统支持。',
   GIT_RECONCILIATION_REQUIRED: '本地提交状态待核对，请先在版本记录中完成核对再同步。',
   GIT_OPERATION_IN_PROGRESS: '本地版本操作正在进行，请等待或先核对上次操作。',
   GIT_REMOTE_ALREADY_EXISTS: '当前仓库已有不同的云端地址。请核对现有远端，不会覆盖其配置。',

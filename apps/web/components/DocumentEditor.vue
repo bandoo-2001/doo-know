@@ -13,6 +13,7 @@ import {
 import { convertClipboard, plainTextMarkdown } from '../editor/clipboard';
 import { contextAt, contextSlots } from '../editor/context-slot';
 import { textEdit, parseSource } from '../editor/source-codec';
+import { syncDOMTextSelection } from '../editor/dom-selection';
 import type { EditorSession } from '../editor/session';
 import type { ImageReplacementTarget, SelectionBookmark, TableAction } from '../editor/contracts';
 import {
@@ -476,7 +477,15 @@ onMounted(() => {
           return false;
         },
       },
-      handleKeyDown(_view, event) {
+      handleKeyDown(view, event) {
+        const key = event.key.toLowerCase();
+        if (!props.readOnly && !props.session.composing && !event.isComposing &&
+            (event.ctrlKey || event.metaKey) && !event.altKey &&
+            (['b', 'i', 'e', 'k'].includes(key) || (event.shiftKey && key === 's'))) {
+          // Synchronize the DOM caret before a pending selectionchange can clear
+          // formatting applied at an obsolete position.
+          syncDOMTextSelection(view);
+        }
         if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
           event.preventDefault();
           execute('link');
@@ -602,7 +611,10 @@ function focus(target?: SelectionBookmark) {
   }
   if (target) {
     const units = parseSource(props.session.snapshot().markdown).units;
+    // Adjacent source units share an endpoint. Prefer the unit beginning at
+    // that offset, while still allowing the final unit's inclusive EOF.
     let index = units.findIndex((u) => target.anchor >= u.from && target.anchor < u.to);
+    if (index < 0) index = units.findIndex((u) => target.anchor >= u.from && target.anchor <= u.to);
     if (index < 0) index = units.length - 1;
     let at = 0;
     for (let i = 0; i < index && i < editor.state.doc.childCount; i++)

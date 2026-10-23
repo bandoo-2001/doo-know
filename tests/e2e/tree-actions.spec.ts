@@ -3,6 +3,8 @@ import { readFile, writeFile, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { expandFolderPath } from '../support/notebook-tree';
 
+test.use({ sourceEditorPreference: true });
+
 // Catch wrong-target operations, lost drafts, and menus unreachable on touch/keyboard.
 test.beforeEach(async ({ page, context }) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));

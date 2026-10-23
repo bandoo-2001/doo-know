@@ -10,6 +10,8 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { expandFolderPath } from '../support/notebook-tree';
 
+test.use({ sourceEditorPreference: true });
+
 test('connects an existing library, previews and pushes, then checks and pulls a real remote update', async ({
   page,
   context,

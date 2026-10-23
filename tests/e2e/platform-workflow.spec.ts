@@ -3,6 +3,8 @@ import { expandFolderPath } from '../support/notebook-tree';
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
 
+test.use({ sourceEditorPreference: true });
+
 async function createNote(
   page: import('@playwright/test').Page,
   name: string,
