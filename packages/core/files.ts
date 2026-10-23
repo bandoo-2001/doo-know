@@ -1,3 +1,4 @@
+import {isDocument,isWhiteboard,MAX_WHITEBOARD_BYTES} from '../../shared/whiteboard.js';
 import {
   lstatSync,
   realpathSync,
@@ -48,8 +49,8 @@ export function validateRelative(path: string, kind: 'note' | 'folder' | 'asset'
     parts.some((p) => !validName(p))
   )
     throw new HttpError(400, '路径不允许');
-  if (kind === 'note' && (!path.toLowerCase().endsWith('.md') || parts.includes('assets')))
-    throw new HttpError(400, '仅允许 Markdown 文件');
+  if (kind === 'note' && (!isDocument(path) || parts.includes('assets')))
+    throw new HttpError(400, '仅允许 Markdown 或 Excalidraw 白板文件');
 }
 export function safePath(
   root: string,
@@ -88,9 +89,11 @@ export function readDocument(root: string, path: string) {
   try {
     const before = fstatSync(fd, { bigint: true });
     if (!before.isFile()) throw new HttpError(400, '不是普通文件');
+    const board = isWhiteboard(path);
+    if (board && before.size > BigInt(MAX_WHITEBOARD_BYTES)) throw new KnowledgeError(413, 'FILE_TOO_LARGE', '白板不能超过 8 MiB');
     if (before.size > 20n * 1024n * 1024n)
       throw new KnowledgeError(413, 'FILE_TOO_LARGE', '笔记超过大小上限');
-    if (before.size > 1024n * 1024n)
+    if (!board && before.size > 1024n * 1024n)
       throw new KnowledgeError(409, 'LARGE_FILE_MODE_REQUIRED', '请使用大文件模式读取');
     let content: string;
     try {
@@ -103,7 +106,7 @@ export function readDocument(root: string, path: string) {
       throw new HttpError(409, '文件读取期间更新，请重试', {
         currentModifiedAt: after.mtimeNs.toString(),
       });
-    if (content.split('\n').some((line) => Buffer.byteLength(line) > 32768))
+    if (!board && content.split('\n').some((line) => Buffer.byteLength(line) > 32768))
       throw new KnowledgeError(409, 'LARGE_FILE_MODE_REQUIRED', '请使用大文件模式读取');
     return {
       content,
@@ -132,7 +135,7 @@ export function scanFiles(root: string) {
       if (item.isDirectory()) {
         folders.push(rel);
         walk(rel);
-      } else if (item.isFile() && item.name.toLowerCase().endsWith('.md')) {
+      } else if (item.isFile() && isDocument(item.name)) {
         try {
           safePath(root, rel, 'note');
           notes.push(rel);

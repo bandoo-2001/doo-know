@@ -145,16 +145,26 @@ it('uses a rerendered folder prop for preview and submission and invalidates the
   const f = await mount('TransferPanel', { folderPath: '30-Knowledge/a' });
   f.state.entries.value = [{ path: 'x.md', content: '# x', encoding: 'utf8' }];
   await f.state.inspect();
+  await f.state.execute();
+  expect(mockApi.mock.calls.filter((call) => call[0] === '/api/manage/import')).toHaveLength(0);
+  f.state.step.value = 3;
   mockApi.mockRejectedValueOnce(Error('response lost'));
   await f.state.execute();
   const original = mockApi.mock.calls
     .filter((call) => call[0] === '/api/manage/import')
     .at(-1)?.[2].requestId;
+  expect(original).toEqual(expect.any(String));
+  mockApi.mockRejectedValueOnce(Error('retry response lost'));
+  await f.state.execute();
+  expect(
+    mockApi.mock.calls.filter((call) => call[0] === '/api/manage/import').at(-1)?.[2].requestId,
+  ).toBe(original);
   f.props.folderPath = '40-Resources/b';
   await Vue.nextTick();
   expect(f.state.folder.value).toBe('40-Resources/b');
   expect(f.state.preview.value).toBeUndefined();
   await f.state.inspect();
+  f.state.step.value = 3;
   await f.state.execute();
   const submitted = mockApi.mock.calls
     .filter((call) => call[0] === '/api/manage/import')
@@ -179,7 +189,7 @@ it('discards a stale preview response when its target changes while a request is
   await pending;
   expect(f.state.folder.value).toBe('40-Resources/b');
   expect(f.state.preview.value).toBeUndefined();
-  expect(f.state.notice.value).toContain('重新预览');
+  expect(f.state.importNotice.value).toContain('重新预览');
 });
 it('forwards actual task completion through TransferPanel, LibrarySettings and SettingsWorkspace', async () => {
   mockApi.mockResolvedValue({ library: { ready: true, timeZone: 'UTC' } });
@@ -243,6 +253,7 @@ it('reports the original destination if it changes during an already submitted i
   const f = await mount('TransferPanel', { folderPath: '30-Knowledge/a' });
   f.state.entries.value = [{ path: 'x.md', content: '# x', encoding: 'utf8' }];
   await f.state.inspect();
+  f.state.step.value = 3;
   const pending = f.state.execute();
   f.props.folderPath = '40-Resources/b';
   await Vue.nextTick();
@@ -307,13 +318,16 @@ it('does not attach an old destination preview error to the newly selected desti
       }),
   );
   const f = await mount('TransferPanel', { folderPath: '30-Knowledge/a' });
+  await f.state.inspect();
+  expect(mockApi).not.toHaveBeenCalled();
+  f.state.entries.value = [{ path: 'x.md', content: '# x', encoding: 'utf8' }];
   const pending = f.state.inspect();
   f.props.folderPath = '40-Resources/b';
   await Vue.nextTick();
   fail(Error('old destination unavailable'));
   await pending;
   expect(f.state.error.value).toBe('');
-  expect(f.state.notice.value).toContain('重新预览');
+  expect(f.state.importNotice.value).toContain('重新预览');
 });
 it('refreshes backup records on the final task update even when updates arrive within five seconds', async () => {
   mockApi.mockResolvedValue({ items: [backup('first')] });

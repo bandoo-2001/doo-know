@@ -1,3 +1,4 @@
+import {isDocument,isWhiteboard,MAX_WHITEBOARD_BYTES,parseWhiteboard} from '../../../shared/whiteboard.js';
 import { existsSync, lstatSync, realpathSync } from 'node:fs';
 import { join, posix, extname } from 'node:path';
 import { createHash } from 'node:crypto';
@@ -95,8 +96,8 @@ export function parseImport(input: unknown): ImportRequest {
     if (seen.has(path)) throw new HttpError(400, '文件路径重复');
     seen.add(path);
     const bytes = entryBytes(entry);
-    const note = extname(path).toLowerCase() === '.md';
-    if (bytes.length > (note ? 1024 ** 2 : 10 * 1024 ** 2))
+    const note = isDocument(path);
+    if (bytes.length > (note ? (isWhiteboard(path) ? MAX_WHITEBOARD_BYTES : 1024 ** 2) : 10 * 1024 ** 2))
       throw new HttpError(413, '单个文件超过导入上限');
     if (note) {
       try {
@@ -104,6 +105,7 @@ export function parseImport(input: unknown): ImportRequest {
       } catch {
         throw new HttpError(400, 'Markdown 必须是 UTF-8');
       }
+    if (isWhiteboard(path)) { try { parseWhiteboard(bytes.toString('utf8')); } catch(e) { throw new HttpError(400, (e as Error).message); } }
     } else assetMime(path, bytes);
     total += bytes.length;
     if (total > 20 * 1024 ** 2) throw new HttpError(413, '导入总量不能超过 20 MiB');
@@ -124,7 +126,7 @@ export function importPreview(root: string, b: ImportRequest): ImportPreview {
   const reserved = new Set<string>();
   let totalBytes = 0;
   const items = b.entries.map((entry) => {
-    const kind = entry.path.toLowerCase().endsWith('.md') ? ('note' as const) : ('asset' as const);
+    const kind = isDocument(entry.path) ? ('note' as const) : ('asset' as const);
     let path = posix.join(b.folderPath || '', entry.path);
     targetPath(root, path, kind);
     const collision = existsSync(join(root, path)) || reserved.has(path);

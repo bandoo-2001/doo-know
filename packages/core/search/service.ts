@@ -18,6 +18,22 @@ import { sha256 } from '../knowledge/operations.js';
 import { signCursor, decodeCursor } from '../agent/budgets.js';
 import { rrf } from './fusion.js';
 import { validateFilters } from './filters.js';
+import { CONTENT_MATCH_RANK, filenameMatchRank } from '../../../shared/search-matching.js';
+// Conservative noise floor for the bundled BGE model; cosine similarity is not
+// a relevance probability. Text hits remain eligible regardless of this floor.
+const MIN_SEMANTIC_SCORE = 0.5;
+
+function excerpt(content: string, query: string, startLine: number) {
+  const needle = query.startsWith('"') && query.endsWith('"') ? query.slice(1, -1) : query;
+  const at = content.toLowerCase().indexOf(needle.toLowerCase());
+  if (at < 0 || !needle) return { snippet: boundedText(content, 512) };
+  const lineStart = content.lastIndexOf('\n', at - 1) + 1;
+  const from = Math.max(lineStart, at - 80);
+  return {
+    matchLine: startLine + (content.slice(0, at).match(/\n/g)?.length || 0),
+    snippet: boundedText((from ? '…' : '') + content.slice(from), 512),
+  };
+}
 export function searchService(
   config: AppConfig,
   db: AppDatabase,
@@ -26,6 +42,7 @@ export function searchService(
   worker: ReturnType<typeof indexWorker>,
 ) {
   const epoch = () =>
+    'filename-v2:' +
     String(
       (db.prepare("SELECT value FROM index_meta WHERE key='index_epoch'").get() as any)?.value ||
         '0',
@@ -153,19 +170,30 @@ export function searchService(
             queryVector ||= worker.client.query(normalized.query);
             const query = await queryVector;
             signal.throwIfAborted();
-            return worker.vectors.search(query, p, recall, normalized.filters);
+            const candidates = await worker.vectors.search(query, p, recall, normalized.filters);
+            return candidates.filter(
+              (candidate) =>
+                Number.isFinite(candidate.score) && candidate.score >= MIN_SEMANTIC_SCORE,
+            );
           })().catch((error) => {
             if (normalized.mode === 'semantic' || normalized.freshness === 'strict') throw error;
             reasons.push(error instanceof KnowledgeError ? error.code : 'VECTOR_UNAVAILABLE');
             return [];
           });
     let [textRanks, vectorRanks] = await Promise.all([lexical(), semantic()]);
-    const document = db.prepare('SELECT note_id FROM chunks WHERE chunk_id=? AND active=1');
+    const document = db.prepare('SELECT note_id,path FROM chunks WHERE chunk_id=? AND active=1');
+    const documents = new Map<string, { note_id: string; path: string } | undefined>();
+    const documentFor = (chunkId: string) => {
+      if (!documents.has(chunkId))
+        documents.set(
+          chunkId,
+          document.get(chunkId) as { note_id: string; path: string } | undefined,
+        );
+      return documents.get(chunkId);
+    };
     const distinct = () =>
       new Set(
-        [...textRanks, ...vectorRanks]
-          .map((c) => (document.get(c.chunkId) as any)?.note_id)
-          .filter(Boolean),
+        [...textRanks, ...vectorRanks].map((c) => documentFor(c.chunkId)?.note_id).filter(Boolean),
       ).size;
     while (
       distinct() < offset + normalized.limit + 1 &&
@@ -181,6 +209,15 @@ export function searchService(
       results: SearchOutput['results'] = [],
       grouped = new Map<string, SearchOutput['results'][number]>(),
       checked = new Map<string, boolean>();
+    if (normalized.mode !== 'semantic') {
+      const rank = (chunkId: string) =>
+        Math.min(
+          filenameMatchRank(documentFor(chunkId)?.path || '', normalized.query) ??
+            CONTENT_MATCH_RANK,
+          CONTENT_MATCH_RANK,
+        );
+      ranking.sort((a, b) => rank(a.chunkId) - rank(b.chunkId));
+    }
     for (const ranked of ranking) {
       signal.throwIfAborted();
       if (results.length > offset + normalized.limit) break;
@@ -233,16 +270,17 @@ export function searchService(
         results.push(item);
       }
       if (item.matches.length >= 3) continue;
+      const context = excerpt(c.content, normalized.query, c.start_line);
       const hit: Hit = {
         noteId: c.note_id,
         chunkId: c.chunk_id,
         title: item.title,
         relativePath: c.path,
-        url: item.url + `#L${c.start_line}`,
+        url: item.url + `#L${context.matchLine ?? c.start_line}`,
         headingPath: JSON.parse(c.heading_path),
         startLine: c.start_line,
         endLine: c.end_line,
-        snippet: boundedText(c.content, 512),
+        ...context,
         sourceHash: c.source_hash,
         sourceRevision: c.source_revision,
         matchedBy: ranked.matchedBy,

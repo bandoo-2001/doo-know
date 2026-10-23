@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import {
   Alert as AAlert,
   Button as AButton,
@@ -10,6 +10,8 @@ import {
 import { api } from '../../api';
 import { MIN_PASSWORD_LENGTH, PASSWORD_POLICY_MESSAGE } from '../../../../shared/password-policy';
 import type { ManagementPage, ManagementSession } from '../../../../shared/management-contracts';
+import SettingsActionCard from './SettingsActionCard.vue';
+import SettingsOverlay from './SettingsOverlay.vue';
 defineProps<{ username: string }>();
 const emit = defineEmits<{ logout: [] }>();
 const current = ref(''),
@@ -19,12 +21,29 @@ const current = ref(''),
   notice = ref(''),
   passwordError = ref('');
 const fields = ref<Record<string, string>>({});
+const passwordOpen = ref(false);
+const passwordDirty = computed(() => !!(current.value || password.value || confirmation.value));
 const sessions = ref<ManagementSession[]>([]),
   sessionError = ref(''),
   loading = ref(false),
   sessionBusy = ref(''),
   cursor = ref<string | null>(null);
+function resetPasswordDraft() {
+  current.value = '';
+  password.value = '';
+  confirmation.value = '';
+  fields.value = {};
+  passwordError.value = '';
+}
+function openPassword() {
+  resetPasswordDraft();
+  passwordOpen.value = true;
+}
+watch(passwordOpen, (show) => {
+  if (!show) resetPasswordDraft();
+});
 async function changePassword() {
+  if (passwordBusy.value) return;
   fields.value = {};
   notice.value = '';
   passwordError.value = '';
@@ -40,9 +59,8 @@ async function changePassword() {
       newPassword: password.value,
       revokeOtherSessions: true,
     });
-    current.value = '';
-    password.value = '';
-    confirmation.value = '';
+    resetPasswordDraft();
+    passwordOpen.value = false;
     notice.value = '密码已更新，其他设备的会话已退出。';
     await load();
   } catch (e) {
@@ -108,12 +126,25 @@ onMounted(() => void load());
       <p class="settings-muted">这是知识库所有者账户。</p>
       <AButton danger @click="emit('logout')">退出当前设备</AButton>
     </section>
-    <section class="settings-card">
-      <h2>修改密码</h2>
-      <p class="settings-muted">
-        新密码至少 {{ MIN_PASSWORD_LENGTH }} 个字符。修改成功后会退出其他设备。
-      </p>
-      <form class="settings-form" @submit.prevent="changePassword">
+    <SettingsActionCard
+      title="修改密码"
+      description="更新账户密码，保护知识库访问。修改成功后会退出其他设备。"
+      icon="lock"
+      action-label="修改密码"
+      @open="openPassword"
+    >
+      <p v-if="notice" class="settings-success" role="status">{{ notice }}</p>
+    </SettingsActionCard>
+    <SettingsOverlay
+      v-model:show="passwordOpen"
+      title="修改密码"
+      :description="`新密码至少 ${MIN_PASSWORD_LENGTH} 个字符。修改成功后会退出其他设备。`"
+      icon="lock"
+      :width="520"
+      :busy="passwordBusy"
+      :dirty="passwordDirty"
+    >
+      <form id="change-password-form" class="settings-form" @submit.prevent="changePassword">
         <div class="settings-field">
           <label for="current-password">当前密码</label
           ><AInput.Password
@@ -160,12 +191,18 @@ onMounted(() => void load());
           </p>
         </div>
         <AAlert v-if="passwordError" type="error" :message="passwordError" show-icon />
-        <div>
-          <AButton type="primary" html-type="submit" :loading="passwordBusy">更新密码</AButton>
-        </div>
-        <p v-if="notice" class="settings-success" role="status">{{ notice }}</p>
       </form>
-    </section>
+      <template #footer="{ close }">
+        <AButton :disabled="passwordBusy" @click="close">取消</AButton>
+        <AButton
+          type="primary"
+          html-type="submit"
+          form="change-password-form"
+          :loading="passwordBusy"
+          >更新密码</AButton
+        >
+      </template>
+    </SettingsOverlay>
     <section class="settings-card">
       <div class="settings-item-header">
         <div>

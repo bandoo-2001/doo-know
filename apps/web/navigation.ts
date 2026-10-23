@@ -2,7 +2,7 @@ export type WorkspaceRoute = {
   note?: string;
   line?: number;
   folder?: string;
-  view?: 'trash' | 'settings';
+  view?: 'trash' | 'settings' | 'apps' | 'recent' | 'favorites';
   section?:
     | 'editor'
     | 'library'
@@ -22,8 +22,8 @@ export function readWorkspaceRoute(href = window.location.href): WorkspaceRoute 
     ...(query.get('note') ? { note: query.get('note')! } : {}),
     ...(Number.isSafeInteger(parsed) && parsed <= 20 * 1024 * 1024 ? { line: parsed } : {}),
     ...(query.get('folder') ? { folder: query.get('folder')! } : {}),
-    ...(query.get('view') === 'trash' || query.get('view') === 'settings'
-      ? { view: query.get('view') as 'trash' | 'settings' }
+    ...(['trash', 'settings', 'apps', 'recent', 'favorites'].includes(query.get('view') || '')
+      ? { view: query.get('view') as WorkspaceRoute['view'] }
       : {}),
     ...([
       'editor',

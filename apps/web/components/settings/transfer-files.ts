@@ -10,7 +10,7 @@ export function importPath(value: string, stripPickerRoot = false): string {
 }
 export async function encodeImportFile(file: Blob, path: string) {
   const safePath = importPath(path);
-  if (/\.md$/i.test(path)) {
+  if (/\.(?:md|excalidraw)$/i.test(path)) {
     let content: string;
     try {
       content = new TextDecoder('utf-8', { fatal: true }).decode(await file.arrayBuffer());

@@ -6,10 +6,12 @@ defineProps<{
   selected: string;
   kind: 'recent' | 'favorites';
   menuPath: string;
+  total?: number;
 }>();
 const emit = defineEmits<{
   select: [entry: TreeEntry];
   menu: [entry: TreeEntry, event: MouseEvent | KeyboardEvent];
+  browse: [];
 }>();
 function menuKey(entry: TreeEntry, event: KeyboardEvent) {
   if (event.key === 'ContextMenu' || (event.shiftKey && event.key === 'F10')) {
@@ -55,7 +57,27 @@ function menuKey(entry: TreeEntry, event: KeyboardEvent) {
       </button>
     </li>
   </ul>
+  <button v-if="entries.length" type="button" class="collection-browse-all" @click="emit('browse')">
+    查看全部{{ total !== undefined ? `（${total}）` : '' }}
+  </button>
   <p v-if="!entries.length" class="muted empty-search">
     {{ kind === 'recent' ? '暂无最近编辑的笔记' : '暂无收藏，可右键笔记或在编辑窗口中收藏' }}
   </p>
 </template>
+<style scoped>
+.collection-browse-all {
+  display: block;
+  width: calc(100% - 32px);
+  margin: 8px 16px 16px;
+  padding: 7px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+}
+.collection-browse-all:hover {
+  background: var(--blue-soft);
+  color: var(--blue);
+}
+</style>

@@ -7,10 +7,14 @@ import { extract } from 'tar';
 import Database from 'better-sqlite3';
 import { testPassword } from '../support/credentials';
 import type { TransferTask } from '../../shared/transfer-contracts';
-import type { ManagementTrashPurgeInput } from '../../shared/management-contracts';
+import type {
+  ManagementTrashPurgeInput,
+  ManagementTrashRestoreInput,
+} from '../../shared/management-contracts';
 
 const origin = 'http://127.0.0.1:4179';
 test.setTimeout(150_000);
+test.use({ actionTimeout: 10_000 });
 
 test.beforeEach(async ({ context }) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
@@ -121,6 +125,36 @@ async function uiPurgeWithBusyRetry(page: Page, id: string, confirm: () => Promi
   throw Error('Workspace remained busy after eight UI attempts of the same scoped purge request');
 }
 
+async function uiRestoreWithBusyRetry(page: Page, id: string, restore: () => Promise<unknown>) {
+  let original: ManagementTrashRestoreInput | undefined;
+  const retry = page.getByRole('button', { name: '按原请求核对结果', exact: true });
+  for (let attempt = 0; attempt < 8; attempt++) {
+    const pending = page.waitForResponse(
+      (response) =>
+        new URL(response.url()).pathname === '/api/manage/trash/restore' &&
+        response.request().method() === 'POST',
+    );
+    if (attempt === 0) await restore();
+    else await retry.click();
+    const response = await pending;
+    const input = response.request().postDataJSON() as ManagementTrashRestoreInput;
+    if (!original) {
+      original = input;
+      expect(input.ids).toEqual([id]);
+      expect(input.requestId).toMatch(/^[a-f0-9-]{36}$/);
+    } else expect(input).toEqual(original);
+    const result = await response.json();
+    if (response.status() === 200) return result;
+    // Match the purge helper: only this definite retryable gate rejection
+    // permits resending the UI's retained original restore request.
+    expect(response.status()).toBe(503);
+    expect(result).toMatchObject({ code: 'WORKSPACE_BUSY', retryable: true });
+    await expect(retry).toBeEnabled();
+    if (attempt < 7) await page.waitForTimeout(Math.min(250 * 2 ** attempt, 2000));
+  }
+  throw Error('Workspace remained busy after eight UI attempts of the same restore request');
+}
+
 async function settle(page: Page, id: string): Promise<TransferTask> {
   let task!: TransferTask;
   await expect
@@ -161,6 +195,7 @@ test('saved display preferences change the actual editor and survive reload with
   await page.goto('/?view=settings&section=editor');
   await expect(page.getByRole('heading', { name: '编辑器与外观', exact: true })).toBeVisible();
   await choose(page, '默认打开方式', '编辑');
+  await choose(page, '默认编辑方式', 'Markdown 源码');
   await page.getByRole('switch', { name: '自动换行', exact: true }).click();
   await page.getByRole('switch', { name: '显示行号', exact: true }).click();
   await choose(page, '文字大小', '20 px');
@@ -206,7 +241,9 @@ test('library previews a colliding batch, imports real files and exports a porta
     'base64',
   );
   await page.goto('/?view=settings&section=library');
-  await page.getByLabel('选择文件', { exact: true }).setInputFiles([
+  await page.getByRole('button', { name: '批量导入', exact: true }).click();
+  const importDialog = page.getByRole('dialog', { name: '批量导入', exact: true });
+  await importDialog.getByLabel('选择文件', { exact: true }).setInputFiles([
     { name: first, mimeType: 'text/markdown', buffer: Buffer.from(content) },
     { name: second, mimeType: 'text/markdown', buffer: Buffer.from('# Companion fixture\n') },
     { name: asset, mimeType: 'image/png', buffer: image },
@@ -218,10 +255,9 @@ test('library previews a colliding batch, imports real files and exports a porta
   expect(preview.items).toHaveLength(3);
   const renamed = preview.items.find((i: { path: string }) => i.path === first);
   expect(renamed.decision).toBe('rename');
-  const previewRow = card(page, '批量导入')
-    .getByRole('row')
-    .filter({ hasText: renamed.targetPath });
+  const previewRow = importDialog.getByRole('row').filter({ hasText: renamed.targetPath });
   await expect(previewRow).toContainText('使用新名称');
+  await importDialog.getByRole('button', { name: '下一步：确认导入', exact: true }).click();
   const submitted = await uiPost(page, '/api/manage/import', () =>
     page.getByRole('button', { name: '确认导入 3 个文件', exact: true }).click(),
   );
@@ -240,7 +276,14 @@ test('library previews a colliding batch, imports real files and exports a porta
   );
   const paths = await fixturePaths();
   expect(await readFile(join(paths.knowledgeRoot, '00-Inbox', asset))).toEqual(image);
-  await page.getByLabel('仅导出指定目录（可选）', { exact: true }).fill('00-Inbox');
+  await page.getByRole('button', { name: '导出资料', exact: true }).click();
+  await choose(page, '导出范围', '指定目录');
+  const folderSelect = page.getByRole('combobox', { name: '仅导出指定目录', exact: true });
+  await folderSelect.fill('00-Inbox');
+  await page
+    .locator('.directory-tree-popup:visible')
+    .getByText('00-Inbox', { exact: true })
+    .click();
   const exported = await uiPost(page, '/api/manage/export', () =>
     page.getByRole('button', { name: '导出此目录', exact: true }).click(),
   );
@@ -317,12 +360,19 @@ test('trash collision can restore with a new name and permanent removal affects 
   await page.getByRole('button', { name: '查找', exact: true }).click();
   const row = page.locator('.trash-item').filter({ hasText: fileName });
   await expect(row.locator('.item-meta')).toContainText(/\d+ B/);
-  await row.getByRole('button', { name: '恢复并打开', exact: true }).click();
-  await expect(page.locator('.operation-results')).toContainText('原位置已有同名文件');
+  await uiRestoreWithBusyRetry(page, old.id, () =>
+    row.getByRole('button', { name: '恢复并打开', exact: true }).click(),
+  );
+  await expect(page.locator('.operation-results')).toContainText(
+    '原位置已有同名项目，请填写另一个名称后重试。',
+  );
   const renamed = `restored-${token}.md`;
   await row.getByLabel('恢复时使用的文件名', { exact: true }).fill(renamed);
-  await row.getByRole('button', { name: '恢复并打开', exact: true }).click();
+  await uiRestoreWithBusyRetry(page, old.id, () =>
+    row.getByRole('button', { name: '恢复并打开', exact: true }).click(),
+  );
   await expect(page).toHaveURL(new RegExp('note=' + old.id));
+  await page.getByRole('button', { name: 'Markdown 源码', exact: true }).click();
   await expect(page.locator('.cm-content')).toContainText('Archived collision fixture');
   expect((await (await page.request.get('/api/notes/' + old.id)).json()).relativePath).toBe(
     '00-Inbox/' + renamed,
@@ -398,7 +448,9 @@ test('backup UI downloads encrypted data, reauthenticates key export and verifie
   const encrypted = await readFile(backupPath);
   expect(encrypted.subarray(0, 10).toString()).toBe('DOOKNOWBK1');
   expect(encrypted.includes(Buffer.from('Unique recovery marker'))).toBe(false);
-  await page.getByLabel('当前密码', { exact: true }).fill('Wrong-Fixture-Password');
+  await page.getByRole('button', { name: '下载恢复密钥', exact: true }).click();
+  const keyDialog = page.getByRole('dialog', { name: '下载恢复密钥', exact: true });
+  await keyDialog.getByLabel('当前密码', { exact: true }).fill('Wrong-Fixture-Password');
   const rejected = page.waitForResponse(
     (r) => new URL(r.url()).pathname === '/api/manage/backups/key',
   );
@@ -414,7 +466,11 @@ test('backup UI downloads encrypted data, reauthenticates key export and verifie
     'recovery-key.pem',
   );
   expect((await readFile(keyPath, 'utf8')).includes('PRIVATE KEY')).toBe(true);
-  await expect(page.getByLabel('当前密码', { exact: true })).toHaveValue('');
+  await expect(keyDialog).toBeHidden();
+  await page.getByRole('button', { name: '下载恢复密钥', exact: true }).click();
+  await expect(keyDialog.getByLabel('当前密码', { exact: true })).toHaveValue('');
+  await keyDialog.getByRole('button', { name: '取消', exact: true }).click();
+  await expect(keyDialog).toBeHidden();
   await row.getByRole('button', { name: '恢复到独立副本', exact: true }).click();
   const restore = await uiPost(page, '/api/manage/restores', () =>
     page.getByRole('button', { name: '开始独立恢复', exact: true }).click(),

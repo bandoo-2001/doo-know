@@ -8,7 +8,7 @@ import {
   type MarkdownAction,
   type MarkdownToolbarState,
 } from '../markdown-format';
-import { Compartment, EditorState } from '@codemirror/state';
+import { Compartment, EditorState, Transaction } from '@codemirror/state';
 import { basicSetup } from 'codemirror';
 import { markdown, markdownLanguage } from '@codemirror/lang-markdown';
 import { HighlightStyle, defaultHighlightStyle, syntaxHighlighting } from '@codemirror/language';
@@ -22,6 +22,7 @@ const props = withDefaults(
     readOnly?: boolean;
     initialLine?: number;
     showLineNumbers?: boolean;
+    sharedHistory?: boolean;
   }>(),
   { wrap: true, showLineNumbers: false },
 );
@@ -30,6 +31,7 @@ const emit = defineEmits<{
   changes: [edits: { from: number; to: number; insert: string }[]];
   'line-change': [line: number];
   'state-change': [state: MarkdownToolbarState];
+  'history-boundary': [];
 }>();
 const mount = ref<HTMLElement>();
 let view: EditorView | undefined;
@@ -46,6 +48,11 @@ onMounted(() => {
     doc: props.modelValue,
     parent: mount.value,
     extensions: [
+      EditorState.transactionExtender.of((transaction) =>
+        props.sharedHistory && transaction.docChanged
+          ? { annotations: Transaction.addToHistory.of(false) }
+          : null,
+      ),
       gutters.of(gutterTheme()),
       markdown({ base: markdownLanguage }),
       editorTextStyles,
@@ -128,10 +135,6 @@ onMounted(() => {
         },
       }),
       EditorView.updateListener.of((update) => {
-        if (update.docChanged || update.selectionSet || update.transactions.length)
-          emit('state-change', toolbarState(update.state));
-        if (update.selectionSet && update.view.hasFocus)
-          emit('line-change', update.state.doc.lineAt(update.state.selection.main.head).number);
         if (update.docChanged && !programmatic) {
           if (props.incremental) {
             const edits: { from: number; to: number; insert: string }[] = [];
@@ -141,6 +144,12 @@ onMounted(() => {
             emit('changes', edits);
           } else emit('update:modelValue', update.state.doc.toString());
         }
+        // The shared history must record the old selection before publishing the
+        // new selection. Otherwise undo restores offsets from the edited text.
+        if (update.docChanged || update.selectionSet || update.transactions.length)
+          emit('state-change', toolbarState(update.state));
+        if (update.selectionSet && update.view.hasFocus)
+          emit('line-change', update.state.doc.lineAt(update.state.selection.main.head).number);
       }),
     ],
   });
@@ -209,7 +218,9 @@ function format(action: MarkdownAction) {
   if (!view || props.readOnly) return false;
   const transaction = markdownTransaction(view.state, action);
   if (!transaction) return false;
+  emit('history-boundary');
   view.dispatch(transaction);
+  emit('history-boundary');
   view.focus();
   return true;
 }
@@ -219,7 +230,9 @@ function editHistory(action: 'undo' | 'redo') {
   view.focus();
   return changed;
 }
-defineExpose({ goToLine, format, editHistory });
+function selection() { const range=view?.state.selection.main; return {anchor:range?.anchor||0,head:range?.head||0,affinity:'after' as const}; }
+function focus(bookmark?: {anchor:number;head:number}) { if(!view)return; if(bookmark)view.dispatch({selection:{anchor:Math.min(bookmark.anchor,view.state.doc.length),head:Math.min(bookmark.head,view.state.doc.length)}});view.focus(); }
+defineExpose({ goToLine, format, editHistory, focus, selection });
 onBeforeUnmount(() => {
   view?.scrollDOM.removeEventListener('scroll', reportVisibleLine);
   view?.destroy();

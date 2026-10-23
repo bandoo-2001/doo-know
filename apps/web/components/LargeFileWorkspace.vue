@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import {markdownTasks} from '../../../shared/markdown-tasks';
+
 import { ref, computed, watch, onBeforeUnmount } from 'vue';
 import { NButton, NAlert, NModal } from 'naive-ui';
 import type {
@@ -156,7 +158,7 @@ const previewOpen = ref(false);
 const previewAllowed = computed(() => new TextEncoder().encode(draft.value).length <= 128 * 1024);
 const previewHtml = computed(() => {
   if (!previewOpen.value || !previewAllowed.value) return '';
-  const md = new MarkdownIt({ html: false, linkify: true }).use(markdownStyles);
+  const md = new MarkdownIt({ html: false, linkify: true }).use(markdownStyles).use(markdownTasks);
   const tokens = md.parse(draft.value, {});
   const visit = (items: typeof tokens) => {
     for (const token of items) {
@@ -415,6 +417,17 @@ async function loadInitial() {
   );
   await loadOutline();
 }
+watch(
+  () => props.initialLine,
+  (line, previous) => {
+    if (!line || line === previous || props.note.editorMode === 'metadata') return;
+    void navigate(async () => {
+      // Supersede any older fragment request for this mounted note.
+      epoch++;
+      await load({ range: { startLine: line } });
+    });
+  },
+);
 watch(
   [() => props.note.id, () => props.draftScope?.ownerId, () => props.draftScope?.knowledgeId],
   async () => {

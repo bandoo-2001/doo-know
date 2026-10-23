@@ -4,10 +4,21 @@ import Database from 'better-sqlite3';
 import { mkdirSync, chmodSync } from 'node:fs';
 import { join } from 'node:path';
 import { migrateKnowledge } from './indexing/schema.js';
+import { migrateCollections } from './collections/source.js';
+import { CONTENT_MATCH_RANK, filenameMatchRank } from '../../shared/search-matching.js';
 export function openDatabase(dataRoot: string,role:'utility'|'server'|'file-worker'|'index-worker'='utility') {
   mkdirSync(dataRoot, { recursive: true, mode: 0o700 });
   const path = join(dataRoot, 'app.sqlite');
   const db = new Database(path);
+  db.function('dooknow_filename_rank', { deterministic: true }, (path, query) =>
+    typeof path === 'string' && typeof query === 'string'
+      ? Math.min(filenameMatchRank(path, query) ?? CONTENT_MATCH_RANK, CONTENT_MATCH_RANK)
+      : CONTENT_MATCH_RANK,
+  );
+  db.function('dooknow_search_contains', { deterministic: true }, (value, needle) =>
+    typeof value === 'string' && typeof needle === 'string' && value.toLowerCase().includes(needle)
+      ? 1 : 0,
+  );
   chmodSync(path, 0o600);
   db.pragma('journal_mode = WAL');
   db.pragma('foreign_keys = ON');
@@ -22,6 +33,7 @@ export function openDatabase(dataRoot: string,role:'utility'|'server'|'file-work
  CREATE TABLE IF NOT EXISTS maintenance(id INTEGER PRIMARY KEY CHECK(id=1),active INTEGER NOT NULL);
  INSERT OR IGNORE INTO maintenance VALUES(1,0);`);
   migrateKnowledge(db);
+  migrateCollections(db);
   db.exec('CREATE TABLE IF NOT EXISTS database_processes(id TEXT PRIMARY KEY,pid INTEGER NOT NULL,process_start TEXT NOT NULL,role TEXT NOT NULL,started_at INTEGER NOT NULL)');
   const identity=workspaceProcess(),connectionId=randomUUID();db.prepare('INSERT INTO database_processes VALUES(?,?,?,?,?)').run(connectionId,identity.pid,identity.start,role,Date.now());
   const nativeClose=db.close.bind(db);db.close=()=>{try{if(db.open)db.prepare('DELETE FROM database_processes WHERE id=?').run(connectionId);}finally{nativeClose();}return db;};

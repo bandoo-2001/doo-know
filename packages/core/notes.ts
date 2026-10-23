@@ -1,3 +1,4 @@
+import {documentTitle,documentType,isWhiteboard,parseWhiteboard,MAX_WHITEBOARD_BYTES,withWhiteboardId,whiteboardId} from '../../shared/whiteboard.js';
 import { workspaceWriteSync } from './workspace/gate.js';
 import { randomUUID } from 'node:crypto';
 import {
@@ -59,8 +60,17 @@ export function noteService(config: AppConfig, db: AppDatabase) {
             )
             .get(path) &&
           !db.prepare('SELECT id FROM notes WHERE path=? AND active=1').get(path)
-        )
-          db.prepare('INSERT INTO notes(id,path) VALUES(?,?)').run(randomUUID(), path);
+        ) {
+          let identity:string|undefined;
+          if(isWhiteboard(path))try{identity=whiteboardId(parseWhiteboard(readDocument(config.knowledgeRoot,path).content).dooknow?.id||'');}catch{}
+          const previous=identity?db.prepare('SELECT id,active,trash_path FROM notes WHERE id=?').get(identity) as NoteRow|undefined:undefined;
+          if(identity&&previous&&!previous.active&&!previous.trash_path&&!db.prepare("SELECT 1 FROM write_intents WHERE note_id=? AND status IN ('prepared','conflicted')").get(identity)) {
+            db.prepare('UPDATE notes SET path=?,active=1 WHERE id=?').run(path,identity);
+            db.prepare('UPDATE document_state SET active=0 WHERE note_id=?').run(identity);
+            db.prepare('UPDATE chunks SET active=0 WHERE note_id=?').run(identity);
+          }
+          else db.prepare('INSERT INTO notes(id,path) VALUES(?,?)').run(identity&&!previous?identity:randomUUID(), path);
+        }
     }).immediate();
     return files;
   }
@@ -74,9 +84,11 @@ export function noteService(config: AppConfig, db: AppDatabase) {
     const n = row(id);
     try {
       const doc = readDocument(config.knowledgeRoot, n.path);
+      if (isWhiteboard(n.path)) { try { parseWhiteboard(doc.content); } catch(e) { throw new HttpError(422, (e as Error).message); } }
       return {
         id,
-        title: doc.content.match(/^#\s+(.+)$/m)?.[1] || basename(n.path, '.md'),
+        title: documentTitle(n.path, doc.content),
+        documentType: documentType(n.path),
         relativePath: n.path,
         ...doc,
         shared: !!db.prepare('SELECT 1 FROM shares WHERE note_id=? AND enabled=1').get(id),
@@ -139,6 +151,7 @@ export function noteService(config: AppConfig, db: AppDatabase) {
         path: n.path,
         name: basename(n.path),
         type: 'note',
+        ...(isWhiteboard(n.path) ? {documentType: 'whiteboard' as const} : {}),
         updatedAt: modificationTime(n.path, 'note'),
         ...(ownerId ? { favorite: favorites.has(n.id) } : {}),
       });
@@ -177,6 +190,7 @@ export function noteService(config: AppConfig, db: AppDatabase) {
   ) {
     const shared = !!db.prepare('SELECT 1 FROM shares WHERE note_id=? AND enabled=1').get(id);
     const receipt = mutations.update(webPrincipal, id, content, expectedModifiedAt, requestId);
+    if(isWhiteboard(receipt.relativePath))content=withWhiteboardId(content,id);
     try {
       const current = getNote(id);
       // A later save may already exist when an old request is replayed. Its
@@ -185,7 +199,8 @@ export function noteService(config: AppConfig, db: AppDatabase) {
         ...current,
         relativePath: receipt.relativePath,
         content,
-        title: content.match(/^#\s+(.+)$/m)?.[1] || basename(receipt.relativePath, '.md'),
+        title: documentTitle(receipt.relativePath, content),
+        documentType: documentType(receipt.relativePath),
         modifiedAt: receipt.modifiedAt,
         updatedAt: new Date(Number(BigInt(receipt.modifiedAt) / 1000000n)).toISOString(),
         receipt,
@@ -283,7 +298,7 @@ export type NoteService = ReturnType<typeof noteService>;
 export function saveInput(body: unknown) {
   const b = body as Record<string, unknown>;
   if (!b || typeof b !== 'object' || 'force' in b) throw new HttpError(400, '保存请求格式不正确');
-  const content = text(b.content, '正文'),
+  const content = text(b.content, '正文', MAX_WHITEBOARD_BYTES),
     expectedModifiedAt = text(b.expectedModifiedAt, '版本', 30);
   if (!/^\d+$/.test(expectedModifiedAt)) throw new HttpError(400, '版本格式不正确');
   return { content, expectedModifiedAt };

@@ -19,6 +19,7 @@ export interface AppConfig {
   gitSyncEnabled?: boolean;
 }
 export interface NoteDocument {
+  documentType?: 'markdown' | 'whiteboard';
   id: string;
   title: string;
   relativePath: string;
@@ -29,6 +30,7 @@ export interface NoteDocument {
   html?: string;
 }
 export interface TreeEntry {
+  documentType?: 'markdown' | 'whiteboard';
   id?: string;
   name: string;
   path: string;

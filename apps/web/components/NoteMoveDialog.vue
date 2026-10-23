@@ -43,7 +43,7 @@ async function move() {
   try {
     const result = await api<MoveNoteResult>(`/api/notes/${props.noteId}/move`, 'POST', {
       folderPath: folder.value,
-      fileName: name.value.endsWith('.md') ? name.value : name.value + '.md',
+      fileName: /\.excalidraw$/i.test(props.relativePath||'') ? (/\.excalidraw$/i.test(name.value) ? name.value : name.value+'.excalidraw') : (name.value.endsWith('.md') ? name.value : name.value + '.md'),
       expectedModifiedAt: props.modifiedAt,
       requestId,
     });

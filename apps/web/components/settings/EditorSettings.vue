@@ -2,9 +2,23 @@
 import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue';
 import { Button as AButton, Select as ASelect, Switch as ASwitch } from 'ant-design-vue';
 import { editorPreferences, setEditorPreferences } from '../../preferences';
+import { documentEditorEnabled } from '../../editor/compatibility';
+import SettingsActionCard from './SettingsActionCard.vue';
+import SettingsOverlay from './SettingsOverlay.vue';
+const documentEditingEnabled = documentEditorEnabled();
 const emit = defineEmits<{ 'preferences-changed': [] }>();
 const draft = reactive({ ...editorPreferences });
 const notice = ref('');
+const shortcutsOpen = ref(false);
+const shortcuts = [
+  ['保存笔记', 'Ctrl / ⌘ + S'],
+  ['撤销', 'Ctrl / ⌘ + Z'],
+  ['重做', 'Ctrl / ⌘ + Shift + Z'],
+  ['加粗', 'Ctrl / ⌘ + B'],
+  ['斜体', 'Ctrl / ⌘ + I'],
+  ['插入或编辑链接', 'Ctrl / ⌘ + K'],
+  ['关闭弹层', 'Esc'],
+];
 const appearanceQuery =
   typeof matchMedia === 'undefined' ? undefined : matchMedia('(prefers-color-scheme: dark)');
 const systemDark = ref(appearanceQuery?.matches || false);
@@ -41,12 +55,17 @@ function cancel() {
 
 watch(editorPreferences, (value) => Object.assign(draft, value));
 function save() {
-  setEditorPreferences({ ...draft });
+  setEditorPreferences({
+    ...draft,
+    ...(!documentEditingEnabled && draft.mode === 'split' ? { editorKind: 'source' as const } : {}),
+  });
+  Object.assign(draft, editorPreferences);
   notice.value = '编辑器偏好已保存';
   emit('preferences-changed');
 }
 function reset() {
   Object.assign(draft, {
+    editorKind: 'document',
     mode: 'edit',
     wrap: true,
     lineNumbers: false,
@@ -65,6 +84,22 @@ function reset() {
         设置保存在当前账户的这台浏览器中。保存后用于笔记显示，原文格式保持不变。
       </p>
       <form @submit.prevent="save" @change="notice = ''">
+        <div v-if="documentEditingEnabled" class="settings-row">
+          <div>
+            <label for="pref-editor-kind">默认编辑方式</label>
+            <p class="settings-muted">文档编辑直接排版，Markdown 源码适合精确编辑。</p>
+          </div>
+          <ASelect
+            id="pref-editor-kind"
+            aria-label="默认编辑方式"
+            v-model:value="draft.editorKind"
+            :options="[
+              { label: '文档编辑', value: 'document' },
+              { label: 'Markdown 源码', value: 'source' },
+            ]"
+            style="min-width: 150px"
+          />
+        </div>
         <div class="settings-row">
           <div>
             <label for="pref-mode">默认打开方式</label>
@@ -77,7 +112,11 @@ function reset() {
             :options="[
               { label: '编辑', value: 'edit' },
               { label: '预览', value: 'preview' },
-              { label: '分屏', value: 'split' },
+              {
+                label: documentEditingEnabled ? '源码与预览分屏' : '分屏',
+                value: 'split',
+                disabled: documentEditingEnabled && draft.editorKind === 'document',
+              },
             ]"
             style="min-width: 150px"
           />
@@ -85,14 +124,14 @@ function reset() {
         <div class="settings-row">
           <div>
             <label for="pref-wrap">自动换行</label>
-            <p class="settings-muted">长段落随编辑区域宽度换行。</p>
+            <p class="settings-muted">Markdown 源码中的长段落随编辑区域宽度换行。</p>
           </div>
           <ASwitch id="pref-wrap" aria-label="自动换行" v-model:checked="draft.wrap" />
         </div>
         <div class="settings-row">
           <div>
             <label for="pref-lines">显示行号</label>
-            <p class="settings-muted">便于定位原文中的段落。</p>
+            <p class="settings-muted">在 Markdown 源码中显示行号，便于定位原文段落。</p>
           </div>
           <ASwitch id="pref-lines" aria-label="显示行号" v-model:checked="draft.lineNumbers" />
         </div>
@@ -189,13 +228,30 @@ function reset() {
         </div>
       </form>
     </section>
-    <section class="settings-card">
-      <h2>键盘操作</h2>
-      <p class="settings-muted">
-        <kbd>Ctrl / ⌘ + S</kbd> 保存当前笔记；<kbd>Esc</kbd>
-        关闭可关闭的弹窗。笔记采用手动保存，离开前留意保存状态。
-      </p>
-    </section>
+    <SettingsActionCard
+      title="键盘操作"
+      description="查看常用快捷键，让编辑和浏览更顺手。"
+      icon="file"
+      action-label="查看快捷键"
+      @open="shortcutsOpen = true"
+    />
+    <SettingsOverlay
+      v-model:show="shortcutsOpen"
+      title="键盘操作"
+      description="Ctrl 用于 Windows 和 Linux，⌘ 用于 macOS。"
+      icon="file"
+    >
+      <dl class="settings-shortcuts">
+        <div v-for="[label, keys] in shortcuts" :key="label">
+          <dt>{{ label }}</dt>
+          <dd>
+            <kbd>{{ keys }}</kbd>
+          </dd>
+        </div>
+      </dl>
+      <p class="settings-muted">笔记采用手动保存，离开前请留意保存状态。</p>
+      <template #footer="{ close }"><AButton type="primary" @click="close">完成</AButton></template>
+    </SettingsOverlay>
   </div>
 </template>
 

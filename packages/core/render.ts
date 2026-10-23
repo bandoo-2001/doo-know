@@ -1,10 +1,26 @@
+import {markdownTasks} from '../../shared/markdown-tasks.js';
+import {diagramFences} from '../../shared/diagram-fences.js';
+import {whiteboardReference} from '../../shared/whiteboard.js';
 import MarkdownIt from 'markdown-it';
 import sanitizeHtml from 'sanitize-html';
 import { dirname, posix } from 'node:path';
 import { markdownStyles } from '../../shared/markdown-styles.js';
 export const markdown = new MarkdownIt({ html: false, linkify: true, breaks: false }).use(
   markdownStyles,
-);
+).use(markdownTasks).use(diagramFences);
+export function renderMarkdownReferences(content: string): string[] {
+  return markdown.parse(content, {}).filter(t => t.type === 'fence' && t.info.trim() === 'excalidraw')
+    .map(t => whiteboardReference(t.content)).filter((id): id is string => !!id);
+}
+export function rewriteWhiteboardReferences(content: string, map: (ref: string) => string | undefined) {
+  const lines = content.split('\n');
+  for (const token of markdown.parse(content, {}).reverse()) {
+    if (token.type !== 'fence' || token.info.trim() !== 'excalidraw' || !token.map) continue;
+    const ref = whiteboardReference(token.content), replacement = ref && map(ref);
+    if (replacement) lines.splice(token.map[0] + 1, token.map[1] - token.map[0] - 2, replacement);
+  }
+  return lines.join('\n');
+}
 export function localReference(notePath: string, url: string): string | undefined {
   try {
     const decoded = decodeURIComponent(url.split('#')[0].split('?')[0]);
@@ -87,7 +103,9 @@ export function renderMarkdown(
     allowedAttributes: {
       a: ['href', 'rel', 'target'],
       img: ['src', 'alt', 'title'],
-      div: ['style'],
+      td: ['style'],
+      th: ['style'],
+      div: ['style', 'data-diagram', 'data-code'],
       span: ['style'],
       h1: ['id'],
       h2: ['id'],
@@ -97,6 +115,8 @@ export function renderMarkdown(
       h6: ['id'],
     },
     allowedStyles: {
+      td: { 'text-align': [/^(?:left|center|right)$/] },
+      th: { 'text-align': [/^(?:left|center|right)$/] },
       div: { 'text-align': [/^(?:left|center|right)$/] },
       span: { color: [/^#[0-9a-fA-F]{6}$/] },
     },

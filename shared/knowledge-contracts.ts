@@ -19,6 +19,7 @@ export type AgentConfig = {
   policies: Principal[];
 };
 export type NoteInfo = {
+  documentType?: 'markdown' | 'whiteboard';
   id: string;
   title: string;
   relativePath: string;
@@ -175,6 +176,7 @@ export type Hit = {
   headingPath: string[];
   startLine: number;
   endLine: number;
+  matchLine?: number;
   snippet: string;
   sourceHash: string;
   matchedBy: ('text' | 'semantic')[];

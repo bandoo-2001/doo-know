@@ -3,6 +3,8 @@ import { writeFile, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createFixture } from '../support/fixture.js';
 import { agentConfig, agentHeaders } from '../support/agent.js';
+import { openDatabase } from '../../packages/core/db.js';
+import { decodeCursor, signCursor } from '../../packages/core/agent/budgets.js';
 it('expands bounded recall for stable result pages and binds metadata cursors to identity and directory', async () => {
   const f = await createFixture({ agent: agentConfig, indexing: { enabled: true, watch: false } });
   try {
@@ -64,13 +66,60 @@ it('expands bounded recall for stable result pages and binds metadata cursors to
 it('expires an old offset when strict refresh changes the result set', async () => {
   const f = await createFixture({ agent: agentConfig, indexing: { enabled: true, watch: false } });
   try {
-    for (let i = 0; i < 3; i++) await writeFile(join(f.knowledgeRoot, `00-Inbox/strict-${i}.md`), '# 搜索分页\n搜索');
+    for (let i = 0; i < 3; i++)
+      await writeFile(join(f.knowledgeRoot, `00-Inbox/strict-${i}.md`), '# 搜索分页\n搜索');
     const payload = { query: '搜索', mode: 'text', freshness: 'strict', limit: 1 };
-    const first = await f.app.inject({ method: 'POST', url: '/api/agent/v1/search', headers: agentHeaders(), payload });
+    const first = await f.app.inject({
+      method: 'POST',
+      url: '/api/agent/v1/search',
+      headers: agentHeaders(),
+      payload,
+    });
     expect(first.statusCode).toBe(200);
     await writeFile(join(f.knowledgeRoot, first.json().data.results[0].relativePath), '# 不再匹配');
-    const next = await f.app.inject({ method: 'POST', url: '/api/agent/v1/search', headers: agentHeaders(), payload: { ...payload, cursor: first.json().data.nextCursor } });
+    const next = await f.app.inject({
+      method: 'POST',
+      url: '/api/agent/v1/search',
+      headers: agentHeaders(),
+      payload: { ...payload, cursor: first.json().data.nextCursor },
+    });
     expect(next.statusCode).toBe(410);
     expect(next.json().error.code).toBe('CURSOR_EXPIRED');
-  } finally { await f.close(); }
+  } finally {
+    await f.close();
+  }
+});
+
+it('expires cursors created under the previous ranking rules even when source versions are unchanged', async () => {
+  const f = await createFixture({ agent: agentConfig, indexing: { enabled: true, watch: false } });
+  const db = openDatabase(f.dataRoot);
+  try {
+    for (let i = 0; i < 3; i++)
+      await writeFile(join(f.knowledgeRoot, `00-Inbox/cursor-${i}.md`), '# 搜索分页\n搜索');
+    const payload = { query: '搜索', mode: 'text', freshness: 'strict', limit: 1 };
+    const first = await f.app.inject({
+      method: 'POST',
+      url: '/api/agent/v1/search',
+      headers: agentHeaders(),
+      payload,
+    });
+    expect(first.statusCode, first.body).toBe(200);
+    const current = decodeCursor(f.config.secret, first.json().data.nextCursor);
+    const legacyEpoch =
+      String(
+        (db.prepare("SELECT value FROM index_meta WHERE key='index_epoch'").get() as any).value,
+      ) + ':none';
+    const cursor = signCursor(f.config.secret, { ...current, epoch: legacyEpoch });
+    const next = await f.app.inject({
+      method: 'POST',
+      url: '/api/agent/v1/search',
+      headers: agentHeaders(),
+      payload: { ...payload, freshness: 'indexed', cursor },
+    });
+    expect(next.statusCode).toBe(410);
+    expect(next.json().error.code).toBe('CURSOR_EXPIRED');
+  } finally {
+    db.close();
+    await f.close();
+  }
 });

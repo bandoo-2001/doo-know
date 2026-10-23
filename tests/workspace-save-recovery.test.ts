@@ -12,7 +12,14 @@ import * as format from '../apps/web/markdown-format';
 import * as drafts from '../apps/web/drafts';
 import * as search from '../apps/web/search-results';
 import * as outline from '../apps/web/document-outline';
+import { previewSource } from '../apps/web/preview-source';
+import * as collectionFeed from '../apps/web/collection-feed';
 import { markdownStyles } from '../shared/markdown-styles';
+import {markdownTasks} from '../shared/markdown-tasks';
+import {diagramFences} from '../shared/diagram-fences';
+import * as whiteboard from '../shared/whiteboard';
+import * as editorCompatibility from '../apps/web/editor/compatibility';
+import * as assetBookmarks from '../apps/web/editor/asset-bookmark';
 
 const mockApi = vi.fn();
 const cleanups: (() => void)[] = [];
@@ -38,10 +45,18 @@ async function mount() {
   new Function('require', 'module', 'exports', source)(
     (id: string) => {
       if (id === 'vue') return Vue;
+      if(id.endsWith('.css'))return {};
+      if(id==='../../../shared/diagram-fences')return {diagramFences};
+      if(id==='../../../shared/whiteboard')return whiteboard;
+      if(id==='../whiteboards/diagrams')return {syncDiagrams:vi.fn(),clearDiagrams:vi.fn()};
       if (id === 'markdown-it') return { default: MarkdownIt, __esModule: true };
       if (id === 'dompurify')
         return { default: { sanitize: (value: string) => value }, __esModule: true };
       if (id === '../../../shared/markdown-styles') return { markdownStyles };
+      if (id === '../../../shared/markdown-tasks') return {markdownTasks};
+      if (id === '../editor/compatibility') return editorCompatibility;
+      if (id === '../editor/asset-bookmark') return assetBookmarks;
+      if (id === '../editor/toolbar-state') return format;
       if (id === '../api') return { api: mockApi, ApiError, resetCsrf: vi.fn() };
       if (id === '../navigation') return navigation;
       if (id === '../preferences') return preferences;
@@ -50,6 +65,8 @@ async function mount() {
       if (id === '../drafts') return drafts;
       if (id === '../search-results') return search;
       if (id === '../document-outline') return outline;
+      if (id === '../preview-source') return { previewSource };
+      if (id === '../collection-feed') return collectionFeed;
       if (id === '../plugins')
         return {
           refreshPlugins: async () => {},

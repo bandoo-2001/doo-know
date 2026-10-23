@@ -1,4 +1,10 @@
 <script setup lang="ts">
+import {diagramFences} from '../../../shared/diagram-fences';
+import DiagramPreview from './DiagramPreview.vue';
+import {syncDiagrams,clearDiagrams} from '../whiteboards/diagrams';
+import {watch} from 'vue';
+import {markdownTasks} from '../../../shared/markdown-tasks';
+
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
 import DOMPurify from 'dompurify';
 import { api, ApiError } from '../api';
@@ -53,7 +59,7 @@ async function readPage(cursor?: string) {
     if (result.kind !== 'ready') throw new Error();
     if (disposed) return;
     const page = result.data,
-      md = new MarkdownIt({ html: false, linkify: true }).use(markdownStyles);
+      md = new MarkdownIt({ html: false, linkify: true }).use(markdownStyles).use(markdownTasks).use(diagramFences);
     const tokens = md.parse(page.content, {});
     const visit = (items: typeof tokens) => {
       for (const token of items) {
@@ -122,6 +128,7 @@ async function loadShare() {
     opening.value = false;
   }
 }
+watch([doc,article],async()=>{await nextTick();if(article.value)syncDiagrams(article.value,{shareToken:props.token,readOnly:true});},{flush:'post'});
 const robotsMeta = document.createElement('meta');
 onMounted(() => {
   robotsMeta.name = 'robots';
@@ -131,6 +138,7 @@ onMounted(() => {
 });
 onUnmounted(() => {
   disposed = true;
+  if(article.value)clearDiagrams(article.value);
   robotsMeta.remove();
 });
 </script>
@@ -165,7 +173,8 @@ onUnmounted(() => {
             }}</a>
           </nav>
         </details>
-        <div class="markdown" v-html="doc.html"></div>
+        <DiagramPreview v-if="doc.documentType==='whiteboard'" kind="excalidraw" code="" :scene="doc.content" :share-token="token" read-only/>
+        <div v-else class="markdown" v-html="doc.html"></div>
         <div v-if="loading && !doc.html" class="reader-loading" role="status">
           <ASpin size="small" />
           <p>正在读取笔记…</p>

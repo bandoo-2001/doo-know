@@ -43,7 +43,7 @@ function menuKey(entry: TreeEntry, event: KeyboardEvent) {
           :title="entry.path"
           @click="emit('select', entry)"
         >
-          <Icon :name="entry.type === 'folder' ? 'folder' : 'file'" :size="18" /><span>{{
+          <Icon :name="entry.type === 'folder' ? 'folder' : /\.excalidraw$/i.test(entry.path) ? 'whiteboard' : 'file'" :size="18" /><span>{{
             entry.name
           }}</span>
         </button>

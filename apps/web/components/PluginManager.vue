@@ -18,6 +18,7 @@ import { pluginComponents } from '../../../packages/plugin-ui/host';
 import PluginBoundary from './PluginBoundary.vue';
 import MCPConnectionGuide from './MCPConnectionGuide.vue';
 import GitRemotePanel from './GitRemotePanel.vue';
+import SettingsOverlay from './settings/SettingsOverlay.vue';
 import {
   installPlugin,
   jobPhases,
@@ -286,6 +287,16 @@ watch(
   { deep: true },
 );
 const pendingUninstall = ref('');
+function openUninstall(id: string) {
+  error.value = '';
+  pendingUninstall.value = id;
+}
+async function confirmUninstall() {
+  const id = pendingUninstall.value;
+  if (!id || busy.value) return;
+  await action(id, 'uninstall');
+  if (!error.value) pendingUninstall.value = '';
+}
 onMounted(() => {
   void run(async () => {
     const response = await api<{ items: PluginInstallation[] }>(
@@ -409,7 +420,7 @@ onMounted(() => {
             @click="action(entry.id, 'upgrade')"
             >升级</AButton
           >
-          <AButton type="text" :disabled="busy" @click="pendingUninstall = entry.id">卸载</AButton>
+          <AButton type="text" :disabled="busy" @click="openUninstall(entry.id)">卸载</AButton>
         </template>
         <AButton
           v-else
@@ -422,23 +433,15 @@ onMounted(() => {
         >
       </div>
     </article>
-    <div v-if="pendingUninstall" class="plugin-confirm">
+    <SettingsOverlay :show="!!pendingUninstall" title="卸载插件" description="卸载后保留插件配置与数据，可按需重新安装。" icon="trash" :busy="busy"
+      @update:show="value => { if (!value) pendingUninstall = ''; }">
       <p>卸载后保留插件配置与数据。</p>
       <p v-if="pendingUninstall === 'mcp'">
         已有连接授权也会保留。如需撤销，请先在连接引导中撤销授权。
       </p>
-      <div class="plugin-actions">
-        <AButton
-          danger
-          :disabled="busy"
-          @click="
-            action(pendingUninstall, 'uninstall');
-            pendingUninstall = '';
-          "
-          >确认卸载</AButton
-        ><AButton :disabled="busy" @click="pendingUninstall = ''">取消</AButton>
-      </div>
-    </div>
+      <AAlert v-if="error" type="error" show-icon :message="error" />
+      <template #footer="{ close }"><AButton :disabled="busy" @click="close">取消</AButton><AButton danger :loading="busy" @click="confirmUninstall">确认卸载</AButton></template>
+    </SettingsOverlay>
     <div v-if="installed" class="plugin-settings">
       <header class="settings-heading">
         <h3>{{ installed.manifest.title }}设置</h3>
@@ -463,7 +466,7 @@ onMounted(() => {
             :loading="pendingAction === installed.id + ':enable'"
             @click="action(installed.id, 'enable')"
             >启用插件</AButton
-          ><AButton type="text" :disabled="busy" @click="pendingUninstall = installed.id"
+          ><AButton type="text" :disabled="busy" @click="openUninstall(installed.id)"
             >卸载插件</AButton
           >
         </div>

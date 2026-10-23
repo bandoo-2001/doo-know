@@ -1,0 +1,272 @@
+.whiteboard-workspace {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  color: var(--text, #263249);
+  background: var(--panel, #fff);
+}
+.whiteboard-workspace.embedded {
+  position: fixed;
+  inset: 0;
+  z-index: 1800;
+  height: 100dvh;
+}
+.whiteboard-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-shrink: 0;
+  min-height: 80px;
+  padding: 15px 24px;
+  border-bottom: 1px solid var(--border, #e2e6ef);
+  background: var(--panel, #fff);
+}
+.whiteboard-heading {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+  flex: 1;
+}
+.whiteboard-heading h1 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 30vw;
+}
+.whiteboard-heading p {
+  margin: 4px 0 0;
+  color: var(--muted, #728096);
+  font-size: 11px;
+}
+.whiteboard-symbol {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 11px;
+  background: var(--blue-soft, #edf1fc);
+  color: var(--blue, #4566c6);
+}
+.whiteboard-workspace button,
+.whiteboard-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 6px 12px;
+  border: 1px solid var(--border, #dfe4ec);
+  border-radius: 8px;
+  background: var(--panel, #fff);
+  color: var(--text, #263249);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.whiteboard-workspace button:hover,
+.whiteboard-button:hover {
+  background: var(--surface, #f4f6fa);
+}
+.whiteboard-workspace button:disabled,
+.whiteboard-button.disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.whiteboard-workspace button.primary {
+  background: var(--blue, #4566c6);
+  border-color: var(--blue, #4566c6);
+  color: var(--panel, #fff);
+}
+.whiteboard-workspace .whiteboard-back {
+  border: 0;
+  background: transparent;
+  padding-left: 0;
+  color: var(--muted, #728096);
+}
+.whiteboard-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.whiteboard-button input {
+  display: none;
+}
+.whiteboard-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  white-space: nowrap;
+  color: var(--muted, #728096);
+}
+.whiteboard-status i {
+  width: 6px;
+  height: 6px;
+  background: var(--success, #419477);
+  border-radius: 50%;
+}
+.whiteboard-status.unsaved i {
+  background: #d89b38;
+}
+.whiteboard-canvas {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+.whiteboard-mount {
+  position: absolute;
+  inset: 0;
+}
+.whiteboard-feedback {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 24px;
+  background: var(--surface, #f5f6fa);
+  border-bottom: 1px solid var(--border, #e2e6ef);
+  font-size: 12px;
+}
+.whiteboard-feedback span {
+  flex: 1;
+}
+.whiteboard-hint {
+  margin: 0;
+  padding: 8px 24px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.whiteboard-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: var(--panel, #fff);
+  color: var(--muted);
+}
+.whiteboard-close-mask {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  background: #10203b55;
+  padding: 20px;
+}
+.whiteboard-close-dialog {
+  width: min(480px, 100%);
+  padding: 28px;
+  background: var(--panel, #fff);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 20px 70px #10203b22;
+}
+.whiteboard-close-dialog h2 {
+  font-size: 18px;
+  margin: 14px 0 10px;
+}
+.whiteboard-close-dialog p {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+.whiteboard-close-dialog > div {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+.whiteboard-workspace .excalidraw {
+  --color-primary: var(--blue, #4566c6);
+  --border-radius-lg: 12px;
+}
+@media (max-width: 760px) {
+  .whiteboard-header {
+    padding: 12px;
+    gap: 10px;
+    flex-wrap: wrap;
+    min-height: 72px;
+  }
+  .whiteboard-heading {
+    flex: 1;
+  }
+  .whiteboard-heading h1 {
+    max-width: 43vw;
+    font-size: 14px;
+  }
+  .whiteboard-heading p {
+    display: none;
+  }
+  .whiteboard-symbol {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+  }
+  .whiteboard-back span {
+    display: none;
+  }
+  .whiteboard-actions {
+    width: 100%;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+  .whiteboard-status {
+    margin-left: auto;
+  }
+  .whiteboard-feedback {
+    padding: 10px 12px;
+  }
+  .whiteboard-workspace button,
+  .whiteboard-button {
+    min-height: 36px;
+  }
+  .whiteboard-workspace.embedded {
+    height: 100dvh;
+  }
+  .whiteboard-canvas .excalidraw .App-menu_top {
+    top: 8px;
+  }
+}
+
+.whiteboard-picker {
+  display: grid;
+  gap: 8px;
+}
+.whiteboard-picker > button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 12px;
+  background: var(--panel);
+  color: var(--text);
+  cursor: pointer;
+}
+.whiteboard-picker > button:hover {
+  background: var(--blue-soft);
+}
+.whiteboard-picker > button > span {
+  flex: 1;
+  min-width: 0;
+}
+.whiteboard-picker small {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 11px;
+  word-break: break-all;
+}
+.main-content > .whiteboard-workspace {
+  flex: 1;
+  height: 0;
+}

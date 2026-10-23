@@ -1,3 +1,4 @@
+import {isWhiteboard,documentTitle,MAX_WHITEBOARD_BYTES} from '../../../shared/whiteboard.js';
 import { stat } from 'node:fs/promises';
 import { basename } from 'node:path';
 import type { FastifyInstance } from 'fastify';
@@ -41,7 +42,8 @@ export function metadataService(config: AppConfig, db: AppDatabase, notes: NoteS
     const ready = known && state?.longest_line_bytes != null;
     return {
       id,
-      title: [...(ready && state.title ? state.title : basename(row.path, '.md'))]
+      ...(isWhiteboard(row.path) ? {documentType: 'whiteboard' as const} : {}),
+      title: [...(ready && state.title ? state.title : documentTitle(row.path))]
         .slice(0, 256)
         .join(''),
       relativePath: row.path,
@@ -51,13 +53,13 @@ export function metadataService(config: AppConfig, db: AppDatabase, notes: NoteS
       contentHash: known ? state.content_hash : null,
       sourceRevision: known ? state.source_revision : null,
       longestLineBytes: ready ? state.longest_line_bytes : null,
-      editorMode:
+      editorMode: isWhiteboard(row.path) ? (s.size <= BigInt(MAX_WHITEBOARD_BYTES) ? 'full' : 'metadata') :
         s.size > 20n * 1024n * 1024n
           ? 'metadata'
           : !ready || s.size > 1024n * 1024n || state.longest_line_bytes > 32768
             ? 'large'
             : 'full',
-      readState: ready
+      readState: isWhiteboard(row.path) ? 'ready' : ready
         ? 'ready'
         : db
               .prepare(

@@ -34,3 +34,51 @@ it('merges indexed hits with filename results and additional pages without dupli
     mergeSearchResults(names, [hit], [{ ...hit, id: 'three' }]).map((item) => item.id),
   ).toEqual(['one', 'three']);
 });
+it('keeps an exact filename ahead of many matches in parent directory names before limiting', () => {
+  const crowded: TreeEntry[] = Array.from({ length: 30 }, (_, i) => ({
+    type: 'note',
+    id: `other-${i}`,
+    name: `其他-${i}.md`,
+    path: `00-Inbox/水文/其他-${i}.md`,
+  }));
+  crowded.push({ type: 'note', id: 'exact', name: '水文.md', path: '40-Resources/水文.md' });
+  const found = filenameResults(crowded, '水文');
+  expect(found).toHaveLength(20);
+  expect(found[0].id).toBe('exact');
+});
+it('orders exact, prefix and partial names ahead of parent-path matches', () => {
+  const entries: TreeEntry[] = [
+    { type: 'note', id: 'path', name: '记录.md', path: '00-Inbox/水文/记录.md' },
+    { type: 'note', id: 'partial', name: '城市水文.md', path: '00-Inbox/城市水文.md' },
+    { type: 'note', id: 'prefix', name: '水文资料.md', path: '00-Inbox/水文资料.md' },
+    { type: 'note', id: 'exact', name: '水文.md', path: '00-Inbox/水文.md' },
+  ];
+  expect(filenameResults(entries, '水文').map((x) => x.id)).toEqual([
+    'exact',
+    'prefix',
+    'partial',
+    'path',
+  ]);
+  expect(filenameResults(entries, '"水文.md"').map((x) => x.id)).toEqual(['exact', 'partial']);
+});
+it('promotes a filename hit over unrelated indexed content without losing its indexed excerpt', () => {
+  const local = filenameResults(entries, '部署');
+  const content = {
+    id: 'other',
+    title: '其他内容',
+    relativePath: '00-Inbox/other.md',
+    snippet: '其他命中',
+    line: 8,
+  };
+  const indexed = { ...local[0], filenameMatch: false, line: 12, snippet: '命中的正文' };
+  const merged = mergeSearchResults([content], local, [indexed]);
+  expect(merged.map((x) => x.id)).toEqual(['one', 'other']);
+  expect(merged[0]).toMatchObject({ line: 12, snippet: '命中的正文', filenameMatch: false });
+});
+it('replaces a filename fallback when a later page supplies a precise content hit', () => {
+  const local = filenameResults(entries, '部署');
+  const hit = { ...local[0], filenameMatch: false, line: 38, snippet: '正文第38行' };
+  const merged = mergeSearchResults(local, [hit], local);
+  expect(merged).toHaveLength(1);
+  expect(merged[0]).toMatchObject({ line: 38, snippet: '正文第38行', filenameMatch: false });
+});

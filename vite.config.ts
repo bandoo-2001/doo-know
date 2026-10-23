@@ -1,10 +1,30 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { fileURLToPath } from 'node:url';
-import { resolve } from 'node:path';
+import { resolve, relative } from 'node:path';
+import { readdirSync, readFileSync, createReadStream } from 'node:fs';
 const projectRoot = fileURLToPath(new URL('.', import.meta.url));
 export default defineConfig({
   plugins: [vue(), {
+    name: 'dooknow-excalidraw-fonts',
+    configureServer(server) {
+      const root=resolve(projectRoot,'node_modules/@excalidraw/excalidraw/dist/prod');
+      server.middlewares.use('/assets/excalidraw/',(req,res,next)=>{
+        const path=decodeURIComponent((req.url||'').split('?')[0]);
+        if(!/^\/fonts\/[a-zA-Z0-9_./-]+\.woff2$/.test(path)||path.split('/').includes('..'))return next();
+        const stream=createReadStream(resolve(root,'.'+path));
+        stream.on('error',()=>{res.statusCode=404;res.end();});res.setHeader('Content-Type','font/woff2');stream.pipe(res);
+      });
+    },
+    generateBundle() {
+      const root=resolve(projectRoot,'node_modules/@excalidraw/excalidraw/dist/prod');
+      for(const file of readdirSync(resolve(root,'fonts'),{recursive:true,withFileTypes:true})) {
+        if(!file.isFile()||!file.name.endsWith('.woff2'))continue;
+        const path=resolve(file.parentPath,file.name);
+        this.emitFile({type:'asset',fileName:'assets/excalidraw/'+relative(root,path),source:readFileSync(path)});
+      }
+    },
+  }, {
     name: 'dooknow-isolated-dev-cache',
     apply: 'serve',
     config(config, environment) {
@@ -22,7 +42,7 @@ export default defineConfig({
     }] },
   }],
   root: 'apps/web',
-  build: { outDir: resolve(projectRoot, 'dist/web'), emptyOutDir: true, rollupOptions: {
+  build: { manifest: true, outDir: resolve(projectRoot, 'dist/web'), emptyOutDir: true, rollupOptions: {
     input: { app: resolve(projectRoot, 'apps/web/index.html'), 'plugin-runtime': resolve(projectRoot, 'apps/web/plugin-runtime.ts'), 'plugin-ui': resolve(projectRoot, 'packages/plugin-ui/index.ts') },
     preserveEntrySignatures: 'strict',
     output: { entryFileNames: 'assets/[name].js' },

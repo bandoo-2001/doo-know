@@ -1209,8 +1209,8 @@ h3 {
   .folder-table th:nth-child(2) {
     width: 28%;
   }
-  .folder-table th:last-child,
-  .folder-table td:last-child {
+  .folder-table th:nth-child(3),
+  .folder-table td:nth-child(3) {
     display: none;
   }
   .folder-table td button {

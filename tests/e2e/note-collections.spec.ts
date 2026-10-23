@@ -24,6 +24,7 @@ test('recent edits update from external writes and favorite controls stay in syn
   await page.reload();
   await showSidebar(page);
   await page.getByRole('button', { name: '最近', exact: true }).click();
+  await showSidebar(page);
   const list = page.getByRole('list', { name: '最近编辑的笔记' });
   await expect(list.locator('.collection-open').first()).toHaveAttribute('title', n.relativePath);
   await list.getByRole('button', { name, exact: true }).click();
@@ -42,6 +43,11 @@ test('recent edits update from external writes and favorite controls stay in syn
   ).toBeVisible();
   await closeSidebar(page);
   await page.reload();
+  await expect(page.getByRole('region', { name: '收藏笔记' })).toBeVisible();
+  await page
+    .getByRole('region', { name: '收藏笔记' })
+    .getByRole('button', { name: `打开 ${name}`, exact: true })
+    .click();
   await expect(
     page.locator('.note-header').getByRole('button', { name: '取消收藏', exact: true }),
   ).toBeVisible();
@@ -62,6 +68,7 @@ test('recent edits update from external writes and favorite controls stay in syn
   ).toHaveAttribute('aria-pressed', 'false');
   await showSidebar(page);
   await page.getByRole('button', { name: '最近', exact: true }).click();
+  await showSidebar(page);
   const config = JSON.parse(await readFile('.local/e2e-config.json', 'utf8'));
   const external = `external-${crypto.randomUUID()}.md`;
   await writeFile(join(config.knowledgeRoot, '00-Inbox', external), '# External edit');

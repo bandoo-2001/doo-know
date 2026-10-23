@@ -1,3 +1,4 @@
+import {isWhiteboard,MAX_WHITEBOARD_BYTES,whiteboardId,whiteboardReference} from '../../shared/whiteboard.js';
 import Fastify from 'fastify';
 import { statSync } from 'node:fs';
 import { join } from 'node:path';
@@ -26,7 +27,7 @@ import { createAuth } from './auth.js';
 import { noteService, saveInput } from '../../packages/core/notes.js';
 import { HttpError, text } from '../../packages/core/errors.js';
 import { shareService } from '../../packages/core/shares.js';
-import { renderMarkdown } from '../../packages/core/render.js';
+import { renderMarkdown, renderMarkdownReferences, localReference } from '../../packages/core/render.js';
 import { recoveryService } from '../../packages/core/recovery.js';
 import { assetService } from '../../packages/core/assets.js';
 import { registerAgentRoutes } from './agent/routes.js';
@@ -190,6 +191,10 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     },
   });
   app.get('/api/security/csrf', async (_req, reply) => ({ token: reply.generateCsrf() }));
+  app.get('/api/collections/status', async (req) =>
+    platform.get().collections.status((req as any).ownerId, (req.query as any).kind));
+  app.get('/api/collections', async (req) =>
+    platform.get().collections.page((req as any).ownerId, req.query as any));
   registerOAuthRoutes(app, auth, config, db);
   app.get('/healthz', async () => ({
     status: 'alive',
@@ -265,7 +270,7 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
   app.get<{ Params: { id: string } }>('/api/notes/:id', async (req) =>
     notes.getNote(req.params.id),
   );
-  app.post('/api/notes', async (req, reply) => {
+  app.post('/api/notes', {bodyLimit: 10 * 1024 * 1024}, async (req, reply) => {
     const b = req.body as Record<string, unknown>;
     return reply
       .code(201)
@@ -273,12 +278,12 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
         notes.createNote(
           text(b?.folderPath, '目录', 1000),
           text(b?.fileName, '文件名', 180),
-          text(b?.content, '正文'),
+          text(b?.content, '正文', MAX_WHITEBOARD_BYTES),
           typeof b?.requestId === 'string' ? b.requestId : undefined,
         ),
       );
   });
-  app.put<{ Params: { id: string } }>('/api/notes/:id', async (req) => {
+  app.put<{ Params: { id: string } }>('/api/notes/:id', {bodyLimit: 10 * 1024 * 1024}, async (req) => {
     const b = saveInput(req.body);
     return notes.saveNote(
       req.params.id,
@@ -402,6 +407,25 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     }
   });
   const shares = lazyService(() => platform.get().shares);
+  function resolveBoard(parentPath: string, reference: string) {
+    const ref = whiteboardReference(reference);
+    const id = ref && (whiteboardId(ref) || (db.prepare('SELECT id FROM notes WHERE active=1 AND path=?')
+      .get(localReference(parentPath,ref)) as {id:string}|undefined)?.id);
+    if (!id) throw new HttpError(404, '白板不存在或已移入回收站');
+    const board = notes.getNote(id);
+    if (!isWhiteboard(board.relativePath)) throw new HttpError(404, '白板不存在');
+    return board;
+  }
+  app.get<{ Params: { id: string }; Querystring: { source: string } }>('/api/notes/:id/whiteboards/resolve', async (req) =>
+    resolveBoard(notes.row(req.params.id).path, req.query.source),
+  );
+  app.get<{ Params: { token: string; id: string } }>('/api/public/shares/:token/whiteboards/:id', async (req) => {
+    const parent = shares.document(req.params.token);
+    const allowed = isWhiteboard(parent.relativePath) ? parent.id === req.params.id :
+      renderMarkdownReferences(parent.content).includes(req.params.id);
+    if (!allowed) throw new HttpError(404, '白板不存在或未在此分享中引用');
+    return resolveBoard(parent.relativePath,req.params.id);
+  });
   await registerWebKnowledgeRoutes(
     app,
     businessConfig,
@@ -428,6 +452,7 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     return {
       title: n.title,
       updatedAt: n.updatedAt,
+      ...(isWhiteboard(n.relativePath) ? { documentType: 'whiteboard', content: n.content } : {}),
       ...renderMarkdown(n.content, (url) =>
         assets.mapUrl(n, url, `/api/public/shares/${req.params.token}/assets/`),
       ),

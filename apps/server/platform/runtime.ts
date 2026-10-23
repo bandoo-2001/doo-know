@@ -10,6 +10,7 @@ import { createKnowledgeRuntime } from '../agent/routes.js';
 import { assertRoot } from '../../../packages/core/indexing/reconcile.js';
 import { fail } from '../../../packages/core/knowledge/errors.js';
 import { loadAgentConfig } from '../../../packages/core/agent/config.js';
+import { collectionService } from '../../../packages/core/collections/service.js';
 
 async function createRuntime(config: AppConfig, db: AppDatabase) {
   if (config.agentConfigFile)
@@ -17,10 +18,24 @@ async function createRuntime(config: AppConfig, db: AppDatabase) {
   assertRoot(config, db);
   const notes = noteService(config, db);
   const knowledge = await createKnowledgeRuntime(config, db, notes);
+  let collections: ReturnType<typeof collectionService>;
+  try {
+    collections = collectionService(config, db, notes);
+  } catch (error) {
+    await knowledge.stopWatching();
+    await Promise.allSettled([
+      knowledge.worker.close(),
+      knowledge.files.close(),
+      knowledge.snapshots.close(),
+      knowledge.indexing.close(),
+    ]);
+    throw error;
+  }
   return {
     config,
     notes,
     knowledge,
+    collections,
     assets: assetService(config, db, notes),
     recovery: recoveryService(config, db, notes),
     shares: shareService(db, notes),
@@ -71,6 +86,7 @@ export function platformRuntime(config: HostConfig, db: AppDatabase) {
       await activation;
       if (!runtime) return;
       const k = runtime.knowledge;
+      await runtime.collections.close();
       await k.stopWatching();
       await k.worker.close();
       await k.files.close();

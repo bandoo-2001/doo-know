@@ -1,3 +1,4 @@
+import {isWhiteboard,isDocument,parseWhiteboard,MAX_WHITEBOARD_BYTES,documentTitle,whiteboardText,withWhiteboardId} from '../../../shared/whiteboard.js';
 import {
   workspaceWrite,
   workspaceWriteSync,
@@ -45,6 +46,8 @@ import { hashFile } from './file-reader.js';
 import { limits } from './limits.js';
 import { assertRoot } from '../indexing/reconcile.js';
 import { moveService } from './move.js';
+import { observeCollectionSource } from '../collections/source.js';
+const documentTypeMismatch = (a:string,b:string) => isWhiteboard(a)!==isWhiteboard(b);
 export const webPrincipal: Principal = {
   id: 'web-owner',
   clientId: 'browser',
@@ -295,6 +298,8 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
         s.mtimeNs.toString(),
         Number(s.size),
       );
+      observeCollectionSource(db, intent.note_id, s.mtimeNs.toString(), Number(s.size), isWhiteboard(intent.path) && content !== undefined ? whiteboardText(content) : content,
+        `${s.dev}:${s.ino}:${s.ctimeNs}`, intent.target_hash!);
       db.prepare('UPDATE document_state SET longest_line_bytes=NULL WHERE note_id=?').run(
         intent.note_id,
       );
@@ -302,7 +307,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
         let longest = 0;
         for (const line of content.split('\n'))
           longest = Math.max(longest, Buffer.byteLength(line));
-        const title = [...(content.match(/^#\s+(.+)$/m)?.[1] || basename(intent.path, '.md'))]
+        const title = [...documentTitle(intent.path,content)]
           .slice(0, 256)
           .join('');
         db.prepare('UPDATE document_state SET longest_line_bytes=?,title=? WHERE note_id=?').run(
@@ -334,9 +339,10 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     content: string,
     requestId: string,
   ) {
-    if (typeof content !== 'string' || Buffer.byteLength(content) > 1024 * 1024)
+    if (typeof content !== 'string' || Buffer.byteLength(content) > (isWhiteboard(fileName) ? MAX_WHITEBOARD_BYTES : 1024 * 1024))
       fail(413, 'REQUEST_TOO_LARGE');
-    if (!validName(fileName) || !fileName.toLowerCase().endsWith('.md')) fail(400, 'INVALID_INPUT');
+    if (isWhiteboard(fileName)) { try { parseWhiteboard(content); } catch(e) { fail(400, 'INVALID_WHITEBOARD', (e as Error).message); } }
+    if (!validName(fileName) || !isDocument(fileName)) fail(400, 'INVALID_INPUT');
     const path = directory === '' ? fileName : `${directory}/${fileName}`;
     authorizePath(p, path, 'knowledge:write');
     assertRoot(config, db);
@@ -352,6 +358,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
       const noteId = randomUUID(),
         temp = join(dirname(file), `.doo-${op.operation.id}.tmp`);
       stage(temp);
+      if(isWhiteboard(path)){content=withWhiteboardId(content,noteId);if(Buffer.byteLength(content)>MAX_WHITEBOARD_BYTES)fail(413,'REQUEST_TOO_LARGE','白板不能超过 8 MiB');}
       durableFile(temp, content);
       db.transaction(() => {
         db.prepare('INSERT INTO notes(id,path,active) VALUES(?,?,0)').run(noteId, path);
@@ -377,8 +384,10 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     const n = row(id);
     authorizePath(p, n.path, 'knowledge:write');
     assertWritable(db, id);
-    if (typeof content !== 'string' || Buffer.byteLength(content) > 1024 * 1024)
+    if (typeof content !== 'string' || Buffer.byteLength(content) > (isWhiteboard(n.path) ? MAX_WHITEBOARD_BYTES : 1024 * 1024))
       fail(413, 'REQUEST_TOO_LARGE');
+    if (isWhiteboard(n.path)) { try { parseWhiteboard(content); } catch(e) { fail(400, 'INVALID_WHITEBOARD', (e as Error).message); } }
+    if(isWhiteboard(n.path)){content=withWhiteboardId(content,id);if(Buffer.byteLength(content)>MAX_WHITEBOARD_BYTES)fail(413,'REQUEST_TOO_LARGE','白板不能超过 8 MiB');}
     if (typeof expected !== 'string' || !/^\d+$/.test(expected)) fail(400, 'INVALID_VERSION');
     const op = workspaceBegin(db, () =>
       beginOperation(db, p, 'update', requestId, {
@@ -391,13 +400,13 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     return runOperation(op.operation, (commit, stage) => {
       const file = safePath(config.knowledgeRoot, n.path, 'note'),
         s = statSync(file, { bigint: true });
-      if (s.size > 1024n * 1024n) fail(409, 'LARGE_FILE_MODE_REQUIRED');
+      if (!isWhiteboard(n.path) && s.size > 1024n * 1024n) fail(409, 'LARGE_FILE_MODE_REQUIRED');
       const current = readDocument(config.knowledgeRoot, n.path);
       if (current.modifiedAt !== expected)
         fail(409, 'VERSION_CONFLICT', '原文件已更新', false, {
           currentModifiedAt: current.modifiedAt,
         });
-      if (current.content.split('\n').some((line) => Buffer.byteLength(line) > 32768))
+      if (!isWhiteboard(n.path) && current.content.split('\n').some((line) => Buffer.byteLength(line) > 32768))
         fail(409, 'LARGE_FILE_MODE_REQUIRED');
       const temp = join(dirname(file), `.doo-${op.operation.id}.tmp`),
         historyFile = `${op.operation.id}.md`;
@@ -649,7 +658,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     const n = row(id, true);
     authorizePath(p, n.path, 'knowledge:write');
     const name = fileName || basename(n.path);
-    if (!validName(name) || !name.toLowerCase().endsWith('.md')) fail(400, 'INVALID_INPUT');
+    if (!validName(name) || !isDocument(name) || documentTypeMismatch(name,n.path)) fail(400, 'INVALID_INPUT');
     const path = dirname(n.path) === '.' ? name : `${dirname(n.path)}/${name}`;
     authorizePath(p, path, 'knowledge:write');
     const op = workspaceBegin(db, () =>

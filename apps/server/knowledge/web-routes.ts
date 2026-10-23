@@ -1,4 +1,5 @@
 import { Readable } from 'node:stream';
+import {isWhiteboard} from '../../../shared/whiteboard.js';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { acquireRead, chargeRate } from '../../../packages/core/agent/budgets.js';
 import type { AppConfig } from '../../../shared/contracts.js';
@@ -128,8 +129,8 @@ export async function registerWebKnowledgeRoutes(
     };
     reply.raw.setTimeout(30000, () => controller.abort());
     return reply
-      .type('text/markdown; charset=utf-8')
-      .header('Content-Disposition', 'attachment; filename="note.md"')
+      .type(isWhiteboard((db.prepare('SELECT path FROM notes WHERE id=?').get(req.params.id) as {path:string}|undefined)?.path||'') ? 'application/json; charset=utf-8' : 'text/markdown; charset=utf-8')
+      .header('Content-Disposition', isWhiteboard((db.prepare('SELECT path FROM notes WHERE id=?').get(req.params.id) as {path:string}|undefined)?.path||'') ? 'attachment; filename="whiteboard.excalidraw"' : 'attachment; filename="note.md"')
       .header('Content-Length', String(ready.size_bytes))
       .send(Readable.from(iterator(), { objectMode: false, highWaterMark: 65536 }));
   });
@@ -146,7 +147,7 @@ export async function registerWebKnowledgeRoutes(
   app.get<{ Params: { token: string } }>('/api/public/shares/:token/meta', async (req) => {
     const { n, p } = publicPrincipal(req.params.token),
       info = await knowledge.info(p, n.id);
-    return { title: info.title, sizeBytes: info.sizeBytes, editorMode: info.editorMode };
+    return { title: info.title, sizeBytes: info.sizeBytes, editorMode: info.editorMode, documentType: info.documentType };
   });
   app.post<{ Params: { token: string } }>(
     '/api/public/shares/:token/read',

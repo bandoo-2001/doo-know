@@ -6,7 +6,7 @@ const content =
   '阅读段落。\n\n'.repeat(80) +
   '### 末尾章节\n\n最后的内容。';
 
-test('document outline stays beside edit and preview, floats only in split, and navigates H1–H5', async ({
+test('wide document outline stays beside edit and preview, and narrow layouts use a popup', async ({
   page,
   context,
 }, info) => {
@@ -25,12 +25,14 @@ test('document outline stays beside edit and preview, floats only in split, and 
   expect(response.status()).toBe(201);
   const note = await response.json();
   await page.goto('/?note=' + note.id);
+  await page.getByRole('button', { name: 'Markdown 源码', exact: true }).click();
   await expect(page.locator('.cm-content')).toBeVisible();
-  if (info.project.name === 'desktop') await page.setViewportSize({ width: 1440, height: 900 });
+  await page.setViewportSize({ width: 1440, height: 900 });
   const chapterMenu = page.getByRole('button', { name: '章节目录', exact: true });
   const nav = page.getByRole('navigation', { name: '本文章节', exact: true });
   async function expectDockedOutline() {
-    await expect(chapterMenu).toHaveCount(0);
+    await expect(chapterMenu).toBeVisible();
+    await expect(chapterMenu).toHaveAttribute('aria-expanded', 'true');
     await expect(page.locator('.outline-popup:visible')).toHaveCount(0);
     await expect(page.locator('.document-outline')).toBeVisible();
     const article = (await page.locator('.document-surface').boundingBox())!;
@@ -64,7 +66,7 @@ test('document outline stays beside edit and preview, floats only in split, and 
     'aria-current',
     'location',
   );
-  await page.getByRole('button', { name: '预览', exact: true }).click();
+  await page.getByRole('button', { name: '阅读', exact: true }).click();
   await expectDockedOutline();
   await nav.getByRole('button', { name: '末尾章节', exact: true }).click();
   await expect(page.locator('.preview-panel')).toBeVisible();
@@ -76,7 +78,8 @@ test('document outline stays beside edit and preview, floats only in split, and 
     'location',
   );
   await page.screenshot({ path: info.outputPath('document-preview.png'), animations: 'disabled' });
-  await page.getByRole('button', { name: '分屏', exact: true }).click();
+  await page.getByRole('button', { name: 'Markdown 源码', exact: true }).click();
+  await page.getByRole('checkbox', { name: '同时预览', exact: true }).check();
   await expect(page.locator('.document-outline')).toHaveCount(0);
   await expect(chapterMenu).toBeVisible();
   await expect(chapterMenu).toHaveAttribute('aria-expanded', 'false');
@@ -96,7 +99,7 @@ test('document outline stays beside edit and preview, floats only in split, and 
   await expect(nav).toBeVisible();
   await page.screenshot({ path: info.outputPath('document-split.png'), animations: 'disabled' });
   // Switching away with the popover open must leave only the persistent outline.
-  await page.getByRole('button', { name: '编辑', exact: true }).click();
+  await page.getByRole('button', { name: 'Markdown 源码', exact: true }).click();
   await expectDockedOutline();
   await expect(nav).toHaveCount(1);
   await page.locator('.cm-content').click();
@@ -105,15 +108,23 @@ test('document outline stays beside edit and preview, floats only in split, and 
   await expect(nav.getByRole('button', { name: '新的子章节', exact: true })).toBeVisible();
   await expect(nav.getByRole('button', { name: '第一章', exact: true })).toHaveCount(0);
   expect((await (await page.request.get('/api/notes/' + note.id)).json()).content).toBe(content);
-  await page.getByRole('button', { name: '分屏', exact: true }).click();
+  await page.getByRole('checkbox', { name: '同时预览', exact: true }).check();
   await expect(chapterMenu).toHaveAttribute('aria-expanded', 'false');
   await chapterMenu.click();
   await expect(nav.getByRole('button', { name: '新的子章节', exact: true })).toBeVisible();
-  await page.getByRole('button', { name: '预览', exact: true }).click();
+  await page.getByRole('button', { name: '阅读', exact: true }).click();
   await expectDockedOutline();
   await expect(page.locator('.preview-panel')).toContainText('未保存的正文。');
   await page.setViewportSize({ width: 743, height: 604 });
-  await expectDockedOutline();
-  await page.getByRole('button', { name: '编辑', exact: true }).click();
-  await expectDockedOutline();
+  await expect(page.locator('.document-outline')).toBeHidden();
+  await expect(chapterMenu).toHaveAttribute('aria-expanded', 'false');
+  await chapterMenu.click();
+  await expect(page.locator('.outline-popup:visible')).toBeVisible();
+  await nav.getByRole('button', { name: '新的子章节', exact: true }).click();
+  await expect(page.locator('.outline-popup:visible')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Markdown 源码', exact: true }).click();
+  await expect(page.locator('.document-outline')).toBeHidden();
+  await chapterMenu.click();
+  await expect(nav.getByRole('button', { name: '新的子章节', exact: true })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });

@@ -20,10 +20,13 @@ test('connects an existing library, previews and pushes, then checks and pulls a
   await page.goto('/');
   await openSettingsSection(page, '知识库与存储');
   const panel = page.getByRole('region', { name: '云端同步面板', exact: true });
-  await expect(panel.getByLabel('仓库克隆地址', { exact: true })).toBeVisible();
-  await panel.getByLabel('仓库克隆地址', { exact: true }).fill(fixture.gitRemoteURL);
-  await panel.getByLabel('云端分支（选填）', { exact: true }).fill('main');
-  await panel.getByRole('button', { name: '关联云端仓库', exact: true }).click();
+  await panel.getByRole('button', { name: /^(管理同步|关联云端仓库)$/ }).click();
+  const connection = page.getByRole('dialog', { name: '管理云端同步', exact: true });
+  await expect(connection.getByLabel('仓库克隆地址', { exact: true })).toBeVisible();
+  await connection.getByLabel('仓库克隆地址', { exact: true }).fill(fixture.gitRemoteURL);
+  await connection.getByLabel('云端分支（选填）', { exact: true }).fill('main');
+  await connection.getByRole('button', { name: '关联云端仓库', exact: true }).click();
+  await expect(connection).toBeHidden({ timeout: 30000 });
   await expect(panel.getByText('云端仓库已连接。', { exact: true })).toBeVisible({
     timeout: 30000,
   });
@@ -58,15 +61,20 @@ test('connects an existing library, previews and pushes, then checks and pulls a
   });
   expect(removed.status()).toBe(201);
   const removedNote = await removed.json();
-  const author = panel.getByLabel('同步提交作者', { exact: true });
+  await panel.getByRole('button', { name: '刷新同步状态', exact: true }).click();
+  await panel.getByRole('button', { name: '预览提交并推送', exact: true }).click();
+  const review = page.getByRole('dialog', { name: '确认本次提交内容', exact: true });
+  await expect(review).toBeVisible();
+  const author = review.getByLabel('同步提交作者', { exact: true });
   if (await author.isVisible()) {
     await author.fill('Remote Browser Fixture');
-    await panel.getByLabel('同步作者邮箱', { exact: true }).fill('remote-browser@example.invalid');
-    await panel.getByRole('button', { name: '保存同步署名', exact: true }).click();
+    await review.getByLabel('同步作者邮箱', { exact: true }).fill('remote-browser@example.invalid');
+    await review.getByRole('button', { name: '保存同步署名', exact: true }).click();
     await expect(author).toHaveCount(0);
   }
-  await panel.getByRole('button', { name: '刷新同步状态', exact: true }).click();
-  await panel.getByLabel('云端同步提交说明', { exact: true }).fill('Browser remote fixture commit');
+  await review
+    .getByLabel('云端同步提交说明', { exact: true })
+    .fill('Browser remote fixture commit');
   let commits = 0;
   page.on('request', (request) => {
     if (
@@ -76,12 +84,23 @@ test('connects an existing library, previews and pushes, then checks and pulls a
     )
       commits++;
   });
-  await panel.getByRole('button', { name: '预览提交并推送', exact: true }).click();
-  await expect(panel.getByText('确认本次提交内容', { exact: true })).toBeVisible({
-    timeout: 15000,
+  await review.getByRole('button', { name: '预览本次提交', exact: true }).click();
+  await expect(review.locator('.commit-preview')).toContainText(note.relativePath, {
+    timeout: 30_000,
   });
-  await expect(panel.locator('.commit-preview')).toContainText(note.relativePath);
-  await panel.getByRole('button', { name: '确认提交并推送', exact: true }).click();
+  await review
+    .getByLabel('云端同步提交说明', { exact: true })
+    .fill('Browser remote fixture revised commit');
+  await expect(review.locator('.commit-preview')).toHaveCount(0);
+  await expect(review.getByRole('button', { name: '确认提交并推送', exact: true })).toHaveCount(0);
+  await expect(review.getByRole('alert')).toContainText('提交说明已修改，请重新预览。');
+  expect(commits).toBe(0);
+  await review.getByRole('button', { name: '预览本次提交', exact: true }).click();
+  await expect(review.locator('.commit-preview')).toContainText(note.relativePath, {
+    timeout: 30_000,
+  });
+  await review.getByRole('button', { name: '确认提交并推送', exact: true }).click();
+  await expect(review).toBeHidden({ timeout: 30000 });
   await expect(panel.getByText('已推送提交版本。', { exact: true })).toBeVisible({
     timeout: 30000,
   });
@@ -95,6 +114,7 @@ test('connects an existing library, previews and pushes, then checks and pulls a
     .locator('.tree-scroll')
     .getByRole('button', { name: note.relativePath.split('/').at(-1), exact: true })
     .click();
+  await page.getByRole('button', { name: 'Markdown 源码', exact: true }).click();
   await expect(page.locator('.cm-content')).toContainText('Saved on the local server.');
   await showSidebar(page);
   await expect(
@@ -220,6 +240,7 @@ test('@git-onboarding imports from the initial page into a fresh knowledge libra
   await expect(page.getByRole('button', { name: '云端同步', exact: true })).toBeVisible();
   await expandFolderPath(page, '00-Inbox');
   await page.getByRole('button', { name: '远端导入示例.md', exact: true }).click();
+  await page.getByRole('button', { name: 'Markdown 源码', exact: true }).click();
   await expect(page.locator('.cm-content')).toContainText('从隔离远端克隆的原文');
   await page.screenshot({ path: info.outputPath('git-onboarding-workspace.png'), fullPage: true });
 });

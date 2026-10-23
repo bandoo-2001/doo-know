@@ -2,7 +2,15 @@
 import { ref, watch, nextTick, onMounted, onBeforeUnmount } from 'vue';
 import { NPopover, NButton } from 'naive-ui';
 import Icon from './Icon.vue';
-defineProps<{ lineNumbers: boolean; fullEditor: boolean }>();
+const props = withDefaults(
+  defineProps<{
+    lineNumbers: boolean;
+    fullEditor: boolean;
+    sourceEditor?: boolean;
+    uploading?: boolean;
+  }>(),
+  { sourceEditor: true, uploading: false },
+);
 const emit = defineEmits<{
   history: [];
   move: [];
@@ -40,6 +48,7 @@ watch(open, async (shown) => {
 onMounted(() => window.addEventListener('resize', measureSpace));
 onBeforeUnmount(() => window.removeEventListener('resize', measureSpace));
 function action(kind: 'history' | 'upload' | 'delete' | 'move' | 'download') {
+  if (kind === 'upload' && props.uploading) return;
   close();
   if (kind === 'history') emit('history');
   else if (kind === 'upload') emit('upload');
@@ -79,9 +88,11 @@ function action(kind: 'history' | 'upload' | 'delete' | 'move' | 'download') {
         <Icon name="file" />下载 Markdown
       </button>
       <button @click="action('history')"><Icon name="clock" />历史版本</button>
-      <button @click="action('upload')"><Icon name="image" />插入图片或 PDF</button>
+      <button :disabled="uploading" @click="action('upload')">
+        <Icon name="image" />插入图片或 PDF
+      </button>
       <div class="plugin-note-actions" @click="close"><slot /></div>
-      <label v-if="fullEditor" class="line-number-option">
+      <label v-if="fullEditor && sourceEditor" class="line-number-option">
         <input
           type="checkbox"
           :checked="lineNumbers"

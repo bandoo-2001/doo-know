@@ -32,6 +32,7 @@ test('search and creation have separate rows and folder actions create in the cu
   const fileName = `workbench-${crypto.randomUUID()}.md`;
   await page.getByRole('textbox', { name: '文件名', exact: true }).fill(fileName);
   await page.getByRole('button', { name: '创建', exact: true }).click();
+  await page.getByRole('button', { name: 'Markdown 源码', exact: true }).click();
   await expect(page.locator('.cm-content')).toBeVisible();
   await expect(
     page.getByRole('heading', { name: fileName.replace(/\.md$/, ''), exact: true }),
@@ -63,6 +64,7 @@ test('desktop rail remains available in focus mode and returns from trash with t
     await page.getByRole('button', { name: '展开 方法', exact: true }).click();
   }
   await firstNote.click();
+  await page.getByRole('button', { name: 'Markdown 源码', exact: true }).click();
   await expect(page.locator('.cm-content')).toBeVisible();
   await expect(page).toHaveURL(/note=/);
   const originalUrl = page.url();
@@ -81,9 +83,10 @@ test('desktop rail remains available in focus mode and returns from trash with t
   expect(page.url()).toBe(originalUrl);
   await expect(sidebar).toBeVisible();
   const outline = page.getByRole('button', { name: '章节目录', exact: true });
-  await expect(outline).toHaveCount(0);
+  await expect(outline).toBeVisible();
+  await expect(outline).toHaveAttribute('aria-expanded', 'true');
   await expect(page.locator('.document-outline')).toBeVisible();
-  await page.getByRole('button', { name: '分屏', exact: true }).click();
+  await page.getByRole('checkbox', { name: '同时预览', exact: true }).check();
   await expect(outline).toBeVisible();
   await expect(page.locator('.document-outline')).toBeHidden();
   await outline.click();

@@ -28,8 +28,14 @@ test('outline parents fold independently without navigation and retain their sta
     notes.push(await response.json());
   }
   await page.goto('/?note=' + notes[0].id);
+  await page.getByRole('button', { name: 'Markdown 源码', exact: true }).click();
   await expect(page.locator('.cm-content')).toBeVisible();
   if (info.project.name === 'desktop') await page.setViewportSize({ width: 1440, height: 900 });
+  const menu = page.getByRole('button', { name: '章节目录', exact: true });
+  async function ensureOutlineOpen() {
+    if ((await menu.getAttribute('aria-expanded')) !== 'true') await menu.click();
+  }
+  await ensureOutlineOpen();
   const nav = page.getByRole('navigation', { name: '本文章节', exact: true });
   const first = nav
     .locator('li[data-level="2"]')
@@ -64,20 +70,27 @@ test('outline parents fold independently without navigation and retain their sta
   await title('第一章').click();
   await expect(page).toHaveURL(/#L5$/);
   await expect(page.locator('.cm-content')).toBeFocused();
+  await ensureOutlineOpen();
   await title('收起 第一章').click();
   await expect
-    .poll(async () => (await page.locator('.document-outline').boundingBox())!.width)
-    .toBe(info.project.name === 'desktop' ? 228 : 132);
+    .poll(
+      async () =>
+        (await page
+          .locator(info.project.name === 'desktop' ? '.document-outline' : '.outline-popup:visible')
+          .boundingBox())!.width,
+    )
+    .toBe(info.project.name === 'desktop' ? 228 : 312);
   await page.screenshot({
     path: info.outputPath('outline-folded-edit.png'),
     animations: 'disabled',
   });
 
-  await page.getByRole('button', { name: '预览', exact: true }).click();
+  await page.getByRole('button', { name: '阅读', exact: true }).click();
+  await ensureOutlineOpen();
   await expect(title('展开 第一章')).toBeVisible();
   await expect(second.getByRole('button', { name: '重复子节', exact: true })).toBeVisible();
-  await page.getByRole('button', { name: '分屏', exact: true }).click();
-  const menu = page.getByRole('button', { name: '章节目录', exact: true });
+  await page.getByRole('button', { name: 'Markdown 源码', exact: true }).click();
+  await page.getByRole('checkbox', { name: '同时预览', exact: true }).check();
   await menu.click();
   await expect(title('展开 第一章')).toBeVisible();
   const splitURL = page.url();
@@ -99,10 +112,12 @@ test('outline parents fold independently without navigation and retain their sta
     path: info.outputPath('outline-folded-split.png'),
     animations: 'disabled',
   });
-  await page.getByRole('button', { name: '编辑', exact: true }).click();
+  await page.getByRole('button', { name: 'Markdown 源码', exact: true }).click();
+  if (info.project.name === 'desktop')
+    await expect(page.locator('.outline-popup:visible')).toHaveCount(0);
+  await ensureOutlineOpen();
   await expect(title('展开 第二章')).toBeVisible();
   await expect(first.getByRole('button', { name: '展开 重复子节', exact: true })).toBeVisible();
-  await expect(page.locator('.outline-popup:visible')).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 
   // A different note with identical headings must not inherit the previous note's folds.
@@ -114,19 +129,23 @@ test('outline parents fold independently without navigation and retain their sta
     .click();
   await expect(page).toHaveURL(new RegExp('note=' + notes[1].id));
   await expect(page.locator('.document-title')).toHaveAttribute('title', notes[1].relativePath);
+  await page.getByRole('button', { name: 'Markdown 源码', exact: true }).click();
   await expect(page.locator('.cm-content')).toBeEditable();
+  await ensureOutlineOpen();
   await expect(title('收起 第一章')).toBeVisible();
   await expect(title('收起 第二章')).toBeVisible();
   await expect(first.getByRole('button', { name: '要点', exact: true })).toBeVisible();
   await page.goBack();
   await expect(page).toHaveURL(new RegExp('note=' + notes[0].id));
   await expect(page.locator('.document-title')).toHaveAttribute('title', notes[0].relativePath);
+  await page.getByRole('button', { name: 'Markdown 源码', exact: true }).click();
   await expect(page.locator('.cm-content')).toBeEditable();
+  await ensureOutlineOpen();
   await expect(title('收起 第一章')).toBeVisible();
 
   // Replacing a folded heading with a new draft heading cannot hide its children.
   await title('收起 第一章').click();
-  await page.getByRole('button', { name: '分屏', exact: true }).click();
+  await page.getByRole('checkbox', { name: '同时预览', exact: true }).check();
   await expect(menu).toHaveAttribute('aria-expanded', 'false');
   await page.locator('.cm-content').click();
   await page.keyboard.press('ControlOrMeta+a');

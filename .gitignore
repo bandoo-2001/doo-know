@@ -2,6 +2,7 @@ node_modules/
 dist/
 .local/
 .env
+.env*.local
 *.sqlite*
 playwright-report/
 test-results/

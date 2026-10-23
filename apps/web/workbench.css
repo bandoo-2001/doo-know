@@ -12,6 +12,9 @@
   top: 0;
   z-index: 30;
 }
+.apps-workspace {
+  background: var(--panel);
+}
 :root {
   --workbench-rail: #edf0f4;
   --workbench-sidebar: #f8f9fb;
@@ -25,6 +28,7 @@
 }
 .rail-notes-navigation button {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 5px;
@@ -38,6 +42,9 @@
   font: inherit;
   font-size: 12px;
   cursor: pointer;
+}
+.rail-notes-navigation button span {
+  white-space: nowrap;
 }
 .rail-notes-navigation button[aria-current='page'] {
   color: var(--blue);
@@ -263,10 +270,14 @@
 .format-toolbar {
   gap: 8px;
   padding-block: 0;
-  scrollbar-width: none;
+  scrollbar-width: thin;
 }
 .format-toolbar::-webkit-scrollbar {
-  display: none;
+  height: 5px;
+}
+.format-toolbar::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+  background: var(--border);
 }
 .format-group {
   gap: 1px;
@@ -300,6 +311,12 @@
 }
 .note-header .outline-toggle {
   display: inline-flex;
+  color: var(--muted);
+}
+.note-header .outline-toggle[aria-expanded='true'],
+.note-header .outline-toggle:hover:not(:disabled) {
+  color: var(--blue);
+  background: var(--blue-soft);
 }
 .document-surface .cm-content {
   padding-top: 30px;
@@ -379,6 +396,30 @@
 .folder-table td {
   padding-block: 11px;
   border-color: var(--workbench-line);
+}
+.folder-table .folder-entry-actions {
+  width: 56px;
+  padding: 6px 12px;
+}
+.folder-table .folder-entry-more {
+  justify-content: center;
+  width: 32px;
+  min-height: 32px;
+  padding: 0;
+  border-radius: 5px;
+  color: var(--muted);
+}
+.folder-entry-more > svg {
+  flex-shrink: 0;
+}
+.folder-table .folder-entry-more:hover,
+.folder-table .folder-entry-more[aria-expanded='true'],
+.folder-table tbody tr.menu-open {
+  background: var(--blue-soft);
+}
+.folder-table .folder-entry-more:hover,
+.folder-table .folder-entry-more[aria-expanded='true'] {
+  color: var(--blue);
 }
 .folder-empty {
   padding-top: clamp(40px, 10vh, 100px);
@@ -556,6 +597,9 @@
   }
   .folder-header {
     padding: 14px 18px;
+  }
+  .folder-table th:first-child {
+    width: calc(72% - 56px);
   }
   .folder-header h1 {
     font-size: 19px;

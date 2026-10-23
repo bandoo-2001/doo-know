@@ -1,3 +1,4 @@
+import {isWhiteboard,isDocument,whiteboardId} from '../../../shared/whiteboard.js';
 import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import {
   createReadStream,
@@ -32,7 +33,7 @@ import type { AppDatabase } from '../../../packages/core/db.js';
 import { openDatabase } from '../../../packages/core/db.js';
 import { HttpError } from '../../../packages/core/errors.js';
 import { safePath, scanFiles, validateRelative } from '../../../packages/core/files.js';
-import { references, localReference } from '../../../packages/core/render.js';
+import { references, localReference,renderMarkdownReferences,rewriteWhiteboardReferences } from '../../../packages/core/render.js';
 import { workspaceWriteSync, workspaceExclusive } from '../../../packages/core/workspace/gate.js';
 import { webPrincipal, mutationCore } from '../../../packages/core/knowledge/core.js';
 import type { platformRuntime } from './runtime.js';
@@ -358,9 +359,14 @@ export function registerTransferRoutes(
       runtime = platform.get(),
       items = JSON.parse(j.items) as ImportItem[];
     const mapping = new Map(items.map((i) => [i.path, i.targetPath]));
+    const sceneIds=new Map<string,string[]>();
+    for(const entry of b.entries.filter(entry=>isWhiteboard(entry.path))){
+      const id=JSON.parse(entryBytes(entry).toString('utf8')).dooknow?.id;
+      if(typeof id==='string'&&whiteboardId(id))sceneIds.set(id,[...(sceneIds.get(id)||[]),entry.path]);
+    }
     const ordered = items
       .map((item, index) => ({ item, index }))
-      .sort((a, b) => (a.item.kind === 'asset' ? 0 : 1) - (b.item.kind === 'asset' ? 0 : 1));
+      .sort((a, b) => (a.item.kind === 'asset' ? 0 : isWhiteboard(a.item.path)?1:2) - (b.item.kind === 'asset' ? 0 : isWhiteboard(b.item.path)?1:2));
     for (const { item, index } of ordered) {
       if (item.state === 'succeeded' || item.state === 'skipped') continue;
       if (interrupted(j)) {
@@ -412,12 +418,25 @@ export function registerTransferRoutes(
                   items.some((i) => i.path === p && i.kind === 'asset' && i.state === 'failed'),
               );
             if (dependencies.length) throw new HttpError(409, '引用附件导入失败，请修复后重试');
-            const content = rewriteImportReferences(
+            let content = isWhiteboard(item.path) ? bytes.toString('utf8') : rewriteImportReferences(
               bytes.toString('utf8'),
               item.path,
               item.targetPath,
               mapping,
             );
+            if(!isWhiteboard(item.path))content=rewriteWhiteboardReferences(content,ref=>{
+              if(whiteboardId(ref)){
+                const sources=sceneIds.get(ref);if(!sources)return;
+                if(sources.length!==1)throw new HttpError(409,'引用白板标识重复，请分开导入并核对引用');
+                const sourceItem=items.find(other=>other.path===sources[0]);
+                if(sourceItem?.state==='failed')throw new HttpError(409,'引用白板导入失败，请修复后重试');
+                return sourceItem?.noteId||(db.prepare('SELECT id FROM notes WHERE path=? AND active=1').get(sourceItem?.targetPath) as {id:string}|undefined)?.id;
+              }
+              const source=localReference(item.path,ref),target=(source&&mapping.get(source))||localReference(item.targetPath,ref);
+              if(!target)return;
+              if(items.some(other=>other.targetPath===target&&other.state==='failed'))throw new HttpError(409,'引用白板导入失败，请修复后重试');
+              return (db.prepare('SELECT id FROM notes WHERE path=? AND active=1').get(target) as {id:string}|undefined)?.id;
+            });
             const result = mutationCore(runtime.config, db).create(
               webPrincipal,
               parent === '.' ? '' : parent,
@@ -500,11 +519,27 @@ export function registerTransferRoutes(
           } finally {
             closeSync(fd);
           }
-          const content = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
-          for (const url of references(content)) {
+          let content = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+          if(!isWhiteboard(path)){
+            content=rewriteWhiteboardReferences(content,ref=>{
+              const boardPath=whiteboardId(ref)
+                ? (db.prepare('SELECT path FROM notes WHERE id=? AND active=1').get(ref) as {path:string}|undefined)?.path
+                : localReference(path,ref);
+              if(!boardPath||!isWhiteboard(boardPath)||!all.includes(boardPath)){
+                warnings.push(`${path}: 引用白板不可用 ${ref}`);return;
+              }
+              if(!selected.includes(boardPath)){
+                if(selected.length>=5000)throw new HttpError(413,'导出最多 5000 个文档');
+                selected.push(boardPath);
+              }
+              return posix.relative(posix.dirname(path),boardPath);
+            });
+            bytes=Buffer.from(content,'utf8');
+          }
+          for (const url of isWhiteboard(path) ? [] : references(content)) {
             const p = localReference(path, url);
             if (!p) continue;
-            if (p.toLowerCase().endsWith('.md')) {
+            if (isDocument(p)) {
               if (!selected.includes(p)) warnings.push(`${path}: 引用笔记不在导出范围 ${p}`);
             } else assets.add(p);
           }
@@ -543,7 +578,7 @@ export function registerTransferRoutes(
           assets: assetCount,
           files: [...files],
           warnings: [...new Set(warnings)].slice(0, 200),
-          includes: '选定目录内 Markdown 和可用的受支持引用附件；不含数据库、凭据、插件或历史版本',
+          includes: '选定目录内 Markdown、Excalidraw 白板和可用的受支持引用附件；不含数据库、凭据、插件或历史版本',
         };
         await writeFile(join(stage, 'dooknow-export.json'), JSON.stringify(manifest, null, 2), {
           mode: 0o600,

@@ -179,30 +179,88 @@ button:disabled {
   scrollbar-color: #d6dae3 transparent;
 }
 .sidebar-tools {
-  padding: 5px 12px 9px;
+  margin: 0 14px 12px;
+  padding: 12px 0 0;
+  border-top: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
   flex-shrink: 0;
 }
 .sidebar-section-title {
-  padding: 0 8px 5px;
-  color: #8a909b;
+  padding: 0 10px 4px;
+  color: var(--muted);
   font-size: 11px;
   letter-spacing: 0.04em;
 }
-.sidebar-tools > .n-button {
-  justify-content: flex-start;
-  background: transparent;
-  font-size: 12px;
-  height: 30px;
+.sidebar-tool-entry {
+  position: relative;
+  min-width: 0;
 }
-.sidebar-tools > .n-button .n-button__border,
-.sidebar-tools > .n-button .n-button__state-border {
+.sidebar-tool-button,
+.sidebar-tool-entry .n-button {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  width: 100%;
+  height: 36px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.sidebar-tool-entry .n-button {
+  padding-inline: 37px 30px;
+}
+.sidebar-tool-entry .n-button__content {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sidebar-tool-entry .n-button__border,
+.sidebar-tool-entry .n-button__state-border {
   border: 0;
 }
-.sidebar-tools > .n-button:hover {
-  background: #e9ecf2;
+.sidebar-tool-button > svg,
+.sidebar-tool-icon,
+.sidebar-tool-chevron {
+  flex-shrink: 0;
+  color: var(--muted);
+}
+.sidebar-tool-entry > svg {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  z-index: 1;
+}
+.sidebar-tool-icon {
+  left: 10px;
+}
+.sidebar-tool-chevron {
+  margin-left: auto;
+}
+.sidebar-tool-entry > .sidebar-tool-chevron {
+  right: 10px;
+}
+.sidebar-tool-button:hover,
+.sidebar-tool-entry .n-button:hover {
+  background: var(--blue-soft);
+  color: var(--blue);
+}
+.sidebar-tool-button:focus-visible,
+.sidebar-tool-entry .n-button:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 1px;
 }
 .sidebar-footer {
   flex-shrink: 0;

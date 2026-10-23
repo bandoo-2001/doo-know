@@ -31,7 +31,12 @@ test('settings pages isolate content, show persistent tools, and restore the not
     .getByRole('navigation', { name: '设置分类', exact: true })
     .getByRole('button', { name: '账号与安全', exact: true })
     .click();
-  await expect(page.getByLabel('确认新密码', { exact: true })).toBeVisible();
+  await expect(page.getByLabel('确认新密码', { exact: true })).toHaveCount(0);
+  await page.getByRole('button', { name: '修改密码', exact: true }).click();
+  const passwordDialog = page.getByRole('dialog', { name: '修改密码', exact: true });
+  await expect(passwordDialog.getByLabel('确认新密码', { exact: true })).toBeVisible();
+  await passwordDialog.getByRole('button', { name: '取消', exact: true }).click();
+  await expect(passwordDialog).toBeHidden();
   await expect(page.locator('.plugin-manager')).toHaveCount(0);
   await page
     .locator('.settings-workspace')
@@ -50,6 +55,7 @@ test('settings pages isolate content, show persistent tools, and restore the not
   expect(response.status()).toBe(201);
   const note = await response.json();
   await page.goto('/?note=' + note.id);
+  await page.getByRole('button', { name: 'Markdown 源码', exact: true }).click();
   const editor = page.locator('.cm-content');
   await expect(editor).toBeVisible();
   await editor.click();

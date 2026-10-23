@@ -10,6 +10,7 @@ const emit = defineEmits<{
   status: [];
   logout: [];
   notes: [];
+  apps: [];
   collection: [view: 'recent' | 'favorites'];
 }>();
 const open = ref(false),
@@ -36,7 +37,8 @@ function settings(section: SettingsSection) {
       <button
         type="button"
         :aria-current="
-          active !== 'settings' && active !== 'trash' && (!collection || collection === 'notes')
+          !['settings', 'trash', 'apps'].includes(active || '') &&
+          (!collection || collection === 'notes')
             ? 'page'
             : undefined
         "
@@ -53,7 +55,7 @@ function settings(section: SettingsSection) {
         :key="item.key"
         type="button"
         :aria-current="
-          active !== 'settings' && active !== 'trash' && collection === item.key
+          !['settings', 'trash', 'apps'].includes(active || '') && collection === item.key
             ? 'page'
             : undefined
         "
@@ -61,6 +63,14 @@ function settings(section: SettingsSection) {
         @click="emit('collection', item.key)"
       >
         <Icon :name="item.icon" :size="21" /><span>{{ item.label }}</span>
+      </button>
+      <button
+        type="button"
+        :aria-current="active === 'apps' ? 'page' : undefined"
+        title="应用"
+        @click="emit('apps')"
+      >
+        <Icon name="apps" :size="21" /><span>应用</span>
       </button>
     </nav>
     <nav class="footer-tools" aria-label="常用工具">

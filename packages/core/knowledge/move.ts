@@ -1,3 +1,4 @@
+import {isDocument,isWhiteboard} from '../../../shared/whiteboard.js';
 import {
   constants,
   copyFileSync,
@@ -197,7 +198,7 @@ export function moveService(config: AppConfig, db: AppDatabase, record: (intent:
       typeof folderPath !== 'string' ||
       typeof fileName !== 'string' ||
       !validName(fileName) ||
-      !fileName.toLowerCase().endsWith('.md')
+      !isDocument(fileName)
     )
       fail(400, 'INVALID_INPUT');
     if (typeof expectedModifiedAt !== 'string' || !/^\d+$/.test(expectedModifiedAt))
@@ -205,6 +206,7 @@ export function moveService(config: AppConfig, db: AppDatabase, record: (intent:
     const path = folderPath === '' ? fileName : `${folderPath}/${fileName}`,
       note = db.prepare('SELECT * FROM notes WHERE id=?').get(id) as any;
     if (!note) fail(404, 'NOT_FOUND');
+    if (isWhiteboard(note.path) !== isWhiteboard(fileName)) fail(400, 'INVALID_INPUT', '改名时请保留原文件类型');
     authorizePath(p, note.path, 'knowledge:write');
     authorizePath(p, path, 'knowledge:write');
     const op = workspaceBegin(db, () =>
@@ -243,7 +245,7 @@ export function moveService(config: AppConfig, db: AppDatabase, record: (intent:
         if (document.modifiedAt !== expectedModifiedAt || sha256(document.content) !== hash)
           fail(409, 'VERSION_CONFLICT');
         if (
-          references(document.content).some((url) => localReference(note.path, url) !== undefined)
+          (!isWhiteboard(note.path) && references(document.content).some((url) => localReference(note.path, url) !== undefined))
         )
           fail(
             409,

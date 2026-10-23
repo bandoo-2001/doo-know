@@ -6,7 +6,8 @@ import { pluginRegistry, contributionVisible } from '../plugins';
 import { pluginComponents, pluginPanel } from '../../../packages/plugin-ui/host';
 import { api } from '../api';
 import PluginBoundary from './PluginBoundary.vue';
-const props = withDefaults(defineProps<{ slotName: ContributionSlot; context?: Record<string, any> }>(), { context: () => ({}) });
+import Icon from './Icon.vue';
+const props = withDefaults(defineProps<{ slotName: ContributionSlot; context?: Record<string, any>; sidebar?: boolean }>(), { context: () => ({}) });
 const items = computed(() => pluginRegistry.value.contributions.filter(c => c.slot === props.slotName && contributionVisible(c, props.context)));
 async function invoke(item: typeof items.value[number]) {
   if (item.component) pluginPanel.value = { id: item.id, context: props.context };
@@ -15,7 +16,13 @@ async function invoke(item: typeof items.value[number]) {
 </script>
 <template>
   <template v-for="item in items" :key="item.id">
-    <NButton v-if="slotName === 'navigation' || !item.component" @click="invoke(item)">{{ item.title }}</NButton>
+    <div v-if="sidebar" class="sidebar-tool-entry">
+      <Icon class="sidebar-tool-icon" :name="item.pluginId === 'git' ? 'commit' : 'apps'" :size="17" />
+      <NButton v-if="slotName === 'navigation' || !item.component" @click="invoke(item)">{{ item.title }}</NButton>
+      <PluginBoundary v-else-if="pluginComponents[item.component]"><component :is="pluginComponents[item.component]" :context="context" /></PluginBoundary>
+      <Icon class="sidebar-tool-chevron" name="chevron" :size="13" />
+    </div>
+    <NButton v-else-if="slotName === 'navigation' || !item.component" @click="invoke(item)">{{ item.title }}</NButton>
     <PluginBoundary v-else-if="pluginComponents[item.component]"><component :is="pluginComponents[item.component]" :context="context" /></PluginBoundary>
   </template>
 </template>

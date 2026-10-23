@@ -6,6 +6,8 @@ import { readBlocks } from '../knowledge/file-reader.js';
 import { utf8Prefix } from '../knowledge/limits.js';
 import { sha256 } from '../knowledge/operations.js';
 import { fail } from '../knowledge/errors.js';
+import {readFile} from 'node:fs/promises';
+import {isWhiteboard,whiteboardText,MAX_WHITEBOARD_BYTES,documentTitle} from '../../../shared/whiteboard.js';
 export type IndexedChunk = Chunk & {
   startByte: number;
   endByte: number;
@@ -25,6 +27,30 @@ export function chunkService(config: AppConfig, db: AppDatabase, tokenizer: Toke
         'SELECT n.path,d.title FROM notes n LEFT JOIN document_state d ON d.note_id=n.id WHERE n.id=?',
       )
       .get(snapshot.note_id) as any;
+    if (isWhiteboard(note.path)) {
+      if (snapshot.size_bytes > MAX_WHITEBOARD_BYTES) fail(413, 'FILE_TOO_LARGE');
+      const labels = whiteboardText(await readFile(snapshot.path, 'utf8')) || documentTitle(note.path);
+      const bytes = Buffer.from(labels);
+      let ordinal = 0;
+      for (let offset = 0; offset < bytes.length;) {
+        const part = utf8Prefix(bytes.subarray(offset), 8192);
+        const result = await tokenizer.split(part.toString('utf8'), documentTitle(note.path));
+        for (const slice of result.slices) {
+          const input = result.header ? result.header + '\n' + slice.content : slice.content;
+          const count = (await tokenizer.count([input]))[0];
+          if (count > 512) fail(413, 'CHUNK_TOKEN_LIMIT');
+          // Whiteboard text is a projection of a whole JSON scene, not Markdown lines.
+          yield { chunkId: sha256([snapshot.note_id,snapshot.source_hash,chunkerId,ordinal].join('\0')),
+            noteId: snapshot.note_id, sourceHash: snapshot.source_hash, chunkerId, ordinal: ordinal++,
+            headingPath: ['白板文字'], startLine: 1, endLine: 1,
+            startByte: 0, endByte: snapshot.size_bytes, content: slice.content,
+            tokenCount: slice.tokenCount, embeddingInput: input,
+            embeddingInputHash: sha256(input), embeddingTokenCount: count };
+        }
+        offset += part.length;
+      }
+      return;
+    }
     let pending = Buffer.alloc(0),
       startByte = 0,
       startLine = 1,

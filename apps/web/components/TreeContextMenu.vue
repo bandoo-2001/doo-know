@@ -1,6 +1,7 @@
 <script lang="ts">
 export type TreeAction =
   | 'open'
+  | 'new-whiteboard'
   | 'new-note'
   | 'new-folder'
   | 'import'
@@ -31,6 +32,7 @@ const items = computed<{ key: TreeAction; label: string }[]>(() => [
   ...(entry.value?.type === 'folder'
     ? [
         { key: 'new-note' as const, label: '新建笔记' },
+        { key:'new-whiteboard' as const,label:'新建白板' },
         { key: 'new-folder' as const, label: '新建子文件夹' },
         { key: 'import' as const, label: '导入 Markdown' },
       ]
@@ -40,7 +42,7 @@ const items = computed<{ key: TreeAction; label: string }[]>(() => [
           label: props.favoriteIds?.includes(entry.value?.id || '') ? '取消收藏' : '收藏',
         },
         { key: 'move' as const, label: '重命名或移动' },
-        { key: 'download' as const, label: '下载 Markdown' },
+        { key: 'download' as const, label: /\.excalidraw$/i.test(entry.value?.path||'')?'下载白板原文件':'下载 Markdown' },
       ]),
   { key: 'copy', label: '复制路径' },
   ...(entry.value?.type === 'note' ||
@@ -61,7 +63,7 @@ async function open(target: TreeEntry, event: MouseEvent | KeyboardEvent) {
   const source = event.target as HTMLElement;
   trigger =
     source.closest<HTMLElement>('button') ||
-    (event.currentTarget as HTMLElement).querySelector<HTMLElement>('.tree-select') ||
+    (event.currentTarget as HTMLElement).querySelector<HTMLElement>('.tree-select, .folder-entry-open') ||
     undefined;
   const rect = trigger?.getBoundingClientRect();
   triggerRect = rect;
@@ -158,6 +160,11 @@ defineExpose({ open });
   </Teleport>
 </template>
 <style>
+.tree-context-menu,
+.tree-context-menu * {
+  /* Visibility must update immediately so opening can move keyboard focus. */
+  transition-property: none;
+}
 .tree-context-menu {
   position: fixed;
   z-index: 2100;

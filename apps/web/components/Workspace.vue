@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
+import '../whiteboards/whiteboards.css';
+import {diagramFences} from '../../../shared/diagram-fences';
+import {isWhiteboard,emptyWhiteboard,whiteboardFence,whiteboardId} from '../../../shared/whiteboard';
+import {syncDiagrams,clearDiagrams} from '../whiteboards/diagrams';
+import {markdownTasks} from '../../../shared/markdown-tasks';
+
+import { defineAsyncComponent, ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
 import { NInput, NModal, NAlert } from 'naive-ui';
 import {
   Button as AButton,
@@ -17,15 +23,21 @@ import Icon from './Icon.vue';
 import TreeBranch from './TreeBranch.vue';
 import TreeContextMenu, { type TreeAction } from './TreeContextMenu.vue';
 import NoteCollection from './NoteCollection.vue';
-import MarkdownEditor from './MarkdownEditor.vue';
+import CollectionWorkspace from './CollectionWorkspace.vue';
+import { createCollectionFeed } from '../collection-feed';
+import type { CollectionNote } from '../../../shared/collection-contracts';
+import NoteEditorHost from './NoteEditorHost.vue';
+import {documentEditorEnabled} from '../editor/compatibility';
+import type {EditorKind, ImageReplacementTarget, SelectionBookmark} from '../editor/contracts';
+import {captureAssetTarget,resolveAssetTarget,type AssetTarget} from '../editor/asset-bookmark';
 import EditorToolbar from './EditorToolbar.vue';
 import DocumentBreadcrumb from './DocumentBreadcrumb.vue';
-import { emptyToolbarState, type MarkdownAction } from '../markdown-format';
+import { emptyToolbarState, type MarkdownAction } from '../editor/toolbar-state';
 import DocumentOutline from './DocumentOutline.vue';
 import { outlineFromTokens, type OutlineHeading } from '../document-outline';
-import LargeFileWorkspace from './LargeFileWorkspace.vue';
 import WorkspaceFooter from './WorkspaceFooter.vue';
 import SettingsWorkspace from './settings/SettingsWorkspace.vue';
+import SettingsOverlay from './settings/SettingsOverlay.vue';
 import TransferPanel from './settings/TransferPanel.vue';
 import StatusDrawer from './StatusDrawer.vue';
 import TrashWorkspace from './TrashWorkspace.vue';
@@ -44,6 +56,7 @@ import DirectoryTreeSelect from './DirectoryTreeSelect.vue';
 import SetupImport from './SetupImport.vue';
 import { useNoteDraft } from '../useNoteDraft';
 import { filenameResults, mergeSearchResults } from '../search-results';
+import { previewSource } from '../preview-source';
 import { noteDraftBase } from '../drafts';
 import { clearPluginDrafts } from '../plugin-drafts';
 import {
@@ -61,12 +74,25 @@ import type {
   SearchOutput,
   MoveNoteResult,
 } from '../../../shared/knowledge-contracts';
+const WhiteboardWorkspace=defineAsyncComponent(()=>import('./WhiteboardWorkspace.vue'));
+const embeddedBoardRef=ref<InstanceType<typeof WhiteboardWorkspace>>();
+const boardRef=ref<InstanceType<typeof WhiteboardWorkspace>>(), boardDirty=ref(false), embeddedBoardId=ref<string>(),
+  boardPickerOpen=ref(false),boardCreating=ref(false);
+let boardInsertTarget:{id:string;epoch:number;content:string;selection:SelectionBookmark}|undefined;
+const LargeFileWorkspace=defineAsyncComponent(()=>import('./LargeFileWorkspace.vue'));
 const noteInfo = ref<NoteInfo>(),
   largeRef = ref<InstanceType<typeof LargeFileWorkspace>>(),
   largeDirty = ref(false);
 const initialNoteId = new URLSearchParams(window.location.search).get('note');
 const noteLine = ref<number | undefined>();
-const editorRef = ref<InstanceType<typeof MarkdownEditor>>();
+const editorRef = ref<InstanceType<typeof NoteEditorHost>>();
+const documentEditingEnabled=documentEditorEnabled();
+const editorKind=ref<EditorKind>(documentEditingEnabled?editorPreferences.editorKind:'source');
+const editorComposing=ref(false),editorHint=ref('');
+watch(()=>editorPreferences.editorKind,value=>{editorKind.value=documentEditingEnabled?value:'source'});
+async function switchEditing(kind:EditorKind,sourceOffset?:number){if(editorKind.value===kind&&mode.value==='edit'&&sourceOffset===undefined)return;try{const saved=await editorRef.value?.flush();editorKind.value=kind;mode.value='edit';editorHint.value='';await nextTick();if(saved)editorRef.value?.focus(sourceOffset===undefined?saved.selection:{anchor:sourceOffset,head:sourceOffset,affinity:'after'});}catch(cause){showError(cause);}}
+async function changeNoteView(view:'edit'|'preview'|'split'){try{await editorRef.value?.flush();mode.value=view;}catch(cause){showError(cause);}}
+const previewRef = ref<HTMLElement>();
 const mainRef = ref<HTMLElement>();
 const noteOpening = ref(false),
   editorTransfer = ref(false);
@@ -83,10 +109,13 @@ const props = withDefaults(defineProps<{ username?: string; serviceUnavailable?:
 });
 const emit = defineEmits<{ logout: []; 'retry-service': [] }>();
 function returnGitSave() {
-  gitSyncOpen.value = false;
+  gitSyncOverlay.value?.close();
+  if (gitSyncOpen.value) return;
   openNotes();
 }
 const gitSyncOpen = ref(false);
+const gitSyncOverlay = ref<InstanceType<typeof SettingsOverlay>>();
+const gitPanelBusy = ref(false), gitPanelDirty = ref(false);
 const gitAvailable = computed(() =>
   pluginRegistry.value.installed?.some((entry) => entry.id === 'git' && entry.state === 'enabled'),
 );
@@ -133,49 +162,57 @@ const treeMenu = ref<InstanceType<typeof TreeContextMenu>>();
 const treeMenuPath = ref('');
 let treeRefreshEpoch = 0;
 const collection = ref<'notes' | 'recent' | 'favorites'>('notes');
+const collectionFeed = createCollectionFeed(api);
 const favoriteBusy = ref(false);
-const favoriteIds = computed(() =>
-  flat.value.filter((entry) => entry.favorite && entry.id).map((entry) => entry.id!),
-);
+const favoriteIds = computed(() => {
+  const values = new Map(flat.value.filter(entry => entry.id).map(entry => [entry.id!, !!entry.favorite]));
+  for (const [id, value] of collectionFeed.favoriteStates.value) values.set(id, value);
+  return [...values].filter(([, favorite]) => favorite).map(([id]) => id);
+});
 const currentFavorite = computed(() => !!note.value && favoriteIds.value.includes(note.value.id));
-const collectionEntries = computed(() =>
-  flat.value
-    .filter(
-      (entry) =>
-        entry.type === 'note' && entry.id && (collection.value !== 'favorites' || entry.favorite),
-    )
-    .sort(
-      (a, b) =>
-        (Date.parse(b.updatedAt || '') || 0) - (Date.parse(a.updatedAt || '') || 0) ||
-        a.path.localeCompare(b.path, 'zh-CN'),
-    ),
-);
-async function toggleFavorite(id: string) {
+const collectionEntries = computed<TreeEntry[]>(() => collection.value === 'notes' ? [] : collectionFeed.entriesFor(collection.value).map(item => ({ ...item, type: 'note', updatedAt: item.updatedAt || undefined })));
+async function toggleFavorite(id: string, next = !favoriteIds.value.includes(id)) {
   if (favoriteBusy.value) return;
   favoriteBusy.value = true;
   try {
     const result = await api<{ favorite: boolean }>(`/api/notes/${id}/favorite`, 'PUT', {
-      favorite: !favoriteIds.value.includes(id),
+      favorite: next,
     });
     // A tree read started before this mutation must not restore its old favorite state.
     treeRefreshEpoch++;
     const entry = flat.value.find((item) => item.id === id);
     if (entry) entry.favorite = result.favorite;
+    collectionFeed.updateFavorite(id, result.favorite);
     tell(result.favorite ? '已收藏' : '已取消收藏');
   } finally {
     favoriteBusy.value = false;
   }
 }
-async function showCollection(view: 'recent' | 'favorites') {
-  await openNotes();
-  collection.value = view;
-  query.value = '';
-  sidebarCollapsed.value = false;
-  drawer.value = true;
-  await run(refresh);
+async function showCollection(view: 'recent' | 'favorites', syncUrl = true) {
+  await run(async () => {
+    await retainNoteContext();
+    collection.value = view;
+    panel.value = 'collection';
+    query.value = '';
+    sidebarCollapsed.value = false;
+    drawer.value = false;
+    if (syncUrl) navigation.commit({ view });
+    await collectionFeed.select(view);
+    await collectionFeed.checkForUpdates(view);
+    if (collectionFeed.updated.value && collectionFeed.scrollTop.value < 80) await collectionFeed.refresh();
+  });
 }
+async function favoriteCard(item: CollectionNote) { await run(() => toggleFavorite(item.id, !item.favorite)); }
+async function createFromCollection() { if (!treeLoaded.value) await run(refresh); create('note'); }
 function showTreeMenu(entry: TreeEntry, event: MouseEvent | KeyboardEvent) {
   treeMenu.value?.open(entry, event);
+}
+function folderRowKey(entry: TreeEntry, event: KeyboardEvent) {
+  if (event.key === 'ContextMenu' || (event.shiftKey && event.key === 'F10')) {
+    event.preventDefault();
+    event.stopPropagation();
+    showTreeMenu(entry, event);
+  }
 }
 async function treeAction(entry: TreeEntry, action: TreeAction) {
   await run(async () => {
@@ -184,8 +221,8 @@ async function treeAction(entry: TreeEntry, action: TreeAction) {
     } else if (action === 'copy') {
       await navigator.clipboard.writeText(entry.path);
       tell('路径已复制');
-    } else if (action === 'new-note' || action === 'new-folder') {
-      create(action === 'new-note' ? 'note' : 'folder', entry.path);
+    } else if (action === 'new-note' || action === 'new-folder' || action === 'new-whiteboard') {
+      create(action === 'new-whiteboard'?'whiteboard':action === 'new-note' ? 'note' : 'folder', entry.path);
     } else if (action === 'import') {
       importFolder.value = entry.path;
       importOpen.value = true;
@@ -227,8 +264,22 @@ const searchMode = ref<'text' | 'semantic' | 'hybrid'>('hybrid'),
   vectorReady = ref(false);
 const importFolder = ref('40-Resources'),
   importBusy = ref(false),
+  batchImportBusy = ref(false),
   downloading = ref(false),
   outlineOpen = ref(false);
+const outlineDocked = ref(true), narrowDocument = ref(false);
+const outlineTrigger = ref<InstanceType<typeof AButton>>();
+const outlineUsesPopup = computed(() => narrowDocument.value || mode.value === 'split');
+let documentResizeObserver: ResizeObserver | undefined;
+function measureDocumentWidth() {
+  const width = mainRef.value?.clientWidth;
+  if (width) narrowDocument.value = width <= 900;
+}
+function closeOutlineFromKeyboard() {
+  outlineOpen.value = false;
+  void nextTick(() => (outlineTrigger.value?.$el as HTMLButtonElement | undefined)?.focus());
+}
+watch(outlineUsesPopup, () => { outlineOpen.value = false; });
 watch(mode, () => {
   outlineOpen.value = false;
 });
@@ -237,6 +288,7 @@ watch(
   () => note.value?.id,
   () => {
     collapsedOutline.value = [];
+    outlineOpen.value = false;
   },
 );
 const query = ref(''),
@@ -251,7 +303,7 @@ const currentView = (id: string, epoch: number) => note.value?.id === id && view
 let searchTimer: ReturnType<typeof setTimeout>;
 let noticeTimer: ReturnType<typeof setTimeout>;
 const dirty = computed(
-  () => !!note.value && (largeDirty.value || draft.value !== savedContent.value),
+  () => !!note.value && (boardDirty.value || editorComposing.value || largeDirty.value || draft.value !== savedContent.value),
 );
 watch(
   dirty,
@@ -269,7 +321,7 @@ const localDrafts = useNoteDraft(
     baseRevision: currentDraftBase(),
     content: draft.value,
     dirty: dirty.value,
-    enabled: noteInfo.value?.editorMode === 'full',
+    enabled: noteInfo.value?.editorMode === 'full' && !isWhiteboard(note.value?.relativePath||'') && !editorComposing.value,
   }),
   (text) => {
     draft.value = text;
@@ -313,10 +365,10 @@ async function browseRoot() {
   );
 }
 const navigation = createWorkspaceNavigation({
-  dirty: () => dirty.value,
-  canPreserveDraft: (route) =>
+  dirty: () => dirty.value || !!embeddedBoardId.value,
+  canPreserveDraft: (route) => !embeddedBoardId.value && (
     !!route.view ||
-    (['settings', 'trash'].includes(panel.value) && !!route.note && note.value?.id === route.note),
+    (['settings', 'trash', 'apps', 'collection'].includes(panel.value) && !!route.note && note.value?.id === route.note)),
   guard,
   apply: applyRoute,
   error: showError,
@@ -346,12 +398,14 @@ async function initializeDrafts() {
   }
 }
 async function applyRoute(route: WorkspaceRoute) {
-  if (route.note && ['settings', 'trash'].includes(panel.value) && note.value?.id === route.note) {
+  if (route.note && ['settings', 'trash', 'apps', 'collection'].includes(panel.value) && note.value?.id === route.note) {
     panel.value = 'note';
     drawer.value = false;
     return;
   }
   if (route.note) return openNote(route.note, route.line, false);
+  if (route.view === 'recent' || route.view === 'favorites') return showCollection(route.view, false);
+  if (route.view === 'apps') return openApps(false);
   if (route.view === 'trash') return openTrash(false);
   if (route.view === 'settings') return settings(route.section, false);
   const entry = route.folder
@@ -390,7 +444,7 @@ function workspaceChanged(event: Event) {
     }
   });
 }
-const md = new MarkdownIt({ html: false, linkify: true }).use(markdownStyles);
+const md = new MarkdownIt({ html: false, linkify: true }).use(markdownStyles).use(markdownTasks).use(previewSource).use(diagramFences);
 const flatten = (items: TreeEntry[]): TreeEntry[] =>
   items.flatMap((x) => [x, ...(x.children ? flatten(x.children) : [])]);
 const flat = computed(() => flatten(tree.value));
@@ -411,11 +465,12 @@ function localPath(url: string) {
     return '';
   }
 }
+function resolveEditorImage(url:string){const path=localPath(url);const asset=assets.value.find(a=>a.relativePath===path);return asset?`/api/assets/${asset.id}`:undefined;}
+function openEditorLink(url:string){const path=localPath(url),target=flat.value.find(x=>x.type==='note'&&x.path===path),asset=assets.value.find(a=>a.relativePath===path);if(target&&target.id){void run(()=>openNote(target.id!));return;}if(asset){window.open(`/api/assets/${asset.id}`,'_blank','noopener,noreferrer');return;}if(/^https?:\/\//i.test(url))window.open(url,'_blank','noopener,noreferrer');else tell('未找到此链接对应的笔记或附件，可在链接设置中核对地址');}
 const preview = computed(() => {
   const tokens = md.parse(draft.value, {});
   const visit = (list: typeof tokens) => {
     for (const t of list) {
-      if (t.type === 'heading_open' && t.map) t.attrSet('data-source-line', String(t.map[0] + 1));
       if (t.type === 'image' || t.type === 'link_open') {
         const attr = t.type === 'image' ? 'src' : 'href',
           url = String(t.attrGet(attr) || '');
@@ -436,6 +491,59 @@ const preview = computed(() => {
   visit(tokens);
   return DOMPurify.sanitize(md.renderer.render(tokens, md.options, {}));
 });
+watch([preview,mode,previewRef],async()=>{await nextTick();if(previewRef.value)syncDiagrams(previewRef.value,{noteId:note.value?.id});},{flush:'post'});
+function onBoardSaved(document:NoteDocument){
+  if(note.value?.id!==document.id)return;
+  note.value=document;draft.value=document.content;savedContent.value=document.content;
+}
+async function openBoardPicker(){
+  if(!note.value||isWhiteboard(note.value.relativePath))return;
+  try{await editorRef.value?.flush();
+    boardInsertTarget={id:note.value.id,epoch:viewEpoch,content:draft.value,selection:editorRef.value!.selection()};
+    boardPickerOpen.value=true;
+  }catch(cause){showError(cause);}
+}
+function insertBoard(id:string){
+  const target=boardInsertTarget;
+  if(!target||!currentView(target.id,target.epoch)||draft.value!==target.content){tell('正文已变化，请重新选择白板插入位置');return;}
+  if(!editorRef.value?.insertAsset(whiteboardFence(id),target.selection)){tell('请重新选择正文中的插入位置');return;}
+  boardPickerOpen.value=false;boardInsertTarget=undefined;
+}
+async function newBoard(content=JSON.stringify(emptyWhiteboard())){
+  const parent=folder.value||'00-Inbox';
+  if(!flat.value.some(item=>item.type==='folder'&&item.path===parent)){
+    try{await api('/api/folders','POST',{parent:'',name:parent});}
+    catch(cause){if(!(cause instanceof ApiError)||cause.status!==409)throw cause;}
+    await refresh();
+  }
+  const stem=[...(note.value?.title||'未命名').replace(/[\u0000-\u001f/\\:]/g,' ').trim()].slice(0,35).join('')+'白板';
+  const paths=new Set(flat.value.map(item=>item.path));
+  let count=1;
+  while(paths.has(parent+'/'+stem+(count===1?'':' ('+count+')')+'.excalidraw'))count++;
+  const created=await api<NoteDocument>('/api/notes','POST',{folderPath:parent,
+    fileName:stem+(count===1?'':' ('+count+')')+'.excalidraw',content,requestId:crypto.randomUUID()});
+  await refresh();return created;
+}
+async function createInlineBoard(){
+  if(boardCreating.value)return;boardCreating.value=true;
+  try{const created=await newBoard();insertBoard(created.id);if(!boardPickerOpen.value)embeddedBoardId.value=created.id;}
+  catch(cause){showError(cause);}finally{boardCreating.value=false;}
+}
+async function openDiagramEvent(event:Event){
+  const detail=(event as CustomEvent).detail,originId=note.value?.id,originEpoch=viewEpoch;
+  if(embeddedBoardId.value||boardCreating.value)return;
+  try{
+    await editorRef.value?.flush();
+    if(detail?.mermaid){
+      boardCreating.value=true;tell('正在转换为白板…');
+      const scene=await (await import('../whiteboards/canvas')).mermaidScene(detail.mermaid);
+      if(note.value?.id!==originId||viewEpoch!==originEpoch)return;
+      const created=await newBoard(JSON.stringify(scene));
+      if(note.value?.id===originId&&viewEpoch===originEpoch)embeddedBoardId.value=created.id;
+      notice.value='';
+    }else if(typeof detail?.id==='string'&&whiteboardId(detail.id))embeddedBoardId.value=detail.id;
+  }catch(cause){showError(cause);}finally{boardCreating.value=false;}
+}
 function tell(s: string) {
   notice.value = s;
   clearTimeout(noticeTimer);
@@ -468,6 +576,7 @@ async function refresh() {
   const epoch = ++treeRefreshEpoch;
   const entries = await api<TreeEntry[]>('/api/tree');
   if (epoch !== treeRefreshEpoch) return;
+  collectionFeed.observeFavorites(flatten(entries));
   tree.value = entries;
   treeLoaded.value = true;
 }
@@ -477,13 +586,12 @@ async function refreshCollection() {
     collection.value === 'notes' ||
     document.hidden ||
     collectionRefreshing ||
-    !treeLoaded.value ||
-    ['settings', 'trash'].includes(panel.value)
+    ['settings', 'trash', 'apps'].includes(panel.value)
   )
     return;
   collectionRefreshing = true;
   try {
-    await refresh();
+    await collectionFeed.checkForUpdates(collection.value);
   } catch (cause) {
     showError(cause);
   } finally {
@@ -500,7 +608,7 @@ async function openNote(id: string, line?: number, syncUrl = true, preserveDraft
     noteOpening.value = true;
     try {
       let meta = await api<NoteInfo>(`/api/notes/${id}/meta`);
-      if (meta.readState === 'unknown' && meta.sizeBytes <= 1024 * 1024) {
+      if (!isWhiteboard(meta.relativePath) && meta.readState === 'unknown' && meta.sizeBytes <= 1024 * 1024) {
         const prep = await api<FileReply<OutlinePage>>(`/api/notes/${id}/outline`);
         if (prep.kind === 'accepted') {
           let op = prep.operation;
@@ -533,10 +641,11 @@ async function openNote(id: string, line?: number, syncUrl = true, preserveDraft
         tell('原文已更新，当前未保存草稿会保留，请重新核对版本');
         return;
       }
-      if (meta.editorMode === 'full') localDrafts.prepare();
+      if (meta.editorMode === 'full' && !isWhiteboard(meta.relativePath)) localDrafts.prepare();
       note.value = n;
       noteInfo.value = meta;
       largeDirty.value = false;
+      boardDirty.value = false;
       draft.value = n.content;
       savedContent.value = n.content;
       selected.value = n.relativePath;
@@ -551,9 +660,9 @@ async function openNote(id: string, line?: number, syncUrl = true, preserveDraft
       if (useDefaultMode) mode.value = editorPreferences.mode;
       noteLine.value = line;
       if (syncUrl) navigation.commit({ note: id, line });
-      if (meta.editorMode === 'full') await localDrafts.load(id, currentDraftBase(), n.content);
+      if (meta.editorMode === 'full' && !isWhiteboard(meta.relativePath)) await localDrafts.load(id, currentDraftBase(), n.content);
       await nextTick();
-      if (line) editorRef.value?.goToLine(line);
+      if (line && epoch === viewEpoch) revealLine(line);
     } finally {
       if (epoch === viewEpoch) noteOpening.value = false;
     }
@@ -561,11 +670,16 @@ async function openNote(id: string, line?: number, syncUrl = true, preserveDraft
 }
 async function select(entry: TreeEntry, syncUrl = true) {
   await run(async () => {
-    if (entry.type === 'note') await openNote(entry.id!);
+    if (entry.type === 'note' && entry.id === note.value?.id && panel.value === 'collection') {
+      panel.value = 'note';
+      drawer.value = false;
+      if (syncUrl) navigation.commit({ note: entry.id, line: noteLine.value });
+    } else if (entry.type === 'note') await openNote(entry.id!);
     else
       await guard(async () => {
         viewEpoch++;
         folder.value = entry.path;
+        collection.value = 'notes';
         selected.value = entry.path;
         note.value = undefined;
         drawer.value = false;
@@ -577,6 +691,8 @@ async function select(entry: TreeEntry, syncUrl = true) {
 const leaveOpen = ref(false);
 let pendingNavigation: (() => Promise<void>) | undefined;
 async function guard(fn: () => Promise<void>) {
+  if(embeddedBoardId.value){await embeddedBoardRef.value?.requestClose();return;}
+  if(noteInfo.value?.editorMode === 'full') {try {await editorRef.value?.flush();}catch(cause){showError(cause);if(!dirty.value)return;}}
   if (dirty.value) {
     pendingNavigation = fn;
     leaveOpen.value = true;
@@ -595,6 +711,7 @@ async function leave(action: 'save' | 'discard' | 'cancel') {
     try {
       await localDrafts.discard();
       await largeRef.value?.discard();
+      await boardRef.value?.discard();
     } catch (cause) {
       showError(cause);
       return;
@@ -725,6 +842,8 @@ async function save(
   retry?: NonNullable<typeof pendingSave.value>,
 ) {
   if (!note.value || (busy.value && !retry) || props.serviceUnavailable) return;
+  if (isWhiteboard(note.value.relativePath) && !revisionId) { await boardRef.value?.save(); return; }
+  if(!retry && content === undefined && noteInfo.value?.editorMode === 'full'){const targetId=note.value.id;try{await editorRef.value?.flush();}catch(cause){showError(cause);return;}if(note.value?.id!==targetId || (busy.value && !retry))return;}
   if (
     noteInfo.value?.editorMode === 'full' &&
     !revisionId &&
@@ -930,7 +1049,7 @@ async function copyShare() {
 const createBusy = ref(false),
   inboxBusy = ref(false);
 const createOpen = ref(false),
-  createKind = ref<'note' | 'folder'>('note'),
+  createKind = ref<'note' | 'folder' | 'whiteboard'>('note'),
   newName = ref(''),
   newFolder = ref('');
 const rootFolderPurposes = [
@@ -948,9 +1067,8 @@ const inboxAvailable = computed(() =>
 );
 const rootNoteNeedsFolder = computed(
   () =>
-    createKind.value === 'note' &&
-    !newFolder.value &&
-    (newName.value.endsWith('.md') ? newName.value : newName.value + '.md') !== 'README.md',
+    !newFolder.value && (createKind.value === 'whiteboard' ||
+    (createKind.value === 'note' && (newName.value.endsWith('.md') ? newName.value : newName.value + '.md') !== 'README.md')),
 );
 const rootFolderNeedsPurpose = computed(
   () =>
@@ -959,7 +1077,7 @@ const rootFolderNeedsPurpose = computed(
     !rootFolderPurposes.some((purpose) => purpose.value === newName.value),
 );
 let createRequestId = crypto.randomUUID();
-function create(kind: 'note' | 'folder', parent?: string) {
+function create(kind: 'note' | 'folder' | 'whiteboard', parent?: string) {
   if (!treeLoaded.value) return;
   dialogError.value = '';
   createRequestId = crypto.randomUUID();
@@ -1012,14 +1130,14 @@ async function submitCreate() {
         tell('文件夹已创建');
       } else {
         await guard(async () => {
-          const name = newName.value.endsWith('.md') ? newName.value : newName.value + '.md';
+          const name = createKind.value === 'whiteboard' ? (/\.excalidraw$/i.test(newName.value)?newName.value:newName.value+'.excalidraw') : newName.value.endsWith('.md') ? newName.value : newName.value + '.md';
           const epoch = viewEpoch;
           let n: NoteDocument;
           try {
             n = await api<NoteDocument>('/api/notes', 'POST', {
               folderPath: newFolder.value,
               fileName: name,
-              content: `# ${newName.value.replace(/\.md$/, '')}\n\n`,
+              content: createKind.value === 'whiteboard' ? JSON.stringify(emptyWhiteboard()) : `# ${newName.value.replace(/\.md$/, '')}\n\n`,
               requestId: createRequestId,
             });
           } catch (e) {
@@ -1041,7 +1159,7 @@ async function submitCreate() {
     createBusy.value = false;
   }
 }
-const panel = ref<'empty' | 'folder' | 'note' | 'trash' | 'settings'>('empty'),
+const panel = ref<'empty' | 'folder' | 'note' | 'trash' | 'settings' | 'apps' | 'collection'>('empty'),
   revisionsOpen = ref(false),
   revisions = ref<any[]>([]),
   revisionCursor = ref<string>(),
@@ -1073,7 +1191,7 @@ async function removeFolder() {
     }
     if (contains(folder.value)) folder.value = target.path.split('/').slice(0, -1).join('/');
     if (contains(selected.value)) selected.value = folder.value;
-    if (!['settings', 'trash'].includes(panel.value) && !note.value) {
+    if (!['settings', 'trash', 'apps'].includes(panel.value) && !note.value) {
       panel.value = folder.value ? 'folder' : 'empty';
       navigation.commit(folder.value ? { folder: folder.value } : {});
     }
@@ -1138,6 +1256,14 @@ async function readRevision(r: any) {
     r.cursor = reply.data.nextCursor;
   }
 }
+async function openApps(syncUrl = true) {
+  await run(async () => {
+    await retainNoteContext();
+    panel.value = 'apps';
+    drawer.value = false;
+    if (syncUrl) navigation.commit({ view: 'apps' });
+  });
+}
 async function openTrash(syncUrl = true) {
   await run(async () => {
     await retainNoteContext();
@@ -1147,8 +1273,9 @@ async function openTrash(syncUrl = true) {
   });
 }
 async function retainNoteContext() {
+  if(noteInfo.value?.editorMode === 'full') await editorRef.value?.flush();
   await localDrafts.flush();
-  if (!['settings', 'trash'].includes(panel.value)) {
+  if (!['settings', 'trash', 'apps'].includes(panel.value)) {
     const route = navigation.currentRoute();
     // A directly opened utility page must not become its own return destination.
     if (!route.view) returnRoute = route;
@@ -1269,7 +1396,7 @@ async function backFromSettings() {
 async function openNotes() {
   collection.value = 'notes';
   sidebarCollapsed.value = false;
-  if (panel.value === 'settings' || panel.value === 'trash') await run(backFromSettings);
+  if (['settings', 'trash', 'apps', 'collection'].includes(panel.value)) await run(backFromSettings);
 }
 watch(
   () => editorPreferences.lineNumbers,
@@ -1415,7 +1542,9 @@ watch(
 );
 function trackPreview(event: Event) {
   const container = event.currentTarget as HTMLElement;
-  const headings = container.querySelectorAll<HTMLElement>('[data-source-line]');
+  const headings = container.querySelectorAll<HTMLElement>(
+    ':is(h1,h2,h3,h4,h5,h6)[data-source-line]',
+  );
   if (
     container.scrollTop > 0 &&
     container.scrollHeight - container.clientHeight - container.scrollTop <= 2
@@ -1444,27 +1573,199 @@ async function goToHeading(line: number) {
       .querySelector(`.preview-panel [data-source-line="${line}"]`)
       ?.scrollIntoView({ block: 'start' });
 }
+function revealLine(line: number) {
+  if (mode.value !== 'preview') editorRef.value?.goToLine(line);
+  if (mode.value === 'edit' || !previewRef.value) return;
+  const container = previewRef.value;
+  container
+    .querySelectorAll('[data-search-hit]')
+    .forEach((element) => element.removeAttribute('data-search-hit'));
+  let target: HTMLElement | undefined;
+  for (const element of container.querySelectorAll<HTMLElement>('[data-source-line]')) {
+    const sourceLine = Number(element.dataset.sourceLine);
+    if (sourceLine <= line && (!target || sourceLine >= Number(target.dataset.sourceLine)))
+      target = element;
+  }
+  if (target) {
+    target.setAttribute('data-search-hit', 'true');
+    // Scroll only the article pane so split view and the sidebar stay in place.
+    container.scrollTop +=
+      target.getBoundingClientRect().top - container.getBoundingClientRect().top - 32;
+  }
+}
+watch(mode, async () => {
+  await nextTick();
+  if (noteLine.value && noteInfo.value?.editorMode === 'full') revealLine(noteLine.value);
+});
 const uploadInput = ref<HTMLInputElement>();
+type UploadRequest = {
+  noteId: string;
+  generation: number;
+  target?: AssetTarget;
+  replacement?: ImageReplacementTarget;
+};
+type PendingAsset = { noteId: string; markdown: string; name: string };
+let uploadRequest: UploadRequest | undefined;
+const uploadBusy = ref(false), uploadPreparing = ref(false), uploadName = ref('');
+const uploadFailure = ref<{ file: File; request: UploadRequest; message: string }>();
+const pendingAsset = ref<PendingAsset>();
+async function prepareUpload(replacement?: ImageReplacementTarget) {
+  if (uploadBusy.value || uploadPreparing.value || !note.value) return;
+  uploadPreparing.value = true;
+  const id = note.value.id, epoch = viewEpoch;
+  try {
+    const snapshot = await editorRef.value?.flush();
+    if (!currentView(id, epoch)) return;
+    uploadRequest = {
+      noteId: id,
+      generation: epoch,
+      target: snapshot ? captureAssetTarget(snapshot) : undefined,
+      replacement: replacement ? { ...replacement } : undefined,
+    };
+    // Keep file filtering in sync before opening the native picker.
+    if (uploadInput.value)
+      uploadInput.value.accept = replacement
+        ? 'image/png,image/jpeg,image/gif,image/webp'
+        : 'image/png,image/jpeg,image/gif,image/webp,application/pdf';
+    uploadInput.value?.click();
+  } catch (cause) {
+    showError(cause);
+  } finally {
+    uploadPreparing.value = false;
+  }
+}
+function prepareImageReplacement(target: ImageReplacementTarget) {
+  return prepareUpload(target);
+}
+async function insertPendingAsset() {
+  const asset = pendingAsset.value;
+  if (!asset || asset.noteId !== note.value?.id) return;
+  const id = note.value.id, epoch = viewEpoch;
+  try {
+    await editorRef.value?.flush();
+    if (currentView(id, epoch) && editorRef.value?.insertAsset(asset.markdown))
+      pendingAsset.value = undefined;
+  } catch (cause) {
+    showError(cause);
+  }
+}
 async function upload(event: Event) {
-  const input = event.target as HTMLInputElement,
-    file = input.files?.[0];
-  if (!file || !note.value) return;
-  const id = note.value.id,
-    epoch = viewEpoch;
-  await run(async () => {
+  const input = event.target as HTMLInputElement, file = input.files?.[0];
+  if (!file) return;
+  const request = uploadRequest;
+  uploadRequest = undefined;
+  try {
+    if (!request) { tell('插入位置已变化，请重新选择附件'); return; }
+    await uploadFile(file, request);
+  } finally {
+    input.value = '';
+  }
+}
+async function uploadPastedFile(file: File) {
+  if (uploadBusy.value || uploadPreparing.value) return;
+  const id = note.value?.id, epoch = viewEpoch;
+  try {
+    const snapshot = await editorRef.value?.flush();
+    if (!id || !currentView(id, epoch)) {
+      tell('笔记已切换，请在目标笔记重新粘贴附件');
+      return;
+    }
+    await uploadFile(file, {
+      noteId: id,
+      generation: epoch,
+      target: snapshot ? captureAssetTarget(snapshot) : undefined,
+    });
+  } catch (cause) {
+    showError(cause);
+  }
+}
+async function retryUpload() {
+  const failure = uploadFailure.value;
+  if (!failure || uploadBusy.value) return;
+  if (note.value?.id !== failure.request.noteId) {
+    tell('请返回原笔记重试上传');
+    return;
+  }
+  // An old bookmark stays old after reopening the note; the uploaded attachment
+  // is retained for explicit insertion instead of silently using a new caret.
+  await uploadFile(failure.file, { ...failure.request, generation: viewEpoch });
+}
+async function uploadFile(file: File, request: UploadRequest) {
+  if (uploadBusy.value) return;
+  const id = request.noteId, epoch = request.generation;
+  if (!currentView(id, epoch)) {
+    tell('插入位置已变化，请重新选择附件');
+    return;
+  }
+  uploadBusy.value = true;
+  uploadName.value = file.name;
+  uploadFailure.value = undefined;
+  error.value = '';
+  dialogError.value = '';
+  let uploaded: PendingAsset | undefined;
+  try {
     const data = new FormData();
     data.append('file', file);
-    const a = await api(`/api/notes/${id}/assets`, 'POST', data);
+    const asset = await api(`/api/notes/${id}/assets`, 'POST', data);
+    const label = file.name.replace(/[\\[\]]/g, '\\$&');
+    const markdown = `${asset.mime === 'application/pdf' ? '[' : '!['}${label}](${asset.markdownPath})`;
+    uploaded = { noteId: id, markdown, name: file.name };
     const attachments = await api(`/api/notes/${id}/assets`);
     if (!currentView(id, epoch)) {
+      pendingAsset.value = uploaded;
       tell('附件已上传，可返回原笔记插入链接');
       return;
     }
     assets.value = attachments;
-    draft.value += `\n${a.mime === 'application/pdf' ? '[' : '!['}${file.name}](${a.markdownPath})\n`;
+    const editor = editorRef.value;
+    if (!editor) {
+      pendingAsset.value = uploaded;
+      tell('附件已上传，请打开编辑器后插入');
+      return;
+    }
+    const current = await editor.flush();
+    if (!currentView(id, epoch)) {
+      pendingAsset.value = uploaded;
+      tell('附件已上传，可返回原笔记插入链接');
+      return;
+    }
+    if (request.replacement) {
+      if (!['image/png', 'image/jpeg', 'image/gif', 'image/webp'].includes(asset.mime)) {
+        pendingAsset.value = uploaded;
+        tell('所选附件不是受支持的图片，原图片已保留，可选择位置后插入附件链接');
+        return;
+      }
+      if (!editor.replaceImage(request.replacement, asset.markdownPath)) {
+        pendingAsset.value = uploaded;
+        tell('原图片已变化，附件已上传，请选择位置后插入');
+        return;
+      }
+      tell('图片已替换，请手动保存笔记');
+      return;
+    }
+    const bookmark = documentEditingEnabled
+      ? request.target ? resolveAssetTarget(request.target, current) : undefined
+      : { anchor: current.markdown.length, head: current.markdown.length, affinity: 'after' as const };
+    if (!bookmark || !editor.insertAsset(documentEditingEnabled ? markdown : `\n${markdown}\n`, bookmark)) {
+      pendingAsset.value = uploaded;
+      tell('附件已上传，请选择位置后插入');
+      return;
+    }
     tell('附件已插入，请手动保存笔记');
-  });
-  input.value = '';
+  } catch (cause) {
+    if (uploaded) {
+      pendingAsset.value = uploaded;
+      tell('附件已上传，请选择位置后插入');
+    } else {
+      uploadFailure.value = {
+        file,
+        request,
+        message: cause instanceof Error ? cause.message : String(cause),
+      };
+    }
+  } finally {
+    uploadBusy.value = false;
+  }
 }
 function clickPreview(event: MouseEvent) {
   const a = (event.target as HTMLElement).closest('a');
@@ -1515,7 +1816,7 @@ async function searchPage(
     title: r.title,
     relativePath: r.relativePath,
     snippet: r.matches[0]?.snippet || '',
-    line: r.matches[0]?.startLine || 1,
+    line: r.matches[0]?.matchLine || r.matches[0]?.startLine || 1,
     headingPath: r.matches[0]?.headingPath || [],
     matches: r.matches,
   }));
@@ -1596,6 +1897,12 @@ function unload(e: BeforeUnloadEvent) {
   }
 }
 onMounted(() => {
+  measureDocumentWidth();
+  if (typeof ResizeObserver !== 'undefined' && mainRef.value) {
+    documentResizeObserver = new ResizeObserver(measureDocumentWidth);
+    documentResizeObserver.observe(mainRef.value);
+  }
+  window.addEventListener('resize', measureDocumentWidth);
   void api('/healthz')
     .then((status) => {
       releaseVersion.value = status.version || '';
@@ -1624,11 +1931,14 @@ onMounted(() => {
       create('note');
     }
   });
+  window.addEventListener('dooknow-open-whiteboard', openDiagramEvent);
   window.addEventListener('dooknow-git-return-save', returnGitSave);
   window.addEventListener('keydown', shortcut);
   window.addEventListener('beforeunload', unload);
 });
 onBeforeUnmount(() => {
+  documentResizeObserver?.disconnect();
+  window.removeEventListener('resize', measureDocumentWidth);
   gitUnsaved.value = false;
   clearPluginDrafts();
   navigation.dispose();
@@ -1640,6 +1950,8 @@ onBeforeUnmount(() => {
   window.removeEventListener('dooknow-notice', pluginNotice);
   clearTimeout(searchTimer);
   clearTimeout(noticeTimer);
+  window.removeEventListener('dooknow-open-whiteboard', openDiagramEvent);
+  if(previewRef.value)clearDiagrams(previewRef.value);
   window.removeEventListener('dooknow-git-return-save', returnGitSave);
   window.removeEventListener('keydown', shortcut);
   window.removeEventListener('beforeunload', unload);
@@ -1705,6 +2017,7 @@ onBeforeUnmount(() => {
                   >
                     <Icon name="file" />新建笔记
                   </button>
+                  <button :disabled="!treeLoaded" @click="createMenuOpen=false;create('whiteboard')"><Icon name="whiteboard"/>新建白板</button>
                   <button
                     :disabled="!treeLoaded"
                     @click="
@@ -1784,6 +2097,7 @@ onBeforeUnmount(() => {
             >
               <b>{{ r.title }}</b
               ><small>{{ r.relativePath }}</small
+              ><small v-if="!r.filenameMatch && r.line">第 {{ r.line }} 行</small
               ><span>{{ r.snippet }}</span>
             </button>
             <p v-if="searchDegraded && !searchError" class="search-feedback" role="status">
@@ -1834,8 +2148,10 @@ onBeforeUnmount(() => {
             :selected="selected"
             :kind="collection"
             :menu-path="treeMenuPath"
+            :total="collectionFeed.total.value"
             @select="select"
             @menu="showTreeMenu"
+            @browse="showCollection(collection === 'favorites' ? 'favorites' : 'recent')"
           /><TreeBranch
             v-else
             :entries="tree"
@@ -1855,9 +2171,17 @@ onBeforeUnmount(() => {
           class="sidebar-tools"
         >
           <span class="sidebar-section-title">扩展工具</span>
-          <AButton v-if="gitAvailable" type="text" @click="gitSyncOpen = true">云端同步</AButton>
-          <PluginSlot slot-name="navigation" :context="pluginContext" />
-          <PluginSlot slot-name="libraryAction" :context="pluginContext" />
+          <button
+            v-if="gitAvailable"
+            type="button"
+            class="sidebar-tool-button"
+            @click="gitSyncOpen = true"
+          >
+            <Icon name="refresh" :size="17" /><span>云端同步</span>
+            <Icon class="sidebar-tool-chevron" name="chevron" :size="13" />
+          </button>
+          <PluginSlot slot-name="navigation" :context="pluginContext" sidebar />
+          <PluginSlot slot-name="libraryAction" :context="pluginContext" sidebar />
         </div>
       </div>
       <WorkspaceFooter
@@ -1870,21 +2194,37 @@ onBeforeUnmount(() => {
         @status="statusOpen = true"
         @logout="logout"
         @notes="openNotes"
+        @apps="openApps()"
       />
     </aside>
-    <NModal
+    <SettingsOverlay
+      ref="gitSyncOverlay"
       v-model:show="gitSyncOpen"
-      preset="card"
-      class="dialog-card"
       title="云端同步"
-      style="width: min(760px, calc(100vw - 24px)); max-height: 90vh; overflow-y: auto"
-      ><GitRemotePanel v-if="gitSyncOpen" @return-save="gitSyncOpen = false"
-    /></NModal>
+      description="查看同步状态，管理云端关联并检查本次提交。"
+      icon="refresh"
+      kind="drawer"
+      :width="900"
+      :busy="gitPanelBusy"
+      :dirty="gitPanelDirty"
+      @after-leave="
+        gitPanelBusy = false;
+        gitPanelDirty = false;
+      "
+    >
+      <GitRemotePanel
+        v-if="gitSyncOpen"
+        inline
+        @return-save="returnGitSave"
+        @busy-change="gitPanelBusy = $event"
+        @dirty-change="gitPanelDirty = $event"
+      />
+    </SettingsOverlay>
     <SidebarResizer v-model="sidebarWidth" @commit="saveSidebarWidth" />
     <main
       ref="mainRef"
-      :class="['main-content', { 'utility-scroll': panel === 'settings' || panel === 'trash' }]"
-      :tabindex="panel === 'settings' || panel === 'trash' ? 0 : undefined"
+      :class="['main-content', { 'utility-scroll': ['settings', 'trash', 'apps'].includes(panel) }]"
+      :tabindex="['settings', 'trash', 'apps'].includes(panel) ? 0 : undefined"
     >
       <div class="mobile-bar">
         <button class="icon-button" aria-label="打开侧栏" @click="drawer = true">
@@ -1903,7 +2243,17 @@ onBeforeUnmount(() => {
       <NAlert v-if="error" type="error" closable @close="error = ''" class="global-error">{{
         error
       }}</NAlert>
-      <section v-if="note" v-show="panel === 'note'" class="note-workspace">
+      <div v-if="uploadBusy" class="asset-upload-status" role="status" aria-live="polite" aria-busy="true">
+        <span class="upload-progress-indicator" aria-hidden="true"></span>
+        <span>上传中 · {{ uploadName }}</span>
+      </div>
+      <div v-if="uploadFailure && note?.id === uploadFailure.request.noteId && panel === 'note'" class="asset-upload-status upload-failure" role="alert">
+        <span>{{ uploadFailure.file.name }} 上传失败：{{ uploadFailure.message }}</span>
+        <AButton size="small" :disabled="uploadBusy" @click="retryUpload">重试上传</AButton>
+      </div>
+      <CollectionWorkspace v-if="panel === 'collection' && collection !== 'notes'" :kind="collection" :feed="collectionFeed" :favorite-busy="favoriteBusy" :menu-path="treeMenuPath" @select="select" @menu="showTreeMenu" @favorite="favoriteCard" @create="createFromCollection" />
+      <WhiteboardWorkspace v-if="note && isWhiteboard(note.relativePath)" v-show="panel==='note'" ref="boardRef" :key="note.id" :board-id="note.id" :draft-scope="draftScope" @dirty="boardDirty=$event" @saved="onBoardSaved" @close="select({type:'folder',name:folder,path:folder})"/>
+      <section v-if="note && !isWhiteboard(note.relativePath)" v-show="panel === 'note'" class="note-workspace">
         <header class="note-header">
           <div class="note-topline">
             <div class="document-navigation">
@@ -2027,10 +2377,12 @@ onBeforeUnmount(() => {
                 :key="note.id"
                 v-model:line-numbers="showLineNumbers"
                 :full-editor="noteInfo?.editorMode === 'full'"
+                :source-editor="mode !== 'preview' && (!documentEditingEnabled || editorKind === 'source')"
+                :uploading="uploadBusy || uploadPreparing"
                 @move="showMove"
                 @download="downloadNote"
                 @history="history()"
-                @upload="uploadInput?.click()"
+                @upload="prepareUpload"
                 @delete="confirmDelete"
                 ><PluginSlot slot-name="noteAction" :context="pluginContext"
               /></NoteActions>
@@ -2041,13 +2393,23 @@ onBeforeUnmount(() => {
           </div>
           <div v-if="noteInfo?.editorMode === 'full'" class="document-format-row">
             <EditorToolbar
+              :label="documentEditingEnabled ? '正文格式' : 'Markdown 格式'"
               :state="editorState"
               :disabled="formatDisabled"
+              :uploading="uploadBusy || uploadPreparing"
               @format="formatNote"
-              @upload="uploadInput?.click()"
+              @insert-table="(rows, columns) => editorRef?.insertTable(rows, columns)"
+              @whiteboard="openBoardPicker"
+              @upload="prepareUpload"
             />
             <div class="mode-row">
-              <div class="mode-tabs">
+              <div v-if="documentEditingEnabled" class="mode-tabs">
+                <button type="button" :aria-pressed="mode !== 'preview' && editorKind === 'document'" :class="{active:mode !== 'preview' && editorKind === 'document'}" @click="switchEditing('document')">文档编辑</button>
+                <button type="button" :aria-pressed="mode !== 'preview' && editorKind === 'source'" :class="{active:mode !== 'preview' && editorKind === 'source'}" @click="switchEditing('source')">Markdown 源码</button>
+                <button type="button" :aria-pressed="mode === 'preview'" :class="{active:mode === 'preview'}" @click="changeNoteView('preview')">阅读</button>
+              </div>
+              <label v-if="documentEditingEnabled && editorKind === 'source' && mode !== 'preview'" class="source-preview-toggle"><input type="checkbox" :checked="mode === 'split'" @change="changeNoteView(($event.target as HTMLInputElement).checked?'split':'edit')"/>同时预览</label>
+              <div v-if="!documentEditingEnabled" class="mode-tabs">
                 <button
                   :aria-pressed="mode === 'edit'"
                   :class="{ active: mode === 'edit' }"
@@ -2069,32 +2431,48 @@ onBeforeUnmount(() => {
                 </button>
               </div>
               <APopover
-                v-if="mode === 'split'"
+                v-if="outlineUsesPopup"
                 v-model:open="outlineOpen"
                 trigger="click"
                 placement="bottomRight"
+                destroy-tooltip-on-hide
               >
                 <template #content>
                   <DocumentOutline
+                    v-if="outlineOpen"
                     v-model:collapsed="collapsedOutline"
                     class="outline-popup"
                     :headings="normalOutline"
                     :active-line="activeHeading"
                     @select="goToHeading"
+                    @keydown.esc.stop="closeOutlineFromKeyboard"
                   />
                 </template>
                 <AButton
+                  ref="outlineTrigger"
                   class="outline-toggle"
                   type="text"
                   size="small"
                   aria-label="章节目录"
                   title="章节目录"
                   :aria-expanded="outlineOpen"
+                  @keydown.esc="closeOutlineFromKeyboard"
                   ><Icon name="list" :size="17" /><span class="outline-toggle-label"
                     >章节目录</span
                   ></AButton
                 >
               </APopover>
+              <AButton
+                v-else
+                class="outline-toggle"
+                type="text"
+                size="small"
+                aria-label="章节目录"
+                :title="outlineDocked ? '收起章节目录' : '显示章节目录'"
+                :aria-expanded="outlineDocked"
+                @click="outlineDocked = !outlineDocked"
+                ><Icon name="list" :size="17" /><span class="outline-toggle-label">章节目录</span></AButton
+              >
             </div>
           </div>
         </header>
@@ -2127,18 +2505,31 @@ onBeforeUnmount(() => {
             @restore="localDrafts.restore"
             @discard="run(localDrafts.discard)"
           />
+          <div v-if="pendingAsset?.noteId === note.id" class="editor-warning"><span>{{pendingAsset?.name}} 已上传，请选择插入位置。</span><AButton size="small" @click="insertPendingAsset">插入已上传附件</AButton></div>
+          <p v-if="editorHint" class="editor-warning" role="status">{{editorHint}}</p>
           <div class="document-body">
             <div class="document-surface">
               <div :class="['editor-panels', mode]">
                 <section v-show="mode !== 'preview'" class="editor-panel">
-                  <div class="panel-label">Markdown <span>手动保存 · Ctrl+S</span></div>
-                  <MarkdownEditor
+                  <div class="panel-label">{{documentEditingEnabled && editorKind === 'document'?'文档编辑':'Markdown'}} <span>手动保存 · Ctrl+S</span></div>
+                  <NoteEditorHost
+                    :note-id="note.id"
+                    :resolve-image="resolveEditorImage"
+                    @open-link="openEditorLink"
+                    @upload-file="uploadPastedFile"
+                    @replace-image="prepareImageReplacement"
+                    :generation="viewEpoch"
+                    :kind="documentEditingEnabled ? editorKind : 'source'"
+                    :visible="mode !== 'preview'"
+                    @fallback="reason=>{editorKind='source';editorHint=reason}"
+                    @source="switchEditing('source',$event)"
+                    @composing="editorComposing=$event"
                     ref="editorRef"
                     v-model="draft"
                     :read-only="
                       noteOpening || editorTransfer || draftLoading || draftBusy || !!recoveryDraft
                     "
-                    :key="note.id"
+                    :key="`${note.id}:${viewEpoch}`"
                     :initial-line="
                       noteLine || (note.id === initialNoteId ? initialLine : undefined)
                     "
@@ -2151,6 +2542,7 @@ onBeforeUnmount(() => {
                 <section v-if="mode !== 'edit'" class="preview-panel">
                   <div class="panel-label">预览 <Icon name="eye" :size="16" /></div>
                   <div
+                    ref="previewRef"
                     class="markdown"
                     v-html="preview"
                     @click="clickPreview"
@@ -2159,7 +2551,7 @@ onBeforeUnmount(() => {
                 </section>
               </div>
             </div>
-            <aside v-if="mode !== 'split'" class="document-outline">
+            <aside v-if="!outlineUsesPopup && outlineDocked" class="document-outline">
               <DocumentOutline
                 v-model:collapsed="collapsedOutline"
                 :headings="normalOutline"
@@ -2168,7 +2560,7 @@ onBeforeUnmount(() => {
               />
             </aside>
           </div>
-          <p v-if="draftSavedAt && dirty" class="local-draft-status" role="status">
+          <p v-if="draftSavedAt && dirty && !editorComposing" class="local-draft-status" role="status">
             本地草稿已暂存 · {{ new Date(draftSavedAt).toLocaleTimeString('zh-CN') }} ·
             原文仍需手动保存
           </p>
@@ -2177,6 +2569,7 @@ onBeforeUnmount(() => {
           ref="uploadInput"
           type="file"
           accept="image/png,image/jpeg,image/gif,image/webp,application/pdf"
+          :disabled="uploadBusy"
           hidden
           @change="upload"
         />
@@ -2226,18 +2619,25 @@ onBeforeUnmount(() => {
               <th>名称</th>
               <th>类型</th>
               <th>修改时间</th>
+              <th class="folder-entry-actions"><span class="sr-only">操作</span></th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="entry in folderEntries" :key="entry.path">
+            <tr
+              v-for="entry in folderEntries"
+              :key="entry.path"
+              :class="{ 'menu-open': treeMenuPath === entry.path }"
+              @contextmenu.prevent.stop="showTreeMenu(entry, $event)"
+              @keydown="folderRowKey(entry, $event)"
+            >
               <td>
-                <button @click="select(entry)">
-                  <Icon :name="entry.type === 'folder' ? 'folder' : 'file'" :size="23" /><span>{{
+                <button type="button" class="folder-entry-open" @click="select(entry)">
+                  <Icon :name="entry.type === 'folder' ? 'folder' : isWhiteboard(entry.path)?'whiteboard':'file'" :size="23" /><span>{{
                     entry.name
                   }}</span>
                 </button>
               </td>
-              <td>{{ entry.type === 'folder' ? '文件夹' : 'Markdown' }}</td>
+              <td>{{ entry.type === 'folder' ? '文件夹' : isWhiteboard(entry.path)?'白板':'Markdown' }}</td>
               <td :title="entry.path">
                 {{
                   entry.updatedAt
@@ -2246,6 +2646,19 @@ onBeforeUnmount(() => {
                       })
                     : '—'
                 }}
+              </td>
+              <td class="folder-entry-actions">
+                <button
+                  type="button"
+                  class="folder-entry-more"
+                  :aria-label="`${entry.name} 的更多操作`"
+                  aria-haspopup="menu"
+                  :aria-expanded="treeMenuPath === entry.path"
+                  :aria-controls="treeMenuPath === entry.path ? 'tree-context-menu' : undefined"
+                  @click.stop="showTreeMenu(entry, $event)"
+                >
+                  <Icon name="more" :size="18" />
+                </button>
               </td>
             </tr>
           </tbody>
@@ -2258,6 +2671,17 @@ onBeforeUnmount(() => {
           <AButton v-if="!folderEntries.length" type="primary" @click="create('note')"
             >新建笔记</AButton
           >
+        </div>
+      </section>
+      <section
+        v-else-if="panel === 'apps'"
+        class="utility-view workspace-empty apps-workspace"
+        aria-labelledby="apps-title"
+      >
+        <div class="utility-empty">
+          <Icon name="apps" :size="36" />
+          <h1 id="apps-title">应用</h1>
+          <p>正在开发中</p>
         </div>
       </section>
       <TrashWorkspace
@@ -2302,15 +2726,15 @@ onBeforeUnmount(() => {
       preset="card"
       class="dialog-card"
       title="导入 Markdown"
-      :mask-closable="!importBusy"
-      :close-on-esc="!importBusy"
-      :closable="!importBusy"
+      :mask-closable="!importBusy && !batchImportBusy"
+      :close-on-esc="!importBusy && !batchImportBusy"
+      :closable="!importBusy && !batchImportBusy"
     >
       <label>导入到</label
       ><DirectoryTreeSelect
         v-model:value="importFolder"
         label="导入目录"
-        :disabled="importBusy"
+        :disabled="importBusy || batchImportBusy"
         :folders="[
           ...folders,
           ...(!folders.some((item) => item.value === '40-Resources')
@@ -2321,8 +2745,10 @@ onBeforeUnmount(() => {
       <details class="batch-import-details">
         <summary>批量导入文件或目录</summary>
         <TransferPanel
+          inline
           :folder-path="importFolder"
           :show-export="false"
+          @busy="batchImportBusy = $event"
           @changed="run(refresh)"
           @open-note="
             (id) => {
@@ -2338,7 +2764,7 @@ onBeforeUnmount(() => {
         @imported="imported"
       />
       <div class="dialog-actions">
-        <AButton :disabled="importBusy" @click="importOpen = false">完成</AButton>
+        <AButton :disabled="importBusy || batchImportBusy" @click="importOpen = false">完成</AButton>
       </div>
     </NModal>
     <PluginPanel />
@@ -2421,7 +2847,8 @@ onBeforeUnmount(() => {
       v-model:show="createOpen"
       preset="card"
       class="dialog-card"
-      :title="createKind === 'note' ? '新建笔记' : '新建文件夹'"
+      :title="createKind === 'whiteboard' ? '新建白板' : createKind === 'note' ? '新建笔记' : '新建文件夹'"
+      :aria-label="createKind === 'whiteboard' ? '新建白板' : createKind === 'note' ? '新建笔记' : '新建文件夹'"
       :mask-closable="!createBusy && !inboxBusy"
       :close-on-esc="!createBusy && !inboxBusy"
       :closable="!createBusy && !inboxBusy"
@@ -2458,21 +2885,22 @@ onBeforeUnmount(() => {
             @change="(value) => (newName = String(value))"
           />
         </template>
-        <label>{{ createKind === 'note' ? '文件名' : '文件夹名' }}</label
+        <label>{{ createKind !== 'folder' ? '文件名' : '文件夹名' }}</label
         ><AInput
           v-model:value="newName"
           :disabled="createBusy || inboxBusy"
           autofocus
-          :aria-label="createKind === 'note' ? '文件名' : '文件夹名'"
+          :aria-label="createKind !== 'folder' ? '文件名' : '文件夹名'"
           :placeholder="
-            createKind === 'note'
-              ? '例如：新的想法.md'
+            createKind !== 'folder'
+              ? (createKind === 'whiteboard'?'例如：系统架构.excalidraw':'例如：新的想法.md')
               : !newFolder
                 ? '选择上方用途后自动填写'
                 : '例如：读书笔记'
           "
         />
-        <p class="muted">
+        <p v-if="createKind==='whiteboard'" class="muted">创建后保存为 .excalidraw 白板文件，默认私有。</p>
+        <p v-else class="muted">
           {{
             !newFolder
               ? createKind === 'note'
@@ -2598,5 +3026,10 @@ onBeforeUnmount(() => {
       <p v-if="revisions.length" class="muted">已显示 {{ revisions.length }} 个版本</p>
       <p v-if="!revisions.length">尚无历史版本</p></NModal
     >
+    <WhiteboardWorkspace ref="embeddedBoardRef" v-if="embeddedBoardId" :key="'embedded-'+embeddedBoardId" :board-id="embeddedBoardId" embedded :draft-scope="draftScope" @close="embeddedBoardId=undefined"/>
+    <SettingsOverlay v-model:show="boardPickerOpen" title="插入白板" description="引用已有白板，或创建一块新的画布。" icon="whiteboard" :busy="boardCreating" :width="560">
+      <div class="whiteboard-picker"><button v-for="board in flat.filter(item=>isWhiteboard(item.path))" :key="board.id" type="button" @click="insertBoard(board.id!)"><Icon name="whiteboard" :size="18"/><span>{{board.name}}<small>{{board.path}}</small></span><Icon name="chevron" :size="15"/></button><p v-if="!flat.some(item=>isWhiteboard(item.path))" class="muted">还没有白板，可以先创建一个。</p></div>
+      <template #footer="{close}"><AButton :disabled="boardCreating" @click="close">取消</AButton><AButton type="primary" :loading="boardCreating" @click="createInlineBoard">新建并插入白板</AButton></template>
+    </SettingsOverlay>
   </div>
 </template>

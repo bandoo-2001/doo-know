@@ -23,8 +23,9 @@ test('alignment and text colors preserve selections, undo, preview, saving and p
   expect(response.status()).toBe(201);
   const note = await response.json();
   await page.goto('/?note=' + note.id);
+  await page.getByRole('button', { name: 'Markdown 源码', exact: true }).click();
   const editor = page.locator('.cm-content');
-  const tools = page.getByRole('toolbar', { name: 'Markdown 格式', exact: true });
+  const tools = page.getByRole('toolbar', { name: '正文格式', exact: true });
   const source = () =>
     editor
       .locator('.cm-line')
@@ -73,14 +74,14 @@ test('alignment and text colors preserve selections, undo, preview, saving and p
     await tools.getByRole('button', { name, exact: true }).click();
     await expect.poll(source).toContain(`text-align:${alignment}`);
     expect((await source()).match(/<div /g)).toHaveLength(1);
-    await mode('预览').click();
+    await mode('阅读').click();
     await expect(page.locator('.preview-panel .markdown > h1')).toHaveText('样式检查');
     const paragraph = page.locator('.preview-panel p').filter({ hasText: text });
     await expect(paragraph).toHaveCSS('text-align', alignment);
-    await expect(paragraph.locator('span')).toHaveCSS('color', 'rgb(220, 38, 38)');
+    await expect(paragraph.locator('span[style*="color"]')).toHaveCSS('color', 'rgb(220, 38, 38)');
     await expect(colors).toBeDisabled();
     await expect(tools.getByRole('button', { name: '居中对齐', exact: true })).toBeDisabled();
-    await mode('编辑').click();
+    await mode('Markdown 源码').click();
   }
   await chooseColor('蓝色 #2563eb');
   await expect.poll(source).toContain('color:#2563eb');
@@ -110,11 +111,10 @@ test('alignment and text colors preserve selections, undo, preview, saving and p
   await page.keyboard.press('Escape');
   await expect(palette()).toBeHidden();
   expect((await (await page.request.get('/api/notes/' + note.id)).json()).content).toBe(original);
-  await mode('预览').click();
-  await expect(page.locator('.preview-panel span').filter({ hasText: text })).toHaveCSS(
-    'color',
-    'rgb(8, 127, 140)',
-  );
+  await mode('阅读').click();
+  await expect(
+    page.locator('.preview-panel span[style*="color"]').filter({ hasText: text }),
+  ).toHaveCSS('color', 'rgb(8, 127, 140)');
   await page.keyboard.press('ControlOrMeta+s');
   await expect(page.locator('.save-state')).toContainText('已保存');
   const saved = (await (await page.request.get('/api/notes/' + note.id)).json()).content;
@@ -127,23 +127,22 @@ test('alignment and text colors preserve selections, undo, preview, saving and p
   expect(rendered.html).toContain('color:#087f8c');
   expect(rendered.html).toContain('text-align:center');
   await page.reload();
+  await mode('Markdown 源码').click();
   await expect(editor).toBeVisible();
   await expect.poll(source).toBe(saved);
-  await mode('预览').click();
-  await expect(page.locator('.preview-panel span').filter({ hasText: text })).toHaveCSS(
-    'color',
-    'rgb(8, 127, 140)',
-  );
+  await mode('阅读').click();
+  await expect(
+    page.locator('.preview-panel span[style*="color"]').filter({ hasText: text }),
+  ).toHaveCSS('color', 'rgb(8, 127, 140)');
   await page.screenshot({ path: info.outputPath('styled-document.png'), animations: 'disabled' });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   const publicContext = await context.browser()!.newContext({ baseURL: 'http://127.0.0.1:4179' });
   try {
     const publicPage = await publicContext.newPage();
     await publicPage.goto('/s/' + token);
-    await expect(publicPage.locator('.markdown span').filter({ hasText: text })).toHaveCSS(
-      'color',
-      'rgb(8, 127, 140)',
-    );
+    await expect(
+      publicPage.locator('.markdown span[style*="color"]').filter({ hasText: text }),
+    ).toHaveCSS('color', 'rgb(8, 127, 140)');
     await expect(publicPage.locator('.markdown p').filter({ hasText: text })).toHaveCSS(
       'text-align',
       'center',
@@ -163,6 +162,7 @@ test('alignment and text colors preserve selections, undo, preview, saving and p
   });
   expect(highlighted.status()).toBe(201);
   await page.goto('/?note=' + (await highlighted.json()).id);
+  await mode('Markdown 源码').click();
   await expect(editor).toBeVisible();
   await expect
     .poll(() =>
@@ -201,6 +201,7 @@ test('palette supports keyboard choices and stays inside a short viewport withou
   expect(response.status()).toBe(201);
   const note = await response.json();
   await page.goto('/?note=' + note.id);
+  await page.getByRole('button', { name: 'Markdown 源码', exact: true }).click();
   const editor = page.locator('.cm-content');
   await expect(editor).toBeVisible();
   await editor.click();

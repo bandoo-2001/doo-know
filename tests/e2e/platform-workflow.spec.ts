@@ -28,6 +28,7 @@ test('tracks the selected note in the URL, restores it on reload and guards brow
   const a = await createNote(page, `导航甲-${Date.now()}.md`),
     b = await createNote(page, `导航乙-${Date.now()}.md`);
   await page.goto('/?note=' + a.id);
+  await page.getByRole('button', { name: 'Markdown 源码', exact: true }).click();
   await expect(page.locator('.cm-content')).toBeVisible();
   if (info.project.name === 'mobile')
     await page.getByRole('button', { name: '打开侧栏', exact: true }).click();
@@ -39,6 +40,7 @@ test('tracks the selected note in the URL, restores it on reload and guards brow
   await expect(page).toHaveURL(new RegExp('note=' + b.id));
   await page.reload();
   await expect(page.locator('.document-title')).toContainText('导航乙');
+  await page.getByRole('button', { name: 'Markdown 源码', exact: true }).click();
   await page.locator('.cm-content').fill('# 导航中的草稿\n\n不能因为后退而丢失。');
   await page.goBack();
   await expect(
@@ -53,6 +55,7 @@ test('tracks the selected note in the URL, restores it on reload and guards brow
   await expect(page.locator('.document-title')).toContainText('导航甲');
   await page.goForward();
   await expect(page).toHaveURL(new RegExp('note=' + b.id));
+  await page.getByRole('button', { name: 'Markdown 源码', exact: true }).click();
   await expect(page.locator('.cm-content')).not.toContainText('不能因为后退而丢失');
 });
 
@@ -91,6 +94,7 @@ test('exposes search modes and opens the matching line', async ({ page }) => {
   await expect(page.getByRole('combobox', { name: '搜索模式', exact: true })).toBeVisible();
   await page.locator('.search-result').filter({ hasText: '目标结论' }).click();
   await expect(page).toHaveURL(new RegExp('note=' + note.id + '#L83'));
+  await page.getByRole('button', { name: 'Markdown 源码', exact: true }).click();
   await expect(page.locator('.cm-content')).toBeVisible();
   expect(mode).toBeTruthy();
 });
@@ -175,6 +179,7 @@ test('imports a Markdown note from the daily workspace and downloads the saved s
   await expandFolderPath(page, '00-Inbox');
   await page.locator('.tree-scroll').getByRole('button', { name, exact: true }).click();
   await expect(page).toHaveURL(new RegExp('note=' + imported.id));
+  await page.getByRole('button', { name: 'Markdown 源码', exact: true }).click();
   await expect(page.locator('.cm-content')).toContainText('迁入的原始内容');
   await page.getByRole('button', { name: '更多操作', exact: true }).click();
   const download = page.waitForEvent('download');
@@ -196,10 +201,10 @@ test('the persistent preview outline jumps to its heading without leaving previe
     '# 阅读记录\n\n' + '需要阅读的段落。\n\n'.repeat(90) + '## 本周结论\n\n保留清晰的结论。\n',
   );
   await page.goto('/?note=' + note.id);
-  await page.getByRole('button', { name: '预览', exact: true }).click();
+  await page.getByRole('button', { name: '阅读', exact: true }).click();
   const chapterMenu = page.getByRole('button', { name: '章节目录', exact: true });
-  await expect(chapterMenu).toHaveCount(0);
-  await expect(page.locator('.document-outline')).toBeVisible();
+  await expect(chapterMenu).toBeVisible();
+  if ((await chapterMenu.getAttribute('aria-expanded')) !== 'true') await chapterMenu.click();
   await page
     .getByRole('navigation', { name: '本文章节', exact: true })
     .getByRole('button', { name: '本周结论', exact: true })

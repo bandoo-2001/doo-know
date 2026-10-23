@@ -501,3 +501,89 @@ it('notifies the workspace after successful pull even when the panel closes duri
       .mock.calls.some(([event]) => event.type === 'dooknow-workspace-changed'),
   ).toBe(true);
 });
+
+it('returns from an inline Git panel through exactly one direct event', async () => {
+  const returned = vi.fn();
+  const view = await mount('GitRemotePanel.vue', { inline: true, onReturnSave: returned });
+  await view.returnSave();
+  expect(returned).toHaveBeenCalledTimes(1);
+  expect(window.dispatchEvent).not.toHaveBeenCalled();
+});
+
+it('returns from a standalone Git panel through exactly one global event', async () => {
+  const returned = vi.fn();
+  const view = await mount('GitRemotePanel.vue', { onReturnSave: returned });
+  await view.returnSave();
+  expect(returned).not.toHaveBeenCalled();
+  expect(window.dispatchEvent).toHaveBeenCalledTimes(1);
+  expect(vi.mocked(window.dispatchEvent).mock.calls[0][0].type).toBe('dooknow-git-return-save');
+});
+
+it('guards a dirty connection before returning and cancels the pending navigation when editing continues', async () => {
+  let view: any;
+  const returned = vi.fn(() => expect(view.panelDirty).toBe(false));
+  view = await mount('GitRemotePanel.vue', { inline: true, onReturnSave: returned });
+  const originalURL = view.url,
+    originalBranch = view.branch;
+  view.openConnection();
+  view.url = 'https://github.com/fixture/unsaved-connection.git';
+  view.branch = 'unsaved-branch';
+  await view.returnSave();
+  expect(view.discardOpen).toBe(true);
+  expect(returned).not.toHaveBeenCalled();
+  expect(window.dispatchEvent).not.toHaveBeenCalled();
+  view.cancelDiscard();
+  expect(view.discardOpen).toBe(false);
+  expect(view.url).toBe('https://github.com/fixture/unsaved-connection.git');
+  expect(view.branch).toBe('unsaved-branch');
+  // A later ordinary back action must not inherit the cancelled return-to-note intent.
+  view.requestBack();
+  await view.confirmDiscard();
+  expect(view.overlay).toBeNull();
+  expect(returned).not.toHaveBeenCalled();
+  expect(window.dispatchEvent).not.toHaveBeenCalled();
+  view.openConnection();
+  view.url = 'https://github.com/fixture/another-connection.git';
+  await view.returnSave();
+  const finishing = view.confirmDiscard();
+  expect(returned).not.toHaveBeenCalled();
+  await finishing;
+  await Vue.nextTick();
+  expect(view.url).toBe(originalURL);
+  expect(view.branch).toBe(originalBranch);
+  expect(view.panelDirty).toBe(false);
+  expect(returned).toHaveBeenCalledTimes(1);
+  expect(window.dispatchEvent).not.toHaveBeenCalled();
+});
+
+it('discards nested credential and connection drafts before returning to the note once', async () => {
+  let view: any;
+  const returned = vi.fn(() => expect(view.panelDirty).toBe(false));
+  view = await mount('GitRemotePanel.vue', { inline: true, onReturnSave: returned });
+  const originalURL = view.url,
+    originalBranch = view.branch;
+  view.openConnection();
+  view.url = 'https://github.com/fixture/unsaved-parent.git';
+  view.branch = 'unsaved-parent-branch';
+  view.editCredential();
+  view.credentialName = 'Unsaved child';
+  view.token = 'unsaved-disposable-token';
+  await view.returnSave();
+  expect(view.discardOpen).toBe(true);
+  expect(returned).not.toHaveBeenCalled();
+  view.cancelDiscard();
+  expect(view.token).toBe('unsaved-disposable-token');
+  expect(view.url).toBe('https://github.com/fixture/unsaved-parent.git');
+  await view.returnSave();
+  const finishing = view.confirmDiscard();
+  expect(returned).not.toHaveBeenCalled();
+  await finishing;
+  await Vue.nextTick();
+  expect(view.overlay).toBeNull();
+  expect(view.token).toBe('');
+  expect(view.url).toBe(originalURL);
+  expect(view.branch).toBe(originalBranch);
+  expect(view.panelDirty).toBe(false);
+  expect(returned).toHaveBeenCalledTimes(1);
+  expect(window.dispatchEvent).not.toHaveBeenCalled();
+});

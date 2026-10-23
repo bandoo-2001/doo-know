@@ -48,6 +48,7 @@ test('text selections remain visibly blue on the active line and after focusing 
   expect(response.status()).toBe(201);
   const note = await response.json();
   await page.goto('/?note=' + note.id);
+  await page.getByRole('button', { name: 'Markdown 源码', exact: true }).click();
   const editor = page.locator('.cm-content');
   await expect(editor).toBeVisible();
   await editor.click();
@@ -64,6 +65,14 @@ test('text selections remain visibly blue on the active line and after focusing 
   await expect.poll(() => blueContrast(page, rect)).toBeGreaterThan(15);
   const format = page.getByRole('combobox', { name: '段落格式', exact: true });
   await format.focus();
+  await expect(format).toBeFocused();
+  await expect.poll(() => blueContrast(page, rect)).toBeGreaterThan(15);
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('listbox', { name: '段落样式', exact: true })).toBeVisible();
+  // The open menu can cover these pixels; check the selection directly until it closes.
+  await expect.poll(() => page.evaluate(() => getSelection()?.toString())).toBe(text);
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('listbox', { name: '段落样式', exact: true })).toBeHidden();
   await expect(format).toBeFocused();
   await expect.poll(() => blueContrast(page, rect)).toBeGreaterThan(15);
   await page.screenshot({ path: info.outputPath('visible-selection.png'), animations: 'disabled' });

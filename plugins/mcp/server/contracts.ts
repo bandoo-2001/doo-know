@@ -265,6 +265,7 @@ export const searchOutput = z.object({
               headingPath: z.array(z.string()),
               startLine: z.number().int(),
               endLine: z.number().int(),
+              matchLine: z.number().int().positive().optional(),
               snippet: z.string().refine((s) => Buffer.byteLength(s) <= 512),
               sourceHash: hash,
               sourceRevision: z.number().int().positive(),

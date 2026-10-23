@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onBeforeUnmount, ref } from 'vue';
+import { computed, nextTick, onMounted, onBeforeUnmount, ref, watch } from 'vue';
 import { Button as AButton, Alert as AAlert } from 'ant-design-vue';
 import type {
   GitCredentialSummary,
@@ -12,6 +12,8 @@ import type {
 } from '../../../shared/git-contracts';
 import { api, ApiError } from '../api';
 import { pluginRegistry, refreshPlugins } from '../plugins';
+import SettingsOverlay from './settings/SettingsOverlay.vue';
+import SettingsActionCard from './settings/SettingsActionCard.vue';
 import {
   gitUnsaved,
   gitError,
@@ -19,11 +21,21 @@ import {
   jobPending,
   type WorkspaceChangeDetail,
 } from '../git-sync';
-const props = withDefaults(defineProps<{ mode?: 'sync' | 'import'; timeZone?: string }>(), {
-  mode: 'sync',
-  timeZone: 'Asia/Shanghai',
-});
-const emit = defineEmits<{ imported: [root: string]; changed: []; 'return-save': [] }>();
+const props = withDefaults(
+  defineProps<{ mode?: 'sync' | 'import'; timeZone?: string; inline?: boolean }>(),
+  {
+    mode: 'sync',
+    timeZone: 'Asia/Shanghai',
+    inline: false,
+  },
+);
+const emit = defineEmits<{
+  imported: [root: string];
+  changed: [];
+  'return-save': [];
+  'busy-change': [busy: boolean];
+  'dirty-change': [dirty: boolean];
+}>();
 const state = ref<GitRemoteStatus>(),
   credentials = ref<GitCredentialSummary[]>([]),
   job = ref<GitJob>();
@@ -67,8 +79,181 @@ const connection = computed(() => state.value?.connection);
 const unresolved = ref<GitJobInput>();
 let active = true,
   timer: ReturnType<typeof setTimeout> | undefined,
-  loadEpoch = 0;
+  loadEpoch = 0,
+  previewGeneration = 0;
 const endpoint = '/api/platform/git';
+const overlay = ref<'connection' | 'credential' | 'review' | null>(null);
+const returnToConnection = ref(false),
+  discardOpen = ref(false),
+  returnSavePending = ref(false),
+  previewMessage = ref(''),
+  reviewBaseline = ref(''),
+  credentialBaseline = ref('');
+let returningToSave = false;
+const connectionDraft = () => ({
+  url: url.value,
+  branch: branch.value,
+  credentialId: credentialId.value,
+  authorName: authorName.value,
+  authorEmail: authorEmail.value,
+});
+const connectionBaseline = ref(connectionDraft());
+const reviewAuthorBaseline = ref({ name: '', email: '' });
+const credentialDraft = () =>
+  JSON.stringify([
+    credentialName.value,
+    credentialKind.value,
+    credentialHost.value,
+    username.value,
+    knownHosts.value,
+    trustHost.value,
+    remember.value,
+  ]);
+const connectionDirty = computed(
+  () => JSON.stringify(connectionDraft()) !== JSON.stringify(connectionBaseline.value),
+);
+const overlayDirty = computed(() => {
+  if (overlay.value === 'connection') return connectionDirty.value;
+  if (overlay.value === 'credential')
+    return (
+      credentialDraft() !== credentialBaseline.value ||
+      !!token.value ||
+      !!privateKey.value ||
+      !!passphrase.value
+    );
+  return (
+    overlay.value === 'review' &&
+    !commitUnknown.value &&
+    (message.value !== reviewBaseline.value ||
+      authorName.value !== reviewAuthorBaseline.value.name ||
+      authorEmail.value !== reviewAuthorBaseline.value.email)
+  );
+});
+const overlayBusy = computed(() => busy.value || commitUnknown.value);
+const panelDirty = computed(
+  () =>
+    overlayDirty.value ||
+    (overlay.value === 'credential' && returnToConnection.value && connectionDirty.value),
+);
+const frameInline = computed(() => props.inline || (props.mode === 'import' && !overlay.value));
+const overlayTitle = computed(() =>
+  overlay.value === 'credential'
+    ? editingCredential.value
+      ? '更换凭据'
+      : '添加凭据'
+    : overlay.value === 'review'
+      ? '确认本次提交内容'
+      : '管理云端同步',
+);
+const previewCurrent = computed(
+  () => !!preview.value && (commitUnknown.value || previewMessage.value === message.value.trim()),
+);
+const frameProps = computed(() =>
+  frameInline.value
+    ? {}
+    : {
+        show: !!overlay.value,
+        title: overlayTitle.value,
+        description:
+          overlay.value === 'review'
+            ? '先填写说明并预览文件，再确认提交与推送。'
+            : overlay.value === 'credential'
+              ? '凭据只供当前账号使用，秘密内容不会回显。'
+              : '关联云端仓库，管理同步分支与认证方式。',
+        icon:
+          overlay.value === 'credential'
+            ? 'lock'
+            : overlay.value === 'review'
+              ? 'commit'
+              : 'refresh',
+        kind: overlay.value === 'credential' ? ('modal' as const) : ('drawer' as const),
+        width: overlay.value === 'credential' ? 640 : 960,
+        busy: overlayBusy.value,
+        dirty: overlayDirty.value,
+      },
+);
+watch(overlayBusy, (value) => emit('busy-change', value), { immediate: true });
+watch(panelDirty, (value) => emit('dirty-change', value), { immediate: true });
+watch(
+  message,
+  () => {
+    if (preview.value && !commitUnknown.value && previewMessage.value !== message.value.trim()) {
+      cancelPreview();
+      error.value = '提交说明已修改，请重新预览。';
+    }
+  },
+  { flush: 'sync' },
+);
+function cancelPreview() {
+  if (commitUnknown.value) return;
+  ++previewGeneration;
+  const previous = preview.value;
+  preview.value = undefined;
+  previewMessage.value = '';
+  commitRequest.value = '';
+  if (previous?.token)
+    void api('/api/plugins/git/call', 'POST', {
+      kind: 'command',
+      id: 'git.cancelPreview',
+      input: { token: previous.token },
+    }).catch(() => {});
+}
+function openConnection() {
+  if (!active) return;
+  connectionBaseline.value = connectionDraft();
+  discardOpen.value = false;
+  overlay.value = 'connection';
+}
+function openReview() {
+  if (!active || busy.value) return;
+  reviewBaseline.value = message.value;
+  reviewAuthorBaseline.value = { name: authorName.value, email: authorEmail.value };
+  discardOpen.value = false;
+  overlay.value = 'review';
+}
+function closeOverlay() {
+  discardOpen.value = false;
+  returnSavePending.value = false;
+  if (overlay.value === 'credential') {
+    clearSecrets();
+    editorOpen.value = false;
+    overlay.value = returnToConnection.value ? 'connection' : null;
+    returnToConnection.value = false;
+    return;
+  }
+  if (overlay.value === 'connection') {
+    const original = connectionBaseline.value;
+    url.value = original.url;
+    branch.value = original.branch;
+    credentialId.value = original.credentialId;
+    authorName.value = original.authorName;
+    authorEmail.value = original.authorEmail;
+  } else if (overlay.value === 'review' && !commitUnknown.value) {
+    cancelPreview();
+    message.value = reviewBaseline.value;
+    authorName.value = reviewAuthorBaseline.value.name;
+    authorEmail.value = reviewAuthorBaseline.value.email;
+  }
+  overlay.value = null;
+}
+function requestBack() {
+  if (overlayBusy.value) return;
+  returnSavePending.value = false;
+  if (overlayDirty.value) discardOpen.value = true;
+  else closeOverlay();
+}
+function cancelDiscard() {
+  discardOpen.value = false;
+  returnSavePending.value = false;
+}
+function confirmDiscard() {
+  if (overlayBusy.value) return;
+  if (returnSavePending.value) void finishReturnSave();
+  else closeOverlay();
+}
+function updateOverlay(show: boolean) {
+  if (!show) closeOverlay();
+}
 function clearSecrets() {
   token.value = '';
   privateKey.value = '';
@@ -76,6 +261,8 @@ function clearSecrets() {
 }
 function stopped() {
   active = false;
+  ++loadEpoch;
+  cancelPreview();
   clearTimeout(timer);
   clearSecrets();
 }
@@ -84,8 +271,24 @@ onBeforeUnmount(() => {
   window.removeEventListener('dooknow-session-expired', stopped);
 });
 function returnSave() {
-  emit('return-save');
-  window.dispatchEvent(new Event('dooknow-git-return-save'));
+  if (!active || overlayBusy.value || returningToSave) return;
+  returnSavePending.value = true;
+  if (panelDirty.value) discardOpen.value = true;
+  else void finishReturnSave();
+}
+async function finishReturnSave() {
+  if (!active || overlayBusy.value || returningToSave) return;
+  returningToSave = true;
+  returnSavePending.value = false;
+  closeOverlay();
+  // A credential editor can retain a separate connection draft behind it.
+  if (overlay.value) closeOverlay();
+  await nextTick();
+  if (active) {
+    if (props.inline) emit('return-save');
+    else window.dispatchEvent(new Event('dooknow-git-return-save'));
+  }
+  returningToSave = false;
 }
 function unsaved() {
   if (!gitUnsaved.value) return false;
@@ -243,7 +446,13 @@ async function startJob(kind: GitJobKind) {
     unresolved.value = input;
     const next = await api<GitJob>(endpoint + '/jobs', 'POST', input);
     unresolved.value = undefined;
-    if (active) await completed(next);
+    if (active) {
+      await completed(next);
+      if (active && kind === 'connect') {
+        connectionBaseline.value = connectionDraft();
+        overlay.value = null;
+      }
+    }
   } catch (e) {
     if (!active) return;
     // A definite rejection cannot have created a job. Transport loss must be reconciled.
@@ -271,7 +480,8 @@ async function retryJob() {
   }
 }
 async function cancelJob() {
-  if (!job.value || !active) return;
+  if (!job.value || !active || busy.value) return;
+  busy.value = true;
   try {
     const next = await api<GitJob>(
       endpoint + '/jobs/' + encodeURIComponent(job.value.id) + '/cancel',
@@ -281,10 +491,15 @@ async function cancelJob() {
     if (active) await completed(next);
   } catch (e) {
     if (active) error.value = gitError(e);
+  } finally {
+    if (active) busy.value = false;
   }
 }
 function editCredential(entry?: GitCredentialSummary) {
   clearSecrets();
+  returnToConnection.value = overlay.value === 'connection';
+  discardOpen.value = false;
+  overlay.value = 'credential';
   editorOpen.value = true;
   editingCredential.value = entry?.id || '';
   credentialName.value = entry?.name || '';
@@ -296,6 +511,7 @@ function editCredential(entry?: GitCredentialSummary) {
   trustHost.value = false;
   fingerprints.value = [];
   remember.value = !entry?.temporary;
+  credentialBaseline.value = credentialDraft();
 }
 async function saveCredential() {
   if (running.value || !active) return;
@@ -327,6 +543,9 @@ async function saveCredential() {
     credentialId.value = saved.id;
     clearSecrets();
     editorOpen.value = false;
+    overlay.value = returnToConnection.value ? 'connection' : null;
+    returnToConnection.value = false;
+    discardOpen.value = false;
     notice.value = '凭据已保存，秘密内容不会回显。';
   } catch (e) {
     if (active) error.value = gitError(e);
@@ -365,7 +584,12 @@ async function saveAuthor() {
       },
       configVersion: plugin.configVersion,
     });
-    if (active) await refreshPlugins();
+    if (active) {
+      await refreshPlugins();
+      connectionBaseline.value.authorName = authorName.value;
+      connectionBaseline.value.authorEmail = authorEmail.value;
+      reviewAuthorBaseline.value = { name: authorName.value, email: authorEmail.value };
+    }
   } catch (e) {
     if (active) error.value = gitError(e);
   } finally {
@@ -382,43 +606,61 @@ async function previewCommit() {
     error.value = gitError('GIT_AUTHOR_REQUIRED');
     return;
   }
+  if (!message.value.trim()) {
+    error.value = '请填写提交说明。';
+    return;
+  }
   if (state.value?.changes === 0) {
     error.value = gitError('GIT_NO_CHANGES');
     return;
   }
+  const generation = ++previewGeneration;
+  const explanation = message.value.trim();
+  const previous = preview.value;
+  preview.value = undefined;
+  previewMessage.value = '';
+  commitRequest.value = '';
   busy.value = true;
   error.value = '';
   notice.value = '';
   try {
-    if (preview.value)
+    if (previous)
       await api('/api/plugins/git/call', 'POST', {
         kind: 'command',
         id: 'git.cancelPreview',
-        input: { token: preview.value.token },
+        input: { token: previous.token },
       });
-    const next = await api('/api/plugins/git/call', 'POST', {
+    const next = await api<any>('/api/plugins/git/call', 'POST', {
       kind: 'command',
       id: 'git.preview',
-      input: { message: message.value.trim() },
+      input: { message: explanation },
     });
-    if (active) {
+    if (active && generation === previewGeneration && explanation === message.value.trim()) {
       preview.value = next;
+      previewMessage.value = explanation;
       commitRequest.value = crypto.randomUUID();
+    } else if (next?.token) {
+      void api('/api/plugins/git/call', 'POST', {
+        kind: 'command',
+        id: 'git.cancelPreview',
+        input: { token: next.token },
+      }).catch(() => {});
     }
   } catch (e) {
-    if (active) error.value = gitError(e);
+    if (active && generation === previewGeneration) error.value = gitError(e);
   } finally {
     if (active) busy.value = false;
   }
 }
 async function confirmCommit() {
   if (!preview.value || running.value || !active || unsaved()) return;
-  if (
-    !commitUnknown.value &&
-    preview.value.message &&
-    preview.value.message !== message.value.trim()
-  ) {
+  if (!commitUnknown.value && previewMessage.value !== message.value.trim()) {
     error.value = '提交说明已修改，请重新预览。';
+    return;
+  }
+  if (!commitUnknown.value && preview.value.expiresAt && preview.value.expiresAt <= Date.now()) {
+    cancelPreview();
+    error.value = '提交预览已过期，请重新预览。';
     return;
   }
   busy.value = true;
@@ -439,6 +681,11 @@ async function confirmCommit() {
     committedHead.value = result.commit;
     commitUnknown.value = false;
     preview.value = undefined;
+    commitRequest.value = '';
+    previewMessage.value = '';
+    message.value = '';
+    reviewBaseline.value = '';
+    overlay.value = null;
     if (result.needsReconciliation) {
       error.value = '提交已保留，本地状态待核对。请在版本记录中核对后仅推送。';
       return;
@@ -449,7 +696,7 @@ async function confirmCommit() {
     if (!active) return;
     if (e instanceof ApiError && e.data.publication === 'not_published') {
       commitUnknown.value = false;
-      preview.value = undefined;
+      cancelPreview();
     }
     error.value = commitUnknown.value
       ? '提交结果尚未确认，请核对提交结果。重试会使用同一次提交请求。'
@@ -469,7 +716,7 @@ onMounted(() => {
 </script>
 <template>
   <section class="git-remote-panel" :aria-busy="running" aria-label="云端同步面板">
-    <header class="remote-heading">
+    <header v-if="!inline || !overlay" class="remote-heading">
       <div>
         <h2>{{ mode === 'import' ? '从 GitHub／Gitee 导入' : '云端同步' }}</h2>
         <p>保存让笔记落到本机；提交记录一个版本；推送才会上传。Git 不能代替独立备份。</p>
@@ -485,7 +732,7 @@ onMounted(() => {
       message="当前笔记尚未保存。请返回笔记保存后再提交或拉取。仅推送只上传已提交版本，不会上传草稿。"
       ><template #action><AButton @click="returnSave">返回笔记保存</AButton></template></AAlert
     >
-    <div v-if="state && mode !== 'import'" class="remote-status">
+    <div v-if="(!inline || !overlay) && state && mode !== 'import'" class="remote-status">
       <p>
         本地分支：<strong>{{ state.branch || '尚未初始化' }}</strong> · 未提交文件：{{
           state.changes
@@ -513,279 +760,36 @@ onMounted(() => {
       >
       <p v-else>尚未关联云端仓库。关联后仍需手动提交和同步。</p>
     </div>
-    <details :open="mode === 'import' || !connection" class="remote-section">
-      <summary>
-        {{ mode === 'import' ? '仓库地址、认证与保存位置' : '关联云端仓库／更换认证' }}
-      </summary>
-      <p>
-        此操作会安装并启用 Git 插件。已有目录与历史会保留；不会自动合并、强推或覆盖其他远端配置。
-      </p>
-      <label
-        >仓库克隆地址<input
-          v-model="url"
-          aria-label="仓库克隆地址"
-          placeholder="https://github.com/owner/repository.git"
-          :disabled="running"
-          autocomplete="off"
-      /></label>
-      <p>请复制仓库页面的 HTTPS 或 SSH 克隆地址。公开 HTTPS 仓库可不配置认证。</p>
-      <label
-        >云端分支（选填）<input
-          v-model="branch"
-          aria-label="云端分支（选填）"
-          placeholder="留空使用默认分支"
-          :disabled="running"
-      /></label>
-      <label
-        >仓库认证<select v-model="credentialId" aria-label="仓库认证" :disabled="running">
-          <option value="">不使用凭据（公开仓库读取）</option>
-          <option v-for="entry in credentials" :key="entry.id" :value="entry.id">
-            {{ entry.name }} · {{ entry.host }} · {{ entry.kind.toUpperCase()
-            }}{{ entry.temporary ? ' · 临时' : '' }}
-          </option>
-        </select></label
-      >
+    <SettingsActionCard
+      v-if="mode !== 'import' && (!inline || !overlay)"
+      title="云端仓库与认证"
+      description="管理仓库地址、分支和登录凭据。"
+      icon="refresh"
+      :action-label="connection ? '管理同步' : '关联云端仓库'"
+      @open="openConnection"
+    />
+    <div v-if="mode !== 'import' && connection && (!inline || !overlay)" class="remote-section">
       <div class="remote-actions">
-        <AButton :disabled="running" @click="editCredential()">添加凭据</AButton
-        ><AButton :disabled="running || !url.trim()" @click="startJob('test')"
-          >测试读取连接</AButton
-        >
-      </div>
-      <template v-if="mode === 'import'"
-        ><label
-          >导入后的知识库名称<input
-            v-model="name"
-            aria-label="导入后的知识库名称"
-            :disabled="running"
-            maxlength="40" /></label
-        ><label
-          >导入保存位置（选填）<input
-            v-model="parentPath"
-            aria-label="导入保存位置（选填）"
-            placeholder="留空使用推荐位置，路径位于服务器上"
-            :disabled="running"
-        /></label>
-        <p>下载到独立的新文件夹。已有同名文件夹时会停止，请另选名称或位置。</p></template
-      >
-      <div class="remote-actions">
-        <AButton
-          type="primary"
-          :disabled="running || !url.trim() || (mode === 'import' && !name.trim())"
-          @click="startJob(mode === 'import' ? 'clone' : 'connect')"
-          >{{ mode === 'import' ? '导入并继续' : '关联云端仓库' }}</AButton
-        >
-      </div>
-    </details>
-    <details class="remote-section">
-      <summary>管理仓库凭据</summary>
-      <p>凭据只供登录账号使用，秘密内容不会回显。移除凭据不会删除资料。</p>
-      <ul class="credential-list">
-        <li v-for="entry in credentials" :key="entry.id">
-          <span
-            >{{ entry.name }} · {{ entry.host }} · {{ entry.kind.toUpperCase()
-            }}{{ entry.temporary ? ' · 临时 30 分钟' : '' }}</span
-          ><AButton size="small" :disabled="running" @click="editCredential(entry)"
-            >更换凭据 {{ entry.name }}</AButton
-          ><AButton size="small" danger :disabled="running" @click="removeCredential(entry)"
-            >移除凭据 {{ entry.name }}</AButton
-          >
-        </li>
-      </ul>
-      <AButton :disabled="running" @click="editCredential()">添加新的凭据</AButton>
-    </details>
-    <div v-if="editorOpen" class="credential-editor remote-section">
-      <h3>{{ editingCredential ? '更换凭据' : '添加凭据' }}</h3>
-      <form @submit.prevent="saveCredential">
-        <label
-          >凭据名称<input
-            v-model="credentialName"
-            aria-label="凭据名称"
-            required
-            :disabled="running"
-            autocomplete="off" /></label
-        ><label
-          >服务平台<select
-            v-model="credentialHost"
-            aria-label="凭据服务平台"
-            :disabled="running"
-            @change="
-              trustHost = false;
-              knownHosts = '';
-              fingerprints = [];
-            "
-          >
-            <option value="github.com">GitHub</option>
-            <option value="gitee.com">Gitee</option>
-          </select></label
-        ><label
-          >认证方式<select v-model="credentialKind" aria-label="认证方式" :disabled="running">
-            <option value="https">HTTPS 令牌（推荐）</option>
-            <option value="ssh">SSH 私钥（高级）</option>
-          </select></label
-        >
-        <template v-if="credentialKind === 'https'"
-          ><label
-            >仓库用户名<input
-              v-model="username"
-              aria-label="仓库用户名"
-              autocomplete="off"
-              :disabled="running" /></label
-          ><label
-            >访问令牌<input
-              v-model="token"
-              type="password"
-              aria-label="访问令牌"
-              autocomplete="new-password"
-              :required="!editingCredential"
-              :disabled="running"
-              :placeholder="
-                editingCredential ? '留空保留原令牌' : '填写具有仓库读写权限的访问令牌'
-              " /></label
-        ></template>
-        <template v-else
-          ><p>
-            SSH 高级设置：私钥只会发给当前 DooKnow
-            服务。请先与官方公布的主机指纹核对，不能仅凭扫描结果信任主机。
-          </p>
-          <label
-            >SSH 私钥<textarea
-              v-model="privateKey"
-              aria-label="SSH 私钥"
-              autocomplete="off"
-              :disabled="running"
-              :required="!editingCredential"
-              :placeholder="editingCredential ? '留空保留原私钥' : '粘贴专用 SSH 私钥'"
-              rows="4"
-            /></label
-          ><label
-            >私钥口令（选填）<input
-              v-model="passphrase"
-              type="password"
-              aria-label="私钥口令（选填）"
-              autocomplete="new-password"
-              :disabled="running" /></label
-          ><AButton :disabled="running" @click="startJob('ssh-host')">读取 SSH 主机指纹</AButton>
-          <pre v-if="fingerprints.length">{{ fingerprints.join('\n') }}</pre>
-          <label
-            >已核对的 known_hosts<textarea
-              v-model="knownHosts"
-              aria-label="已核对的 known_hosts"
-              :disabled="running"
-              rows="4"
-              @input="trustHost = false"
-            />
-          </label>
-          <p>扫描被网络阻止时，也可以粘贴经过核对的 known_hosts。</p>
-          <label class="remote-check"
-            ><input
-              v-model="trustHost"
-              type="checkbox"
-              :disabled="running"
-            />我已对照官方文档核对指纹，确认信任此主机</label
-          ></template
-        >
-        <label class="remote-check"
-          ><input
-            v-model="remember"
-            type="checkbox"
-            :disabled="running"
-          />在服务器加密保存凭据（取消后仅保留 30 分钟）</label
-        >
-        <div class="remote-actions">
-          <AButton
-            html-type="submit"
-            type="primary"
-            :disabled="
-              running || !credentialName.trim() || (credentialKind === 'ssh' && !trustHost)
-            "
-            >保存仓库凭据</AButton
-          ><AButton
-            :disabled="running"
-            @click="
-              editorOpen = false;
-              clearSecrets();
-            "
-            >取消编辑凭据</AButton
-          >
-        </div>
-      </form>
-    </div>
-    <div v-if="mode !== 'import' && connection" class="remote-section">
-      <div class="remote-actions">
-        <AButton :disabled="running" @click="startJob('check')">检查云端</AButton
-        ><AButton :disabled="running || commitUnknown" @click="startJob('push')">仅推送</AButton
-        ><AButton :disabled="running || gitUnsaved || commitUnknown" @click="startJob('pull')"
+        <AButton :disabled="running" @click="startJob('check')">检查云端</AButton>
+        <AButton :disabled="running || commitUnknown" @click="startJob('push')">仅推送</AButton>
+        <AButton :disabled="running || gitUnsaved || commitUnknown" @click="startJob('pull')"
           >拉取更新</AButton
+        >
+        <AButton
+          :disabled="
+            running || (gitUnsaved && !commitUnknown) || (state?.changes === 0 && !commitUnknown)
+          "
+          @click="openReview"
+          >预览提交并推送</AButton
         >
       </div>
       <p>拉取仅支持无本地修改时的快进更新。有分歧时会停止。仅推送会保留本地草稿。</p>
+      <p v-if="state?.changes === 0">没有未提交文件。已有本地提交时可以直接“仅推送”。</p>
       <p v-if="committedHead" class="remote-code" role="status">
         本地提交 {{ committedHead }} 已保留；推送失败时可仅推送重试。
       </p>
-      <details v-if="!authorReady" open>
-        <summary>先设置版本记录的署名</summary>
-        <p>署名记录在 Git 提交中，与仓库登录凭据无关。</p>
-        <label
-          >同步提交作者<input
-            v-model="authorName"
-            aria-label="同步提交作者"
-            :disabled="running" /></label
-        ><label
-          >同步作者邮箱<input
-            v-model="authorEmail"
-            type="email"
-            aria-label="同步作者邮箱"
-            :disabled="running" /></label
-        ><AButton
-          :disabled="running || !authorName.trim() || !authorEmail.trim()"
-          @click="saveAuthor"
-          >保存同步署名</AButton
-        >
-      </details>
-      <label
-        >云端同步提交说明<input
-          v-model="message"
-          aria-label="云端同步提交说明"
-          :disabled="running || commitUnknown"
-          placeholder="简述本次保存的文件变更" /></label
-      ><AButton
-        :disabled="
-          running ||
-          gitUnsaved ||
-          commitUnknown ||
-          !message.trim() ||
-          !authorReady ||
-          state?.changes === 0
-        "
-        @click="previewCommit"
-        >预览提交并推送</AButton
-      >
-      <p v-if="state?.changes === 0">没有未提交文件。已有本地提交时可以直接“仅推送”。</p>
-      <div v-if="preview" class="commit-preview">
-        <h3>确认本次提交内容</h3>
-        <p>{{ preview.changes.length }} 项文件变更 · {{ preview.message || message }}</p>
-        <p v-if="preview.partialStaging?.length">
-          部分暂存文件将提交完整当前版本：{{ preview.partialStaging.join('、') }}
-        </p>
-        <ul>
-          <li v-for="change in preview.changes" :key="change.path">
-            {{ change.code || change.status }} · {{ change.path }}
-          </li>
-        </ul>
-        <pre v-if="preview.diff">{{ preview.diff }}</pre>
-        <AButton type="primary" :disabled="running || gitUnsaved" @click="confirmCommit">{{
-          commitUnknown ? '核对提交结果' : '确认提交并推送'
-        }}</AButton>
-      </div>
-      <details class="disconnect">
-        <summary>解除云端关联</summary>
-        <p>只移除 DooKnow 的同步关联，本地原文、版本历史与 Git 远端配置会保留。</p>
-        <AButton danger :disabled="running || commitUnknown" @click="startJob('disconnect')"
-          >确认解除云端关联</AButton
-        >
-      </details>
     </div>
-    <div v-if="job" class="remote-job" role="status">
+    <div v-if="job && (!inline || !overlay)" class="remote-job" role="status">
       <strong>{{ jobPhases[job.phase] || '正在处理任务' }}</strong>
       <p>
         {{
@@ -809,42 +813,365 @@ onMounted(() => {
         >
       </div>
     </div>
-    <div v-if="unresolved" class="remote-job">
+    <div v-if="unresolved && (!inline || !overlay)" class="remote-job">
       <p>请求结果尚未确认，请先读取服务器任务回执，避免重复操作。</p>
       <AButton :disabled="running" @click="reconcile">核对请求结果</AButton>
     </div>
-    <details class="remote-help">
-      <summary>GitHub／Gitee 认证与 SSH 帮助</summary>
-      <a
-        href="https://docs.github.com/zh/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens"
-        target="_blank"
-        rel="noopener noreferrer"
-        >GitHub 访问令牌教程</a
-      ><a
-        href="https://help.gitee.com/account/two-factor-authentication#推拉代码认证"
-        target="_blank"
-        rel="noopener noreferrer"
-        >Gitee HTTPS 令牌认证说明</a
-      ><a
-        href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/githubs-ssh-key-fingerprints"
-        target="_blank"
-        rel="noopener noreferrer"
-        >GitHub 官方 SSH 主机指纹</a
-      ><a
-        href="https://help.gitee.com/account/gitees-ssh-key-fingerprints"
-        target="_blank"
-        rel="noopener noreferrer"
-        >Gitee 官方 SSH 主机指纹</a
-      >
-    </details>
+    <component
+      :is="frameInline ? 'div' : SettingsOverlay"
+      v-if="overlay || mode === 'import' || !inline"
+      v-bind="frameProps"
+      @update:show="updateOverlay"
+    >
+      <div class="git-overlay-body">
+        <header v-if="inline && overlay" class="remote-heading">
+          <h3>{{ overlayTitle }}</h3>
+          <AButton :disabled="overlayBusy" @click="requestBack">{{
+            overlay === 'credential' && returnToConnection ? '返回同步管理' : '返回同步状态'
+          }}</AButton>
+        </header>
+        <AAlert v-if="error && !frameInline" type="error" show-icon :message="error" role="alert" />
+        <AAlert
+          v-if="notice && !frameInline"
+          type="success"
+          show-icon
+          :message="notice"
+          role="status"
+        />
+        <AAlert
+          v-if="gitUnsaved && !frameInline"
+          type="warning"
+          message="当前笔记尚未保存，请返回笔记保存后再提交或拉取。"
+        >
+          <template #action><AButton @click="returnSave">返回笔记保存</AButton></template>
+        </AAlert>
+        <AAlert
+          v-if="discardOpen"
+          type="warning"
+          show-icon
+          message="有尚未保存的修改，确定放弃吗？"
+        >
+          <template #action
+            ><div class="remote-actions">
+              <AButton @click="cancelDiscard">继续编辑</AButton
+              ><AButton danger @click="confirmDiscard">放弃修改</AButton>
+            </div></template
+          >
+        </AAlert>
+        <template v-if="overlay === 'connection' || (mode === 'import' && !overlay)">
+          <section aria-label="云端仓库配置">
+            <p>
+              此操作会安装并启用 Git
+              插件。已有目录与历史会保留；不会自动合并、强推或覆盖其他远端配置。
+            </p>
+            <label
+              >仓库克隆地址<input
+                v-model="url"
+                aria-label="仓库克隆地址"
+                placeholder="https://github.com/owner/repository.git"
+                :disabled="running"
+                autocomplete="off"
+            /></label>
+            <p>请复制仓库页面的 HTTPS 或 SSH 克隆地址。公开 HTTPS 仓库可不配置认证。</p>
+            <label
+              >云端分支（选填）<input
+                v-model="branch"
+                aria-label="云端分支（选填）"
+                placeholder="留空使用默认分支"
+                :disabled="running"
+            /></label>
+            <label
+              >仓库认证<select v-model="credentialId" aria-label="仓库认证" :disabled="running">
+                <option value="">不使用凭据（公开仓库读取）</option>
+                <option v-for="entry in credentials" :key="entry.id" :value="entry.id">
+                  {{ entry.name }} · {{ entry.host }} · {{ entry.kind.toUpperCase()
+                  }}{{ entry.temporary ? ' · 临时' : '' }}
+                </option>
+              </select></label
+            >
+            <div class="remote-actions">
+              <AButton :disabled="running" @click="editCredential()">添加凭据</AButton
+              ><AButton :disabled="running || !url.trim()" @click="startJob('test')"
+                >测试读取连接</AButton
+              >
+            </div>
+            <template v-if="mode === 'import'"
+              ><label
+                >导入后的知识库名称<input
+                  v-model="name"
+                  aria-label="导入后的知识库名称"
+                  :disabled="running"
+                  maxlength="40" /></label
+              ><label
+                >导入保存位置（选填）<input
+                  v-model="parentPath"
+                  aria-label="导入保存位置（选填）"
+                  placeholder="留空使用推荐位置，路径位于服务器上"
+                  :disabled="running"
+              /></label>
+              <p>下载到独立的新文件夹。已有同名文件夹时会停止，请另选名称或位置。</p></template
+            >
+            <div class="remote-actions">
+              <AButton
+                type="primary"
+                :disabled="running || !url.trim() || (mode === 'import' && !name.trim())"
+                @click="startJob(mode === 'import' ? 'clone' : 'connect')"
+                >{{ mode === 'import' ? '导入并继续' : '关联云端仓库' }}</AButton
+              >
+            </div>
+          </section>
+          <section class="remote-section" aria-label="管理仓库凭据">
+            <h3>管理仓库凭据</h3>
+            <p>凭据只供登录账号使用，秘密内容不会回显。移除凭据不会删除资料。</p>
+            <ul class="credential-list">
+              <li v-for="entry in credentials" :key="entry.id">
+                <span
+                  >{{ entry.name }} · {{ entry.host }} · {{ entry.kind.toUpperCase()
+                  }}{{ entry.temporary ? ' · 临时 30 分钟' : '' }}</span
+                ><AButton size="small" :disabled="running" @click="editCredential(entry)"
+                  >更换凭据 {{ entry.name }}</AButton
+                ><AButton size="small" danger :disabled="running" @click="removeCredential(entry)"
+                  >移除凭据 {{ entry.name }}</AButton
+                >
+              </li>
+            </ul>
+            <AButton :disabled="running" @click="editCredential()">添加新的凭据</AButton>
+          </section>
+          <details v-if="connection && mode !== 'import'" class="disconnect">
+            <summary>解除云端关联</summary>
+            <p>只移除 DooKnow 的同步关联，本地原文、版本历史与 Git 远端配置会保留。</p>
+            <AButton danger :disabled="running || commitUnknown" @click="startJob('disconnect')"
+              >确认解除云端关联</AButton
+            >
+          </details>
+          <details class="remote-help">
+            <summary>GitHub／Gitee 认证与 SSH 帮助</summary>
+            <a
+              href="https://docs.github.com/zh/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens"
+              target="_blank"
+              rel="noopener noreferrer"
+              >GitHub 访问令牌教程</a
+            ><a
+              href="https://help.gitee.com/account/two-factor-authentication#推拉代码认证"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Gitee HTTPS 令牌认证说明</a
+            ><a
+              href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/githubs-ssh-key-fingerprints"
+              target="_blank"
+              rel="noopener noreferrer"
+              >GitHub 官方 SSH 主机指纹</a
+            ><a
+              href="https://help.gitee.com/account/gitees-ssh-key-fingerprints"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Gitee 官方 SSH 主机指纹</a
+            >
+          </details>
+        </template>
+        <div v-else-if="overlay === 'credential'" class="credential-editor">
+          <form @submit.prevent="saveCredential">
+            <label
+              >凭据名称<input
+                v-model="credentialName"
+                aria-label="凭据名称"
+                required
+                :disabled="running"
+                autocomplete="off" /></label
+            ><label
+              >服务平台<select
+                v-model="credentialHost"
+                aria-label="凭据服务平台"
+                :disabled="running"
+                @change="
+                  trustHost = false;
+                  knownHosts = '';
+                  fingerprints = [];
+                "
+              >
+                <option value="github.com">GitHub</option>
+                <option value="gitee.com">Gitee</option>
+              </select></label
+            ><label
+              >认证方式<select v-model="credentialKind" aria-label="认证方式" :disabled="running">
+                <option value="https">HTTPS 令牌（推荐）</option>
+                <option value="ssh">SSH 私钥（高级）</option>
+              </select></label
+            >
+            <template v-if="credentialKind === 'https'"
+              ><label
+                >仓库用户名<input
+                  v-model="username"
+                  aria-label="仓库用户名"
+                  autocomplete="off"
+                  :disabled="running" /></label
+              ><label
+                >访问令牌<input
+                  v-model="token"
+                  type="password"
+                  aria-label="访问令牌"
+                  autocomplete="new-password"
+                  :required="!editingCredential"
+                  :disabled="running"
+                  :placeholder="
+                    editingCredential ? '留空保留原令牌' : '填写具有仓库读写权限的访问令牌'
+                  " /></label
+            ></template>
+            <template v-else
+              ><p>
+                SSH 高级设置：私钥只会发给当前 DooKnow
+                服务。请先与官方公布的主机指纹核对，不能仅凭扫描结果信任主机。
+              </p>
+              <label
+                >SSH 私钥<textarea
+                  v-model="privateKey"
+                  aria-label="SSH 私钥"
+                  autocomplete="off"
+                  :disabled="running"
+                  :required="!editingCredential"
+                  :placeholder="editingCredential ? '留空保留原私钥' : '粘贴专用 SSH 私钥'"
+                  rows="4"
+                /></label
+              ><label
+                >私钥口令（选填）<input
+                  v-model="passphrase"
+                  type="password"
+                  aria-label="私钥口令（选填）"
+                  autocomplete="new-password"
+                  :disabled="running" /></label
+              ><AButton :disabled="running" @click="startJob('ssh-host')"
+                >读取 SSH 主机指纹</AButton
+              >
+              <pre v-if="fingerprints.length">{{ fingerprints.join('\n') }}</pre>
+              <label
+                >已核对的 known_hosts<textarea
+                  v-model="knownHosts"
+                  aria-label="已核对的 known_hosts"
+                  :disabled="running"
+                  rows="4"
+                  @input="trustHost = false"
+                />
+              </label>
+              <p>扫描被网络阻止时，也可以粘贴经过核对的 known_hosts。</p>
+              <label class="remote-check"
+                ><input
+                  v-model="trustHost"
+                  type="checkbox"
+                  :disabled="running"
+                />我已对照官方文档核对指纹，确认信任此主机</label
+              ></template
+            >
+            <label class="remote-check"
+              ><input
+                v-model="remember"
+                type="checkbox"
+                :disabled="running"
+              />在服务器加密保存凭据（取消后仅保留 30 分钟）</label
+            >
+            <div class="remote-actions">
+              <AButton
+                html-type="submit"
+                type="primary"
+                :disabled="
+                  running || !credentialName.trim() || (credentialKind === 'ssh' && !trustHost)
+                "
+                >保存仓库凭据</AButton
+              ><AButton :disabled="running" @click="requestBack">取消编辑凭据</AButton>
+            </div>
+          </form>
+        </div>
+        <template v-else-if="overlay === 'review'">
+          <details v-if="!authorReady" open>
+            <summary>先设置版本记录的署名</summary>
+            <p>署名记录在 Git 提交中，与仓库登录凭据无关。</p>
+            <label
+              >同步提交作者<input
+                v-model="authorName"
+                aria-label="同步提交作者"
+                :disabled="running" /></label
+            ><label
+              >同步作者邮箱<input
+                v-model="authorEmail"
+                type="email"
+                aria-label="同步作者邮箱"
+                :disabled="running" /></label
+            ><AButton
+              :disabled="running || !authorName.trim() || !authorEmail.trim()"
+              @click="saveAuthor"
+              >保存同步署名</AButton
+            >
+          </details>
+          <label
+            >云端同步提交说明<input
+              v-model="message"
+              aria-label="云端同步提交说明"
+              :disabled="running || commitUnknown"
+              placeholder="简述本次保存的文件变更"
+          /></label>
+          <p>提交包含暂存、未暂存及未忽略的新增和删除文件。请核对完整文件列表。</p>
+          <div class="remote-actions">
+            <AButton
+              :disabled="
+                running ||
+                gitUnsaved ||
+                commitUnknown ||
+                !message.trim() ||
+                !authorReady ||
+                state?.changes === 0
+              "
+              @click="previewCommit"
+              >{{ preview ? '重新预览本次提交' : '预览本次提交' }}</AButton
+            >
+          </div>
+          <div v-if="preview" class="commit-preview">
+            <p>{{ preview.changes.length }} 项文件变更 · {{ preview.message || message }}</p>
+            <p v-if="preview.partialStaging?.length">
+              部分暂存文件将提交完整当前版本：{{ preview.partialStaging.join('、') }}
+            </p>
+            <ul>
+              <li v-for="change in preview.changes" :key="change.path">
+                {{ change.code || change.status }} · {{ change.path }}
+              </li>
+            </ul>
+            <pre v-if="preview.diff">{{ preview.diff }}</pre>
+          </div>
+          <div class="remote-actions">
+            <AButton
+              v-if="preview"
+              type="primary"
+              :disabled="running || gitUnsaved || !previewCurrent"
+              @click="confirmCommit"
+              >{{ commitUnknown ? '核对提交结果' : '确认提交并推送' }}</AButton
+            >
+            <AButton :disabled="overlayBusy" @click="requestBack">取消提交</AButton>
+          </div>
+        </template>
+        <div v-if="overlay && jobPending(job)" class="remote-job" role="status">
+          <strong>{{ jobPhases[job!.phase] || '正在处理任务' }}</strong>
+          <p>任务在服务器上继续，可刷新查看进度。</p>
+          <div class="remote-actions">
+            <AButton :disabled="busy" @click="poll">刷新任务状态</AButton
+            ><AButton :disabled="busy" @click="cancelJob">取消当前任务</AButton>
+          </div>
+        </div>
+        <div v-if="overlay && unresolved" class="remote-job">
+          <p>请求结果尚未确认，请先读取服务器任务回执。</p>
+          <AButton :disabled="running" @click="reconcile">核对请求结果</AButton>
+        </div>
+      </div>
+    </component>
   </section>
 </template>
 <style scoped>
-.git-remote-panel {
+.git-remote-panel,
+.git-overlay-body {
   display: grid;
   gap: 16px;
   min-width: 0;
   color: var(--text, #262b36);
+}
+.git-overlay-body {
+  min-width: 0;
 }
 .remote-heading {
   display: flex;
@@ -923,7 +1250,6 @@ summary:focus-visible {
 }
 .remote-status,
 .remote-job,
-.credential-editor,
 .commit-preview {
   border: 1px solid var(--border, #e3e6ec);
   border-radius: 8px;
@@ -937,7 +1263,7 @@ pre {
   font-family: monospace;
 }
 pre {
-  max-height: 260px;
+  max-height: min(55vh, 600px);
   overflow: auto;
   white-space: pre-wrap;
   font-size: 12px;

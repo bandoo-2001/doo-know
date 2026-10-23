@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import type { Page, BrowserContext } from '@playwright/test';
 import { expandFolderPath } from '../support/notebook-tree';
 import { clickNoteAction } from '../support/note-actions';
+import { insertTable } from '../support/document-editor';
 
 test.use({ actionTimeout: 10000 });
 const original = '# Toolbar audit\n\nSaved original.';
@@ -22,6 +23,7 @@ async function createNote(page: Page, context: BrowserContext, label: string) {
   expect(response.status()).toBe(201);
   const note = await response.json();
   await page.goto('/?note=' + note.id);
+  await page.getByRole('button', { name: 'Markdown 源码', exact: true }).click();
   await expect(page.locator('.cm-content')).toBeVisible();
   await expect(page.locator('.save-state')).toContainText('已保存');
   return note as { id: string; relativePath: string; content: string };
@@ -44,7 +46,7 @@ async function replaceAndSelect(page: Page, content: string, mod = 'ControlOrMet
 async function disk(page: Page, id: string) {
   return (await (await page.request.get('/api/notes/' + id)).json()).content as string;
 }
-const toolbar = (page: Page) => page.getByRole('toolbar', { name: 'Markdown 格式', exact: true });
+const toolbar = (page: Page) => page.getByRole('toolbar', { name: '正文格式', exact: true });
 const button = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
 
 async function navigateToReadyNote(
@@ -103,17 +105,19 @@ test('every formatting button and heading level survives undo, redo, preview and
     await test.step(item.name, async () => {
       const base = item.base || 'Alpha beta';
       await replaceAndSelect(page, base);
-      if ('level' in item)
-        await toolbar(page)
-          .getByRole('combobox', { name: '段落格式', exact: true })
-          .selectOption(String(item.level));
+      if ('level' in item) {
+        await toolbar(page).getByRole('combobox', { name: '段落格式', exact: true }).click();
+        await page
+          .getByRole('option', { name: item.level ? `标题 ${item.level}` : '正文', exact: true })
+          .click();
+      } else if (item.name === '插入表格') await insertTable(page, 2, 2);
       else await toolbar(page).getByRole('button', { name: item.name, exact: true }).click();
       await expect.poll(() => source(page)).toBe(item.expected);
       await button(page, '撤销').click();
       await expect.poll(() => source(page)).toBe(base);
       await button(page, '重做').click();
       await expect.poll(() => source(page)).toBe(item.expected);
-      await button(page, '预览').click();
+      await button(page, '阅读').click();
       const rendered = page.locator('.preview-panel .markdown').locator(item.selector);
       await expect(rendered).toBeVisible();
       if (item.selector !== 'hr')
@@ -128,7 +132,7 @@ test('every formatting button and heading level survives undo, redo, preview and
       await page.locator('.toolbar').getByRole('button', { name: '保存', exact: true }).click();
       await expect(page.locator('.save-state')).toContainText('已保存');
       expect(await disk(page, note.id)).toBe(item.expected);
-      await button(page, '编辑').click();
+      await button(page, 'Markdown 源码').click();
       await button(page, '撤销').click();
       await expect.poll(() => source(page)).toBe(base);
       await expect(page.locator('.save-state')).toContainText('未保存');
@@ -141,6 +145,7 @@ test('every formatting button and heading level survives undo, redo, preview and
   expect(await disk(page, note.id)).toBe(lastSaved);
   const formatted = await source(page);
   await page.reload();
+  await button(page, 'Markdown 源码').click();
   await expect(page.locator('.cm-content')).toBeVisible();
   await expect.poll(() => source(page)).toBe(formatted);
   await expect(button(page, '撤销')).toBeDisabled();
@@ -180,7 +185,7 @@ async function checkShortcuts(page: Page, context: BrowserContext, mod: string) 
   page.on('request', (request) => {
     if (request.method() === 'PUT' && request.url().endsWith('/api/notes/' + note.id)) saves++;
   });
-  await button(page, '分屏').click();
+  await page.getByRole('checkbox', { name: '同时预览', exact: true }).check();
   await expect(page.locator('.editor-panel')).toBeVisible();
   await expect(page.locator('.preview-panel a')).toHaveAttribute(
     'href',
@@ -250,11 +255,11 @@ test('toolbar arrow/Home/End navigation skips disabled code-context controls and
   await quote.focus();
   await page.keyboard.press('ArrowLeft');
   await expect(tools.getByRole('button', { name: '行内代码', exact: true })).toBeFocused();
-  await button(page, '预览').click();
+  await button(page, '阅读').click();
   const before = await page.locator('.preview-panel .markdown').innerHTML();
   await page.keyboard.press('ControlOrMeta+b');
   expect(await page.locator('.preview-panel .markdown').innerHTML()).toBe(before);
-  await button(page, '编辑').click();
+  await button(page, 'Markdown 源码').click();
   await expect.poll(() => source(page)).toBe('`literal`');
 });
 
@@ -292,7 +297,7 @@ test('upload button handles PNG and PDF, supports undo/redo and saves from previ
     await expect.poll(() => source(page)).toBe(after);
   }
   const final = await source(page);
-  await button(page, '预览').click();
+  await button(page, '阅读').click();
   const image = page.locator('.preview-panel img');
   await expect(image).toBeVisible();
   expect(await image.evaluate((el) => (el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
@@ -305,6 +310,7 @@ test('upload button handles PNG and PDF, supports undo/redo and saves from previ
   await expect(page.locator('.save-state')).toContainText('已保存');
   expect(await disk(page, note.id)).toBe(final);
   await page.reload();
+  await button(page, 'Markdown 源码').click();
   await expect(page.locator('.cm-content')).toBeVisible();
   await expect.poll(() => source(page)).toBe(final);
   expect(final.match(/toolbar.png/g)).toHaveLength(1);
@@ -319,6 +325,7 @@ test('top navigation, share and more-actions preserve drafts and expose all buil
   const a = await createNote(page, context, 'toolbar-nav-a');
   const b = await createNote(page, context, 'toolbar-nav-b');
   await page.goto('/?note=' + a.id);
+  await button(page, 'Markdown 源码').click();
   await expect(page.locator('.cm-content')).toContainText('Saved original.');
   if (info.project.name === 'mobile') await button(page, '打开侧栏').click();
   await expandFolderPath(page, '00-Inbox');
@@ -359,7 +366,7 @@ test('top navigation, share and more-actions preserve drafts and expose all buil
       .click();
   }
   await page.setViewportSize({ width: 743, height: 604 });
-  await button(page, '分屏').click();
+  await page.getByRole('checkbox', { name: '同时预览', exact: true }).check();
   await button(page, '章节目录').click();
   await page
     .getByRole('navigation', { name: '本文章节', exact: true })
