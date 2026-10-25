@@ -54,6 +54,7 @@ const props = withDefaults(
     showLineNumbers?: boolean;
     wrap?: boolean;
     resolveImage?: (url: string) => string | undefined;
+    shareToken?: string;
   }>(),
   { visible: true, wrap: true },
 );
@@ -395,6 +396,7 @@ onBeforeUnmount(() => {
         ref="documentView"
         :session="session"
         :resolve-image="resolveImage"
+        :share-token="shareToken"
         @open-link="emit('open-link', $event)"
         :read-only="readOnly"
         :initial-line="initialLine"

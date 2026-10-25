@@ -1,4 +1,5 @@
 import type { StorageUsage } from './platform-contracts.js';
+import type { SharePermission, ShareState } from './share-contracts.js';
 export interface ManagementPage<T> {
   items: T[];
   nextCursor: string | null;
@@ -29,6 +30,9 @@ export interface ManagementShare {
   relativePath: string;
   enabled: boolean;
   url: string | null;
+  state?: ShareState;
+  permission?: SharePermission;
+  expiresAt?: string | null;
 }
 export interface ManagementSession {
   id: string;

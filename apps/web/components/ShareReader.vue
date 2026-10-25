@@ -2,7 +2,9 @@
 import {diagramFences} from '../../../shared/diagram-fences';
 import DiagramPreview from './DiagramPreview.vue';
 import {syncDiagrams,clearDiagrams} from '../whiteboards/diagrams';
-import {watch} from 'vue';
+import {watch, defineAsyncComponent} from 'vue';
+import type { PublicShareAccess } from '../../../shared/share-contracts';
+const PublicShareEditor = defineAsyncComponent(() => import('./PublicShareEditor.vue'));
 import { deferImageSource, deferRenderedImages } from '../image-requests';
 import {markdownTasks} from '../../../shared/markdown-tasks';
 import {knowledgeMarkdown} from '../../../shared/knowledge-markdown';
@@ -15,6 +17,10 @@ import MarkdownIt from 'markdown-it';
 import { markdownStyles } from '../../../shared/markdown-styles';
 import { Button as AButton, Alert as AAlert, Spin as ASpin } from 'ant-design-vue';
 const props = defineProps<{ token: string }>();
+const access = ref<PublicShareAccess>({ permission: 'view', expiresAt: null, canEdit: false });
+const editing = ref(false);
+let editSaved = false;
+async function closeEditor() { editing.value = false; if (editSaved) { editSaved = false; await loadShare(); } }
 const doc = ref<any>(),
   error = ref(''),
   missing = ref(false),
@@ -114,6 +120,7 @@ async function loadShare() {
   try {
     const meta = await api(`/api/public/shares/${encodeURIComponent(props.token)}/meta`);
     if (disposed) return;
+    access.value = { permission: meta.permission || 'view', expiresAt: meta.expiresAt || null, canEdit: !!meta.canEdit, editUnavailableReason: meta.editUnavailableReason };
     large.value = meta.editorMode !== 'full';
     if (large.value) {
       if (meta.readState === 'ready') doc.value = { title: meta.title };
@@ -121,7 +128,8 @@ async function loadShare() {
     } else {
       const result = await api(`/api/public/shares/${encodeURIComponent(props.token)}`);
       if (disposed) return;
-      doc.value = { ...result, html: deferRenderedImages(DOMPurify.sanitize(result.html)) };
+      doc.value = { ...result, html: deferRenderedImages(DOMPurify.sanitize(result.html || '')) };
+      access.value = { ...access.value, permission: result.permission || access.value.permission, expiresAt: result.expiresAt || null, canEdit: !!result.canEdit, editUnavailableReason: result.editUnavailableReason || access.value.editUnavailableReason };
     }
     if (doc.value && !error.value) document.title = `${doc.value.title} · DooKnow 分享`;
   } catch (cause) {
@@ -130,6 +138,7 @@ async function loadShare() {
     opening.value = false;
   }
 }
+watch(editing, value => { if (value && article.value) clearDiagrams(article.value); });
 watch([doc,article],async()=>{await nextTick();if(article.value)syncDiagrams(article.value,{shareToken:props.token,readOnly:true});},{flush:'post'});
 const robotsMeta = document.createElement('meta');
 onMounted(() => {
@@ -148,9 +157,11 @@ onUnmounted(() => {
   <div class="share-page">
     <header class="reader-header">
       <div class="brand"><Icon name="book" :size="30" /><strong>DooKnow</strong></div>
-      <span>分享笔记</span><span class="read-only"><Icon name="eye" :size="17" />只读</span>
+      <span>分享笔记</span><span class="read-only"><Icon :name="access.canEdit ? 'file' : 'eye'" :size="17" />{{ access.canEdit ? '可编辑' : '只读' }}</span>
+      <AButton v-if="access.canEdit && !editing && !error" type="primary" @click="editing = true">编辑笔记</AButton>
     </header>
-    <div v-if="error" class="share-error" role="alert">
+    <PublicShareEditor v-if="editing" :token="token" :access="access" @close="closeEditor" @saved="editSaved = true" />
+    <div v-else-if="error" class="share-error" role="alert">
       <div class="reader-state-icon"><Icon :name="missing ? 'lock' : 'refresh'" :size="25" /></div>
       <h1>{{ error }}</h1>
       <p>{{ missing ? '请向笔记主人获取有效链接。' : '连接可能暂时中断，请稍后重新加载。' }}</p>
@@ -161,6 +172,8 @@ onUnmounted(() => {
     <div v-else-if="doc" class="reader-layout" :class="{ 'has-toc': headings.length }">
       <article ref="article">
         <h1 class="reader-title">{{ doc.title }}</h1>
+        <p v-if="access.expiresAt" class="reader-expiry">有效期至 {{ new Date(access.expiresAt).toLocaleString('zh-CN') }}</p>
+        <p v-if="access.editUnavailableReason" class="reader-edit-limitation" role="note">{{ access.editUnavailableReason }}</p>
         <p v-if="doc.updatedAt" class="reader-meta">
           更新于
           {{ new Date(doc.updatedAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }) }}
@@ -216,13 +229,14 @@ onUnmounted(() => {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  background: white;
+  background: var(--panel, #fff);
   color: var(--text, #262b36);
 }
 .reader-header {
   display: flex;
   align-items: center;
   gap: 20px;
+  flex-wrap:wrap;
   min-height: 68px;
   padding: 16px max(32px, calc((100vw - 1160px) / 2));
   border-bottom: 1px solid var(--border, #e3e6ec);
@@ -252,11 +266,12 @@ onUnmounted(() => {
   padding: 4px 9px;
   border: 1px solid var(--border, #e3e6ec);
   border-radius: 5px;
-  background: white;
+  background: var(--panel, #fff);
   color: #6c7482;
   font-size: 11px;
   white-space: nowrap;
 }
+.reader-expiry,.reader-edit-limitation { color:var(--muted,#7a8190);font-size:12px;line-height:1.8; }
 .reader-layout {
   display: block;
   width: 100%;
@@ -492,7 +507,7 @@ onUnmounted(() => {
     font-size: 11px;
   }
   .reader-header > .read-only {
-    display: none;
+    display: flex;
   }
   .reader-layout,
   .reader-layout.has-toc {

@@ -10,6 +10,7 @@ import {
   parseRichContent,
   safeEditorUrl,
 } from '../editor/rich-adapter';
+import { editorImageSource } from '../editor/extensions/authorized-image';
 import { convertClipboard, plainTextMarkdown } from '../editor/clipboard';
 import { contextAt, contextSlots } from '../editor/context-slot';
 import { textEdit, parseSource } from '../editor/source-codec';
@@ -43,6 +44,7 @@ const props = defineProps<{
   readOnly?: boolean;
   initialLine?: number;
   resolveImage?: (url: string) => string | undefined;
+  shareToken?: string;
 }>();
 const emit = defineEmits<{
   'state-change': [state: MarkdownToolbarState];
@@ -483,6 +485,7 @@ onMounted(() => {
           }
         },
         (url) => emit('open-link', url),
+        props.shareToken,
       ),
       guard,
       contextSlots(() => !props.readOnly, scheduleTableTools),
@@ -885,8 +888,8 @@ function previewImage() {
   if (!editor) return;
   const node = editor.state.doc.nodeAt(imagePosition);
   if (node?.type.name !== 'image') return;
-  const url = props.resolveImage?.(node.attrs.src);
-  if (!url || !/^\/api\/assets\/[a-zA-Z0-9-]+(?:\?|$)/.test(url)) {
+  const url = editorImageSource(props.resolveImage?.(node.attrs.src), props.shareToken);
+  if (!url) {
     error('图片暂时无法预览，请重新打开笔记后再试');
     return;
   }

@@ -1,18 +1,20 @@
 import { Readable } from 'node:stream';
-import {isWhiteboard} from '../../../shared/whiteboard.js';
+import { isWhiteboard } from '../../../shared/whiteboard.js';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { acquireRead, chargeRate } from '../../../packages/core/agent/budgets.js';
 import type { AppConfig } from '../../../shared/contracts.js';
 import type { AppDatabase } from '../../../packages/core/db.js';
-import type { Principal } from '../../../shared/knowledge-contracts.js';
 import type { registerAgentRoutes } from '../agent/routes.js';
 import type { shareService } from '../../../packages/core/shares.js';
 import { webPrincipal } from '../../../packages/core/knowledge/core.js';
 import { readBlocks } from '../../../packages/core/knowledge/file-reader.js';
-import { sha256, findOperation } from '../../../packages/core/knowledge/operations.js';
+import { findOperation } from '../../../packages/core/knowledge/operations.js';
 import { authorizePath } from '../../../packages/core/agent/auth.js';
 import { fail } from '../../../packages/core/knowledge/errors.js';
 import { conflictService } from '../../../packages/core/knowledge/conflicts.js';
+import { assertSharePrincipal, shareIdentity } from '../../../packages/core/share-policy.js';
+import { saveInput } from '../../../packages/core/notes.js';
+import type { PublicShareSource, ShareSaveReply } from '../../../shared/share-contracts.js';
 export async function registerWebKnowledgeRoutes(
   app: FastifyInstance,
   config: AppConfig,
@@ -129,25 +131,129 @@ export async function registerWebKnowledgeRoutes(
     };
     reply.raw.setTimeout(30000, () => controller.abort());
     return reply
-      .type(isWhiteboard((db.prepare('SELECT path FROM notes WHERE id=?').get(req.params.id) as {path:string}|undefined)?.path||'') ? 'application/json; charset=utf-8' : 'text/markdown; charset=utf-8')
-      .header('Content-Disposition', isWhiteboard((db.prepare('SELECT path FROM notes WHERE id=?').get(req.params.id) as {path:string}|undefined)?.path||'') ? 'attachment; filename="whiteboard.excalidraw"' : 'attachment; filename="note.md"')
+      .type(
+        isWhiteboard(
+          (
+            db.prepare('SELECT path FROM notes WHERE id=?').get(req.params.id) as
+              | { path: string }
+              | undefined
+          )?.path || '',
+        )
+          ? 'application/json; charset=utf-8'
+          : 'text/markdown; charset=utf-8',
+      )
+      .header(
+        'Content-Disposition',
+        isWhiteboard(
+          (
+            db.prepare('SELECT path FROM notes WHERE id=?').get(req.params.id) as
+              | { path: string }
+              | undefined
+          )?.path || '',
+        )
+          ? 'attachment; filename="whiteboard.excalidraw"'
+          : 'attachment; filename="note.md"',
+      )
       .header('Content-Length', String(ready.size_bytes))
       .send(Readable.from(iterator(), { objectMode: false, highWaterMark: 65536 }));
   });
-  const publicPrincipal = (token: string) => {
-    const n = shares.lookup(token);
-    const p: Principal = {
-      id: `share:${sha256(token)}`,
-      clientId: 'public-reader',
-      scopes: ['knowledge:read'],
-      allowedPrefixes: [n.path],
-    };
-    return { n, p };
+  const publicPrincipal = (token: string) => shares.principal(token);
+  const publicEditRate = {
+    max: 30,
+    timeWindow: '1 minute',
+    keyGenerator: (req: FastifyRequest) => shareIdentity((req.params as { token: string }).token),
   };
+  function editable(token: string) {
+    const { n, p } = publicPrincipal(token);
+    assertSharePrincipal(db, p, n.id, n.path, 'edit');
+    const access = shares.access(token);
+    if (!access.canEdit)
+      fail(403, 'SHARE_EDIT_UNSUPPORTED', access.editUnavailableReason || '此分享仅允许查看');
+    if (
+      (db.prepare('SELECT active FROM maintenance WHERE id=1').get() as { active: number }).active
+    )
+      fail(503, 'SYNC_IN_PROGRESS', '维护中，请稍后重试');
+    return { n, p, access };
+  }
+  app.get<{ Params: { token: string } }>(
+    '/api/public/shares/:token/source',
+    { config: { rateLimit: publicEditRate } },
+    async (req): Promise<PublicShareSource> => {
+      const { n, p, access } = editable(req.params.token),
+        note = shares.document(req.params.token);
+      db.transaction(() =>
+        chargeRate(db, p, 'public', Buffer.byteLength(note.content)),
+      ).immediate();
+      assertSharePrincipal(db, p, n.id, n.path, 'edit');
+      return {
+        ...access,
+        title: note.title,
+        content: note.content,
+        modifiedAt: note.modifiedAt,
+        documentType: 'markdown',
+      };
+    },
+  );
+  app.get<{ Params: { token: string } }>(
+    '/api/public/shares/:token/csrf',
+    { config: { rateLimit: publicEditRate } },
+    async (req, reply) => {
+      editable(req.params.token);
+      return { token: reply.generateCsrf() };
+    },
+  );
+  app.put<{ Params: { token: string } }>(
+    '/api/public/shares/:token/source',
+    {
+      bodyLimit: 2 * 1024 * 1024,
+      config: { rateLimit: publicEditRate },
+      onRequest: async (req, reply) => {
+        editable(req.params.token);
+        if (req.headers.origin !== config.origin) fail(403, 'INVALID_ORIGIN', '请求来源不被允许');
+        if (!/^application\/json(?:\s*;|$)/i.test(req.headers['content-type'] || ''))
+          fail(415, 'INVALID_CONTENT_TYPE', '保存请求必须使用 JSON');
+        await new Promise<void>((resolve) => {
+          app.csrfProtection(req, reply, resolve);
+          if (reply.sent) resolve();
+        });
+      },
+    },
+    async (req): Promise<ShareSaveReply> => {
+      const { n, p } = editable(req.params.token),
+        input = saveInput(req.body),
+        requestId = (req.body as any)?.requestId;
+      if (
+        typeof requestId !== 'string' ||
+        !requestId.length ||
+        requestId.length > 128 ||
+        /[\x00-\x1f]/.test(requestId)
+      )
+        fail(400, 'INVALID_REQUEST_ID', '保存请求标识不正确');
+      db.transaction(() => chargeRate(db, p, 'web', Buffer.byteLength(input.content))).immediate();
+      const receipt = knowledge.core.update(
+        p,
+        n.id,
+        input.content,
+        input.expectedModifiedAt,
+        requestId,
+      );
+      return {
+        saved: true,
+        modifiedAt: receipt.modifiedAt,
+        updatedAt: new Date(Number(BigInt(receipt.modifiedAt) / 1000000n)).toISOString(),
+      };
+    },
+  );
   app.get<{ Params: { token: string } }>('/api/public/shares/:token/meta', async (req) => {
     const { n, p } = publicPrincipal(req.params.token),
       info = await knowledge.info(p, n.id);
-    return { title: info.title, sizeBytes: info.sizeBytes, editorMode: info.editorMode, documentType: info.documentType };
+    return {
+      title: info.title,
+      sizeBytes: info.sizeBytes,
+      editorMode: info.editorMode,
+      documentType: info.documentType,
+      ...shares.access(req.params.token),
+    };
   });
   app.post<{ Params: { token: string } }>(
     '/api/public/shares/:token/read',

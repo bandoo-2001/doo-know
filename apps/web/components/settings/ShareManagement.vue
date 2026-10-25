@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, onBeforeUnmount, ref } from 'vue';
 import {
   Alert as AAlert,
   Button as AButton,
@@ -22,6 +22,20 @@ const items = ref<ManagementShare[]>([]),
   busy = ref(''),
   error = ref(''),
   notice = ref('');
+const now = ref(Date.now());
+let expiryTimer: ReturnType<typeof setInterval> | undefined;
+function shareState(item: ManagementShare) {
+  if (item.state === 'revoked' || item.state === 'private') return item.state;
+  if (item.state === 'expired' || (item.expiresAt && Date.parse(item.expiresAt) <= now.value))
+    return 'expired';
+  return item.enabled ? 'active' : 'revoked';
+}
+function validity(item: ManagementShare) {
+  if (!item.expiresAt) return '永久有效';
+  const date = new Date(item.expiresAt);
+  if (!Number.isFinite(date.getTime())) return '有效期待核对';
+  return '截止 ' + date.toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
+}
 async function load(more = false) {
   if (loading.value) return;
   loading.value = true;
@@ -67,12 +81,20 @@ async function copy(url: string) {
     error.value = '无法访问剪贴板，请从下方链接手动复制。';
   }
 }
-onMounted(() => void load());
+onMounted(() => {
+  void load();
+  expiryTimer = setInterval(() => {
+    now.value = Date.now();
+  }, 1000);
+});
+onBeforeUnmount(() => {
+  if (expiryTimer) clearInterval(expiryTimer);
+});
 </script>
 <template>
   <section class="settings-card">
     <h2>共享链接</h2>
-    <p class="settings-muted">查看已创建的链接，并撤销不再需要的访问。</p>
+    <p class="settings-muted">查看链接的访问权限和有效期，并撤销不再需要的访问。</p>
     <form class="settings-actions" @submit.prevent="load(false)">
       <AInput
         v-model:value="q"
@@ -86,7 +108,7 @@ onMounted(() => void load());
         :options="[
           { value: 'all', label: '全部状态' },
           { value: 'true', label: '可访问' },
-          { value: 'false', label: '已撤销' },
+          { value: 'false', label: '已失效' },
         ]"
       /><AButton html-type="submit" :loading="loading">查找链接</AButton>
     </form>
@@ -99,12 +121,29 @@ onMounted(() => void load());
         <div class="settings-item-header">
           <div>
             <strong>{{ item.title }}</strong>
-            <ATag :color="item.enabled ? 'blue' : undefined">{{
-              item.enabled ? '可访问' : '已撤销'
-            }}</ATag>
+            <ATag
+              :color="
+                shareState(item) === 'active'
+                  ? 'blue'
+                  : shareState(item) === 'expired'
+                    ? 'orange'
+                    : undefined
+              "
+              >{{
+                shareState(item) === 'active'
+                  ? '可访问'
+                  : shareState(item) === 'expired'
+                    ? '已过期'
+                    : '已撤销'
+              }}</ATag
+            >
             <p>{{ item.relativePath }}</p>
+            <p class="share-access-meta">
+              <ATag>{{ item.permission === 'edit' ? '可编辑' : '仅查看' }}</ATag>
+              <span>{{ validity(item) }}</span>
+            </p>
             <a
-              v-if="item.enabled && item.url"
+              v-if="shareState(item) === 'active' && item.url"
               :href="item.url"
               target="_blank"
               rel="noopener noreferrer"
@@ -112,10 +151,13 @@ onMounted(() => void load());
             >
           </div>
           <div class="settings-actions" style="margin-top: 0">
-            <AButton v-if="item.enabled && item.url" size="small" @click="copy(item.url)"
+            <AButton
+              v-if="shareState(item) === 'active' && item.url"
+              size="small"
+              @click="copy(item.url)"
               >复制链接</AButton
             ><APopconfirm
-              v-if="item.enabled"
+              v-if="shareState(item) === 'active' || shareState(item) === 'expired'"
               title="撤销此共享链接？"
               ok-text="撤销链接"
               cancel-text="取消"
@@ -134,3 +176,16 @@ onMounted(() => void load());
     </div>
   </section>
 </template>
+<style scoped>
+.share-access-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  color: var(--muted, #7a8190);
+  font-size: 12px;
+}
+.share-access-meta .ant-tag {
+  margin: 0;
+}
+</style>

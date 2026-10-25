@@ -37,6 +37,8 @@ import CollectionWorkspace from './CollectionWorkspace.vue';
 import { createCollectionFeed } from '../collection-feed';
 import type { CollectionNote } from '../../../shared/collection-contracts';
 import NoteEditorHost from './NoteEditorHost.vue';
+import ShareDialog from './ShareDialog.vue';
+import type { ShareOptions, ShareStatus } from '../../../shared/share-contracts';
 import {documentEditorEnabled} from '../editor/compatibility';
 import type {EditorKind, ImageReplacementTarget, SelectionBookmark} from '../editor/contracts';
 import { handleSaveShortcut } from '../editor/keyboard-shortcuts';
@@ -1296,56 +1298,51 @@ async function viewLatest() {
 }
 const shareBusy = ref(false);
 const shareOpen = ref(false),
-  share = ref<{ enabled: boolean; token?: string; url?: string }>({ enabled: false });
-const shareUrl = computed(() =>
-  share.value.url ? new URL(share.value.url, location.origin).href : '',
-);
+  share = ref<ShareStatus>({ enabled: false, state: 'private', permission: 'view', expiresAt: null, editSupported: false });
+const shareContext = ref<{ id: string; epoch: number; title: string }>();
+const currentShareView = (id: string, epoch: number) =>
+  (note.value?.id || noteInfo.value?.id) === id && viewEpoch === epoch;
+watch(() => note.value?.id || noteInfo.value?.id, () => { shareOpen.value = false; });
 async function manageShare() {
-  if (shareBusy.value) return;
+  const id = note.value?.id || noteInfo.value?.id;
+  if (shareBusy.value || !id) return;
+  const epoch = viewEpoch, title = note.value?.title || noteInfo.value?.title || '分享笔记';
   shareBusy.value = true;
+  error.value = '';
   dialogError.value = '';
   try {
-    const id = note.value!.id,
-      epoch = viewEpoch;
-    await run(async () => {
-      const response = await api(`/api/notes/${id}/share`);
-      if (!currentView(id, epoch)) return;
-      share.value = response;
-      shareOpen.value = true;
-    });
-  } finally {
-    shareBusy.value = false;
-  }
+    const response = await api<ShareStatus>(`/api/notes/${id}/share`);
+    if (!currentShareView(id, epoch)) return;
+    share.value = response;
+    shareContext.value = { id, epoch, title };
+    shareOpen.value = true;
+  } catch (cause) {
+    if (currentShareView(id, epoch)) showError(cause);
+  } finally { shareBusy.value = false; }
 }
-async function shareAction(action: 'create' | 'reset' | 'revoke') {
-  if (shareBusy.value) return;
+async function shareAction(action: 'create' | 'reset' | 'revoke', options?: ShareOptions) {
+  const target = shareContext.value;
+  if (shareBusy.value || !target) return;
+  if (!currentShareView(target.id, target.epoch)) { shareOpen.value = false; return; }
   shareBusy.value = true;
+  error.value = '';
+  dialogError.value = '';
+  const wasEnabled = share.value.enabled;
   try {
-    const id = note.value!.id,
-      epoch = viewEpoch;
-    await run(async () => {
-      const base = `/api/notes/${id}/share`;
-      const response = await api(
-        base + (action === 'reset' ? '/reset' : ''),
-        action === 'revoke' ? 'DELETE' : 'POST',
-        action === 'revoke' ? undefined : {},
-      );
-      if (!currentView(id, epoch)) return;
-      share.value = response;
-      note.value!.shared = share.value.enabled;
-      tell(
-        action === 'revoke' ? '分享已取消' : action === 'reset' ? '旧链接已失效' : '分享链接已生成',
-      );
-    });
-  } finally {
-    shareBusy.value = false;
-  }
-}
-async function copyShare() {
-  await run(async () => {
-    await navigator.clipboard.writeText(shareUrl.value);
-    tell('链接已复制');
-  });
+    const base = `/api/notes/${target.id}/share`;
+    const response = await api<ShareStatus>(
+      base + (action === 'reset' ? '/reset' : ''),
+      action === 'revoke' ? 'DELETE' : 'POST',
+      action === 'revoke' ? undefined : options,
+    );
+    if (!currentShareView(target.id, target.epoch)) return;
+    share.value = response;
+    if (note.value?.id === target.id) note.value.shared = response.enabled;
+    if (noteInfo.value?.id === target.id) noteInfo.value.shared = response.enabled;
+    tell(action === 'revoke' ? '分享已取消' : action === 'reset' ? '旧链接已失效' : wasEnabled ? '分享设置已保存' : '分享链接已生成');
+  } catch (cause) {
+    if (currentShareView(target.id, target.epoch)) showError(cause);
+  } finally { shareBusy.value = false; }
 }
 const createBusy = ref(false),
   inboxBusy = ref(false);
@@ -3239,49 +3236,7 @@ onBeforeUnmount(() => {
     <NModal v-model:show="latestOpen" preset="card" class="dialog-card" title="最新已保存原文">
       <pre class="latest-source">{{ latest }}</pre>
     </NModal>
-    <NModal v-model:show="shareOpen" preset="card" class="dialog-card share-dialog" title="分享笔记"
-      ><AAlert v-if="dialogError" type="error" :message="dialogError" role="alert" />
-      <h3>
-        {{ note?.title }}
-        <span class="share-badge">{{ share.enabled ? '分享已开启' : '私人笔记' }}</span>
-      </h3>
-      <template v-if="share.enabled"
-        ><label>公开链接</label>
-        <div class="share-link">
-          <AInput :value="shareUrl" readonly aria-label="公开链接" /><AButton
-            type="primary"
-            @click="copyShare"
-            >复制链接</AButton
-          >
-        </div>
-        <p class="muted">任何获得链接的人都可以查看这篇笔记。</p></template
-      >
-      <p v-else>笔记默认私有。生成链接后，持有链接的访客可只读查看。</p>
-      <div class="share-info">
-        <Icon name="refresh" :size="27" />
-        <div>
-          <b>实时更新</b>
-          <p>展示最新保存内容，未保存的修改不会公开。</p>
-        </div>
-      </div>
-      <div class="dialog-actions">
-        <template v-if="share.enabled"
-          ><AButton :loading="shareBusy" :disabled="shareBusy" @click="shareAction('reset')"
-            >重置链接</AButton
-          ><AButton danger type="text" :disabled="shareBusy" @click="shareAction('revoke')"
-            >取消分享</AButton
-          ></template
-        ><AButton
-          v-else
-          type="primary"
-          :loading="shareBusy"
-          :disabled="shareBusy"
-          aria-label="生成分享链接"
-          @click="shareAction('create')"
-          >生成分享链接</AButton
-        ><AButton @click="shareOpen = false">完成</AButton>
-      </div></NModal
-    >
+    <ShareDialog v-model:show="shareOpen" :title="shareContext?.title || ''" :status="share" :busy="shareBusy" :error="dialogError" @action="shareAction" />
     <NModal
       v-model:show="createOpen"
       preset="card"

@@ -1,4 +1,5 @@
 import {documentTitle,documentType,isWhiteboard,parseWhiteboard,MAX_WHITEBOARD_BYTES,withWhiteboardId,whiteboardId} from '../../shared/whiteboard.js';
+import { hasActiveShare } from './share-policy.js';
 import { workspaceWriteSync } from './workspace/gate.js';
 import { randomUUID } from 'node:crypto';
 import {
@@ -91,7 +92,7 @@ export function noteService(config: AppConfig, db: AppDatabase) {
         documentType: documentType(n.path),
         relativePath: n.path,
         ...doc,
-        shared: !!db.prepare('SELECT 1 FROM shares WHERE note_id=? AND enabled=1').get(id),
+        shared: hasActiveShare(db, id),
       };
     } catch (e) {
       if (isMissingSource(e)) {
@@ -195,7 +196,7 @@ export function noteService(config: AppConfig, db: AppDatabase) {
     expectedModifiedAt: string,
     requestId: string = randomUUID(),
   ) {
-    const shared = !!db.prepare('SELECT 1 FROM shares WHERE note_id=? AND enabled=1').get(id);
+    const shared = hasActiveShare(db, id);
     const receipt = mutations.update(webPrincipal, id, content, expectedModifiedAt, requestId);
     if(isWhiteboard(receipt.relativePath))content=withWhiteboardId(content,id);
     try {

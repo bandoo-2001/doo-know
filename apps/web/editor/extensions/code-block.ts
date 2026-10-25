@@ -1,8 +1,8 @@
 import { createApp, h, reactive } from 'vue';
-import CodeBlock from '@tiptap/extension-code-block';
+import CodeBlock, { type CodeBlockOptions } from '@tiptap/extension-code-block';
 import { createCodeBlockView } from '../code-block-view';
 import { isDiagramKind } from '../../../../shared/diagram-fences';
-export const DocumentCodeBlock = CodeBlock.extend({
+export const DocumentCodeBlock = CodeBlock.extend<CodeBlockOptions & { shareToken?: string }>({
   addAttributes() {
     return { ...this.parent?.(), previewCodeHash: { default: null, rendered: false }, previewSourceHash: { default: null, rendered: false } };
   },
@@ -33,12 +33,13 @@ export const DocumentCodeBlock = CodeBlock.extend({
         sourceId: node.attrs.sourceId as string | undefined,
         previewCodeHash: node.attrs.previewCodeHash as string | undefined,
         previewSourceHash: node.attrs.previewSourceHash as string | undefined,
-        readOnly: !editor.isEditable,
-        editable: editor.isEditable,
+        shareToken: this.options.shareToken,
+        readOnly: !!this.options.shareToken || !editor.isEditable,
+        editable: !this.options.shareToken && editor.isEditable,
       });
       const syncEditable = () => {
-        state.readOnly = !editor.isEditable;
-        state.editable = editor.isEditable;
+        state.readOnly = !!this.options.shareToken || !editor.isEditable;
+        state.editable = !this.options.shareToken && editor.isEditable;
       };
       editor.on('update', syncEditable);
       void import('../../components/DiagramPreview.vue').then(({ default: DiagramPreview }) => {

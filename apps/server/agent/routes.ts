@@ -1,4 +1,5 @@
 import {isWhiteboard,documentTitle,MAX_WHITEBOARD_BYTES} from '../../../shared/whiteboard.js';
+import { hasActiveShare } from '../../../packages/core/share-policy.js';
 import { stat } from 'node:fs/promises';
 import { basename } from 'node:path';
 import type { FastifyInstance } from 'fastify';
@@ -68,7 +69,7 @@ export function metadataService(config: AppConfig, db: AppDatabase, notes: NoteS
               .get(id)
           ? 'preparing'
           : 'unknown',
-      shared: !!db.prepare('SELECT 1 FROM shares WHERE note_id=? AND enabled=1').get(id),
+      shared: hasActiveShare(db, id),
     };
   };
 }

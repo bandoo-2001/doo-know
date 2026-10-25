@@ -1,4 +1,5 @@
 import { currentPrincipalPolicy } from '../agent/config.js';
+import { assertSharePrincipal, isSharePrincipal } from '../share-policy.js';
 import { mkdir, open, stat, unlink } from 'node:fs/promises';
 import { join, basename } from 'node:path';
 import { createHash, randomUUID } from 'node:crypto';
@@ -60,6 +61,8 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
     checkTokenCutoff(db, p);
     const [noteId, revisionId] = id.split('@');
     const n = notes.row(noteId);
+    assertSharePrincipal(db, p, noteId, n.path);
+    if (revisionId && isSharePrincipal(p)) fail(403, 'FORBIDDEN');
     authorizePath(p, n.path);
     if (
       p.id !== 'web-owner' &&
@@ -530,6 +533,7 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
       if (cached) {
         const page = JSON.parse(cached.result);
         db.transaction(() => chargeRate(db, p, channel, page.bytesReturned)).immediate();
+        authorizedFile(p, id);
         return { kind: 'ready', data: page };
       }
       const fd = await open(snapshot.path, 'r');
@@ -616,6 +620,7 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
         );
         return data;
       }).immediate();
+      authorizedFile(p, id);
       return { kind: 'ready', data: page };
     } finally {
       release();

@@ -6,6 +6,7 @@ import { randomUUID } from 'node:crypto';
 import cookie from '@fastify/cookie';
 import csrf from '@fastify/csrf-protection';
 import multipart from '@fastify/multipart';
+import rateLimit from '@fastify/rate-limit';
 import staticPlugin from '@fastify/static';
 import { fromNodeHeaders } from 'better-auth/node';
 import type { AppConfig } from '../../shared/contracts.js';
@@ -104,6 +105,7 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     getToken: (req) => req.headers['x-csrf-token'] as string,
   });
   await app.register(multipart, { limits: { fileSize: 10 * 1024 * 1024, files: 1, fields: 0 } });
+  await app.register(rateLimit, { global: false });
   app.addContentTypeParser(
     'application/x-www-form-urlencoded',
     { parseAs: 'string' },
@@ -464,10 +466,10 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     shares.status(req.params.id),
   );
   app.post<{ Params: { id: string } }>('/api/notes/:id/share', async (req) =>
-    shares.create(req.params.id),
+    shares.create(req.params.id, false, req.body),
   );
   app.post<{ Params: { id: string } }>('/api/notes/:id/share/reset', async (req) =>
-    shares.create(req.params.id, true),
+    shares.create(req.params.id, true, req.body),
   );
   app.delete<{ Params: { id: string } }>('/api/notes/:id/share', async (req) =>
     shares.revoke(req.params.id),
@@ -478,6 +480,7 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     return {
       title: n.title,
       updatedAt: n.updatedAt,
+      ...shares.access(req.params.token),
       ...(isWhiteboard(n.relativePath) ? { documentType: 'whiteboard', content: n.content } : {}),
       ...renderMarkdown(n.content, (url) =>
         assets.mapUrl(n, url, `/api/public/shares/${req.params.token}/assets/`),

@@ -31,6 +31,7 @@ import { releaseInfo } from './release.js';
 import { managementStorage } from './management-storage.js';
 import { trashFile, purgeTrashFile } from './management-trash.js';
 import { folderTrashSize, restoreFolder, recoverFolders } from '../../../packages/core/folders.js';
+import { shareState, type ShareRow } from '../../../packages/core/share-policy.js';
 
 type Platform = Pick<ReturnType<typeof platformRuntime>, 'get' | 'status' | 'settings'>;
 type TrashProof = { name: string; fingerprint: string };
@@ -193,7 +194,7 @@ export function registerManagementRoutes(
       fail(400, 'INVALID_FILTER');
     const rows = db
       .prepare(
-        `SELECT n.id,n.path,d.title,s.enabled,s.token FROM shares s JOIN notes n ON n.id=s.note_id LEFT JOIN document_state d ON d.note_id=n.id WHERE n.active=1 AND n.id>? AND (?='' OR instr(lower(n.path),lower(?))>0 OR instr(lower(coalesce(d.title,'')),lower(?))>0) AND (? IS NULL OR s.enabled=?) ORDER BY n.id LIMIT ?`,
+        `SELECT n.id,n.path,d.title,s.enabled,s.token,s.permission,s.expires_at FROM shares s JOIN notes n ON n.id=s.note_id LEFT JOIN document_state d ON d.note_id=n.id WHERE n.active=1 AND n.id>? AND (?='' OR instr(lower(n.path),lower(?))>0 OR instr(lower(coalesce(d.title,'')),lower(?))>0) AND (? IS NULL OR (s.enabled=1 AND (s.expires_at IS NULL OR s.expires_at>?))=?) ORDER BY n.id LIMIT ?`,
       )
       .all(
         after,
@@ -201,15 +202,20 @@ export function registerManagementRoutes(
         filter,
         filter,
         enabled === undefined ? null : enabled === 'true' ? 1 : 0,
+        Date.now(),
         enabled === 'true' ? 1 : 0,
         limit + 1,
-      ) as { id: string; path: string; title: string | null; enabled: number; token: string }[];
+      ) as (ShareRow & { id: string; path: string; title: string | null })[];
+    const now = Date.now();
     const items = rows.slice(0, limit).map((r) => ({
       id: r.id,
       title: r.title || basename(r.path, '.md'),
       relativePath: r.path,
-      enabled: !!r.enabled,
-      url: r.enabled ? `/s/${r.token}` : null,
+      enabled: shareState(r, now) === 'active',
+      state: shareState(r, now),
+      permission: r.permission,
+      expiresAt: r.expires_at === null ? null : new Date(r.expires_at).toISOString(),
+      url: shareState(r, now) === 'active' ? `/s/${r.token}` : null,
     }));
     return { items, nextCursor: rows.length > limit ? cursor(items.at(-1)!.id) : null };
   });
@@ -285,7 +291,7 @@ export function registerManagementRoutes(
         activeNotes: count('SELECT count(*) n FROM notes WHERE active=1'),
         trashNotes: count('SELECT count(*) n FROM notes WHERE active=0 AND trash_path IS NOT NULL'),
         enabledShares: count(
-          'SELECT count(*) n FROM shares s JOIN notes n ON n.id=s.note_id WHERE s.enabled=1 AND n.active=1',
+          `SELECT count(*) n FROM shares s JOIN notes n ON n.id=s.note_id WHERE s.enabled=1 AND n.active=1 AND (s.expires_at IS NULL OR s.expires_at>${Date.now()})`,
         ),
         writeConflicts: count("SELECT count(*) n FROM write_intents WHERE status='conflicted'"),
       },

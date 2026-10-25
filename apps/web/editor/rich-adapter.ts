@@ -42,6 +42,7 @@ export function richExtensions(
   deleteOpaque?: (id: string) => void,
   copyOpaque?: (id: string) => void,
   openLink?: (url: string) => void,
+  shareToken?: string,
 ): AnyExtension[] {
   return [
     StarterKit.configure({
@@ -55,11 +56,11 @@ export function richExtensions(
     }),
     DocumentParagraph,
     DocumentHardBreak,
-    DocumentCodeBlock,
+    DocumentCodeBlock.configure({ shareToken }),
     TableKit.configure({ table: { resizable: false } }),
     TaskList,
     TaskItem.configure({ nested: true }),
-    authorizedImage(resolveImage),
+    authorizedImage(resolveImage, shareToken),
     ProjectTextStyle,
     ProjectColor,
     ProjectAlignment,

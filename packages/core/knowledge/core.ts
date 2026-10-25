@@ -31,6 +31,8 @@ import type { AppConfig } from '../../../shared/contracts.js';
 import type { Principal, RecoveryReport } from '../../../shared/knowledge-contracts.js';
 import type { AppDatabase } from '../db.js';
 import { safePath, validName, readDocument } from '../files.js';
+import { assertSharePrincipal, isSharePrincipal } from '../share-policy.js';
+import { assertShareResources } from '../share-resources.js';
 import { authorizePath } from '../agent/auth.js';
 import { fail, KnowledgeError } from './errors.js';
 import type { OperationRow } from './operations.js';
@@ -382,10 +384,16 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
   }
   function update(p: Principal, id: string, content: string, expected: string, requestId: string) {
     const n = row(id);
+    assertSharePrincipal(db, p, id, n.path, 'edit');
     authorizePath(p, n.path, 'knowledge:write');
     assertWritable(db, id);
     if (typeof content !== 'string' || Buffer.byteLength(content) > (isWhiteboard(n.path) ? MAX_WHITEBOARD_BYTES : 1024 * 1024))
       fail(413, 'REQUEST_TOO_LARGE');
+    if (isSharePrincipal(p)) {
+      if (isWhiteboard(n.path)) fail(403, 'SHARE_EDIT_UNSUPPORTED', '白板分享暂不支持公开编辑');
+      if (content.split('\n').some(line => Buffer.byteLength(line) > 32768))
+        fail(413, 'SHARE_EDIT_UNSUPPORTED', '公开编辑不支持超过 32 KiB 的长行');
+    }
     if (isWhiteboard(n.path)) { try { parseWhiteboard(content); } catch(e) { fail(400, 'INVALID_WHITEBOARD', (e as Error).message); } }
     if(isWhiteboard(n.path)){content=withWhiteboardId(content,id);if(Buffer.byteLength(content)>MAX_WHITEBOARD_BYTES)fail(413,'REQUEST_TOO_LARGE','白板不能超过 8 MiB');}
     if (typeof expected !== 'string' || !/^\d+$/.test(expected)) fail(400, 'INVALID_VERSION');
@@ -408,6 +416,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
         });
       if (!isWhiteboard(n.path) && current.content.split('\n').some((line) => Buffer.byteLength(line) > 32768))
         fail(409, 'LARGE_FILE_MODE_REQUIRED');
+      if (isSharePrincipal(p)) assertShareResources(n.path, current.content, content);
       const temp = join(dirname(file), `.doo-${op.operation.id}.tmp`),
         historyFile = `${op.operation.id}.md`;
       mkdirSync(join(config.dataRoot, 'history'), { recursive: true, mode: 0o700 });
@@ -437,6 +446,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
         fail(409, 'VERSION_CONFLICT', '原文件再次更新', false, {
           currentModifiedAt: latest.modifiedAt,
         });
+      assertSharePrincipal(db, p, id, n.path, 'edit');
       commit();
       renameSync(temp, file);
       fsyncDirectory(dirname(file));

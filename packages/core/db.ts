@@ -32,6 +32,11 @@ export function openDatabase(dataRoot: string,role:'utility'|'server'|'file-work
  CREATE TABLE IF NOT EXISTS folder_trash(id TEXT PRIMARY KEY,path TEXT NOT NULL,state TEXT NOT NULL,notes_json TEXT NOT NULL,identity TEXT NOT NULL,operation_id TEXT NOT NULL,restore_path TEXT,deleted_at INTEGER NOT NULL);
  CREATE TABLE IF NOT EXISTS maintenance(id INTEGER PRIMARY KEY CHECK(id=1),active INTEGER NOT NULL);
  INSERT OR IGNORE INTO maintenance VALUES(1,0);`);
+  const shareColumns = db.prepare('PRAGMA table_info(shares)').all() as { name: string }[];
+  if (!shareColumns.some(column => column.name === 'permission'))
+    db.exec("ALTER TABLE shares ADD COLUMN permission TEXT NOT NULL DEFAULT 'view' CHECK(permission IN ('view','edit'))");
+  if (!shareColumns.some(column => column.name === 'expires_at'))
+    db.exec('ALTER TABLE shares ADD COLUMN expires_at INTEGER');
   migrateKnowledge(db);
   migrateCollections(db);
   db.exec('CREATE TABLE IF NOT EXISTS database_processes(id TEXT PRIMARY KEY,pid INTEGER NOT NULL,process_start TEXT NOT NULL,role TEXT NOT NULL,started_at INTEGER NOT NULL)');
