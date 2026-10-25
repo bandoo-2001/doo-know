@@ -118,8 +118,9 @@ it('traverses every hybrid result once when notes have multiple matching chunks'
       await writeFile(join(f.knowledgeRoot, path), body.repeat(3));
     }
     await indexing.reconcile(undefined, true);
-    let job;
-    while ((job = jobs.claim('hybrid-page-test', ['text']))) {
+    for (;;) {
+      const job = jobs.claim('hybrid-page-test', ['text']);
+      if (!job) break;
       const path = (db.prepare('SELECT path FROM notes WHERE id=?').get(job.noteId) as any).path;
       const body = bodies.get(path)!;
       const id = path.slice(-6, -3);
