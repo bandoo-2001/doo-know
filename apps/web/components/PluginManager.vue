@@ -205,6 +205,14 @@ async function run(work: () => Promise<unknown>, action = 'refresh') {
     }
   }
 }
+async function refreshStatus() {
+  const refreshed = await run(async () => {});
+  if (
+    refreshed &&
+    (installation.value?.status === 'failed' || installation.value?.status === 'succeeded')
+  )
+    installation.value = undefined;
+}
 async function action(id: string, command: string) {
   await run(
     async () => {
@@ -326,7 +334,7 @@ onMounted(() => {
         <h2>{{ focusPlugin ? '功能设置' : '扩展功能' }}</h2>
         <p class="muted">安装官方插件，为知识库添加功能。</p>
       </div>
-      <AButton :loading="pendingAction === 'refresh'" :disabled="busy" @click="run(async () => {})">
+      <AButton :loading="pendingAction === 'refresh'" :disabled="busy" @click="refreshStatus">
         刷新插件状态
       </AButton>
     </header>
