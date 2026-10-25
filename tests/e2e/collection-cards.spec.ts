@@ -21,6 +21,7 @@ test('browser Back from an overview returns to the retained unsaved note', async
   });
   expect(note.status()).toBe(201);
   await page.goto('/?note=' + (await note.json()).id);
+  await page.getByRole('button', { name: 'Markdown 源码', exact: true }).click();
   await page.locator('.cm-content').click();
   await page.keyboard.insertText('尚未保存的输入');
   await showSidebar(page);
@@ -93,6 +94,7 @@ test('recent cards page lazily, bound rendered cards, and restore the reading po
   const position = await scroll.evaluate((el) => el.scrollTop);
   expect(position).toBeGreaterThan(300);
   await visible.click();
+  await page.getByRole('button', { name: 'Markdown 源码', exact: true }).click();
   await expect(page.locator('.cm-content')).toBeVisible();
   const requests = pages.length;
   await page.goBack();

@@ -204,6 +204,109 @@ function holdIdentity() {
   mockApi.mockImplementation((...args) => args[0] === '/api/auth/get-session' ? pending : request(...args));
   return () => resolve({ user: { id: 'owner' } });
 }
+it('coalesces manual saves waiting for the same editor composition flush', async () => {
+  await mount();
+  const request = mockApi.getMockImplementation()!;
+  mockApi.mockImplementation((...args) => args[1] === 'PUT'
+    ? Promise.resolve(response(args[2].content)) : request(...args));
+  let release!: () => void;
+  const composition = new Promise<void>((resolve) => { release = resolve; });
+  state.editorRef.value = { flush: () => composition, cancelPendingFocus() {} };
+  const first = state.save(), second = state.save();
+  expect(writes()).toHaveLength(0);
+  release();
+  await Promise.all([first, second]);
+  expect(writes()).toHaveLength(1);
+  expect(writes()[0][2]).toMatchObject({ content: '# Submitted', expectedModifiedAt: 'base-one' });
+  expect(state.savedContent.value).toBe('# Submitted');
+  expect(state.conflict.value).toBeUndefined();
+});
+
+it('does not submit a second request when coalesced saves lose their first response', async () => {
+  await mount();
+  let release!: () => void;
+  const composition = new Promise<void>((resolve) => { release = resolve; });
+  state.editorRef.value = { flush: () => composition, cancelPendingFocus() {} };
+  const first = state.save(), second = state.save();
+  release();
+  await Promise.all([first, second]);
+  expect(writes()).toHaveLength(1);
+  expect(state.pendingSave.value).toMatchObject({
+    requestId: writes()[0][2].requestId,
+    content: '# Submitted',
+  });
+  expect(state.draft.value).toBe('# Submitted');
+});
+
+it('does not let an old composition save submit a newer editing session of the same note', async () => {
+  await mount();
+  const request = mockApi.getMockImplementation()!;
+  const other = { ...original, id: 'note-two', relativePath: '00-Inbox/two.md' };
+  mockApi.mockImplementation((...args) => {
+    if (args[0] === '/api/notes/note-two/meta') return Promise.resolve({ ...other, editorMode: 'full' });
+    if (args[0] === '/api/notes/note-two') return Promise.resolve(other);
+    if (args[1] === 'PUT') return Promise.resolve(response(args[2].content));
+    return request(...args);
+  });
+  let release!: () => void;
+  const composition = new Promise<void>((resolve) => { release = resolve; });
+  state.editorRef.value = { flush: () => composition, cancelPendingFocus() {} };
+  const saving = state.save();
+  await turn();
+  // Navigation's current adapter is ready while the older flush reply is still held.
+  state.editorRef.value = { flush: async () => {}, cancelPendingFocus() {} };
+  state.draft.value = state.savedContent.value;
+  await state.openNote('note-two');
+  await state.openNote(original.id);
+  state.draft.value = '# New editing session';
+  release();
+  await saving;
+  expect(writes()).toHaveLength(0);
+  expect(state.draft.value).toBe('# New editing session');
+});
+
+it('recomputes filename matches after a late directory arrives without retyping or another content request', async () => {
+  await mount();
+  const request = mockApi.getMockImplementation()!;
+  let entries: any[] = [];
+  mockApi.mockImplementation((...args) => {
+    if (args[0] === '/api/tree') return Promise.resolve(entries);
+    if (args[0] === '/api/search/advanced')
+      return Promise.reject(new ApiError(503, { code: 'TOKENIZER_UNAVAILABLE' }));
+    return request(...args);
+  });
+  vi.useFakeTimers();
+  try {
+    state.query.value = 'late-file';
+    await Vue.nextTick();
+    await vi.advanceTimersByTimeAsync(220);
+    expect(state.results.value).toEqual([]);
+    expect(state.searchError.value).toContain('文件名搜索仍可使用');
+    entries = [{ type: 'note', id: 'late', name: 'late-file.md', path: '00-Inbox/late-file.md' }];
+    await state.refresh();
+    await Vue.nextTick();
+    expect(state.results.value).toMatchObject([
+      { id: 'late', relativePath: '00-Inbox/late-file.md', filenameMatch: true },
+    ]);
+    expect(mockApi.mock.calls.filter(([url]) => url === '/api/search/advanced')).toHaveLength(1);
+  } finally { vi.useRealTimers(); }
+});
+
+it('refreshes filename fallbacks without losing a refined content hit or its match line', async () => {
+  await mount();
+  state.query.value = 'target';
+  await Vue.nextTick();
+  state.results.value = [
+    { id: 'indexed', title: 'Content match', relativePath: '00-Inbox/content.md', snippet: 'Matched body', line: 38 },
+    { id: 'old', title: 'Old fallback', relativePath: '00-Inbox/target-old.md', snippet: '', line: 1, filenameMatch: true },
+  ];
+  state.tree.value = [{ type: 'note', id: 'new', name: 'target-new.md', path: '00-Inbox/target-new.md' }];
+  await Vue.nextTick();
+  expect(state.results.value).toHaveLength(2);
+  expect(state.results.value.find((item: any) => item.id === 'indexed')).toMatchObject({ line: 38, snippet: 'Matched body' });
+  expect(state.results.value.find((item: any) => item.id === 'old')).toBeUndefined();
+  expect(state.results.value.find((item: any) => item.id === 'new')).toMatchObject({ filenameMatch: true });
+});
 // Drain the current work without completing the explicitly held identity request.
 const turn = () => new Promise<void>((resolve) => setImmediate(resolve));
 

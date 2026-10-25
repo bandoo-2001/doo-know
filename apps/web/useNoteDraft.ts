@@ -53,12 +53,12 @@ export function useNoteDraft(context: () => Context, restoreContent: (text: stri
       !target ||
       !snapshot.enabled ||
       !snapshot.noteId ||
-      !snapshot.dirty ||
       recovered.value ||
       loading.value ||
       busy.value
     )
       return queue.then(() => undefined);
+    const isDirty = snapshot.dirty;
     const input = {
       noteId: snapshot.noteId,
       kind: 'note' as const,
@@ -67,6 +67,21 @@ export function useNoteDraft(context: () => Context, restoreContent: (text: stri
     };
     const write = queue
       .then(async () => {
+        if (!isDirty) {
+          if (target !== store) return undefined;
+          // An earlier queued write may only now have supplied our version.
+          const previous = versions.get(input.noteId);
+          if (!previous) return undefined;
+          const removed = await target.remove(input.noteId, previous.version);
+          if (!removed) throw new Error('本地草稿已在其他页面变化，请重新打开笔记核对。');
+          if (target === store && versions.get(input.noteId)?.version === previous.version)
+            versions.delete(input.noteId);
+          if (target === store && current === epoch && context().noteId === input.noteId) {
+            savedAt.value = undefined;
+            error.value = '';
+          }
+          return undefined;
+        }
         const saved = await target.put(input);
         if (target === store) versions.set(input.noteId, saved);
         if (target === store && current === epoch && context().noteId === input.noteId) {
@@ -198,7 +213,7 @@ export function useNoteDraft(context: () => Context, restoreContent: (text: stri
     () => {
       clearTimeout(timer);
       const c = context();
-      if (!stopped && !busy.value && c.enabled && c.dirty && !recovered.value && !loading.value)
+      if (!stopped && !busy.value && c.enabled && !recovered.value && !loading.value)
         timer = setTimeout(() => void persist(), 150);
     },
     { flush: 'post' },

@@ -202,17 +202,13 @@ export function activate(api: PluginUIApi) {
             rows = state.value.changes || [],
             decoration = path ? gitDecoration(rows, path) : undefined;
           return decoration
-            ? h(
-                'span',
-                {
-                  class: 'dooknow-git-decoration',
-                  title: decoration.title,
-                  role: 'img',
-                  'aria-label': decoration.title,
-                  style:
-                    `display:inline-block;width:8px;height:8px;border-radius:50%;background:${decoration.color};margin:0 4px;flex-shrink:0`,
-                },
-              )
+            ? h('span', {
+                class: 'dooknow-git-decoration',
+                title: decoration.title,
+                role: 'img',
+                'aria-label': decoration.title,
+                style: `display:inline-block;width:8px;height:8px;border-radius:50%;background:${decoration.color};margin:0 4px;flex-shrink:0`,
+              })
             : null;
         };
       },
@@ -462,6 +458,7 @@ export function activate(api: PluginUIApi) {
         }
         async function restore() {
           if (
+            !confirmRestore.value ||
             busy.value ||
             restoreNeedsReload.value ||
             restoreBlockedCode.value ||
@@ -514,6 +511,10 @@ export function activate(api: PluginUIApi) {
           } finally {
             busy.value = false;
           }
+        }
+        function cancelRestore() {
+          if (busy.value || pendingRestore.value) return;
+          confirmRestore.value = false;
         }
         onMounted(() => load());
         onUnmounted(() => {
@@ -594,11 +595,22 @@ export function activate(api: PluginUIApi) {
                 confirmRestore.value &&
                   h('div', { class: 'git-restore-confirm' }, [
                     h('p', '恢复会保存为当前笔记的新版本。未保存的编辑草稿会保留，请先确认草稿。'),
-                    h(
-                      NButton,
-                      { type: 'primary', size: 'small', onClick: restore, loading: busy.value },
-                      () => (pendingRestore.value ? '核对恢复结果' : '确认恢复笔记'),
-                    ),
+                    h('div', { class: 'git-actions' }, [
+                      h(
+                        NButton,
+                        {
+                          size: 'small',
+                          disabled: busy.value || !!pendingRestore.value,
+                          onClick: cancelRestore,
+                        },
+                        () => '取消恢复',
+                      ),
+                      h(
+                        NButton,
+                        { type: 'primary', size: 'small', onClick: restore, loading: busy.value },
+                        () => (pendingRestore.value ? '核对恢复结果' : '确认恢复笔记'),
+                      ),
+                    ]),
                   ]),
               ]),
           ]);

@@ -81,11 +81,18 @@ const source = ref<any>(),
   hasMounted = ref(props.visible);
 let lastState = emptyToolbarState();
 let pendingFocus: SelectionBookmark | undefined;
+let pendingLine: { line: number; align: 'start' | 'center' } | undefined;
+let disposed = false;
 let compositionTimer: ReturnType<typeof setTimeout> | undefined;
-watch([source, documentView], async () => {
+watch([source, documentView, () => props.visible, () => props.kind], async () => {
   await nextTick();
+  if (disposed) return;
   const active = props.kind === 'document' ? documentView.value : source.value;
-  if (active && pendingFocus) {
+  if (active && props.visible && pendingLine) {
+    const target = pendingLine;
+    pendingLine = undefined;
+    active.goToLine(target.line, target.align);
+  } else if (active && props.visible && pendingFocus) {
     const target = pendingFocus;
     pendingFocus = undefined;
     active.focus(target);
@@ -161,7 +168,7 @@ function sourceUpdated(value: string) {
 function sourceState(state: MarkdownToolbarState) {
   lastState = state;
   const b = source.value?.selection?.();
-  if (b) session.setSelection(b);
+  if (b && !pendingFocus && !pendingLine) session.setSelection(b);
   report(state);
 }
 function sourceCompositionStart(event?:CompositionEvent) {
@@ -182,7 +189,8 @@ function sourceCompositionEnd(event?:CompositionEvent) {
   }
 }
 async function flush() {
-  if (props.kind === 'document' && documentView.value) return documentView.value.flush();
+  if (props.visible && !pendingLine && props.kind === 'document' && documentView.value)
+    return documentView.value.flush();
   const value = await session.flush();
   return value;
 }
@@ -204,7 +212,7 @@ function editHistory(action: 'undo' | 'redo') {
   return true;
 }
 function keyboard(event: KeyboardEvent) {
-  pendingFocus = undefined;
+  cancelPendingFocus();
   if ((event.ctrlKey || event.metaKey) && !event.altKey && ['f','h'].includes(event.key.toLowerCase()) && !event.isComposing) {
     event.preventDefault(); event.stopPropagation(); openSearch(); return;
   }
@@ -227,14 +235,31 @@ function keyboard(event: KeyboardEvent) {
 }
 function cancelPendingFocus() {
   pendingFocus = undefined;
+  pendingLine = undefined;
 }
 function focus(b?: SelectionBookmark) {
+  pendingLine = undefined;
+  if (b) session.setSelection(b);
   const active = props.kind === 'document' ? documentView.value : source.value;
   if (active) active.focus(b);
   else pendingFocus = b || session.snapshot().selection;
 }
 function goToLine(line: number, align: 'start' | 'center' = 'center') {
-  (props.kind === 'document' ? documentView.value : source.value)?.goToLine(line, align);
+  if (!Number.isInteger(line) || line < 1) return;
+  const text = session.snapshot().markdown;
+  let offset = 0;
+  for (let current = 1; current < line; current++) {
+    const next = text.indexOf('\n', offset);
+    if (next < 0) break;
+    offset = next + 1;
+  }
+  session.setSelection({ anchor: offset, head: offset, affinity: 'after' });
+  pendingFocus = undefined;
+  const active = props.kind === 'document' ? documentView.value : source.value;
+  if (active && props.visible) {
+    pendingLine = undefined;
+    active.goToLine(line, align);
+  } else pendingLine = { line, align };
 }
 function selection(): SelectionBookmark {
   return (
@@ -345,6 +370,8 @@ defineExpose({ openSearch, replaceMarkdown, insertSourceSnippet, pasteMarkdown, 
   executeTable: (a: TableAction) => documentView.value?.executeTable(a),
 });
 onBeforeUnmount(() => {
+  disposed = true;
+  cancelPendingFocus();
   clearTimeout(compositionTimer);
   session.dispose();
 });

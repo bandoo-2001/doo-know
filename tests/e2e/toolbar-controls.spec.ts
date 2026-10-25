@@ -128,8 +128,14 @@ test('every formatting button and heading level survives undo, redo, preview and
         await expect(rendered).toHaveAttribute('href', 'https://example.com');
       await expect(button(page, '撤销')).toBeDisabled();
       await expect(button(page, '重做')).toBeDisabled();
-      for (const control of await toolbar(page).locator('button, select, input').all())
+      for (const control of await toolbar(page)
+        .locator(
+          'button:not([aria-label="查找替换"]):not([aria-label="反向引用"]):not([aria-label="导出 HTML"]):not([aria-label="打印笔记"]), select, input',
+        )
+        .all())
         await expect(control).toBeDisabled();
+      for (const name of ['查找替换', '反向引用', '导出 HTML', '打印笔记'])
+        await expect(toolbar(page).getByRole('button', { name, exact: true })).toBeEnabled();
       expect(await disk(page, note.id)).toBe(lastSaved);
       await page.locator('.toolbar').getByRole('button', { name: '保存', exact: true }).click();
       await expect(page.locator('.save-state')).toContainText('已保存');
@@ -246,7 +252,7 @@ test('toolbar arrow/Home/End navigation skips disabled code-context controls and
   await expect(tools.getByRole('combobox', { name: '段落格式', exact: true })).toBeFocused();
   await bold.focus();
   await page.keyboard.press('End');
-  await expect(tools.getByRole('button', { name: '上传附件', exact: true })).toBeFocused();
+  await expect(tools.getByRole('button', { name: '打印笔记', exact: true })).toBeFocused();
   await page.keyboard.press('ArrowRight');
   await expect(tools.getByRole('combobox', { name: '段落格式', exact: true })).toBeFocused();
   await replaceAndSelect(page, 'literal');
@@ -302,7 +308,9 @@ test('upload button handles PNG and PDF, supports undo/redo and saves from previ
   await button(page, '阅读').click();
   const image = page.locator('.preview-panel img');
   await expect(image).toBeVisible();
-  await expect.poll(() => image.evaluate((el) => (el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+  await expect
+    .poll(() => image.evaluate((el) => (el as HTMLImageElement).naturalWidth))
+    .toBeGreaterThan(0);
   const pdf = page.locator('.preview-panel a').filter({ hasText: 'toolbar.pdf' });
   await expect(pdf).toBeVisible();
   const asset = await page.request.get((await pdf.getAttribute('href'))!);

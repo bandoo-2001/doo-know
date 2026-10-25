@@ -17,6 +17,7 @@ test('folder menus confirm deletion and restore the whole folder after a name co
   await page.goto('/');
   await expandFolderPath(page, path);
   await page.getByRole('button', { name: 'keep.md', exact: true }).click();
+  await page.getByRole('button', { name: 'Markdown 源码', exact: true }).click();
   await expect(page.locator('.cm-content')).toContainText('文件夹内容');
   const originalNote = new URL(page.url()).searchParams.get('note');
   await page.locator('.cm-content').click();

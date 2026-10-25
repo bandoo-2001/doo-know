@@ -112,7 +112,9 @@ async function mount(id: string) {
       input.props!['onUpdate:value'](value);
     },
     canRestore: () => buttons('恢复此版本').some((node) => !node.props?.disabled),
-    difference: () => nodes().find((node) => node.type === 'pre')?.children ?? nodes().find((node) => node.props && 'diff' in node.props)?.props?.diff,
+    difference: () =>
+      nodes().find((node) => node.type === 'pre')?.children ??
+      nodes().find((node) => node.props && 'diff' in node.props)?.props?.diff,
     notices: () =>
       nodes()
         .filter((node) => node.type === 'aside')
@@ -178,6 +180,56 @@ it('withholds restoration until the newly selected difference has loaded', async
   expect(call.mock.calls.find((entry) => entry[1] === 'git.restore')?.[2]).toMatchObject({
     commit: b,
   });
+});
+
+it('cancels an unsubmitted restoration without losing the selected difference or changing the note', async () => {
+  const view = await mount('git.history');
+  await view.click('查看差异', 0);
+  await view.click('恢复此版本');
+  const oldConfirmation = view.buttons('确认恢复笔记')[0].props!.onClick;
+
+  await view.click('取消恢复');
+  expect(view.buttons('确认恢复笔记')).toHaveLength(0);
+  expect(view.difference()).toBe('Content at ' + a);
+  expect(view.canRestore()).toBe(true);
+  await oldConfirmation();
+  expect(call.mock.calls.filter((entry) => entry[1] === 'git.restore')).toHaveLength(0);
+
+  await view.click('恢复此版本');
+  await view.click('确认恢复笔记');
+  expect(call.mock.calls.filter((entry) => entry[1] === 'git.restore')).toHaveLength(1);
+  expect(call.mock.calls.find((entry) => entry[1] === 'git.restore')?.[2]).toMatchObject({
+    commit: a,
+    expectedModifiedAt: 'v1',
+  });
+});
+
+it('cannot dismiss an in-flight or uncertain restoration and reconciles its original request', async () => {
+  const view = await mount('git.history');
+  await view.click('查看差异', 0);
+  await view.click('恢复此版本');
+  const oldCancel = view.buttons('取消恢复')[0]?.props!.onClick;
+  expect(oldCancel).toBeDefined();
+  const response = deferred<unknown>();
+  call.mockImplementationOnce(() => response.promise);
+  const restoring = view.click('确认恢复笔记');
+  await Vue.nextTick();
+  const original = { ...call.mock.calls.find((entry) => entry[1] === 'git.restore')![2] };
+
+  expect(view.buttons('取消恢复')[0]?.props?.disabled).toBe(true);
+  await oldCancel();
+  expect(view.buttons('核对恢复结果')).toHaveLength(1);
+  response.reject(Error('connection interrupted before the restoration result was received'));
+  await restoring;
+  expect(view.buttons('取消恢复')[0]?.props?.disabled).toBe(true);
+  await oldCancel();
+  expect(view.buttons('核对恢复结果')).toHaveLength(1);
+  expect(view.difference()).toBe('Content at ' + a);
+
+  await view.click('核对恢复结果');
+  const retried = call.mock.calls.filter((entry) => entry[1] === 'git.restore').at(-1)![2];
+  expect(retried).toEqual(original);
+  expect(view.buttons('取消恢复')).toHaveLength(0);
 });
 
 it('ignores an older difference response that arrives after the selected version', async () => {

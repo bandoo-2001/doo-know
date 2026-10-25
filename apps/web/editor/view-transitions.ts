@@ -7,6 +7,7 @@ export type EditorViewChange =
 
 export function createEditorViewTransitions(options: {
   current: () => EditorViewState;
+  context?: () => unknown;
   flush: () => Promise<EditorSnapshot | undefined>;
   apply: (change: EditorViewChange) => void;
   afterRender: () => Promise<unknown>;
@@ -18,6 +19,8 @@ export function createEditorViewTransitions(options: {
   return {
     async select(change: EditorViewChange) {
       const selected = ++request;
+      const context = options.context?.();
+      const isCurrent = () => selected === request && context === options.context?.();
       options.cancelPendingFocus();
       const current = options.current();
       if (
@@ -29,11 +32,11 @@ export function createEditorViewTransitions(options: {
         return;
       try {
         const saved = await options.flush();
-        if (selected !== request) return;
+        if (!isCurrent()) return;
         options.apply(change);
         if ('kind' in change) {
           await options.afterRender();
-          if (selected !== request || !saved) return;
+          if (!isCurrent() || !saved) return;
           options.focus(
             change.sourceOffset === undefined
               ? saved.selection
@@ -45,7 +48,7 @@ export function createEditorViewTransitions(options: {
           );
         }
       } catch (cause) {
-        if (selected === request) options.error(cause);
+        if (isCurrent()) options.error(cause);
       }
     },
     cancel() {

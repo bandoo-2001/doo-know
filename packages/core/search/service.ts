@@ -42,7 +42,7 @@ export function searchService(
   worker: ReturnType<typeof indexWorker>,
 ) {
   const epoch = () =>
-    'filename-v2:' +
+    'note-recall-v3:' +
     String(
       (db.prepare("SELECT value FROM index_meta WHERE key='index_epoch'").get() as any)?.value ||
         '0',
@@ -156,11 +156,14 @@ export function searchService(
     if (input.cursor && decodeCursor(config.secret, input.cursor).epoch !== epoch())
       fail(410, 'CURSOR_EXPIRED');
     const reasons: string[] = [];
-    let recall = 50,
-      queryVector: Promise<number[]> | undefined;
+    // Every cursor page must fuse the same complete bounded candidate universe.
+    // Expanding a smaller pool by offset changes lexical ranks and can also add
+    // a second modality to existing chunks, moving notes across the cursor.
+    const recall = 500;
+    let queryVector: Promise<number[]> | undefined;
     const lexical = () =>
       normalized.mode === 'semantic'
-        ? Promise.resolve([])
+        ? Promise.resolve(Object.assign([], { hasMoreNotes: false }))
         : worker.text.search(p, normalized.query, recall, normalized.filters);
     const semantic = () =>
       normalized.mode === 'text'
@@ -180,7 +183,7 @@ export function searchService(
             reasons.push(error instanceof KnowledgeError ? error.code : 'VECTOR_UNAVAILABLE');
             return [];
           });
-    let [textRanks, vectorRanks] = await Promise.all([lexical(), semantic()]);
+    const [textRanks, vectorRanks] = await Promise.all([lexical(), semantic()]);
     const document = db.prepare('SELECT note_id,path FROM chunks WHERE chunk_id=? AND active=1');
     const documents = new Map<string, { note_id: string; path: string } | undefined>();
     const documentFor = (chunkId: string) => {
@@ -191,19 +194,7 @@ export function searchService(
         );
       return documents.get(chunkId);
     };
-    const distinct = () =>
-      new Set(
-        [...textRanks, ...vectorRanks].map((c) => documentFor(c.chunkId)?.note_id).filter(Boolean),
-      ).size;
-    while (
-      distinct() < offset + normalized.limit + 1 &&
-      (textRanks.length === recall || vectorRanks.length === recall) &&
-      recall < 500
-    ) {
-      signal.throwIfAborted();
-      recall = Math.min(500, recall * 3);
-      [textRanks, vectorRanks] = await Promise.all([lexical(), semantic()]);
-    }
+    if (textRanks.hasMoreNotes || vectorRanks.length === recall) reasons.push('RECALL_LIMIT');
     signal.throwIfAborted();
     const ranking = rrf(textRanks, vectorRanks),
       results: SearchOutput['results'] = [],

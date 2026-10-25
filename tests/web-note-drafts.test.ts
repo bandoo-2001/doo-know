@@ -5,6 +5,7 @@ const storage = vi.hoisted(() => ({
   sequence: 0,
   gate: undefined as Promise<void> | undefined,
   failure: undefined as Error | undefined,
+  removeFailure: undefined as Error | undefined,
 }));
 vi.mock('../apps/web/drafts', () => ({
   createDraftStore: () => ({
@@ -26,6 +27,7 @@ vi.mock('../apps/web/drafts', () => ({
       return structuredClone(storage.records.get(noteId));
     },
     async remove(noteId: string, version: string) {
+      if (storage.removeFailure) throw storage.removeFailure;
       if (storage.records.get(noteId)?.version !== version) return false;
       storage.records.delete(noteId);
       return true;
@@ -64,6 +66,7 @@ beforeEach(() => {
   storage.sequence = 0;
   storage.gate = undefined;
   storage.failure = undefined;
+  storage.removeFailure = undefined;
   state = reactive({
     noteId: 'n',
     baseRevision: 'base-1',
@@ -90,9 +93,127 @@ afterEach(async () => {
   await drafts.logout();
   app.unmount();
   vi.unstubAllGlobals();
+  vi.useRealTimers();
 });
 
 describe('note local draft coordination', () => {
+  test('undoing to the saved source removes its durable draft before loading a newer base', async () => {
+    state.content = 'unsaved edit';
+    state.dirty = true;
+    await drafts.flush();
+    state.content = 'original';
+    state.dirty = false;
+    await drafts.flush();
+    expect(storage.records.get('n')).toBeUndefined();
+    expect(drafts.savedAt.value).toBeUndefined();
+    drafts.prepare();
+    state.baseRevision = 'base-2';
+    state.content = 'remote update';
+    await drafts.load('n', 'base-2', 'remote update');
+    expect(drafts.recovered.value).toBeUndefined();
+    expect(state.content).toBe('remote update');
+  });
+
+  test('undoing removes the durable draft without requiring navigation or an explicit flush', async () => {
+    vi.useFakeTimers();
+    state.content = 'unsaved edit';
+    state.dirty = true;
+    await drafts.flush();
+    await nextTick();
+    state.content = 'original';
+    state.dirty = false;
+    await nextTick();
+    await vi.advanceTimersByTimeAsync(150);
+    expect(storage.records.get('n')).toBeUndefined();
+    expect(drafts.savedAt.value).toBeUndefined();
+  });
+
+  test('cleaning waits for the version from its still-pending first write', async () => {
+    let release!: () => void;
+    storage.gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    state.content = 'pending unsaved edit';
+    state.dirty = true;
+    const writing = drafts.flush();
+    await Promise.resolve();
+    state.content = 'original';
+    state.dirty = false;
+    const cleaning = drafts.flush();
+    release();
+    await Promise.all([writing, cleaning]);
+    expect(storage.records.get('n')).toBeUndefined();
+    expect(drafts.savedAt.value).toBeUndefined();
+  });
+
+  test('typing after a queued clean snapshot stays durable', async () => {
+    let release!: () => void;
+    storage.gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    state.content = 'earlier edit';
+    state.dirty = true;
+    const writing = drafts.flush();
+    state.content = 'original';
+    state.dirty = false;
+    const cleaning = drafts.flush();
+    state.content = 'later edit';
+    state.dirty = true;
+    const later = drafts.flush();
+    release();
+    await Promise.all([writing, cleaning, later]);
+    expect(storage.records.get('n')?.content).toBe('later edit');
+    expect(drafts.savedAt.value).toEqual(expect.any(Number));
+  });
+
+  test('undo cleanup preserves a newer draft from another page and reports the conflict', async () => {
+    state.content = 'own edit';
+    state.dirty = true;
+    await drafts.flush();
+    storage.records.set('n', {
+      ...storage.records.get('n'),
+      content: 'newer foreign edit',
+      version: 'foreign',
+    });
+    state.content = 'original';
+    state.dirty = false;
+    await drafts.flush();
+    expect(storage.records.get('n')?.content).toBe('newer foreign edit');
+    expect(drafts.error.value).toContain('其他页面');
+    expect(drafts.savedAt.value).toBeUndefined();
+  });
+
+  test('a failed undo cleanup leaves the durable draft available and reports the failure', async () => {
+    state.content = 'own edit';
+    state.dirty = true;
+    await drafts.flush();
+    storage.removeFailure = new Error('本地草稿清理失败');
+    state.content = 'original';
+    state.dirty = false;
+    await drafts.flush();
+    expect(storage.records.get('n')?.content).toBe('own edit');
+    expect(drafts.error.value).toBe('本地草稿清理失败');
+    expect(drafts.savedAt.value).toBeUndefined();
+  });
+
+  test.each(['disabled', 'loading', 'recovered'])(
+    'clean snapshots preserve existing drafts while %s',
+    async (gate) => {
+      state.content = 'own edit';
+      state.dirty = true;
+      await drafts.flush();
+      state.content = 'original';
+      state.dirty = false;
+      if (gate === 'disabled') state.enabled = false;
+      else {
+        drafts.prepare();
+        if (gate === 'recovered') await drafts.load('n', 'base-2', 'remote source');
+      }
+      await drafts.flush();
+      expect(storage.records.get('n')?.content).toBe('own edit');
+    },
+  );
+
   test('a rejected latest write clears its earlier durable timestamp and returns no saved version', async () => {
     state.content = 'earlier own durable text';
     state.dirty = true;

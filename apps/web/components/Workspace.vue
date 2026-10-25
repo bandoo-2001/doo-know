@@ -203,6 +203,7 @@ const editorComposing=ref(false),editorHint=ref('');
 watch(()=>editorPreferences.editorKind,value=>{editorKind.value=documentEditingEnabled?value:'source'});
 const editorViews = createEditorViewTransitions({
   current: () => ({ kind: editorKind.value, mode: mode.value }),
+  context: () => `${note.value?.id}:${viewEpoch}`,
   flush: () => editorRef.value?.flush() ?? Promise.resolve(undefined),
   apply(change) {
     if ('kind' in change) {
@@ -393,7 +394,14 @@ const dialogError = ref('');
 const searchMode = ref<'text' | 'semantic' | 'hybrid'>('hybrid'),
   searchDirectory = ref(''),
   searchDegraded = ref(false),
+  searchReasons = ref<string[]>([]),
   vectorReady = ref(false);
+const searchRecallLimited = computed(() => searchReasons.value.includes('RECALL_LIMIT'));
+const searchFeedback = computed(() => searchRecallLimited.value
+  ? '搜索结果已达到候选上限，结果可能不完整。请使用更精确的关键词或缩小目录范围后重试。'
+  : '部分内容搜索或索引尚未准备好，结果可能不完整。');
+const showSearchSettings = computed(() => !searchRecallLimited.value ||
+  searchReasons.value.some((reason) => reason !== 'RECALL_LIMIT'));
 const importFolder = ref('40-Resources'),
   importBusy = ref(false),
   batchImportBusy = ref(false),
@@ -1090,7 +1098,33 @@ async function checkSave(): Promise<'succeeded' | 'failed' | undefined> {
     busy.value = false;
   }
 }
-async function save(
+let preparingSave: { noteId: string; epoch: number; promise: Promise<void> } | undefined;
+function save(
+  expected?: string,
+  content?: string,
+  revisionId?: string,
+  retry?: NonNullable<typeof pendingSave.value>,
+): Promise<void> {
+  const target = note.value;
+  if (
+    expected !== undefined || content !== undefined || revisionId || retry || !target ||
+    noteInfo.value?.editorMode !== 'full' || isWhiteboard(target.relativePath)
+  ) return performSave(expected, content, revisionId, retry);
+  const epoch = viewEpoch;
+  if (preparingSave?.noteId === target.id && preparingSave.epoch === epoch)
+    return preparingSave.promise;
+  const promise: Promise<void> = Promise.resolve()
+    .then(() => {
+      if (alive && currentView(target.id, epoch))
+        return performSave(expected, content, revisionId, retry);
+    })
+    .finally(() => {
+      if (preparingSave?.promise === promise) preparingSave = undefined;
+    });
+  preparingSave = { noteId: target.id, epoch, promise };
+  return promise;
+}
+async function performSave(
   expected?: string,
   content?: string,
   revisionId?: string,
@@ -1098,7 +1132,11 @@ async function save(
 ) {
   if (!note.value || (busy.value && !retry) || (!retry&&content===undefined&&diagramSaveBusy.value) || props.serviceUnavailable) return;
   if (isWhiteboard(note.value.relativePath) && !revisionId) { await boardRef.value?.save(); return; }
-  if(!retry && content === undefined && noteInfo.value?.editorMode === 'full'){const targetId=note.value.id;try{await editorRef.value?.flush();}catch(cause){showError(cause);return;}if(note.value?.id!==targetId || (busy.value && !retry))return;}
+  if(!retry && content === undefined && noteInfo.value?.editorMode === 'full'){
+    const targetId=note.value.id,targetEpoch=viewEpoch;
+    try{await editorRef.value?.flush();}catch(cause){if(alive&&currentView(targetId,targetEpoch))showError(cause);return;}
+    if(!alive || !currentView(targetId,targetEpoch) || (busy.value && !retry))return;
+  }
   if (
     noteInfo.value?.editorMode === 'full' &&
     !revisionId &&
@@ -1854,8 +1892,8 @@ async function goToHeading(line: number) {
       .querySelector(`.preview-panel [data-source-line="${line}"]`)
       ?.scrollIntoView({ block: 'start' });
 }
-function revealLine(line: number) {
-  if (mode.value !== 'preview') editorRef.value?.goToLine(line);
+function revealLine(line: number, navigateEditor = true) {
+  if (navigateEditor) editorRef.value?.goToLine(line);
   if (mode.value === 'edit' || !previewRef.value) return;
   const container = previewRef.value;
   container
@@ -1876,7 +1914,7 @@ function revealLine(line: number) {
 }
 watch(mode, async () => {
   await nextTick();
-  if (noteLine.value && noteInfo.value?.editorMode === 'full') revealLine(noteLine.value);
+  if (noteLine.value && noteInfo.value?.editorMode === 'full') revealLine(noteLine.value, false);
 });
 const uploadInput = ref<HTMLInputElement>();
 type UploadRequest = {
@@ -2153,6 +2191,7 @@ async function searchPage(
     matches: r.matches,
   }));
   searchDegraded.value = !!response.degraded;
+  searchReasons.value = response.reasons || [];
   const local = filenameResults(flat.value, q, searchDirectory.value);
   results.value = cursor
     ? mergeSearchResults(results.value, items, local)
@@ -2166,6 +2205,7 @@ function beginSearch(q: string) {
   searchCursor.value = undefined;
   results.value = filenameResults(flat.value, q, searchDirectory.value);
   searchDegraded.value = false;
+  searchReasons.value = [];
   searchError.value = '';
   searchBusy.value = !!q.trim();
   searchWaiting.value = false;
@@ -2216,6 +2256,16 @@ async function moreSearch() {
   }
 }
 watch([query, searchMode, searchDirectory], () => beginSearch(query.value));
+watch(flat, () => {
+  if (!query.value.trim()) return;
+  const contentHits = results.value
+    .filter((item) => !item.filenameMatch)
+    .map((item) => ({ ...item, filenameRank: undefined }));
+  results.value = mergeSearchResults(
+    contentHits,
+    filenameResults(flat.value, query.value, searchDirectory.value),
+  );
+});
 function shortcut(e: KeyboardEvent) {
   handleSaveShortcut(e, () => { if (panel.value === 'note') void save(); });
 }
@@ -2451,7 +2501,8 @@ onBeforeUnmount(() => {
               ><span>{{ r.snippet }}</span>
             </button>
             <p v-if="searchDegraded && !searchError" class="search-feedback" role="status">
-              部分内容搜索或索引尚未准备好，结果可能不完整。<button
+              {{ searchFeedback }}<button
+                v-if="showSearchSettings"
                 class="text-link"
                 @click="settings('search')"
               >

@@ -70,6 +70,35 @@ const reply = (results: any[], nextCursor?: string) => ({
   index: { pending: 0, checkedAt: null, generation: null },
 });
 
+test('目录迟到且内容检索不可用时，无需重输查询即可补出文件名匹配', async ({ page }, info) => {
+  const name = `迟到目录-${info.project.name}-${crypto.randomUUID()}`;
+  const [note] = await seed(page, [{ path: `00-Inbox/${name}.md`, content: '# 不同的正文标题\n' }]);
+  let release!: () => void;
+  const held = new Promise<void>((resolve) => { release = resolve; });
+  let first = true;
+  await page.route('**/api/tree', async (route) => {
+    if (!first) return route.continue();
+    first = false;
+    const response = await route.fetch();
+    await held;
+    await route.fulfill({ response });
+  });
+  await page.route('**/api/search/advanced', unavailable);
+  try {
+    await page.goto('/');
+    await showSidebar(page);
+    await query(page, name);
+    await expect(page.locator('.search-result')).toHaveCount(0);
+    release();
+    await expect(page.locator('.sidebar-create').getByRole('button', { name: '新建笔记', exact: true })).toBeEnabled();
+    const row = page.locator('.search-result').filter({ hasText: note.path });
+    await expect(row).toHaveCount(1);
+    await expect(row).toContainText('文件名与目录位置匹配');
+    await row.click();
+    await expect(page).toHaveURL(new RegExp(`note=${note.id}(?:#L1)?$`));
+  } finally { release(); }
+});
+
 test('complete, partial, Chinese, English and path filename searches open the correct note without a content index', async ({
   page,
 }, info) => {

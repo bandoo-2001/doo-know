@@ -4,7 +4,7 @@ import { clickNoteAction } from '../support/note-actions';
 import { test, expect } from '../support/browser-test';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-test('installs Git interactions, initializes, previews all changes and displays real history', async ({
+test('installs Git interactions, initializes when missing, previews all changes and displays real history', async ({
   page,
   context,
 }, info) => {
@@ -19,12 +19,41 @@ test('installs Git interactions, initializes, previews all changes and displays 
     .locator('.plugin-settings')
     .getByRole('button', { name: '启用插件', exact: true });
   if (await enable.isVisible()) await enable.click();
-  await page.getByRole('button', { name: '初始化 Git 仓库（main）', exact: true }).click();
+  const csrf = await (await page.request.get('/api/security/csrf')).json();
+  const headers = { origin: 'http://127.0.0.1:4179', 'x-csrf-token': csrf.token };
+  const statusResponse = await page.request.post('/api/plugins/git/call', {
+    headers,
+    data: { kind: 'provider', id: 'git.status', input: {} },
+  });
+  expect(statusResponse.status()).toBe(200);
+  const status = await statusResponse.json();
+  if (status.repository === 'missing') {
+    await expect(page.getByText('尚未建立 Git 仓库', { exact: true })).toBeVisible();
+    await page.getByRole('button', { name: '初始化 Git 仓库（main）', exact: true }).click();
+  } else {
+    expect(status.repository).toBe('ready');
+    expect(status.branch).toBe('main');
+  }
   await expect(page.getByText('当前分支：main', { exact: true })).toBeVisible({ timeout: 10000 });
+  const created = await page.request.post('/api/notes', {
+    headers,
+    data: {
+      folderPath: '00-Inbox',
+      fileName: `Git交互-${info.project.name}-${crypto.randomUUID()}.md`,
+      content: '# 搭建自己的知识库\n\n独立 Git 版本验收。\n',
+      requestId: crypto.randomUUID(),
+    },
+  });
+  expect(created.status()).toBe(201);
+  const note = await created.json();
   await returnToNotes(page);
   if (mobile) await page.getByRole('button', { name: '打开侧栏', exact: true }).click();
-  await expandFolderPath(page, '30-Knowledge/个人知识管理/方法');
-  await page.getByRole('button', { name: '入门指南.md', exact: true }).click();
+  // API seeding while settings is open does not run the browser create/refresh flow.
+  await page.getByRole('button', { name: '刷新目录', exact: true }).click();
+  await expandFolderPath(page, '00-Inbox');
+  await page
+    .getByRole('button', { name: note.relativePath.split('/').at(-1), exact: true })
+    .click();
   await page.getByRole('button', { name: '更多操作', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Git 版本', exact: true })).toBeVisible();
   await page.getByRole('button', { name: '更多操作', exact: true }).click();
@@ -34,11 +63,11 @@ test('installs Git interactions, initializes, previews all changes and displays 
     .getByRole('textbox', { name: 'Git 提交说明', exact: true })
     .fill('Browser first commit');
   await page.getByRole('button', { name: '预览全部变更', exact: true }).click();
-  await expect(
-    page.getByText('A · 30-Knowledge/个人知识管理/方法/入门指南.md', { exact: true }),
-  ).toBeVisible({ timeout: 10000 });
+  await expect(page.getByText('A · ' + note.relativePath, { exact: true })).toBeVisible({
+    timeout: 10000,
+  });
   const fixture = JSON.parse(await readFile('.local/e2e-config.json', 'utf8')),
-    file = join(fixture.knowledgeRoot, '30-Knowledge/个人知识管理/方法/入门指南.md');
+    file = join(fixture.knowledgeRoot, note.relativePath);
   await writeFile(file, (await readFile(file, 'utf8')) + '\n\n# External change before confirm\n');
   await page.getByRole('button', { name: '确认提交', exact: true }).click();
   await expect(

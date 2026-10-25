@@ -38,7 +38,13 @@ export type GitJobKind =
   | 'pull'
   | 'disconnect'
   | 'ssh-host';
-export type GitJobStatus = 'queued' | 'running' | 'succeeded' | 'failed' | 'needs_reconciliation';
+export type GitJobStatus =
+  | 'queued'
+  | 'running'
+  | 'succeeded'
+  | 'failed'
+  | 'cancelled'
+  | 'needs_reconciliation';
 export interface GitJobInput {
   kind: GitJobKind;
   requestId: string;

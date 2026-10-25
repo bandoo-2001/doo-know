@@ -804,8 +804,17 @@ export function gitRemoteService(
           "UPDATE git_remote_jobs SET status='succeeded',phase='complete',result=?,error=NULL,updated_at=? WHERE id=?",
         ).run(JSON.stringify(result), Date.now(), r.id);
       } catch (e) {
-        const code = controller.signal.aborted ? 'GIT_TASK_INTERRUPTED' : terminalError(e);
+        const cancelled =
+          controller.signal.aborted && controller.signal.reason === 'GIT_COMMAND_CANCELLED';
+        const code = cancelled
+          ? 'GIT_COMMAND_CANCELLED'
+          : controller.signal.aborted
+            ? 'GIT_TASK_INTERRUPTED'
+            : terminalError(e);
+        // Unresolved process cleanup must keep its receipt available for reconciliation.
         const uncertain =
+          !!(e as { workspaceReleaseError?: unknown })?.workspaceReleaseError ||
+          terminalError(e) === 'WORKSPACE_PROCESS_RUNNING' ||
           (['push', 'pull'].includes(r.kind) &&
             [
               'GIT_NETWORK_FAILED',
@@ -815,7 +824,7 @@ export function gitRemoteService(
             ].includes(code)) ||
           cloneReceipt(db.prepare('SELECT * FROM git_remote_jobs WHERE id=?').get(r.id) as Row);
         db.prepare('UPDATE git_remote_jobs SET status=?,error=?,updated_at=? WHERE id=?').run(
-          uncertain ? 'needs_reconciliation' : 'failed',
+          uncertain ? 'needs_reconciliation' : cancelled ? 'cancelled' : 'failed',
           code,
           Date.now(),
           r.id,
@@ -1014,7 +1023,7 @@ export function gitRemoteService(
     listJobs,
     cancel: (owner: string, id: string) => {
       owned(owner, id);
-      running.get(id)?.controller.abort();
+      running.get(id)?.controller.abort('GIT_COMMAND_CANCELLED');
       return view(owned(owner, id));
     },
     retry: (owner: string, id: string) => {
@@ -1047,7 +1056,7 @@ export function gitRemoteService(
     },
     close: async () => {
       closing = true;
-      for (const r of running.values()) r.controller.abort();
+      for (const r of running.values()) r.controller.abort('GIT_TASK_INTERRUPTED');
       await Promise.allSettled([...running.values()].map((r) => r.promise));
     },
   };

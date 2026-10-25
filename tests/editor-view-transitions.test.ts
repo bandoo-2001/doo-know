@@ -116,6 +116,77 @@ describe('editor view requests', () => {
     expect(f.focused()).toEqual({ anchor: 0, head: 0, affinity: 'after' });
   });
 
+  it('does not apply a delayed view request to a different note generation', async () => {
+    const session = createEditorSession({ noteId: 'first', generation: 1, markdown: '原文' });
+    const state: EditorViewState = { kind: 'document', mode: 'edit' };
+    let context = 'first:1';
+    let focused: SelectionBookmark | undefined;
+    const views = createEditorViewTransitions({
+      current: () => state,
+      context: () => context,
+      flush: () => session.flush(),
+      apply(change) {
+        if ('kind' in change) Object.assign(state, { kind: change.kind, mode: 'edit' });
+        else state.mode = change.mode;
+      },
+      afterRender: async () => {},
+      cancelPendingFocus() {},
+      focus(bookmark) {
+        focused = bookmark;
+      },
+      error(cause) {
+        throw cause;
+      },
+    });
+    session.setComposing(true);
+    const pending = views.select({ kind: 'source' });
+    context = 'first:2';
+    session.setComposing(false);
+    await pending;
+    expect(state).toEqual({ kind: 'document', mode: 'edit' });
+    expect(focused).toBeUndefined();
+  });
+
+  it('does not restore a saved caret into another note after delayed rendering', async () => {
+    const session = createEditorSession({ noteId: 'first', generation: 1, markdown: '原文' });
+    const state: EditorViewState = { kind: 'document', mode: 'edit' };
+    let context = 'first:1';
+    let focused: SelectionBookmark | undefined;
+    let entered!: () => void, release!: () => void;
+    const started = new Promise<void>((resolve) => {
+      entered = resolve;
+    });
+    const rendering = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const views = createEditorViewTransitions({
+      current: () => state,
+      context: () => context,
+      flush: () => session.flush(),
+      apply(change) {
+        if ('kind' in change) Object.assign(state, { kind: change.kind, mode: 'edit' });
+        else state.mode = change.mode;
+      },
+      afterRender() {
+        entered();
+        return rendering;
+      },
+      cancelPendingFocus() {},
+      focus(bookmark) {
+        focused = bookmark;
+      },
+      error(cause) {
+        throw cause;
+      },
+    });
+    const pending = views.select({ kind: 'source' });
+    await started;
+    context = 'second:1';
+    release();
+    await pending;
+    expect(focused).toBeUndefined();
+  });
+
   it('drops failures from canceled requests without changing the document', async () => {
     const f = fixture();
     f.session.setComposing(true);

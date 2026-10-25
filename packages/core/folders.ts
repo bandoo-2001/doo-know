@@ -75,6 +75,36 @@ function inspect(path: string) {
   walk(path, 0);
   return size;
 }
+
+// Only the verified backup restore boundary may adopt copied directory identities.
+// Runtime recovery and restore must continue comparing the recorded identity.
+export function rebindRestoredFolders(config: AppConfig, db: AppDatabase) {
+  const rows = db
+    .prepare("SELECT * FROM folder_trash WHERE state IN ('trashed','archiving','restoring')")
+    .all() as FolderRow[];
+  for (const row of rows) {
+    if (!/^\d+:\d+$/.test(row.identity)) fail(409, 'RECOVERY_REQUIRED');
+    allowed(row.path);
+    const trash = trashPath(config, row.id);
+    let candidate = trash;
+    if (row.state !== 'trashed') {
+      const path = row.state === 'restoring' ? row.restore_path : row.path;
+      if (!path) fail(409, 'RECOVERY_REQUIRED');
+      allowed(path);
+      const live = safePath(config.knowledgeRoot, path, 'folder', true);
+      // An interrupted rename can be resolved only if exactly one side survives.
+      // With both sides present the old inode cannot identify the original copy.
+      const present = [trash, live].filter(exists);
+      if (present.length !== 1) fail(409, 'RECOVERY_REQUIRED');
+      candidate = present[0];
+    }
+    const stamp = identity(candidate);
+    inspect(candidate);
+    if (identity(candidate) !== stamp) fail(409, 'TRASH_CHANGED');
+    db.prepare('UPDATE folder_trash SET identity=? WHERE id=?').run(stamp, row.id);
+  }
+}
+
 function finish(config: AppConfig, db: AppDatabase, row: FolderRow) {
   const restoring = row.state === 'restoring';
   const destination = restoring

@@ -5,7 +5,7 @@ import { createFixture } from '../support/fixture.js';
 import { agentConfig, agentHeaders } from '../support/agent.js';
 import { openDatabase } from '../../packages/core/db.js';
 import { decodeCursor, signCursor } from '../../packages/core/agent/budgets.js';
-it('expands bounded recall for stable result pages and binds metadata cursors to identity and directory', async () => {
+it('pages the bounded ranking universe and binds metadata cursors to identity and directory', async () => {
   const f = await createFixture({ agent: agentConfig, indexing: { enabled: true, watch: false } });
   try {
     await mkdir(join(f.knowledgeRoot, '00-Inbox/group'));
@@ -90,7 +90,7 @@ it('expires an old offset when strict refresh changes the result set', async () 
   }
 });
 
-it('expires cursors created under the previous ranking rules even when source versions are unchanged', async () => {
+it('expires filename-v2 cursors after note-diverse ranking changes even when sources are unchanged', async () => {
   const f = await createFixture({ agent: agentConfig, indexing: { enabled: true, watch: false } });
   const db = openDatabase(f.dataRoot);
   try {
@@ -106,9 +106,11 @@ it('expires cursors created under the previous ranking rules even when source ve
     expect(first.statusCode, first.body).toBe(200);
     const current = decodeCursor(f.config.secret, first.json().data.nextCursor);
     const legacyEpoch =
+      'filename-v2:' +
       String(
         (db.prepare("SELECT value FROM index_meta WHERE key='index_epoch'").get() as any).value,
-      ) + ':none';
+      ) +
+      ':none';
     const cursor = signCursor(f.config.secret, { ...current, epoch: legacyEpoch });
     const next = await f.app.inject({
       method: 'POST',

@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { realpathSync, lstatSync } from 'node:fs';
 import type { AppDatabase } from '../../../packages/core/db.js';
+import { rebindRestoredFolders } from '../../../packages/core/folders.js';
 import { platformSettings } from './settings.js';
 import {
   invalidateRemoteAuth,
@@ -110,6 +111,7 @@ export function resetRestoredState(
     db.prepare("INSERT INTO index_meta VALUES('root_identity',?)").run(
       JSON.stringify({ path: root, dev: String(st.dev), ino: String(st.ino) }),
     );
+    if (tables.has('folder_trash')) rebindRestoredFolders(config, db);
     const previous = db.prepare('SELECT * FROM platform_settings WHERE id=1').get() as any,
       id = randomUUID(),
       now = Date.now();

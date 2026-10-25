@@ -16,8 +16,11 @@
   display: flex;
   flex-direction: column;
   flex: 1;
-  min-height: 0;
+  min-height: min-content;
   overflow: hidden;
+}
+.notebook-sidebar-content > .tree-scroll {
+  min-height: min(140px, 20dvh);
 }
 .document-surface .cm-editor {
   font-size: var(--editor-font-size);

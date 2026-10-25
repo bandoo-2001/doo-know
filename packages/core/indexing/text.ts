@@ -10,6 +10,11 @@ import {
   filenameMatchRank,
   searchNeedle,
 } from '../../../shared/search-matching.js';
+function recallResult<T>(rows: T[], hasMoreNotes = false) {
+  return Object.defineProperty(rows, 'hasMoreNotes', { value: hasMoreNotes }) as T[] & {
+    hasMoreNotes: boolean;
+  };
+}
 export function pathFilter(p: Principal, column = 'c.path') {
   if (!p.allowedPrefixes.length) return { sql: '0', values: [] as string[] };
   const clauses: string[] = [],
@@ -134,7 +139,7 @@ export function textIndexService(db: AppDatabase, tokenizer: TokenizerClient) {
     const raw = query.trim(),
       phrase = raw.length >= 2 && raw.startsWith('"') && raw.endsWith('"'),
       needle = searchNeedle(raw);
-    if (!needle) return [];
+    if (!needle) return recallResult([]);
     const allowed = recallFilter(p, filters);
     const literal =
       phrase ||
@@ -148,13 +153,26 @@ export function textIndexService(db: AppDatabase, tokenizer: TokenizerClient) {
       : '';
     const values = [...allowed.values, ...(literal ? [needle, needle, needle, needle] : [])];
     const base = `FROM chunks c JOIN document_state d ON d.note_id=c.note_id JOIN notes n ON n.id=c.note_id WHERE c.active=1 AND d.active=1 AND n.active=1 AND d.conflict=0 AND c.source_hash=d.content_hash AND c.source_revision=d.source_revision AND (${allowed.sql})${literalSql}`;
+    const budget = Math.min(limit, 500);
+    // Spend the bounded recall budget on note coverage before extra locations.
+    // Materialize only ranking metadata; load content for the selected rows.
+    // One extra row proves whether an additional note was omitted by the budget.
+    const recall = (sql: string, parameters: (string | number)[], prefix = '') =>
+      db
+        .prepare(
+          `WITH ${prefix}matching AS MATERIALIZED (${sql}),
+        per_note AS (SELECT *,row_number() OVER (PARTITION BY note_id ORDER BY score,ordinal,chunk_id) note_rank FROM matching),
+        chosen AS MATERIALIZED (SELECT * FROM per_note WHERE note_rank<=3
+          ORDER BY note_rank,dooknow_filename_rank(path,?),score,ordinal,chunk_id LIMIT ?)
+        SELECT c.*,chosen.score FROM chosen JOIN chunks c ON c.chunk_id=chosen.chunk_id`,
+        )
+        .all(...parameters, raw, budget + 1) as any[];
     let candidates: any[] = [];
     if ([...needle].length <= 2) {
-      candidates = db
-        .prepare(
-          `SELECT c.* ${base} AND EXISTS(SELECT 1 FROM chunk_terms t WHERE t.chunk_id=c.chunk_id AND t.term=?) ORDER BY dooknow_filename_rank(c.path,?),c.ordinal,c.chunk_id LIMIT ?`,
-        )
-        .all(...values, needle, raw, Math.min(limit, 500)) as any[];
+      candidates = recall(
+        `SELECT c.chunk_id,c.note_id,c.path,c.ordinal,0 score ${base} AND EXISTS(SELECT 1 FROM chunk_terms t WHERE t.chunk_id=c.chunk_id AND t.term=?)`,
+        [...values, needle],
+      );
     } else {
       const tokens = /^[a-z_][a-z0-9_]*$/i.test(needle)
         ? [needle]
@@ -163,31 +181,21 @@ export function textIndexService(db: AppDatabase, tokenizer: TokenizerClient) {
       // 测记录 inside 观测记录.md). Find names from note metadata independently,
       // then apply the same ACL, filters and version checks as content recall.
       // Materialize once per note instead of testing its path on every chunk.
-      const named = db
-        .prepare(
-          `WITH named_notes AS MATERIALIZED (SELECT id FROM notes WHERE active=1 AND dooknow_search_contains(path,?)) SELECT c.* ${base} AND c.note_id IN (SELECT id FROM named_notes) ORDER BY dooknow_filename_rank(c.path,?),c.ordinal,c.chunk_id LIMIT ?`,
-        )
-        .all(needle, ...values, raw, Math.min(limit, 500)) as any[];
+      const named = recall(
+        `SELECT c.chunk_id,c.note_id,c.path,c.ordinal,0 score ${base} AND c.note_id IN (SELECT id FROM named_notes)`,
+        [needle, ...values],
+        'named_notes AS MATERIALIZED (SELECT id FROM notes WHERE active=1 AND dooknow_search_contains(path,?)),',
+      );
       if (tokens.length) {
         const expression = tokens.map((t) => '"' + t.replace(/"/g, '""') + '"').join(' AND ');
-        candidates = db
-          .prepare(
-            `SELECT c.*,bm25(chunks_fts,5,3,2,1) score FROM chunks_fts JOIN chunks c ON c.rowid=chunks_fts.rowid JOIN document_state d ON d.note_id=c.note_id JOIN notes n ON n.id=c.note_id WHERE chunks_fts MATCH ? AND c.active=1 AND d.active=1 AND n.active=1 AND d.conflict=0 AND c.source_hash=d.content_hash AND c.source_revision=d.source_revision AND (${allowed.sql})${literalSql} ORDER BY dooknow_filename_rank(c.path,?),score,c.chunk_id LIMIT ?`,
-          )
-          .all(expression, ...values, raw, Math.min(limit, 500)) as any[];
+        candidates = recall(
+          `SELECT c.chunk_id,c.note_id,c.path,c.ordinal,bm25(chunks_fts,5,3,2,1) score FROM chunks_fts JOIN chunks c ON c.rowid=chunks_fts.rowid JOIN document_state d ON d.note_id=c.note_id JOIN notes n ON n.id=c.note_id WHERE chunks_fts MATCH ? AND c.active=1 AND d.active=1 AND n.active=1 AND d.conflict=0 AND c.source_hash=d.content_hash AND c.source_revision=d.source_revision AND (${allowed.sql})${literalSql}`,
+          [expression, ...values],
+        );
       }
       const merged = new Map(named.map((c) => [c.chunk_id, c]));
       for (const candidate of candidates) merged.set(candidate.chunk_id, candidate);
-      candidates = [...merged.values()]
-        .sort(
-          (a, b) =>
-            Math.min(filenameMatchRank(a.path, raw) ?? CONTENT_MATCH_RANK, CONTENT_MATCH_RANK) -
-              Math.min(filenameMatchRank(b.path, raw) ?? CONTENT_MATCH_RANK, CONTENT_MATCH_RANK) ||
-            (a.score ?? 0) - (b.score ?? 0) ||
-            a.ordinal - b.ordinal ||
-            a.chunk_id.localeCompare(b.chunk_id),
-        )
-        .slice(0, Math.min(limit, 500));
+      candidates = [...merged.values()];
     }
     if (literal)
       candidates = candidates.filter((c) =>
@@ -195,13 +203,35 @@ export function textIndexService(db: AppDatabase, tokenizer: TokenizerClient) {
           String(value).toLowerCase().includes(needle),
         ),
       );
-    return candidates.map((c, i) => ({
-      ...c,
-      chunkId: c.chunk_id,
-      noteId: c.note_id,
-      rank: i + 1,
-      score: c.score ?? 0,
-    }));
+    const hasMoreNotes = new Set(candidates.map((c) => c.note_id)).size > budget;
+    const compare = (a: any, b: any) =>
+      Math.min(filenameMatchRank(a.path, raw) ?? CONTENT_MATCH_RANK, CONTENT_MATCH_RANK) -
+        Math.min(filenameMatchRank(b.path, raw) ?? CONTENT_MATCH_RANK, CONTENT_MATCH_RANK) ||
+      (a.score ?? 0) - (b.score ?? 0) ||
+      a.ordinal - b.ordinal ||
+      a.chunk_id.localeCompare(b.chunk_id);
+    const positions = new Map<string, number>();
+    candidates = candidates
+      .sort(compare)
+      .map((candidate) => {
+        const position = (positions.get(candidate.note_id) || 0) + 1;
+        positions.set(candidate.note_id, position);
+        return { ...candidate, note_rank: position };
+      })
+      .filter((candidate) => candidate.note_rank <= 3)
+      .sort((a, b) => a.note_rank - b.note_rank || compare(a, b))
+      .slice(0, budget)
+      .sort(compare);
+    return recallResult(
+      candidates.map((c, i) => ({
+        ...c,
+        chunkId: c.chunk_id,
+        noteId: c.note_id,
+        rank: i + 1,
+        score: c.score ?? 0,
+      })),
+      hasMoreNotes,
+    );
   }
   return { stage, publish, search };
 }

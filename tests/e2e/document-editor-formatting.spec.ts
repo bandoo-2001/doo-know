@@ -42,7 +42,7 @@ test('任务勾选和代码语言保存后在阅读与源码中保持含义', as
   await editor.locator('p').filter({ hasText: '代码示例' }).click();
   await page.getByRole('button', { name: '代码块', exact: true }).click();
   await expect(editor.locator('pre code')).toHaveText('代码示例');
-  await page.getByRole('textbox', { name: '代码语言', exact: true }).fill('typescript');
+  await page.getByRole('combobox', { name: '代码语言', exact: true }).fill('typescript');
   await page.keyboard.press('Tab');
   await saveDocument(page);
   const saved = (await (await page.request.get('/api/notes/' + note.id)).json()).content;

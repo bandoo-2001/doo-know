@@ -16,6 +16,7 @@ const messages: Record<string, string> = {
   GIT_TASK_INTERRUPTED: '任务被服务重启中断，结果待核对。请先检查状态再重试。',
   GIT_COMMAND_CANCELLED: '任务已取消，请刷新核对状态后再继续。',
   GIT_TASK_BUSY: '另一个仓库任务正在进行，请等待完成。',
+  WORKSPACE_BUSY: '仓库状态待读取，任务进行中。请等待任务结束后刷新。',
   GIT_DEPENDENCY_MISSING: '系统 Git 尚未准备好，请让部署者安装 Git 2.39 或更新版本。',
   PROCESS_CONTAINMENT_UNAVAILABLE: '后台任务暂时无法启动，请联系部署者检查安装和系统支持。',
   GIT_RECONCILIATION_REQUIRED: '本地提交状态待核对，请先在版本记录中完成核对再同步。',

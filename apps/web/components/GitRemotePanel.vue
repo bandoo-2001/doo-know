@@ -75,12 +75,32 @@ const authorReady = computed(
   () => !!gitPlugin.value?.config.authorName && !!gitPlugin.value?.config.authorEmail,
 );
 const running = computed(() => busy.value || jobPending(job.value));
-const connection = computed(() => state.value?.connection);
+const repositoryPending = computed(() => state.value?.code === 'WORKSPACE_BUSY');
+const connection = computed(() => (repositoryPending.value ? null : state.value?.connection));
 const unresolved = ref<GitJobInput>();
+const importedJobs = new Set<string>();
 let active = true,
   timer: ReturnType<typeof setTimeout> | undefined,
   loadEpoch = 0,
+  jobIntent = 0,
+  receiptEpoch = 0,
   previewGeneration = 0;
+type JobOwner = { intent: number; receipt: number };
+const currentOwner = (): JobOwner => ({ intent: jobIntent, receipt: receiptEpoch });
+const ownsJob = (owner: JobOwner) =>
+  active && owner.intent === jobIntent && owner.receipt === receiptEpoch;
+function nextReceipt(): JobOwner {
+  ++receiptEpoch;
+  ++loadEpoch;
+  loading.value = false;
+  clearTimeout(timer);
+  return currentOwner();
+}
+function nextJobIntent(): JobOwner {
+  // Retry keeps its server receipt ID, but belongs to a new local attempt.
+  ++jobIntent;
+  return nextReceipt();
+}
 const endpoint = '/api/platform/git';
 const overlay = ref<'connection' | 'credential' | 'review' | null>(null);
 const returnToConnection = ref(false),
@@ -199,13 +219,13 @@ function cancelPreview() {
     }).catch(() => {});
 }
 function openConnection() {
-  if (!active) return;
+  if (!active || repositoryPending.value) return;
   connectionBaseline.value = connectionDraft();
   discardOpen.value = false;
   overlay.value = 'connection';
 }
 function openReview() {
-  if (!active || busy.value) return;
+  if (!active || busy.value || repositoryPending.value) return;
   reviewBaseline.value = message.value;
   reviewAuthorBaseline.value = { name: authorName.value, email: authorEmail.value };
   discardOpen.value = false;
@@ -297,16 +317,17 @@ function unsaved() {
 }
 async function load() {
   const epoch = ++loadEpoch;
+  const owner = currentOwner();
   loading.value = true;
   try {
     const [next, saved] = await Promise.all([
       api<GitRemoteStatus>(endpoint + '/status'),
       api<{ items: GitCredentialSummary[] }>(endpoint + '/credentials'),
     ]);
-    if (!active || epoch !== loadEpoch) return;
+    if (!ownsJob(owner) || epoch !== loadEpoch) return;
     state.value = next;
     credentials.value = saved.items;
-    if (!url.value) {
+    if (!repositoryPending.value && !url.value) {
       url.value =
         next.connection?.url ||
         next.discoveredRemotes.find((entry) => entry.name === 'origin')?.url ||
@@ -320,20 +341,26 @@ async function load() {
       job.value =
         next.jobs.find((entry) => jobPending(entry) || entry.status === 'needs_reconciliation') ||
         next.jobs.find((entry) => entry.status === 'failed');
-      if (jobPending(job.value)) schedule();
+      if (jobPending(job.value)) schedule(owner);
     }
   } catch (e) {
-    if (active && epoch === loadEpoch) error.value = gitError(e);
+    if (ownsJob(owner) && epoch === loadEpoch) error.value = gitError(e);
   } finally {
-    if (active && epoch === loadEpoch) loading.value = false;
+    if (ownsJob(owner) && epoch === loadEpoch) loading.value = false;
   }
 }
-function schedule() {
+function schedule(owner = currentOwner()) {
+  if (!ownsJob(owner)) return;
   clearTimeout(timer);
-  if (active && jobPending(job.value)) timer = setTimeout(() => void poll(), 500);
+  if (jobPending(job.value)) {
+    const id = job.value!.id;
+    timer = setTimeout(() => {
+      if (ownsJob(owner) && job.value?.id === id) void poll();
+    }, 500);
+  }
 }
-async function completed(next: GitJob) {
-  if (!active) return;
+async function completed(next: GitJob, owner = nextReceipt()) {
+  if (!ownsJob(owner)) return;
   job.value = next;
   if (next.status === 'succeeded') {
     if (next.kind === 'ssh-host') {
@@ -366,60 +393,89 @@ async function completed(next: GitJob) {
         );
       if (next.kind === 'push') committedHead.value = '';
       if (['connect', 'clone'].includes(next.kind)) await refreshPlugins().catch(() => {});
-      if (!active) return;
-      await load();
+      if (ownsJob(owner)) await load();
+      // This accepted result changed the repository even if a newer panel task has started.
       if (!active) return;
       emit('changed');
-      if (next.kind === 'clone' && next.result?.knowledgeRoot)
-        emit('imported', next.result.knowledgeRoot);
-      else if (next.kind === 'clone' && next.result?.boundKnowledgeRoot)
-        emit('imported', next.result.boundKnowledgeRoot);
+      const importedRoot =
+        next.kind === 'clone' && (next.result?.knowledgeRoot || next.result?.boundKnowledgeRoot);
+      if (importedRoot && !importedJobs.has(next.id)) {
+        importedJobs.add(next.id);
+        emit('imported', importedRoot);
+      }
     }
-  } else if (next.status === 'failed' || next.status === 'needs_reconciliation')
-    error.value = gitError(next.error || 'GIT_RESULT_UNKNOWN');
-  schedule();
+  } else if (next.status === 'failed' || next.status === 'needs_reconciliation') {
+    const taskError =
+      next.status === 'needs_reconciliation' && next.error === 'GIT_COMMAND_CANCELLED'
+        ? '已请求取消，任务结果待核对。请先刷新任务或检查云端。'
+        : gitError(next.error || 'GIT_RESULT_UNKNOWN');
+    error.value = taskError;
+    notice.value = '';
+    await load();
+    // A refresh failure must not hide the original task result.
+    if (ownsJob(owner)) error.value = taskError;
+  } else if (next.status === 'cancelled') {
+    error.value = '';
+    notice.value = '任务已取消；已有资料和已提交版本保留。';
+    await load();
+  }
+  schedule(owner);
 }
 async function poll() {
-  if (!active || !job.value) return;
+  if (!active || !job.value || busy.value) return;
+  const id = job.value.id;
+  const owner = nextReceipt();
   try {
-    const next = await api<GitJob>(endpoint + '/jobs/' + encodeURIComponent(job.value.id));
-    if (active) await completed(next);
+    const next = await api<GitJob>(endpoint + '/jobs/' + encodeURIComponent(id));
+    if (!ownsJob(owner)) return;
+    if (next.id !== id) throw new ApiError(409, { code: 'GIT_RESULT_UNKNOWN' });
+    await completed(next, owner);
   } catch (e) {
-    if (active) error.value = gitError(e); /* Retry is explicit when receipt cannot be read. */
+    if (ownsJob(owner))
+      error.value = gitError(e); /* Retry is explicit when receipt cannot be read. */
   }
 }
 async function reconcile() {
+  if (!active || busy.value || !unresolved.value) return false;
+  const input = unresolved.value;
+  const owner = nextJobIntent();
+  busy.value = true;
+  error.value = '';
+  notice.value = '';
   try {
     const response = await api<{ items: GitJob[] }>(endpoint + '/jobs');
-    if (!active) return false;
-    const receipt = response.items.find((entry) => entry.requestId === unresolved.value?.requestId);
+    if (!ownsJob(owner) || unresolved.value?.requestId !== input.requestId) return false;
+    const receipt = response.items.find((entry) => entry.requestId === input.requestId);
     if (receipt) {
       unresolved.value = undefined;
-      await completed(receipt);
+      await completed(receipt, owner);
       return true;
     }
     // A successful list with no receipt proves this request was not accepted.
     unresolved.value = undefined;
     return true;
   } catch (e) {
-    if (active) error.value = gitError(e);
+    if (ownsJob(owner)) error.value = gitError(e);
     return false;
+  } finally {
+    if (ownsJob(owner)) busy.value = false;
   }
 }
 async function startJob(kind: GitJobKind) {
-  if (running.value || !active || (kind === 'pull' && unsaved())) return;
+  if (running.value || repositoryPending.value || !active || (kind === 'pull' && unsaved())) return;
   if (commitUnknown.value && ['connect', 'pull', 'disconnect'].includes(kind)) {
     error.value = '请先核对上一次提交结果。';
     return;
   }
+  if (unresolved.value) {
+    await reconcile();
+    return;
+  }
+  const owner = nextJobIntent();
   error.value = '';
   notice.value = '';
   busy.value = true;
   try {
-    if (unresolved.value) {
-      await reconcile();
-      return;
-    }
     const input: GitJobInput = {
       kind,
       requestId: crypto.randomUUID(),
@@ -445,54 +501,66 @@ async function startJob(kind: GitJobKind) {
     };
     unresolved.value = input;
     const next = await api<GitJob>(endpoint + '/jobs', 'POST', input);
+    if (!ownsJob(owner) || unresolved.value?.requestId !== input.requestId) return;
     unresolved.value = undefined;
-    if (active) {
-      await completed(next);
-      if (active && kind === 'connect') {
+    if (ownsJob(owner)) {
+      await completed(next, owner);
+      if (ownsJob(owner) && kind === 'connect') {
         connectionBaseline.value = connectionDraft();
         overlay.value = null;
       }
     }
   } catch (e) {
-    if (!active) return;
+    if (!ownsJob(owner)) return;
     // A definite rejection cannot have created a job. Transport loss must be reconciled.
     if (e instanceof ApiError && e.status > 0) unresolved.value = undefined;
     error.value = gitError(e);
   } finally {
-    if (active) busy.value = false;
+    if (ownsJob(owner)) busy.value = false;
   }
 }
 async function retryJob() {
   if (!job.value || running.value || !active || (job.value.kind === 'pull' && unsaved())) return;
+  const id = job.value.id;
+  const owner = nextJobIntent();
   busy.value = true;
   error.value = '';
   try {
     const next = await api<GitJob>(
-      endpoint + '/jobs/' + encodeURIComponent(job.value.id) + '/retry',
+      endpoint + '/jobs/' + encodeURIComponent(id) + '/retry',
       'POST',
       {},
     );
-    if (active) await completed(next);
+    if (!ownsJob(owner)) return;
+    if (next.id !== id) throw new ApiError(409, { code: 'GIT_RESULT_UNKNOWN' });
+    await completed(next, owner);
   } catch (e) {
-    if (active) error.value = gitError(e);
+    if (ownsJob(owner)) error.value = gitError(e);
   } finally {
-    if (active) busy.value = false;
+    if (ownsJob(owner)) busy.value = false;
   }
 }
 async function cancelJob() {
   if (!job.value || !active || busy.value) return;
+  const id = job.value.id;
+  const owner = nextJobIntent();
   busy.value = true;
   try {
     const next = await api<GitJob>(
-      endpoint + '/jobs/' + encodeURIComponent(job.value.id) + '/cancel',
+      endpoint + '/jobs/' + encodeURIComponent(id) + '/cancel',
       'POST',
       {},
     );
-    if (active) await completed(next);
+    if (!ownsJob(owner)) return;
+    if (next.id !== id) throw new ApiError(409, { code: 'GIT_RESULT_UNKNOWN' });
+    await completed(next, owner);
   } catch (e) {
-    if (active) error.value = gitError(e);
+    if (ownsJob(owner)) error.value = gitError(e);
   } finally {
-    if (active) busy.value = false;
+    if (ownsJob(owner)) {
+      busy.value = false;
+      schedule(owner);
+    }
   }
 }
 function editCredential(entry?: GitCredentialSummary) {
@@ -597,7 +665,7 @@ async function saveAuthor() {
   }
 }
 async function previewCommit() {
-  if (running.value || !active || unsaved()) return;
+  if (running.value || repositoryPending.value || !active || unsaved()) return;
   if (commitUnknown.value) {
     error.value = '上次提交结果待核对，请使用“核对提交结果”。';
     return;
@@ -653,7 +721,7 @@ async function previewCommit() {
   }
 }
 async function confirmCommit() {
-  if (!preview.value || running.value || !active || unsaved()) return;
+  if (!preview.value || running.value || repositoryPending.value || !active || unsaved()) return;
   if (!commitUnknown.value && previewMessage.value !== message.value.trim()) {
     error.value = '提交说明已修改，请重新预览。';
     return;
@@ -724,15 +792,29 @@ onMounted(() => {
       <AButton :loading="loading" :disabled="running" @click="load">刷新同步状态</AButton>
     </header>
     <AAlert v-if="error" type="error" show-icon :message="error" role="alert" />
-    <AAlert v-if="state?.code" type="warning" show-icon :message="gitError(state.code)" />
-    <AAlert v-if="notice" type="success" show-icon :message="notice" role="status" />
+    <AAlert
+      v-if="state?.code"
+      :type="repositoryPending ? 'info' : 'warning'"
+      show-icon
+      :message="gitError(state.code)"
+    />
+    <AAlert
+      v-if="notice"
+      :type="job?.status === 'cancelled' ? 'info' : 'success'"
+      show-icon
+      :message="notice"
+      role="status"
+    />
     <AAlert
       v-if="gitUnsaved"
       type="warning"
       message="当前笔记尚未保存。请返回笔记保存后再提交或拉取。仅推送只上传已提交版本，不会上传草稿。"
       ><template #action><AButton @click="returnSave">返回笔记保存</AButton></template></AAlert
     >
-    <div v-if="(!inline || !overlay) && state && mode !== 'import'" class="remote-status">
+    <div
+      v-if="(!inline || !overlay) && state && !repositoryPending && mode !== 'import'"
+      class="remote-status"
+    >
       <p>
         本地分支：<strong>{{ state.branch || '尚未初始化' }}</strong> · 未提交文件：{{
           state.changes
@@ -761,7 +843,7 @@ onMounted(() => {
       <p v-else>尚未关联云端仓库。关联后仍需手动提交和同步。</p>
     </div>
     <SettingsActionCard
-      v-if="mode !== 'import' && (!inline || !overlay)"
+      v-if="mode !== 'import' && state && !repositoryPending && (!inline || !overlay)"
       title="云端仓库与认证"
       description="管理仓库地址、分支和登录凭据。"
       icon="refresh"
@@ -790,16 +872,20 @@ onMounted(() => {
       </p>
     </div>
     <div v-if="job && (!inline || !overlay)" class="remote-job" role="status">
-      <strong>{{ jobPhases[job.phase] || '正在处理任务' }}</strong>
+      <strong>{{
+        job.status === 'cancelled' ? '任务已取消' : jobPhases[job.phase] || '正在处理任务'
+      }}</strong>
       <p>
         {{
-          job.status === 'needs_reconciliation'
-            ? '结果待核对，请先刷新任务或检查云端。'
-            : job.status === 'failed'
-              ? '任务未完成；已有资料和已提交版本保留。'
-              : jobPending(job)
-                ? '任务在服务器上继续，刷新页面后仍可查看进度。'
-                : '任务已结束。'
+          job.status === 'cancelled'
+            ? '任务已取消；已有资料和已提交版本保留。'
+            : job.status === 'needs_reconciliation'
+              ? '结果待核对，请先刷新任务或检查云端。'
+              : job.status === 'failed'
+                ? '任务未完成；已有资料和已提交版本保留。'
+                : jobPending(job)
+                  ? '任务在服务器上继续，刷新页面后仍可查看进度。'
+                  : '任务已结束。'
         }}
       </p>
       <div class="remote-actions">
@@ -833,7 +919,7 @@ onMounted(() => {
         <AAlert v-if="error && !frameInline" type="error" show-icon :message="error" role="alert" />
         <AAlert
           v-if="notice && !frameInline"
-          type="success"
+          :type="job?.status === 'cancelled' ? 'info' : 'success'"
           show-icon
           :message="notice"
           role="status"
@@ -891,7 +977,9 @@ onMounted(() => {
             >
             <div class="remote-actions">
               <AButton :disabled="running" @click="editCredential()">添加凭据</AButton
-              ><AButton :disabled="running || !url.trim()" @click="startJob('test')"
+              ><AButton
+                :disabled="running || repositoryPending || !url.trim()"
+                @click="startJob('test')"
                 >测试读取连接</AButton
               >
             </div>
@@ -914,7 +1002,9 @@ onMounted(() => {
             <div class="remote-actions">
               <AButton
                 type="primary"
-                :disabled="running || !url.trim() || (mode === 'import' && !name.trim())"
+                :disabled="
+                  running || repositoryPending || !url.trim() || (mode === 'import' && !name.trim())
+                "
                 @click="startJob(mode === 'import' ? 'clone' : 'connect')"
                 >{{ mode === 'import' ? '导入并继续' : '关联云端仓库' }}</AButton
               >
@@ -1039,7 +1129,7 @@ onMounted(() => {
                   aria-label="私钥口令（选填）"
                   autocomplete="new-password"
                   :disabled="running" /></label
-              ><AButton :disabled="running" @click="startJob('ssh-host')"
+              ><AButton :disabled="running || repositoryPending" @click="startJob('ssh-host')"
                 >读取 SSH 主机指纹</AButton
               >
               <pre v-if="fingerprints.length">{{ fingerprints.join('\n') }}</pre>
@@ -1113,6 +1203,7 @@ onMounted(() => {
             <AButton
               :disabled="
                 running ||
+                repositoryPending ||
                 gitUnsaved ||
                 commitUnknown ||
                 !message.trim() ||
@@ -1139,7 +1230,7 @@ onMounted(() => {
             <AButton
               v-if="preview"
               type="primary"
-              :disabled="running || gitUnsaved || !previewCurrent"
+              :disabled="running || repositoryPending || gitUnsaved || !previewCurrent"
               @click="confirmCommit"
               >{{ commitUnknown ? '核对提交结果' : '确认提交并推送' }}</AButton
             >

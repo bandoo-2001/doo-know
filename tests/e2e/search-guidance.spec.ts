@@ -16,6 +16,21 @@ test.beforeEach(async ({ context }) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
 });
 
+test('候选预算已满时明确提示缩小范围，不误报组件未准备好', async ({ page }) => {
+  await page.route('**/api/search/advanced', (route) => route.fulfill({ json: {
+    results: [], degraded: true, reasons: ['RECALL_LIMIT'], index: { pending: 0 },
+  } }));
+  await page.goto('/');
+  await showSidebar(page);
+  await page.getByRole('textbox', { name: '搜索笔记与目录', exact: true }).fill('候选预算-'+crypto.randomUUID());
+  const feedback = page.locator('.tree-scroll').getByRole('status').filter({ hasText: '候选上限' });
+  await expect(feedback).toBeVisible();
+  await expect(feedback).toContainText('缩小目录范围');
+  await expect(feedback).not.toContainText('未准备好');
+  await expect(page.getByRole('button', { name: '检查搜索设置', exact: true })).toHaveCount(0);
+  await expect(page.getByText('没有匹配的笔记', { exact: true })).toHaveCount(0);
+});
+
 test('limited content search explains an empty result and keeps the query when returning from settings', async ({
   page,
 }) => {

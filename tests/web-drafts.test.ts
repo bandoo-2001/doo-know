@@ -6,12 +6,22 @@ import { resolve, delimiter } from 'node:path';
 import ts from 'typescript';
 
 // Exercise the browser's real transactions without starting an application server.
-let browser: Browser, context: BrowserContext, page: Page, moduleSource: string;
+let browser: Browser,
+  context: BrowserContext,
+  page: Page,
+  moduleSource: string,
+  noteDraftSource: string,
+  vueSource: string;
 beforeAll(async () => {
   moduleSource = ts.transpileModule(
     await readFile(new URL('../apps/web/drafts.ts', import.meta.url), 'utf8'),
     { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ES2022 } },
   ).outputText;
+  noteDraftSource = ts.transpileModule(
+    await readFile(new URL('../apps/web/useNoteDraft.ts', import.meta.url), 'utf8'),
+    { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ES2022 } },
+  ).outputText;
+  vueSource = await readFile(resolve('node_modules/vue/dist/vue.esm-browser.prod.js'), 'utf8');
   const libs = resolve('.local/browser-deps/root/usr/lib/x86_64-linux-gnu');
   const env = { ...process.env };
   if (existsSync(libs))
@@ -41,7 +51,134 @@ afterEach(async () => {
   await context?.close();
 });
 
+async function mountNoteDraft() {
+  await page.evaluate(
+    async ({ noteDraftSource, vueSource }) => {
+      const moduleUrl = (source: string) =>
+        URL.createObjectURL(new Blob([source], { type: 'text/javascript' }));
+      const vueUrl = moduleUrl(vueSource);
+      // Reuse the exact store module already loaded in this browser context.
+      const storeUrl = moduleUrl(
+        'export const createDraftStore = window.draftModule.createDraftStore;' +
+          'export const clearOwnerDrafts = window.draftModule.clearOwnerDrafts;',
+      );
+      const hookUrl = moduleUrl(
+        noteDraftSource
+          .replace("from 'vue'", `from '${vueUrl}'`)
+          .replace("from './drafts'", `from '${storeUrl}'`),
+      );
+      const loadModule = new Function('url', 'return import(url)');
+      const { createRenderer, reactive, nextTick } = await loadModule(vueUrl);
+      const { useNoteDraft } = await loadModule(hookUrl);
+      const state = reactive({
+        noteId: 'n',
+        baseRevision: 'base-1',
+        content: 'original',
+        dirty: false,
+        enabled: true,
+      });
+      const scope = { ownerId: 'owner', knowledgeId: 'knowledge' };
+      const renderer = createRenderer({
+        insert() {},
+        remove() {},
+        createElement: () => ({}),
+        createText: () => ({}),
+        createComment: () => ({}),
+        setText() {},
+        setElementText() {},
+        parentNode: () => null,
+        nextSibling: () => null,
+        patchProp() {},
+      });
+      let drafts: any;
+      const app = renderer.createApp({
+        setup() {
+          drafts = useNoteDraft(
+            () => state,
+            (content: string) => {
+              state.content = content;
+              state.dirty = true;
+            },
+          );
+          return () => null;
+        },
+      });
+      app.mount({});
+      drafts.setup(scope);
+      (window as any).noteDraftFixture = { drafts, state, scope, nextTick };
+      [vueUrl, storeUrl, hookUrl].forEach((url) => URL.revokeObjectURL(url));
+    },
+    { noteDraftSource, vueSource },
+  );
+}
+
 describe('browser local draft recovery', () => {
+  test('undoing to the saved source clears IndexedDB before refreshing a changed remote base', async () => {
+    await mountNoteDraft();
+    const result = await page.evaluate(async () => {
+      const { drafts, state, scope, nextTick } = (window as any).noteDraftFixture;
+      const reader = (window as any).draftModule.createDraftStore({ scope });
+      state.content = 'unsaved edit';
+      state.dirty = true;
+      await drafts.flush();
+      const persisted = (await reader.load('n'))?.content;
+      state.content = 'original';
+      state.dirty = false;
+      await nextTick();
+      await drafts.flush();
+      const afterUndo = await reader.load('n');
+      const savedAtAfterUndo = drafts.savedAt.value;
+      drafts.prepare();
+      state.baseRevision = 'base-after-pull';
+      state.content = 'pulled remote source';
+      await drafts.load('n', state.baseRevision, state.content);
+      return {
+        persisted,
+        afterUndo,
+        savedAtAfterUndo,
+        recovered: drafts.recovered.value,
+        source: state.content,
+      };
+    });
+    expect(result.persisted).toBe('unsaved edit');
+    expect(result.afterUndo).toBeUndefined();
+    expect(result.savedAtAfterUndo).toBeUndefined();
+    expect(result.recovered).toBeUndefined();
+    expect(result.source).toBe('pulled remote source');
+  });
+
+  test('undo cleanup cannot delete a newer version committed by another browser store', async () => {
+    await mountNoteDraft();
+    const result = await page.evaluate(async () => {
+      const { drafts, state, scope } = (window as any).noteDraftFixture;
+      state.content = 'own unsaved edit';
+      state.dirty = true;
+      await drafts.flush();
+      const other = (window as any).draftModule.createDraftStore({ scope });
+      await other.load('n');
+      const foreign = await other.put({
+        noteId: 'n',
+        kind: 'note',
+        content: 'newer edit from another page',
+        baseRevision: 'base-1',
+      });
+      state.content = 'original';
+      state.dirty = false;
+      await drafts.flush();
+      const after = await other.load('n');
+      return {
+        content: after?.content,
+        sameVersion: after?.version === foreign.version,
+        error: drafts.error.value,
+        savedAt: drafts.savedAt.value,
+      };
+    });
+    expect(result.content).toBe('newer edit from another page');
+    expect(result.sameVersion).toBe(true);
+    expect(result.error).toContain('其他页面');
+    expect(result.savedAt).toBeUndefined();
+  });
+
   test('upgrades an existing version-one database without losing recoverable draft text', async () => {
     const result = await page.evaluate(async () => {
       await new Promise<void>((resolve, reject) => {

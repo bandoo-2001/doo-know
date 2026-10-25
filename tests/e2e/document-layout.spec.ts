@@ -49,12 +49,12 @@ test('wide document outline stays beside edit and preview, and narrow layouts us
     );
   }
   await expectDockedOutline();
-  await expect(nav.locator('.outline-link')).toHaveCount(7);
+  await expect(nav.locator('.outline-link')).toHaveCount(8);
   await page.screenshot({
     path: info.outputPath('document-edit.png'),
     animations: 'disabled',
   });
-  await expect(nav.getByRole('button', { name: '六级标题', exact: true })).toHaveCount(0);
+  await expect(nav.getByRole('button', { name: '六级标题', exact: true })).toHaveCount(1);
   await expect(nav.getByRole('button', { name: '代码里的假标题', exact: true })).toHaveCount(0);
   await expect(
     nav.locator(
