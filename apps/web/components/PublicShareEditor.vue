@@ -117,7 +117,7 @@ async function save() {
   }
 }
 async function switchKind(value: EditorKind) {
-  if (kind.value === value || busy.value || composing.value) return;
+  if (kind.value === value || busy.value || loading.value || composing.value) return;
   try {
     await flush();
     kind.value = value;
@@ -178,19 +178,27 @@ onBeforeUnmount(() => {
       <div class="public-editor-modes" role="group" aria-label="编辑方式">
         <AButton
           :type="kind === 'document' ? 'primary' : 'default'"
-          :disabled="busy || composing"
+          :disabled="busy || loading || composing"
           @click="switchKind('document')"
           >文档编辑</AButton
         >
         <AButton
           :type="kind === 'source' ? 'primary' : 'default'"
-          :disabled="busy || composing"
+          :disabled="busy || loading || composing"
           @click="switchKind('source')"
           >Markdown 源码</AButton
         >
       </div>
       <span class="public-save-state" role="status">{{
-        busy ? '正在保存…' : dirty ? '未保存' : '已保存'
+        loading
+          ? source
+            ? '正在重新载入…'
+            : '正在读取…'
+          : busy
+            ? '正在保存…'
+            : dirty
+              ? '未保存'
+              : '已保存'
       }}</span>
       <AButton type="primary" :loading="busy" :disabled="saveDisabled" @click="save"
         >保存修改</AButton
@@ -222,7 +230,7 @@ onBeforeUnmount(() => {
       :share-token="token"
       :generation="generation"
       :kind="kind"
-      :read-only="busy"
+      :read-only="busy || loading"
       :resolve-image="(url) => publicShareAsset(token, url)"
       @fallback="
         kind = 'source';

@@ -647,3 +647,101 @@ test('changing permission preserves a still-valid expiry within the current disp
   expect(saved.expiresAt).toBe(expiresAt);
   expect(saved.url).toBe(previous.url);
 });
+
+test('a confirmed public reload locks editing until the real source response arrives and recovers after failure', async ({
+  page,
+  browser,
+}) => {
+  const { note, headers, origin } = await seed(page);
+  const share = await (
+    await page.request.post(`/api/notes/${note.id}/share`, {
+      headers,
+      data: { permission: 'edit' },
+    })
+  ).json();
+  const guest = await browser.newContext();
+  const reader = await guest.newPage();
+  await reader.goto(origin + share.url);
+  await reader.getByRole('button', { name: '编辑笔记', exact: true }).click();
+  await reader.getByRole('button', { name: 'Markdown 源码', exact: true }).click();
+  const content = reader.locator('.cm-content');
+  async function updateOwner(body: string) {
+    const current = await (await page.request.get(`/api/notes/${note.id}`)).json();
+    expect(
+      (
+        await page.request.put(`/api/notes/${note.id}`, {
+          headers,
+          data: {
+            content: body,
+            expectedModifiedAt: current.modifiedAt,
+            requestId: crypto.randomUUID(),
+          },
+        })
+      ).ok(),
+    ).toBe(true);
+  }
+  async function createConflict(draft: string, ownerContent: string) {
+    await content.fill(draft);
+    await updateOwner(ownerContent);
+    const response = reader.waitForResponse(
+      (r) =>
+        r.request().method() === 'PUT' &&
+        new URL(r.url()).pathname === `/api/public/shares/${share.token}/source`,
+    );
+    await reader.getByRole('button', { name: '保存修改', exact: true }).click();
+    expect((await response).status()).toBe(409);
+    await expect(reader.getByRole('alert')).toContainText('已更新');
+  }
+  async function confirmReload() {
+    await reader.getByRole('button', { name: '重新载入最新内容', exact: true }).click();
+    await reader.getByRole('button', { name: '放弃编辑并重新载入', exact: true }).click();
+  }
+  await createConflict(
+    '# 访客原草稿\n\n等待明确重新载入。',
+    '# 主人最新版本\n\n重新载入后的正文。',
+  );
+  const sourceRoute = `**/api/public/shares/${share.token}/source`;
+  let release!: () => void, started!: () => void;
+  const hold = new Promise<void>((resolve) => (release = resolve)),
+    captured = new Promise<void>((resolve) => (started = resolve));
+  await reader.route(sourceRoute, async (route) => {
+    if (route.request().method() !== 'GET') {
+      await route.continue();
+      return;
+    }
+    const response = await route.fetch();
+    expect(response.status()).toBe(200);
+    started();
+    await hold;
+    await route.fulfill({ response });
+  });
+  await confirmReload();
+  await captured;
+  try {
+    await expect(content).toHaveAttribute('contenteditable', 'false');
+    await expect(reader.getByRole('button', { name: '文档编辑', exact: true })).toBeDisabled();
+    await expect(reader.getByRole('button', { name: 'Markdown 源码', exact: true })).toBeDisabled();
+    await expect(reader.locator('.public-save-state')).toHaveText('正在重新载入…');
+  } finally {
+    release();
+  }
+  await expect(content).toContainText('重新载入后的正文');
+  await expect(content).toHaveAttribute('contenteditable', 'true');
+  await expect(reader.locator('.public-save-state')).toHaveText('已保存');
+  await reader.unroute(sourceRoute);
+  await createConflict('# 载入失败仍保留的草稿', '# 主人第二次更新\n\n失败期间不覆盖草稿。');
+  await reader.route(sourceRoute, async (route) => {
+    if (route.request().method() === 'GET')
+      await route.fulfill({ status: 503, json: { error: 'CONTROLLED_RELOAD_FAILURE' } });
+    else await route.continue();
+  });
+  await confirmReload();
+  await expect(reader.getByRole('alert')).toContainText('当前编辑已保留');
+  await expect(content).toContainText('载入失败仍保留的草稿');
+  await expect(content).toHaveAttribute('contenteditable', 'true');
+  await expect(reader.getByRole('button', { name: '文档编辑', exact: true })).toBeEnabled();
+  await expect(reader.getByRole('button', { name: 'Markdown 源码', exact: true })).toBeEnabled();
+  await content.fill('# 载入失败后仍可继续编辑');
+  await expect(content).toContainText('仍可继续编辑');
+  await guest.close();
+});
