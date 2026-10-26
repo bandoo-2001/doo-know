@@ -25,7 +25,7 @@ Mermaid、SVG 和 Excalidraw 图形使用固定图片预览。网页发布会准
 
 ## MCP
 
-官方 MCP 插件版本为 `1.1.0`，需要 Host API `^1.1.0`。Host API 保持对已有 `^1.0` 插件的兼容。
+官方 MCP 插件版本为 `1.1.1`，需要 Host API `^1.1.0`。Host API 保持对已有 `^1.0` 插件的兼容。
 
 新增工具：
 

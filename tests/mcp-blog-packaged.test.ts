@@ -13,23 +13,23 @@ import { createAuth } from '../apps/server/auth.js';
 import { openDatabase } from '../packages/core/db.js';
 import { oauthGrantStore } from '../apps/server/platform/oauth-grants.js';
 
-it('runs the packaged MCP 1.1 blog contract over HTTP with explicit grants, fixed receipts and disposal', async () => {
+it('runs the packaged MCP 1.1.1 agent and blog contracts over HTTP with explicit grants, fixed receipts and disposal', async () => {
   const artifacts = await mkdtemp(join(tmpdir(), 'dooknow-mcp-blog-package-'));
   let f: Fixture | undefined;
   let db: ReturnType<typeof openDatabase> | undefined;
   try {
     const catalog = await buildPlugins({ output: artifacts, ids: ['mcp'], baseURL: pathToFileURL(artifacts + '/').href });
-    expect(catalog[0]).toMatchObject({ version: '1.1.0', apiVersion: '^1.1.0' });
-    expect(catalog[0].artifact.url).toMatch(/dooknow-plugin-mcp-1\.1\.0\.tar\.gz$/);
+    expect(catalog[0]).toMatchObject({ version: '1.1.1', apiVersion: '^1.1.0' });
+    expect(catalog[0].artifact.url).toMatch(/dooknow-plugin-mcp-1\.1\.1\.tar\.gz$/);
     const fixture = f = await createFixture({ pluginCatalog: catalog });
     const ownerHeaders = await loginFixtureOwner(fixture);
     const admin = (url: string, payload: Record<string, unknown> = {}) => fixture.app.inject({ method: 'POST', url, headers: ownerHeaders, payload });
     const installed = await admin('/api/platform/plugins/mcp/install');
     expect(installed.statusCode, installed.body).toBe(200);
-    expect(installed.json()).toMatchObject({ installedVersion: '1.1.0', config: { readOnly: true, allowPublish: false } });
+    expect(installed.json()).toMatchObject({ installedVersion: '1.1.1', config: { readOnly: true, allowPublish: false } });
     const enabled = await admin('/api/platform/plugins/mcp/enable');
     expect(enabled.statusCode, enabled.body).toBe(200);
-    expect(enabled.json()).toMatchObject({ state: 'enabled', activeVersion: '1.1.0' });
+    expect(enabled.json()).toMatchObject({ state: 'enabled', activeVersion: '1.1.1' });
     const address = await fixture.app.listen({ host: '127.0.0.1', port: 0 });
     db = openDatabase(fixture.dataRoot);
     const database = db;
@@ -65,6 +65,10 @@ it('runs the packaged MCP 1.1 blog contract over HTTP with explicit grants, fixe
       expect(Buffer.byteLength(response.text, 'utf8')).toBeLessThanOrEqual(65536);
       return response;
     };
+    const initialized = await rpc('initialize', { protocolVersion: '2025-06-18', capabilities: {}, clientInfo: { name: 'packaged-agent-fixture', version: '1.0.0' } });
+    expect(initialized.status, initialized.text).toBe(200);
+    expect(initialized.body.result.serverInfo.version).toBe('1.1.1');
+    expect(initialized.body.result.instructions).toContain('requestId');
     const listed = await rpc('tools/list', {});
     expect(listed.status, listed.text).toBe(200);
     const tools: any[] = listed.body.result.tools;
@@ -73,12 +77,18 @@ it('runs the packaged MCP 1.1 blog contract over HTTP with explicit grants, fixe
     const publishSchema = byName.get('publish_blog_post');
     expect(publishSchema.inputSchema.additionalProperties).toBe(false);
     expect(publishSchema.inputSchema.required).toEqual(expect.arrayContaining(['noteId', 'expectedModifiedAt', 'expectedContentHash', 'expectedPublicationVersion', 'requestId']));
-    expect(publishSchema.outputSchema.properties.data.additionalProperties).toBe(false);
-    expect(publishSchema.outputSchema.properties.data.required).toContain('omittedMetadata');
-    for (const field of ['summary', 'category', 'tags', 'pinned', 'cover']) expect(publishSchema.outputSchema.properties.data.properties[field]).toBeUndefined();
+    const publishSuccess = publishSchema.outputSchema.anyOf.find((schema: any) => schema.properties?.data);
+    expect(publishSuccess.properties.data.additionalProperties).toBe(false);
+    expect(publishSuccess.properties.data.required).toContain('omittedMetadata');
+    for (const field of ['summary', 'category', 'tags', 'pinned', 'cover']) expect(publishSuccess.properties.data.properties[field]).toBeUndefined();
     const ajv = new Ajv({ strict: false, validateFormats: false });
     const validators = new Map(['get_blog_status', 'publish_blog_post', 'unpublish_blog_post', 'operation_status'].map((name) => [name, ajv.compile(byName.get(name).outputSchema)]));
     const call = (name: string, args: Record<string, unknown>, accessToken = fullToken) => rpc('tools/call', { name, arguments: args }, accessToken);
+    const invalid = await call('get_note_info', {});
+    expect(invalid.status, invalid.text).toBe(200);
+    expect(invalid.body.result).toMatchObject({ isError: true, structuredContent: { error: { code: 'INVALID_INPUT', recovery: { action: 'fix_input' } } } });
+    expect(invalid.body.result.structuredContent.error.issues).toEqual(expect.arrayContaining([expect.objectContaining({ path: ['noteId'] })]));
+    expect(ajv.compile(byName.get('get_note_info').outputSchema)(invalid.body.result.structuredContent)).toBe(true);
     const ok = async (name: string, args: Record<string, unknown>) => {
       const response = await call(name, args);
       expect(response.status, response.text).toBe(200);

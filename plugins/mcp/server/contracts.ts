@@ -42,14 +42,14 @@ export const noteInfo = z.object({
 });
 export const readInput = z
   .object({
-    snapshotId: z.string().optional(),
-    cursor: z.string().max(8192).optional(),
-    maxBytes: z.number().int().min(4).max(16384).default(8192),
+    snapshotId: z.string().optional().describe("已有快照ID；新读取可省略，不能与cursor同用。"),
+    cursor: z.string().max(8192).optional().describe("原样续用nextCursor；不能与snapshotId或range同用。"),
+    maxBytes: z.number().int().min(4).max(16384).default(8192).describe("本页UTF8字节上限，默认8192，最多16384。"),
     range: z
       .object({
-        startLine: z.number().int().positive(),
-        endLine: z.number().int().positive(),
-        lineByteOffset: z.number().int().nonnegative().optional(),
+        startLine: z.number().int().positive().describe("从1计数，含此行。"),
+        endLine: z.number().int().positive().describe("含此行，范围最多200行。"),
+        lineByteOffset: z.number().int().nonnegative().optional().describe("起始行内的UTF8字节偏移，须在字符边界。"),
       })
       .strict()
       .refine(
@@ -95,28 +95,28 @@ export const patchEdit = z.discriminatedUnion("type", [
   z
     .object({
       type: z.literal("replace_text"),
-      before: z.string().min(1),
-      after: z.string(),
+      before: z.string().min(1).describe("快照中的精确旧文本，须唯一匹配。"),
+      after: z.string().describe("替换文本。"),
     })
     .strict(),
   z
     .object({
       type: z.literal("replace_range"),
-      startByte: z.number().int().nonnegative(),
-      endByte: z.number().int().nonnegative(),
-      expectedRangeHash: hash,
-      insert: z.string(),
+      startByte: z.number().int().nonnegative().describe("快照中从0计数的UTF8字节位置，含此字节。"),
+      endByte: z.number().int().nonnegative().describe("UTF8字节范围的排他终点；两端须在字符边界。"),
+      expectedRangeHash: hash.describe("原字节范围的SHA256；使用读取页rangeHash或精确计算。"),
+      insert: z.string().describe("在该字节范围插入的文本。"),
     })
     .strict()
     .refine((e) => e.endByte >= e.startByte, "字节范围顺序错误"),
 ]);
 export const patchInput = z
   .object({
-    snapshotId: z.string(),
-    expectedModifiedAt: version,
-    expectedContentHash: hash,
-    requestId,
-    edits: z.array(patchEdit).min(1).max(20),
+    snapshotId: z.string().describe("read_note或get_note_outline返回的版本快照。"),
+    expectedModifiedAt: version.describe("快照的精确版本；冲突先读取最新正文并合并草稿。"),
+    expectedContentHash: hash.describe("快照原文的SHA256。"),
+    requestId: requestId.describe("一次操作的稳定ID；结果未知保留原ID及原请求。"),
+    edits: z.array(patchEdit).min(1).max(20).describe("最多20项，旧文本与插入合计最多32KiB UTF8。"),
   })
   .strict()
   .refine(
@@ -216,23 +216,27 @@ export const outlineReply = fileReply(
 );
 export const createInput = z
   .object({
-    directory: z.string().min(1).max(1000),
-    fileName: z.string().min(1).max(180),
-    content: inlineText,
-    requestId,
+    directory: z.string().min(1).max(1000).describe("授权范围内相对目录，不使用绝对路径或..。"),
+    fileName: z.string().min(1).max(180).describe("新笔记文件名；同名冲突不会覆盖。"),
+    content: inlineText.describe("完整正文，最多32768个UTF8字节。"),
+    requestId: requestId.describe("一次创建的稳定ID；结果未知先用原ID查询。"),
   })
   .strict();
 export const updateInput = z
-  .object({ content: inlineText, expectedModifiedAt: version, requestId })
+  .object({
+    content: inlineText.describe("普通编辑模式的完整替换正文，最多32KiB UTF8；大文件用patch_note。"),
+    expectedModifiedAt: version.describe("读取获得的精确版本；冲突先读取最新正文并合并草稿。"),
+    requestId: requestId.describe("一次写入的稳定ID；结果未知保留原ID及原请求。"),
+  })
   .strict();
 export const searchInput = z
   .object({
     query: z
       .string()
       .min(1)
-      .refine((s) => [...s].length <= 512),
-    mode: z.enum(["text", "semantic", "hybrid"]).default("hybrid"),
-    freshness: z.enum(["indexed", "strict"]).default("indexed"),
+      .refine((s) => [...s].length <= 512).describe("搜索文本，最多512个Unicode码点。"),
+    mode: z.enum(["text", "semantic", "hybrid"]).default("hybrid").describe("默认hybrid；semantic依赖可用向量索引。"),
+    freshness: z.enum(["indexed", "strict"]).default("indexed").describe("indexed允许索引版本；strict要求严格新鲜度。"),
     filters: z
       .object({
         directory: z.string().optional(),
@@ -242,8 +246,8 @@ export const searchInput = z
       })
       .strict()
       .optional(),
-    limit: z.number().int().min(1).max(50).default(10),
-    cursor: z.string().max(8192).optional(),
+    limit: z.number().int().min(1).max(50).default(10).describe("每页1至50条，默认10。"),
+    cursor: z.string().max(8192).optional().describe("原样续用nextCursor，保留查询、过滤和分页参数。"),
   })
   .strict();
 export const searchOutput = z.object({
@@ -310,9 +314,9 @@ export const archiveSummary = z
   .strict();
 export const listInput = z
   .object({
-    limit: z.number().int().min(1).max(50).default(10),
-    cursor: z.string().max(8192).optional(),
-    directory: z.string().max(1000).optional(),
+    limit: z.number().int().min(1).max(50).default(10).describe("每页1至50条，默认10；续页保持原limit。"),
+    cursor: z.string().max(8192).optional().describe("原样续用nextCursor；保持原directory与limit。"),
+    directory: z.string().max(1000).optional().describe("授权范围内相对目录；续页保持不变。"),
   })
   .strict();
 export const listOutput = z
@@ -322,7 +326,10 @@ export const listOutput = z
   })
   .strict();
 export const refreshInput = z
-  .object({ scope: z.string().max(1000).optional(), requestId })
+  .object({
+    scope: z.string().max(1000).optional().describe("授权范围内相对目录；省略使用当前授权范围。"),
+    requestId: requestId.describe("索引操作稳定ID；结果未知先按原ID查询。"),
+  })
   .strict();
 export const refreshOutput = z
   .object({
@@ -337,8 +344,8 @@ export const refreshOutput = z
   .strict();
 export const indexStatusInput = z
   .object({
-    scope: z.string().max(1000).optional(),
-    jobId: z.string().max(256).optional(),
+    scope: z.string().max(1000).optional().describe("授权范围内相对目录。"),
+    jobId: z.string().max(256).optional().describe("refresh_index返回的任务ID；接受任务不表示索引完成。"),
   })
   .strict();
 export const indexStatusOutput = z
@@ -446,7 +453,15 @@ export const blogPublicationReceipt = blogPost.pick({
 export const blogStatusReceipt = blogNoteStatus.extend({ post: blogPublicationReceipt.nullable() }).strict();
 export const mcpFileOperation = fileOperation.extend({ result: fileResult.or(blogPublicationReceipt).optional() });
 export const blogPublishInput = z.object({
-  noteId, expectedModifiedAt: version, expectedContentHash: hash, expectedPublicationVersion: z.number().int().nonnegative(), requestId,
-  metadata: blogMetadata.partial().optional(),
+  noteId: noteId.describe("已有Markdown笔记的稳定ID，不是fetch.id。"),
+  expectedModifiedAt: version.describe("核对过的原文精确版本。"),
+  expectedContentHash: hash.describe("核对过的原文SHA256。"),
+  expectedPublicationVersion: z.number().int().nonnegative().describe("get_blog_status的发布版本，首次为0。"),
+  requestId: requestId.describe("本次显式公开发布的稳定ID；未知结果按原ID查询。"),
+  metadata: blogMetadata.partial().optional().describe("显式公开元数据；省略字段保留已有设置。"),
 }).strict();
-export const blogUnpublishInput = z.object({ noteId, expectedPublicationVersion: z.number().int().nonnegative(), requestId }).strict();
+export const blogUnpublishInput = z.object({
+  noteId: noteId.describe("原文笔记稳定ID，不是fetch.id。"),
+  expectedPublicationVersion: z.number().int().nonnegative().describe("get_blog_status返回的当前发布版本。"),
+  requestId: requestId.describe("本次撤下的稳定ID；结果未知按原ID查询。"),
+}).strict();

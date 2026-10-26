@@ -114,7 +114,7 @@ export function chunkService(config: AppConfig, db: AppDatabase, tokenizer: Toke
             sourceHash: snapshot.source_hash,
             chunkerId,
             ordinal: ordinal++,
-            headingPath: [...heading],
+            headingPath: heading.filter((title) => typeof title === 'string'),
             startLine: line,
             endLine: Math.max(line, endLine),
             content: slice.content,

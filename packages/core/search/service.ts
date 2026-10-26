@@ -268,7 +268,8 @@ export function searchService(
         title: item.title,
         relativePath: c.path,
         url: item.url + `#L${context.matchLine ?? c.start_line}`,
-        headingPath: JSON.parse(c.heading_path),
+        // Older chunks persisted missing heading ancestors as null holes.
+        headingPath: JSON.parse(c.heading_path).filter((title: unknown) => title != null),
         startLine: c.start_line,
         endLine: c.end_line,
         ...context,

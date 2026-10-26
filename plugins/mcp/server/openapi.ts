@@ -1,28 +1,13 @@
 import { z } from "zod";
 import { createOperations } from "./operations.js";
-const errorSchema = {
-  type: "object",
-  required: ["error"],
-  properties: {
-    error: {
-      type: "object",
-      required: ["code", "message", "retryable"],
-      properties: {
-        code: { type: "string" },
-        message: { type: "string" },
-        retryable: { type: "boolean" },
-        requestId: { type: "string" },
-      },
-    },
-  },
-};
+import { bridgeErrorSchema } from "./errors.js";
 export function buildOpenApi(
   operations: ReturnType<typeof createOperations>["operations"],
   resource = "https://bridge.example.invalid/mcp",
 ) {
   const paths: Record<string, unknown> = {};
   for (const op of operations) {
-    const input = z.toJSONSchema(op.input, { target: "draft-2020-12" }),
+    const input = z.toJSONSchema(op.input, { target: "draft-2020-12", io: "input" }),
       output = z.toJSONSchema(
         op.research ? z.object({ data: op.output }).strict() : op.output,
         { target: "draft-2020-12" },
@@ -47,7 +32,7 @@ export function buildOpenApi(
               status,
               {
                 description: "标准业务错误；未知写入结果保留原requestId",
-                content: { "application/json": { schema: errorSchema } },
+                content: { "application/json": { schema: bridgeErrorSchema } },
               },
             ]),
           ),
@@ -66,7 +51,7 @@ export function buildOpenApi(
     openapi: "3.1.0",
     info: {
       title: "DooKnow MCP",
-      version: "1.1.0",
+      version: "1.1.1",
       description:
         "同源MCP与REST契约。完整请求128KiB、MCP JSONRPC完整响应64KiB；外部OAuth与独立Bearer均不转交后端。",
     },

@@ -99,7 +99,8 @@ export function researchService(config: AppConfig, db: AppDatabase, notes: NoteS
           ...(chunk
             ? {
                 chunkId,
-                headingPath: JSON.parse(chunk.heading_path),
+                // Preserve strict types while omitting legacy absent ancestors.
+                headingPath: JSON.parse(chunk.heading_path).filter((title: unknown) => title != null),
                 startLine: chunk.start_line,
                 endLine: chunk.end_line,
                 startByte: chunk.start_byte,

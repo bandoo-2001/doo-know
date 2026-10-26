@@ -1,6 +1,7 @@
 import { createHmac, createHash, timingSafeEqual } from "node:crypto";
 import { z } from "zod";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
 import type { Principal } from "./contracts.js";
 import * as c from "./contracts.js";
 import type { KnowledgeClient, CallOptions } from "./service.js";
@@ -13,7 +14,7 @@ import {
   ReadingBudgets,
   budgets,
 } from "./budgets.js";
-import { BridgeError, errorBody } from "./errors.js";
+import { BridgeError, errorBody, invalidInput, annotateError, bridgeErrorSchema } from "./errors.js";
 export type Operation = {
   name: string;
   description: string;
@@ -27,6 +28,7 @@ export type Operation = {
   run: (p: Principal, args: any, options: CallOptions) => Promise<any>;
 };
 const dataSchema = (v: z.ZodType) => z.object({ data: v }).strict();
+const inputNoteId = c.noteId.describe("笔记稳定ID，来自list_notes/search_notes；不是fetch.id。");
 const publicationReceipt = (post: z.infer<typeof c.blogPost>) => {
   const { id, sourceNoteId, sourceTitle, sourceModifiedAt, sourceHash, version, state, publishedVersionId, publishedAt, updatedAt, hasUnpublishedChanges, url, slug, title } = post;
   return { id, sourceNoteId, sourceTitle, sourceModifiedAt, sourceHash, version, state, publishedVersionId, publishedAt, updatedAt, hasUnpublishedChanges, url, slug, title, omittedMetadata: [...c.blogOmittedMetadata] };
@@ -270,7 +272,7 @@ export function createOperations(
       scope: "knowledge:read",
       readOnly: true,
       research: true,
-      input: z.object({ id: z.string().min(1).max(4096) }).strict(),
+      input: z.object({ id: z.string().min(1).max(4096).describe("原样使用search返回的对象ID；不是noteId，有效期15分钟。") }).strict(),
       output: c.researchObject,
       run: async (p, args, options) => {
         const reference = decode(p, args.id);
@@ -299,7 +301,7 @@ export function createOperations(
         "只取元数据、版本、大小、编辑模式及需要登录的引用链接，不附带正文。",
       scope: "knowledge:read",
       readOnly: true,
-      input: z.object({ noteId: c.noteId }).strict(),
+      input: z.object({ noteId: inputNoteId }).strict(),
       output: dataSchema(c.noteInfo),
       run: async (p, a, o) => {
         const v = await client.info(p, a, o);
@@ -313,7 +315,7 @@ export function createOperations(
       scope: "knowledge:read",
       readOnly: true,
       input: z
-        .object({ noteId: c.noteId, cursor: z.string().max(8192).optional() })
+        .object({ noteId: inputNoteId, cursor: z.string().max(8192).optional().describe("续用上一页nextCursor；不自动遍历。") })
         .strict(),
       output: dataSchema(c.outlineReply),
       run: (p, a, o) => client.outline(p, a, o),
@@ -324,7 +326,7 @@ export function createOperations(
         "显式读取一个版本页面；默认8KiB/100行，最多16KiB/200行。单会话32页/256KiB/15分钟，调用方2并发/2MiB每分钟；不自动续读。",
       scope: "knowledge:read",
       readOnly: true,
-      input: c.readInput.safeExtend({ noteId: c.noteId }),
+      input: c.readInput.safeExtend({ noteId: inputNoteId }),
       output: dataSchema(c.readReply),
       run: (p, a, o) => reader.run(p, () => client.readPage(p, a, o)),
     },
@@ -384,7 +386,7 @@ export function createOperations(
         "仅普通模式整篇替换<=32KiB，必须提供精确expectedModifiedAt与原requestId。大文件必须使用patch_note。",
       scope: "knowledge:write",
       readOnly: false,
-      input: c.updateInput.extend({ noteId: c.noteId }),
+      input: c.updateInput.extend({ noteId: inputNoteId }),
       output: dataSchema(c.writeSummary),
       // The backend checks current authorization, then replays an immutable
       // receipt before checking fresh-write editing limits.
@@ -396,7 +398,7 @@ export function createOperations(
         "版本快照绑定局部修改；最多20项、旧文本与插入合计32KiB。大文件返回operationId，仅返回摘要。",
       scope: "knowledge:write",
       readOnly: false,
-      input: c.patchInput.safeExtend({ noteId: c.noteId }),
+      input: c.patchInput.safeExtend({ noteId: inputNoteId }),
       output: dataSchema(c.fileReply(c.patchResult)),
       run: (p, a, o) => client.patch(p, a, o),
     },
@@ -409,9 +411,9 @@ export function createOperations(
       destructive: true,
       input: z
         .object({
-          noteId: c.noteId,
-          expectedModifiedAt: c.version,
-          requestId: c.requestId,
+          noteId: inputNoteId,
+          expectedModifiedAt: c.version.describe("读取获得的精确版本；冲突先重新读取并核对。"),
+          requestId: c.requestId.describe("一次操作的稳定ID；结果未知须用原ID查询或重试原请求。"),
         })
         .strict(),
       output: dataSchema(c.archiveSummary),
@@ -446,7 +448,7 @@ export function createOperations(
       name: 'get_blog_status',
       description: '查看站点开关、原文版本和紧凑发布收据。收据保留标识、状态、版本、原文哈希、时间、标题、文章地址；省略摘要、分类、标签、置顶和封面，完整元数据仍保存在网页中。站点关闭时没有可访问的公开文章。',
       scope: 'knowledge:read', readOnly: true,
-      input: z.object({ noteId: c.noteId }).strict(), output: dataSchema(c.blogStatusReceipt),
+      input: z.object({ noteId: inputNoteId }).strict(), output: dataSchema(c.blogStatusReceipt),
       run: async (p, a, o) => {
         const status = await client.blogStatus(p, a, o); authorizePath(p, status.source.relativePath);
         return { ...status, post: status.post ? publicationReceipt(status.post) : null };
@@ -474,11 +476,12 @@ export function createOperations(
       readOnly: true,
       input: z
         .object({
-          operationId: z.string().min(1).max(256).optional(),
-          requestId: c.requestId.optional(),
+          operationId: z.string().min(1).max(256).optional().describe("后台操作ID；与requestId恰好提供一个。"),
+          requestId: c.requestId.optional().describe("结果未知时使用原写入ID；与operationId恰好提供一个。"),
         })
         .strict()
-        .refine((a) => !!a.operationId !== !!a.requestId, "只提供一种操作标识"),
+        .refine((a) => !!a.operationId !== !!a.requestId, "只提供一种操作标识")
+        .describe("operationId与requestId必须且只能提供一个。"),
       output: dataSchema(c.mcpFileOperation),
       run: async (p, a, o) => {
         const operation = await client.operation(p, a, o);
@@ -492,7 +495,7 @@ export function createOperations(
         "请求在提交前取消自己的文件任务。已进入committing须查询终态，不宣称已经回滚。",
       scope: "knowledge:write",
       readOnly: false,
-      input: z.object({ operationId: z.string().min(1).max(256) }).strict(),
+      input: z.object({ operationId: z.string().min(1).max(256).describe("自己的后台操作ID；提交开始后须查询终态。") }).strict(),
       output: dataSchema(c.fileOperation),
       run: (p, a, o) => client.cancel(p, a, o),
     },
@@ -503,26 +506,30 @@ export function createOperations(
     args: unknown,
     options: CallOptions = {},
   ) => {
-    const op = operations.find((v) => v.name === name);
-    if (!op) throw new BridgeError("UNKNOWN_TOOL", 404);
-    requireScope(p, op.scope);
-    for (const scope of op.additionalScopes || []) requireScope(p, scope);
-    assertRequest(args);
-    if (!op.readOnly) assertWriteBudgets(args);
-    const parsed = op.input.safeParse(args);
-    if (!parsed.success) throw new BridgeError("INVALID_INPUT", 400);
-    if (options.signal?.aborted) throw new BridgeError("CALL_CANCELLED", 499);
-    const deadline = Math.min(
-      options.deadline ?? Date.now() + budgets.call,
-      Date.now() + budgets.call,
-    );
-    const result = await op.run(p, parsed.data, { ...options, deadline });
-    const output = op.research ? result : { data: result };
-    const checked = op.output.safeParse(output);
-    if (!checked.success)
-      throw new BridgeError("INVALID_BACKEND_RESPONSE", 502);
-    assertResponse(checked.data);
-    return checked.data;
+    try {
+      const op = operations.find((v) => v.name === name);
+      if (!op) throw new BridgeError("UNKNOWN_TOOL", 404);
+      requireScope(p, op.scope);
+      for (const scope of op.additionalScopes || []) requireScope(p, scope);
+      assertRequest(args);
+      if (!op.readOnly) assertWriteBudgets(args);
+      const parsed = op.input.safeParse(args);
+      if (!parsed.success) throw invalidInput(name, parsed.error.issues);
+      if (options.signal?.aborted) throw new BridgeError("CALL_CANCELLED", 499);
+      const deadline = Math.min(
+        options.deadline ?? Date.now() + budgets.call,
+        Date.now() + budgets.call,
+      );
+      const result = await op.run(p, parsed.data, { ...options, deadline });
+      const output = op.research ? result : { data: result };
+      const checked = op.output.safeParse(output);
+      if (!checked.success)
+        throw new BridgeError("INVALID_BACKEND_RESPONSE", 502);
+      assertResponse(checked.data);
+      return checked.data;
+    } catch (error) {
+      throw annotateError(error, name, args);
+    }
   };
   return { operations, execute };
 }
@@ -532,6 +539,22 @@ export function registerOperations(
   p: Principal,
   options: CallOptions,
 ) {
+  const annotations = (op: Operation) => ({
+    readOnlyHint: op.readOnly,
+    destructiveHint: !!op.destructive,
+    idempotentHint: op.name !== "cancel_operation",
+    openWorldHint: false,
+  });
+  const call = async (name: string, args: unknown, extra: { signal: AbortSignal }) => {
+    try {
+      return mcpResult(await registry.execute(name, p, args, {
+        ...options,
+        signal: AbortSignal.any([extra.signal, ...(options.signal ? [options.signal] : [])]),
+      }));
+    } catch (error) {
+      return { ...mcpResult(errorBody(error)), isError: true };
+    }
+  };
   for (const op of registry.operations)
     server.registerTool(
       op.name,
@@ -539,27 +562,43 @@ export function registerOperations(
         description: op.description,
         inputSchema: op.input,
         outputSchema: op.output,
-        annotations: {
-          readOnlyHint: op.readOnly,
-          destructiveHint: !!op.destructive,
-          idempotentHint: op.name !== "cancel_operation",
-          openWorldHint: false,
-        },
+        annotations: annotations(op),
       },
-      async (args, extra) => {
-        try {
-          return mcpResult(
-            await registry.execute(op.name, p, args, {
-              ...options,
-              signal: AbortSignal.any([
-                extra.signal,
-                ...(options.signal ? [options.signal] : []),
-              ]),
-            }),
-          );
-        } catch (e) {
-          return { ...mcpResult(errorBody(e)), isError: true };
-        }
-      },
+      (args, extra) => call(op.name, args, extra),
     );
+  // Keep the registered schemas for discovery. The public request handler
+  // receives raw arguments so registry validation can return safe structured
+  // errors instead of the SDK's text-only schema error. Envelope validation is
+  // still performed by Server.setRequestHandler(CallToolRequestSchema, ...).
+  server.server.setRequestHandler(CallToolRequestSchema, (request, extra) =>
+    call(request.params.name, request.params.arguments ?? {}, extra),
+  );
+  // SDK clients validate structured errors against the advertised output schema
+  // after discovery. Keep success validation exact and add the shared error
+  // core. Optional error metadata remains bounded by errorBody; repeating its
+  // detailed recovery schema for all 18 tools would exceed the discovery budget.
+  const core = bridgeErrorSchema.properties.error;
+  const errorEnvelope = {
+    type: bridgeErrorSchema.type,
+    additionalProperties: bridgeErrorSchema.additionalProperties,
+    required: bridgeErrorSchema.required,
+    properties: { error: {
+      type: core.type,
+      required: core.required,
+      properties: { code: core.properties.code, message: core.properties.message, retryable: core.properties.retryable },
+      additionalProperties: true,
+    } },
+  };
+  server.server.setRequestHandler(ListToolsRequestSchema, () => ({
+    tools: registry.operations.map((op) => {
+      const { $schema, ...success } = z.toJSONSchema(op.output, { target: "draft-07", io: "output" });
+      return {
+        name: op.name,
+        description: op.description,
+        inputSchema: z.toJSONSchema(op.input, { target: "draft-07", io: "input" }) as { type: "object" },
+        outputSchema: { $schema, type: "object" as const, anyOf: [success, errorEnvelope] },
+        annotations: annotations(op),
+      };
+    }),
+  }));
 }
