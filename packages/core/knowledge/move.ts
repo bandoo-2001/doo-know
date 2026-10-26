@@ -20,6 +20,7 @@ import { authorizePath } from '../agent/auth.js';
 import { assertRoot } from '../indexing/reconcile.js';
 import { workspaceBegin, workspaceWriteSync } from '../workspace/gate.js';
 import { assertWritable, fsyncDirectory, restoreHash } from './core.js';
+import { acquireNoteWrite, releaseNoteWrite } from './write-lease.js';
 import { beginOperation, existingResult, sha256 } from './operations.js';
 import { fail, KnowledgeError } from './errors.js';
 
@@ -39,7 +40,7 @@ export function moveService(config: AppConfig, db: AppDatabase, record: (intent:
     )
       fail(409, 'OPERATION_OUTCOME_UNKNOWN');
     assertRoot(config, db);
-    assertWritable(db, intent.note_id, intent.id);
+    assertWritable(db, intent.note_id, intent.id, intent.id);
     const note = db.prepare('SELECT * FROM notes WHERE id=?').get(intent.note_id) as any;
     if (!note?.active || join(config.knowledgeRoot, note.path) !== intent.temp_path)
       fail(409, 'MOVE_CONFLICT');
@@ -213,9 +214,11 @@ export function moveService(config: AppConfig, db: AppDatabase, record: (intent:
       beginOperation(db, p, 'move', requestId, { id, folderPath, fileName, expectedModifiedAt }),
     );
     if (!op.fresh) return existingResult(op.operation);
-    let prepared = false;
+    let prepared = false,
+      owned = false;
     try {
-      assertWritable(db, id);
+      acquireNoteWrite(db, id, op.operation.id);
+      owned = true;
       if (!note.active) fail(404, 'NOT_FOUND');
       if (path === note.path) fail(400, 'SAME_PATH');
       const source = safePath(config.knowledgeRoot, note.path, 'note'),
@@ -256,7 +259,7 @@ export function moveService(config: AppConfig, db: AppDatabase, record: (intent:
       }
       if (lstatSync(source, { bigint: true }).mtimeNs !== s.mtimeNs) fail(409, 'VERSION_CONFLICT');
       db.transaction(() => {
-        assertWritable(db, id);
+        assertWritable(db, id, undefined, op.operation.id);
         const latest = db.prepare('SELECT path,active FROM notes WHERE id=?').get(id) as any;
         if (!latest?.active || latest.path !== note.path) fail(409, 'VERSION_CONFLICT');
         if (
@@ -301,6 +304,8 @@ export function moveService(config: AppConfig, db: AppDatabase, record: (intent:
       if (prepared)
         db.prepare("UPDATE write_intents SET status='conflicted' WHERE id=?").run(op.operation.id);
       throw e;
+    } finally {
+      if (owned) releaseNoteWrite(db, id, op.operation.id);
     }
   }
   return {

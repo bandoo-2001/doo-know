@@ -282,10 +282,16 @@ export async function workspaceExclusive<T>(
     if (inserted) releasePreservingFailure(db, token, failure);
   }
 }
-export function operationHasLiveWorkspaceWriter(db: AppDatabase, operationId: string) {
+export function operationHasLiveWorkspaceWriter(
+  db: AppDatabase,
+  operationId: string,
+  excludedToken?: string,
+) {
   initializeWorkspaceGate(db);
   return (
-    db.prepare('SELECT * FROM workspace_gate WHERE operation_id=?').all(operationId) as Gate[]
+    db
+      .prepare('SELECT * FROM workspace_gate WHERE operation_id=? AND token<>?')
+      .all(operationId, excludedToken || '') as Gate[]
   ).some((r) => live(db, r));
 }
 export function workspaceArtifact(db: AppDatabase, path: string) {

@@ -6,6 +6,8 @@ import {
   workspaceBegin,
   workspaceArtifact,
 } from '../workspace/gate.js';
+import { assertWritable, acquireNoteWrite, releaseNoteWrite } from './write-lease.js';
+export { assertWritable } from './write-lease.js';
 import { randomUUID, createHash } from 'node:crypto';
 import {
   readFileSync,
@@ -79,33 +81,6 @@ type Intent = {
   history_file: string | null;
   status: string;
 };
-export function assertWritable(db: AppDatabase, noteId?: string, ownIntent?: string) {
-  if (
-    (db.prepare('SELECT active FROM maintenance WHERE id=1').get() as any)?.active ||
-    db.prepare("SELECT 1 FROM sync_runs WHERE status IN ('running','needs_reconciliation')").get()
-  )
-    fail(503, 'SYNC_IN_PROGRESS', '工作区维护中', true);
-  if (
-    noteId &&
-    db
-      .prepare(
-        "SELECT 1 FROM write_intents WHERE note_id=? AND status IN ('prepared','conflicted') AND id<>?",
-      )
-      .get(noteId, ownIntent || '')
-  )
-    fail(409, 'OPERATION_OUTCOME_UNKNOWN', '请先核对未完成的写入', true);
-  if (noteId && db.prepare("SELECT 1 FROM sqlite_master WHERE name='note_write_leases'").get()) {
-    const lease = db
-      .prepare('SELECT owner,lease_until FROM note_write_leases WHERE note_id=?')
-      .get(noteId) as any;
-    if (
-      lease &&
-      (lease.lease_until > Date.now() ||
-        operationHasLiveWorkspaceWriter(db, String(lease.owner).split(':')[0]))
-    )
-      fail(409, 'OPERATION_IN_PROGRESS');
-  }
-}
 function durableFile(file: string, content: string, mode = 0o600) {
   const fd = openSync(file, 'wx', mode);
   try {
@@ -185,10 +160,16 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
   function runOperation<T>(
     op: OperationRow,
     work: (commit: () => void, stage: (file: string) => void) => T,
+    noteId?: string,
   ): T {
     let committing = false;
     const staged: string[] = [];
+    let owned = false;
     try {
+      if (noteId) {
+        acquireNoteWrite(db, noteId, op.id);
+        owned = true;
+      }
       return work(
         () => {
           committing = true;
@@ -225,6 +206,8 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
           } catch {}
       }
       throw error;
+    } finally {
+      if (owned) releaseNoteWrite(db, noteId!, op.id);
     }
   }
   function row(id: string, deleted = false) {
@@ -454,7 +437,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
         db.prepare('SELECT * FROM write_intents WHERE id=?').get(op.operation.id) as Intent,
         content,
       );
-    });
+    }, id);
   }
   function archive(p: Principal, id: string, expected: string, requestId: string) {
     const n = row(id, true);
@@ -464,7 +447,6 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     );
     if (!op.fresh) return existingResult(op.operation);
     return runOperation(op.operation, (commit) => {
-      assertWritable(db, id);
       if (!n.active) fail(404, 'NOT_FOUND');
       const file = safePath(config.knowledgeRoot, n.path, 'note'),
         s = statSync(file, { bigint: true });
@@ -493,7 +475,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
       return record(
         db.prepare('SELECT * FROM write_intents WHERE id=?').get(op.operation.id) as Intent,
       );
-    });
+    }, id);
   }
   function restoreStage(intent: Intent) {
     return join(dirname(join(config.knowledgeRoot, intent.path)), `.doo-restore-${intent.id}.tmp`);
@@ -679,13 +661,16 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
         .prepare("SELECT * FROM write_intents WHERE id=? AND kind='restore' AND status='prepared'")
         .get(op.operation.id) as Intent | undefined;
       if (intent && ['prepared', 'needs_reconciliation'].includes(op.operation.status)) {
-        assertWritable(db, id, intent.id);
-        return finishRestore(intent);
+        acquireNoteWrite(db, id, intent.id, intent.id);
+        try {
+          return finishRestore(intent);
+        } finally {
+          releaseNoteWrite(db, id, intent.id);
+        }
       }
       return existingResult(op.operation);
     }
     return runOperation(op.operation, (commit) => {
-      assertWritable(db, id);
       if (n.active || !n.trash_path) fail(404, 'NOT_FOUND');
       const dest = safePath(config.knowledgeRoot, path, 'note', true);
       if (db.prepare('SELECT 1 FROM notes WHERE path=? AND active=1 AND id<>?').get(path, id))
@@ -714,7 +699,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
       ).run(intent.id, id, path, 'restore', intent.original_mtime, intent.target_hash, source);
       commit();
       return finishRestore(intent);
-    });
+    }, id);
   }
   async function recover(): Promise<RecoveryReport> {
     const report = { recovered: 0, unapplied: 0, conflicted: 0 };
@@ -730,7 +715,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
           )
           .run(Date.now(), orphan.id).changes;
     }
-    for (const intent of db
+    for (let intent of db
       .prepare("SELECT * FROM write_intents WHERE status='prepared'")
       .all() as Intent[]) {
       if (operationHasLiveWorkspaceWriter(db, intent.id)) continue;
@@ -742,7 +727,19 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
           .get(intent.id, Date.now())
       )
         continue;
+      let owned = false;
       try {
+        // Recovery publishes files too. Bind its live workspace gate while
+        // acquiring the same atomic ownership used by normal writes/retries.
+        acquireNoteWrite(db, intent.note_id, intent.id, intent.id);
+        owned = true;
+        const current = db
+          .prepare(
+            "SELECT w.* FROM write_intents w JOIN operations o ON o.id=w.id WHERE w.id=? AND w.status='prepared' AND o.status IN ('prepared','committing','needs_reconciliation')",
+          )
+          .get(intent.id) as Intent | undefined;
+        if (!current) continue;
+        intent = current;
         assertRoot(config, db);
         if (intent.kind === 'move') {
           moves.finish(intent);
@@ -816,6 +813,24 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
         releaseSnapshotRef(db, intent.id);
         report.unapplied++;
       } catch (e) {
+        if (!owned) {
+          if (
+            e instanceof KnowledgeError &&
+            ['OPERATION_IN_PROGRESS', 'OPERATION_OUTCOME_UNKNOWN', 'SYNC_IN_PROGRESS'].includes(e.code)
+          )
+            continue;
+          throw e;
+        }
+        // An already recorded/terminal receipt is authoritative, even if a
+        // stale recovery snapshot or filesystem cleanup raised an error.
+        if (
+          !db
+            .prepare(
+              "SELECT 1 FROM write_intents w JOIN operations o ON o.id=w.id WHERE w.id=? AND w.status='prepared' AND o.status IN ('prepared','committing','needs_reconciliation')",
+            )
+            .get(intent.id)
+        )
+          continue;
         if (intent.kind === 'move') {
           const changed = db
             .transaction(() => {
@@ -840,16 +855,29 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
           } catch {
             /* Keep the private backup for reconciliation. */
           }
-          db.prepare(
-            "UPDATE operations SET status='needs_reconciliation',error='RESTORE_CONFLICT' WHERE id=?",
-          ).run(intent.id);
-          if (
-            e instanceof KnowledgeError &&
-            ['RESTORE_CONFLICT', 'NAME_CONFLICT', 'INVALID_PATH'].includes(e.code)
-          )
-            db.prepare("UPDATE write_intents SET status='conflicted' WHERE id=?").run(intent.id);
+          const changed = db
+            .transaction(() => {
+              const operation = db
+                .prepare(
+                  "UPDATE operations SET status='needs_reconciliation',error='RESTORE_CONFLICT' WHERE id=? AND status IN ('prepared','committing','needs_reconciliation') AND EXISTS(SELECT 1 FROM write_intents WHERE id=? AND status='prepared')",
+                )
+                .run(intent.id, intent.id);
+              if (
+                operation.changes &&
+                e instanceof KnowledgeError &&
+                ['RESTORE_CONFLICT', 'NAME_CONFLICT', 'INVALID_PATH'].includes(e.code)
+              )
+                db.prepare(
+                  "UPDATE write_intents SET status='conflicted' WHERE id=? AND status='prepared'",
+                ).run(intent.id);
+              return operation.changes;
+            })
+            .immediate();
+          if (!changed) continue;
         }
         report.conflicted++;
+      } finally {
+        if (owned) releaseNoteWrite(db, intent.note_id, intent.id);
       }
     }
     // Cleanup is retryable after a committed restore; it cannot change its receipt.
@@ -858,13 +886,20 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
       .all() as Intent[]) {
       const stage = restoreStage(intent);
       if (existsSync(stage)) {
+        let owned = false;
         try {
+          acquireNoteWrite(db, intent.note_id, intent.id, intent.id);
+          owned = true;
           const dest = safePath(config.knowledgeRoot, intent.path, 'note');
           if (restoreHash(dest) === intent.target_hash) {
             unlinkSync(stage);
             fsyncDirectory(dirname(stage));
           }
-        } catch {}
+        } catch {
+          // Cleanup is best effort; a current writer or recovery keeps priority.
+        } finally {
+          if (owned) releaseNoteWrite(db, intent.note_id, intent.id);
+        }
       }
     }
     return report;

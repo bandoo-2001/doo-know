@@ -149,7 +149,7 @@ for (const stage of ['intent', 'copy', 'publish', 'unlink', 'db-update', 'commit
   });
 
 for (const boundary of ['intent-snapshot', 'note-read'])
-  it(`keeps a second process's successful move receipt when stale recovery resumes at ${boundary}`, async () => {
+  it(`preserves move receipt when a second recovery visits at ${boundary}`, async () => {
     const f = await createFixture({ fileTasks: { embedded: false } });
     const db = openDatabase(f.dataRoot),
       prepare = db.prepare.bind(db);
@@ -191,7 +191,10 @@ for (const boundary of ['intent-snapshot', 'note-read'])
         committed = prepare(
           "SELECT status,result,error FROM operations WHERE request_id='crash-move'",
         ).get();
-        expect(committed).toMatchObject({ status: 'succeeded', error: null });
+        expect(committed).toMatchObject({
+          status: boundary === 'intent-snapshot' ? 'succeeded' : 'prepared',
+          error: null,
+        });
       };
       db.prepare = ((sql: string) => {
         const stmt = prepare(sql);
@@ -218,13 +221,17 @@ for (const boundary of ['intent-snapshot', 'note-read'])
       await core.recover();
       db.prepare = prepare;
       expect(raced).toBe(true);
-      expect(
-        prepare("SELECT status,result,error FROM operations WHERE request_id='crash-move'").get(),
-      ).toEqual(committed);
+      const completed = prepare(
+        "SELECT status,result,error FROM operations WHERE request_id='crash-move'",
+      ).get() as any;
+      expect(completed).toMatchObject({ status: 'succeeded', error: null });
+      // Before acquisition, stale recovery must preserve the competitor receipt.
+      // Once the first recovery owns the note, the competitor must leave it alone.
+      if (boundary === 'intent-snapshot') expect(completed).toEqual(committed);
       expect(prepare("SELECT status FROM write_intents WHERE kind='move'").get()).toMatchObject({
         status: 'recorded',
       });
-      const receipt = JSON.parse(committed.result);
+      const receipt = JSON.parse(completed.result);
       expect(
         core.update(
           webPrincipal,

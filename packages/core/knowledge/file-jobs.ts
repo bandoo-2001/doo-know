@@ -3,6 +3,7 @@ import {
   workspaceArtifact,
   operationHasLiveWorkspaceWriter,
 } from '../workspace/gate.js';
+import { acquireNoteWrite, releaseNoteWrite } from './write-lease.js';
 import { currentPrincipalPolicy } from '../agent/config.js';
 import { checkTokenCutoff } from '../agent/auth.js';
 import { open, mkdir, stat, rename, unlink } from 'node:fs/promises';
@@ -213,21 +214,7 @@ export function fileJobService(
       history = undefined;
       fsyncDirectory(join(config.dataRoot, 'history'));
       fsyncDirectory(config.dataRoot);
-      db.transaction(() => {
-        const lock = db
-          .prepare('SELECT owner,lease_until FROM note_write_leases WHERE note_id=?')
-          .get(id) as any;
-        if (
-          lock &&
-          lock.owner !== `${opId}:${epoch}` &&
-          (lock.lease_until > Date.now() ||
-            operationHasLiveWorkspaceWriter(db, String(lock.owner).split(':')[0]))
-        )
-          fail(409, 'OPERATION_IN_PROGRESS');
-        db.prepare(
-          'INSERT INTO note_write_leases VALUES(?,?,?) ON CONFLICT(note_id) DO UPDATE SET owner=excluded.owner,lease_until=excluded.lease_until',
-        ).run(id, `${opId}:${epoch}`, Date.now() + 60000);
-      }).immediate();
+      acquireNoteWrite(db, id, `${opId}:${epoch}`);
       authorized(p, id);
       assertWritable(db);
       await snapshots.check(p, id, input.snapshotId);
@@ -240,6 +227,7 @@ export function fileJobService(
       )
         fail(409, 'VERSION_CONFLICT');
       db.transaction(() => {
+        assertWritable(db, id, undefined, `${opId}:${epoch}`);
         const job = db.prepare('SELECT * FROM file_operations WHERE id=?').get(opId) as any;
         if (job.deadline <= Date.now()) fail(504, 'TASK_DEADLINE');
         if (
@@ -313,10 +301,7 @@ export function fileJobService(
         if (temp) await unlink(temp).catch(() => {});
         releaseSnapshotRef(db, opId);
       }
-      db.prepare('DELETE FROM note_write_leases WHERE note_id=? AND owner=?').run(
-        id,
-        `${opId}:${epoch}`,
-      );
+      releaseNoteWrite(db, id, `${opId}:${epoch}`);
     }
   }
   async function submit(
