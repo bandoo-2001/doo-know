@@ -7,6 +7,7 @@ export const REQUIRED_RELEASE_CHECKS = [
   'typecheck',
   'platform-tests',
   'artifact-install-smoke',
+  'browser-regressions',
 ] as const;
 export type ArtifactSnapshot = Record<string, { sha256: string; bytes: number }>;
 

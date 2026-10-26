@@ -74,6 +74,7 @@ const commands: [string, string[]][] = [
       'tests/git-guarded-timeout.test.ts',
       'tests/github-publish.test.ts',
       'tests/release-verification.test.ts',
+      'tests/release-browser-lifecycle.test.ts',
       'tests/maintenance-storage.test.ts',
       'tests/backup-reconciliation.test.ts',
       'tests/backup-wal.test.ts',
@@ -98,6 +99,17 @@ const commands: [string, string[]][] = [
       'tests/knowledge/snapshot-lifecycle.test.ts',
       'tests/knowledge/reconcile-source-race.test.ts',
       'tests/knowledge/note-read-permissions.test.ts',
+      'tests/workspace-gate.test.ts',
+      'tests/knowledge/note-write-concurrency.test.ts',
+      'tests/knowledge/file-jobs.test.ts',
+      'tests/knowledge/file-job-wal.test.ts',
+      'tests/knowledge/lease-fencing.test.ts',
+      'tests/knowledge/move-conflicts.test.ts',
+      'tests/platform-rollback-recovery.test.ts',
+      'tests/indexing/jobs.test.ts',
+      'tests/transfers.test.ts',
+      'tests/markdown-links.test.ts',
+      'tests/workspace-markdown-navigation.test.ts',
       'tests/shares.test.ts',
       'tests/share-options.test.ts',
       'tests/shares-permissions-security.test.ts',
@@ -108,6 +120,7 @@ const commands: [string, string[]][] = [
     ],
   ],
   [process.execPath, ['tests/install-smoke.mjs', '--directory', directory, '--skip-build']],
+  [process.execPath, ['tests/release-browser.mjs', '--directory', directory]],
 ];
 const checks = [];
 const isolatedBin = await mkdtemp(join(tmpdir(), 'dooknow-verification-services-'));

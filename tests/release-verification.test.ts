@@ -62,6 +62,25 @@ it('refuses symlinked files in release evidence snapshots', async () => {
   }
 });
 
+it('rejects a release receipt without browser regression evidence', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'release-browser-evidence-'));
+  const commit = 'c'.repeat(40);
+  const evidence = directory + '.verification.json';
+  try {
+    await writeFile(join(directory, 'application.tar.gz'), 'application bytes');
+    await writeTestReleaseEvidence(directory, commit);
+    const report = JSON.parse(await readFile(evidence, 'utf8'));
+    report.checks = report.checks.filter((check: { name: string }) => check.name !== 'browser-regressions');
+    await writeFile(evidence, JSON.stringify(report));
+    await expect(verifyReleaseEvidence(directory, evidence, commit)).rejects.toThrow(
+      'STALE_RELEASE_VERIFICATION',
+    );
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+    await rm(evidence, { force: true });
+  }
+});
+
 it('keeps an unrelated existing file when it is accidentally selected as verification output', async () => {
   const root = await mkdtemp(join(tmpdir(), 'release-output-boundary-'));
   try {
