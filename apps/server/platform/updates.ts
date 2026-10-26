@@ -36,6 +36,7 @@ import { openDatabase } from '../../../packages/core/db.js';
 import { createPlatformBackup } from './backups.js';
 import { sealBackup, unsealBackup } from './sealed-backup.js';
 import { processIsAlive, workspaceProcess } from '../../../packages/core/workspace/gate.js';
+import { prepareRecoveryLauncher } from './recovery-launcher.js';
 const exec = promisify(execFile);
 export async function durableJson(path: string, value: unknown) {
   await mkdir(dirname(path), { recursive: true, mode: 0o700 });
@@ -439,6 +440,7 @@ export async function updatePlatform(
       const clone = join(work, 'check');
       await mkdir(clone);
       await candidateCheck(config, candidate, clone);
+      await prepareRecoveryLauncher(config);
       const wasActive = serviceActive(config),
         stamp = Date.now(),
         backupFile = join(root, 'backups', `before-${info.version}-${stamp}.dooknow`),
@@ -555,7 +557,13 @@ export async function rollbackPlatform(config: HostConfig) {
   // Invalid artifacts must be refused before creating management state or stopping a service.
   await preflight();
   return managementLock(config, async () => {
+    const pendingFile = join(root, 'update-transaction.json');
+    const pending = existsSync(pendingFile) ? JSON.parse(await readFile(pendingFile, 'utf8')) : undefined;
     await recoverTransaction(config);
+    // A retry at an acceptance barrier acknowledges that established outcome.
+    // Starting another rollback here would immediately reverse the accepted release.
+    if (pending && ['accepted', 'recoveryAccepted'].includes(pending.phase))
+      return { version: releaseInfo(await realpath(join(root, 'current'))).version, dataPreserved: true, recovered: true };
     const { installation, current, previous } = await preflight();
     assertManagedDatabaseOwnership(config);
     const db = new Database(join(config.dataRoot, 'app.sqlite'), { readonly: true, fileMustExist: true });
@@ -563,6 +571,7 @@ export async function rollbackPlatform(config: HostConfig) {
       if ((db.prepare('SELECT active FROM maintenance WHERE id=1').get() as any)?.active)
         throw Error('工作区已处于维护状态，请先核对未完成操作');
     } finally { db.close(); }
+    await prepareRecoveryLauncher(config);
     const wasActive = serviceActive(config),
       journal = join(root, 'update-transaction.json'),
       state = { kind: 'rollback', previous: releaseInfo(current).version,

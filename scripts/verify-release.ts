@@ -1,4 +1,6 @@
 import { execFileSync } from 'node:child_process';
+import { createReadStream } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { readFile, mkdir, writeFile, rm, mkdtemp, lstat } from 'node:fs/promises';
 import { dirname, join, relative, resolve, sep, delimiter } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -6,7 +8,7 @@ import { parseArgs } from 'node:util';
 import { releaseArtifactSnapshot, REQUIRED_RELEASE_CHECKS } from './release-verification.js';
 
 const { values } = parseArgs({
-  options: { directory: { type: 'string' }, output: { type: 'string' } },
+  options: { directory: { type: 'string' }, output: { type: 'string' }, 'legacy-archive': { type: 'string' } },
 });
 if (!values.directory || !values.output)
   throw Error('用法：npm run verify:release -- --directory <制品目录> --output <目录外的证据文件>');
@@ -39,7 +41,23 @@ const commit = git('rev-parse', 'HEAD');
 if (git('status', '--porcelain')) throw Error('发布验证需要已提交的干净源码');
 const info = JSON.parse(await readFile(join(directory, 'release.json'), 'utf8'));
 if (info.sourceCommit !== commit || info.dirty !== false) throw Error('制品必须由当前干净提交构建');
+if (typeof info.file !== 'string' || !/^dooknow-[A-Za-z0-9.+-]+-linux-x64\.tar\.gz$/.test(info.file))
+  throw Error('应用制品名称不正确');
+const legacyInput = values['legacy-archive'] || process.env.DOOKNOW_RECOVERY_LEGACY_ARCHIVE;
+if (!legacyInput)
+  throw Error('跨版本回滚验证需要 --legacy-archive 或 DOOKNOW_RECOVERY_LEGACY_ARCHIVE 指向已发布的 rc.48 主程序包');
+const legacyArchive = resolve(legacyInput);
+const legacyExpected = { version: '1.1.0-rc.48', bytes: 228478191, sha256: '24919355e880729645f46a23bc9aa4b035756fcdbc9dd7ebc29719a11fe035c6' };
+const legacyStat = await lstat(legacyArchive);
+if (!legacyStat.isFile() || legacyStat.isSymbolicLink() || legacyStat.size !== legacyExpected.bytes)
+  throw Error('旧版本制品校验失败；请使用已发布的 rc.48 主程序包');
+const legacyHash = createHash('sha256');
+for await (const bytes of createReadStream(legacyArchive)) legacyHash.update(bytes);
+if (legacyHash.digest('hex') !== legacyExpected.sha256)
+  throw Error('旧版本制品校验失败；请使用已发布的 rc.48 主程序包');
 const before = await releaseArtifactSnapshot(directory);
+const candidateArchive = join(directory, info.file);
+if (before[info.file]?.sha256 !== info.sha256) throw Error('应用制品与发行清单不一致');
 const commands: [string, string[]][] = [
   ['npm', ['run', 'typecheck']],
   [
@@ -106,6 +124,7 @@ const commands: [string, string[]][] = [
       'tests/knowledge/lease-fencing.test.ts',
       'tests/knowledge/move-conflicts.test.ts',
       'tests/platform-rollback-recovery.test.ts',
+      'tests/native-rollback-entrypoint.test.ts',
       'tests/indexing/jobs.test.ts',
       'tests/transfers.test.ts',
       'tests/markdown-links.test.ts',
@@ -133,7 +152,12 @@ try {
   for (const [index, [command, args]] of commands.entries()) {
     execFileSync(command, args, {
       stdio: 'inherit',
-      env: { ...process.env, PATH: isolatedBin + delimiter + process.env.PATH },
+      env: {
+        ...process.env, PATH: isolatedBin + delimiter + process.env.PATH,
+        DOOKNOW_RECOVERY_LEGACY_ARCHIVE: legacyArchive,
+        DOOKNOW_RECOVERY_CANDIDATE_ARCHIVE: candidateArchive,
+        DOOKNOW_RECOVERY_CANDIDATE_VERSION: info.version,
+      },
     });
     checks.push({
       name: REQUIRED_RELEASE_CHECKS[index],
@@ -158,6 +182,7 @@ await writeFile(
       schema: 1,
       sourceCommit: commit,
       verifiedAt: new Date().toISOString(),
+      legacyArtifact: legacyExpected,
       artifacts: before,
       checks,
     },

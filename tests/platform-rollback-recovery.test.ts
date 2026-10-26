@@ -114,3 +114,18 @@ it('recovers a durable switched rollback repeatedly without requiring a database
   const check=openDatabase(f.config.dataRoot);try{expect(check.prepare('SELECT id FROM notes').all()).toEqual([{id:'retained'}]);expect(check.prepare('SELECT active FROM maintenance').get()).toEqual({active:0});}finally{check.close();}
  }finally{process.env.PATH=oldPath;await f.close();}
 });
+
+it.each(['accepted', 'recoveryAccepted'])('acknowledges pending %s through rollback without starting a reverse transaction', async (phase) => {
+ const f=await fixture();
+ try {
+  const expected = phase==='accepted' ? '1.0.0' : '1.1.0';
+  if(phase==='accepted') {
+   await setCurrent(f.config.installRoot,'1.0.0');
+   await durableJson(join(f.config.installRoot,'installation.json'),{current:'1.0.0',previous:'1.1.0',databaseCompatibility:3});
+  }
+  await durableJson(f.journal,{kind:'rollback',previous:'1.1.0',candidate:'1.0.0',wasActive:false,phase});
+  await expect(rollbackPlatform(f.config)).resolves.toMatchObject({version:expected,dataPreserved:true,recovered:true});
+  expect(await readlink(join(f.config.installRoot,'current'))).toBe('releases/'+expected);
+  expect(JSON.parse(await readFile(f.journal,'utf8')).phase).toBe(phase==='accepted'?'complete':'recovered');
+ }finally{await f.close();}
+});

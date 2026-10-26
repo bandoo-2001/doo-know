@@ -2,7 +2,7 @@ import { it, expect } from 'vitest';
 import { mkdtemp, writeFile, readFile, rm, symlink, mkdir } from 'node:fs/promises';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { verifyReleaseEvidence, releaseArtifactSnapshot } from '../scripts/release-verification.js';
 import { writeTestReleaseEvidence } from './support/release-evidence.js';
@@ -103,4 +103,28 @@ it('keeps an unrelated existing file when it is accidentally selected as verific
   } finally {
     await rm(root, { recursive: true, force: true });
   }
+});
+
+it.each(['missing', 'unverified'])('refuses %s legacy input before issuing a native recovery receipt', async (kind) => {
+  const root = await mkdtemp(join(tmpdir(), 'release-legacy-input-'));
+  const repository = join(root, 'checkout'), directory = join(root, 'artifacts');
+  const output = join(root, 'proof.json'), run = promisify(execFile);
+  try {
+    await mkdir(repository); await mkdir(directory);
+    await run('git', ['init', '--quiet', repository]);
+    await run('git', ['-C', repository, '-c', 'user.name=Release fixture', '-c', 'user.email=fixture@example.invalid', '-c', 'core.hooksPath=/dev/null', 'commit', '--quiet', '--allow-empty', '--no-gpg-sign', '-m', 'fixture']);
+    const commit = (await run('git', ['-C', repository, 'rev-parse', 'HEAD'])).stdout.trim();
+    await writeFile(join(directory, 'release.json'), JSON.stringify({sourceCommit:commit,dirty:false,version:'1.1.0-rc.49',file:'dooknow-1.1.0-rc.49-linux-x64.tar.gz'}));
+    const { DOOKNOW_RECOVERY_LEGACY_ARCHIVE: _legacy, ...env } = process.env;
+    const args = ['--import', resolve('node_modules/tsx/dist/loader.mjs'), resolve('scripts/verify-release.ts'), '--directory', directory, '--output', output];
+    if (kind === 'unverified') {
+      const file = join(root, 'wrong-archive.tar.gz');
+      await writeFile(file, 'not a verified release');
+      args.push('--legacy-archive', file);
+    }
+    await expect(run(process.execPath, args, {cwd:repository,env})).rejects.toMatchObject({
+      code:1, stderr:expect.stringContaining(kind === 'missing' ? '跨版本回滚验证需要' : '旧版本制品校验失败'),
+    });
+    await expect(readFile(output, 'utf8')).rejects.toMatchObject({code:'ENOENT'});
+  } finally { await rm(root, {recursive:true,force:true}); }
 });
