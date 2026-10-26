@@ -71,6 +71,7 @@ import SetupImport from './SetupImport.vue';
 import { useNoteDraft } from '../useNoteDraft';
 import { filenameResults, mergeSearchResults } from '../search-results';
 import { previewSource } from '../preview-source';
+import { markdownDestination, markdownAnchorLines } from '../markdown-links';
 import { noteDraftBase } from '../drafts';
 import { clearPluginDrafts } from '../plugin-drafts';
 import {
@@ -530,7 +531,7 @@ const navigation = createWorkspaceNavigation({
   dirty: () => dirty.value || !!embeddedBoardId.value,
   canPreserveDraft: (route) => !embeddedBoardId.value && (
     !!route.view ||
-    (['settings', 'trash', 'apps', 'collection'].includes(panel.value) && !!route.note && note.value?.id === route.note)),
+    (!!route.note && note.value?.id === route.note)),
   guard,
   apply: applyRoute,
   error: showError,
@@ -587,9 +588,16 @@ async function applyRoute(route: WorkspaceRoute, intent = ++navigationIntent) {
     if (!await initializeDrafts() || !currentIntent(intent)) return;
     panel.value = 'note';
     drawer.value = false;
+    await nextTick();
+    if (!currentIntent(intent)) return;
+  }
+  if (route.note) {
+    if (note.value?.id === route.note) {
+      if(route.fragment)await revealFragment(route.fragment);
+      else if(route.line)revealLine(route.line);
+    } else await openNote(route.note, route.line, false, false, intent, route.fragment);
     return;
   }
-  if (route.note) return openNote(route.note, route.line, false, false, intent);
   if (route.view === 'recent' || route.view === 'favorites') return showCollection(route.view, false, intent);
   if (route.view === 'apps') return openApps(false, intent);
   if (route.view === 'trash') return openTrash(false, intent);
@@ -645,41 +653,95 @@ const folderEntries = computed(() => {
   if (!folder.value) return [];
   return flat.value.find((x) => x.path === folder.value)?.children || [];
 });
+const notesByPath = computed(() => new Map(flat.value.filter(item => item.type === 'note').map(item => [item.path, item])));
+const assetsByPath = computed(() => new Map(assets.value.map(asset => [asset.relativePath, asset])));
 function localPath(url: string, base = note.value?.relativePath || '') {
-  try {
-    const target = new URL(url, `https://notes.invalid/${base}`).pathname;
-    return decodeURIComponent(target.slice(1));
-  } catch {
-    return '';
-  }
+  const target = markdownDestination(url, base);
+  return target?.kind === 'local' ? target.path : '';
 }
-function resolveEditorImage(url:string){const path=localPath(url);const asset=assets.value.find(a=>a.relativePath===path);return asset?`/api/assets/${asset.id}`:undefined;}
-function openEditorLink(url:string){const path=localPath(url),target=flat.value.find(x=>x.type==='note'&&x.path===path),asset=assets.value.find(a=>a.relativePath===path);if(target&&target.id){void run(()=>openNote(target.id!));return;}if(asset){window.open(`/api/assets/${asset.id}`,'_blank','noopener,noreferrer');return;}if(/^https?:\/\//i.test(url))window.open(url,'_blank','noopener,noreferrer');else tell('未找到此链接对应的笔记或附件，可在链接设置中核对地址');}
+function resolveEditorImage(url:string){const asset=assetsByPath.value.get(localPath(url));return asset?`/api/assets/${asset.id}`:undefined;}
+let pendingFragment: {noteId:string;epoch:number;fragment:string} | undefined;
+async function revealFragment(fragment: string) {
+  const noteId=note.value?.id,epoch=viewEpoch;
+  if(!noteId)return;
+  let id: string;
+  try { id = decodeURIComponent(fragment.slice(1)); } catch { return; }
+  await nextTick();
+  if(!currentView(noteId,epoch))return;
+  if(!previewRef.value&&!editorRef.value){pendingFragment={noteId,epoch,fragment};return;}
+  pendingFragment=undefined;
+  if (previewRef.value) {
+    const target = [...previewRef.value.querySelectorAll<HTMLElement>('[id]')].find(element => element.id === id);
+    if (target) { target.scrollIntoView({block:'start'}); return; }
+  }
+  const line = markdownAnchorLines(md.parse(draft.value, {})).get(id) ?? Number(/^L([1-9]\d*)$/.exec(id)?.[1]);
+  if (line) revealLine(line);
+}
+watch([previewRef,editorRef],()=>{
+  if(pendingFragment&&currentView(pendingFragment.noteId,pendingFragment.epoch))void revealFragment(pendingFragment.fragment);
+});
+async function openMarkdownNote(id: string, fragment: string) {
+  if (note.value?.id !== id) return openNote(id, undefined, true, false, ++navigationIntent, fragment, mode.value);
+  if (!fragment) return;
+  navigation.commit({ note: id, fragment });
+  await revealFragment(fragment);
+}
+function openEditorLink(url: string) {
+  const destination = markdownDestination(url, note.value?.relativePath || '');
+  if (destination?.kind === 'fragment') {
+    const id=note.value?.id;
+    if(id)void run(() => openMarkdownNote(id,destination.fragment));
+    return;
+  }
+  if (destination?.kind === 'external') {
+    if (/^(?:https?:\/\/|\/\/)/i.test(url)) window.open(url,'_blank','noopener,noreferrer');
+    else tell('未找到此链接对应的笔记或附件，可在链接设置中核对地址');
+    return;
+  }
+  if (destination?.kind === 'local') {
+    const target = notesByPath.value.get(destination.path), asset = assetsByPath.value.get(destination.path);
+    if (target?.id) { void run(() => openMarkdownNote(target.id!, destination.fragment)); return; }
+    if (asset) { window.open(`/api/assets/${asset.id}`,'_blank','noopener,noreferrer'); return; }
+  }
+  tell('未找到此链接对应的笔记或附件，可在链接设置中核对地址');
+}
 const preview = computed(() => {
+  // The watcher also reads this computed value. Do not parse an unmounted pane.
+  if (mode.value === 'edit') return '';
   const tokens = md.parse(draft.value, {});
+  markdownAnchorLines(tokens);
   const visit = (list: typeof tokens) => {
     for (const t of list) {
       if (t.type === 'image' || t.type === 'link_open') {
-        const attr = t.type === 'image' ? 'src' : 'href',
-          url = String(t.attrGet(attr) || '');
-        const path = localPath(url),
-          asset = assets.value.find((a) => a.relativePath === path),
-          target = flat.value.find((x) => x.type === 'note' && x.path === path);
-        if (asset) { if (t.type === 'image') deferImageSource(t, `/api/assets/${asset.id}`); else t.attrSet(attr, `/api/assets/${asset.id}`); }
-        else if (target && t.type === 'link_open') t.attrSet(attr, `#note-${target.id}`);
-        else if (url.startsWith('#')) {
-        } else if (t.type === 'link_open' && /^https?:\/\//i.test(url)) {
-          t.attrSet('target', '_blank');
-          t.attrSet('rel', 'noopener noreferrer');
+        const attr = t.type === 'image' ? 'src' : 'href', url = String(t.attrGet(attr) || '');
+        const destination = markdownDestination(url, note.value?.relativePath || '');
+        if (destination?.kind === 'fragment' && t.type === 'link_open') {
+          // Includes Markdown's footnote reference and back-reference targets.
+        } else if (destination?.kind === 'external' && t.type === 'link_open' && /^(?:https?:\/\/|\/\/)/i.test(url)) {
+          t.attrSet('target', '_blank'); t.attrSet('rel', 'noopener noreferrer');
+        } else if (destination?.kind === 'local') {
+          const asset = assetsByPath.value.get(destination.path), target = notesByPath.value.get(destination.path);
+          if (asset) {
+            if (t.type === 'image') deferImageSource(t, `/api/assets/${asset.id}`);
+            else t.attrSet(attr, `/api/assets/${asset.id}${destination.fragment}`);
+          } else if (target?.id && t.type === 'link_open') {
+            t.attrSet(attr, `?note=${encodeURIComponent(target.id)}${destination.fragment}`);
+            t.attrSet('data-note-id', target.id);
+          } else t.attrSet(attr, '');
         } else t.attrSet(attr, '');
       }
-      if (t.children) visit(t.children);
+      if (t.children && t.type !== 'image') visit(t.children);
     }
   };
   visit(tokens);
-  return DOMPurify.sanitize(md.renderer.render(tokens, md.options, {}));
+  return DOMPurify.sanitize(md.renderer.render(tokens, md.options, {}), { ADD_ATTR: ['target'] });
 });
-watch([preview,mode,previewRef],async()=>{await nextTick();if(previewRef.value)syncDiagrams(previewRef.value,{noteId:note.value?.id,editable:mode.value!=='preview'});},{flush:'post'});
+watch([preview,mode,previewRef],async(_value,_old,onCleanup)=>{
+  const container=previewRef.value;
+  if(container)onCleanup(()=>clearDiagrams(container));
+  await nextTick();
+  if(container&&previewRef.value===container)syncDiagrams(container,{noteId:note.value?.id,editable:mode.value!=='preview'});
+},{flush:'post'});
 function onBoardSaved(document:NoteDocument){
   if(note.value?.id!==document.id)return;
   note.value=document;draft.value=document.content;savedContent.value=document.content;
@@ -852,7 +914,7 @@ async function refreshCollection() {
     collectionRefreshing = false;
   }
 }
-async function openNote(id: string, line?: number, syncUrl = true, preserveDraft = false, intent = ++navigationIntent) {
+async function openNote(id: string, line?: number, syncUrl = true, preserveDraft = false, intent = ++navigationIntent, fragment?: string, linkedMode?: 'edit' | 'preview' | 'split') {
   if (!currentIntent(intent) || !await initializeDrafts() || !currentIntent(intent)) return;
   await guard(async () => {
     const useDefaultMode = note.value?.id !== id;
@@ -917,13 +979,14 @@ async function openNote(id: string, line?: number, syncUrl = true, preserveDraft
         drawer.value = false;
         panel.value = 'note';
       }
-      if (useDefaultMode) mode.value = editorPreferences.mode;
+      if (useDefaultMode) mode.value = linkedMode ?? editorPreferences.mode;
       noteLine.value = line;
-      if (syncUrl) navigation.commit({ note: id, line });
+      if (syncUrl) navigation.commit({ note: id, line, fragment });
       if (meta.editorMode === 'full' && !isWhiteboard(meta.relativePath)) await localDrafts.load(id, currentDraftBase(), n.content);
       await nextTick();
       if (epoch !== viewEpoch || !currentIntent(intent)) return;
       if (line) revealLine(line);
+      if (fragment) await revealFragment(fragment);
     } finally {
       if (epoch === viewEpoch) noteOpening.value = false;
     }
@@ -2136,9 +2199,16 @@ async function uploadFile(file: File, request: UploadRequest) {
 }
 function clickPreview(event: MouseEvent) {
   const a = (event.target as HTMLElement).closest('a');
-  if (a?.getAttribute('href')?.startsWith('#note-')) {
+  const href = a?.getAttribute('href');
+  if (!a || !href) return;
+  if (a.dataset.noteId) {
     event.preventDefault();
-    void run(() => openNote(a.getAttribute('href')!.slice(6)));
+    const fragment = href.includes('#') ? href.slice(href.indexOf('#')) : '';
+    void run(() => openMarkdownNote(a.dataset.noteId!, fragment));
+  } else if (href.startsWith('#')) {
+    event.preventDefault();
+    const id=note.value?.id;
+    if(id)void run(() => openMarkdownNote(id,href));
   }
 }
 let searchEpoch = 0;

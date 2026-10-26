@@ -1,6 +1,7 @@
 export type WorkspaceRoute = {
   note?: string;
   line?: number;
+  fragment?: string;
   folder?: string;
   view?: 'trash' | 'settings' | 'apps' | 'recent' | 'favorites';
   section?:
@@ -21,6 +22,7 @@ export function readWorkspaceRoute(href = window.location.href): WorkspaceRoute 
   return {
     ...(query.get('note') ? { note: query.get('note')! } : {}),
     ...(Number.isSafeInteger(parsed) && parsed <= 20 * 1024 * 1024 ? { line: parsed } : {}),
+    ...(!Number.isSafeInteger(parsed) && url.hash ? { fragment: url.hash } : {}),
     ...(query.get('folder') ? { folder: query.get('folder')! } : {}),
     ...(['trash', 'settings', 'apps', 'recent', 'favorites'].includes(query.get('view') || '')
       ? { view: query.get('view') as WorkspaceRoute['view'] }
@@ -77,7 +79,7 @@ export function createWorkspaceNavigation(options: {
     if (route.folder) url.searchParams.set('folder', route.folder);
     if (route.view) url.searchParams.set('view', route.view);
     if (route.section) url.searchParams.set('section', route.section);
-    url.hash = route.line ? 'L' + route.line : '';
+    url.hash = route.line ? 'L' + route.line : route.fragment || '';
     if (url.href === active.href) return;
     generation++;
     const index = replace ? active.index : active.index + 1;
