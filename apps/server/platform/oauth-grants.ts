@@ -3,6 +3,7 @@ import type { AppDatabase } from '../../../packages/core/db.js';
 import { initializeGrants } from '../../../packages/core/auth/grants.js';
 import { validateRelative } from '../../../packages/core/files.js';
 import { fail } from '../../../packages/core/knowledge/errors.js';
+import { isResourceScope } from '../../../shared/authorization-scopes.js';
 
 export function oauthGrantStore(db: AppDatabase) {
   initializeGrants(db);
@@ -42,7 +43,7 @@ export function oauthGrantStore(db: AppDatabase) {
     if (
       !Array.isArray(scopes) ||
       !scopes.length ||
-      scopes.some((s) => !['knowledge:read', 'knowledge:write', 'knowledge:index'].includes(s)) ||
+      scopes.some((s) => !isResourceScope(s)) ||
       !Array.isArray(prefixes) ||
       !prefixes.length ||
       prefixes.length > 64

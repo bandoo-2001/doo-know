@@ -46,6 +46,7 @@ import { gitRemoteService } from './git/service.js';
 import { registerGitRemoteRoutes } from './git/routes.js';
 import type { GitExec } from './git/transport.js';
 import { pluginInstallJobs, registerPluginInstallRoutes } from './plugins/install-jobs.js';
+import { registerBlogRoutes } from './blog/routes.js';
 export async function createApp(config: HostConfig, dependencies: { gitExec?: (db: ReturnType<typeof openDatabase>) => GitExec } = {}) {
   const app = Fastify({ logger: false, bodyLimit: 2 * 1024 * 1024 });
   const db = openDatabase(config.dataRoot, 'server');
@@ -202,6 +203,7 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     platform.get().collections.status((req as any).ownerId, (req.query as any).kind));
   app.get('/api/collections', async (req) =>
     platform.get().collections.page((req as any).ownerId, req.query as any));
+  registerBlogRoutes(app, businessConfig, () => platform.get().blog);
   registerOAuthRoutes(app, auth, config, db);
   app.get('/healthz', async () => ({
     status: 'alive',

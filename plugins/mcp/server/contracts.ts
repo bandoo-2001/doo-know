@@ -144,22 +144,7 @@ export const patchResult = z.object({
   editCount: z.number().int().nonnegative(),
   indexState: z.string(),
 });
-export const fileOperation = z.object({
-  operationId: z.string(),
-  requestId: z.string(),
-  kind: z.string(),
-  status: z.enum([
-    "prepared",
-    "queued",
-    "running",
-    "committing",
-    "succeeded",
-    "failed",
-    "cancelled",
-    "needs_reconciliation",
-  ]),
-  snapshotId: z.string().optional(),
-  result: z
+const fileResult = z
     .object({
       id: noteId.optional(),
       relativePath: z.string().max(1200).optional(),
@@ -183,8 +168,23 @@ export const fileOperation = z.object({
       conflicted: z.number().int().nonnegative().optional(),
       complete: z.boolean().optional(),
     })
-    .strict()
-    .optional(),
+    .strict();
+export const fileOperation = z.object({
+  operationId: z.string(),
+  requestId: z.string(),
+  kind: z.string(),
+  status: z.enum([
+    "prepared",
+    "queued",
+    "running",
+    "committing",
+    "succeeded",
+    "failed",
+    "cancelled",
+    "needs_reconciliation",
+  ]),
+  snapshotId: z.string().optional(),
+  result: fileResult.or(z.lazy(() => blogPost)).optional(),
   error: z
     .object({
       code: z.string().regex(/^[A-Z][A-Z0-9_]{0,63}$/),
@@ -417,3 +417,36 @@ export const researchSearchOutput = z
       .max(10),
   })
   .strict();
+
+const blogTitle = z.string().refine((value) => [...value].length <= 256, '标题最多256个Unicode码点');
+export const blogMetadata = z.object({
+  slug: z.string().min(1).max(100), title: blogTitle.min(1), summary: z.string().max(2000),
+  category: z.string().max(80), tags: z.array(z.string().min(1).max(80)).max(30), pinned: z.boolean(), cover: z.string().max(8192).nullable(),
+}).strict();
+export const blogPost = blogMetadata.extend({
+  id: z.string().min(1).max(256), sourceNoteId: noteId, sourceTitle: blogTitle, sourceModifiedAt: version, sourceHash: hash,
+  version: z.number().int().positive(), state: z.enum(['draft', 'published', 'withdrawn']),
+  publishedVersionId: z.string().max(256).nullable(), publishedAt: z.string().max(64).nullable(), updatedAt: z.string().max(64),
+  hasUnpublishedChanges: z.boolean(), url: z.string().max(4096).nullable(),
+}).strict();
+export const blogNoteStatus = z.object({
+  siteEnabled: z.boolean(), post: blogPost.nullable(), publicationVersion: z.number().int().nonnegative(),
+  source: z.object({ noteId, title: blogTitle, relativePath: z.string().max(1200), modifiedAt: version, contentHash: hash }).strict(),
+}).strict();
+// Full Web/SDK metadata remains unchanged. MCP exposes a recoverable receipt
+// whose aggregate wire size stays small even for legal large metadata values.
+export const blogOmittedMetadata = ['summary', 'category', 'tags', 'pinned', 'cover'] as const;
+export const blogPublicationReceipt = blogPost.pick({
+  id: true, sourceNoteId: true, sourceTitle: true, sourceModifiedAt: true, sourceHash: true,
+  version: true, state: true, publishedVersionId: true, publishedAt: true, updatedAt: true,
+  hasUnpublishedChanges: true, url: true, slug: true, title: true,
+}).extend({
+  omittedMetadata: z.tuple([z.literal('summary'), z.literal('category'), z.literal('tags'), z.literal('pinned'), z.literal('cover')]),
+}).strict();
+export const blogStatusReceipt = blogNoteStatus.extend({ post: blogPublicationReceipt.nullable() }).strict();
+export const mcpFileOperation = fileOperation.extend({ result: fileResult.or(blogPublicationReceipt).optional() });
+export const blogPublishInput = z.object({
+  noteId, expectedModifiedAt: version, expectedContentHash: hash, expectedPublicationVersion: z.number().int().nonnegative(), requestId,
+  metadata: blogMetadata.partial().optional(),
+}).strict();
+export const blogUnpublishInput = z.object({ noteId, expectedPublicationVersion: z.number().int().nonnegative(), requestId }).strict();

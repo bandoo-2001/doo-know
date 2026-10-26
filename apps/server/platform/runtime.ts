@@ -11,6 +11,7 @@ import { assertRoot } from '../../../packages/core/indexing/reconcile.js';
 import { fail } from '../../../packages/core/knowledge/errors.js';
 import { loadAgentConfig } from '../../../packages/core/agent/config.js';
 import { collectionService } from '../../../packages/core/collections/service.js';
+import { blogService } from '../../../packages/core/blog/service.js';
 
 async function createRuntime(config: AppConfig, db: AppDatabase) {
   if (config.agentConfigFile)
@@ -36,6 +37,7 @@ async function createRuntime(config: AppConfig, db: AppDatabase) {
     notes,
     knowledge,
     collections,
+    blog: blogService(config, db, notes),
     assets: assetService(config, db, notes),
     recovery: recoveryService(config, db, notes),
     shares: shareService(db, notes),

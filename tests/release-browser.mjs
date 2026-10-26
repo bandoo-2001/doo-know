@@ -99,6 +99,7 @@ try {
       'tests/e2e/share-management-expiry.spec.ts',
       'tests/e2e/reader-feedback.spec.ts',
       'tests/e2e/markdown-navigation.spec.ts',
+      'tests/e2e/blog.spec.ts',
       '--output', '.local/release-browser-results',
     ], {
       stdio: 'inherit', detached: true,

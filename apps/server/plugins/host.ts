@@ -76,6 +76,7 @@ const capabilities = new Set([
   'knowledge:read',
   'knowledge:write',
   'knowledge:index',
+  'blog:publish',
   'workspace:git',
   'protocol:mcp',
 ]);
@@ -462,6 +463,11 @@ export function pluginHost(
         dataRoot: join(config.dataRoot, 'plugins', id),
         storage: storage(id),
         config: () => structuredClone(running.config),
+        track: (task) => {
+          running.calls.add(task);
+          void task.then(() => running.calls.delete(task), () => running.calls.delete(task));
+          return task;
+        },
         secrets: {
           getOrCreate: (name) => {
             if (!/^[a-z][a-z0-9-]{0,63}$/.test(name)) fail(400, 'INVALID_PLUGIN_SECRET_NAME');

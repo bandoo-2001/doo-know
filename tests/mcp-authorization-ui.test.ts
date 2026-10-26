@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { parse, compileScript } from '@vue/compiler-sfc';
 import ts from 'typescript';
 import * as Vue from 'vue';
+import { isResourceScope } from '../shared/authorization-scopes';
 const api = vi.fn();
 const registry = Vue.shallowRef({ installed: [] as any[] });
 const cleanup: (() => void)[] = [];
@@ -38,9 +39,11 @@ async function mount(file: string, props = {}) {
   new Function('require', 'module', 'exports', code)(
     (id: string) => {
       if (id === 'vue') return Vue;
-      if (id === 'ant-design-vue') return { Alert: 'aside', Button: 'button' };
+      if (id === 'ant-design-vue') return { Alert: 'aside', Button: 'button', Card: 'section', Checkbox: { Group: 'div' }, Spin: 'span' };
       if (id === '../api') return { api };
       if (id === '../plugins') return { pluginRegistry: registry };
+      if (id === './Icon.vue') return { default: { render: () => null } };
+      if (id === '../../../shared/authorization-scopes') return { isResourceScope };
       throw Error('Unexpected component dependency: ' + id);
     },
     module,
@@ -89,6 +92,12 @@ it('does not let a stale authorization read overwrite a confirmed revocation', a
   stale.resolve(connection(true));
   await reading;
   expect(view.clients[0].active).toBe(false);
+});
+
+it('leaves blog publication unchecked when OAuth requests include the public disclosure grant', async () => {
+  api.mockResolvedValueOnce({ clientName: 'Fixture', allowedScopes: ['knowledge:read', 'knowledge:write', 'blog:publish', 'offline_access'], allowedPrefixes: ['00-Inbox'] });
+  const view = await mount('OAuthConsent.vue', { oauthQuery: 'fixture-query' });
+  expect(view.scopes).toEqual(['knowledge:read', 'offline_access']);
 });
 it('keeps a rejected revocation visible when a subsequent status read succeeds', async () => {
   const view = await mount('MCPConnectionGuide.vue', {

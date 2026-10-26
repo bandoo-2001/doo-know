@@ -8,6 +8,7 @@ import { oauthGrantStore } from './oauth-grants.js';
 import { fail } from '../../../packages/core/knowledge/errors.js';
 import { checkTokenCutoff, underPrefix } from '../../../packages/core/agent/auth.js';
 import { webPrincipal } from '../../../packages/core/knowledge/core.js';
+import { isResourceScope, oauthScopes } from '../../../shared/authorization-scopes.js';
 
 type OwnerAuth = Awaited<ReturnType<typeof createAuth>>;
 const queues = new WeakMap<AppDatabase, Promise<unknown>>();
@@ -21,7 +22,7 @@ export function mcpPolicy(db: AppDatabase) {
   const hasPlugins = db.prepare("SELECT 1 FROM sqlite_master WHERE name='platform_plugins'").get();
   const row = hasPlugins && db.prepare("SELECT config_json,state FROM platform_plugins WHERE id='mcp' AND installed=1").get() as any;
   const config = row ? JSON.parse(row.config_json) : {};
-  return { readOnly: config.readOnly !== false, allowIndex: config.allowIndex === true,
+  return { readOnly: config.readOnly !== false, allowIndex: config.allowIndex === true, allowPublish: config.allowPublish === true,
     allowedPrefixes: Array.isArray(config.allowedPrefixes) ? config.allowedPrefixes as string[] : webPrincipal.allowedPrefixes,
     enabled: row?.state === 'enabled' };
 }
@@ -38,11 +39,11 @@ export async function oauthConsentRequest(auth: OwnerAuth, config: HostConfig, d
   const client = await context.adapter.findOne<any>({ model: 'oauthClient', where: [{ field: 'clientId', value: clientId }] });
   if (!client || client.disabled) fail(400, 'INVALID_OAUTH_CLIENT');
   const requestedScopes = [...new Set((query.get('scope') || '').split(/\s+/).filter(Boolean))];
-  if (requestedScopes.some(s => !['offline_access','knowledge:read','knowledge:write','knowledge:index'].includes(s))) fail(400, 'INVALID_OAUTH_SCOPE');
+  if (requestedScopes.some(s => !oauthScopes.includes(s))) fail(400, 'INVALID_OAUTH_SCOPE');
   const policy = mcpPolicy(db);
   return { ownerId: session.user.id, clientId, clientName: String(client.name || client.clientName || clientId),
     requestedScopes, resource: config.origin + '/mcp', allowedPrefixes: policy.allowedPrefixes,
-    allowedScopes: requestedScopes.filter(s => s !== 'knowledge:write' || !policy.readOnly).filter(s => s !== 'knowledge:index' || policy.allowIndex) };
+    allowedScopes: requestedScopes.filter(s => s !== 'knowledge:write' || !policy.readOnly).filter(s => s !== 'knowledge:index' || policy.allowIndex).filter(s => s !== 'blog:publish' || (policy.allowPublish && !policy.readOnly)) };
 }
 export async function approveOAuthConsent(auth: OwnerAuth, config: HostConfig, db: AppDatabase, headers: Headers, input: any) {
   return serializeOAuth(db, async () => {
@@ -64,7 +65,8 @@ export async function approveOAuthConsent(auth: OwnerAuth, config: HostConfig, d
     if (!Array.isArray(scopes) || scopes.some(s => !request.allowedScopes.includes(s))
       || !Array.isArray(prefixes) || prefixes.some(p => typeof p !== 'string' || !request.allowedPrefixes.some(a => underPrefix(p, a)))) fail(403, 'INVALID_OAUTH_GRANT');
     const grants = oauthGrantStore(db);
-    grants.approve(request.ownerId, request.clientId, scopes.filter(s => s.startsWith('knowledge:')), prefixes);
+    if (scopes.includes('blog:publish') && (!scopes.includes('knowledge:read') || !scopes.includes('knowledge:write'))) fail(403, 'INVALID_OAUTH_GRANT');
+    grants.approve(request.ownerId, request.clientId, scopes.filter(isResourceScope), prefixes);
     try { return await redirectResult(await auth.api.oauth2Consent({ headers: endpointHeaders, request: endpointRequest, body: { accept: true, scope: scopes.join(' '), oauth_query: input.oauth_query } })); }
     catch (e) { grants.revoke(request.ownerId, request.clientId); throw e; }
   });
@@ -76,10 +78,10 @@ export async function verifyMcpBearer(auth: OwnerAuth, config: HostConfig, db: A
     const { payload } = await jwtVerify(authorization.slice(7), createLocalJWKSet(keys), { issuer: config.origin + '/api/auth', audience: config.origin + '/mcp', algorithms: ['EdDSA','RS256','ES256'] });
     if (typeof payload.sub !== 'string' || typeof payload.client_id !== 'string' || typeof payload.dk_grant_id !== 'string'
       || !Number.isInteger(payload.dk_grant_version) || !Number.isInteger(payload.iat)) throw new Error();
-    const scopes = String(payload.scope || '').split(' ').filter(s => s.startsWith('knowledge:'));
+    const scopes = String(payload.scope || '').split(' ').filter(isResourceScope);
     const grant = oauthGrantStore(db).requireExact(`${payload.dk_grant_id}:${payload.dk_grant_version}`, payload.sub, payload.client_id, scopes);
     const p: Principal = { id: grant.ownerId, clientId: grant.clientId, scopes, allowedPrefixes: grant.allowedPrefixes,
-      tokenIssuedAt: payload.iat, grantId: grant.id, grantVersion: grant.version };
+      tokenIssuedAt: payload.iat, ...(typeof payload.exp === 'number' ? { tokenExpiresAt: payload.exp } : {}), grantId: grant.id, grantVersion: grant.version };
     checkTokenCutoff(db, p); return p;
   } catch { fail(401, 'UNAUTHORIZED', '需要有效且未撤销的访问令牌'); }
 }

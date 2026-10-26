@@ -1,25 +1,33 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { Principal } from '../../shared/knowledge-contracts.js';
 import type { PluginStorage } from '../plugin-contracts/index.js';
+import type { BlogNoteStatus, BlogPost, BlogPublishInput, BlogUnpublishInput } from '../../shared/blog-contracts.js';
 export type Disposer = () => void | Promise<void>;
+export type ServiceCallOptions = { deadline?: number; signal?: AbortSignal };
+export interface BlogPort {
+  status(input: { noteId: string }, options?: ServiceCallOptions): Promise<BlogNoteStatus>;
+  publish(input: BlogPublishInput, options?: ServiceCallOptions): Promise<BlogPost>;
+  unpublish(input: BlogUnpublishInput, options?: ServiceCallOptions): Promise<BlogPost>;
+}
 export interface KnowledgePort {
-  info(input: any): Promise<any>;
-  list(input: any): Promise<any>;
-  outline(input: any): Promise<any>;
-  readPage(input: any): Promise<any>;
-  create(input: any): Promise<any>;
-  update(input: any): Promise<any>;
-  patch(input: any): Promise<any>;
-  archive(input: any): Promise<any>;
-  search(input: any): Promise<any>;
-  research(input: any): Promise<any>;
-  refresh(input: any): Promise<any>;
-  status(input: any): Promise<any>;
-  operation(input: any): Promise<any>;
-  cancel(input: any): Promise<any>;
+  info(input: any, options?: ServiceCallOptions): Promise<any>;
+  list(input: any, options?: ServiceCallOptions): Promise<any>;
+  outline(input: any, options?: ServiceCallOptions): Promise<any>;
+  readPage(input: any, options?: ServiceCallOptions): Promise<any>;
+  create(input: any, options?: ServiceCallOptions): Promise<any>;
+  update(input: any, options?: ServiceCallOptions): Promise<any>;
+  patch(input: any, options?: ServiceCallOptions): Promise<any>;
+  archive(input: any, options?: ServiceCallOptions): Promise<any>;
+  search(input: any, options?: ServiceCallOptions): Promise<any>;
+  research(input: any, options?: ServiceCallOptions): Promise<any>;
+  refresh(input: any, options?: ServiceCallOptions): Promise<any>;
+  status(input: any, options?: ServiceCallOptions): Promise<any>;
+  operation(input: any, options?: ServiceCallOptions): Promise<any>;
+  cancel(input: any, options?: ServiceCallOptions): Promise<any>;
 }
 export interface PluginServices {
   knowledge: KnowledgePort;
+  blog?: BlogPort;
   authorization?: {
     list(): Promise<any[]>;
     revoke(clientId: string): Promise<{ revoked: boolean; cleanupPending: boolean }>;
@@ -79,6 +87,8 @@ export interface PluginContext {
   storage: PluginStorage;
   secrets: { getOrCreate(name: string): string };
   config(): Record<string, any>;
+  /** Keep unfinished service calls owned by the plugin after its HTTP wait ends. */
+  track?<T>(task: Promise<T>): Promise<T>;
   registerCommand(id: string, handler: (call: PluginCall) => unknown | Promise<unknown>): Disposer;
   registerProvider(id: string, handler: (call: PluginCall) => unknown | Promise<unknown>): Disposer;
   registerProtocol(id: string, handler: (call: ProtocolCall) => Promise<void>): Disposer;

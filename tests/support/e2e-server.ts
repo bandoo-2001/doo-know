@@ -228,7 +228,7 @@ async function initialize() {
       port: 4179,
       host: '127.0.0.1',
       ws: { server: frontend },
-      proxy: { '/api/': 'http://127.0.0.1:4180', '/plugins/': 'http://127.0.0.1:4180' },
+      proxy: { '/api/': 'http://127.0.0.1:4180', '/plugins/': 'http://127.0.0.1:4180', '^/blog(?:/|\\?|$)': 'http://127.0.0.1:4180' },
     },
   });
   if (shutdownRequested) return;

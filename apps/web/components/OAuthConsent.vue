@@ -9,6 +9,7 @@ import {
 } from 'ant-design-vue';
 import { api } from '../api';
 import Icon from './Icon.vue';
+import { isResourceScope } from '../../../shared/authorization-scopes';
 const ACheckboxGroup = ACheckbox.Group;
 const props = defineProps<{ oauthQuery: string }>();
 const request = ref<any>(),
@@ -20,6 +21,7 @@ const labels: Record<string, string> = {
   'knowledge:read': '读取所选目录中的资料',
   'knowledge:write': '创建、修改和归档资料',
   'knowledge:index': '检查和刷新检索索引',
+  'blog:publish': '将所选资料公开发布为博客，或撤下已发布文章',
   offline_access: '保持连接，允许刷新访问令牌',
 };
 onMounted(async () => {
@@ -40,7 +42,7 @@ async function consent(accept: boolean) {
     busy.value ||
     !request.value ||
     (accept &&
-      (!prefixes.value.length || !scopes.value.some((scope) => scope.startsWith('knowledge:'))))
+      (!prefixes.value.length || !scopes.value.some(isResourceScope) || (scopes.value.includes('blog:publish') && (!scopes.value.includes('knowledge:read') || !scopes.value.includes('knowledge:write')))))
   )
     return;
   busy.value = true;
@@ -106,7 +108,7 @@ async function consent(accept: boolean) {
           <AButton
             type="primary"
             :loading="busy"
-            :disabled="busy || !prefixes.length || !scopes.some((s) => s.startsWith('knowledge:'))"
+            :disabled="busy || !prefixes.length || !scopes.some(isResourceScope) || (scopes.includes('blog:publish') && (!scopes.includes('knowledge:read') || !scopes.includes('knowledge:write')))"
             @click="consent(true)"
             >允许访问</AButton
           >

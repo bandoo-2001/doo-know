@@ -4,6 +4,7 @@ export type Principal = {
   scopes: string[];
   allowedPrefixes: string[];
   tokenIssuedAt?: number;
+  tokenExpiresAt?: number;
   grantId?: string;
   grantVersion?: number;
   pluginId?: string;

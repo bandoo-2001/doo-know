@@ -124,6 +124,7 @@ const capabilityLabels: Record<string, string> = {
   'knowledge:read': '读取知识库',
   'knowledge:write': '写入知识库',
   'knowledge:index': '维护搜索索引',
+  'blog:publish': '公开发布与撤下博客文章',
   'protocol:mcp': '连接 AI 应用',
   'workspace:git': '本地文件版本',
   'network:listen': '提供网络服务',

@@ -53,6 +53,7 @@ export function tunnelPrincipal(
         'knowledge:read',
         ...(!policy.readOnly ? ['knowledge:write'] : []),
         ...(policy.allowIndex ? ['knowledge:index'] : []),
+        ...(policy.allowPublish && !policy.readOnly ? ['blog:publish'] : []),
       ];
       let reference = grants.activeReference(owner, identity.client_id);
       const previous = db
@@ -80,6 +81,7 @@ export function tunnelPrincipal(
         scopes: grant.scopes,
         allowedPrefixes: grant.allowedPrefixes,
         tokenIssuedAt: identity.issued_at,
+        ...(identity.expires_at != null ? { tokenExpiresAt: identity.expires_at } : {}),
         grantId: grant.id,
         grantVersion: grant.version,
         pluginId: 'mcp',

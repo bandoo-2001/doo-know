@@ -18,7 +18,7 @@ export function platformPolicy(db: AppDatabase, p: Principal): Principal | undef
     )
       return {
         ...p,
-        scopes: ['knowledge:read', 'knowledge:write', 'knowledge:index'],
+        scopes: ['knowledge:read', 'knowledge:write', 'knowledge:index', 'blog:publish'],
         allowedPrefixes: ['README.md', ...categories],
       };
     return;
@@ -49,6 +49,7 @@ export function platformPolicy(db: AppDatabase, p: Principal): Principal | undef
       scopes = scopes.filter(
         (s) =>
           (s !== 'knowledge:write' || c.readOnly === false) &&
+          (s !== 'blog:publish' || (c.allowPublish === true && c.readOnly === false)) &&
           (s !== 'knowledge:index' || c.allowIndex === true),
       );
       const allowed: string[] = c.allowedPrefixes || ['README.md', ...categories];

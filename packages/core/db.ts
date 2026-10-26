@@ -5,6 +5,7 @@ import { mkdirSync, chmodSync } from 'node:fs';
 import { join } from 'node:path';
 import { migrateKnowledge } from './indexing/schema.js';
 import { migrateCollections } from './collections/source.js';
+import { migrateBlog } from './blog/schema.js';
 import { CONTENT_MATCH_RANK, filenameMatchRank } from '../../shared/search-matching.js';
 export function openDatabase(dataRoot: string,role:'utility'|'server'|'file-worker'|'index-worker'='utility') {
   mkdirSync(dataRoot, { recursive: true, mode: 0o700 });
@@ -39,6 +40,7 @@ export function openDatabase(dataRoot: string,role:'utility'|'server'|'file-work
     db.exec('ALTER TABLE shares ADD COLUMN expires_at INTEGER');
   migrateKnowledge(db);
   migrateCollections(db);
+  migrateBlog(db);
   db.exec('CREATE TABLE IF NOT EXISTS database_processes(id TEXT PRIMARY KEY,pid INTEGER NOT NULL,process_start TEXT NOT NULL,role TEXT NOT NULL,started_at INTEGER NOT NULL)');
   const identity=workspaceProcess(),connectionId=randomUUID();db.prepare('INSERT INTO database_processes VALUES(?,?,?,?,?)').run(connectionId,identity.pid,identity.start,role,Date.now());
   const nativeClose=db.close.bind(db);db.close=()=>{try{if(db.open)db.prepare('DELETE FROM database_processes WHERE id=?').run(connectionId);}finally{nativeClose();}return db;};

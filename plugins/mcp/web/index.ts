@@ -108,6 +108,7 @@ export function activate(api: PluginUIApi) {
                       ),
                   ]),
                   h('p', { class: 'mcp-label' }, '授权客户端'),
+                  h('p', { class: 'mcp-description' }, '博客公开发布默认关闭，需在功能配置中开启并单独授权；修改笔记不会自动更新公开文章。'),
                   h(
                     'div',
                     { class: 'mcp-list' },

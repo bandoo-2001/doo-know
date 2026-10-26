@@ -18,6 +18,7 @@ export type Operation = {
   name: string;
   description: string;
   scope: string;
+  additionalScopes?: string[];
   readOnly: boolean;
   destructive?: boolean;
   input: z.ZodObject;
@@ -26,6 +27,10 @@ export type Operation = {
   run: (p: Principal, args: any, options: CallOptions) => Promise<any>;
 };
 const dataSchema = (v: z.ZodType) => z.object({ data: v }).strict();
+const publicationReceipt = (post: z.infer<typeof c.blogPost>) => {
+  const { id, sourceNoteId, sourceTitle, sourceModifiedAt, sourceHash, version, state, publishedVersionId, publishedAt, updatedAt, hasUnpublishedChanges, url, slug, title } = post;
+  return { id, sourceNoteId, sourceTitle, sourceModifiedAt, sourceHash, version, state, publishedVersionId, publishedAt, updatedAt, hasUnpublishedChanges, url, slug, title, omittedMetadata: [...c.blogOmittedMetadata] };
+};
 const relative = (s: string) => {
   if (
     s.startsWith("/") ||
@@ -64,6 +69,28 @@ export function createOperations(
   client: KnowledgeClient,
 ) {
   const reader = new ReadingBudgets();
+  const listReference = z.object({ cursor: z.string().max(8192), limit: z.number().int().min(1).max(50), requested: z.number().int().min(1).max(50), directory: z.string().nullable(), owner: z.string(), expires: z.number().int() }).strict();
+  const listCursor = (p: Principal, cursor: string, limit: number, requested: number, directory?: string) => {
+    const data = Buffer.from(JSON.stringify({ cursor, limit, requested, directory: directory ?? null, owner: policyKey(p), expires: Date.now() + 15 * 60000 })).toString('base64url');
+    const result = 'dklist1.' + data + '.' + createHmac('sha256', config.objectIdSecret).update('list:' + data).digest('base64url');
+    if (result.length > 8192) throw new BridgeError('RESPONSE_TOO_LARGE', 413);
+    return result;
+  };
+  const openListCursor = (p: Principal, cursor: string, requested: number, directory?: string) => {
+    try {
+      const [prefix, data, signature, ...tail] = cursor.split('.');
+      if (prefix !== 'dklist1' || !data || !signature || tail.length) throw Error();
+      const expected = createHmac('sha256', config.objectIdSecret).update('list:' + data).digest(), actual = Buffer.from(signature, 'base64url');
+      if (actual.length !== expected.length || !timingSafeEqual(actual, expected)) throw Error();
+      const value = listReference.parse(JSON.parse(Buffer.from(data, 'base64url').toString('utf8')));
+      if (value.owner !== policyKey(p) || value.requested !== requested || value.directory !== (directory ?? null)) throw new BridgeError('FORBIDDEN', 403);
+      if (value.expires <= Date.now()) throw new BridgeError('CURSOR_EXPIRED', 410);
+      return value;
+    } catch (error) {
+      if (error instanceof BridgeError) throw error;
+      throw new BridgeError('INVALID_CURSOR', 400);
+    }
+  };
   const sign = (
     p: Principal,
     input: {
@@ -311,17 +338,22 @@ export function createOperations(
       run: async (p, a, o) => {
         if (a.directory) authorizePath(p, relative(a.directory));
         let input = a;
+        if (a.cursor?.startsWith('dklist1.')) {
+          const reference = openListCursor(p, a.cursor, a.limit, a.directory);
+          input = { ...a, cursor: reference.cursor, limit: reference.limit };
+        }
         for (let attempt = 0; attempt < 6; attempt++) {
           const v = await client.list(p, input, o);
           for (const n of v.items) authorizePath(p, n.relativePath);
           try {
-            assertResponse({ data: v });
-            return v;
+            const result = { ...v, ...(v.nextCursor ? { nextCursor: listCursor(p, v.nextCursor, input.limit, a.limit, a.directory) } : {}) };
+            assertResponse({ data: result });
+            return result;
           } catch (e) {
             if (
               !(e instanceof BridgeError) ||
               e.code !== "RESPONSE_TOO_LARGE" ||
-              input.limit <= 1
+              input.limit <= 1 || input.cursor
             )
               throw e;
             input = {
@@ -354,18 +386,9 @@ export function createOperations(
       readOnly: false,
       input: c.updateInput.extend({ noteId: c.noteId }),
       output: dataSchema(c.writeSummary),
-      run: async (p, a, o) => {
-        const info = await client.info(p, { noteId: a.noteId }, o);
-        authorizePath(p, info.relativePath);
-        if (
-          info.editorMode !== "full" ||
-          info.sizeBytes > 1024 * 1024 ||
-          info.longestLineBytes == null ||
-          info.longestLineBytes > 32768
-        )
-          throw new BridgeError("LARGE_FILE_MODE_REQUIRED", 409);
-        return client.update(p, a, o);
-      },
+      // The backend checks current authorization, then replays an immutable
+      // receipt before checking fresh-write editing limits.
+      run: (p, a, o) => client.update(p, a, o),
     },
     {
       name: "patch_note",
@@ -420,9 +443,33 @@ export function createOperations(
       },
     },
     {
+      name: 'get_blog_status',
+      description: '查看站点开关、原文版本和紧凑发布收据。收据保留标识、状态、版本、原文哈希、时间、标题、文章地址；省略摘要、分类、标签、置顶和封面，完整元数据仍保存在网页中。站点关闭时没有可访问的公开文章。',
+      scope: 'knowledge:read', readOnly: true,
+      input: z.object({ noteId: c.noteId }).strict(), output: dataSchema(c.blogStatusReceipt),
+      run: async (p, a, o) => {
+        const status = await client.blogStatus(p, a, o); authorizePath(p, status.source.relativePath);
+        return { ...status, post: status.post ? publicationReceipt(status.post) : null };
+      },
+    },
+    {
+      name: 'publish_blog_post',
+      description: '显式公开发布已有 Markdown 笔记的版本快照。须单独博客发布授权、关闭只读并开启公开发布。修改私有笔记不会自动更新公开版本。必须提供原文版本/哈希、发布版本（首次0）及原requestId；结果未知按原requestId查询。返回紧凑收据，省略摘要、分类、标签、置顶和封面；完整元数据保持原样保存。',
+      scope: 'blog:publish', additionalScopes: ['knowledge:read', 'knowledge:write'], readOnly: false,
+      input: c.blogPublishInput, output: dataSchema(c.blogPublicationReceipt),
+      run: async (p, a, o) => publicationReceipt(await client.blogPublish(p, a, o)),
+    },
+    {
+      name: 'unpublish_blog_post',
+      description: '显式撤下已发布文章，不修改私有笔记。须独立公开发布权限、当前发布版本及原requestId。返回紧凑收据，省略摘要、分类、标签、置顶和封面；完整元数据保持原样保存。',
+      scope: 'blog:publish', additionalScopes: ['knowledge:read', 'knowledge:write'], readOnly: false, destructive: true,
+      input: c.blogUnpublishInput, output: dataSchema(c.blogPublicationReceipt),
+      run: async (p, a, o) => publicationReceipt(await client.blogUnpublish(p, a, o)),
+    },
+    {
       name: "operation_status",
       description:
-        "按operationId或原requestId核对归属、状态和摘要；不返回正文。建议轮询间隔至少1秒。",
+        "按operationId或原requestId核对归属、状态和摘要；不返回正文。博客结果为紧凑发布收据，省略摘要、分类、标签、置顶和封面。建议轮询间隔至少1秒。",
       scope: "knowledge:read",
       readOnly: true,
       input: z
@@ -432,8 +479,12 @@ export function createOperations(
         })
         .strict()
         .refine((a) => !!a.operationId !== !!a.requestId, "只提供一种操作标识"),
-      output: dataSchema(c.fileOperation),
-      run: (p, a, o) => client.operation(p, a, o),
+      output: dataSchema(c.mcpFileOperation),
+      run: async (p, a, o) => {
+        const operation = await client.operation(p, a, o);
+        return ['blog.publish', 'blog.unpublish'].includes(operation.kind) && operation.result
+          ? { ...operation, result: publicationReceipt(operation.result) } : operation;
+      },
     },
     {
       name: "cancel_operation",
@@ -455,6 +506,7 @@ export function createOperations(
     const op = operations.find((v) => v.name === name);
     if (!op) throw new BridgeError("UNKNOWN_TOOL", 404);
     requireScope(p, op.scope);
+    for (const scope of op.additionalScopes || []) requireScope(p, scope);
     assertRequest(args);
     if (!op.readOnly) assertWriteBudgets(args);
     const parsed = op.input.safeParse(args);

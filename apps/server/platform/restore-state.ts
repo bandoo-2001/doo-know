@@ -28,6 +28,11 @@ export function resetRestoredState(
   db.transaction(() => {
     if (tables.has('session')) db.prepare('DELETE FROM session').run();
     db.prepare('UPDATE shares SET enabled=0').run();
+    if (tables.has('blog_settings'))
+      db.prepare("UPDATE blog_settings SET settings_json=json_set(settings_json,'$.enabled',json('false'),'$.version',json_extract(settings_json,'$.version')+1)").run();
+    if (tables.has('blog_posts'))
+      db.prepare("UPDATE blog_posts SET state='withdrawn',version=version+1").run();
+    if (tables.has('blog_receipts')) db.prepare('DELETE FROM blog_receipts').run();
     db.prepare('UPDATE maintenance SET active=0 WHERE id=1').run();
     for (const name of ['oauthAccessToken', 'oauthRefreshToken', 'oauthConsent', 'verification'])
       if (tables.has(name)) db.exec(`DELETE FROM "${name}"`);

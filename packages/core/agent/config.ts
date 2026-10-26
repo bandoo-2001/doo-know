@@ -5,6 +5,7 @@ import type { AgentConfig, Principal } from '../../../shared/knowledge-contracts
 import { validateRelative } from '../files.js';
 import type { AppDatabase } from '../db.js';
 import { platformPolicy } from '../auth/grants.js';
+import { isResourceScope } from '../../../shared/authorization-scopes.js';
 export function privateFile(path: string, maxBytes = 65536) {
   let fd: number | undefined;
   try {
@@ -51,7 +52,7 @@ export function loadAgentConfig(file: string, knowledgeRoot: string): AgentConfi
       p.clientId.length > 256 ||
       !Array.isArray(p.scopes) ||
       p.scopes.some(
-        (s: any) => !['knowledge:read', 'knowledge:write', 'knowledge:index'].includes(s),
+        (s: any) => typeof s !== 'string' || !isResourceScope(s),
       ) ||
       !Array.isArray(p.allowedPrefixes) ||
       p.allowedPrefixes.length > 64

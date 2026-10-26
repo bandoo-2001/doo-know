@@ -32,7 +32,7 @@ it('installs the official prebuilt MCP, isolates transports, observes calls with
     const legacy = await fetch('http://127.0.0.1:15179/api/v1/tools/list_notes', { method: 'POST', headers: { ...external, 'content-type': 'application/json' }, body: '{}' });
     expect(legacy.status).toBe(200); expect(await legacy.json()).toMatchObject({ data: { items: [] } });
     const privateMcp = await fetch('http://127.0.0.1:15179/mcp', { method: 'POST', headers: { ...external, 'content-type': 'application/json' }, body: JSON.stringify(rpc) });
-    expect(privateMcp.status).toBe(200); expect((await privateMcp.json()).result.tools.length).toBe(15);
+    expect(privateMcp.status).toBe(200); expect((await privateMcp.json()).result.tools.length).toBe(18);
     db = openDatabase(f.dataRoot); const owner = (db.prepare('SELECT id FROM user').get() as any).id;
     const auth = await createAuth(f.config, db);
     const grant = oauthGrantStore(db).approve(owner, 'transport-fixture', ['knowledge:read'], ['00-Inbox']);
@@ -40,7 +40,7 @@ it('installs the official prebuilt MCP, isolates transports, observes calls with
       iat:Math.floor(Date.now()/1000),scope:'knowledge:read',dk_grant_id:grant.id,dk_grant_version:grant.version,
       iss:f.config.origin+'/api/auth',aud:f.config.origin+'/mcp'}}});
     const oauthResponse = await f.app.inject({method:'POST',url:'/mcp',headers:{...external,host:'localhost:3010',authorization:'Bearer '+accessToken},payload:rpc});
-    expect(oauthResponse.statusCode).toBe(200); expect(oauthResponse.json().result.tools.length).toBe(15);
+    expect(oauthResponse.statusCode).toBe(200); expect(oauthResponse.json().result.tools.length).toBe(18);
     const deniedOAuthOnTunnel=await fetch('http://127.0.0.1:15179/mcp',{method:'POST',headers:{...external,authorization:'Bearer '+accessToken,'content-type':'application/json'},body:JSON.stringify(rpc)});
     expect(deniedOAuthOnTunnel.status).toBe(401);
     const status = await post('/api/plugins/mcp/call', { kind: 'provider', id: 'mcp.status', input: {} });

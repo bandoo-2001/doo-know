@@ -1,4 +1,6 @@
 export type WorkspaceRoute = {
+  app?: 'blog';
+  appSection?: 'overview' | 'articles' | 'taxonomy' | 'settings';
   note?: string;
   line?: number;
   fragment?: string;
@@ -20,6 +22,16 @@ export function readWorkspaceRoute(href = window.location.href): WorkspaceRoute 
     query = url.searchParams;
   const parsed = Number(url.hash.match(/^#L([1-9]\d*)$/)?.[1]);
   return {
+    ...(query.get('view') === 'apps' && query.get('app') === 'blog'
+      ? {
+          app: 'blog' as const,
+          ...(['overview', 'articles', 'taxonomy', 'settings'].includes(
+            query.get('appSection') || '',
+          )
+            ? { appSection: query.get('appSection') as WorkspaceRoute['appSection'] }
+            : {}),
+        }
+      : {}),
     ...(query.get('note') ? { note: query.get('note')! } : {}),
     ...(Number.isSafeInteger(parsed) && parsed <= 20 * 1024 * 1024 ? { line: parsed } : {}),
     ...(!Number.isSafeInteger(parsed) && url.hash ? { fragment: url.hash } : {}),
@@ -74,11 +86,15 @@ export function createWorkspaceNavigation(options: {
       return;
     }
     const url = new URL(location.href);
-    for (const key of ['note', 'folder', 'view', 'section']) url.searchParams.delete(key);
+    for (const key of ['note', 'folder', 'view', 'section', 'app', 'appSection'])
+      url.searchParams.delete(key);
     if (route.note) url.searchParams.set('note', route.note);
     if (route.folder) url.searchParams.set('folder', route.folder);
     if (route.view) url.searchParams.set('view', route.view);
     if (route.section) url.searchParams.set('section', route.section);
+    if (route.view === 'apps' && route.app) url.searchParams.set('app', route.app);
+    if (route.view === 'apps' && route.app && route.appSection)
+      url.searchParams.set('appSection', route.appSection);
     url.hash = route.line ? 'L' + route.line : route.fragment || '';
     if (url.href === active.href) return;
     generation++;

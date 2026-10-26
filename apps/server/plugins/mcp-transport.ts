@@ -13,6 +13,7 @@ import { checkTokenCutoff } from '../../../packages/core/agent/auth.js';
 import { fail } from '../../../packages/core/knowledge/errors.js';
 import type { platformRuntime } from '../platform/runtime.js';
 import type { MCPConnectionAttempt } from '../../../shared/mcp-connection-contracts.js';
+import { isResourceScope } from '../../../shared/authorization-scopes.js';
 type Host = ReturnType<typeof pluginHost>;
 export function mcpTransports(app: FastifyInstance, host: Host, auth: Awaited<ReturnType<typeof createAuth>>, config: HostConfig, db: AppDatabase, platform: ReturnType<typeof platformRuntime>) {
   let compat: FastifyInstance | undefined, compatPort: number | undefined, compatError: string | undefined;
@@ -79,7 +80,7 @@ export function mcpTransports(app: FastifyInstance, host: Host, auth: Awaited<Re
         if(!reply.raw.headersSent) {
           const headers: Record<string,string>={'content-type':'application/json','cache-control':'no-store'};
           if(status===401) headers['www-authenticate']=mode==='oauth' ? `Bearer resource_metadata="${config.origin}/.well-known/oauth-protected-resource/mcp"` : 'Bearer realm="DooKnow Tunnel"';
-          if(status===403 && ['knowledge:read','knowledge:write','knowledge:index'].includes(error.requiredScope)) headers['www-authenticate']=`Bearer error="insufficient_scope", scope="${error.requiredScope}"`;
+          if(status===403 && isResourceScope(error.requiredScope)) headers['www-authenticate']=`Bearer error="insufficient_scope", scope="${error.requiredScope}"`;
           const details={code,message:code,retryable:!!error.retryable,...(typeof error.requestId==='string' && error.requestId.length<=128 ? {requestId:error.requestId}: {})};
           const b=req.body, id=(typeof b?.id==='number' && Number.isFinite(b.id)) || (typeof b?.id==='string' && Buffer.byteLength(b.id)<=128)?b.id:null;
           reply.raw.writeHead(status,headers).end(JSON.stringify(path.pathname==='/mcp'?{jsonrpc:'2.0',id,error:{code:status===401?-32001:-32600,message:code,data:details}}:{error:details}));

@@ -16,6 +16,8 @@ import * as search from '../apps/web/search-results';
 import * as outline from '../apps/web/document-outline';
 import { previewSource } from '../apps/web/preview-source';
 import * as collectionFeed from '../apps/web/collection-feed';
+import * as blogWorkbench from '../apps/web/blog-workbench';
+import * as blogDiagrams from '../apps/web/blog-diagrams';
 import { markdownStyles } from '../shared/markdown-styles';
 import { markdownTasks } from '../shared/markdown-tasks';
 import { diagramFences } from '../shared/diagram-fences';
@@ -118,6 +120,8 @@ async function mount(waitForNote = true) {
       if (id === '../document-outline') return outline;
       if (id === '../preview-source') return { previewSource };
       if (id === '../collection-feed') return collectionFeed;
+      if (id === '../blog-workbench') return blogWorkbench;
+      if (id === '../blog-diagrams') return blogDiagrams;
       if (id === '../plugins')
         return {
           refreshPlugins: async () => {},

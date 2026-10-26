@@ -89,6 +89,7 @@ export function authorizationCutoff(db: AppDatabase) {
   );
 }
 export function checkTokenCutoff(db: AppDatabase, p: Principal) {
+  if (p.tokenExpiresAt != null && (!Number.isInteger(p.tokenExpiresAt) || p.tokenExpiresAt <= Math.floor(Date.now() / 1000))) fail(401, 'UNAUTHORIZED');
   if (p.authGeneration != null) { if(p.authGeneration !== remoteAuthGeneration(db)) fail(401,'UNAUTHORIZED'); return; }
   const cutoff = authorizationCutoff(db);
   if (

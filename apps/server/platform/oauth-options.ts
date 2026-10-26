@@ -4,14 +4,15 @@ import { APIError } from 'better-call';
 import type { HostConfig } from '../../../shared/platform-contracts.js';
 import type { AppDatabase } from '../../../packages/core/db.js';
 import { oauthGrantStore } from './oauth-grants.js';
-export const oauthScopes = ['offline_access', 'knowledge:read', 'knowledge:write', 'knowledge:index'];
+import { isResourceScope, oauthScopes } from '../../../shared/authorization-scopes.js';
+export { oauthScopes };
 export function oauthPlugins(config: HostConfig, db: AppDatabase) {
   const grants = oauthGrantStore(db), resource = config.origin + '/mcp', issuer = config.origin + '/api/auth';
   type AccessClaims = NonNullable<NonNullable<OAuthProviderExtension['claims']>['accessToken']>;
   const accessToken: AccessClaims = async ({ user, client, scopes, resources, referenceId }) => {
     try {
       if (!user || !referenceId || !resources?.includes(resource)) throw new Error();
-      const grant = grants.requireExact(referenceId, user.id, client.clientId, scopes.filter(s => s.startsWith('knowledge:')));
+      const grant = grants.requireExact(referenceId, user.id, client.clientId, scopes.filter(isResourceScope));
       return { dk_grant_id: grant.id, dk_grant_version: grant.version };
     } catch { throw new APIError('BAD_REQUEST', { error: 'invalid_grant', error_description: 'Knowledge authorization was revoked or changed' }); }
   };

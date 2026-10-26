@@ -1,4 +1,4 @@
-import type { PluginServices, HostCallContext } from '../../../packages/plugin-sdk/index.js';
+import type { PluginServices, HostCallContext, ServiceCallOptions } from '../../../packages/plugin-sdk/index.js';
 import type { AppDatabase } from '../../../packages/core/db.js';
 import type { platformRuntime } from '../platform/runtime.js';
 import { workspaceExclusive, workspaceWrite } from '../../../packages/core/workspace/gate.js';
@@ -27,10 +27,11 @@ export function pluginServices(
     id: context.ownerId,
     clientId: 'plugin-web:' + id,
     tokenIssuedAt: Math.floor(Date.now() / 1000),
-    scopes: webPrincipal.scopes.filter((scope) => capabilities.includes(scope)),
+    scopes: [...webPrincipal.scopes, 'blog:publish'].filter((scope) => capabilities.includes(scope)),
   };
   let finishingCommit = false;
-  function authorized(capability: string) {
+  function authorized(capability: string, options?: ServiceCallOptions) {
+    if (options?.signal?.aborted || (options?.deadline != null && Date.now() >= options.deadline)) fail(499, 'CALL_CANCELLED');
     if (!capabilities.includes(capability)) fail(403, 'PLUGIN_CAPABILITY_REQUIRED');
     checkTokenCutoff(db, principal);
     let policy = currentPrincipalPolicy(runtime.config, db, principal);
@@ -65,6 +66,19 @@ export function pluginServices(
     requireScope(p, capability);
     return p;
   }
+  function blogAuthorized(write: boolean, options?: ServiceCallOptions) {
+    let p = authorized('knowledge:read', options);
+    if (write) {
+      authorized('knowledge:write', options);
+      p = authorized('blog:publish', options);
+      if (id === 'mcp') {
+        const row = db.prepare("SELECT config_json FROM platform_plugins WHERE id='mcp' AND installed=1 AND state='enabled'").get() as { config_json: string } | undefined;
+        const policy = row ? JSON.parse(row.config_json) : {};
+        if (policy.readOnly !== false || policy.allowPublish !== true) fail(403, 'FORBIDDEN');
+      }
+    }
+    return p;
+  }
   function owned(operationId: string) {
     const row = db
       .prepare('SELECT * FROM operations WHERE id=? AND principal=? AND client_id=?')
@@ -83,53 +97,54 @@ export function pluginServices(
       ? { authorization }
       : {}),
     knowledge: {
-      info: async (b) => k.info(authorized('knowledge:read'), b.noteId),
-      list: async (b) =>
-        listMetadata(runtime.config, db, runtime.notes, k.info, authorized('knowledge:read'), b),
-      outline: async (b) => k.snapshots.outline(authorized('knowledge:read'), b.noteId, b.cursor),
-      readPage: async ({ noteId, ...b }) =>
+      info: async (b, options) => k.info(authorized('knowledge:read', options), b.noteId),
+      list: async (b, options) =>
+        listMetadata(runtime.config, db, runtime.notes, k.info, authorized('knowledge:read', options), b),
+      outline: async (b, options) => k.snapshots.outline(authorized('knowledge:read', options), b.noteId, b.cursor),
+      readPage: async ({ noteId, ...b }, options) =>
         k.snapshots.read(
-          authorized('knowledge:read'),
+          authorized('knowledge:read', options),
           noteId,
           b,
           context.channel === 'mcp' ? 'mcp' : 'web',
         ),
-      create: async (b) =>
+      create: async (b, options) =>
         k.core.create(
-          authorized('knowledge:write'),
+          authorized('knowledge:write', options),
           b.directory,
           b.fileName,
           b.content,
           b.requestId,
         ),
-      update: async (b) =>
+      update: async (b, options) =>
         k.core.update(
-          authorized('knowledge:write'),
+          authorized('knowledge:write', options),
           b.noteId,
           b.content,
           b.expectedModifiedAt,
           b.requestId,
         ),
-      patch: async ({ noteId, ...b }) =>
+      patch: async ({ noteId, ...b }, options) =>
         k.files.submit(
-          authorized('knowledge:write'),
+          authorized('knowledge:write', options),
           noteId,
           b,
           context.channel === 'mcp' ? 'mcp' : 'web',
         ),
-      archive: async (b) =>
-        k.core.archive(authorized('knowledge:write'), b.noteId, b.expectedModifiedAt, b.requestId),
-      search: async (b) => k.search.search(authorized('knowledge:read'), b),
-      research: async (b) =>
-        k.research.fetch(authorized('knowledge:read'), b.noteId, b.chunkId, {
+      archive: async (b, options) =>
+        k.core.archive(authorized('knowledge:write', options), b.noteId, b.expectedModifiedAt, b.requestId),
+      search: async (b, options) => k.search.search(authorized('knowledge:read', options), b),
+      research: async (b, options) =>
+        k.research.fetch(authorized('knowledge:read', options), b.noteId, b.chunkId, {
           sourceHash: b.sourceHash,
           sourceRevision: b.sourceRevision == null ? undefined : String(b.sourceRevision),
         }),
-      refresh: async (b) => k.indexing.refresh(authorized('knowledge:index'), b),
-      status: async (b) => k.indexing.status(authorized('knowledge:index'), b),
-      operation: async (b) => {
-        const p = authorized('knowledge:read'),
+      refresh: async (b, options) => k.indexing.refresh(authorized('knowledge:index', options), b),
+      status: async (b, options) => k.indexing.status(authorized('knowledge:index', options), b),
+      operation: async (b, options) => {
+        const p = authorized('knowledge:read', options),
           op = findOperation(db, p, { id: b.operationId, requestId: b.requestId });
+        if (op.kind === 'blog.publish' || op.kind === 'blog.unpublish') return runtime.blog.operationStatus(p, b);
         if (db.prepare('SELECT 1 FROM file_operations WHERE id=?').get(op.operationId))
           return k.files.operation(p, op.operationId);
         const intent = db
@@ -138,8 +153,13 @@ export function pluginServices(
         if (intent) authorizePath(p, intent.path);
         return op;
       },
-      cancel: async (b) => k.files.cancel(authorized('knowledge:write'), b.operationId),
+      cancel: async (b, options) => k.files.cancel(authorized('knowledge:write', options), b.operationId),
     },
+    ...(runtime.blog && capabilities.includes('knowledge:read') ? { blog: {
+      status: async (b: { noteId: string }, options?: ServiceCallOptions) => runtime.blog.noteStatus(blogAuthorized(false, options), b.noteId),
+      publish: async (b: Parameters<NonNullable<PluginServices['blog']>['publish']>[0], options?: ServiceCallOptions) => runtime.blog.publishNote(blogAuthorized(true, options), b, () => blogAuthorized(true, options)),
+      unpublish: async (b: Parameters<NonNullable<PluginServices['blog']>['unpublish']>[0], options?: ServiceCallOptions) => runtime.blog.unpublishNote(blogAuthorized(true, options), b, () => blogAuthorized(true, options)),
+    } } : {}),
     ...(capabilities.includes('workspace:git')
       ? {
           workspace: {

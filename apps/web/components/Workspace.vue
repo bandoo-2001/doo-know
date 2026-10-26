@@ -54,6 +54,9 @@ import SettingsOverlay from './settings/SettingsOverlay.vue';
 import TransferPanel from './settings/TransferPanel.vue';
 import StatusDrawer from './StatusDrawer.vue';
 import TrashWorkspace from './TrashWorkspace.vue';
+import AppsWorkspace from './AppsWorkspace.vue';
+import { createBlogWorkbench, type BlogSection } from '../blog-workbench';
+import { prepareBlogDiagrams } from '../blog-diagrams';
 import { settingsSections, normalizeSettingsSection } from '../settings';
 import { editorPreferences, setEditorPreferences } from '../preferences';
 import { createEditorViewTransitions } from '../editor/view-transitions';
@@ -197,6 +200,21 @@ const LargeFileWorkspace=defineAsyncComponent(()=>import('./LargeFileWorkspace.v
 const noteInfo = ref<NoteInfo>(),
   largeRef = ref<InstanceType<typeof LargeFileWorkspace>>(),
   largeDirty = ref(false);
+const blogModel = createBlogWorkbench(api, prepareBlogDiagrams);
+const appsApp = ref<'blog' | undefined>(readWorkspaceRoute().app);
+const appsSection = ref<BlogSection>(readWorkspaceRoute().appSection || 'overview');
+async function openBlogNote(id: string) {
+  await run(async () => {
+    if (note.value?.id === id) {
+      await applyRoute({ note: id });
+      if (panel.value === 'note') navigation.commit({ note: id });
+    } else await openNote(id);
+  });
+}
+function navigateApp(app: 'blog' | undefined, section: BlogSection = 'overview') {
+  appsApp.value = app; appsSection.value = section;
+  navigation.commit({view:'apps', ...(app ? {app, appSection:section} : {})});
+}
 const initialNoteId = new URLSearchParams(window.location.search).get('note');
 const noteLine = ref<number | undefined>();
 const editorRef = ref<InstanceType<typeof NoteEditorHost>>();
@@ -599,7 +617,10 @@ async function applyRoute(route: WorkspaceRoute, intent = ++navigationIntent) {
     return;
   }
   if (route.view === 'recent' || route.view === 'favorites') return showCollection(route.view, false, intent);
-  if (route.view === 'apps') return openApps(false, intent);
+  if (route.view === 'apps') {
+    appsApp.value = route.app; appsSection.value = route.appSection || 'overview';
+    return openApps(false, intent);
+  }
   if (route.view === 'trash') return openTrash(false, intent);
   if (route.view === 'settings') return settings(route.section, false, intent);
   if (route.folder && !treeLoaded.value) await refresh();
@@ -1628,7 +1649,7 @@ async function openApps(syncUrl = true, intent = ++navigationIntent) {
     if (!currentIntent(intent)) return;
     panel.value = 'apps';
     drawer.value = false;
-    if (syncUrl) navigation.commit({ view: 'apps' });
+    if (syncUrl) navigation.commit({ view: 'apps', ...(appsApp.value ? { app: appsApp.value, appSection: appsSection.value } : {}) });
   });
 }
 async function openTrash(syncUrl = true, intent = ++navigationIntent) {
@@ -3183,17 +3204,15 @@ onBeforeUnmount(() => {
           >
         </div>
       </section>
-      <section
+      <AppsWorkspace
         v-else-if="panel === 'apps'"
-        class="utility-view workspace-empty apps-workspace"
-        aria-labelledby="apps-title"
-      >
-        <div class="utility-empty">
-          <Icon name="apps" :size="36" />
-          <h1 id="apps-title">应用</h1>
-          <p>正在开发中</p>
-        </div>
-      </section>
+        :app="appsApp"
+        :section="appsSection"
+        :tree="tree"
+        :model="blogModel"
+        @navigate="navigateApp"
+        @open-note="openBlogNote"
+      />
       <TrashWorkspace
         v-else-if="panel === 'trash'"
         @open-note="openNote"

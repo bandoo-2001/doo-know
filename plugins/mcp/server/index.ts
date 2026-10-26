@@ -10,7 +10,7 @@ import { BridgeError, errorBody } from './errors.js';
 import { buildOpenApi } from './openapi.js';
 export function activate(ctx: PluginContext) {
   const calls = new AsyncLocalStorage<PluginServices>();
-  const client = hostClient(() => { const value = calls.getStore(); if (!value) throw new BridgeError('FORBIDDEN',403); return value; }, ctx.config);
+  const client = hostClient(() => { const value = calls.getStore(); if (!value) throw new BridgeError('FORBIDDEN',403); return value; }, ctx.config, ctx.track);
   const registry = createOperations({ objectIdSecret: ctx.secrets.getOrCreate('objects') }, client);
   const execute = registry.execute;
   registry.execute = async (tool, principal, args, options) => {
@@ -55,7 +55,7 @@ export function activate(ctx: PluginContext) {
       }
       const b = body as any;
       if (!b || typeof b !== 'object' || Array.isArray(b) || (b.id != null && !(typeof b.id === 'number' && Number.isFinite(b.id)) && !(typeof b.id === 'string' && Buffer.byteLength(b.id)<=128))) throw new BridgeError('INVALID_INPUT');
-      const server = new McpServer({ name: 'doo-know', version: '1.0.0' });
+      const server = new McpServer({ name: 'doo-know', version: '1.1.0' });
       const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined, enableJsonResponse: true, maxRequestBodySize: budgets.request });
       const send = transport.send.bind(transport);
       transport.send = async (message, options) => {
