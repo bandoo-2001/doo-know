@@ -27,7 +27,10 @@ const query = ref(''),
   preview = ref(false),
   confirm = ref<'withdraw' | 'remove'>();
 const pickerRoot = ref<HTMLElement>();
+const confirmRoot = ref<HTMLElement>();
 let pickerReturnFocus: HTMLElement | null = null;
+let confirmReturnFocus: HTMLElement | null = null;
+let confirmPostId = '';
 watch(picker, async (shown) => {
   if (shown) {
     pickerReturnFocus = document.activeElement as HTMLElement;
@@ -131,6 +134,7 @@ const changes = computed(
     posts.value.filter((post) => post.state === 'published' && post.hasUnpublishedChanges).length,
 );
 const busy = computed(() => !!state.busy[state.selectedId]);
+const reading = computed(() => !!state.reading[state.selectedId]);
 const dirty = computed(() => props.model.dirty());
 const selectedError = computed(() => state.errors[state.selectedId]);
 const previewTitle = computed(() => form.value?.title || selected.value?.post.title || '文章预览');
@@ -166,7 +170,7 @@ async function chooseNote(id: string) {
 }
 async function choosePost(id: string) {
   preview.value = false;
-  confirm.value = undefined;
+  closeConfirm(false);
   emit('section', 'articles');
   await props.model.select(id);
 }
@@ -192,22 +196,56 @@ async function copyUrl() {
     state.errors[state.selectedId] = '复制失败，请从固定链接栏手动复制。';
   }
 }
-async function confirmAction() {
-  const action = confirm.value;
+async function openConfirm(action: 'withdraw' | 'remove') {
+  if (busy.value || reading.value || !selected.value) return;
+  confirmReturnFocus = document.activeElement as HTMLElement;
+  confirmPostId = state.selectedId;
+  confirm.value = action;
+  await nextTick();
+  if (confirmPostId === state.selectedId && confirm.value === action) {
+    confirmRoot.value?.querySelector<HTMLButtonElement>('button')?.focus({ preventScroll: true });
+    confirmRoot.value?.scrollIntoView({ block: 'nearest' });
+  }
+}
+function closeConfirm(restoreFocus = true) {
   confirm.value = undefined;
+  confirmPostId = '';
+  const target = confirmReturnFocus;
+  confirmReturnFocus = null;
+  if (restoreFocus)
+    void nextTick(() => {
+      if (!confirm.value && target?.isConnected && props.section === 'articles')
+        target.focus({ preventScroll: true });
+    });
+}
+function confirmKeys(event: KeyboardEvent) {
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    event.stopPropagation();
+    closeConfirm();
+  }
+}
+async function confirmAction() {
+  const action = confirm.value,
+    id = confirmPostId,
+    target = confirmReturnFocus;
+  closeConfirm(false);
+  if (!action || id !== state.selectedId || busy.value || reading.value) return;
   if (action === 'withdraw') await props.model.withdraw();
   else if (action === 'remove') await props.model.remove();
+  if (state.selectedId === id && target?.isConnected) target.focus({ preventScroll: true });
 }
 watch(
   () => state.selectedId,
   () => {
     preview.value = false;
-    confirm.value = undefined;
+    closeConfirm(false);
   },
 );
 watch(
   () => props.section,
   (section) => {
+    closeConfirm(false);
     if (section === 'articles' && state.selectedId) void props.model.select(state.selectedId);
   },
 );
@@ -356,7 +394,7 @@ onMounted(() => {
             <Icon name="refresh" :size="18" />
           </button>
         </div>
-        <div class="blog-article-layout" :class="{ 'has-selection': selected }">
+        <div class="blog-article-layout" :class="{ 'has-selection': !!state.selectedId }">
           <aside class="blog-article-list" aria-label="博客文章列表">
             <label class="blog-search"
               ><Icon name="search" :size="16" /><input
@@ -376,8 +414,12 @@ onMounted(() => {
               }}<button aria-label="清除分类标签过滤" @click="clearFilters">×</button>
             </div>
             <div v-if="!visiblePosts.length" class="blog-empty compact">
+              <Icon :name="posts.length ? 'search' : 'file'" :size="25" />
               <p>{{ posts.length ? '没有匹配的文章' : '还没有博客文章' }}</p>
-              <button class="blog-text-button" @click="picker = true">从笔记中选稿 →</button>
+              <button v-if="posts.length" class="blog-text-button" @click="clearFilters">
+                清除搜索和筛选
+              </button>
+              <button v-else class="blog-text-button" @click="picker = true">从笔记中选稿 →</button>
             </div>
             <button
               v-for="post in visiblePosts"
@@ -405,7 +447,7 @@ onMounted(() => {
           <section v-if="selected && form" class="blog-article-detail" aria-label="文章发布设置">
             <div class="blog-detail-heading">
               <div>
-                <span class="blog-eyebrow">ARTICLE DETAILS</span>
+                <span class="blog-eyebrow">文章信息</span>
                 <h3>{{ selected.post.title }}</h3>
               </div>
               <span
@@ -425,7 +467,11 @@ onMounted(() => {
               </button>
             </div>
             <p v-if="selected.post.hasUnpublishedChanges" class="blog-changes-hint">
-              <Icon name="refresh" :size="15" /> 原稿或文章信息已有变化，线上仍保留上次发布的版本。
+              <Icon name="refresh" :size="15" />{{
+                selected.post.state === 'published'
+                  ? '原稿或文章信息已有变化，线上仍保留上次发布的版本。'
+                  : '原稿和文章信息仅自己可见，确认后手动发布。'
+              }}
             </p>
             <div v-if="selectedError" class="blog-alert error" role="alert">
               {{ selectedError
@@ -437,7 +483,48 @@ onMounted(() => {
                 重新核对
               </button>
             </div>
-            <form class="blog-form" @submit.prevent="model.save()">
+            <p v-if="reading" class="blog-read-status" role="status">
+              <Icon name="refresh" :size="15" /> 正在核对文章，当前预览与修改会保留…
+            </p>
+            <div class="blog-action-panel" role="group" aria-label="文章操作">
+              <div class="blog-save-state" :class="{ 'blog-unsaved': dirty }" role="status">
+                <Icon :name="dirty ? 'save' : 'check'" :size="14" />{{
+                  dirty
+                    ? '文章信息有未保存修改，请先保存后发布'
+                    : '文章信息已保存，可预览并手动发布'
+                }}
+              </div>
+              <div class="blog-publish-bar">
+                <button
+                  class="blog-button blog-save-button"
+                  type="submit"
+                  form="blog-article-form"
+                  :disabled="busy || reading || !dirty"
+                >
+                  {{ busy ? '处理中…' : '保存文章信息' }}
+                </button>
+                <button
+                  type="button"
+                  class="blog-button"
+                  :disabled="busy || reading || dirty"
+                  :aria-expanded="preview"
+                  aria-controls="blog-article-preview"
+                  @click="preview = !preview"
+                >
+                  <Icon name="eye" :size="17" />{{ preview ? '收起预览' : '预览文章' }}</button
+                ><button
+                  type="button"
+                  class="blog-button primary"
+                  :disabled="busy || reading || dirty"
+                  @click="model.publish()"
+                >
+                  <Icon name="upload" :size="17" />{{
+                    busy ? '处理中…' : selected.post.state === 'published' ? '发布更新' : '发布文章'
+                  }}
+                </button>
+              </div>
+            </div>
+            <form id="blog-article-form" class="blog-form" @submit.prevent="model.save()">
               <label
                 >文章标题<input v-model="form.title" maxlength="200" required name="blog-title"
               /></label>
@@ -465,61 +552,39 @@ onMounted(() => {
                   >标签<input v-model="tagsText" placeholder="用逗号分隔" maxlength="600"
                 /></label>
               </div>
-              <label
-                >封面图片<input
-                  :value="form.cover || ''"
-                  type="text"
-                  placeholder="笔记中的图片路径（可选）"
-                  @input="form.cover = ($event.target as HTMLInputElement).value || null"
-                /><small>发布时会固定图片副本，请使用你有权公开的图片。</small></label
-              >
-              <label class="blog-checkbox"
-                ><input v-model="form.pinned" type="checkbox" />置顶文章</label
-              >
-              <label
-                >固定链接
-                <div class="blog-url">
-                  <span>/blog/</span
-                  ><input :value="form.slug" readonly aria-label="文章固定链接" /><button
-                    type="button"
-                    class="blog-icon-button"
-                    :disabled="!selected.post.url"
-                    aria-label="复制文章链接"
-                    @click="copyUrl"
+              <details class="blog-secondary-fields">
+                <summary>封面、置顶与固定链接 <Icon name="chevron" :size="16" /></summary>
+                <div class="blog-secondary-body">
+                  <label
+                    >封面图片<input
+                      :value="form.cover || ''"
+                      type="text"
+                      placeholder="笔记中的图片路径（可选）"
+                      @input="form.cover = ($event.target as HTMLInputElement).value || null"
+                    /><small>发布时会固定图片副本，请使用你有权公开的图片。</small></label
                   >
-                    <Icon name="copy" :size="16" />
-                  </button>
+                  <label class="blog-checkbox"
+                    ><input v-model="form.pinned" type="checkbox" />置顶文章</label
+                  >
+                  <label
+                    >固定链接
+                    <div class="blog-url">
+                      <span>/blog/</span
+                      ><input :value="form.slug" readonly aria-label="文章固定链接" /><button
+                        type="button"
+                        class="blog-icon-button"
+                        :disabled="!selected.post.url"
+                        aria-label="复制文章链接"
+                        @click="copyUrl"
+                      >
+                        <Icon name="copy" :size="16" />
+                      </button>
+                    </div>
+                    <small>首次选稿后保持固定，修改标题不会改变文章地址。</small></label
+                  >
                 </div>
-                <small>首次选稿后保持固定，修改标题不会改变文章地址。</small></label
-              >
-              <div class="blog-save-row">
-                <span :class="{ 'blog-unsaved': dirty }">{{
-                  dirty ? '文章信息有未保存修改' : '文章信息已保存'
-                }}</span
-                ><button class="blog-button" type="submit" :disabled="busy || !dirty">
-                  {{ busy ? '处理中…' : '保存文章信息' }}
-                </button>
-              </div>
+              </details>
             </form>
-            <div class="blog-publish-bar">
-              <button
-                type="button"
-                class="blog-button"
-                :disabled="busy || dirty"
-                @click="preview = !preview"
-              >
-                <Icon name="eye" :size="17" />{{ preview ? '收起预览' : '预览文章' }}</button
-              ><button
-                type="button"
-                class="blog-button primary"
-                :disabled="busy || dirty"
-                @click="model.publish()"
-              >
-                <Icon name="upload" :size="17" />{{
-                  busy ? '处理中…' : selected.post.state === 'published' ? '发布更新' : '发布文章'
-                }}
-              </button>
-            </div>
             <p class="blog-publish-note">
               {{
                 state.dashboard.settings.enabled
@@ -527,7 +592,12 @@ onMounted(() => {
                   : '站点尚未开启：发布后仍需在站点设置中开启公开访问。'
               }}图形预览会在发布时生成。
             </p>
-            <article v-if="preview" class="blog-preview" aria-label="文章预览">
+            <article
+              v-if="preview"
+              id="blog-article-preview"
+              class="blog-preview"
+              aria-label="文章预览"
+            >
               <div class="blog-preview-label">
                 <Icon name="lock" :size="14" /> 仅自己可见的发布预览
               </div>
@@ -542,11 +612,15 @@ onMounted(() => {
               <button
                 v-if="selected.post.state === 'published'"
                 class="blog-text-button danger"
-                :disabled="busy"
-                @click="confirm = 'withdraw'"
+                :disabled="busy || reading"
+                @click="openConfirm('withdraw')"
               >
                 下架文章</button
-              ><button class="blog-text-button" :disabled="busy" @click="confirm = 'remove'">
+              ><button
+                class="blog-text-button"
+                :disabled="busy || reading"
+                @click="openConfirm('remove')"
+              >
                 移除选稿</button
               ><span>{{
                 selected.post.publishedAt
@@ -554,19 +628,48 @@ onMounted(() => {
                   : '还未公开发布'
               }}</span>
             </div>
-            <div v-if="confirm" class="blog-confirm" role="alertdialog" aria-label="确认博客操作">
+            <div
+              v-if="confirm"
+              ref="confirmRoot"
+              class="blog-confirm"
+              role="alertdialog"
+              aria-label="确认博客操作"
+              aria-describedby="blog-confirm-description"
+              @keydown="confirmKeys"
+            >
               <strong>{{
                 confirm === 'withdraw' ? '下架这篇文章？' : '移除这篇博客选稿？'
               }}</strong>
-              <p>公开文章将无法访问。知识库中的原笔记会保留。</p>
+              <p id="blog-confirm-description">公开文章将无法访问。知识库中的原笔记会保留。</p>
               <div>
-                <button class="blog-button" @click="confirm = undefined">取消</button
+                <button class="blog-button" @click="closeConfirm()">取消</button
                 ><button class="blog-button danger-button" @click="confirmAction">
                   {{ confirm === 'withdraw' ? '确认下架' : '确认移除' }}
                 </button>
               </div>
             </div>
           </section>
+          <div
+            v-else-if="state.selectedId && reading"
+            class="blog-empty blog-detail-state"
+            role="status"
+          >
+            <Icon name="refresh" :size="30" />
+            <h3>正在读取文章…</h3>
+            <p>正在准备原稿与发布预览。</p>
+          </div>
+          <div
+            v-else-if="state.selectedId && selectedError"
+            class="blog-empty blog-detail-state"
+            role="alert"
+          >
+            <Icon name="file" :size="30" />
+            <h3>文章详情暂时无法读取</h3>
+            <p>{{ selectedError }}</p>
+            <button type="button" class="blog-button" @click="model.select(state.selectedId)">
+              重新读取文章
+            </button>
+          </div>
           <div v-else class="blog-empty blog-select-placeholder">
             <Icon name="book" :size="42" />
             <h3>为一篇好文章，留一个位置</h3>
@@ -611,7 +714,8 @@ onMounted(() => {
                 :key="name"
                 @click="useTaxonomy('tag', name)"
               >
-                <span>#</span>{{ name }}<small>{{ count }}</small>
+                <span aria-hidden="true">#</span><span class="blog-tag-name">{{ name }}</span
+                ><small>{{ count }}</small>
               </button>
             </div>
           </section>

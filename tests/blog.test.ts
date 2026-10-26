@@ -130,3 +130,68 @@ it('returns temporary unavailability without revoking when the knowledge root be
   }
   expect((await f.app.inject({ url: '/blog/' + post.slug })).statusCode).toBe(200);
 });
+
+it('reflects the selected reader appearance and exposes keyboard landmarks without changing published content', async () => {
+  const n = await note('# Reader heading\n\nA fixed public body.');
+  const published = await publish(n);
+  expect(published.statusCode, published.body).toBe(200);
+  const post = published.json();
+  const originalSettings = (await f.app.inject({ url: '/api/blog/settings', headers })).json();
+  for (const theme of ['system', 'light']) {
+    const settings = (await f.app.inject({ url: '/api/blog/settings', headers })).json();
+    const updated = await f.app.inject({
+      method: 'PATCH',
+      url: '/api/blog/settings',
+      headers,
+      payload: { settings: { ...settings, enabled: true, theme }, requestId: randomUUID() },
+    });
+    expect(updated.statusCode, updated.body).toBe(200);
+    const reader = await f.app.inject({ url: '/blog/' + post.slug });
+    expect(reader.statusCode, reader.body).toBe(200);
+    expect(reader.body).toMatch(new RegExp('<html[^>]+data-theme="' + theme + '"'));
+    expect(reader.body).toContain('href="#blog-content"');
+    expect(reader.body).toContain('aria-label="博客导航"');
+    expect(reader.body).toContain('<main id="blog-content" tabindex="-1">');
+    expect(reader.body).toContain('<h1 id="heading-0">Reader heading</h1>');
+    expect(reader.body).toContain('A fixed public body.');
+    expect(reader.headers['content-security-policy']).toContain("default-src 'none'");
+    const current = (await f.app.inject({ url: '/api/blog', headers }))
+      .json()
+      .posts.find((p: any) => p.id === post.id);
+    expect(current.version).toBe(post.version);
+    expect(current.sourceHash).toBe(post.sourceHash);
+  }
+  const archive = await f.app.inject({ url: '/blog/archive' });
+  expect(archive.body).toContain('href="/blog/archive" aria-current="page"');
+  const settings = (await f.app.inject({ url: '/api/blog/settings', headers })).json();
+  await f.app.inject({
+    method: 'PATCH',
+    url: '/api/blog/settings',
+    headers,
+    payload: { settings: { ...settings, theme: originalSettings.theme }, requestId: randomUUID() },
+  });
+});
+
+it('explains active public filters and offers an exit when no article matches', async () => {
+  const category = 'Reader category ' + randomUUID(),
+    tag = 'Reader tag ' + randomUUID();
+  const n = await note('# Filtered public post');
+  const published = await publish(n, {
+    metadata: { slug: 'filter-' + n.id.slice(0, 8), category, tags: [tag] },
+  });
+  expect(published.statusCode, published.body).toBe(200);
+  const url = '/blog?category=' + encodeURIComponent(category);
+  const categoryPage = await f.app.inject({ url });
+  expect(categoryPage.statusCode, categoryPage.body).toBe(200);
+  expect(categoryPage.body).toContain('href="' + url + '" aria-current="true"');
+  expect(categoryPage.body).toContain('href="/blog">全部文章</a>');
+  expect(categoryPage.body).toContain('当前分类');
+  const tagPage = await f.app.inject({ url: '/blog?tag=' + encodeURIComponent(tag) });
+  expect(tagPage.body).toContain('当前标签');
+  expect(tagPage.body).toContain('aria-current="true">#' + tag + '</a>');
+  const missing = await f.app.inject({ url: '/blog?tag=' + randomUUID() });
+  expect(missing.statusCode, missing.body).toBe(200);
+  expect(missing.body).toContain('没有匹配的文章');
+  expect(missing.body).toContain('href="/blog">查看全部文章</a>');
+  expect(missing.body).not.toContain('<h2><a href="/blog/' + published.json().slug + '"');
+});

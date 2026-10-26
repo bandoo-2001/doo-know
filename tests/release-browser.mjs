@@ -100,6 +100,8 @@ try {
       'tests/e2e/reader-feedback.spec.ts',
       'tests/e2e/markdown-navigation.spec.ts',
       'tests/e2e/blog.spec.ts',
+      'tests/e2e/blog-polish.spec.ts',
+      'tests/e2e/blog-public-polish.spec.ts',
       '--output', '.local/release-browser-results',
     ], {
       stdio: 'inherit', detached: true,

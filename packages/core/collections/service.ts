@@ -13,7 +13,14 @@ import type {
 } from '../../../shared/collection-contracts.js';
 import type { AppDatabase } from '../db.js';
 import type { NoteService } from '../notes.js';
-import { categories, safePath, validateRelative, validName } from '../files.js';
+import {
+  categories,
+  safePath,
+  validateRelative,
+  validName,
+  isMissingSource,
+  sourceErrorCode,
+} from '../files.js';
 import { assertRoot } from '../indexing/reconcile.js';
 import { fail } from '../knowledge/errors.js';
 import { decodeCursor, signCursor } from '../agent/budgets.js';
@@ -85,7 +92,10 @@ export function collectionService(config: AppConfig, db: AppDatabase, notes: Not
       const file = safePath(config.knowledgeRoot, path, 'note');
       stat = lstatSync(file, { bigint: true });
       if (!stat.isFile() || stat.nlink !== 1n) throw new Error('invalid source');
-    } catch {
+    } catch (error) {
+      // A permission or I/O failure does not establish that this source was
+      // deleted. Keep its identity until a later observation can confirm it.
+      if (sourceErrorCode(error) && !isMissingSource(error)) return;
       db.prepare('UPDATE notes SET active=0 WHERE path=? AND active=1').run(path);
       db.prepare(
         'UPDATE shares SET enabled=0 WHERE note_id IN (SELECT id FROM notes WHERE path=? AND active=0)',

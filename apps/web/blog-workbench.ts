@@ -43,6 +43,7 @@ export function createBlogWorkbench(
     selectedId: '',
     forms: {} as Record<string, BlogMetadata>,
     details: {} as Record<string, BlogPostDetail>,
+    reading: {} as Record<string, boolean>,
     errors: {} as Record<string, string>,
     dashboard: undefined as BlogDashboard | undefined,
     settings: undefined as BlogSettings | undefined,
@@ -111,26 +112,33 @@ export function createBlogWorkbench(
   async function read(id: string) {
     const generation = (detailGeneration[id] || 0) + 1;
     detailGeneration[id] = generation;
-    const detail = (await request('/api/blog/posts/' + encodeURIComponent(id))) as BlogPostDetail;
-    if (generation !== detailGeneration[id]) return;
-    const preserve = dirty(id);
-    const baseline = saved[id] ? (JSON.parse(saved[id]!) as BlogMetadata) : undefined;
-    const local = state.forms[id];
-    state.details[id] = detail;
-    adoptPost(detail.post);
-    const remote = metadata(detail.post);
-    state.forms[id] = preserve && local && baseline ? mergeDraft(local, baseline, remote) : remote;
-    saved[id] = fingerprint(remote);
-    return detail;
+    state.reading[id] = true;
+    try {
+      const detail = (await request('/api/blog/posts/' + encodeURIComponent(id))) as BlogPostDetail;
+      if (generation !== detailGeneration[id]) return;
+      const preserve = dirty(id);
+      const baseline = saved[id] ? (JSON.parse(saved[id]!) as BlogMetadata) : undefined;
+      const local = state.forms[id];
+      state.details[id] = detail;
+      adoptPost(detail.post);
+      const remote = metadata(detail.post);
+      state.forms[id] =
+        preserve && local && baseline ? mergeDraft(local, baseline, remote) : remote;
+      saved[id] = fingerprint(remote);
+      return detail;
+    } finally {
+      if (generation === detailGeneration[id]) state.reading[id] = false;
+    }
   }
   async function select(id: string) {
     if (state.selectedId !== id) state.notice = '';
     state.selectedId = id;
     state.errors[id] = '';
+    const generation = (detailGeneration[id] || 0) + 1;
     try {
       await read(id);
     } catch (cause) {
-      state.errors[id] = errorMessage(cause);
+      if (generation === detailGeneration[id]) state.errors[id] = errorMessage(cause);
     }
   }
   async function create(sourceNoteId: string) {
@@ -255,6 +263,7 @@ export function createBlogWorkbench(
         state.dashboard.posts = state.dashboard.posts.filter((item) => item.id !== id);
       delete state.forms[id];
       delete state.details[id];
+      delete state.reading[id];
       delete saved[id];
       if (state.selectedId === id) state.selectedId = '';
       state.notice = '已移除博客文章，原笔记仍保留。';

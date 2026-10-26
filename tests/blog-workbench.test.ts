@@ -52,9 +52,60 @@ function detail(id = 'a', version = 1): BlogPostDetail {
 }
 function deferred<T>() {
   let resolve!: (value: T) => void;
-  const promise = new Promise<T>((r) => (resolve = r));
-  return { promise, resolve };
+  let reject!: (cause: unknown) => void;
+  const promise = new Promise<T>((r, j) => {
+    resolve = r;
+    reject = j;
+  });
+  return { promise, resolve, reject };
 }
+
+test('a first detail read exposes pending and retryable failure states without inventing a reviewed body', async () => {
+  const pending = deferred<BlogPostDetail>();
+  let reads = 0;
+  const model = createBlogWorkbench(async () => (++reads === 1 ? pending.promise : detail()));
+  const selecting = model.select('a');
+  expect(model.state.reading?.a).toBe(true);
+  expect(model.state.details.a).toBeUndefined();
+  pending.reject(Error('Temporary detail failure'));
+  await selecting;
+  expect(model.state.reading.a).toBe(false);
+  expect(model.state.errors.a).toBe('Temporary detail failure');
+  expect(model.state.details.a).toBeUndefined();
+  await model.select('a');
+  expect(model.state.reading.a).toBe(false);
+  expect(model.state.errors.a).toBe('');
+  expect(model.state.details.a?.post.sourceHash).toBe('hash-1');
+});
+
+test('an older detail completion cannot clear the newer read indicator or relabel its preview', async () => {
+  const old = deferred<BlogPostDetail>(),
+    latest = deferred<BlogPostDetail>();
+  let reads = 0;
+  const model = createBlogWorkbench(async () => (++reads === 1 ? old.promise : latest.promise));
+  const first = model.select('a'),
+    second = model.select('a');
+  old.resolve(detail('a', 1));
+  await first;
+  expect(model.state.reading?.a).toBe(true);
+  expect(model.state.details.a).toBeUndefined();
+  latest.resolve(detail('a', 2));
+  await second;
+  expect(model.state.reading.a).toBe(false);
+  expect(model.state.details.a?.post.sourceHash).toBe('hash-2');
+});
+
+test('an older failed selection cannot replace the latest successful read with a stale error', async () => {
+  const pending = deferred<BlogPostDetail>();
+  let reads = 0;
+  const model = createBlogWorkbench(async () => (++reads === 1 ? pending.promise : detail('a', 2)));
+  const first = model.select('a');
+  await model.select('a');
+  pending.reject(Error('Old failure'));
+  await first;
+  expect(model.state.errors.a).toBe('');
+  expect(model.state.details.a?.post.sourceHash).toBe('hash-2');
+});
 describe('blog routes', () => {
   test('restores a blog tab without consuming the editor note route', () => {
     expect(readWorkspaceRoute('https://local/?view=apps&app=blog&appSection=articles')).toEqual({

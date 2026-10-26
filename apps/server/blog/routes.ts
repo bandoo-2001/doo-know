@@ -12,13 +12,14 @@ import type { BlogService } from '../../../packages/core/blog/service.js';
 import { webPrincipal } from '../../../packages/core/knowledge/core.js';
 import { HttpError } from '../../../packages/core/errors.js';
 import { KnowledgeError } from '../../../packages/core/knowledge/errors.js';
+import { publicBlogStyles } from './styles.js';
 
 const esc = (s: unknown) =>
   String(s ?? '').replace(
     /[&<>"']/g,
     (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!,
   );
-const css = `:root{color-scheme:light;--ink:#24312d;--muted:#65716b;--paper:#fbfaf6;--accent:#44684f}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.85 system-ui,sans-serif}header,main,footer{max-width:860px;margin:auto;padding:28px}header{display:flex;justify-content:space-between;gap:24px;align-items:center;border-bottom:1px solid #dce2d9}header a,nav a{color:var(--ink);text-decoration:none}nav{display:flex;gap:20px;font-size:14px}.brand{font-weight:700;font-size:21px}main{min-height:60vh;padding-top:44px;padding-bottom:70px}h1,h2,h3{line-height:1.4;letter-spacing:-.025em}h1{font-size:36px}h2{font-size:25px}a{color:var(--accent)}.muted,time{color:var(--muted);font-size:14px}.post-card{padding:26px 0;border-bottom:1px solid #dce2d9}.post-card h2{margin:5px 0 12px}.post-card h2 a{text-decoration:none}.taxonomy{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0}.chip{font-size:13px;background:#edf1e9;padding:3px 12px;border-radius:20px;text-decoration:none}.summary{color:var(--muted)}img{max-width:100%;height:auto;border-radius:5px}pre{padding:18px;border-radius:8px;background:#edf0e9;overflow:auto;font-size:14px;line-height:1.65}code{font-family:ui-monospace,monospace}blockquote,.markdown-alert{padding:8px 20px;border-left:3px solid #78977c;margin:22px 0;color:var(--muted)}table{border-collapse:collapse;width:100%;display:block;overflow:auto}td,th{border:1px solid #d3dccf;padding:8px 12px}.toc{padding:16px 20px;border:1px solid #dce2d9;border-radius:8px;margin:30px 0}.toc a{display:block;font-size:14px}.cover{width:100%;max-height:400px;object-fit:cover}.about{white-space:pre-wrap}footer{font-size:13px;color:var(--muted);border-top:1px solid #dce2d9}@media(max-width:600px){header,main,footer{padding:22px}header{align-items:flex-start;flex-direction:column;gap:8px}h1{font-size:30px}}`;
+
 export function registerBlogRoutes(
   app: FastifyInstance,
   config: AppConfig,
@@ -97,6 +98,11 @@ export function registerBlogRoutes(
     if (!s.enabled) throw new HttpError(404, '博客页面不存在');
     const base = s.baseUrl || config.origin,
       canonical = base + (options.url || '/blog');
+    const navigation = (href: string, label: string) => {
+      const current = (options.url || '/blog') === href;
+      const section = options.post && href === '/blog';
+      return `<a href="${href}"${current ? ' aria-current="page"' : section ? ' aria-current="location"' : ''}>${label}</a>`;
+    };
     reply
       .header('Cache-Control', 'no-store')
       .header(
@@ -106,7 +112,7 @@ export function registerBlogRoutes(
     return reply
       .type('text/html; charset=utf-8')
       .send(
-        `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)} · ${esc(s.title)}</title><meta name="description" content="${esc(options.description || s.description)}"><link rel="canonical" href="${esc(canonical)}"><link rel="alternate" type="application/rss+xml" title="RSS" href="${esc(base)}/blog/rss.xml"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(options.description || s.description)}"><meta property="og:url" content="${esc(canonical)}"><meta property="og:type" content="${options.post ? 'article' : 'website'}"><style>${css}</style></head><body><header><a class="brand" href="/blog">${esc(s.title)}</a><nav><a href="/blog">文章</a><a href="/blog/archive">归档</a><a href="/blog/about">关于</a><a href="/blog/rss.xml">RSS</a></nav></header><main>${body}</main><footer>${esc(s.author || s.title)} · <a href="/blog/rss.xml">RSS</a></footer></body></html>`,
+        `<!doctype html><html lang="zh-CN" data-theme="${esc(s.theme)}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)} · ${esc(s.title)}</title><meta name="description" content="${esc(options.description || s.description)}"><link rel="canonical" href="${esc(canonical)}"><link rel="alternate" type="application/rss+xml" title="RSS" href="${esc(base)}/blog/rss.xml"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(options.description || s.description)}"><meta property="og:url" content="${esc(canonical)}"><meta property="og:type" content="${options.post ? 'article' : 'website'}"><style>${publicBlogStyles}</style></head><body><a class="skip-link" href="#blog-content">跳到正文</a><header><a class="brand" href="/blog">${esc(s.title)}</a><nav aria-label="博客导航">${navigation('/blog', '文章')}${navigation('/blog/archive', '归档')}${navigation('/blog/about', '关于')}${navigation('/blog/rss.xml', 'RSS')}</nav></header><main id="blog-content" tabindex="-1">${body}</main><footer>${esc(s.author || s.title)} · <a href="/blog/rss.xml">RSS</a></footer></body></html>`,
       );
   }
   app.get('/blog', (req, reply) => {
@@ -117,17 +123,31 @@ export function registerBlogRoutes(
     const all = blog.publicPosts(),
       categories = [...new Set(all.map((p) => p.category).filter(Boolean))],
       tags = [...new Set(all.flatMap((p) => p.tags))];
+    const filtered = !!(query.category || query.tag);
     const chips =
+      `<a class="chip" href="/blog"${!filtered ? ' aria-current="true"' : ''}>全部文章</a>` +
       categories
-        .map((c) => `<a class="chip" href="/blog?category=${encodeURIComponent(c)}">${esc(c)}</a>`)
+        .map(
+          (c) =>
+            `<a class="chip" href="/blog?category=${encodeURIComponent(c)}"${query.category === c ? ' aria-current="true"' : ''}>${esc(c)}</a>`,
+        )
         .join('') +
       tags
-        .map((t) => `<a class="chip" href="/blog?tag=${encodeURIComponent(t)}">#${esc(t)}</a>`)
+        .map(
+          (t) =>
+            `<a class="chip" href="/blog?tag=${encodeURIComponent(t)}"${query.tag === t ? ' aria-current="true"' : ''}>#${esc(t)}</a>`,
+        )
         .join('');
+    const empty = filtered
+      ? '<section class="empty-state" aria-label="筛选结果"><h2>没有匹配的文章</h2><p>试试其他分类或标签，或查看全部文章。</p><a href="/blog">查看全部文章</a></section>'
+      : '<section class="empty-state" aria-label="文章列表"><h2>暂无文章</h2><p>新的文章发布后会显示在这里。</p><a href="/blog/rss.xml">订阅 RSS</a></section>';
+    const status = filtered
+      ? `<p class="filter-status">${query.category ? '当前分类：' + esc(query.category) : ''}${query.category && query.tag ? ' · ' : ''}${query.tag ? '当前标签：#' + esc(query.tag) : ''} · ${posts.length} 篇文章</p>`
+      : '';
     return page(
       reply,
       s.title,
-      `<h1>${esc(query.category || query.tag || s.title)}</h1><p class="summary">${esc(s.description)}</p><div class="taxonomy">${chips}</div>${posts.map((p) => `<article class="post-card">${p.pinned ? '<span class="muted">置顶</span>' : ''}<time datetime="${esc(p.publishedAt)}">${esc(p.publishedAt.slice(0, 10))}</time><h2><a href="${esc(p.url)}">${esc(p.title)}</a></h2><p class="summary">${esc(p.summary)}</p>${p.cover ? `<a href="${esc(p.url)}"><img src="${esc(p.cover)}" alt=""></a>` : ''}</article>`).join('') || '<p class="muted">暂无文章</p>'}`,
+      `<h1>${esc(query.category || query.tag || s.title)}</h1>${s.description ? `<p class="summary">${esc(s.description)}</p>` : ''}<div class="taxonomy" aria-label="文章筛选">${chips}</div>${status}${posts.map((p) => `<article class="post-card">${p.pinned ? '<span class="pinned">置顶</span>' : ''}<time datetime="${esc(p.publishedAt)}">${esc(p.publishedAt.slice(0, 10))}</time><h2><a href="${esc(p.url)}">${esc(p.title)}</a></h2>${p.summary ? `<p class="summary">${esc(p.summary)}</p>` : ''}${p.cover ? `<a href="${esc(p.url)}"><img class="cover" src="${esc(p.cover)}" alt=""></a>` : ''}</article>`).join('') || empty}`,
     );
   });
   app.get('/blog/', (_req, reply) => {
@@ -148,7 +168,7 @@ export function registerBlogRoutes(
     return page(
       reply,
       '归档',
-      `<h1>文章归档</h1>${posts.map((p) => `<p><time>${esc(p.publishedAt.slice(0, 10))}</time> · <a href="${esc(p.url)}">${esc(p.title)}</a></p>`).join('')}`,
+      `<h1>文章归档</h1>${posts.length ? `<ol class="archive-list">${posts.map((p) => `<li><time datetime="${esc(p.publishedAt)}">${esc(p.publishedAt.slice(0, 10))}</time><a href="${esc(p.url)}">${esc(p.title)}</a></li>`).join('')}</ol>` : '<div class="empty-state"><p>暂无已发布文章。</p><a href="/blog">返回文章列表</a></div>'}`,
       { url: '/blog/archive' },
     );
   });
@@ -185,12 +205,12 @@ export function registerBlogRoutes(
     const p = publicService().publicPost(req.params.slug),
       toc =
         p.headings.length > 2
-          ? `<aside class="toc" aria-label="目录">${p.headings.map((h) => `<a href="#${esc(h.id)}">${esc(h.text)}</a>`).join('')}</aside>`
+          ? `<aside class="toc" aria-label="目录"><h2>文章目录</h2>${p.headings.map((h) => `<a href="#${esc(h.id)}">${esc(h.text)}</a>`).join('')}</aside>`
           : '';
     return page(
       reply,
       p.title,
-      `<article><p class="muted"><time datetime="${esc(p.publishedAt)}">${esc(p.publishedAt.slice(0, 10))}</time>${p.category ? ' · ' + esc(p.category) : ''}</p><h1>${esc(p.title)}</h1>${p.summary ? `<p class="summary">${esc(p.summary)}</p>` : ''}<div class="taxonomy">${p.tags.map((t) => `<a class="chip" href="/blog?tag=${encodeURIComponent(t)}">#${esc(t)}</a>`).join('')}</div>${p.cover ? `<img class="cover" src="${esc(p.cover)}" alt="">` : ''}${toc}<div class="article-body">${p.html}</div></article>`,
+      `<article><p class="muted article-meta"><time datetime="${esc(p.publishedAt)}">${esc(p.publishedAt.slice(0, 10))}</time>${p.category ? ` · <a href="/blog?category=${encodeURIComponent(p.category)}">${esc(p.category)}</a>` : ''}</p><h1>${esc(p.title)}</h1>${p.summary ? `<p class="summary">${esc(p.summary)}</p>` : ''}${p.tags.length ? `<div class="taxonomy" aria-label="文章标签">${p.tags.map((t) => `<a class="chip" href="/blog?tag=${encodeURIComponent(t)}">#${esc(t)}</a>`).join('')}</div>` : ''}${p.cover ? `<img class="cover" src="${esc(p.cover)}" alt="">` : ''}${toc}<div class="article-body">${p.html}</div></article>`,
       { url: p.url, description: p.summary, post: true },
     );
   });
