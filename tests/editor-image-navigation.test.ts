@@ -268,6 +268,8 @@ it('releases image connections from a read-only HTML surface before navigation',
 });
 it('releases removed preview images even when the root binding is disposed in the same turn', async () => {
   await preview();
+  // Observe the complete scheduled batch before asserting its disposal.
+  await expect.poll(() => active.size).toBe(3);
   await page.evaluate(() => {
     const { root, stop } = (window as any).fixture.preview;
     root.replaceChildren();
