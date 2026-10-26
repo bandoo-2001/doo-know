@@ -69,6 +69,11 @@ test('阅读链接准确区分脚注、同路径外链和跨笔记编码章节�
       ),
     )
     .toBe('章节');
+  await expect(
+    page
+      .getByRole('textbox', { name: '文档正文', exact: true })
+      .getByRole('heading', { name: '章节', exact: true }),
+  ).toBeInViewport();
   await page.goBack();
   await expect(page).toHaveURL(new RegExp('note=' + source.id));
 });
@@ -99,6 +104,11 @@ test('文档编辑内部章节定位实际选区，同路径外链打开外部�
       ),
     )
     .toBe('章节');
+  await expect(
+    page
+      .getByRole('textbox', { name: '文档正文', exact: true })
+      .getByRole('heading', { name: '章节', exact: true }),
+  ).toBeInViewport();
   await expect(page).toHaveURL(origin + '/?note=' + source.id + fragment);
   await page.reload();
   await expect
@@ -108,6 +118,11 @@ test('文档编辑内部章节定位实际选区，同路径外链打开外部�
       ),
     )
     .toBe('章节');
+  await expect(
+    page
+      .getByRole('textbox', { name: '文档正文', exact: true })
+      .getByRole('heading', { name: '章节', exact: true }),
+  ).toBeInViewport();
   await editor.getByRole('link', { name: '外部资料', exact: true }).click();
   const popupPending = page.waitForEvent('popup');
   await page.getByRole('button', { name: '打开链接', exact: true }).click();
@@ -124,6 +139,11 @@ test('文档编辑内部章节定位实际选区，同路径外链打开外部�
       ),
     )
     .toBe('章节');
+  await expect(
+    page
+      .getByRole('textbox', { name: '文档正文', exact: true })
+      .getByRole('heading', { name: '章节', exact: true }),
+  ).toBeInViewport();
 });
 
 test('未保存源码切换阅读与分屏立即更新，图片代码图形正常并保留离开确认中的章节', async ({
@@ -215,6 +235,11 @@ test('纯章节链接保留刷新历史，设置返回未保存草稿仍定位�
       ),
     )
     .toBe('章节');
+  await expect(
+    page
+      .getByRole('textbox', { name: '文档正文', exact: true })
+      .getByRole('heading', { name: '章节', exact: true }),
+  ).toBeInViewport();
   await page.goBack();
   await expect(page).toHaveURL(origin + '/?note=' + note.id);
   await page.getByRole('button', { name: 'Markdown 源码', exact: true }).click();

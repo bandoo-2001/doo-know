@@ -983,6 +983,10 @@ async function openNote(id: string, line?: number, syncUrl = true, preserveDraft
       noteLine.value = line;
       if (syncUrl) navigation.commit({ note: id, line, fragment });
       if (meta.editorMode === 'full' && !isWhiteboard(meta.relativePath)) await localDrafts.load(id, currentDraftBase(), n.content);
+      if (epoch !== viewEpoch || !currentIntent(intent)) return;
+      // A mounted read-only editor can accept a model selection but cannot
+      // establish DOM focus. Apply its editable state before revealing a target.
+      noteOpening.value = false;
       await nextTick();
       if (epoch !== viewEpoch || !currentIntent(intent)) return;
       if (line) revealLine(line);

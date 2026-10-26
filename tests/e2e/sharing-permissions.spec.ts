@@ -593,10 +593,10 @@ test('dark share reading and editing keep readable contrast', async ({ page }) =
   ).json();
   await page.goto(origin + share.url);
   await expect(page.locator('.reader-title')).toBeVisible();
-  await page.evaluate(async () => {
-    const path = '/preferences.ts';
-    const preferences = await import(path);
-    preferences.setEditorPreferences({ theme: 'dark' });
+  // Exercise the shared dark CSS contract without importing development-only
+  // modules. Public preference initialization is outside this contrast test.
+  await page.evaluate(() => {
+    document.documentElement.dataset.theme = 'dark';
   });
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   async function contrast(selector: string) {

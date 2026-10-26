@@ -476,3 +476,17 @@ it('editor navigation distinguishes colliding heading names from the genuine foo
   await state.revealFragment('#fnref1');
   expect(goToLine).toHaveBeenLastCalledWith(5);
 });
+
+it('applies the editable opening state before focusing a cross-note chapter', async () => {
+  await mount();
+  targetNotes();
+  state.draft.value = state.savedContent.value;
+  const openingStates: boolean[] = [];
+  state.editorRef.value = {
+    goToLine: () => openingStates.push(state.noteOpening.value),
+    flush: async () => {},
+    cancelPendingFocus: () => {},
+  };
+  await state.openMarkdownNote('note-two', '#%E7%AB%A0%E8%8A%82');
+  expect(openingStates).toEqual([false]);
+});
