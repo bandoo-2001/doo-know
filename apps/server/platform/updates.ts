@@ -30,6 +30,7 @@ import {
   unitName,
   writeService,
   waitHealthy,
+  assertManagedDatabaseOwnership,
 } from './service.js';
 import { openDatabase } from '../../../packages/core/db.js';
 import { createPlatformBackup } from './backups.js';
@@ -262,7 +263,45 @@ export async function recoverTransaction(config: HostConfig) {
   const journal = join(config.installRoot!, 'update-transaction.json');
   if (!existsSync(journal)) return;
   const state = JSON.parse(await readFile(journal, 'utf8'));
+  if (!state || (state.kind !== undefined && !['update', 'rollback'].includes(state.kind)))
+    throw Error('管理事务类型不正确；保留当前程序与数据，请先核对');
   if (['complete', 'recovered'].includes(state.phase)) return;
+  if (state.kind === 'rollback') {
+    if (
+      !['quiescing', 'switched', 'accepted', 'recoveryAccepted'].includes(state.phase) ||
+      ![state.previous, state.candidate].every(
+        (version) => typeof version === 'string' && /^[0-9A-Za-z][0-9A-Za-z.+-]{0,79}$/.test(version),
+      ) || typeof state.wasActive !== 'boolean' || state.previous === state.candidate
+    ) throw Error('回滚记录不完整；保留当前程序与数据，请先核对');
+    const previous = resolve(config.installRoot!, 'releases', state.previous),
+      candidate = resolve(config.installRoot!, 'releases', state.candidate),
+      pointer = await realpath(join(config.installRoot!, 'current'));
+    if (
+      ![previous, candidate].includes(pointer) ||
+      (state.phase === 'accepted' && pointer !== candidate) ||
+      (state.phase === 'recoveryAccepted' && pointer !== previous)
+    ) throw Error('回滚记录与当前代码指针不一致；保留当前程序与数据，请先核对');
+    if (releaseInfo(previous).databaseCompatibility !== releaseInfo(candidate).databaseCompatibility)
+      throw Error('此迁移不支持普通代码回退；请使用明确的数据恢复流程，保留最新原文');
+    if (['quiescing', 'switched'].includes(state.phase)) {
+      const db = new Database(join(config.dataRoot, 'app.sqlite'), { readonly: true, fileMustExist: true });
+      let gated: boolean;
+      try {
+        gated = !!(db.prepare('SELECT active FROM maintenance WHERE id=1').get() as any)?.active;
+      } finally { db.close(); }
+      if (!gated && (state.phase === 'switched' || pointer !== previous))
+        throw Error('检测到写入已开放，禁止自动回退当前代码；请核对回滚恢复记录');
+      const installation = JSON.parse(await readFile(join(config.installRoot!, 'installation.json'), 'utf8'));
+      if (installation.current !== state.previous || installation.previous !== state.candidate)
+        throw Error('回滚记录与安装信息不一致；保留当前程序与数据，请先核对');
+      if (serviceActive(config)) systemctl(['stop', unitName(config)]);
+      maintenance(config, true);
+      // A code-only rollback never restores a database snapshot.
+      await switchRelease(config, previous);
+      await finishRecovery();
+      return;
+    }
+  }
   if (state.phase === 'accepted') {
     await durableJson(join(config.installRoot!, 'installation.json'), {
       current: state.candidate,
@@ -481,41 +520,59 @@ export async function rollbackPlatform(config: HostConfig) {
   if (!config.installRoot) throw Error('回滚需要原生安装目录');
   const root = resolve(config.installRoot);
   const unavailable = () => Error('没有可用的上一发行版本；当前程序与资料已保留，请重新安装受控版本或使用明确的数据恢复流程。');
-  let installation;
-  try {
-    installation = JSON.parse(await readFile(join(root, 'installation.json'), 'utf8'));
-  } catch (error) {
-    if (error instanceof SyntaxError || (error as NodeJS.ErrnoException).code === 'ENOENT')
-      throw unavailable();
-    throw error;
-  }
-  if (
-    !installation || typeof installation !== 'object' || Array.isArray(installation) ||
-    typeof installation.previous !== 'string' ||
-    !/^[0-9A-Za-z][0-9A-Za-z.+-]{0,79}$/.test(installation.previous)
-  ) throw unavailable();
-  const current = await realpath(join(root, 'current')),
-    previous = join(root, 'releases', installation.previous || '');
-  if (!installation.previous || !existsSync(previous)) throw unavailable();
-  if (
-    releaseInfo(current).databaseCompatibility !== releaseInfo(previous).databaseCompatibility
-  )
-    throw Error('此迁移不支持普通代码回退；请使用明确的数据恢复流程，保留最新原文');
-  for (const file of ['runtime/node/bin/node', 'dist/server/scripts/manage.js']) {
+  async function preflight() {
+    let installation;
     try {
-      if (!(await stat(join(previous, file))).isFile()) throw unavailable();
+      installation = JSON.parse(await readFile(join(root, 'installation.json'), 'utf8'));
     } catch (error) {
-      if (['ENOENT', 'ENOTDIR'].includes((error as NodeJS.ErrnoException).code || ''))
+      if (error instanceof SyntaxError || (error as NodeJS.ErrnoException).code === 'ENOENT')
         throw unavailable();
       throw error;
     }
+    if (
+      !installation || typeof installation !== 'object' || Array.isArray(installation) ||
+      typeof installation.previous !== 'string' ||
+      !/^[0-9A-Za-z][0-9A-Za-z.+-]{0,79}$/.test(installation.previous)
+    ) throw unavailable();
+    const current = await realpath(join(root, 'current')),
+      previous = join(root, 'releases', installation.previous || '');
+    if (!installation.previous || !existsSync(previous)) throw unavailable();
+    if (
+      releaseInfo(current).databaseCompatibility !== releaseInfo(previous).databaseCompatibility
+    )
+      throw Error('此迁移不支持普通代码回退；请使用明确的数据恢复流程，保留最新原文');
+    for (const file of ['runtime/node/bin/node', 'dist/server/scripts/manage.js']) {
+      try {
+        if (!(await stat(join(previous, file))).isFile()) throw unavailable();
+      } catch (error) {
+        if (['ENOENT', 'ENOTDIR'].includes((error as NodeJS.ErrnoException).code || ''))
+          throw unavailable();
+        throw error;
+      }
+    }
+    return { installation, current, previous };
   }
+  // Invalid artifacts must be refused before creating management state or stopping a service.
+  await preflight();
   return managementLock(config, async () => {
-    const wasActive = serviceActive(config);
-    return withQuiesced(
-      config,
-      async () => {
-        try {
+    await recoverTransaction(config);
+    const { installation, current, previous } = await preflight();
+    assertManagedDatabaseOwnership(config);
+    const db = new Database(join(config.dataRoot, 'app.sqlite'), { readonly: true, fileMustExist: true });
+    try {
+      if ((db.prepare('SELECT active FROM maintenance WHERE id=1').get() as any)?.active)
+        throw Error('工作区已处于维护状态，请先核对未完成操作');
+    } finally { db.close(); }
+    const wasActive = serviceActive(config),
+      journal = join(root, 'update-transaction.json'),
+      state = { kind: 'rollback', previous: releaseInfo(current).version,
+        candidate: releaseInfo(previous).version, wasActive, phase: 'quiescing' };
+    await durableJson(journal, state);
+    let accepted = false;
+    try {
+      return await withQuiesced(
+        config,
+        async () => {
           const clone = await mkdtemp(join(root, '.rollback-check-'));
           try {
             await candidateCheck(config, previous, clone);
@@ -523,21 +580,25 @@ export async function rollbackPlatform(config: HostConfig) {
             await rm(clone, { recursive: true, force: true });
           }
           await switchRelease(config, previous);
+          await durableJson(journal, { ...state, phase: 'switched' });
           await startHealthy(config, previous, wasActive);
-        } catch (e) {
-          if (wasActive) systemctl(['stop', unitName(config)]);
-          await switchRelease(config, current);
-          await startHealthy(config, current, wasActive);
-          throw e;
-        }
-        await durableJson(join(root, 'installation.json'), {
-          ...installation,
-          current: releaseInfo(previous).version,
-          previous: releaseInfo(current).version,
-        });
-        return { version: releaseInfo(previous).version, dataPreserved: true };
-      },
-      { resume: false },
-    );
+          await durableJson(journal, { ...state, phase: 'accepted' });
+          accepted = true;
+          await durableJson(join(root, 'installation.json'), {
+            ...installation,
+            current: releaseInfo(previous).version,
+            previous: releaseInfo(current).version,
+          });
+          maintenance(config, false);
+          await durableJson(journal, { ...state, phase: 'complete' });
+          return { version: releaseInfo(previous).version, dataPreserved: true };
+        },
+        { resume: false, keepMaintenanceOnError: true },
+      );
+    } catch (error) {
+      if (accepted) throw Error('回退版本已接管数据，收尾未完成；请恢复管理事务：' + (error as Error).message);
+      await recoverTransaction(config);
+      throw error;
+    }
   });
 }

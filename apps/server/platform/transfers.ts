@@ -70,6 +70,8 @@ type Job = {
   payload: string;
   artifact: string | null;
 };
+const publicJobColumns = 'id,kind,state,created_at,updated_at,cancellable,cancel_requested,progress,items,result,error,artifact';
+type PublicJob = Pick<Job, 'id' | 'kind' | 'state' | 'created_at' | 'updated_at' | 'cancellable' | 'cancel_requested' | 'progress' | 'items' | 'result' | 'error' | 'artifact'>;
 type ImportItem = TransferItem & { attempt?: number };
 const noteRequestId = (jobId: string, index: number, item: ImportItem) =>
   `transfer-${jobId}-${index}-${item.attempt || 0}`;
@@ -120,7 +122,7 @@ function safeError(error: unknown) {
   if (error instanceof HttpError) return error.message;
   return '操作失败；请核对文件、恢复密钥、可用空间及工作区状态后重试';
 }
-function publicTask(j: Job): TransferTask {
+function publicTask(j: PublicJob): TransferTask {
   return {
     id: j.id,
     kind: j.kind,
@@ -164,6 +166,8 @@ export function registerTransferRoutes(
   ).run(new Date().toISOString());
   let closing = false,
     scheduled = false,
+    legacyPayloadsRemain = true,
+    legacyCursor = 0,
     current: Promise<void> | undefined;
   const storageRoot = join(
     dirname(resolve(config.dataRoot)),
@@ -216,6 +220,12 @@ export function registerTransferRoutes(
     if (!row) throw new HttpError(404, '任务不存在');
     return row;
   }
+  function publicJob(owner: string, id: string) {
+    const row = db.prepare(`SELECT ${publicJobColumns} FROM managed_transfer_jobs WHERE id=? AND owner=?`)
+      .get(idInput(id), owner) as PublicJob | undefined;
+    if (!row) throw new HttpError(404, '任务不存在');
+    return row;
+  }
   function backup(owner: string, id: string) {
     const row = db
       .prepare('SELECT * FROM managed_transfer_backups WHERE id=? AND owner=?')
@@ -234,8 +244,29 @@ export function registerTransferRoutes(
       result: unknown;
       error: string | null;
       artifact: string | null;
+      payload: string;
     }>,
   ) {
+    if (fields.state === 'succeeded') fields.payload = '{}';
+    else if (fields.state === 'failed' || fields.state === 'cancelled') {
+      const row = db.prepare('SELECT kind,payload,items FROM managed_transfer_jobs WHERE id=?').get(id) as Pick<Job, 'kind' | 'payload' | 'items'>;
+      if (row.kind === 'import') {
+        const payload = JSON.parse(row.payload) as ImportRequest,
+          items = (fields.items || JSON.parse(row.items)) as ImportItem[];
+        // Cancellation remains retryable. Only confirmed completed inputs can be discarded.
+        payload.entries = payload.entries.map((entry, index) => {
+          if (!['succeeded', 'skipped'].includes(items[index]?.state)) return entry;
+          let content = '';
+          if (isWhiteboard(entry.path)) {
+            // A failed note can still reference the original scene ID after a board was imported.
+            const id = JSON.parse(entryBytes(entry).toString('utf8')).dooknow?.id;
+            content = JSON.stringify({ dooknow: { id } });
+          }
+          return { ...entry, encoding: 'utf8', content };
+        });
+        fields.payload = JSON.stringify(payload);
+      }
+    }
     const pairs = Object.entries(fields);
     db.prepare(
       `UPDATE managed_transfer_jobs SET ${pairs.map(([k]) => k + '=?').join(',')},updated_at=? WHERE id=?`,
@@ -249,8 +280,8 @@ export function registerTransferRoutes(
   }
   function existing(owner: string, kind: TransferKind, rid: string, fingerprint: string) {
     const row = db
-      .prepare('SELECT * FROM managed_transfer_jobs WHERE owner=? AND kind=? AND request_id=?')
-      .get(owner, kind, rid) as Job | undefined;
+      .prepare(`SELECT ${publicJobColumns},fingerprint FROM managed_transfer_jobs WHERE owner=? AND kind=? AND request_id=?`)
+      .get(owner, kind, rid) as (PublicJob & Pick<Job, 'fingerprint'>) | undefined;
     if (row && row.fingerprint !== fingerprint)
       throw new HttpError(409, '同一 requestId 已用于不同请求');
     return row;
@@ -311,7 +342,7 @@ export function registerTransferRoutes(
         if (
           !closing &&
           db.open &&
-          db.prepare("SELECT 1 FROM managed_transfer_jobs WHERE state='queued'").get()
+          (legacyPayloadsRemain || db.prepare("SELECT 1 FROM managed_transfer_jobs WHERE state='queued'").get())
         )
           schedule();
       });
@@ -325,6 +356,19 @@ export function registerTransferRoutes(
     );
   }
   async function drain() {
+    if (legacyPayloadsRemain) {
+      // Bound each maintenance slice and yield through schedule between slices. SQL drops
+      // legacy bodies without loading or parsing them; failed/interrupted inputs stay intact.
+      const rows = db.prepare('SELECT rowid FROM managed_transfer_jobs WHERE rowid>? ORDER BY rowid LIMIT 8')
+        .all(legacyCursor) as { rowid: number }[];
+      if (rows.length) {
+        const next = rows[rows.length - 1].rowid;
+        db.prepare("UPDATE managed_transfer_jobs SET payload='{}' WHERE rowid>? AND rowid<=? AND state='succeeded' AND payload<>'{}'")
+          .run(legacyCursor, next);
+        legacyCursor = next;
+      }
+      legacyPayloadsRemain = rows.length === 8;
+    }
     while (!closing) {
       const j = db
         .prepare(
@@ -755,19 +799,19 @@ export function registerTransferRoutes(
   app.get('/api/manage/tasks', async (req) => {
     const owner = owned(req),
       { limit, cursor } = pagination(req);
-    if (cursor) job(owner, cursor);
+    if (cursor) publicJob(owner, cursor);
     const rows = db
       .prepare(
-        `SELECT * FROM managed_transfer_jobs WHERE owner=? ${cursor ? 'AND rowid<(SELECT rowid FROM managed_transfer_jobs WHERE id=?)' : ''} ORDER BY rowid DESC LIMIT ?`,
+        `SELECT ${publicJobColumns} FROM managed_transfer_jobs WHERE owner=? ${cursor ? 'AND rowid<(SELECT rowid FROM managed_transfer_jobs WHERE id=?)' : ''} ORDER BY rowid DESC LIMIT ?`,
       )
-      .all(...(cursor ? [owner, cursor, limit + 1] : [owner, limit + 1])) as Job[];
+      .all(...(cursor ? [owner, cursor, limit + 1] : [owner, limit + 1])) as PublicJob[];
     return {
       items: rows.slice(0, limit).map(publicTask),
       ...(rows.length > limit ? { nextCursor: rows[limit - 1].id } : {}),
     };
   });
   app.get<{ Params: { id: string } }>('/api/manage/tasks/:id', async (req) =>
-    publicTask(job(owned(req), req.params.id)),
+    publicTask(publicJob(owned(req), req.params.id)),
   );
   app.post<{ Params: { id: string } }>('/api/manage/tasks/:id/cancel', async (req) => {
     const j = job(owned(req), req.params.id);
@@ -1086,4 +1130,5 @@ export function registerTransferRoutes(
         clearUploadedKey(j);
     }
   });
+  schedule();
 }

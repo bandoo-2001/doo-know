@@ -567,3 +567,108 @@ it('retains escaped table filename semantics when replacing its physical destina
   );
   expect(content).toBe('| A |\n| --- |\n| ![one](assets/x%7C1%20(2).png) |');
 });
+
+it('releases successful import payloads while keeping receipts and request fingerprints', async () => {
+  const f = await fixture();
+  try {
+    const request = body([note('large.md', 'x'.repeat(512 * 1024))]);
+    const created = (await f.post('/api/manage/import', request)).json();
+    const task = await f.settle(created.id);
+    expect(task.state).toBe('succeeded');
+    const stored = f.db.prepare('SELECT payload,fingerprint FROM managed_transfer_jobs WHERE id=?').get(task.id) as any;
+    expect(stored.payload).toBe('{}');
+    expect(stored.fingerprint).toHaveLength(64);
+    expect((await f.post('/api/manage/import', request)).json()).toEqual(task);
+    expect((await f.post('/api/manage/import', {...request,entries:[note('large.md','changed')]})).statusCode).toBe(409);
+    expect(await readFile(join(f.config.knowledgeRoot,'00-Inbox/large.md'),'utf8')).toBe(request.entries[0].content);
+  } finally { await f.close(); }
+});
+
+it('reads only public task fields for list, detail and pagination cursor validation', async () => {
+  const f = await fixture(); let view = false;
+  try {
+    const task = await f.settle((await f.post('/api/manage/import',body([note('query.md')]))).json().id);
+    f.db.function('reject_private_payload', (_payload: string) => { throw Error('public query materialized the private payload'); });
+    f.db.exec('ALTER TABLE managed_transfer_jobs RENAME TO transfer_query_fixture');
+    const columns = (f.db.prepare('PRAGMA table_info(transfer_query_fixture)').all() as {name:string}[]).map(c => c.name==='payload' ? 'reject_private_payload(payload) AS payload' : c.name);
+    f.db.exec('CREATE VIEW managed_transfer_jobs AS SELECT rowid,'+columns.join(',')+' FROM transfer_query_fixture'); view=true;
+    for(const url of ['/api/manage/tasks','/api/manage/tasks/'+task.id,'/api/manage/tasks?cursor='+task.id]) {
+      const response=await f.get(url);expect(response.statusCode,response.body).toBe(200);
+    }
+  } finally {
+    if(view)f.db.exec('DROP VIEW managed_transfer_jobs; ALTER TABLE transfer_query_fixture RENAME TO managed_transfer_jobs');
+    await f.close();
+  }
+});
+
+it('retains only unfinished import bodies on failure and cancellation while allowing retry', async () => {
+  const f=await fixture();
+  try {
+    const request=body([note('done.md','done-body'.repeat(1000)),note('remaining.md','retry-body'.repeat(1000))]);
+    const posted=await f.post('/api/manage/import',request);
+    await writeFile(join(f.config.knowledgeRoot,'00-Inbox/remaining.md'),'competing write');
+    let task=await f.settle(posted.json().id);expect(task.state).toBe('failed');
+    const payload=JSON.parse((f.db.prepare('SELECT payload FROM managed_transfer_jobs WHERE id=?').get(task.id) as any).payload);
+    expect(payload.entries[0].content).toBe('');expect(payload.entries[1].content).toBe(request.entries[1].content);
+    await rm(join(f.config.knowledgeRoot,'00-Inbox/remaining.md'));
+    await f.post('/api/manage/tasks/'+task.id+'/retry',{});task=await f.settle(task.id);expect(task.state).toBe('succeeded');
+    expect(await readFile(join(f.config.knowledgeRoot,'00-Inbox/remaining.md'),'utf8')).toBe(request.entries[1].content);
+    const cancelledRequest=body(Array.from({length:50},(_,n)=>note('cancel-'+n+'.md','cancel-body'.repeat(100))));
+    const pending=(await f.post('/api/manage/import',cancelledRequest)).json();
+    for(let i=0;i<100;i++){
+      const progress=(await f.get('/api/manage/tasks/'+pending.id)).json();
+      if(progress.items.some((x:any)=>x.state==='succeeded'))break;
+      await new Promise<void>(yes=>setImmediate(yes));
+    }
+    await f.post('/api/manage/tasks/'+pending.id+'/cancel',{});
+    const cancelled=await f.settle(pending.id);expect(cancelled.state).toBe('cancelled');
+    expect(cancelled.items.some((x:any)=>x.state==='succeeded')).toBe(true);
+    const compact=JSON.parse((f.db.prepare('SELECT payload FROM managed_transfer_jobs WHERE id=?').get(pending.id) as any).payload);
+    for(const [i,item] of cancelled.items.entries())expect(compact.entries[i].content).toBe(item.state==='succeeded'?'':cancelledRequest.entries[i].content);
+    await f.post('/api/manage/tasks/'+pending.id+'/retry',{});expect((await f.settle(pending.id)).state).toBe('succeeded');
+  }finally{await f.close();}
+});
+
+it('gradually clears legacy successful payloads without changing receipts or failed retry inputs',async()=>{
+  const f=await fixture();let second:ReturnType<typeof Fastify>|undefined;
+  try{
+    const request=body([note('legacy.md')]);
+    const task=await f.settle((await f.post('/api/manage/import',request)).json().id);
+    await f.app.close();
+    f.db.prepare('UPDATE managed_transfer_jobs SET payload=? WHERE id=?').run(JSON.stringify(request),task.id);
+    const insert=f.db.prepare("INSERT INTO managed_transfer_jobs(id,owner,kind,request_id,fingerprint,state,created_at,updated_at,cancellable,progress,items,payload) SELECT ?,owner,kind,?,fingerprint,?,created_at,updated_at,0,progress,items,? FROM managed_transfer_jobs WHERE id=?");
+    for(let i=0;i<18;i++)insert.run(randomUUID(),'legacy-'+i,'succeeded','not-json-legacy-content',task.id);
+    const failedId=randomUUID();insert.run(failedId,'legacy-failed','failed',JSON.stringify(request),task.id);
+    second=Fastify();second.addHook('onRequest',async (req: import('fastify').FastifyRequest)=>{(req as any).ownerId=(f.db.prepare('SELECT id FROM user').get() as any).id;});
+    registerTransferRoutes(second,f.config,f.db,f.platform);
+    for(let i=0;i<100;i++){
+      if(!(f.db.prepare("SELECT count(*) n FROM managed_transfer_jobs WHERE state='succeeded' AND payload<>'{}'").get() as any).n)break;
+      await new Promise<void>(yes=>setImmediate(yes));
+    }
+    expect((f.db.prepare("SELECT count(*) n FROM managed_transfer_jobs WHERE state='succeeded' AND payload<>'{}'").get() as any).n).toBe(0);
+    expect((await second.inject({url:'/api/manage/tasks/'+task.id})).json()).toEqual(task);
+    expect((f.db.prepare('SELECT payload FROM managed_transfer_jobs WHERE id=?').get(failedId) as any).payload).toBe(JSON.stringify(request));
+    expect((await second.inject({method:'POST',url:'/api/manage/import',payload:request})).json().id).toBe(task.id);
+  }finally{await second?.close();await f.close();}
+});
+
+it('keeps minimal original whiteboard identities for failed note retries after discarding completed scenes',async()=>{
+  const {emptyWhiteboard}=await import('../shared/whiteboard.js');
+  const f=await fixture();
+  try{
+    const originalId=randomUUID();
+    const request=body([
+      note('board.excalidraw',JSON.stringify({...emptyWhiteboard(),dooknow:{id:originalId}})),
+      note('ref.md','```excalidraw\n'+originalId+'\n```\n'),
+    ]);
+    const posted=await f.post('/api/manage/import',request);
+    await writeFile(join(f.config.knowledgeRoot,'00-Inbox/ref.md'),'competing write');
+    let task=await f.settle(posted.json().id);expect(task.items.map((i:any)=>i.state)).toEqual(['succeeded','failed']);
+    const stored=JSON.parse((f.db.prepare('SELECT payload FROM managed_transfer_jobs WHERE id=?').get(task.id) as any).payload);
+    expect(JSON.parse(stored.entries[0].content)).toEqual({dooknow:{id:originalId}});
+    const boardId=task.items[0].noteId;expect(boardId).not.toBe(originalId);
+    await rm(join(f.config.knowledgeRoot,'00-Inbox/ref.md'));
+    await f.post('/api/manage/tasks/'+task.id+'/retry',{});task=await f.settle(task.id);expect(task.state).toBe('succeeded');
+    expect(await readFile(join(f.config.knowledgeRoot,'00-Inbox/ref.md'),'utf8')).toBe('```excalidraw\n'+boardId+'\n```\n');
+  }finally{await f.close();}
+});

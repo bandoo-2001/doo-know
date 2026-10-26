@@ -26,3 +26,74 @@ it('yields a checkpointed large text job to an interactive small note without ch
   const resumed=jobs.claim('worker')!;expect(resumed.noteId).toBe('large');expect(resumed.checkpoint).toBe(16);expect(resumed.attempts).toBe(1);expect(resumed.leaseEpoch).toBeGreaterThan(large.leaseEpoch);
  }finally{db.close();await f.close();}
 });
+
+it.each(['claim', 'retry'] as const)('exposes an exhausted expired lease before %s and permits explicit retry without reviving its old worker', async (trigger) => {
+ const f=await createFixture(),db=openDatabase(f.dataRoot);
+ try {
+  let now=0; const jobs=indexJobService(db,{now:()=>now,random:()=>0});
+  db.prepare('INSERT INTO notes(id,path) VALUES(?,?)').run('note','00-Inbox/n.md');
+  const v=observeSource(db,'note','f'.repeat(64),'1',1); jobs.enqueue(v,'text');
+  for(let i=0;i<9;i++){const j=jobs.claim('worker')!; jobs.fail(j,'TEMPORARY_FAILURE'); now+=300001;}
+  const tenth=jobs.claim('worker')!; expect(tenth.attempts).toBe(10);
+  now+=59000; expect(jobs.claim('replacement')).toBeNull(); expect(jobs.retry(['note'])).toBe(0);
+  expect(jobs.heartbeat(tenth)).toBe(true); now+=59000;
+  expect(jobs.claim('replacement')).toBeNull(); expect(jobs.valid(tenth)).toBe(true);
+  now+=1000;
+  if(trigger==='claim') {
+   expect(jobs.claim('replacement')).toBeNull();
+   expect(db.prepare('SELECT status,lease_until,error FROM index_jobs').get()).toEqual({status:'failed',lease_until:null,error:'LEASE_EXPIRED'});
+  }
+  expect(jobs.retry(['note'])).toBe(1);
+  jobs.enqueue(v,'text'); const next=jobs.claim('replacement')!;
+  expect(next.attempts).toBe(1); expect(next.leaseEpoch).toBeGreaterThan(tenth.leaseEpoch);
+  expect(jobs.heartbeat(tenth)).toBe(false); expect(jobs.complete(tenth)).toBe('superseded');
+  jobs.fail(tenth,'LATE_FAILURE'); expect(jobs.valid(next)).toBe(true);
+ }finally{db.close();await f.close();}
+});
+
+it.each(['claim', 'retry'] as const)(
+ 'fences a failure already in flight when another connection expires and retries through %s',
+ async (trigger) => {
+  const f = await createFixture(), db = openDatabase(f.dataRoot), other = openDatabase(f.dataRoot);
+  try {
+   let now = 0, interleave = false, retryCount = 0;
+   const replacementJobs = indexJobService(other, { now: () => now });
+   const jobs = indexJobService(db, {
+    now: () => now,
+    random: () => {
+     if (interleave) {
+      interleave = false;
+      // fail() has read its leased row, but has not yet published its failure.
+      // A real second connection revokes that lease and accepts the user's retry.
+      if (trigger === 'claim') expect(replacementJobs.claim('replacement')).toBeNull();
+      retryCount = replacementJobs.retry(['note']);
+      expect(other.prepare('SELECT status,attempts,error FROM index_jobs').get())
+       .toEqual({ status: 'pending', attempts: 0, error: null });
+     }
+     return 0;
+    },
+   });
+   db.prepare('INSERT INTO notes(id,path) VALUES(?,?)').run('note', '00-Inbox/n.md');
+   jobs.enqueue(observeSource(db, 'note', 'f'.repeat(64), '1', 1), 'text');
+   for (let i = 0; i < 9; i++) {
+    const job = jobs.claim('old-worker')!;
+    jobs.fail(job, 'TEMPORARY_FAILURE');
+    now += 300001;
+   }
+   const tenth = jobs.claim('old-worker')!;
+   expect(tenth.attempts).toBe(10);
+   now += 60000;
+   interleave = true;
+   jobs.fail(tenth, 'LATE_FAILURE');
+   expect(retryCount).toBe(1);
+   expect(db.prepare('SELECT status,attempts,error FROM index_jobs').get())
+    .toEqual({ status: 'pending', attempts: 0, error: null });
+   const replacement = replacementJobs.claim('replacement');
+   expect(replacement).toMatchObject({ workerId: 'replacement', attempts: 1 });
+   expect(jobs.heartbeat(tenth)).toBe(false);
+   expect(jobs.complete(tenth)).toBe('superseded');
+   jobs.fail(tenth, 'ANOTHER_LATE_FAILURE');
+   expect(replacementJobs.valid(replacement!)).toBe(true);
+  } finally { other.close(); db.close(); await f.close(); }
+ },
+);

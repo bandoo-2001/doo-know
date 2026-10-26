@@ -17,6 +17,12 @@ export function indexJobService(
 ) {
   const now = options.now || Date.now,
     random = options.random || Math.random;
+  function expireExhausted() {
+    // Revoke callbacks that read the old lease before another connection retries it.
+    db.prepare(
+      "UPDATE index_jobs SET status='failed',lease_until=NULL,worker_id=NULL,lease_epoch=lease_epoch+1,error='LEASE_EXPIRED' WHERE status='leased' AND attempts>=10 AND lease_until<=?",
+    ).run(now());
+  }
   function enqueue(v: SourceVersion, target: 'text' | 'vector') {
     const space = target === 'vector' ? options.spaceId || '' : '';
     db.transaction(() => {
@@ -35,6 +41,7 @@ export function indexJobService(
     if (!targets.length) return null;
     return db
       .transaction(() => {
+        expireExhausted();
         if (desiredSpace(db, options.spaceId || '') !== (options.spaceId || '')) return null;
         if (
           db
@@ -172,17 +179,20 @@ export function indexJobService(
     }).immediate();
   }
   function retry(noteIds?: string[]) {
-    let count = 0;
-    for (const row of db
-      .prepare("SELECT id,note_id FROM index_jobs WHERE status='failed'")
-      .all() as any[])
-      if (!noteIds || noteIds.includes(row.note_id)) {
-        db.prepare(
-          "UPDATE index_jobs SET status='pending',attempts=0,next_run_at=0,error=NULL WHERE id=?",
-        ).run(row.id);
-        count++;
-      }
-    return count;
+    return db.transaction(() => {
+      expireExhausted();
+      let count = 0;
+      for (const row of db
+        .prepare("SELECT id,note_id FROM index_jobs WHERE status='failed'")
+        .all() as any[])
+        if (!noteIds || noteIds.includes(row.note_id)) {
+          db.prepare(
+            "UPDATE index_jobs SET status='pending',attempts=0,next_run_at=0,error=NULL WHERE id=?",
+          ).run(row.id);
+          count++;
+        }
+      return count;
+    }).immediate();
   }
   return { enqueue, claim, valid, complete, fail, defer, heartbeat, checkpoint, retry, preempt };
 }
