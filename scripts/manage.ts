@@ -48,6 +48,7 @@ import { satisfies } from 'semver';
 import { HOST_PLUGIN_API } from '../packages/plugin-contracts/index.js';
 import { rmSync } from 'node:fs';
 import { privateFile } from '../packages/core/agent/config.js';
+import { prepareUninstallPurge } from '../apps/server/platform/uninstall-purge.js';
 import Database from 'better-sqlite3';
 import { assertDistributionOutsideKnowledge } from '../apps/server/platform/distribution.js';
 import {
@@ -82,9 +83,11 @@ const { values, positionals } = parseArgs({
     'github-repository': { type: 'string' },
     'github-token-file': { type: 'string' },
     help: { type: 'boolean' },
+    purge: { type: 'boolean', default: false },
   },
 });
 const command = positionals[0] || 'status';
+if (values.purge && command !== 'uninstall') throw Error('--purge 仅用于 uninstall');
 let profileFile: string;
 function rememberProxy() {
   try {
@@ -323,7 +326,7 @@ function effectiveConfig() {
 async function main() {
   if (values.help) {
     console.log(
-      'dooknow install | start | stop | restart | status | doctor | update | rollback | backup | restore | reset-password | uninstall\n备份：backup --destination <文件> [--key-file <私钥文件>]\n恢复到空目录：restore --source <备份> --key-file <私钥文件> --profile <新配置> --data-root <空目录> --knowledge-root <空目录>\n更新：update [--source <受控发行源>] [--version <版本>]',
+      'dooknow install | start | stop | restart | status | doctor | update | rollback | backup | restore | reset-password | uninstall\n备份：backup --destination <文件> [--key-file <私钥文件>]\n恢复到空目录：restore --source <备份> --key-file <私钥文件> --profile <新配置> --data-root <空目录> --knowledge-root <空目录>\n更新：update [--source <受控发行源>] [--version <版本>]\n卸载：uninstall [--purge]；--purge 清理插件、检索依赖、模型、缓存及向量索引，保留原文、数据库、配置、密钥和备份',
     );
     return;
   }
@@ -480,6 +483,7 @@ async function main() {
   }
   if (command === 'uninstall') {
     await managementLock(config, async () => {
+      const purge = values.purge ? prepareUninstallPurge(config) : undefined;
       const unit = join(
         process.env.XDG_CONFIG_HOME || join(homedir(), '.config'),
         'systemd/user',
@@ -494,6 +498,9 @@ async function main() {
       if (instance && !ownsUnit) throw Error('请先正常停止前台应用再卸载');
       if (ownsUnit) {
         if (instance || serviceActive(config)) systemctl(['stop', unitName(config)]);
+      }
+      purge?.();
+      if (ownsUnit) {
         systemctl(['disable', unitName(config)]);
         unlinkSync(unit);
         systemctl(['daemon-reload']);
@@ -519,7 +526,9 @@ async function main() {
         if (lines.includes('# DooKnow install: ' + id) || legacySafe) unlinkSync(launcher);
       }
     });
-    console.log('已卸载程序与用户服务；知识库、数据、插件、模型、配置及备份均已保留。');
+    console.log(values.purge
+      ? '已卸载程序与用户服务，并清理插件、检索依赖、模型、缓存及向量索引；知识库原文、数据库、配置、密钥及备份均已保留。'
+      : '已卸载程序与用户服务；知识库、数据、插件、模型、配置及备份均已保留。');
     return;
   }
   if (command === 'status' || command === 'doctor') {

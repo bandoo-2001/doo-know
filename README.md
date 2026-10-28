@@ -134,6 +134,7 @@ HTTPS 使用仓库访问令牌，凭据在服务端按账号、主机加密保�
 | 加密备份         | `dooknow backup --destination '/受控目录/knowledge.dooknow'` |
 | 回退版本         | `dooknow rollback`                                           |
 | 卸载程序         | `dooknow uninstall`                                          |
+| 卸载并清理插件、检索依赖、模型和缓存 | `dooknow uninstall --purge`                     |
 
 使用 `dooknow update` 升级到最新已发布版本（包含 RC 预发布版，按版本号选择，排除草稿）；也可指定版本，例如 `dooknow update --version 1.1.0-rc.23`。命令优先使用当前终端的 `HTTP_PROXY`、`HTTPS_PROXY` 和 `NO_PROXY`，无需额外的 Node 参数。安装或升级时会为本实例记住不含账号密码的 HTTP(S) 代理，以后新开的终端也能直接更新；从 rc.23 起，后台服务下载插件也会复用这份设置。没有显式或已保存的代理时直接连接。认证代理继续使用环境变量，不自动保存。
 
