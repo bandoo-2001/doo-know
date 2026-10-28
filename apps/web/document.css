@@ -1,4 +1,9 @@
 /* The document toolbar stays above an independently scrolling article and outline. */
+.document-editor .tiptap .document-search-match {
+  background: var(--blue-soft, #e4eafa);
+  box-shadow: inset 0 -2px var(--blue, #4566c6);
+  border-radius: 2px;
+}
 .main-content {
   container: document-area / inline-size;
 }

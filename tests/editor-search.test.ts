@@ -1,7 +1,8 @@
 import { it, expect } from 'vitest';
 import { getSchema } from '@tiptap/core';
 import { richExtensions } from '../apps/web/editor/rich-adapter';
-import { findText, documentMatches, replaceDocumentMatches } from '../apps/web/editor/search';
+import { EditorState, TextSelection } from '@tiptap/pm/state';
+import { findText, documentMatches, replaceDocumentMatches, documentSearchHighlightPlugin, documentSearchKey } from '../apps/web/editor/search';
 
 it('finds literal Unicode matches with UTF-16 offsets and an empty query has no matches', () => {
   expect(findText('A😀中a', 'a', { caseSensitive: false })).toEqual([{from:0,to:1},{from:4,to:5}]);
@@ -25,4 +26,32 @@ it('searches visible text across marks without changing hidden URLs, diagrams, o
   expect(next.textContent).toContain('前新正文链接');
   expect(next.child(0).lastChild?.marks[0].attrs.href).toBe('https://host/正文');
   expect(next.child(1).textContent).toBe('正文');
+});
+
+it('highlights the current result without editing the document and clears it when the caret moves', () => {
+  const schema = getSchema(richExtensions());
+  const doc = schema.nodeFromJSON({ type: 'doc', content: [
+    { type: 'paragraph', content: [{ type: 'text', text: 'before target after' }] },
+  ] });
+  let state = EditorState.create({ schema, doc, plugins: [documentSearchHighlightPlugin()] });
+  state = state.apply(state.tr.setMeta(documentSearchKey, { from: 8, to: 14 }));
+  expect(documentSearchKey.getState(state)?.find().map(({ from, to }) => ({ from, to })))
+    .toEqual([{ from: 8, to: 14 }]);
+  expect(state.doc.eq(doc)).toBe(true);
+  state = state.apply(state.tr.setSelection(TextSelection.create(state.doc, 2)));
+  expect(documentSearchKey.getState(state)?.find()).toEqual([]);
+});
+
+it('drops a stale search highlight after replacement or an explicit close', () => {
+  const schema = getSchema(richExtensions());
+  const doc = schema.nodeFromJSON({ type: 'doc', content: [
+    { type: 'paragraph', content: [{ type: 'text', text: 'target' }] },
+  ] });
+  let state = EditorState.create({ schema, doc, plugins: [documentSearchHighlightPlugin()] });
+  state = state.apply(state.tr.setMeta(documentSearchKey, { from: 1, to: 7 }));
+  state = state.apply(state.tr.insertText('new', 1, 7));
+  expect(documentSearchKey.getState(state)?.find()).toEqual([]);
+  state = state.apply(state.tr.setMeta(documentSearchKey, { from: 1, to: 4 }));
+  state = state.apply(state.tr.setMeta(documentSearchKey, null));
+  expect(documentSearchKey.getState(state)?.find()).toEqual([]);
 });

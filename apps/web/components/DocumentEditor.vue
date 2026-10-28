@@ -15,7 +15,7 @@ import { convertClipboard, plainTextMarkdown } from '../editor/clipboard';
 import { contextAt, contextSlots } from '../editor/context-slot';
 import { textEdit, parseSource } from '../editor/source-codec';
 import { syncDOMTextSelection } from '../editor/dom-selection';
-import { CODE_BLOCK_ACTION } from '../editor/code-block-view';
+import { CODE_BLOCK_ACTION, revealCodeBlockRange } from '../editor/code-block-view';
 import {
   isTableMoveAction,
   moveMarkdownTable,
@@ -23,7 +23,8 @@ import {
   tableMoveAvailability,
   type TableMoveAction,
 } from '../editor/table-move';
-import { documentMatches, type TextMatch } from '../editor/search';
+import { documentMatches, documentSearchHighlightPlugin, documentSearchKey, type TextMatch } from '../editor/search';
+import { sourceOffsetPosition } from '../editor/source-position';
 import {
   countCharacters,
   visibleDocumentText,
@@ -63,15 +64,20 @@ const root = ref<HTMLElement>(),
   mount = ref<HTMLElement>(),
   tableOverlay = ref<HTMLElement>(),
   contextSlot = ref<HTMLElement>(),
-  tableToolsHeight = ref(46),
   message = ref(''),
   tableActive = ref(false),
+  tableFocused = ref(false),
   imageActive = ref(false),
   imageAlt = ref(''),
   imageTitle = ref(''),
   activeLink = ref('');
 const tablePosition = ref<CSSProperties>(),
-  tableDetails = ref({ rows: 0, columns: 0, alignment: 'left', disabledActions: [] as TableAction[] });
+  tableDetails = ref({
+    rows: 0,
+    columns: 0,
+    alignment: 'left',
+    disabledActions: [] as TableAction[],
+  });
 let positionFrame: number | undefined, layoutObserver: ResizeObserver | undefined;
 let tablePositioner: ReturnType<typeof createFloatingTools> | undefined,
   positionedTable: Element | undefined,
@@ -111,12 +117,37 @@ function hideTableTools() {
   positionedTable = undefined;
   tablePosition.value = undefined;
 }
+function ownsTableFocus() {
+  const active = document.activeElement;
+  return !!(
+    document.hasFocus() &&
+    editor &&
+    active &&
+    (editor.view.dom.contains(active) || tableOverlay.value?.contains(active))
+  );
+}
+function updateTableFocus() {
+  tableFocused.value = ownsTableFocus();
+  if (tableFocused.value) scheduleTableTools();
+  else hideTableTools();
+}
+function deferTableFocus() {
+  // focusout fires before the next control becomes document.activeElement.
+  // Wait for focusin so keyboard navigation into the tools keeps them mounted.
+  queueMicrotask(updateTableFocus);
+}
+function blurTableFocus() {
+  tableFocused.value = false;
+  hideTableTools();
+}
 function positionTableTools() {
   positionFrame = undefined;
   contextSlot.value = mount.value?.querySelector<HTMLElement>('[data-editor-context]') || undefined;
   if (
     !editor ||
     !tableActive.value ||
+    !tableFocused.value ||
+    !ownsTableFocus() ||
     props.readOnly ||
     !root.value ||
     !mount.value ||
@@ -146,8 +177,6 @@ function positionTableTools() {
   const bounds = table.getBoundingClientRect(),
     viewport = mount.value.getBoundingClientRect(),
     tools = tableOverlay.value.getBoundingClientRect();
-  if (tools.height && tableToolsHeight.value !== tools.height)
-    tableToolsHeight.value = tools.height;
   const visible = window.visualViewport,
     visibleLeft = visible?.offsetLeft ?? 0,
     visibleTop = visible?.offsetTop ?? 0;
@@ -164,27 +193,33 @@ function positionTableTools() {
     hideTableTools();
     return;
   }
-  const reserved =
-    contextSlot.value?.dataset.editorContext === 'table'
-      ? contextSlot.value.getBoundingClientRect()
-      : undefined;
+  const cellNode = editor.view.domAtPos(at.pos).node;
+  const element = cellNode instanceof HTMLElement ? cellNode : cellNode.parentElement;
+  const cell = element?.closest('td, th') || table.querySelector('.selectedCell');
+  const current = cell?.getBoundingClientRect();
+  if (
+    current &&
+    (current.bottom <= top ||
+      current.top >= bottom ||
+      current.right <= left ||
+      current.left >= right)
+  ) {
+    hideTableTools();
+    return;
+  }
   let y: number;
-  if (reserved && reserved.top >= top && reserved.top + tools.height <= bottom) y = reserved.top;
+  // Float over the existing page without adding a slot to the document flow.
+  // Keep short tables unobstructed. A narrow edge gap is preferable to placing
+  // controls over another row when a toolbar almost fits above the table.
+  if (bounds.top - tools.height - 4 >= top)
+    y = Math.max(top, bounds.top - tools.height - 8);
+  else if (bounds.bottom + tools.height + 4 <= bottom)
+    y = Math.min(bottom - tools.height, bounds.bottom + 8);
+  else if (current && current.top - tools.height - 8 >= top) y = current.top - tools.height - 8;
+  else if (current && current.bottom + 8 + tools.height <= bottom) y = current.bottom + 8;
   else {
-    // Once the reserved header scrolls away, keep controls inside the table and
-    // clear of the current cell. Adjacent paragraphs never become overlay space.
-    const node = editor.view.domAtPos(at.pos).node;
-    const element = node instanceof HTMLElement ? node : node.parentElement;
-    const cell = element?.closest('td, th') || table.querySelector('.selectedCell');
-    const current = cell?.getBoundingClientRect();
-    const tableTop = Math.max(top, bounds.top),
-      tableBottom = Math.min(bottom, bounds.bottom);
-    if (current && current.top - tools.height - 8 >= tableTop) y = current.top - tools.height - 8;
-    else if (current && current.bottom + 8 + tools.height <= tableBottom) y = current.bottom + 8;
-    else {
-      hideTableTools();
-      return;
-    }
+    hideTableTools();
+    return;
   }
   tableAnchorRect = new DOMRect(bounds.left, y, 0, 0);
   if (!tablePositioner || positionedTable !== table) {
@@ -310,7 +345,7 @@ function toolbar() {
           editor.getAttributes('tableCell').align ||
           editor.getAttributes('tableHeader').align ||
           'left',
-        disabledActions: tableMoveActions.filter(action => !moves[action]),
+        disabledActions: tableMoveActions.filter((action) => !moves[action]),
       };
       break;
     }
@@ -448,6 +483,7 @@ onMounted(() => {
     name: 'sourceGuard',
     addProseMirrorPlugins() {
       return [
+        documentSearchHighlightPlugin(),
         new Plugin({
           filterTransaction(tr) {
             if (loading || !tr.docChanged) return true;
@@ -630,13 +666,21 @@ onMounted(() => {
   if (root.value) layoutObserver.observe(root.value);
   layoutObserver.observe(editor.view.dom);
   window.addEventListener('resize', scheduleTableTools);
+  window.addEventListener('scroll', scheduleTableTools, true);
+  window.addEventListener('focus', updateTableFocus);
+  window.addEventListener('blur', blurTableFocus);
   window.visualViewport?.addEventListener('resize', scheduleTableTools);
   window.visualViewport?.addEventListener('scroll', scheduleTableTools);
   report();
+  updateTableFocus();
 });
 watch(
   () => props.readOnly,
-  (v) => editor?.setEditable(!v),
+  (v) => {
+    editor?.setEditable(!v);
+    if (v) hideTableTools();
+    else updateTableFocus();
+  },
 );
 function load(markdown: string) {
   if (!editor) return;
@@ -664,7 +708,38 @@ function load(markdown: string) {
   }
   report();
 }
-function focus(target?: SelectionBookmark) {
+let revealGeneration = 0;
+function scrollDocumentPosition(position: number, align: 'start' | 'center' | 'nearest' = 'center') {
+  if (!editor || !mount.value) return;
+  const generation = ++revealGeneration;
+  const container = mount.value;
+  const scrollTo = (coordinates: { top: number; bottom: number; left: number; right: number }) => {
+    if (generation !== revealGeneration || !editor || editor.isDestroyed || editor.state.selection.from !== position || !container.isConnected || !container.clientHeight) return;
+    const bounds = container.getBoundingClientRect();
+    const top = bounds.top + 24, bottom = bounds.top + container.clientHeight - 24;
+    if (align === 'start') container.scrollTop += coordinates.top - top;
+    else if (align === 'center')
+      container.scrollTop += (coordinates.top + coordinates.bottom) / 2 - (bounds.top + container.clientHeight / 2);
+    else if (coordinates.top < top) container.scrollTop += coordinates.top - top;
+    else if (coordinates.bottom > bottom) container.scrollTop += coordinates.bottom - bottom;
+    if (coordinates.left < bounds.left + 16)
+      container.scrollLeft += coordinates.left - bounds.left - 16;
+    else if (coordinates.right > bounds.left + container.clientWidth - 16)
+      container.scrollLeft += coordinates.right - bounds.left - container.clientWidth + 16;
+  };
+  const at = editor.state.doc.resolve(position);
+  for (let depth = at.depth; depth > 0; depth--) {
+    if (at.node(depth).type.name !== 'codeBlock') continue;
+    const dom = editor.view.nodeDOM(at.before(depth));
+    if (!(dom instanceof HTMLElement) || !dom.matches('.document-code-block')) break;
+    scrollTo(dom.getBoundingClientRect());
+    if (revealCodeBlockRange(dom, position - at.start(depth),
+      Math.min(at.node(depth).content.size, editor.state.selection.to - at.start(depth)), align, scrollTo)) return;
+    break;
+  }
+  scrollTo(editor.view.coordsAtPos(position));
+}
+function focus(target?: SelectionBookmark, align: 'start' | 'center' | 'nearest' = 'nearest') {
   if (!editor) return;
   if (target?.document?.id === projectionId) {
     const native = target.document;
@@ -676,44 +751,31 @@ function focus(target?: SelectionBookmark) {
         : TextSelection.near(a);
     editor.view.dispatch(editor.state.tr.setSelection(selection));
     editor.view.focus();
+    scrollDocumentPosition(selection.from, align);
     return;
   }
   if (target) {
-    const units = parseSource(props.session.snapshot().markdown).units;
-    // Adjacent source units share an endpoint. Prefer the unit beginning at
-    // that offset, while still allowing the final unit's inclusive EOF.
-    let index = units.findIndex((u) => target.anchor >= u.from && target.anchor < u.to);
-    if (index < 0) index = units.findIndex((u) => target.anchor >= u.from && target.anchor <= u.to);
-    if (index < 0) index = units.length - 1;
-    let at = 0;
-    for (let i = 0; i < index && i < editor.state.doc.childCount; i++)
-      at += editor.state.doc.child(i).nodeSize;
-    const node = editor.state.doc.child(
-      Math.max(0, Math.min(index, editor.state.doc.childCount - 1)),
-    );
-    const unit = units[index];
-    const text = node.textContent;
-    const rawStart = unit?.raw.indexOf(text) ?? 0;
-    const relative = Math.max(0, target.anchor - (unit?.from || 0) - Math.max(0, rawStart));
-    const point = Math.min(
-      editor.state.doc.content.size,
-      at + 1 + Math.min(relative, node.content.size),
-    );
-    editor.view.dispatch(
-      editor.state.tr.setSelection(TextSelection.near(editor.state.doc.resolve(point))),
-    );
+    const markdown = props.session.snapshot().markdown;
+    const anchor = sourceOffsetPosition(editor.state.doc, markdown, target.anchor, projection.sourceRange);
+    const head = sourceOffsetPosition(editor.state.doc, markdown, target.head, projection.sourceRange);
+    const at = editor.state.doc.resolve(anchor), end = editor.state.doc.resolve(head);
+    const selection = at.parent.inlineContent && end.parent.inlineContent
+      ? TextSelection.create(editor.state.doc, anchor, head)
+      : TextSelection.near(at);
+    editor.view.dispatch(editor.state.tr.setSelection(selection));
   }
   editor.view.focus();
-  editor.commands.scrollIntoView();
+  scrollDocumentPosition(editor.state.selection.from, align);
 }
-function goToLine(line: number) {
+function goToLine(line: number, align: 'start' | 'center' = 'center') {
+  if (!Number.isInteger(line) || line < 1) return;
   const text = props.session.snapshot().markdown;
   const offset =
     text
       .split('\n')
       .slice(0, Math.max(0, line - 1))
       .join('\n').length + (line > 1 ? 1 : 0);
-  focus({ anchor: offset, head: offset, affinity: 'after' });
+  focus({ anchor: offset, head: offset, affinity: 'after' }, align);
 }
 function execute(action: MarkdownAction): boolean {
   if (!editor || props.readOnly || blocked || props.session.composing || editor.view.composing)
@@ -904,12 +966,13 @@ function deleteImage() {
   editor.chain().focus().setNodeSelection(imagePosition).deleteSelection().run();
 }
 function executeTable(action: TableAction) {
-  if (!editor || props.readOnly || blocked || props.session.composing || editor.view.composing) return false;
+  if (!editor || props.readOnly || blocked || props.session.composing || editor.view.composing)
+    return false;
   syncDOMTextSelection(editor.view);
   props.session.sealHistory();
   if (isTableMoveAction(action)) {
     editor.view.focus();
-    const result = moveMarkdownTable(action)(editor.state, tr => editor!.view.dispatch(tr));
+    const result = moveMarkdownTable(action)(editor.state, (tr) => editor!.view.dispatch(tr));
     props.session.sealHistory();
     return result;
   }
@@ -940,7 +1003,9 @@ function executeTable(action: TableAction) {
       })
       .run();
   }
-  return chain[action as Exclude<TableAction, TableMoveAction | 'alignLeft' | 'alignCenter' | 'alignRight'>]().run();
+  return chain[
+    action as Exclude<TableAction, TableMoveAction | 'alignLeft' | 'alignCenter' | 'alignRight'>
+  ]().run();
 }
 function confirmOpaqueDelete() {
   if (!editor || props.readOnly) return;
@@ -992,9 +1057,13 @@ function selectTextMatch(match: TextMatch) {
   editor.view.dispatch(
     editor.state.tr
       .setSelection(TextSelection.create(editor.state.doc, match.from, match.to))
-      .scrollIntoView(),
+      .setMeta(documentSearchKey, match),
   );
-  editor.view.focus();
+  scrollDocumentPosition(match.from);
+}
+function clearSearchHighlight() {
+  revealGeneration++;
+  if (editor) editor.view.dispatch(editor.state.tr.setMeta(documentSearchKey, null));
 }
 function replaceTextMatches(
   query: string,
@@ -1028,6 +1097,7 @@ defineExpose({
   sourceRange: (id: string) => projection.sourceRange(id),
   searchText,
   selectTextMatch,
+  clearSearchHighlight,
   replaceTextMatches,
   statistics,
   flush,
@@ -1050,29 +1120,29 @@ onBeforeUnmount(() => {
   if (positionFrame !== undefined) cancelAnimationFrame(positionFrame);
   layoutObserver?.disconnect();
   window.removeEventListener('resize', scheduleTableTools);
+  window.removeEventListener('scroll', scheduleTableTools, true);
+  window.removeEventListener('focus', updateTableFocus);
+  window.removeEventListener('blur', blurTableFocus);
   window.visualViewport?.removeEventListener('resize', scheduleTableTools);
   window.visualViewport?.removeEventListener('scroll', scheduleTableTools);
   if (editor) {
     editor.view.dom.removeEventListener('compositionstart', startComposition);
     editor.view.dom.removeEventListener('compositionend', endComposition);
     editor.destroy();
+    editor = undefined;
   }
   props.session.setComposing(false);
 });
 </script>
 <template>
-  <div
-    ref="root"
-    class="document-editor"
-    :style="{ '--table-tools-height': tableToolsHeight + 'px' }"
-  >
+  <div ref="root" class="document-editor" @focusin="updateTableFocus" @focusout="deferTableFocus">
     <p v-if="message" class="editor-warning" role="alert">{{ message }}</p>
     <div v-if="recoveryPending" class="editor-warning" role="status">
       当前输入暂时无法安全保存。请先保留恢复副本，调整格式后再保存。
       <button type="button" @click="downloadRecovery">下载恢复副本</button>
     </div>
     <div
-      v-if="tableActive && !readOnly"
+      v-if="tableActive && tableFocused && !readOnly"
       ref="tableOverlay"
       class="document-table-overlay"
       :style="{ ...tablePosition, visibility: tablePosition ? 'visible' : 'hidden' }"

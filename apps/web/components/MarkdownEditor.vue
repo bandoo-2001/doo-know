@@ -39,6 +39,7 @@ const emit = defineEmits<{
 }>();
 const mount = ref<HTMLElement>();
 let view: EditorView | undefined;
+let searchSelection = false;
 const editability = new Compartment();
 const gutters = new Compartment();
 const wrapping = new Compartment();
@@ -158,6 +159,7 @@ onMounted(() => {
         },
       }),
       EditorView.updateListener.of((update) => {
+        if (update.docChanged || update.selectionSet) searchSelection = false;
         if (update.docChanged && !programmatic) {
           if (props.incremental) {
             const edits: { from: number; to: number; insert: string }[] = [];
@@ -229,12 +231,18 @@ function searchText(query: string, caseSensitive = false) {
   return view ? findText(view.state.doc.toString(), query, { caseSensitive }) : [];
 }
 function selectTextMatch(match: TextMatch) {
-  if (!view || match.to > view.state.doc.length) return;
+  if (!view || view.composing || match.from < 0 || match.to > view.state.doc.length) return;
   view.dispatch({
     selection: { anchor: match.from, head: match.to },
-    effects: EditorView.scrollIntoView(match.from),
+    effects: EditorView.scrollIntoView(match.from, { y: 'center', yMargin: 32 }),
   });
-  view.focus();
+  searchSelection = true;
+}
+function clearSearchHighlight() {
+  if (!view || !searchSelection) return;
+  searchSelection = false;
+  if (!view.state.selection.main.empty)
+    view.dispatch({ selection: { anchor: view.state.selection.main.head } });
 }
 function replaceTextMatches(
   query: string,
@@ -305,12 +313,14 @@ function focus(bookmark?: { anchor: number; head: number }) {
         anchor: Math.min(bookmark.anchor, view.state.doc.length),
         head: Math.min(bookmark.head, view.state.doc.length),
       },
+      effects: EditorView.scrollIntoView(Math.min(bookmark.head, view.state.doc.length), { y: 'center', yMargin: 32 }),
     });
   view.focus();
 }
 defineExpose({
   searchText,
   selectTextMatch,
+  clearSearchHighlight,
   replaceTextMatches,
   statistics,
   goToLine,

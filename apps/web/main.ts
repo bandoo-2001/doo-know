@@ -9,6 +9,7 @@ import './document.css';
 import './document-editor.css';
 import './management.css';
 import './workbench.css';
+import './motion.css';
 const app = createApp(App);
 installAntDesign(app);
 app.mount('#app');

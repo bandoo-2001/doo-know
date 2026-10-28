@@ -216,7 +216,8 @@
 }
 .main-content,
 .document-surface,
-.folder-view {
+.folder-view,
+.workspace-empty {
   background: var(--workbench-paper);
 }
 .note-header {

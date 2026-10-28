@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref, watch, onBeforeUnmount, nextTick } from 'vue';
+import { defineAsyncComponent, defineComponent, h, ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import EditorSearch from './EditorSearch.vue';
+import LoadingState from './LoadingState.vue';
 import type { TextMatch } from '../editor/search';
 import { createEditorSession } from '../editor/session';
 import { textEdit, parseSource } from '../editor/source-codec';
@@ -19,13 +20,25 @@ import {
 const editorStats = ref({characters:0,selectedCharacters:0});
 const searchOpen = ref(false), searchQuery = ref(''), searchReplacement = ref(''), searchCase = ref(false);
 const searchResults = ref<TextMatch[]>([]), searchIndex = ref(0);
+const searchBar = ref<InstanceType<typeof EditorSearch>>();
 function activeSearchEditor() { return props.kind === 'document' ? documentView.value : source.value; }
-function refreshSearch() {
+function refreshSearch(reveal = false) {
   searchResults.value = activeSearchEditor()?.searchText?.(searchQuery.value, searchCase.value) || [];
   searchIndex.value = Math.min(searchIndex.value, Math.max(0, searchResults.value.length - 1));
+  if (!searchResults.value.length) activeSearchEditor()?.clearSearchHighlight?.();
+  else if (reveal) activeSearchEditor()?.selectTextMatch?.(searchResults.value[searchIndex.value]);
 }
-function openSearch() { searchOpen.value = true; void nextTick(refreshSearch); }
-function closeSearch() { searchOpen.value = false; focus(); }
+async function openSearch() {
+  searchOpen.value = true;
+  await nextTick();
+  searchBar.value?.focus();
+  refreshSearch(true);
+}
+function closeSearch() {
+  searchOpen.value = false;
+  activeSearchEditor()?.clearSearchHighlight?.();
+  focus();
+}
 function nextSearch(direction: number) {
   refreshSearch();
   if (!searchResults.value.length) return;
@@ -37,11 +50,31 @@ function replaceSearch(all: boolean) {
   session.sealHistory();
   activeSearchEditor()?.replaceTextMatches?.(searchQuery.value, searchReplacement.value, all, searchIndex.value, searchCase.value);
   session.sealHistory();
-  void nextTick(refreshSearch);
+  void nextTick(() => refreshSearch(true));
 }
-watch([searchQuery, searchCase], () => { searchIndex.value = 0; refreshSearch(); });
-const SourceEditor = defineAsyncComponent(() => import('./MarkdownEditor.vue'));
-const DocumentEditor = defineAsyncComponent(() => import('./DocumentEditor.vue'));
+watch([searchQuery, searchCase], () => { searchIndex.value = 0; refreshSearch(true); });
+const EditorLoading = defineComponent({
+  inheritAttrs: false,
+  setup: () => () => h(LoadingState, { variant: 'document', label: '正在准备编辑器…' }),
+});
+const EditorLoadError = defineComponent({
+  inheritAttrs: false,
+  setup: () => () => h('p', { class: 'editor-warning', role: 'alert' },
+    '编辑器暂时无法加载，内容已保留。请检查连接，稍后切换编辑模式重试。'),
+});
+const asyncEditorOptions = {
+  loadingComponent: EditorLoading,
+  errorComponent: EditorLoadError,
+  delay: 160,
+};
+const SourceEditor = defineAsyncComponent({
+  ...asyncEditorOptions,
+  loader: () => import('./MarkdownEditor.vue'),
+});
+const DocumentEditor = defineAsyncComponent({
+  ...asyncEditorOptions,
+  loader: () => import('./DocumentEditor.vue'),
+});
 const props = withDefaults(
   defineProps<{
     noteId: string;
@@ -78,11 +111,25 @@ const session = createEditorSession({
 });
 const source = ref<any>(),
   documentView = ref<any>(),
+  hostElement = ref<HTMLElement>(),
   warning = ref(''),
   hasMounted = ref(props.visible);
+// Async loading components receive template refs too; keep queued editor actions
+// pending until the real editor instance replaces the placeholder.
+function bindSourceEditor(instance: any) {
+  source.value = typeof instance?.focus === 'function' && typeof instance?.goToLine === 'function'
+    ? instance : undefined;
+}
+function bindDocumentEditor(instance: any) {
+  documentView.value = typeof instance?.focus === 'function' && typeof instance?.goToLine === 'function'
+    ? instance : undefined;
+}
 let lastState = emptyToolbarState();
 let pendingFocus: SelectionBookmark | undefined;
-let pendingLine: { line: number; align: 'start' | 'center' } | undefined;
+// The host owns initial navigation so a late async adapter cannot override a
+// newer user focus while handling its own initialLine independently.
+let pendingLine: { line: number; align: 'start' | 'center' } | undefined = props.initialLine
+  ? { line: props.initialLine, align: 'center' } : undefined;
 let disposed = false;
 let compositionTimer: ReturnType<typeof setTimeout> | undefined;
 watch([source, documentView, () => props.visible, () => props.kind], async () => {
@@ -98,8 +145,12 @@ watch([source, documentView, () => props.visible, () => props.kind], async () =>
     pendingFocus = undefined;
     active.focus(target);
   }
-  if (searchOpen.value) refreshSearch();
+  if (searchOpen.value) refreshSearch(true);
 });
+watch(
+  () => props.initialLine,
+  (line) => { if (line) goToLine(line); },
+);
 watch(
   () => props.visible,
   (v) => {
@@ -238,6 +289,10 @@ function cancelPendingFocus() {
   pendingFocus = undefined;
   pendingLine = undefined;
 }
+function cancelOutsideNavigation(event: Event) {
+  if ((pendingLine || pendingFocus) && event.target instanceof Node && !hostElement.value?.contains(event.target))
+    cancelPendingFocus();
+}
 function focus(b?: SelectionBookmark) {
   pendingLine = undefined;
   if (b) session.setSelection(b);
@@ -370,8 +425,16 @@ defineExpose({ openSearch, replaceMarkdown, insertSourceSnippet, pasteMarkdown, 
   state: () => ({ ...emptyToolbarState(), canUndo: session.canUndo, canRedo: session.canRedo }),
   executeTable: (a: TableAction) => documentView.value?.executeTable(a),
 });
+onMounted(() => {
+  document.addEventListener('pointerdown', cancelOutsideNavigation, true);
+  document.addEventListener('keydown', cancelOutsideNavigation, true);
+  document.addEventListener('focusin', cancelOutsideNavigation, true);
+});
 onBeforeUnmount(() => {
   disposed = true;
+  document.removeEventListener('pointerdown', cancelOutsideNavigation, true);
+  document.removeEventListener('keydown', cancelOutsideNavigation, true);
+  document.removeEventListener('focusin', cancelOutsideNavigation, true);
   cancelPendingFocus();
   clearTimeout(compositionTimer);
   session.dispose();
@@ -379,6 +442,7 @@ onBeforeUnmount(() => {
 </script>
 <template>
   <div
+    ref="hostElement"
     class="note-editor-host"
     @pointerdown.capture="cancelPendingFocus"
     @beforeinput.capture="cancelPendingFocus"
@@ -386,20 +450,19 @@ onBeforeUnmount(() => {
     @compositionstart="sourceCompositionStart"
     @compositionend="sourceCompositionEnd"
   >
-    <EditorSearch v-if="searchOpen" v-model:query="searchQuery" v-model:replacement="searchReplacement"
+    <EditorSearch v-if="searchOpen" ref="searchBar" v-model:query="searchQuery" v-model:replacement="searchReplacement"
       v-model:case-sensitive="searchCase" :count="searchResults.length" :current="searchIndex" :read-only="readOnly"
       @next="nextSearch" @replace="replaceSearch" @close="closeSearch" />
     <p v-if="warning" class="editor-warning" role="alert">{{ warning }}</p>
     <template v-if="hasMounted"
       ><DocumentEditor
         v-if="kind === 'document'"
-        ref="documentView"
+        :ref="bindDocumentEditor"
         :session="session"
         :resolve-image="resolveImage"
         :share-token="shareToken"
         @open-link="emit('open-link', $event)"
         :read-only="readOnly"
-        :initial-line="initialLine"
         @change="publish"
         @upload-file="emit('upload-file', $event)"
         @upload-files="emit('upload-files', $event)"
@@ -411,13 +474,12 @@ onBeforeUnmount(() => {
         @error="warning = $event"
         @source="requestSource" /><SourceEditor
         v-else
-        ref="source"
+        :ref="bindSourceEditor"
         :model-value="modelValue"
         shared-history
         :read-only="readOnly"
         :wrap="wrap"
         :show-line-numbers="showLineNumbers"
-        :initial-line="initialLine"
         @update:model-value="sourceUpdated"
         @line-change="emit('line-change', $event)"
         @state-change="sourceState"

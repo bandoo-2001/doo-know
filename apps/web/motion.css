@@ -1,0 +1,209 @@
+/* Shared interaction timing. Keep editor geometry and floating positions immediate. */
+:root {
+  --motion-fast: 120ms;
+  --motion-base: 180ms;
+  --motion-slow: 240ms;
+  --motion-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+:is(
+  .ant-btn,
+  .n-button,
+  .icon-button,
+  .nav-action,
+  .sidebar-tool-button,
+  .create-more,
+  .rail-notes-navigation button,
+  .footer-tools button,
+  .settings-sidebar button,
+  .mode-tabs button,
+  .format-toolbar button,
+  .outline-branch button,
+  .collection-open,
+  .collection-more,
+  .collection-refresh,
+  .collection-create,
+  .collection-load-more,
+  .collection-card-actions button,
+  .folder-entry-open,
+  .folder-entry-more,
+  .tree-toggle,
+  .tree-select,
+  .tree-more,
+  .account-popup button,
+  .create-menu button,
+  .note-action-menu button,
+  .heading-menu-option,
+  .palette-default,
+  .color-swatches button,
+  .editor-insert-options button,
+  .trash-workspace .action,
+  .app-card
+) {
+  transition:
+    background-color var(--motion-fast) var(--motion-ease),
+    color var(--motion-fast) var(--motion-ease),
+    border-color var(--motion-fast) var(--motion-ease),
+    box-shadow var(--motion-fast) var(--motion-ease),
+    outline-color var(--motion-fast) var(--motion-ease),
+    opacity var(--motion-fast) var(--motion-ease);
+}
+
+.tree-context-menu > button {
+  /* Never defer visibility: opening the menu must focus its first item immediately. */
+  transition:
+    background-color var(--motion-fast) var(--motion-ease),
+    color var(--motion-fast) var(--motion-ease),
+    outline-color var(--motion-fast) var(--motion-ease);
+}
+
+:is(.tree-row, .note-collection li, .search-result, .folder-table tbody tr, .collection-card) {
+  transition:
+    background-color var(--motion-base) var(--motion-ease),
+    border-color var(--motion-base) var(--motion-ease),
+    color var(--motion-fast) var(--motion-ease),
+    box-shadow var(--motion-base) var(--motion-ease);
+}
+
+:is(
+  .sidebar-actions .ant-input-affix-wrapper,
+  .search-options .ant-select-selector,
+  .directory-select .ant-select-selector,
+  .editor-insert-menu > input,
+  .trash-search input
+) {
+  transition:
+    background-color var(--motion-fast) var(--motion-ease),
+    border-color var(--motion-fast) var(--motion-ease),
+    box-shadow var(--motion-base) var(--motion-ease);
+}
+
+:is(
+    .icon-button,
+    .create-more,
+    .collection-refresh,
+    .collection-create,
+    .collection-load-more,
+    .format-toolbar button
+  ):active:not(:disabled) {
+  opacity: 0.76;
+}
+
+:is(.tree-select, .collection-open, .folder-entry-open):active:not(:disabled) {
+  color: var(--blue);
+}
+
+.search-result:focus-visible,
+.collection-open:focus-visible,
+.folder-entry-open:focus-visible {
+  background-color: var(--blue-soft);
+}
+
+:is(
+  .tree-toggle > svg,
+  .outline-disclosure > svg,
+  .account-row > svg,
+  .heading-picker-trigger > svg,
+  .create-more > svg,
+  .status-row-chevron
+) {
+  transition: transform var(--motion-base) var(--motion-ease);
+}
+
+.create-more[aria-expanded='true'] > svg {
+  transform: rotate(270deg);
+}
+
+/* Opacity leaves each positioner's coordinates and measurement untouched. */
+:is(.tree-context-menu, .heading-menu-popover, .note-action-menu, .create-menu, .account-popup) {
+  animation: surface-appear var(--motion-fast) var(--motion-ease) backwards;
+}
+
+/* Stable containers also replay on v-show without recreating an editor. */
+.main-content
+  > :is(
+    .note-workspace,
+    .whiteboard-workspace,
+    .folder-view,
+    .collection-workspace,
+    .settings-workspace,
+    .trash-workspace,
+    .apps-home,
+    .blog-workspace,
+    .workspace-empty
+  ),
+.notebook-sidebar-content,
+.settings-sidebar {
+  animation: surface-appear var(--motion-base) var(--motion-ease) backwards;
+}
+
+.toast-enter-active {
+  transition:
+    opacity var(--motion-base) var(--motion-ease),
+    translate var(--motion-base) var(--motion-ease);
+}
+
+.toast-leave-active {
+  transition:
+    opacity var(--motion-fast) var(--motion-ease),
+    translate var(--motion-fast) var(--motion-ease);
+}
+
+.toast-enter-from,
+.toast-leave-to {
+  opacity: 0;
+  /* The toast already uses transform: translateX(-50%) to stay centered. */
+  translate: 0 6px;
+}
+
+.drawer-scrim {
+  animation: scrim-appear var(--motion-base) var(--motion-ease) backwards;
+}
+
+@media (max-width: 720px) {
+  .sidebar {
+    transition: transform var(--motion-slow) var(--motion-ease);
+  }
+}
+
+@keyframes surface-appear {
+  from {
+    opacity: 0.45;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scrim-appear {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-fast: 0.01ms;
+    --motion-base: 0.01ms;
+    --motion-slow: 0.01ms;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+  }
+
+  .toast-enter-from,
+  .toast-leave-to {
+    translate: none;
+  }
+}

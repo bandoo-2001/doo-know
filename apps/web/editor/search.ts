@@ -1,7 +1,34 @@
 import type { Node as ProseMirrorNode } from '@tiptap/pm/model';
 import { Transform } from '@tiptap/pm/transform';
+import { Plugin, PluginKey } from '@tiptap/pm/state';
+import { Decoration, DecorationSet } from '@tiptap/pm/view';
 
 export type TextMatch = { from: number; to: number };
+export const documentSearchKey = new PluginKey<DecorationSet>('documentSearchHighlight');
+
+// The find input keeps keyboard focus, so native editor selection alone cannot
+// show the active result. Decorations keep it visible without touching Markdown.
+export function documentSearchHighlightPlugin() {
+  return new Plugin<DecorationSet>({
+    key: documentSearchKey,
+    state: {
+      init: () => DecorationSet.empty,
+      apply(transaction, previous) {
+        const match: TextMatch | null | undefined = transaction.getMeta(documentSearchKey);
+        if (match !== undefined) {
+          if (!match || match.from < 0 || match.to <= match.from || match.to > transaction.doc.content.size)
+            return DecorationSet.empty;
+          return DecorationSet.create(transaction.doc, [
+            Decoration.inline(match.from, match.to, { class: 'document-search-match' }),
+          ]);
+        }
+        if (transaction.docChanged || transaction.selectionSet) return DecorationSet.empty;
+        return previous;
+      },
+    },
+    props: { decorations: (state) => documentSearchKey.getState(state) },
+  });
+}
 export function findText(
   text: string,
   query: string,

@@ -42,6 +42,11 @@ const groups = [
   label: string;
   actions: { key: TableAction; label: string; icon: string; value?: string; rotation?: number }[];
 }[];
+function preserveSelection(event: PointerEvent) {
+  // A mouse click should keep the text caret. Touch may focus a control while
+  // retaining the editor selection, and still supports horizontal swiping.
+  if (event.pointerType === 'mouse' && event.button === 0) event.preventDefault();
+}
 function keydown(event: KeyboardEvent) {
   if (event.key === 'Escape') {
     event.preventDefault();
@@ -72,7 +77,7 @@ function keydown(event: KeyboardEvent) {
     class="document-table-tools"
     role="toolbar"
     aria-label="表格操作"
-    @mousedown.prevent
+    @pointerdown="preserveSelection"
     @keydown="keydown"
   >
     <div class="table-tools-caption" :title="`${rows || 0} 行 · ${columns || 0} 列`">

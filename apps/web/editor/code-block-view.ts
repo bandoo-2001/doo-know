@@ -2,7 +2,7 @@ import type { NodeViewRendererProps } from '@tiptap/core';
 import type { Node as ProseMirrorNode } from '@tiptap/pm/model';
 import { Selection, TextSelection } from '@tiptap/pm/state';
 import type { NodeView } from '@tiptap/pm/view';
-import { Compartment, EditorState } from '@codemirror/state';
+import { Compartment, EditorSelection, EditorState } from '@codemirror/state';
 import {
   EditorView,
   drawSelection,
@@ -28,6 +28,26 @@ export const CODE_BLOCK_ACTION = 'codeBlockAction';
 export const isDiagramCodeLanguage = (name: unknown) => ['mermaid', 'excalidraw'].includes(String(name));
 let nextLanguageList = 0;
 const MAX_PREVIEW_BYTES = 64 * 1024;
+type RevealAlignment = 'start' | 'center' | 'nearest';
+type RangeCoordinates = { top: number; bottom: number; left: number; right: number };
+type RevealRange = (
+  from: number,
+  to: number,
+  align: RevealAlignment,
+  revealed: (coords: RangeCoordinates) => void,
+) => boolean;
+const codeBlockReveals = new WeakMap<HTMLElement, RevealRange>();
+
+/** Reveal source offsets inside a code NodeView without changing keyboard focus. */
+export function revealCodeBlockRange(
+  dom: HTMLElement,
+  from: number,
+  to: number,
+  align: RevealAlignment,
+  revealed: (coords: RangeCoordinates) => void,
+): boolean {
+  return codeBlockReveals.get(dom)?.(from, to, align, revealed) ?? false;
+}
 
 export function createCodeBlockView({ node: initial, view, getPos, editor }: NodeViewRendererProps): NodeView {
   let node = initial,
@@ -41,6 +61,8 @@ export function createCodeBlockView({ node: initial, view, getPos, editor }: Nod
     highlightedVersion = -1,
     previewQueued = false,
     previewFrame: number | undefined,
+    revealGeneration = 0,
+    revealFrame: number | undefined,
     numbered = true,
     wrapped = true,
     folded = false,
@@ -356,6 +378,53 @@ export function createCodeBlockView({ node: initial, view, getPos, editor }: Nod
     try { code.dispatch({ changes: { from: start, to: oldEnd, insert: value.slice(start, newEnd) } }); }
     finally { syncing = false; }
   }
+  const revealMeasureKey = {};
+  codeBlockReveals.set(dom, (from, to, align, revealed) => {
+    if (guarded() || !Number.isInteger(from) || !Number.isInteger(to) ||
+        Math.min(from, to) < 0 || Math.max(from, to) > node.textContent.length) return false;
+    const cm = ensureCode(), generation = ++revealGeneration;
+    if (revealFrame !== undefined) cancelAnimationFrame(revealFrame);
+    syncing = true;
+    try {
+      unfoldAll(cm);
+      folded = false;
+      foldButton.setAttribute('aria-pressed', 'false');
+      cm.dispatch({
+        selection: { anchor: from, head: to },
+        effects: EditorView.scrollIntoView(EditorSelection.range(from, to), { y: align, yMargin: 8 }),
+      });
+    } finally { syncing = false; }
+    const revealedDocument = cm.state.doc;
+    const current = () => !destroyed && generation === revealGeneration && cm.state.doc === revealedDocument;
+    cm.requestMeasure({
+      key: revealMeasureKey,
+      read: () => undefined,
+      write: () => {
+        if (!current()) return;
+        // CM applies scroll effects after measurement writes. Read coordinates
+        // in the following cycle, once virtualized lines and scrolling settle.
+        revealFrame = requestAnimationFrame(() => {
+          revealFrame = undefined;
+          if (!current()) return;
+          cm.requestMeasure({
+            key: revealMeasureKey,
+            read: () => {
+              if (!current()) return undefined;
+              const start = cm.coordsAtPos(from, 1), end = from === to ? start : cm.coordsAtPos(to, -1);
+              if (!start && !end) return undefined;
+              const first = start || end!, last = end || start!;
+              return {
+                top: Math.min(first.top, last.top), bottom: Math.max(first.bottom, last.bottom),
+                left: Math.min(first.left, last.left), right: Math.max(first.right, last.right),
+              };
+            },
+            write: coords => { if (current() && coords) revealed(coords); },
+          });
+        });
+      },
+    });
+    return true;
+  });
   preview.addEventListener('mousedown', event => {
     event.preventDefault();
     const cm = ensureCode();
@@ -399,6 +468,9 @@ export function createCodeBlockView({ node: initial, view, getPos, editor }: Nod
     destroy() {
       destroyed = true;
       languageRequest++;
+      revealGeneration++;
+      codeBlockReveals.delete(dom);
+      if (revealFrame !== undefined) cancelAnimationFrame(revealFrame);
       cancelPreview();
       previewObserver?.disconnect();
       clearTimeout(copiedTimer);

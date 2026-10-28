@@ -14,6 +14,7 @@ beforeAll(async () => {
       import { createRichProjection, richExtensions } from './apps/web/editor/rich-adapter.ts';
       import { createEditorSession } from './apps/web/editor/session.ts';
       import { textEdit } from './apps/web/editor/source-codec.ts';
+      import { revealCodeBlockRange } from './apps/web/editor/code-block-view.ts';
       import { languages } from '@codemirror/language-data';
       import { LanguageDescription } from '@codemirror/language';
       let editor, session, projection, loading = false, previousContext = '';
@@ -100,7 +101,7 @@ beforeAll(async () => {
       }
       window.fixture = { reset, get editor() { return editor; }, get session() { return session; },
         get projection() { return projection; }, history, publish, holdLanguage, releaseLanguage,
-        languageLoads: name => languageGates.get(name)?.pending.length || 0 };
+        languageLoads: name => languageGates.get(name)?.pending.length || 0, revealCodeBlockRange };
     ` },
     bundle: true, write: false, platform: 'browser', format: 'iife', external: ['*.vue'],
     define: { 'import.meta.env': '{}' },
@@ -117,6 +118,98 @@ beforeEach(async () => {
   await page.evaluate(markdown => (window as any).fixture.reset(markdown), original);
 });
 afterEach(async () => { await page?.close(); });
+
+it('reveals a virtualized code range while external search keeps focus and Markdown stays unchanged', async () => {
+  const body = Array.from({ length: 2200 }, (_, index) =>
+    index === 1800 ? 'const target = "查找目标";' : `const value_${index} = ${index};`,
+  ).join('\n');
+  const raw = '正文\n\n```unknown-syntax\n' + body + '\n```\n\n末尾';
+  const from = body.indexOf('查找目标');
+  await page.evaluate(markdown => {
+    const fixture = (window as any).fixture;
+    fixture.reset(markdown);
+    const search = document.createElement('input');
+    search.setAttribute('aria-label', '查找输入');
+    document.body.prepend(search);
+    search.focus();
+  }, raw);
+  await page.addStyleTag({ content: '.tiptap{height:340px;overflow:auto}.cm-scroller{max-height:180px}.document-code-preview{max-height:180px;overflow:auto}' });
+  const accepted = await page.evaluate(({ from, to }) => {
+    const fixture = (window as any).fixture;
+    fixture.revealed = undefined;
+    return fixture.revealCodeBlockRange(
+      document.querySelector('.document-code-block'), from, to, 'center',
+      (coords: unknown) => { fixture.revealed = coords; },
+    );
+  }, { from, to: from + 4 });
+  expect(accepted).toBe(true);
+  await expect.poll(() => page.evaluate(() => (window as any).fixture.revealed)).toBeTruthy();
+  const search = page.getByRole('textbox', { name: '查找输入', exact: true });
+  expect(await search.evaluate(input => input === document.activeElement)).toBe(true);
+  const target = page.locator('.cm-line').filter({ hasText: '查找目标' });
+  const box = (await target.boundingBox())!;
+  const scroller = (await page.locator('.cm-scroller').boundingBox())!;
+  expect(box.y).toBeGreaterThanOrEqual(scroller.y);
+  expect(box.y + box.height).toBeLessThanOrEqual(scroller.y + scroller.height);
+  const coords = await page.evaluate(() => (window as any).fixture.revealed);
+  expect(coords.top).toBeGreaterThanOrEqual(box.y);
+  expect(coords.bottom).toBeLessThanOrEqual(box.y + box.height);
+  expect(await page.evaluate(() => (window as any).fixture.session.snapshot().markdown)).toBe(raw);
+  expect(await page.evaluate(() => (window as any).fixture.session.canUndo)).toBe(false);
+});
+
+it('unfolds a revealed code range without moving focus from external input', async () => {
+  const body = 'function example() {\n  const hiddenTarget = 42;\n  return hiddenTarget;\n}';
+  const raw = '```javascript\n' + body + '\n```';
+  await page.evaluate(markdown => (window as any).fixture.reset(markdown), raw);
+  await page.locator('pre code').click();
+  await expect.poll(() => page.locator('.cm-content span').count()).toBeGreaterThan(0);
+  const fold = page.getByRole('button', { name: '折叠代码', exact: true });
+  await fold.click();
+  await expect.poll(() => page.locator('.cm-foldPlaceholder').count()).toBe(1);
+  const from = body.indexOf('hiddenTarget');
+  const accepted = await page.evaluate(({ from, to }) => {
+    const fixture = (window as any).fixture;
+    const input = document.createElement('input');
+    document.body.prepend(input);
+    input.focus();
+    return fixture.revealCodeBlockRange(
+      document.querySelector('.document-code-block'), from, to, 'nearest',
+      (coords: unknown) => { fixture.revealed = coords; },
+    );
+  }, { from, to: from + 12 });
+  expect(accepted).toBe(true);
+  await expect.poll(() => page.evaluate(() => (window as any).fixture.revealed)).toBeTruthy();
+  expect(await fold.getAttribute('aria-pressed')).toBe('false');
+  expect(await page.locator('.cm-foldPlaceholder').count()).toBe(0);
+  expect(await page.evaluate(() => document.activeElement === document.body.firstElementChild)).toBe(true);
+  expect(await page.evaluate(() => (window as any).fixture.session.snapshot().markdown)).toBe(raw);
+});
+
+it('cancels obsolete reveal callbacks and unregisters destroyed code blocks', async () => {
+  const accepted = await page.evaluate(() => {
+    const fixture = (window as any).fixture;
+    fixture.reveals = [];
+    const block = document.querySelector('.document-code-block');
+    return [
+      fixture.revealCodeBlockRange(block, 0, 5, 'start', () => fixture.reveals.push('first')),
+      fixture.revealCodeBlockRange(block, 6, 12, 'center', () => fixture.reveals.push('second')),
+    ];
+  });
+  expect(accepted).toEqual([true, true]);
+  await expect.poll(() => page.evaluate(() => (window as any).fixture.reveals)).toEqual(['second']);
+  const disposed = await page.evaluate(async () => {
+    const fixture = (window as any).fixture;
+    const block = document.querySelector('.document-code-block');
+    const pending = fixture.revealCodeBlockRange(block, 0, 3, 'nearest', () => fixture.reveals.push('destroyed'));
+    fixture.reset('后来打开的正文');
+    const stale = fixture.revealCodeBlockRange(block, 0, 3, 'nearest', () => fixture.reveals.push('stale'));
+    await new Promise(requestAnimationFrame);
+    await new Promise(requestAnimationFrame);
+    return { pending, stale, reveals: fixture.reveals };
+  });
+  expect(disposed).toEqual({ pending: true, stale: false, reveals: ['second'] });
+});
 
 it('creates a CodeMirror only when entering a code block and leaves the other blocks lightweight', async () => {
   expect(await page.locator('.cm-editor').count()).toBe(0);

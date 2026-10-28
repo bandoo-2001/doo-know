@@ -263,11 +263,7 @@
   user-select: none;
 }
 .document-context-slot[data-editor-context='table'] {
-  height: var(--table-tools-height, 46px);
-  margin: 8px 0 0;
-}
-.document-editor .tiptap .document-context-slot + table {
-  margin-top: 8px;
+  display: none;
 }
 .document-context-slot .document-context-tools {
   width: 100%;
@@ -276,7 +272,7 @@
   white-space: normal;
 }
 .document-table-overlay {
-  position: absolute;
+  position: fixed;
   z-index: 20;
   width: max-content;
   max-width: calc(100% - 24px);
@@ -288,6 +284,7 @@
   max-width: 100%;
   padding: 6px 8px;
   overflow-x: auto;
+  touch-action: pan-x;
   overscroll-behavior-x: contain;
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;

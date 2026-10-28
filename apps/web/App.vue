@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, onMounted, onBeforeUnmount, defineAsyncComponent } from 'vue';
+import { computed, ref, onMounted, onBeforeUnmount, defineAsyncComponent, defineComponent, h } from 'vue';
 import { NConfigProvider, NModal, NAlert, NButton, darkTheme } from 'naive-ui';
 import { ConfigProvider as AConfigProvider, theme as antAlgorithms } from 'ant-design-vue';
 import zhCN from 'ant-design-vue/es/locale/zh_CN';
@@ -9,12 +9,54 @@ import { api, ApiError, refreshCsrf, resetCsrf } from './api';
 import { clearPluginDrafts, hasUnsavedPluginDrafts } from './plugin-drafts';
 import { disposePluginUIs } from './plugins';
 import { initializeEditorPreferences, resolvedTheme } from './preferences';
-const Login = defineAsyncComponent(() => import('./components/Login.vue'));
+import LoadingState from './components/LoadingState.vue';
+const PageLoading = defineComponent({
+  inheritAttrs: false,
+  setup: () => () => h(LoadingState, { variant: 'page', label: '正在打开知识空间…' }),
+});
+const LoginLoading = defineComponent({
+  inheritAttrs: false,
+  props: { compact: Boolean },
+  setup: (props) => () => h(LoadingState, {
+    variant: props.compact ? 'inline' : 'page',
+    label: '正在加载登录…',
+  }),
+});
+const PageLoadError = defineComponent({
+  inheritAttrs: false,
+  props: { compact: Boolean },
+  setup: (props) => () => h('section', {
+    class: props.compact ? 'editor-warning' : 'share-error',
+    role: 'alert',
+  }, [
+    h('p', '界面暂时无法加载。'),
+    h('p', props.compact ? '请检查网络连接，稍后重试登录。' : '请检查网络连接后重新打开此页面。'),
+  ]),
+});
+const asyncPageOptions = {
+  loadingComponent: PageLoading,
+  errorComponent: PageLoadError,
+  delay: 160,
+};
+const Login = defineAsyncComponent({
+  ...asyncPageOptions,
+  loader: () => import('./components/Login.vue'),
+  loadingComponent: LoginLoading,
+});
 const loadWorkspace = () => import('./components/Workspace.vue');
-const Workspace = defineAsyncComponent(loadWorkspace);
-const ShareReader = defineAsyncComponent(() => import('./components/ShareReader.vue'));
-const SetupWizard = defineAsyncComponent(() => import('./components/SetupWizard.vue'));
-const OAuthConsent = defineAsyncComponent(() => import('./components/OAuthConsent.vue'));
+const Workspace = defineAsyncComponent({ ...asyncPageOptions, loader: loadWorkspace });
+const ShareReader = defineAsyncComponent({
+  ...asyncPageOptions,
+  loader: () => import('./components/ShareReader.vue'),
+});
+const SetupWizard = defineAsyncComponent({
+  ...asyncPageOptions,
+  loader: () => import('./components/SetupWizard.vue'),
+});
+const OAuthConsent = defineAsyncComponent({
+  ...asyncPageOptions,
+  loader: () => import('./components/OAuthConsent.vue'),
+});
 const token = location.pathname.startsWith('/s/') ? location.pathname.slice(3) : '',
   loggedIn = ref(false),
   mountedWorkspace = ref(false),
@@ -308,7 +350,7 @@ onBeforeUnmount(() => {
           @logout="completeLogout" /><Login v-else-if="!loggedIn" @login="login" />
         <section
           v-else-if="platformError || !platform"
-          class="share-error"
+          :class="platformError ? 'share-error' : undefined"
           :aria-busy="platformBusy || platformLogoutBusy"
         >
           <template v-if="platformError">
@@ -331,7 +373,7 @@ onBeforeUnmount(() => {
               >退出并重新登录</NButton
             >
           </template>
-          <p v-else role="status">正在打开知识库…</p>
+          <LoadingState v-else variant="page" label="正在打开知识库…" />
         </section>
         <SetupWizard v-else-if="platform" :status="platform" @refresh="refreshPlatform" />
         <NModal
@@ -343,7 +385,7 @@ onBeforeUnmount(() => {
           :closable="false"
           ><Login compact @login="login" /></NModal
       ></template>
-      <div v-else class="share-error">正在打开知识空间…</div></NConfigProvider
+      <LoadingState v-else variant="page" label="正在打开知识空间…" /></NConfigProvider
     ></AConfigProvider
   >
 </template>

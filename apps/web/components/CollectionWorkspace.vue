@@ -563,14 +563,25 @@ onBeforeUnmount(() => {
   padding: 20px;
   border: 1px solid var(--border);
   border-radius: 9px;
-  background: #fff;
+  background: var(--panel, #fff);
 }
 .collection-skeleton i {
   display: block;
   height: 10px;
   margin-bottom: 15px;
   border-radius: 3px;
-  background: #f0f2f6;
+  background: color-mix(in srgb, var(--muted, #7a8190) 12%, transparent);
+  animation: collection-skeleton-pulse 1.7s ease-in-out infinite alternate;
+}
+.collection-skeleton i:nth-child(2) { animation-delay: 80ms; }
+.collection-skeleton i:nth-child(3) { animation-delay: 160ms; }
+.collection-skeleton i:nth-child(4) { animation-delay: 240ms; }
+@keyframes collection-skeleton-pulse {
+  from { opacity: 0.45; }
+  to { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .collection-skeleton i { animation: none; }
 }
 .collection-skeleton i:first-child {
   width: 65%;

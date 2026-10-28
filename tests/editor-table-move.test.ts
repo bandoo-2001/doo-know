@@ -60,6 +60,45 @@ beforeEach(async () => {
 });
 afterEach(async () => { await page?.close(); });
 
+it('shows table tools only while the table or its controls own focus', async () => {
+  await page.evaluate(() => {
+    const input = document.createElement('input');
+    input.setAttribute('aria-label', '外部输入');
+    document.body.prepend(input);
+  });
+  const tools = page.getByRole('toolbar', { name: '表格操作', exact: true });
+  const cell = page.locator('td').filter({ hasText: '中一' });
+  await cell.click();
+  await expect.poll(() => tools.isVisible()).toBe(true);
+  const move = tools.getByRole('button', { name: '下移行', exact: true });
+  await move.focus();
+  await expect.poll(() => tools.isVisible()).toBe(true);
+  expect(await move.evaluate(button => button === document.activeElement)).toBe(true);
+  await page.keyboard.press('Enter');
+  await expect.poll(() => page.locator('tr').nth(2).textContent()).toBe('左一中一右一');
+  await page.getByRole('textbox', { name: '外部输入' }).focus();
+  await expect.poll(() => tools.isVisible()).toBe(false);
+  await cell.click();
+  await expect.poll(() => tools.isVisible()).toBe(true);
+  await page.locator('.tiptap > p').first().click();
+  await expect.poll(() => tools.isVisible()).toBe(false);
+});
+
+it('floating table tools leave table geometry unchanged when focus enters and leaves', async () => {
+  const table = page.locator('table');
+  const offset = () => table.evaluate(table =>
+    table.getBoundingClientRect().top - table.closest('.tiptap')!.getBoundingClientRect().top,
+  );
+  const before = await offset();
+  await page.locator('td').filter({ hasText: '中一' }).click();
+  const tools = page.getByRole('toolbar', { name: '表格操作', exact: true });
+  await expect.poll(() => tools.isVisible()).toBe(true);
+  expect(await offset()).toBe(before);
+  await page.locator('.tiptap > p').first().click();
+  await expect.poll(() => tools.isVisible()).toBe(false);
+  expect(await offset()).toBe(before);
+});
+
 it('moves the selected body row with the real document action and keeps the header first', async () => {
   await page.locator('td').filter({ hasText: '中一' }).click();
   const result = await page.evaluate(() => {

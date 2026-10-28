@@ -30,6 +30,7 @@ import DOMPurify from 'dompurify';
 import type { NoteDocument, TreeEntry } from '../../../shared/contracts';
 import { api, ApiError, resetCsrf } from '../api';
 import Icon from './Icon.vue';
+import LoadingState from './LoadingState.vue';
 import TreeBranch from './TreeBranch.vue';
 import TreeContextMenu, { type TreeAction } from './TreeContextMenu.vue';
 import NoteCollection from './NoteCollection.vue';
@@ -247,6 +248,7 @@ function changeNoteView(view: 'edit' | 'preview' | 'split') {
 const previewRef = ref<HTMLElement>();
 const mainRef = ref<HTMLElement>();
 const noteOpening = ref(false),
+  editorGeneration = ref(0),
   editorTransfer = ref(false);
 const moveTarget = ref<NoteDocument>();
 const moveOpen = ref(false),
@@ -300,6 +302,7 @@ function saveSidebarWidth() {
 }
 const tree = ref<TreeEntry[]>([]),
   treeLoaded = ref(false),
+  treeRefreshing = ref(true),
   note = ref<NoteDocument>(),
   folder = ref(''),
   selected = ref(''),
@@ -536,6 +539,7 @@ async function browseRoot() {
       await localDrafts.flush();
       if (!currentIntent(intent)) return;
       viewEpoch++;
+      noteOpening.value = false;
       note.value = undefined;
       panel.value = 'empty';
       folder.value = '';
@@ -611,6 +615,12 @@ async function applyRoute(route: WorkspaceRoute, intent = ++navigationIntent) {
   }
   if (route.note) {
     if (note.value?.id === route.note) {
+      if (noteOpening.value) {
+        viewEpoch++;
+        noteOpening.value = false;
+        await nextTick();
+        if (!currentIntent(intent)) return;
+      }
       if(route.fragment)await revealFragment(route.fragment);
       else if(route.line)revealLine(route.line);
     } else await openNote(route.note, route.line, false, false, intent, route.fragment);
@@ -633,6 +643,7 @@ async function applyRoute(route: WorkspaceRoute, intent = ++navigationIntent) {
     await localDrafts.flush();
     if (!currentIntent(intent)) return;
     viewEpoch++;
+    noteOpening.value = false;
     note.value = undefined;
     panel.value = 'empty';
     folder.value = '';
@@ -898,6 +909,7 @@ async function run(fn: () => Promise<void>) {
 }
 async function refresh() {
   const epoch = ++treeRefreshEpoch;
+  treeRefreshing.value = true;
   const request = (async () => {
     const [ready, entries] = await Promise.all([
       initializeDrafts(), api<TreeEntry[]>('/api/tree'),
@@ -906,7 +918,10 @@ async function refresh() {
     collectionFeed.observeFavorites(flatten(entries));
     tree.value = entries;
     treeLoaded.value = true;
-  })();
+  })().finally(() => {
+    // Only the latest read owns the indicator, including reads invalidated by a mutation.
+    if (treeRefreshRequest === request) treeRefreshing.value = false;
+  });
   treeRefreshRequest = request;
   let waiting = request;
   // Initial folder lookup needs a published tree. A superseded read must join
@@ -985,6 +1000,8 @@ async function openNote(id: string, line?: number, syncUrl = true, preserveDraft
         return;
       }
       if (meta.editorMode === 'full' && !isWhiteboard(meta.relativePath)) localDrafts.prepare();
+      // Keep the current editor and its undo history while a different note is loading.
+      editorGeneration.value = epoch;
       note.value = n;
       noteInfo.value = meta;
       largeDirty.value = false;
@@ -1021,6 +1038,8 @@ async function select(entry: TreeEntry, syncUrl = true, intent = ++navigationInt
   await run(async () => {
     if (!currentIntent(intent)) return;
     if (entry.type === 'note' && entry.id === note.value?.id && panel.value === 'collection') {
+      if (noteOpening.value) viewEpoch++;
+      noteOpening.value = false;
       panel.value = 'note';
       drawer.value = false;
       if (syncUrl) navigation.commit({ note: entry.id, line: noteLine.value });
@@ -1029,6 +1048,7 @@ async function select(entry: TreeEntry, syncUrl = true, intent = ++navigationInt
       await guard(async () => {
         if (!currentIntent(intent)) return;
         viewEpoch++;
+        noteOpening.value = false;
         folder.value = entry.path;
         collection.value = 'notes';
         selected.value = entry.path;
@@ -1977,9 +1997,23 @@ async function goToHeading(line: number) {
       .querySelector(`.preview-panel [data-source-line="${line}"]`)
       ?.scrollIntoView({ block: 'start' });
 }
-function revealLine(line: number, navigateEditor = true) {
+let pendingPreviewLine: { noteId: string; epoch: number; line: number } | undefined;
+async function revealLine(line: number, navigateEditor = true) {
+  const noteId = note.value?.id, epoch = viewEpoch;
+  if (!noteId) return;
+  // The host queues navigation while an async editor is loading. Schedule that
+  // immediately; only the rendered preview needs an additional DOM update.
   if (navigateEditor) editorRef.value?.goToLine(line);
-  if (mode.value === 'edit' || !previewRef.value) return;
+  await nextTick();
+  if (!currentView(noteId, epoch)) return;
+  if (mode.value === 'edit') {
+    pendingPreviewLine = undefined;
+    return;
+  }
+  if (!previewRef.value) {
+    pendingPreviewLine = { noteId, epoch, line };
+    return;
+  }
   const container = previewRef.value;
   container
     .querySelectorAll('[data-search-hit]')
@@ -1991,12 +2025,20 @@ function revealLine(line: number, navigateEditor = true) {
       target = element;
   }
   if (target) {
+    pendingPreviewLine = undefined;
     target.setAttribute('data-search-hit', 'true');
     // Scroll only the article pane so split view and the sidebar stay in place.
+    const targetBounds = target.getBoundingClientRect(), bounds = container.getBoundingClientRect();
     container.scrollTop +=
-      target.getBoundingClientRect().top - container.getBoundingClientRect().top - 32;
-  }
+      (targetBounds.top + targetBounds.bottom) / 2 - (bounds.top + container.clientHeight / 2);
+  } else pendingPreviewLine = { noteId, epoch, line };
 }
+watch([previewRef, preview], () => {
+  const pending = pendingPreviewLine;
+  if (!pending) return;
+  if (!currentView(pending.noteId, pending.epoch)) pendingPreviewLine = undefined;
+  else void revealLine(pending.line, false);
+}, { flush: 'post' });
 watch(mode, async () => {
   await nextTick();
   if (noteLine.value && noteInfo.value?.editorMode === 'full') revealLine(noteLine.value, false);
@@ -2454,7 +2496,9 @@ onBeforeUnmount(() => {
     :class="['workspace', { 'sidebar-collapsed': sidebarCollapsed && panel === 'note' }]"
     :style="{ '--sidebar-width': sidebarWidth + 'px', '--outline-width': outlineWidth + 'px' }"
   >
-    <div v-if="drawer" class="drawer-scrim" @click="drawer = false"></div>
+    <Transition name="scrim">
+      <div v-if="drawer" class="drawer-scrim" @click="drawer = false"></div>
+    </Transition>
     <aside id="notebook-navigation" :class="['sidebar', { open: drawer }]" aria-label="笔记导航">
       <div class="brand">
         <Icon name="book" :size="31" /><strong>DooKnow</strong
@@ -2551,7 +2595,7 @@ onBeforeUnmount(() => {
             @click="create('folder')"
           >
             <Icon name="plus" /></button
-          ><button class="icon-button" aria-label="刷新目录" @click="run(refresh)">
+          ><button class="icon-button" aria-label="刷新目录" :disabled="treeRefreshing" :aria-busy="treeRefreshing" @click="run(refresh)">
             <Icon name="refresh" :size="17" />
           </button>
         </div>
@@ -2573,7 +2617,7 @@ onBeforeUnmount(() => {
             :options="[{ label: '所有目录', value: '' }, ...folders.filter((item) => item.value)]"
           />
         </div>
-        <div class="tree-scroll">
+        <div class="tree-scroll" :aria-busy="query ? searchBusy || searchWaiting : treeRefreshing">
           <template v-if="query"
             ><button
               v-for="r in results"
@@ -2611,6 +2655,7 @@ onBeforeUnmount(() => {
               role="status"
               aria-live="polite"
             >
+              <span class="loading-dot" aria-hidden="true"></span>
               {{ searchBusy ? '正在搜索…' : '搜索索引正在更新，请稍候…' }}
             </p>
             <div v-if="searchError" class="search-feedback">
@@ -2635,7 +2680,14 @@ onBeforeUnmount(() => {
             >
               没有匹配的笔记
             </p></template
-          ><NoteCollection
+          ><LoadingState
+            v-else-if="!treeLoaded && treeRefreshing"
+            variant="list"
+            label="正在读取目录…"
+          /><div v-else-if="!treeLoaded" class="tree-load-error">
+            <p class="muted">目录暂时无法读取</p>
+            <AButton size="small" @click="run(refresh)">重新加载目录</AButton>
+          </div><NoteCollection
             v-else-if="collection !== 'notes'"
             :entries="collectionEntries"
             :selected="selected"
@@ -2722,12 +2774,16 @@ onBeforeUnmount(() => {
     <main
       ref="mainRef"
       :class="['main-content', { 'utility-scroll': ['settings', 'trash', 'apps'].includes(panel) }]"
+      :aria-busy="noteOpening || (!treeLoaded && treeRefreshing)"
       :tabindex="['settings', 'trash', 'apps'].includes(panel) ? 0 : undefined"
     >
       <div class="mobile-bar">
         <button class="icon-button" aria-label="打开侧栏" @click="drawer = true">
           <Icon name="menu" /></button
         ><b>DooKnow</b><span>{{ dirty ? '未保存' : '私人笔记' }}</span>
+      </div>
+      <div v-if="noteOpening || (!treeLoaded && treeRefreshing)" class="workspace-load-progress">
+        <LoadingState variant="inline" :label="noteOpening ? '正在打开笔记…' : '正在读取目录…'" />
       </div>
       <NAlert
         v-if="props.serviceUnavailable"
@@ -3039,7 +3095,7 @@ onBeforeUnmount(() => {
                     @upload-files="uploadFiles"
                     @insert-menu="openInsertMenu"
                     @replace-image="prepareImageReplacement"
-                    :generation="viewEpoch"
+                    :generation="editorGeneration"
                     :kind="documentEditingEnabled ? editorKind : 'source'"
                     :visible="mode !== 'preview'"
                     @fallback="reason=>{editorKind='source';editorHint=reason}"
@@ -3050,7 +3106,7 @@ onBeforeUnmount(() => {
                     :read-only="
                       !draftIdentityReady || noteOpening || editorTransfer || draftLoading || draftBusy || !!recoveryDraft
                     "
-                    :key="`${note.id}:${viewEpoch}`"
+                    :key="`${note.id}:${editorGeneration}`"
                     :initial-line="
                       noteLine || (note.id === initialNoteId ? initialLine : undefined)
                     "
@@ -3106,7 +3162,14 @@ onBeforeUnmount(() => {
         />
       </section>
       <section v-if="panel === 'empty'" class="utility-view workspace-empty">
-        <div class="utility-empty">
+        <LoadingState v-if="noteOpening || (!treeLoaded && treeRefreshing)" variant="document" :label="noteOpening ? '正在打开笔记…' : '正在准备工作区…'" />
+        <div v-else-if="!treeLoaded" class="utility-empty">
+          <Icon name="folder" :size="36" />
+          <h1>暂时无法打开目录</h1>
+          <p>请检查连接后重新尝试。</p>
+          <AButton type="primary" @click="run(refresh)">重试连接</AButton>
+        </div>
+        <div v-else class="utility-empty">
           <Icon name="book" :size="36" />
           <h1>选择一篇笔记</h1>
           <p>从左侧目录打开笔记，或新建笔记开始记录。</p>
@@ -3297,9 +3360,11 @@ onBeforeUnmount(() => {
       </div>
     </NModal>
     <PluginPanel />
-    <div v-if="notice" class="toast" role="status">
-      <Icon name="check" :size="18" />{{ notice }}
-    </div>
+    <Transition name="toast">
+      <div v-if="notice" class="toast" role="status">
+        <Icon name="check" :size="18" />{{ notice }}
+      </div>
+    </Transition>
     <NModal
       :show="!!conflict"
       preset="card"
@@ -3520,3 +3585,82 @@ onBeforeUnmount(() => {
     </SettingsOverlay>
   </div>
 </template>
+<style scoped>
+.main-content {
+  position: relative;
+}
+.workspace-load-progress {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 12;
+  display: flex;
+  justify-content: flex-end;
+  overflow: hidden;
+  padding: 8px 12px;
+  pointer-events: none;
+  animation: pending-appear var(--motion-base, 180ms) ease 120ms backwards;
+}
+.workspace-load-progress::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 35%;
+  height: 2px;
+  background: var(--blue);
+  animation: pending-progress 1.4s ease-in-out infinite;
+}
+.workspace-load-progress > .loading-state {
+  padding: 7px 11px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel, #fff);
+  box-shadow: 0 3px 12px #00000008;
+}
+.tree-load-error {
+  padding: 12px 16px;
+}
+.workspace-empty > .loading-state {
+  width: 100%;
+}
+.loading-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 6px;
+  vertical-align: middle;
+  border-radius: 50%;
+  background: var(--blue);
+  animation: pending-appear 1s ease-in-out infinite alternate;
+}
+.tree-heading .icon-button[aria-busy='true'] > svg {
+  animation: refresh-turn 1s linear infinite;
+}
+.scrim-enter-active,
+.scrim-leave-active {
+  transition: opacity var(--motion-base, 180ms) ease;
+}
+.scrim-enter-from,
+.scrim-leave-to {
+  opacity: 0;
+}
+.scrim-leave-active {
+  pointer-events: none;
+}
+@keyframes pending-appear {
+  from { opacity: 0.25; }
+  to { opacity: 1; }
+}
+@keyframes pending-progress {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(390%); }
+}
+@keyframes refresh-turn {
+  to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .workspace-load-progress::before {
+    animation: none;
+    width: 100%;
+  }
+}
+</style>

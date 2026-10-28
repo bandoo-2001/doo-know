@@ -17,6 +17,7 @@ const emit = defineEmits<{
   close: [];
 }>();
 const input = ref<HTMLInputElement>();
+defineExpose({ focus: () => input.value?.focus() });
 onMounted(() => input.value?.focus());
 </script>
 <template>
