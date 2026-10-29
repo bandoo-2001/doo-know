@@ -27,31 +27,33 @@
 **Files:** frozen snapshot scope manifest; To Doo, history and shared navigation paths recorded in `.local/integration-rc56/scope.json`.
 - [x] 冻结原共享目录的源码字节、模式、状态和 HEAD。
 - [x] 在实际 rc.55 创建独立候选，按依赖闭包导入授权文件，排除 MCP 权限树/传输面板。
-- [ ] 运行入口/历史/To Doo 基线回归；记录结果并提交候选快照。
+- [x] 运行入口/历史/To Doo 基线回归；记录结果并提交候选快照。
 
 ### Task 2: Graph hosted menu and draft leave protection
 
 **Files:** `GraphWorkspace.vue`, `graph/GraphOverlay.vue`, `AppsWorkspace.vue`, `Workspace.vue`; graph overlay/hosted navigation regression tests.
 **Interfaces:** GraphWorkspace exposes `hasUnsavedChanges(): boolean`, `requestLeave(): Promise<boolean>`; GraphOverlay exposes a cancellable close request; AppsWorkspace forwards to current app.
-- [ ] 先写并运行失败回归：图谱统一菜单、模型设置、取消/确认后退、刷新提醒、busy/重复请求与卸载结清。
-- [ ] 复用共享菜单注入和弹层关闭确认，接入宿主导航与 beforeunload。
-- [ ] 运行相关测试、类型检查；独立审查实现和测试，处理实际问题。
-- [ ] 提交修复并更新应用导航说明。
+- [x] 先写并运行失败回归：图谱统一菜单、模型设置、取消/确认后退、刷新提醒、busy/重复请求与卸载结清。
+- [x] 复用共享菜单注入和弹层关闭确认，接入宿主导航与 beforeunload。
+- [x] 运行相关测试、类型检查；独立审查实现和测试，处理实际问题。
+- [x] 提交修复并更新应用导航说明。
 
 ### Task 3: Integrated verification and immutable release
 
 **Files:** release/private verification scripts, deployment acceptance record; plugin manifest only if new plugin content is published.
-- [ ] 检查全部导入源码与依赖清单，确认博客源码未回退、旧 Git 接口兼容、插件版本不可变。
-- [ ] 运行全量 `npm test`、类型检查、构建；失败须定位并记录，修复本次发布阻断问题。
-- [ ] 桌面/手机逐项目独立运行图谱、主菜单、To Doo、历史恢复和博客回归。
-- [ ] 冻结提交，构建并校验最终发布包，验证安装后资源与构建字节一致。
-- [ ] 在正式资料隔离副本验证，创建新加密备份并实际恢复验证。
+- [x] 检查全部导入源码与依赖清单，确认博客源码未回退、旧 Git 接口兼容、插件版本不可变。
+- [x] 运行全量 `npm test`、类型检查、构建；失败须定位并记录，修复本次发布阻断问题。
+- [x] 桌面/手机逐项目独立运行图谱、主菜单、To Doo、历史恢复和博客回归。
+- [x] 冻结提交，构建并校验最终发布包，验证安装后资源与构建字节一致。
+- [x] 在正式资料隔离副本验证，创建新加密备份并实际恢复验证。
 
 ### Task 4: Deploy and preserve concurrent work
 
 **Files:** private deployment script/evidence, `docs/验收记录/2026-10-30-integrated-workspace-deployment.md`.
-- [ ] 独立审查部署脚本，核对当前版本、来源提交、包哈希与恢复证据。
-- [ ] 原生管理器更新；检查健康、就绪、静态资源和公开博客。
-- [ ] 逐项核对原文、笔记身份、博客记录/设置、插件与运行配置，保留 rc.55 回退。
-- [ ] 原共享目录对照初始快照检查并发变化；只同步经过原字节核对的本次修复，保持他人工作。
-- [ ] 写入实际验证/部署记录，报告版本、入口与剩余限制。
+- [x] 独立审查部署脚本，核对当前版本、来源提交、包哈希与恢复证据。
+- [x] 原生管理器更新；检查健康、就绪、静态资源和公开博客。
+- [x] 逐项核对原文、笔记身份、博客记录/设置、插件与运行配置，保留 rc.55 回退。
+- [x] 原共享目录对照初始快照检查并发变化；只同步经过原字节核对的本次修复，保持他人工作。
+- [x] 写入实际验证/部署记录，报告版本、入口与剩余限制。
+
+执行结果：rc.56 已上线；完整单测保留一项独立复验通过但根因未明的 Git 远端异常，未声称全套全绿，详见对应验收记录。
