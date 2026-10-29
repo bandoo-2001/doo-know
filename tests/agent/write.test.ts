@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { createFixture } from '../support/fixture.js';
 import { agentConfig, agentHeaders } from '../support/agent.js';
 import { openDatabase } from '../../packages/core/db.js';
-it('requires an explicit empty directory to create the authorized root README', async () => {
+it('requires explicit directory syntax and refuses an unavailable legacy root selection', async () => {
   const f = await createFixture({
     agent: {
       ...agentConfig,
@@ -38,9 +38,8 @@ it('requires an explicit empty directory to create the authorized root README', 
         requestId: 'root-readme',
       },
     });
-    expect(result.statusCode, result.body).toBe(201);
-    expect(result.json().data.relativePath).toBe('README.md');
-    expect(await readFile(join(f.knowledgeRoot, 'README.md'), 'utf8')).toBe('# Root');
+    expect(result.statusCode, result.body).toBe(403);
+    await expect(readFile(join(f.knowledgeRoot, 'README.md'), 'utf8')).rejects.toMatchObject({code:'ENOENT'});
   } finally {
     await f.close();
   }

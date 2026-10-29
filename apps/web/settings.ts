@@ -26,20 +26,26 @@ export const settingsSections: {
   {
     key: 'backup',
     label: '备份与恢复',
-    icon: 'clock',
+    icon: 'shield',
     description: '创建加密备份、恢复独立副本并处理异常写入。',
+  },
+  {
+    key: 'status',
+    label: '后台状态',
+    icon: 'task',
+    description: '查看后台任务、搜索准备、索引更新与写入状态。',
   },
   {
     key: 'plugins',
     label: '插件与连接',
-    icon: 'plus',
+    icon: 'plug',
     description: '管理已安装功能和外部应用连接。',
   },
   { key: 'account', label: '账号与安全', icon: 'lock', description: '管理密码和登录设备。' },
   {
     key: 'about',
     label: '关于与诊断',
-    icon: 'settings',
+    icon: 'help',
     description: '查看版本、使用帮助和脱敏诊断。',
   },
 ];

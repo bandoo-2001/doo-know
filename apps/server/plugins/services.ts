@@ -9,7 +9,10 @@ import { authorizePath, checkTokenCutoff, requireScope, underPrefix } from '../.
 import { beginOperation, completeOperation, findOperation } from '../../../packages/core/knowledge/operations.js';
 import { fail } from '../../../packages/core/knowledge/errors.js';
 import { listMetadata } from '../../../packages/core/knowledge/catalog.js';
+import { flushKnowledgeData } from '../../../packages/core/knowledge-data.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
+import { createToDooAgentPort } from '../to-doo/agent-port.js';
+import { mcpPolicy } from '../platform/oauth.js';
 
 export function pluginServices(
   platform: ReturnType<typeof platformRuntime>,
@@ -27,7 +30,7 @@ export function pluginServices(
     id: context.ownerId,
     clientId: 'plugin-web:' + id,
     tokenIssuedAt: Math.floor(Date.now() / 1000),
-    scopes: [...webPrincipal.scopes, 'blog:publish'].filter((scope) => capabilities.includes(scope)),
+    scopes: [...webPrincipal.scopes, 'blog:publish', 'to-doo:read', 'to-doo:write'].filter((scope) => capabilities.includes(scope)),
   };
   let finishingCommit = false;
   function authorized(capability: string, options?: ServiceCallOptions) {
@@ -86,10 +89,33 @@ export function pluginServices(
     if (!row || !row.kind.startsWith(`plugin.${id}.`)) fail(404, 'OPERATION_NOT_FOUND');
     return row;
   }
+  function taskPort(options?: ServiceCallOptions) {
+    return createToDooAgentPort(runtime.toDoo, {
+      authorize(write) {
+        let p = authorized('to-doo:read', options);
+        if (write) p = authorized('to-doo:write', options);
+        if (id === 'mcp') {
+          const policy = mcpPolicy(db);
+          if (!policy.enabled || !policy.allowToDoo || (write && (policy.readOnly || !policy.allowToDooWrite))) fail(403, 'FORBIDDEN');
+        }
+        return p;
+      },
+      access: () => id === 'mcp' ? { listIds: mcpPolicy(db).toDooListIds, domains: mcpPolicy(db).toDooDomains }
+        : { listIds: [], domains: ['tasks','records','focus','habits','anniversaries','calendar','statistics','settings'] },
+      canReadNote: async (_p, noteId) => {
+        try { await k.info(authorized('knowledge:read', options), noteId); return true; } catch { return false; }
+      },
+    });
+  }
   db.exec(
     'CREATE TABLE IF NOT EXISTS plugin_operation_intents(operation_id TEXT PRIMARY KEY REFERENCES operations(id),plugin_id TEXT NOT NULL,details TEXT NOT NULL)',
   );
   return {
+    toDoo: {
+      query: (input, options) => taskPort(options).query(input, options),
+      context: (input, options) => taskPort(options).context(input, options),
+      command: (input, options) => taskPort(options).command(input, options),
+    },
     ...(id === 'mcp' &&
     context.channel === 'web' &&
     !context.principal &&
@@ -171,9 +197,16 @@ export function pluginServices(
             },
             exclusive: async <T>(work: () => Promise<T>) => {
               authorized('knowledge:write');
+              const snapshot = async () => {
+                // External files need stable identities before Git captures _data.
+                // Keep discovery synchronous while holding the exclusive permit.
+                runtime.notes.scan();
+                flushKnowledgeData(db);
+                return work();
+              };
               return exclusive
-                ? exclusive(work)
-                : workspaceExclusive(db, { kind: 'plugin.' + id }, work);
+                ? exclusive(snapshot)
+                : workspaceExclusive(db, { kind: 'plugin.' + id }, snapshot);
             },
             exec: (args, options) => {
               authorized('knowledge:read');

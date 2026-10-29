@@ -1,6 +1,12 @@
+export const toDooSections = ['overview', 'tasks', 'board', 'calendar', 'timeline', 'matrix', 'focus', 'habits', 'anniversaries', 'stats', 'notifications', 'settings'] as const;
+export type ToDooAppSection = (typeof toDooSections)[number];
 export type WorkspaceRoute = {
-  app?: 'blog';
-  appSection?: 'overview' | 'articles' | 'taxonomy' | 'settings';
+  app?: 'blog' | 'to-doo';
+  appSection?: 'overview' | 'articles' | 'taxonomy' | 'settings' | ToDooAppSection;
+  task?: string;
+  list?: string;
+  date?: string;
+  calendarView?: 'week' | 'month';
   note?: string;
   line?: number;
   fragment?: string;
@@ -12,6 +18,7 @@ export type WorkspaceRoute = {
     | 'account'
     | 'search'
     | 'plugins'
+    | 'status'
     | 'backup'
     | 'about'
     | 'maintenance';
@@ -21,7 +28,19 @@ export function readWorkspaceRoute(href = window.location.href): WorkspaceRoute 
   const url = new URL(href),
     query = url.searchParams;
   const parsed = Number(url.hash.match(/^#L([1-9]\d*)$/)?.[1]);
+  const toDoo = query.get('view') === 'apps' && query.get('app') === 'to-doo';
+  const date = query.get('date') || '';
+  const validDate = /^\d{4}-\d{2}-\d{2}$/.test(date) && Number.isFinite(Date.parse(date)) && new Date(date).toISOString().slice(0, 10) === date;
+  const entity = (key: string) => /^[A-Za-z0-9_-]{1,128}$/.test(query.get(key) || '') ? query.get(key)! : undefined;
   return {
+    ...(toDoo ? {
+      app: 'to-doo' as const,
+      ...(toDooSections.includes(query.get('appSection') as ToDooAppSection) ? { appSection: query.get('appSection') as ToDooAppSection } : {}),
+      ...(entity('task') ? { task: entity('task') } : {}),
+      ...(entity('list') ? { list: entity('list') } : {}),
+      ...(validDate ? { date } : {}),
+      ...(['week', 'month'].includes(query.get('calendarView') || '') ? { calendarView: query.get('calendarView') as 'week' | 'month' } : {}),
+    } : {}),
     ...(query.get('view') === 'apps' && query.get('app') === 'blog'
       ? {
           app: 'blog' as const,
@@ -45,6 +64,7 @@ export function readWorkspaceRoute(href = window.location.href): WorkspaceRoute 
       'account',
       'search',
       'plugins',
+      'status',
       'backup',
       'about',
       'maintenance',
@@ -86,7 +106,7 @@ export function createWorkspaceNavigation(options: {
       return;
     }
     const url = new URL(location.href);
-    for (const key of ['note', 'folder', 'view', 'section', 'app', 'appSection'])
+    for (const key of ['note', 'folder', 'view', 'section', 'app', 'appSection', 'task', 'list', 'date', 'calendarView'])
       url.searchParams.delete(key);
     if (route.note) url.searchParams.set('note', route.note);
     if (route.folder) url.searchParams.set('folder', route.folder);
@@ -95,6 +115,10 @@ export function createWorkspaceNavigation(options: {
     if (route.view === 'apps' && route.app) url.searchParams.set('app', route.app);
     if (route.view === 'apps' && route.app && route.appSection)
       url.searchParams.set('appSection', route.appSection);
+    if (route.view === 'apps' && route.app === 'to-doo') {
+      for (const key of ['task', 'list', 'date', 'calendarView'] as const)
+        if (route[key]) url.searchParams.set(key, route[key]!);
+    }
     url.hash = route.line ? 'L' + route.line : route.fragment || '';
     if (url.href === active.href) return;
     generation++;

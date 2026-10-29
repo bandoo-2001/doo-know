@@ -35,7 +35,7 @@ import type { AppDatabase } from '../db.js';
 import { safePath, validName, readDocument } from '../files.js';
 import { assertSharePrincipal, isSharePrincipal } from '../share-policy.js';
 import { assertShareResources } from '../share-resources.js';
-import { authorizePath } from '../agent/auth.js';
+import { authorizePath, requireScope } from '../agent/auth.js';
 import { fail, KnowledgeError } from './errors.js';
 import type { OperationRow } from './operations.js';
 import {
@@ -51,11 +51,13 @@ import { limits } from './limits.js';
 import { assertRoot } from '../indexing/reconcile.js';
 import { moveService } from './move.js';
 import { observeCollectionSource } from '../collections/source.js';
+import { portableLibrary } from '../portable-library.js';
 const documentTypeMismatch = (a:string,b:string) => isWhiteboard(a)!==isWhiteboard(b);
 export const webPrincipal: Principal = {
   id: 'web-owner',
   clientId: 'browser',
   scopes: ['knowledge:read', 'knowledge:write', 'knowledge:index'],
+  knowledgeAll: true,
   allowedPrefixes: [
     'README.md',
     '00-Inbox',
@@ -157,6 +159,7 @@ export function enqueueSource(
   return v;
 }
 export function mutationCore(config: AppConfig, db: AppDatabase) {
+  const library = portableLibrary(config, db);
   function runOperation<T>(
     op: OperationRow,
     work: (commit: () => void, stage: (file: string) => void) => T,
@@ -212,6 +215,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
   }
   function row(id: string, deleted = false) {
     assertRoot(config, db);
+    library.refresh();
     const n = db.prepare('SELECT * FROM notes WHERE id=?').get(id) as any;
     if (!n || (!deleted && !n.active)) fail(404, 'NOT_FOUND');
     return n as { id: string; path: string; active: number; trash_path: string | null };
@@ -226,6 +230,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
           db.prepare('SELECT * FROM operations WHERE id=?').get(intent.id) as OperationRow,
         );
       if (current?.status !== 'prepared') fail(409, 'OPERATION_ALREADY_RESOLVED');
+      library.remember(intent.note_id);
       if (intent.kind === 'archive') {
         db.prepare('UPDATE notes SET active=0,trash_path=? WHERE id=?').run(
           basename(intent.path),
@@ -324,6 +329,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     content: string,
     requestId: string,
   ) {
+    if (typeof directory !== 'string') fail(400, 'INVALID_DIRECTORY');
     if (typeof content !== 'string' || Buffer.byteLength(content) > (isWhiteboard(fileName) ? MAX_WHITEBOARD_BYTES : 1024 * 1024))
       fail(413, 'REQUEST_TOO_LARGE');
     if (isWhiteboard(fileName)) { try { parseWhiteboard(content); } catch(e) { fail(400, 'INVALID_WHITEBOARD', (e as Error).message); } }
@@ -331,6 +337,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     const path = directory === '' ? fileName : `${directory}/${fileName}`;
     authorizePath(p, path, 'knowledge:write');
     assertRoot(config, db);
+    library.refresh();
     assertWritable(db);
     const op = workspaceBegin(db, () =>
       beginOperation(db, p, 'create', requestId, { directory, fileName, content }),
@@ -440,6 +447,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     }, id);
   }
   function archive(p: Principal, id: string, expected: string, requestId: string) {
+    if (p.policyVersion === 2 || p.permissionCeiling) requireScope(p, 'knowledge:archive');
     const n = row(id, true);
     authorizePath(p, n.path, 'knowledge:write');
     const op = workspaceBegin(db, () =>
@@ -647,6 +655,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     fsyncDirectory(dirname(source));
   }
   function restore(p: Principal, id: string, fileName: string | undefined, requestId: string) {
+    if (p.policyVersion === 2 || p.permissionCeiling) requireScope(p, 'knowledge:archive');
     const n = row(id, true);
     authorizePath(p, n.path, 'knowledge:write');
     const name = fileName || basename(n.path);

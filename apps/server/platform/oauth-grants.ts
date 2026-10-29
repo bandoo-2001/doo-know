@@ -3,7 +3,9 @@ import type { AppDatabase } from '../../../packages/core/db.js';
 import { initializeGrants } from '../../../packages/core/auth/grants.js';
 import { validateRelative } from '../../../packages/core/files.js';
 import { fail } from '../../../packages/core/knowledge/errors.js';
-import { isResourceScope } from '../../../shared/authorization-scopes.js';
+import { isResourceScope, isLegacyResourceScope } from '../../../shared/authorization-scopes.js';
+import type { PermissionPolicy } from '../../../shared/permissions.js';
+import { normalizePermissionPolicy, policyScopes } from '../../../packages/core/auth/permissions.js';
 
 export function oauthGrantStore(db: AppDatabase) {
   initializeGrants(db);
@@ -17,6 +19,8 @@ export function oauthGrantStore(db: AppDatabase) {
       scopes: JSON.parse(row.scopes_json) as string[],
       allowedPrefixes: JSON.parse(row.prefixes_json) as string[],
       notBefore: row.not_before as number,
+      policyVersion: row.policy_version as 1 | 2,
+      ...(row.policy_version === 2 && row.policy_json ? { permissionPolicy: normalizePermissionPolicy(JSON.parse(row.policy_json)) } : {}),
       reference: `${row.id}:${row.version}`,
     };
   }
@@ -43,9 +47,9 @@ export function oauthGrantStore(db: AppDatabase) {
     if (
       !Array.isArray(scopes) ||
       !scopes.length ||
-      scopes.some((s) => !isResourceScope(s)) ||
+      scopes.some((s) => !isLegacyResourceScope(s)) ||
       !Array.isArray(prefixes) ||
-      !prefixes.length ||
+      (scopes.some(s => s.startsWith('knowledge:') || s === 'blog:publish') && !prefixes.length) ||
       prefixes.length > 64
     )
       fail(400, 'INVALID_OAUTH_GRANT');
@@ -61,7 +65,7 @@ export function oauthGrantStore(db: AppDatabase) {
         db.prepare(
           `INSERT INTO platform_grants(id,owner_id,client_id,scopes_json,prefixes_json,not_before,created_at)
         VALUES(?,?,?,?,?,?,?) ON CONFLICT(owner_id,client_id) DO UPDATE SET active=1,version=version+1,
-        scopes_json=excluded.scopes_json,prefixes_json=excluded.prefixes_json,not_before=excluded.not_before`,
+        scopes_json=excluded.scopes_json,prefixes_json=excluded.prefixes_json,not_before=excluded.not_before,policy_version=1,policy_json=NULL,library_id=NULL`,
         ).run(
           randomUUID(),
           owner,
@@ -79,6 +83,19 @@ export function oauthGrantStore(db: AppDatabase) {
       })
       .immediate();
   }
+  function approveV2(owner: string, client: string, input: PermissionPolicy, notBefore = Math.floor(Date.now() / 1000)) {
+    const policy = normalizePermissionPolicy(input);
+    if (!db.prepare('SELECT id FROM user WHERE id=?').get(owner) || typeof client !== 'string' || !client || client.length > 512
+      || !Number.isInteger(notBefore) || notBefore < 0 || notBefore > Math.floor(Date.now() / 1000) + 5
+      || Object.values(policy.domains).some(domain => domain.ownerId !== owner)) fail(400, 'INVALID_OAUTH_GRANT');
+    return db.transaction(() => {
+      db.prepare(`INSERT INTO platform_grants(id,owner_id,client_id,scopes_json,prefixes_json,not_before,created_at,policy_version,policy_json)
+        VALUES(?,?,?,?,?,?,?,2,?) ON CONFLICT(owner_id,client_id) DO UPDATE SET active=1,version=version+1,
+        scopes_json=excluded.scopes_json,prefixes_json='[]',not_before=excluded.not_before,policy_version=2,policy_json=excluded.policy_json,library_id=NULL`)
+        .run(randomUUID(), owner, client, JSON.stringify(policyScopes(policy)), '[]', notBefore, Date.now(), JSON.stringify(policy));
+      return grant(db.prepare('SELECT * FROM platform_grants WHERE owner_id=? AND client_id=?').get(owner, client));
+    }).immediate();
+  }
   function requireExact(reference: string, owner: string, client: string, scopes: string[]) {
     const parsed =
       typeof reference === 'string' && reference.match(/^([a-f0-9-]{36}):([1-9]\d{0,9})$/);
@@ -95,6 +112,7 @@ export function oauthGrantStore(db: AppDatabase) {
   }
   return {
     approve,
+    approveV2,
     requireExact,
     activeReference: (owner: string, client: string) => {
       const row = db

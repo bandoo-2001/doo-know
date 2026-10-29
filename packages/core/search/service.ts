@@ -11,7 +11,7 @@ import type {
 import type { indexWorker } from '../indexing/worker.js';
 import type { reconcileService } from '../indexing/reconcile.js';
 import { safePath } from '../files.js';
-import { requireScope, underPrefix } from '../agent/auth.js';
+import { requireScope, underPrefix, canAccessPath } from '../agent/auth.js';
 import { fail, KnowledgeError } from '../knowledge/errors.js';
 import { boundedText, messageSize } from '../knowledge/limits.js';
 import { sha256 } from '../knowledge/operations.js';
@@ -19,6 +19,7 @@ import { signCursor, decodeCursor } from '../agent/budgets.js';
 import { rrf } from './fusion.js';
 import { validateFilters } from './filters.js';
 import { CONTENT_MATCH_RANK, filenameMatchRank } from '../../../shared/search-matching.js';
+import { currentLibraryIdentity } from '../auth/permissions.js';
 // Conservative noise floor for the bundled BGE model; cosine similarity is not
 // a relevance probability. Text hits remain eligible regardless of this floor.
 const MIN_SEMANTIC_SCORE = 0.5;
@@ -48,14 +49,15 @@ export function searchService(
         '0',
     ) +
     ':' +
-    (worker.vectors?.current() || 'none');
+    (worker.vectors?.current() || 'none') +
+    ':' + JSON.stringify(currentLibraryIdentity(db) || null);
   async function fresh(p: Principal, input: SearchInput) {
     if (
       db.prepare("SELECT 1 FROM sync_runs WHERE status IN ('running','needs_reconciliation')").get()
     )
       fail(503, 'SYNC_IN_PROGRESS');
     const until = Date.now() + 10000;
-    const scopes = p.allowedPrefixes
+    const scopes = p.knowledgeAll ? (input.filters?.directory ? [input.filters.directory] : undefined) : p.allowedPrefixes
       .map((prefix) =>
         input.filters?.directory && underPrefix(input.filters.directory, prefix)
           ? input.filters.directory
@@ -78,7 +80,7 @@ export function searchService(
                 'SELECT 1 FROM document_state d JOIN notes n ON n.id=d.note_id WHERE d.conflict=1 AND n.active=1',
               )
               .all().length &&
-            indexing.status({ ...p, scopes: [...p.scopes, 'knowledge:index'] }).conflicts
+            indexing.status({ ...p, policyVersion: undefined, permissionCeiling: undefined, scopes: [...p.scopes, 'knowledge:index'] }).conflicts
           )
             fail(409, 'GIT_CONFLICT');
           await worker.drain();
@@ -88,7 +90,7 @@ export function searchService(
                 'SELECT n.path,d.* FROM document_state d JOIN notes n ON n.id=d.note_id WHERE d.active=1 AND n.active=1',
               )
               .all() as any[]
-          ).filter((n) => scopes.some((scope) => underPrefix(n.path, scope)));
+          ).filter((n) => !scopes || scopes.some((scope) => underPrefix(n.path, scope)));
           if (
             rows.some(
               (n) =>
@@ -139,6 +141,7 @@ export function searchService(
           id: p.id,
           clientId: p.clientId,
           prefixes: p.allowedPrefixes,
+          all: p.knowledgeAll, policy: p.permissionPolicy,
           scopes: p.scopes,
           query: normalized.query,
           filters: normalized.filters || {},
@@ -223,7 +226,7 @@ export function searchService(
         c.conflict ||
         c.source_hash !== c.content_hash ||
         c.source_revision !== c.current_revision ||
-        !p.allowedPrefixes.some((prefix) => underPrefix(c.path, prefix))
+        !canAccessPath(p, c.path)
       )
         continue;
       if (
@@ -279,7 +282,8 @@ export function searchService(
       };
       item.matches.push(hit);
     }
-    const status = indexing.status({ ...p, scopes: [...p.scopes, 'knowledge:index'] });
+    // Search observes scoped index health without granting manual index maintenance.
+    const status = indexing.status({ ...p, policyVersion: undefined, permissionCeiling: undefined, scopes: [...p.scopes, 'knowledge:index'] });
     if (status.pending || status.retrying || status.failed) reasons.push('INDEX_PENDING');
     if (status.conflicts) reasons.push('GIT_CONFLICT');
     if (status.error) reasons.push(status.error);

@@ -566,17 +566,17 @@ test('account revokes a selected other device and about downloads redacted diagn
     if (info.project.name === 'mobile')
       await page.getByRole('button', { name: '打开侧栏', exact: true }).click();
     await page
-      .getByRole('navigation', { name: '常用工具', exact: true })
+      .getByRole('navigation', { name: '设置分类', exact: true })
       .getByRole('button', { name: '后台状态', exact: true })
       .click();
-    const drawer = page.locator('.status-drawer-content');
+    const drawer = page.locator('.status-settings');
     await expect(drawer.getByRole('heading', { name: '搜索准备', exact: true })).toBeVisible();
     await expect(drawer.getByRole('heading', { name: '索引更新', exact: true })).toBeVisible();
     await expect(drawer.getByRole('heading', { name: '写入与恢复', exact: true })).toBeVisible();
     await expect(drawer).toContainText('没有需要人工核对的写入');
     await drawer.locator('summary').filter({ hasText: '搜索准备' }).click();
     await drawer.getByRole('button', { name: '打开搜索设置', exact: true }).click();
-    await expect(page.locator('.settings-workspace h1')).toHaveText('搜索');
+    await expect(page.locator('.settings-workspace h1')).toHaveText('搜索与索引');
     await expect(drawer).toHaveCount(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
       true,

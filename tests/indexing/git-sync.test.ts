@@ -5,6 +5,8 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { createFixture } from '../support/fixture.js';
 import { gitState } from '../../packages/core/indexing/git-state.js';
+import { openDatabase } from '../../packages/core/db.js';
+import { noteService } from '../../packages/core/notes.js';
 const exec = promisify(execFile);
 const git = (root: string, args: string[]) =>
   exec(
@@ -46,6 +48,9 @@ it('explicit managed pull updates actual Markdown, disables hooks and refuses di
     await git(f.root, ['init', '--bare', '--initial-branch=main', bare]);
     await git(f.knowledgeRoot, ['init', '--initial-branch=main']);
     await writeFile(join(f.knowledgeRoot, '00-Inbox/seed.md'), 'SEED');
+    // Commit the discovered note's portable identity with its original content.
+    const metadata = openDatabase(f.dataRoot);
+    try { noteService(f.config, metadata).scan(); } finally { metadata.close(); }
     await git(f.knowledgeRoot, ['add', '.']);
     await git(f.knowledgeRoot, ['commit', '-m', 'fixture seed']);
     await git(f.knowledgeRoot, ['remote', 'add', 'origin', bare]);

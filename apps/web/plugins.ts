@@ -1,11 +1,12 @@
 import { shallowRef } from 'vue';
-import type { PluginCatalogEntry, PluginView, Contribution } from '../../packages/plugin-contracts';
+import type { PluginCatalogEntry, PluginView, Contribution, PluginDataDependency } from '../../packages/plugin-contracts';
 import { createPluginUI } from '../../packages/plugin-ui/host';
 import { api } from './api';
 export const pluginRegistry = shallowRef<{
   catalog: PluginCatalogEntry[];
   installed: PluginView[];
   contributions: (Contribution & { pluginId: string })[];
+  dataDependencies?: PluginDataDependency[];
 }>({ catalog: [], installed: [], contributions: [] });
 export const pluginUIErrors = shallowRef<Record<string, string>>({});
 const loaded = new Map<string, { url: string; dispose: () => void | Promise<void> }>();

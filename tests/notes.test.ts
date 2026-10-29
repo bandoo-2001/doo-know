@@ -82,7 +82,7 @@ it('keeps root creation inside the managed categories and refuses unsafe parents
       expect(result.statusCode).toBeGreaterThanOrEqual(400);
       expect(result.statusCode).toBeLessThan(500);
     }
-    expect(await readdir(f.knowledgeRoot)).toEqual(['00-Inbox']);
+    expect(await readdir(f.knowledgeRoot)).toEqual(['00-Inbox', '_data']);
     expect(await readdir(join(f.root, 'outside'))).toEqual([]);
   } finally {
     await f.close();

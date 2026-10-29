@@ -27,6 +27,20 @@ const paths: Record<string, string> = {
   file: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Zm0 0v6h6M8 13h8M8 17h6',
   search: 'M21 21l-6-6M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0',
   plus: 'M12 5v14M5 12h14',
+  plug: 'M9 3v5M15 3v5M6 8h12v4a6 6 0 0 1-12 0ZM12 18v4',
+  'git-branch':
+    'M6 9v6M6 12h6a6 6 0 0 0 6-6M9 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0M21 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0',
+  power: 'M12 2v10M6.3 5.3a9 9 0 1 0 11.4 0',
+  download: 'M12 3v13m-5-5 5 5 5-5M4 16v5h16v-5',
+  'arrow-up': 'M12 20V4m-7 7 7-7 7 7',
+  keyboard: 'M3 5h18v14H3ZM7 9h.01M12 9h.01M17 9h.01M7 12h.01M12 12h.01M17 12h.01M7 16h10',
+  monitor: 'M3 3h18v14H3ZM12 17v4M8 21h8',
+  user: 'M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0M4 21v-2a8 8 0 0 1 16 0v2',
+  'hard-drive': 'M5 3h14l3 12v6H2v-6ZM2 15h20M6 18h.01M10 18h.01',
+  shield: 'M12 3 3 7v6c0 5 9 9 9 9s9-4 9-9V7ZM8 12l3 3 5-6',
+  help: 'M9.1 9a3 3 0 0 1 5.8 1c0 2-3 2-3 4M12 17h.01M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0',
+  activity: 'M2 12h4l3-9 6 18 3-9h4',
+  cloud: 'M7 18a5 5 0 1 1 1-9 7 7 0 0 1 13 3 3 3 0 0 1-1 6Z',
   trash: 'M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7',
   settings:
     'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2',
@@ -36,6 +50,7 @@ const paths: Record<string, string> = {
   chevron: 'm9 5 7 7-7 7',
   menu: 'M3 6h18M3 12h18M3 18h18',
   lock: 'M6 11V7a6 6 0 0 1 12 0v4M4 11h16v11H4Zm8 4v3',
+  key: 'M15 3a6 6 0 1 1-4 10l-8 8H1v-4l8-8a6 6 0 0 1 6-6ZM17 7h.01',
   clock: 'M12 8v5l3 2M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0',
   star: 'm12 3 2.78 5.63L21 9.54l-4.5 4.39 1.06 6.2L12 17.2l-5.56 2.93 1.06-6.2L3 9.54l6.22-.91Z',
   upload: 'M12 16V3m-5 5 5-5 5 5M4 15v6h16v-6',
@@ -69,7 +84,15 @@ const paths: Record<string, string> = {
     aria-hidden="true"
   >
     <template v-if="name === 'more'">
-      <circle v-for="cx in [5, 12, 19]" :key="cx" :cx="cx" cy="12" r="1.8" fill="currentColor" stroke="none" />
+      <circle
+        v-for="cx in [5, 12, 19]"
+        :key="cx"
+        :cx="cx"
+        cy="12"
+        r="1.8"
+        fill="currentColor"
+        stroke="none"
+      />
     </template>
     <path v-else :d="paths[name] || paths.file" />
   </svg>

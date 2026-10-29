@@ -21,6 +21,9 @@ import { invalidateRemoteAuth } from '../../packages/core/auth/remote-auth.js';
 import { pluginServices } from './plugins/services.js';
 import { registerPluginRoutes } from './plugins/routes.js';
 import { registerMcpManagementRoutes } from './platform/mcp-management.js';
+import { registerMcpPermissionRoutes } from './platform/mcp-permissions.js';
+import { registerMcpClientPermissionRoutes } from './platform/mcp-client-permissions.js';
+import { registerKnowledgeReadBarrier } from './knowledge/read-barrier.js';
 import { registerOAuthRoutes, forwardAuthResponse } from './platform/oauth-routes.js';
 import { serializeOAuth, revokeOAuthClient } from './platform/oauth.js';
 import { openDatabase } from '../../packages/core/db.js';
@@ -47,6 +50,13 @@ import { registerGitRemoteRoutes } from './git/routes.js';
 import type { GitExec } from './git/transport.js';
 import { pluginInstallJobs, registerPluginInstallRoutes } from './plugins/install-jobs.js';
 import { registerBlogRoutes } from './blog/routes.js';
+import { registerToDooRoutes } from './to-doo/routes.js';
+import { registerToDooInteropRoutes } from './to-doo/interop-routes.js';
+import { registerToDooPushRoutes } from './to-doo/push-routes.js';
+import { ZodError } from 'zod';
+import { createOutcomeNoteService } from './to-doo/outcome-note.js';
+import { createToDooAssets } from '../../packages/core/to-doo/assets.js';
+import { registerToDooAssetRoutes } from './to-doo/asset-routes.js';
 export async function createApp(config: HostConfig, dependencies: { gitExec?: (db: ReturnType<typeof openDatabase>) => GitExec } = {}) {
   const app = Fastify({ logger: false, bodyLimit: 2 * 1024 * 1024 });
   const db = openDatabase(config.dataRoot, 'server');
@@ -62,6 +72,7 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
       revoke: (clientId) => revokeOAuthClient(auth, db, context.ownerId, clientId),
       connection: () => transports.connection(),
     }),
+    () => platform.settings.configured()?.knowledgeRoot,
   );
   const transports = mcpTransports(app, plugins, auth, config, db, platform);
   await plugins.start();
@@ -82,14 +93,14 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     if (req.url.startsWith('/api/public/') && !platform.status().components.knowledge)
       return reply.code(404).send({ error: '分享不存在或已不可用' });
     const error = err as Error & { statusCode?: number };
-    const status =
+    const status = error instanceof ZodError ? 400 :
       error.statusCode &&
       error.statusCode >= 400 &&
       (error.statusCode < 500 || error instanceof KnowledgeError)
         ? error.statusCode
         : 500;
     reply.code(status).send({
-      error: status === 500 ? '操作失败，内容未标记为保存' : error.message,
+      error: error instanceof ZodError ? '请求内容不符合要求，请核对字段与范围' : status === 500 ? '操作失败，内容未标记为保存' : error.message,
       ...(error instanceof HttpError ? error.details : {}),
       ...(error instanceof KnowledgeError ? { code: error.code, retryable: error.retryable } : {}),
     });
@@ -198,12 +209,23 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
       return forwardAuthResponse(response, reply);
     },
   });
+  registerKnowledgeReadBarrier(app, db);
   app.get('/api/security/csrf', async (_req, reply) => ({ token: reply.generateCsrf() }));
   app.get('/api/collections/status', async (req) =>
     platform.get().collections.status((req as any).ownerId, (req.query as any).kind));
   app.get('/api/collections', async (req) =>
     platform.get().collections.page((req as any).ownerId, req.query as any));
   registerBlogRoutes(app, businessConfig, () => platform.get().blog);
+  registerToDooRoutes(app, () => platform.get().toDoo, () => {
+    const runtime = platform.get();
+    return createOutcomeNoteService(runtime.config, db, runtime.notes, runtime.toDoo);
+  });
+  registerToDooInteropRoutes(app, () => platform.get().toDooInterop);
+  registerToDooPushRoutes(app, () => platform.get().toDooNotifications);
+  registerToDooAssetRoutes(app, () => {
+    const runtime = platform.get();
+    return createToDooAssets(runtime.toDoo, { knowledgeRoot: runtime.config.knowledgeRoot, db });
+  });
   registerOAuthRoutes(app, auth, config, db);
   app.get('/healthz', async () => ({
     status: 'alive',
@@ -231,6 +253,8 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
   registerGitRemoteRoutes(app, gitRemote);
   registerPluginInstallRoutes(app, pluginInstallations);
   registerMcpManagementRoutes(app, config, db, plugins, transports, auth);
+  registerMcpPermissionRoutes(app, db, platform);
+  registerMcpClientPermissionRoutes(app, auth, config, db);
   app.post('/api/platform/setup/directories', async (req) =>
     platform.settings.directories(req.body),
   );

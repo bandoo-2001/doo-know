@@ -23,6 +23,9 @@ export function mcpPolicy(db: AppDatabase) {
   const row = hasPlugins && db.prepare("SELECT config_json,state FROM platform_plugins WHERE id='mcp' AND installed=1").get() as any;
   const config = row ? JSON.parse(row.config_json) : {};
   return { readOnly: config.readOnly !== false, allowIndex: config.allowIndex === true, allowPublish: config.allowPublish === true,
+    allowToDoo: config.allowToDoo === true, allowToDooWrite: config.allowToDooWrite === true,
+    toDooListIds: Array.isArray(config.toDooListIds) ? config.toDooListIds as string[] : [],
+    toDooDomains: Array.isArray(config.toDooDomains) ? config.toDooDomains as string[] : ['tasks'],
     allowedPrefixes: Array.isArray(config.allowedPrefixes) ? config.allowedPrefixes as string[] : webPrincipal.allowedPrefixes,
     enabled: row?.state === 'enabled' };
 }
@@ -43,7 +46,9 @@ export async function oauthConsentRequest(auth: OwnerAuth, config: HostConfig, d
   const policy = mcpPolicy(db);
   return { ownerId: session.user.id, clientId, clientName: String(client.name || client.clientName || clientId),
     requestedScopes, resource: config.origin + '/mcp', allowedPrefixes: policy.allowedPrefixes,
-    allowedScopes: requestedScopes.filter(s => s !== 'knowledge:write' || !policy.readOnly).filter(s => s !== 'knowledge:index' || policy.allowIndex).filter(s => s !== 'blog:publish' || (policy.allowPublish && !policy.readOnly)) };
+    allowedScopes: requestedScopes.filter(s => s !== 'knowledge:write' || !policy.readOnly).filter(s => s !== 'knowledge:index' || policy.allowIndex).filter(s => s !== 'blog:publish' || (policy.allowPublish && !policy.readOnly))
+      .filter(s => s !== 'to-doo:read' || policy.allowToDoo).filter(s => s !== 'to-doo:write' || (policy.allowToDoo && policy.allowToDooWrite && !policy.readOnly)),
+    toDooAccess: { listIds: policy.toDooListIds, domains: policy.toDooDomains } };
 }
 export async function approveOAuthConsent(auth: OwnerAuth, config: HostConfig, db: AppDatabase, headers: Headers, input: any) {
   return serializeOAuth(db, async () => {
@@ -66,6 +71,7 @@ export async function approveOAuthConsent(auth: OwnerAuth, config: HostConfig, d
       || !Array.isArray(prefixes) || prefixes.some(p => typeof p !== 'string' || !request.allowedPrefixes.some(a => underPrefix(p, a)))) fail(403, 'INVALID_OAUTH_GRANT');
     const grants = oauthGrantStore(db);
     if (scopes.includes('blog:publish') && (!scopes.includes('knowledge:read') || !scopes.includes('knowledge:write'))) fail(403, 'INVALID_OAUTH_GRANT');
+    if (scopes.includes('to-doo:write') && !scopes.includes('to-doo:read')) fail(403, 'INVALID_OAUTH_GRANT');
     grants.approve(request.ownerId, request.clientId, scopes.filter(isResourceScope), prefixes);
     try { return await redirectResult(await auth.api.oauth2Consent({ headers: endpointHeaders, request: endpointRequest, body: { accept: true, scope: scopes.join(' '), oauth_query: input.oauth_query } })); }
     catch (e) { grants.revoke(request.ownerId, request.clientId); throw e; }

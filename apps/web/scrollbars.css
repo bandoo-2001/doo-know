@@ -1,0 +1,181 @@
+/* Native and component scrollbars use the same palette in every surface. */
+:root {
+  --scrollbar-thumb: #c2cbd8;
+  --scrollbar-thumb-hover: #8e9cb1;
+  --scrollbar-thumb-active: #667a96;
+}
+html[data-theme='dark'] {
+  --scrollbar-thumb: #42516a;
+  --scrollbar-thumb-hover: #667b99;
+  --scrollbar-thumb-active: #879bb6;
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-track,
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  min-height: 24px;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background: var(--scrollbar-thumb);
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
+}
+*::-webkit-scrollbar-thumb:active {
+  background-color: var(--scrollbar-thumb-active);
+}
+*::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+:is(
+  .tree-scroll,
+  .settings-sidebar,
+  .document-editor-mount,
+  .document-outline,
+  .document-surface .cm-scroller,
+  .document-surface .markdown,
+  .main-content.utility-scroll,
+  .folder-view,
+  .collection-scroll,
+  .settings-overlay-body,
+  .plugin-panel-content
+) {
+  scrollbar-gutter: stable;
+  overscroll-behavior: contain;
+}
+/* Virtual dropdowns paint their thumb inline rather than using a native bar. */
+.ant-select-dropdown [class*='-scrollbar-thumb'] {
+  border: 2px solid transparent;
+  background-color: var(--scrollbar-thumb) !important;
+  background-clip: padding-box;
+}
+.ant-select-dropdown [class*='-scrollbar-thumb']:hover,
+.ant-select-dropdown [class*='-scrollbar-thumb-moving'] {
+  background-color: var(--scrollbar-thumb-hover) !important;
+}
+@media (min-width: 721px) and (max-height: 480px) {
+  .workspace-footer {
+    gap: 6px;
+    padding-block: 8px;
+  }
+  .workspace-footer .account-row {
+    min-height: 36px;
+  }
+  .workspace-footer .account-row .avatar {
+    width: 28px;
+    height: 28px;
+  }
+  .workspace-footer .rail-notes-navigation {
+    margin-top: 0;
+  }
+  .workspace-footer .rail-notes-navigation button,
+  .workspace-footer .footer-tools button {
+    min-height: 36px;
+    gap: 2px;
+    padding-block: 2px;
+  }
+  .workspace-footer .rail-notes-navigation svg,
+  .workspace-footer .footer-tools svg {
+    width: 18px;
+    height: 18px;
+  }
+  .workspace-footer .footer-tools {
+    gap: 2px;
+  }
+}
+/* A short phone window still needs room for its directory, not an outer scroller. */
+@media (max-width: 720px) and (max-height: 520px) {
+  .sidebar {
+    padding-top: 8px;
+  }
+  .sidebar > .brand {
+    padding-bottom: 8px;
+    font-size: 18px;
+  }
+  .sidebar-actions {
+    flex-direction: row;
+    align-items: stretch;
+    gap: 6px;
+  }
+  .sidebar-actions > .ant-input-affix-wrapper {
+    flex: 1;
+    min-width: 0;
+    width: auto;
+  }
+  .sidebar-create {
+    flex: 0 0 96px;
+    width: 96px;
+  }
+  .sidebar-create > .ant-btn {
+    padding-inline: 6px;
+  }
+  .sidebar-actions > .ant-input-affix-wrapper,
+  .sidebar-create > .ant-btn {
+    min-height: 30px;
+    height: 30px;
+  }
+  .tree-heading {
+    margin-top: 6px;
+    padding-block: 4px;
+  }
+  .search-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding-bottom: 6px;
+  }
+  .sidebar > .workspace-footer {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 36px;
+    gap: 4px;
+    padding-block: 4px max(4px, env(safe-area-inset-bottom));
+  }
+  .workspace-footer .rail-notes-navigation {
+    grid-column: 1 / -1;
+    margin: 0;
+    gap: 2px;
+  }
+  .rail-notes-navigation button {
+    flex-direction: row;
+    min-height: 36px;
+    gap: 4px;
+    padding: 4px;
+    font-size: 11px;
+  }
+  .rail-notes-navigation svg {
+    width: 16px;
+    height: 16px;
+  }
+  .workspace-footer .footer-tools {
+    grid-column: 1;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .workspace-footer .account-row {
+    grid-column: 2;
+    width: 36px;
+    min-height: 36px;
+    padding: 0;
+    justify-content: center;
+  }
+  .workspace-footer .account-name,
+  .workspace-footer .account-row > svg {
+    display: none;
+  }
+}
+@media (forced-colors: active) {
+  * {
+    scrollbar-color: auto !important;
+  }
+}

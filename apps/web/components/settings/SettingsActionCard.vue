@@ -8,7 +8,10 @@ withDefaults(
 const emit = defineEmits<{ open: [] }>();
 </script>
 <template>
-  <section class="settings-card settings-action-card">
+  <section
+    class="settings-card settings-action-card"
+    :class="{ 'settings-action-card-with-icon': icon }"
+  >
     <span v-if="icon" class="settings-action-icon"><Icon :name="icon" :size="21" /></span>
     <div class="settings-action-copy">
       <h2>{{ title }}</h2>

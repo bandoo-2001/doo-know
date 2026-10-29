@@ -2,7 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import type { pluginHost } from './host.js';
 import { fail } from '../../../packages/core/knowledge/errors.js';
 export function registerPluginRoutes(app: FastifyInstance, host: ReturnType<typeof pluginHost>, beforeAction: (id: string) => void = () => {}) {
-  app.get('/api/platform/plugins', async () => ({ catalog: host.catalog(), installed: host.list(), contributions: host.contributions() }));
+  app.get('/api/platform/plugins', async () => ({ catalog: host.catalog(), installed: host.list(), contributions: host.contributions(), dataDependencies: host.dataDependencies() }));
   for (const action of ['install', 'enable', 'disable', 'uninstall', 'upgrade'] as const)
     app.post<{ Params: { id: string } }>(`/api/platform/plugins/:id/${action}`, async req => {
       const id = req.params.id;

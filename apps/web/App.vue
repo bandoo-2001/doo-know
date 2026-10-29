@@ -183,8 +183,15 @@ function completeLogout() {
   ownerId.value = '';
   username.value = '';
 }
+const scrollbarTheme = {
+  scrollbarColor: 'var(--scrollbar-thumb)',
+  scrollbarColorHover: 'var(--scrollbar-thumb-hover)',
+  scrollbarWidth: '6px',
+  scrollbarHeight: '6px',
+};
 const lightTheme = {
   common: {
+    ...scrollbarTheme,
     primaryColor: '#4566c6',
     primaryColorHover: '#5676d4',
     primaryColorPressed: '#3453ac',
@@ -214,6 +221,7 @@ const activeNaiveTheme = computed(() =>
   resolvedTheme.value === 'dark'
     ? {
         common: {
+          ...scrollbarTheme,
           primaryColor: '#8ba4ff',
           primaryColorHover: '#a4b6ff',
           primaryColorPressed: '#7188e8',

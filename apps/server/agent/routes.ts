@@ -20,8 +20,8 @@ import { mutationCore } from '../../../packages/core/knowledge/core.js';
 import { findOperation } from '../../../packages/core/knowledge/operations.js';
 import { snapshotService } from '../../../packages/core/knowledge/snapshots.js';
 import { fileJobService } from '../../../packages/core/knowledge/file-jobs.js';
-import { currentAgentConfig } from '../../../packages/core/agent/config.js';
-import { reconcileService } from '../../../packages/core/indexing/reconcile.js';
+import { currentAgentConfig, projectMachinePrincipal } from '../../../packages/core/agent/config.js';
+import { reconcileService, assertRoot } from '../../../packages/core/indexing/reconcile.js';
 import { startWatcher } from '../../../packages/core/indexing/watcher.js';
 import { syncService } from '../../../packages/core/indexing/sync.js';
 import { indexWorker } from '../../../packages/core/indexing/worker.js';
@@ -33,6 +33,9 @@ import { sha256 } from '../../../packages/core/knowledge/operations.js';
 import { validateRelative } from '../../../packages/core/files.js';
 import { messageSize } from '../../../packages/core/knowledge/limits.js';
 import { setDesiredEmbeddingSpace } from '../../../packages/core/indexing/space.js';
+import { organizationService } from '../../../packages/core/organization/service.js';
+import { syncDirectoryCatalog } from '../../../packages/core/organization/catalog.js';
+import { organizationPending } from '../../../packages/core/organization/schema.js';
 export function metadataService(config: AppConfig, db: AppDatabase, notes: NoteService) {
   return async function getNoteInfo(p: Principal, id: string): Promise<NoteInfo> {
     const row = notes.row(id);
@@ -78,8 +81,12 @@ export async function createKnowledgeRuntime(
   db: AppDatabase,
   notes: NoteService,
 ) {
+  const organization = organizationService(config, db, notes);
+  await organization.recover();
+  syncDirectoryCatalog(config, db);
   const core = mutationCore(config, db);
   await core.recover();
+  notes.scan();
   const snapshots = snapshotService(config, db, notes);
   const files = fileJobService(config, db, notes, snapshots);
   const indexing = reconcileService(config, db);
@@ -106,6 +113,9 @@ export async function createKnowledgeRuntime(
       ? setInterval(() => {
           if (maintenanceRunning) return;
           maintenanceRunning = (async () => {
+            await organization.recover();
+            await organization.drain();
+            await organization.cleanup();
             await core.recover();
             await snapshots.recover();
             await files.recover();
@@ -126,6 +136,7 @@ export async function createKnowledgeRuntime(
       : undefined;
   maintenanceTimer?.unref();
   return {
+    organization,
     snapshots,
     files,
     core,
@@ -149,6 +160,7 @@ export async function createKnowledgeRuntime(
       if (workerTimer) clearInterval(workerTimer);
       if (maintenanceTimer) clearInterval(maintenanceTimer);
       await maintenanceRunning;
+      await organization.close();
     },
     info: metadataService(config, db, notes),
   };
@@ -185,8 +197,9 @@ export async function registerAgentRoutes(
         route.bodyLimit = 128 * 1024;
       });
       api.addHook('onRequest', async (req) => {
+        let authenticated: Principal;
         try {
-          (req as any).principal = authorizeAgent(
+          authenticated = authorizeAgent(
             req,
             currentAgentConfig(config),
             authorizationCutoff(db),
@@ -194,6 +207,11 @@ export async function registerAgentRoutes(
         } catch {
           fail(401, 'UNAUTHORIZED');
         }
+        assertRoot(config, db);
+        if (!organizationPending(db)) syncDirectoryCatalog(config, db);
+        const projected = projectMachinePrincipal(config, db, authenticated);
+        if (!projected) fail(401, 'UNAUTHORIZED');
+        (req as any).principal = projected;
         if (req.headers['content-encoding']) fail(415, 'COMPRESSED_REQUEST_NOT_ALLOWED');
       });
       api.setErrorHandler((error, _req, reply) => {
@@ -232,7 +250,7 @@ export async function registerAgentRoutes(
         const limit = Number(q.limit || 10);
         if (!Number.isInteger(limit) || limit < 1 || limit > 50) fail(400, 'INVALID_LIMIT');
         const fingerprint = sha256(
-          JSON.stringify([p.id, p.clientId, p.allowedPrefixes, q.directory, limit]),
+          JSON.stringify([p.id, p.clientId, p.allowedPrefixes, p.knowledgeAll, p.permissionPolicy, q.directory, limit]),
         );
         let offset = 0;
         if (q.cursor) {

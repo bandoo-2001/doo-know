@@ -53,11 +53,12 @@ import WorkspaceFooter from './WorkspaceFooter.vue';
 import SettingsWorkspace from './settings/SettingsWorkspace.vue';
 import SettingsOverlay from './settings/SettingsOverlay.vue';
 import TransferPanel from './settings/TransferPanel.vue';
-import StatusDrawer from './StatusDrawer.vue';
 import TrashWorkspace from './TrashWorkspace.vue';
 import AppsWorkspace from './AppsWorkspace.vue';
 import { createBlogWorkbench, type BlogSection } from '../blog-workbench';
 import { prepareBlogDiagrams } from '../blog-diagrams';
+import { toDooCaptureFromNote } from '../to-doo-capture';
+import type { ToDooCommand, ToDooSnapshot } from '../../../shared/to-doo-contracts';
 import { settingsSections, normalizeSettingsSection } from '../settings';
 import { editorPreferences, setEditorPreferences } from '../preferences';
 import { createEditorViewTransitions } from '../editor/view-transitions';
@@ -74,6 +75,7 @@ import DirectoryTreeSelect from './DirectoryTreeSelect.vue';
 import SetupImport from './SetupImport.vue';
 import { useNoteDraft } from '../useNoteDraft';
 import { filenameResults, mergeSearchResults } from '../search-results';
+import { searchNeedle } from '../../../shared/search-matching';
 import { previewSource } from '../preview-source';
 import { markdownDestination, markdownAnchorLines } from '../markdown-links';
 import { noteDraftBase } from '../drafts';
@@ -83,6 +85,7 @@ import {
   readWorkspaceRoute,
   type WorkspaceRoute,
   type WorkspaceNavigationState,
+  type ToDooAppSection,
 } from '../navigation';
 import { refreshPlugins, disposePluginUIs, pluginRegistry } from '../plugins';
 import type {
@@ -202,8 +205,40 @@ const noteInfo = ref<NoteInfo>(),
   largeRef = ref<InstanceType<typeof LargeFileWorkspace>>(),
   largeDirty = ref(false);
 const blogModel = createBlogWorkbench(api, prepareBlogDiagrams);
-const appsApp = ref<'blog' | undefined>(readWorkspaceRoute().app);
-const appsSection = ref<BlogSection>(readWorkspaceRoute().appSection || 'overview');
+const appsApp = ref<'blog' | 'to-doo' | undefined>(readWorkspaceRoute().app);
+const appsSection = ref<BlogSection | ToDooAppSection>(readWorkspaceRoute().appSection || 'overview');
+type ToDooSelection = Pick<WorkspaceRoute, 'task' | 'list' | 'date' | 'calendarView'>;
+const toDooSelection = ref<ToDooSelection>({ task: readWorkspaceRoute().task, list: readWorkspaceRoute().list, date: readWorkspaceRoute().date, calendarView: readWorkspaceRoute().calendarView });
+const appsRef = ref<InstanceType<typeof AppsWorkspace>>();
+type CapturedTask = Extract<ToDooCommand, { action: 'create_task' }>['payload'];
+const toDooCaptureOpen = ref(false), toDooCaptureBusy = ref(false), toDooCaptureError = ref('');
+const capturedTask = ref<CapturedTask>(), capturedList = ref('inbox');
+const captureLists = ref<ToDooSnapshot['lists']>([]);
+let captureRequestId = '';
+async function captureNoteTask() {
+  if (!note.value) return;
+  try {
+    await editorRef.value?.flush();
+    const markdown = noteInfo.value?.editorMode === 'full' ? draft.value : '';
+    capturedTask.value = toDooCaptureFromNote({ noteId: note.value.id, title: note.value.title || note.value.relativePath,
+      markdown, savedMarkdown: noteInfo.value?.editorMode === 'full' ? savedContent.value : '',
+      selection: mode.value === 'preview' ? undefined : editorRef.value?.selection(), contentHash: noteInfo.value?.contentHash });
+    captureRequestId = crypto.randomUUID(); capturedList.value = 'inbox'; toDooCaptureError.value = ''; toDooCaptureOpen.value = true;
+    const response = await api<ToDooSnapshot>('/api/to-doo/state?kind=list&limit=1000');
+    captureLists.value = response.lists.filter(list => !list.deletedAt && !list.archivedAt);
+  } catch (cause) { toDooCaptureError.value = cause instanceof Error ? cause.message : '暂时无法准备任务'; }
+}
+async function saveCapturedTask() {
+  if (!capturedTask.value || toDooCaptureBusy.value) return;
+  toDooCaptureBusy.value = true; toDooCaptureError.value = '';
+  try {
+    const result = await api<{ ids: string[] }>('/api/to-doo/commands', 'POST', { requestId: captureRequestId, action: 'create_task', payload: { ...capturedTask.value, listId: capturedList.value === 'inbox' ? null : capturedList.value } });
+    toDooCaptureOpen.value = false;
+    appsApp.value = 'to-doo'; appsSection.value = 'tasks'; toDooSelection.value = { task: result.ids[0], ...(capturedList.value !== 'inbox' ? { list: capturedList.value } : {}) };
+    await openApps();
+  } catch (cause) { toDooCaptureError.value = cause instanceof Error ? cause.message : '任务结果待核对，请保留输入后重试'; }
+  finally { toDooCaptureBusy.value = false; }
+}
 async function openBlogNote(id: string) {
   await run(async () => {
     if (note.value?.id === id) {
@@ -212,9 +247,11 @@ async function openBlogNote(id: string) {
     } else await openNote(id);
   });
 }
-function navigateApp(app: 'blog' | undefined, section: BlogSection = 'overview') {
+async function navigateApp(app: 'blog' | 'to-doo' | undefined, section: BlogSection | ToDooAppSection = 'overview', selection: ToDooSelection = {}) {
+  if (appsApp.value === 'to-doo' && app !== 'to-doo' && (await appsRef.value?.requestLeave()) === false) return;
   appsApp.value = app; appsSection.value = section;
-  navigation.commit({view:'apps', ...(app ? {app, appSection:section} : {})});
+  toDooSelection.value = selection;
+  navigation.commit({view:'apps', ...(app ? {app, appSection:section, ...(app === 'to-doo' ? selection : {})} : {})});
 }
 const initialNoteId = new URLSearchParams(window.location.search).get('note');
 const noteLine = ref<number | undefined>();
@@ -273,8 +310,7 @@ const gitPanelBusy = ref(false), gitPanelDirty = ref(false);
 const gitAvailable = computed(() =>
   pluginRegistry.value.installed?.some((entry) => entry.id === 'git' && entry.state === 'enabled'),
 );
-const statusOpen = ref(false),
-  createMenuOpen = ref(false);
+const createMenuOpen = ref(false);
 let returnRoute: WorkspaceRoute = {};
 function openImport() {
   createMenuOpen.value = false;
@@ -346,7 +382,7 @@ async function toggleFavorite(id: string, next = !favoriteIds.value.includes(id)
 }
 async function showCollection(view: 'recent' | 'favorites', syncUrl = true, intent = ++navigationIntent) {
   await run(async () => {
-    await retainNoteContext(intent);
+    if (await retainNoteContext(intent) === false) return;
     if (!currentIntent(intent)) return;
     collection.value = view;
     panel.value = 'collection';
@@ -550,10 +586,10 @@ async function browseRoot() {
   );
 }
 const navigation = createWorkspaceNavigation({
-  dirty: () => dirty.value || !!embeddedBoardId.value,
+  dirty: () => dirty.value || !!embeddedBoardId.value || !!appsRef.value?.hasUnsavedChanges(),
   canPreserveDraft: (route) => !embeddedBoardId.value && (
-    !!route.view ||
-    (!!route.note && note.value?.id === route.note)),
+    (route.view === 'apps' && route.app === 'to-doo' && panel.value === 'apps' && appsApp.value === 'to-doo') ||
+    (!appsRef.value?.hasUnsavedChanges() && (!!route.view || (!!route.note && note.value?.id === route.note)))),
   guard,
   apply: applyRoute,
   error: showError,
@@ -606,6 +642,7 @@ function initializeDrafts(force = false): Promise<boolean> {
 }
 async function applyRoute(route: WorkspaceRoute, intent = ++navigationIntent) {
   if (!currentIntent(intent)) return;
+  if (panel.value === 'apps' && appsApp.value === 'to-doo' && !(route.view === 'apps' && route.app === 'to-doo') && (await appsRef.value?.requestLeave()) === false) return;
   if (route.note && ['settings', 'trash', 'apps', 'collection'].includes(panel.value) && note.value?.id === route.note) {
     if (!await initializeDrafts() || !currentIntent(intent)) return;
     panel.value = 'note';
@@ -629,6 +666,7 @@ async function applyRoute(route: WorkspaceRoute, intent = ++navigationIntent) {
   if (route.view === 'recent' || route.view === 'favorites') return showCollection(route.view, false, intent);
   if (route.view === 'apps') {
     appsApp.value = route.app; appsSection.value = route.appSection || 'overview';
+    toDooSelection.value = { task: route.task, list: route.list, date: route.date, calendarView: route.calendarView };
     return openApps(false, intent);
   }
   if (route.view === 'trash') return openTrash(false, intent);
@@ -950,7 +988,9 @@ async function refreshCollection() {
     collectionRefreshing = false;
   }
 }
-async function openNote(id: string, line?: number, syncUrl = true, preserveDraft = false, intent = ++navigationIntent, fragment?: string, linkedMode?: 'edit' | 'preview' | 'split') {
+async function openNote(id: string, location?: number | { line: number; query: string }, syncUrl = true, preserveDraft = false, intent = ++navigationIntent, fragment?: string, linkedMode?: 'edit' | 'preview' | 'split') {
+  const line = typeof location === 'number' ? location : location?.line;
+  const matchQuery = typeof location === 'object' ? location.query : undefined;
   if (!currentIntent(intent) || !await initializeDrafts() || !currentIntent(intent)) return;
   await guard(async () => {
     const useDefaultMode = note.value?.id !== id;
@@ -1027,7 +1067,7 @@ async function openNote(id: string, line?: number, syncUrl = true, preserveDraft
       noteOpening.value = false;
       await nextTick();
       if (epoch !== viewEpoch || !currentIntent(intent)) return;
-      if (line) revealLine(line);
+      if (line) revealLine(line, true, matchQuery);
       if (fragment) await revealFragment(fragment);
     } finally {
       if (epoch === viewEpoch) noteOpening.value = false;
@@ -1062,6 +1102,7 @@ async function select(entry: TreeEntry, syncUrl = true, intent = ++navigationInt
 const leaveOpen = ref(false);
 let pendingNavigation: (() => Promise<void>) | undefined;
 async function guard(fn: () => Promise<void>, intent = navigationIntent) {
+  if (panel.value === 'apps' && appsApp.value === 'to-doo' && (await appsRef.value?.requestLeave()) === false) return;
   if(embeddedBoardId.value){await embeddedBoardRef.value?.requestClose();return;}
   if(noteInfo.value?.editorMode === 'full') {try {await editorRef.value?.flush();}catch(cause){showError(cause);if(!dirty.value)return;}}
   if (!currentIntent(intent)) return;
@@ -1665,16 +1706,16 @@ async function readRevision(r: any) {
 }
 async function openApps(syncUrl = true, intent = ++navigationIntent) {
   await run(async () => {
-    await retainNoteContext(intent);
+    if (panel.value !== 'apps' && await retainNoteContext(intent) === false) return;
     if (!currentIntent(intent)) return;
     panel.value = 'apps';
     drawer.value = false;
-    if (syncUrl) navigation.commit({ view: 'apps', ...(appsApp.value ? { app: appsApp.value, appSection: appsSection.value } : {}) });
+    if (syncUrl) navigation.commit({ view: 'apps', ...(appsApp.value ? { app: appsApp.value, appSection: appsSection.value, ...(appsApp.value === 'to-doo' ? toDooSelection.value : {}) } : {}) });
   });
 }
 async function openTrash(syncUrl = true, intent = ++navigationIntent) {
   await run(async () => {
-    await retainNoteContext(intent);
+    if (await retainNoteContext(intent) === false) return;
     if (!currentIntent(intent)) return;
     panel.value = 'trash';
     drawer.value = false;
@@ -1682,6 +1723,7 @@ async function openTrash(syncUrl = true, intent = ++navigationIntent) {
   });
 }
 async function retainNoteContext(intent = navigationIntent) {
+  if (panel.value === 'apps' && appsApp.value === 'to-doo' && (await appsRef.value?.requestLeave()) === false) return false;
   if(noteInfo.value?.editorMode === 'full') await editorRef.value?.flush();
   await localDrafts.flush();
   if (!currentIntent(intent)) return;
@@ -1787,7 +1829,7 @@ async function settings(section?: string, syncUrl = true, intent = ++navigationI
     return;
   }
   await run(async () => {
-    await retainNoteContext(intent);
+    if (await retainNoteContext(intent) === false) return;
     if (!currentIntent(intent)) return;
     panel.value = 'settings';
     drawer.value = false;
@@ -1998,12 +2040,12 @@ async function goToHeading(line: number) {
       ?.scrollIntoView({ block: 'start' });
 }
 let pendingPreviewLine: { noteId: string; epoch: number; line: number } | undefined;
-async function revealLine(line: number, navigateEditor = true) {
+async function revealLine(line: number, navigateEditor = true, matchQuery?: string) {
   const noteId = note.value?.id, epoch = viewEpoch;
   if (!noteId) return;
   // The host queues navigation while an async editor is loading. Schedule that
   // immediately; only the rendered preview needs an additional DOM update.
-  if (navigateEditor) editorRef.value?.goToLine(line);
+  if (navigateEditor) editorRef.value?.goToLine(line, 'center', matchQuery);
   await nextTick();
   if (!currentView(noteId, epoch)) return;
   if (mode.value === 'edit') {
@@ -2493,7 +2535,7 @@ onBeforeUnmount(() => {
 </script>
 <template>
   <div
-    :class="['workspace', { 'sidebar-collapsed': sidebarCollapsed && panel === 'note' }]"
+    :class="['workspace', { 'sidebar-collapsed': panel === 'apps' || (sidebarCollapsed && panel === 'note') }]"
     :style="{ '--sidebar-width': sidebarWidth + 'px', '--outline-width': outlineWidth + 'px' }"
   >
     <Transition name="scrim">
@@ -2519,7 +2561,7 @@ onBeforeUnmount(() => {
           <Icon :name="item.icon" :size="18" /><span>{{ item.label }}</span>
         </button>
       </nav>
-      <div v-show="panel !== 'settings'" class="notebook-sidebar-content">
+      <div v-show="panel !== 'settings' && panel !== 'apps'" class="notebook-sidebar-content">
         <div class="sidebar-actions">
           <AInput
             v-model:value="query"
@@ -2627,7 +2669,7 @@ onBeforeUnmount(() => {
                 run(() =>
                   r.type === 'folder'
                     ? select({ type: 'folder', name: r.title, path: r.relativePath })
-                    : openNote(r.id, r.line),
+                    : openNote(r.id, r.filenameMatch ? r.line : { line: r.line || 1, query: searchNeedle(query) }),
                 )
               "
             >
@@ -2645,7 +2687,7 @@ onBeforeUnmount(() => {
                 检查搜索设置
               </button>
             </p>
-            <p v-if="results.length" class="muted">
+            <p v-if="results.length" class="muted search-results-count">
               已显示 {{ results.length }}
               {{ results.some((item) => item.type === 'folder') ? '项' : '篇' }}
             </p>
@@ -2736,7 +2778,6 @@ onBeforeUnmount(() => {
         @collection="showCollection"
         @settings="settings"
         @trash="openTrash()"
-        @status="statusOpen = true"
         @logout="logout"
         @notes="openNotes"
         @apps="openApps()"
@@ -2952,7 +2993,7 @@ onBeforeUnmount(() => {
               @export-html="exportReading(false)"
               @print="exportReading(true)"
                 @delete="confirmDelete"
-                ><PluginSlot slot-name="noteAction" :context="pluginContext"
+                ><button type="button" @click="captureNoteTask"><Icon name="task" />创建关联任务</button><PluginSlot slot-name="noteAction" :context="pluginContext"
               /></NoteActions>
             </div>
           </div>
@@ -3269,12 +3310,15 @@ onBeforeUnmount(() => {
       </section>
       <AppsWorkspace
         v-else-if="panel === 'apps'"
+        ref="appsRef"
         :app="appsApp"
         :section="appsSection"
         :tree="tree"
         :model="blogModel"
+        :selection="toDooSelection"
         @navigate="navigateApp"
         @open-note="openBlogNote"
+        @note-created="run(refresh)"
       />
       <TrashWorkspace
         v-else-if="panel === 'trash'"
@@ -3285,6 +3329,7 @@ onBeforeUnmount(() => {
       <SettingsWorkspace
         v-else-if="panel === 'settings'"
         :section="activeSetting"
+        @settings="settings"
         :username="props.username"
         @changed="run(refresh)"
         @back="backFromSettings"
@@ -3292,12 +3337,6 @@ onBeforeUnmount(() => {
         @open-note="openNote"
       />
     </main>
-    <StatusDrawer
-      v-model:open="statusOpen"
-      @settings="settings"
-      @open-note="openNote"
-      @changed="run(refresh)"
-    />
     <TreeContextMenu
       ref="treeMenu"
       v-model:path="treeMenuPath"
@@ -3313,6 +3352,16 @@ onBeforeUnmount(() => {
       :folders="folders"
       @moved="moved"
     />
+    <NModal v-model:show="toDooCaptureOpen" preset="card" class="dialog-card" title="从资料创建任务" :mask-closable="!toDooCaptureBusy" :close-on-esc="!toDooCaptureBusy" :closable="!toDooCaptureBusy">
+      <form v-if="capturedTask" class="to-doo-capture-form" @submit.prevent="saveCapturedTask">
+        <label>任务标题<AInput v-model:value="capturedTask.title" aria-label="任务标题" :maxlength="256" :disabled="toDooCaptureBusy" /></label>
+        <label>目标或清单<ASelect v-model:value="capturedList" aria-label="目标或清单" :options="[{label:'收集箱',value:'inbox'},...captureLists.map(list=>({label:list.name,value:list.id}))]" :disabled="toDooCaptureBusy" /></label>
+        <label>行动说明<AInput.TextArea v-model:value="capturedTask.description" aria-label="行动说明" :auto-size="{minRows:3,maxRows:10}" :disabled="toDooCaptureBusy" /></label>
+        <p class="muted">{{ capturedTask.source?.draft ? '来源包含尚未保存的笔记内容，将保留本次引用快照，笔记仍由你手动保存。' : '任务将关联这篇资料，原文与勾选状态保持不变。' }}</p>
+        <AAlert v-if="toDooCaptureError" type="error" :message="toDooCaptureError" role="alert" />
+        <div class="dialog-actions"><AButton :disabled="toDooCaptureBusy" @click="toDooCaptureOpen=false">取消</AButton><AButton type="primary" html-type="submit" :loading="toDooCaptureBusy" :disabled="!capturedTask.title.trim()">创建任务</AButton></div>
+      </form>
+    </NModal>
     <NModal
       v-model:show="importOpen"
       preset="card"

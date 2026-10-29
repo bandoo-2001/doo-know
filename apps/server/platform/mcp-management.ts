@@ -73,6 +73,8 @@ export function registerMcpManagementRoutes(
                 grantVersion: grant.version,
                 tokenIssuedAt: Math.floor(Date.now() / 1000),
                 pluginId: 'mcp',
+                policyVersion: grant.policyVersion,
+                permissionPolicy: grant.permissionPolicy,
               })
             : undefined;
           return {
@@ -82,6 +84,10 @@ export function registerMcpManagementRoutes(
             allowedPrefixes: grant.allowedPrefixes,
             effectiveScopes: effective?.scopes || [],
             effectivePrefixes: effective?.allowedPrefixes || [],
+            policyVersion: grant.policyVersion,
+            grantVersion: grant.version,
+            permissionPolicy: grant.permissionPolicy,
+            effectivePolicy: effective?.permissionPolicy,
           };
         }),
     };

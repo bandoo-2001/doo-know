@@ -12,10 +12,11 @@ import {
   TabPane as ATabPane,
   Popconfirm as APopconfirm,
 } from 'ant-design-vue';
-import type { PluginView } from '../../../packages/plugin-contracts';
+import type { PluginView, PluginDataDependency } from '../../../packages/plugin-contracts';
 import { pluginRegistry, pluginUIErrors, refreshPlugins } from '../plugins';
 import { pluginComponents } from '../../../packages/plugin-ui/host';
 import PluginBoundary from './PluginBoundary.vue';
+import Icon from './Icon.vue';
 import MCPConnectionGuide from './MCPConnectionGuide.vue';
 import GitRemotePanel from './GitRemotePanel.vue';
 import SettingsOverlay from './settings/SettingsOverlay.vue';
@@ -63,6 +64,23 @@ const catalog = computed(() =>
 const installedById = computed(
   () => new Map(pluginRegistry.value.installed.map((plugin) => [plugin.id, plugin])),
 );
+const dataDependencies = computed(() =>
+  (pluginRegistry.value.dataDependencies || []).filter(
+    (dependency) => dependency.state !== 'enabled' && (!props.focusPlugin || dependency.id === props.focusPlugin),
+  ),
+);
+function dependencyMessage(dependency: PluginDataDependency) {
+  const messages: Record<PluginDataDependency['state'], string> = {
+    missing: '用户资料已保留，安装插件后可继续使用。',
+    unavailable: '用户资料已保留，当前安装源未提供此插件。',
+    disabled: '用户资料已保留，插件当前未启用。',
+    enabled: '用户资料已保留。',
+    version_mismatch: `资料由 v${dependency.version} 保存，当前安装版本为 v${dependency.installedVersion}，请核对插件版本。`,
+    incompatible: '用户资料需要其他版本的插件接口，请核对 DooKnow 与插件版本。',
+    invalid: '用户资料暂时无法读取，请核对知识库中的插件数据文件与同步状态。',
+  };
+  return messages[dependency.state];
+}
 const installed = computed(() =>
   pluginRegistry.value.installed.find((p) => p.id === selected.value),
 );
@@ -85,6 +103,22 @@ const remoteChanged = computed(
 function prefixField(key: string | number) {
   return installed.value?.id === 'mcp' && key === 'allowedPrefixes';
 }
+function taskArrayField(key: string | number) {
+  return installed.value?.id === 'mcp' && ['toDooListIds', 'toDooDomains'].includes(String(key));
+}
+function arrayValue(key: string | number): string[] {
+  try { const value = JSON.parse(values.value[key] || '[]'); return Array.isArray(value) ? value : []; } catch { return []; }
+}
+const toDooListOptions = ref<{label:string;value:string}[]>([{ label: '收集箱', value: 'inbox' }]);
+const taskDomainOptions = [ ['tasks','任务与目标'],['records','成果与进展记录'],['focus','专注记录'],['habits','习惯与打卡'],['anniversaries','纪念日'],['calendar','日历数据'],['statistics','统计摘要'],['settings','应用偏好'] ].map(([value,label]) => ({value,label}));
+watch([() => installed.value?.id, () => values.value.allowToDoo], async ([id, allowed]) => {
+  if (id !== 'mcp' || !allowed) return;
+  try {
+    const result = await api('/api/to-doo/state?kind=list&limit=1000');
+    if (!currentDraftSession() || installed.value?.id !== 'mcp') return;
+    toDooListOptions.value = [{ label: '收集箱', value: 'inbox' }, ...result.lists.filter((list:any) => !list.deletedAt).map((list:any) => ({label:list.name,value:list.id})), ...arrayValue('toDooListIds').filter(id => id !== 'inbox' && !result.lists.some((list:any) => list.id === id)).map(value => ({label:'已选择的清单（暂不可用）',value}))];
+  } catch { /* Keep saved selections; application availability must not erase configuration. */ }
+});
 function requirement(key: string | number) {
   if (prefixField(key)) return '必填';
   if (installed.value?.id === 'mcp' && key === 'mode') return '必选';
@@ -108,7 +142,7 @@ const standardFields = computed(() =>
   Object.fromEntries(
     Object.entries(installed.value?.manifest.configSchema.properties || {}).filter(
       ([key, field]) =>
-        (!['object', 'array'].includes((field as any).type) || prefixField(key)) &&
+        (!['object', 'array'].includes((field as any).type) || prefixField(key) || taskArrayField(key)) &&
         pluginFieldVisible(installed.value?.id || '', key, values.value.mode),
     ),
   ),
@@ -116,7 +150,7 @@ const standardFields = computed(() =>
 const advancedFields = computed(() =>
   Object.fromEntries(
     Object.entries(installed.value?.manifest.configSchema.properties || {}).filter(
-      ([key, field]) => ['object', 'array'].includes((field as any).type) && !prefixField(key),
+      ([key, field]) => ['object', 'array'].includes((field as any).type) && !prefixField(key) && !taskArrayField(key),
     ),
   ),
 );
@@ -124,6 +158,8 @@ const capabilityLabels: Record<string, string> = {
   'knowledge:read': '读取知识库',
   'knowledge:write': '写入知识库',
   'knowledge:index': '维护搜索索引',
+  'to-doo:read': '读取 To Doo',
+  'to-doo:write': '修改 To Doo',
   'blog:publish': '公开发布与撤下博客文章',
   'protocol:mcp': '连接 AI 应用',
   'workspace:git': '本地文件版本',
@@ -331,29 +367,57 @@ onMounted(() => {
 <template>
   <section class="plugin-manager">
     <header class="section-heading">
-      <div>
-        <h2>{{ focusPlugin ? '功能设置' : '扩展功能' }}</h2>
-        <p class="muted">安装官方插件，为知识库添加功能。</p>
+      <div v-if="focusPlugin">
+        <h2 class="settings-section-title"><Icon name="plug" :size="18" />功能设置</h2>
       </div>
-      <AButton :loading="pendingAction === 'refresh'" :disabled="busy" @click="refreshStatus">
-        刷新插件状态
-      </AButton>
-    </header>
-    <div v-if="selected && !focusPlugin" class="plugin-actions">
       <AButton
+        v-else-if="selected"
         :disabled="busy"
         @click="
           selected = '';
           advancedOpen = false;
         "
+        ><template #icon><Icon class="settings-button-icon" name="back" :size="15" /></template
         >返回插件列表</AButton
       >
-    </div>
-    <!-- Both tabs fit without dragging. Keep rc-tabs from capturing vertical page swipes. -->
-    <ATabs v-if="!focusPlugin && !selected" v-model:active-key="tab" @touchstart.capture.stop
-      ><ATabPane key="installed" tab="已安装" /><ATabPane key="add" tab="添加插件"
-    /></ATabs>
+      <!-- Keep rc-tabs from capturing vertical page swipes. -->
+      <ATabs v-else v-model:active-key="tab" @touchstart.capture.stop
+        ><ATabPane key="installed"
+          ><template #tab
+            ><span class="plugin-tab"><Icon name="check" :size="15" />已安装</span></template
+          ></ATabPane
+        >
+        <ATabPane key="add"
+          ><template #tab
+            ><span class="plugin-tab"><Icon name="plus" :size="15" />添加插件</span></template
+          ></ATabPane
+        >
+      </ATabs>
+      <AButton :loading="pendingAction === 'refresh'" :disabled="busy" @click="refreshStatus"
+        ><template #icon><Icon class="settings-button-icon" name="refresh" :size="15" /></template>
+        刷新插件状态
+      </AButton>
+    </header>
     <AAlert v-if="error" type="error" show-icon :message="error" class="plugin-feedback" />
+    <AAlert
+      v-for="dependency in dataDependencies"
+      :key="'data-' + dependency.id"
+      type="info"
+      show-icon
+      :message="dependency.title + ' · 用户资料'"
+      :description="dependencyMessage(dependency)"
+      class="plugin-feedback"
+    >
+      <template v-if="dependency.state === 'missing' && dependency.installAvailable" #action>
+        <AButton
+          size="small"
+          :disabled="busy"
+          :loading="pendingAction === dependency.id + ':install'"
+          @click="action(dependency.id, 'install')"
+          >安装插件</AButton
+        >
+      </template>
+    </AAlert>
     <p v-if="installation" class="plugin-feedback" role="status">
       {{ jobPhases[installation.phase] || '准备安装' }} ·
       {{
@@ -380,9 +444,16 @@ onMounted(() => {
     />
     <article v-for="entry in catalog" :key="entry.id" class="plugin-card">
       <div class="plugin-card-heading">
-        <h3>
-          {{ entry.title }} <small>v{{ entry.version }}</small>
-        </h3>
+        <div class="plugin-identity">
+          <span class="plugin-icon"
+            ><Icon
+              :name="entry.id === 'git' ? 'git-branch' : entry.id === 'mcp' ? 'link' : 'plug'"
+              :size="20"
+          /></span>
+          <h3>
+            {{ entry.title }} <small>v{{ entry.version }}</small>
+          </h3>
+        </div>
         <span
           v-if="installedById.has(entry.id)"
           class="plugin-state"
@@ -404,6 +475,8 @@ onMounted(() => {
             :aria-pressed="selected === entry.id"
             :disabled="busy"
             @click="selected = entry.id"
+            ><template #icon
+              ><Icon class="settings-button-icon" name="settings" :size="15" /></template
             >配置</AButton
           >
           <AButton
@@ -412,6 +485,7 @@ onMounted(() => {
             :loading="pendingAction === entry.id + ':disable'"
             :disabled="busy"
             @click="action(entry.id, 'disable')"
+            ><template #icon><Icon class="settings-button-icon" name="power" :size="15" /></template
             >停用</AButton
           >
           <AButton
@@ -420,6 +494,7 @@ onMounted(() => {
             :loading="pendingAction === entry.id + ':enable'"
             :disabled="busy"
             @click="action(entry.id, 'enable')"
+            ><template #icon><Icon class="settings-button-icon" name="power" :size="15" /></template
             >启用</AButton
           >
           <AButton
@@ -427,9 +502,14 @@ onMounted(() => {
             :loading="pendingAction === entry.id + ':upgrade'"
             :disabled="busy"
             @click="action(entry.id, 'upgrade')"
+            ><template #icon
+              ><Icon class="settings-button-icon" name="arrow-up" :size="15" /></template
             >升级</AButton
           >
-          <AButton type="text" :disabled="busy" @click="openUninstall(entry.id)">卸载</AButton>
+          <AButton type="text" :disabled="busy" @click="openUninstall(entry.id)"
+            ><template #icon><Icon class="settings-button-icon" name="trash" :size="15" /></template
+            >卸载</AButton
+          >
         </template>
         <AButton
           v-else
@@ -438,22 +518,45 @@ onMounted(() => {
           :loading="pendingAction === entry.id + ':install'"
           :disabled="busy"
           @click="action(entry.id, 'install')"
+          ><template #icon
+            ><Icon class="settings-button-icon" name="download" :size="15" /></template
           >安装</AButton
         >
       </div>
     </article>
-    <SettingsOverlay :show="!!pendingUninstall" title="卸载插件" description="卸载后保留插件配置与数据，可按需重新安装。" icon="trash" :busy="busy"
-      @update:show="value => { if (!value) pendingUninstall = ''; }">
+    <SettingsOverlay
+      :show="!!pendingUninstall"
+      title="卸载插件"
+      description="卸载后保留插件配置与数据，可按需重新安装。"
+      icon="trash"
+      :busy="busy"
+      @update:show="
+        (value) => {
+          if (!value) pendingUninstall = '';
+        }
+      "
+    >
       <p>卸载后保留插件配置与数据。</p>
       <p v-if="pendingUninstall === 'mcp'">
         已有连接授权也会保留。如需撤销，请先在连接引导中撤销授权。
       </p>
       <AAlert v-if="error" type="error" show-icon :message="error" />
-      <template #footer="{ close }"><AButton :disabled="busy" @click="close">取消</AButton><AButton danger :loading="busy" @click="confirmUninstall">确认卸载</AButton></template>
+      <template #footer="{ close }"
+        ><AButton :disabled="busy" @click="close">取消</AButton
+        ><AButton danger :loading="busy" @click="confirmUninstall"
+          ><template #icon><Icon class="settings-button-icon" name="trash" :size="15" /></template
+          >确认卸载</AButton
+        ></template
+      >
     </SettingsOverlay>
     <div v-if="installed" class="plugin-settings">
       <header class="settings-heading">
-        <h3>{{ installed.manifest.title }}设置</h3>
+        <h3 class="settings-section-title">
+          <Icon
+            :name="installed.id === 'git' ? 'git-branch' : installed.id === 'mcp' ? 'link' : 'plug'"
+            :size="18"
+          />{{ installed.manifest.title }}设置
+        </h3>
         <p v-if="installed.id === 'git'" class="muted">
           版本记录保存在当前知识库。可在云端同步中关联
           GitHub／Gitee，手动推送或拉取；版本记录不能替代备份。
@@ -468,14 +571,17 @@ onMounted(() => {
             :disabled="busy"
             :loading="pendingAction === installed.id + ':disable'"
             @click="action(installed.id, 'disable')"
+            ><template #icon><Icon class="settings-button-icon" name="power" :size="15" /></template
             >停用插件</AButton
           ><AButton
             v-else
             :disabled="busy || dirty || remoteChanged"
             :loading="pendingAction === installed.id + ':enable'"
             @click="action(installed.id, 'enable')"
+            ><template #icon><Icon class="settings-button-icon" name="power" :size="15" /></template
             >启用插件</AButton
           ><AButton type="text" :disabled="busy" @click="openUninstall(installed.id)"
+            ><template #icon><Icon class="settings-button-icon" name="trash" :size="15" /></template
             >卸载插件</AButton
           >
         </div>
@@ -523,7 +629,11 @@ onMounted(() => {
             cancel-text="保留当前输入"
             @confirm="reloadConfig"
           >
-            <AButton :disabled="busy">重新载入已保存配置</AButton>
+            <AButton :disabled="busy"
+              ><template #icon
+                ><Icon class="settings-button-icon" name="refresh" :size="15" /></template
+              >重新载入已保存配置</AButton
+            >
           </APopconfirm>
         </template>
       </AAlert>
@@ -561,6 +671,17 @@ onMounted(() => {
             :disabled="busy"
             :auto-size="{ minRows: 4, maxRows: 10 }"
             spellcheck="false"
+          />
+          <ASelect
+            v-else-if="taskArrayField(key)"
+            :value="arrayValue(key)"
+            @update:value="values[key] = JSON.stringify($event)"
+            mode="multiple"
+            :id="'plugin-field-' + key"
+            :options="key === 'toDooListIds' ? toDooListOptions : taskDomainOptions"
+            :aria-label="field.title || String(key)"
+            :disabled="busy || !values.allowToDoo"
+            :placeholder="key === 'toDooListIds' ? '全部清单，可选择缩小范围' : '选择允许的内容'"
           />
           <AInputNumber
             v-else-if="field.type === 'integer' || field.type === 'number'"
@@ -608,6 +729,7 @@ onMounted(() => {
           />
           <template v-if="installed.id === 'mcp' && key === 'tunnelToken'">
             <AButton :disabled="busy" class="generate-connection-key" @click="generateConnectionKey"
+              ><template #icon><Icon class="settings-button-icon" name="key" :size="15" /></template
               >生成连接密钥</AButton
             >
             <p class="muted">
@@ -622,6 +744,7 @@ onMounted(() => {
             :disabled="busy"
             class="clear-secret"
             @click="values[key] = null"
+            ><template #icon><Icon class="settings-button-icon" name="trash" :size="15" /></template
             >清除已配置值</AButton
           >
           <p v-if="prefixField(key)" class="muted">
@@ -678,6 +801,7 @@ onMounted(() => {
             type="primary"
             :loading="pendingAction === 'save'"
             :disabled="busy || remoteChanged"
+            ><template #icon><Icon class="settings-button-icon" name="save" :size="15" /></template
             >保存插件配置</AButton
           >
           <span v-if="notice" class="form-success" role="status">{{ notice }}</span>
@@ -702,6 +826,8 @@ onMounted(() => {
 </template>
 <style scoped>
 .plugin-manager {
+  display: grid;
+  gap: 16px;
   min-width: 0;
   margin-top: 28px;
   color: var(--text, #262b36);
@@ -715,16 +841,42 @@ onMounted(() => {
   gap: 12px;
 }
 .section-heading {
-  margin-bottom: 16px;
+  flex-wrap: wrap;
+  margin: 0;
+}
+.section-heading :deep(.ant-tabs-nav) {
+  margin: 0;
+}
+.section-heading :deep(.ant-tabs-content-holder) {
+  display: none;
 }
 .section-heading > div,
-.plugin-card-heading h3 {
+.plugin-identity {
   min-width: 0;
   overflow-wrap: anywhere;
 }
+.plugin-identity,
+.plugin-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.plugin-tab > svg {
+  flex-shrink: 0;
+}
+.plugin-icon {
+  display: grid;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 9px;
+  color: var(--blue, #4566c6);
+  background: var(--blue-soft, #edf1fc);
+}
 .section-heading h2 {
   margin: 0 0 5px;
-  font-size: 18px;
+  font-size: 16px;
 }
 .section-heading p,
 .settings-heading p {
@@ -735,13 +887,16 @@ onMounted(() => {
 .section-heading > .ant-btn {
   flex-shrink: 0;
 }
+.section-heading > .ant-btn:last-child {
+  margin-inline-start: auto;
+}
 .plugin-card,
 .plugin-settings {
   min-width: 0;
   border: 1px solid var(--border, #e3e6ec);
-  border-radius: 8px;
-  padding: 16px;
-  margin: 12px 0;
+  border-radius: 10px;
+  padding: var(--settings-card-padding, 20px);
+  margin: 0;
   background: var(--panel, #fff);
 }
 .plugin-card h3,
@@ -749,6 +904,9 @@ onMounted(() => {
   margin: 0;
   font-size: 15px;
   font-weight: 600;
+}
+.settings-heading h3 {
+  font-size: 16px;
 }
 .plugin-card small {
   margin-left: 5px;
@@ -958,13 +1116,7 @@ onMounted(() => {
 }
 @media (max-width: 600px) {
   .section-heading {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 10px;
-  }
-  .plugin-card,
-  .plugin-settings {
-    padding: 14px;
+    gap: 8px;
   }
   .plugin-form {
     grid-template-columns: minmax(0, 1fr);

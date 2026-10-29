@@ -1,3 +1,4 @@
+import type { PermissionPolicy } from './permissions.js';
 export interface MCPConnectionAttempt {
   at: string;
   mode: 'oauth' | 'tunnel';
@@ -17,6 +18,10 @@ export interface MCPConnectionState {
   latestSuccessfulCall: { at: string; tool: string; client: string } | null;
   clients: {
     clientId: string;
+    permissionPolicy?: PermissionPolicy;
+    effectivePolicy?: PermissionPolicy;
+    policyVersion?: 1 | 2;
+    grantVersion?: number;
     active: boolean;
     scopes: string[];
     allowedPrefixes: string[];

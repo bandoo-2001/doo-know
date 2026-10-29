@@ -1,6 +1,6 @@
 import {documentTitle,documentType,isWhiteboard,parseWhiteboard,MAX_WHITEBOARD_BYTES,withWhiteboardId,whiteboardId} from '../../shared/whiteboard.js';
 import { hasActiveShare } from './share-policy.js';
-import { workspaceWriteSync } from './workspace/gate.js';
+import { assertOrganizationReadable, workspaceWriteSync } from './workspace/gate.js';
 import { randomUUID } from 'node:crypto';
 import {
   mkdirSync,
@@ -22,6 +22,7 @@ import { mutationCore, webPrincipal } from './knowledge/core.js';
 import { KnowledgeError } from './knowledge/errors.js';
 import { assertRoot } from './indexing/reconcile.js';
 import { recoverFolders } from './folders.js';
+import { portableLibrary } from './portable-library.js';
 export interface NoteRow {
   id: string;
   path: string;
@@ -29,9 +30,12 @@ export interface NoteRow {
   trash_path: string | null;
 }
 export function noteService(config: AppConfig, db: AppDatabase) {
+  const library = portableLibrary(config, db);
   const mutations = mutationCore(config, db);
   function scan() {
+    assertOrganizationReadable(db);
     assertRoot(config, db);
+    library.refresh();
     recoverFolders(config, db);
     if (
       db.prepare("SELECT 1 FROM sync_runs WHERE status IN ('running','needs_reconciliation')").get()
@@ -64,19 +68,22 @@ export function noteService(config: AppConfig, db: AppDatabase) {
         ) {
           let identity:string|undefined;
           if(isWhiteboard(path))try{identity=whiteboardId(parseWhiteboard(readDocument(config.knowledgeRoot,path).content).dooknow?.id||'');}catch{}
-          const previous=identity?db.prepare('SELECT id,active,trash_path FROM notes WHERE id=?').get(identity) as NoteRow|undefined:undefined;
-          if(identity&&previous&&!previous.active&&!previous.trash_path&&!db.prepare("SELECT 1 FROM write_intents WHERE note_id=? AND status IN ('prepared','conflicted')").get(identity)) {
-            db.prepare('UPDATE notes SET path=?,active=1 WHERE id=?').run(path,identity);
+          identity = library.identity(path, identity);
+          if (db.prepare('SELECT 1 FROM notes WHERE id=?').get(identity)) {
+            db.prepare('UPDATE notes SET path=?,active=1 WHERE id=?').run(path, identity);
             db.prepare('UPDATE document_state SET active=0 WHERE note_id=?').run(identity);
             db.prepare('UPDATE chunks SET active=0 WHERE note_id=?').run(identity);
           }
-          else db.prepare('INSERT INTO notes(id,path) VALUES(?,?)').run(identity&&!previous?identity:randomUUID(), path);
+          else db.prepare('INSERT INTO notes(id,path) VALUES(?,?)').run(identity, path);
         }
     }).immediate();
+    library.flush();
     return files;
   }
   function row(id: string, deleted = false) {
+    assertOrganizationReadable(db);
     assertRoot(config, db);
+    library.refresh();
     const note = db.prepare('SELECT * FROM notes WHERE id=?').get(id) as NoteRow | undefined;
     if (!note || (!deleted && !note.active)) throw new HttpError(404, '笔记不存在');
     return note;
@@ -289,6 +296,7 @@ export function noteService(config: AppConfig, db: AppDatabase) {
     setFavorite(ownerId: string, id: string, favorite: unknown) {
       if (typeof favorite !== 'boolean') throw new HttpError(400, '收藏状态必须为布尔值');
       return workspaceWriteSync(db, { kind: 'note.favorite' }, () => {
+        library.refresh();
         exists(id);
         if (favorite)
           db.prepare('INSERT OR IGNORE INTO note_favorites(owner_id,note_id) VALUES(?,?)').run(

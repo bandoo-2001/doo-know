@@ -13,11 +13,13 @@ import * as settings from '../apps/web/settings';
 import * as format from '../apps/web/markdown-format';
 import * as drafts from '../apps/web/drafts';
 import * as search from '../apps/web/search-results';
+import * as searchMatching from '../shared/search-matching';
 import * as outline from '../apps/web/document-outline';
 import { previewSource } from '../apps/web/preview-source';
 import * as collectionFeed from '../apps/web/collection-feed';
 import * as blogWorkbench from '../apps/web/blog-workbench';
 import * as blogDiagrams from '../apps/web/blog-diagrams';
+import * as toDooCapture from '../apps/web/to-doo-capture';
 import { markdownStyles } from '../shared/markdown-styles';
 import {markdownTasks} from '../shared/markdown-tasks';
 import {diagramFences} from '../shared/diagram-fences';
@@ -92,11 +94,13 @@ async function mount(waitForNote = true) {
       if (id === '../markdown-format') return format;
       if (id === '../drafts') return drafts;
       if (id === '../search-results') return search;
+      if (id === '../../../shared/search-matching') return searchMatching;
       if (id === '../document-outline') return outline;
       if (id === '../preview-source') return { previewSource };
       if (id === '../collection-feed') return collectionFeed;
       if (id === '../blog-workbench') return blogWorkbench;
       if (id === '../blog-diagrams') return blogDiagrams;
+      if (id === '../to-doo-capture') return toDooCapture;
       if (id === '../plugins')
         return {
           refreshPlugins: async () => {},

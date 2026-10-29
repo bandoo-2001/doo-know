@@ -287,7 +287,7 @@
   touch-action: pan-x;
   overscroll-behavior-x: contain;
   scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
   border: 1px solid var(--border);
   border-radius: 12px;
   background: var(--panel);

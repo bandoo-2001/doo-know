@@ -36,6 +36,7 @@ import { fail, KnowledgeError } from '../../../packages/core/knowledge/errors.js
 import { sha256 } from '../../../packages/core/knowledge/operations.js';
 import { unpackPlugin, packagePath, type PluginInstallOptions } from './packages.js';
 import { remoteAuthGeneration } from '../../../packages/core/auth/remote-auth.js';
+import { portablePluginData } from './portable.js';
 
 type Handler = (call: PluginCall) => unknown | Promise<unknown>;
 type Active = {
@@ -76,7 +77,12 @@ const capabilities = new Set([
   'knowledge:read',
   'knowledge:write',
   'knowledge:index',
+  'knowledge:organize',
+  'knowledge:archive',
+  'blog:read',
   'blog:publish',
+  'to-doo:read',
+  'to-doo:write',
   'workspace:git',
   'protocol:mcp',
 ]);
@@ -84,6 +90,7 @@ export function pluginHost(
   config: HostConfig & { pluginCatalog?: PluginCatalogEntry[]; pluginRoot?: string },
   db: AppDatabase,
   services?: (id: string, capabilities: string[], context: HostCallContext) => PluginServices,
+  knowledgeRoot: () => string | undefined = () => config.knowledgeRoot,
 ) {
   db.exec(`CREATE TABLE IF NOT EXISTS platform_plugins (
     id TEXT PRIMARY KEY,installed_version TEXT NOT NULL,active_version TEXT,installed INTEGER NOT NULL DEFAULT 1,
@@ -109,6 +116,7 @@ export function pluginHost(
     (catalogFile && existsSync(catalogFile) ? JSON.parse(readFileSync(catalogFile, 'utf8')) : []);
   const active = new Map<string, Active>(),
     loaded = new Map<string, string>();
+  const portable = portablePluginData(db, knowledgeRoot);
   const instance = randomUUID();
   let closing = false,
     tail = Promise.resolve();
@@ -120,14 +128,29 @@ export function pluginHost(
     );
     return next;
   };
-  const row = (id: string) => {
+  const row = (id: string, synchronize = true) => {
     const result = db
       .prepare('SELECT * FROM platform_plugins WHERE id=? AND installed=1')
       .get(id) as Row | undefined;
     if (!result) fail(404, 'PLUGIN_NOT_INSTALLED');
-    return result;
+    return synchronize ? syncPortableConfig(result) : result;
   };
   const manifest = (r: Row) => JSON.parse(r.manifest_json) as PluginManifest;
+  function syncPortableConfig(r: Row) {
+    const m = manifest(r);
+    const selected = portable.config(r.id, m);
+    if (!selected) return r;
+    const previous = JSON.parse(r.config_json), next = { ...previous };
+    for (const key of selected.keys) delete next[key];
+    Object.assign(next, selected.values);
+    const before = { ...defaults(m), ...previous }, after = { ...defaults(m), ...next };
+    if (Object.keys(before).length === Object.keys(after).length &&
+      Object.entries(before).every(([key, value]) => JSON.stringify(value) === JSON.stringify(after[key]))) return r;
+    const restart = active.has(r.id) ? 1 : r.restart_required;
+    db.prepare('UPDATE platform_plugins SET config_json=?,config_version=config_version+1,restart_required=? WHERE id=?')
+      .run(JSON.stringify(next), restart, r.id);
+    return { ...r, config_json: JSON.stringify(next), config_version: r.config_version + 1, restart_required: restart };
+  }
   const directory = (id: string, version: string) => join(root, id, version);
   function verifyManifest(m: PluginManifest) {
     if (
@@ -342,6 +365,7 @@ export function pluginHost(
     if (r.config_version !== expectedVersion) fail(409, 'CONFIG_VERSION_CONFLICT');
     if (!input || typeof input !== 'object' || Array.isArray(input))
       fail(400, 'INVALID_PLUGIN_CONFIG');
+    const portableUpdate = portable.prepareConfig(id, m);
     const generation = remoteAuthGeneration(db);
     const previous = plain(r),
       previousStored = JSON.parse(r.config_json);
@@ -352,6 +376,7 @@ export function pluginHost(
     }
     const validated = validate(m, values);
     for (const validator of active.get(id)?.validators || []) await validator(validated);
+    portableUpdate?.check();
     const stored = { ...validated };
     const createdSecrets: { ref: string; field: string; time: number }[] = [];
     for (const [key, property] of Object.entries(m.configSchema.properties || {}))
@@ -368,6 +393,7 @@ export function pluginHost(
       }
     db.transaction(() => {
       if (generation !== remoteAuthGeneration(db)) fail(409, 'AUTHORIZATION_CHANGED');
+      portableUpdate?.check();
       const updated = db
         .prepare(
           'UPDATE platform_plugins SET config_json=?,config_version=config_version+1,restart_required=? WHERE id=? AND config_version=?',
@@ -387,7 +413,9 @@ export function pluginHost(
           secret.time,
           generation,
         );
+      portableUpdate?.write(stored);
     }).immediate();
+    portableUpdate?.flush();
     if (active.has(id) && !m.configurationRequiresRestart) active.get(id)!.config = validated;
     await changed();
     return view(row(id));
@@ -420,9 +448,9 @@ export function pluginHost(
   }
   async function enable(id: string) {
     if (closing) fail(503, 'PLUGIN_HOST_STOPPING');
-    if (active.has(id)) return view(row(id));
-    const r = row(id),
-      m = manifest(r);
+    if (active.has(id)) return view(row(id, false));
+    let r = row(id, false);
+    const m = manifest(r);
     if (loaded.has(id) && loaded.get(id) !== r.installed_version)
       fail(409, 'PLUGIN_RESTART_REQUIRED');
     if (loaded.has(id) && r.restart_required) fail(409, 'PLUGIN_RESTART_REQUIRED');
@@ -451,6 +479,7 @@ export function pluginHost(
       return dispose;
     };
     try {
+      r = syncPortableConfig(r);
       for (const [name, hash] of Object.entries(JSON.parse(r.files_json))) {
         const file = join(directory(id, r.installed_version), name),
           info = lstatSync(file);
@@ -462,6 +491,7 @@ export function pluginHost(
         id,
         dataRoot: join(config.dataRoot, 'plugins', id),
         storage: storage(id),
+        userData: portable.userData(id),
         config: () => structuredClone(running.config),
         track: (task) => {
           running.calls.add(task);
@@ -521,15 +551,16 @@ export function pluginHost(
         "UPDATE platform_plugins SET state='enabled',active_version=?,restart_required=0,error=NULL WHERE id=?",
       ).run(r.installed_version, id);
       await changed();
-      return view(row(id));
+      return view(row(id, false));
     } catch (e) {
+      active.delete(id);
       for (const dispose of [...running.disposers].reverse()) {
         try {
           await dispose();
         } catch {}
       }
-      db.prepare("UPDATE platform_plugins SET state='failed',error=? WHERE id=?").run(
-        (e as any).code || 'PLUGIN_START_FAILED',
+      db.prepare("UPDATE platform_plugins SET state='failed',active_version=NULL,error=? WHERE id=?").run(
+        (e as any).code || (e as any).details?.code || 'PLUGIN_START_FAILED',
         id,
       );
       throw e;
@@ -573,7 +604,11 @@ export function pluginHost(
     list: () =>
       (
         db.prepare('SELECT * FROM platform_plugins WHERE installed=1 ORDER BY id').all() as Row[]
-      ).map(view),
+      ).map((r) => {
+        try { return view(syncPortableConfig(r)); }
+        catch { return { ...view(r), error: 'PORTABLE_PLUGIN_DATA_UNAVAILABLE' }; }
+      }),
+    dataDependencies: () => portable.dependencies(catalog),
     contributions: () =>
       [...active.entries()].flatMap(([id, running]) =>
         running.manifest.contributions.map((c) => ({ ...c, pluginId: id })),
@@ -618,14 +653,14 @@ export function pluginHost(
     disable: (id: string, beforeAction?: () => void) =>
       serial(async () => {
         beforeAction?.();
-        row(id);
+        row(id, false);
         await stop(id, true);
-        return view(row(id));
+        return view(row(id, false));
       }),
     uninstall: (id: string, beforeAction?: () => void) =>
       serial(async () => {
         beforeAction?.();
-        row(id);
+        row(id, false);
         await stop(id, true);
         db.prepare('UPDATE platform_plugins SET installed=0,active_version=NULL WHERE id=?').run(
           id,

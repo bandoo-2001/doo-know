@@ -1,4 +1,4 @@
-import {isDocument,isWhiteboard,MAX_WHITEBOARD_BYTES} from '../../shared/whiteboard.js';
+import { isDocument, isWhiteboard, MAX_WHITEBOARD_BYTES } from '../../shared/whiteboard.js';
 import {
   lstatSync,
   realpathSync,
@@ -44,11 +44,7 @@ export function validateRelative(path: string, kind: 'note' | 'folder' | 'asset'
     throw new HttpError(400, '路径不允许');
   if (path === 'README.md' && kind === 'note') return;
   const parts = path.split('/');
-  if (
-    !(categories.includes(parts[0]) || (kind === 'asset' && parts[0] === 'assets')) ||
-    parts.some((p) => !validName(p))
-  )
-    throw new HttpError(400, '路径不允许');
+  if (parts.some((p) => !validName(p))) throw new HttpError(400, '路径不允许');
   if (kind === 'note' && (!isDocument(path) || parts.includes('assets')))
     throw new HttpError(400, '仅允许 Markdown 或 Excalidraw 白板文件');
 }
@@ -103,7 +99,8 @@ export function readDocument(root: string, path: string) {
     const before = fstatSync(fd, { bigint: true });
     if (!before.isFile()) throw new HttpError(400, '不是普通文件');
     const board = isWhiteboard(path);
-    if (board && before.size > BigInt(MAX_WHITEBOARD_BYTES)) throw new KnowledgeError(413, 'FILE_TOO_LARGE', '白板不能超过 8 MiB');
+    if (board && before.size > BigInt(MAX_WHITEBOARD_BYTES))
+      throw new KnowledgeError(413, 'FILE_TOO_LARGE', '白板不能超过 8 MiB');
     if (before.size > 20n * 1024n * 1024n)
       throw new KnowledgeError(413, 'FILE_TOO_LARGE', '笔记超过大小上限');
     if (!board && before.size > 1024n * 1024n)
@@ -156,24 +153,19 @@ export function scanFiles(root: string) {
       }
     }
   }
-  for (const cat of categories) {
-    try {
-      if (
-        lstatSync(join(root, cat)).isDirectory() &&
-        !lstatSync(join(root, cat)).isSymbolicLink()
-      ) {
-        folders.push(cat);
-        walk(cat);
-      }
-    } catch (e) {
-      if ((e as NodeJS.ErrnoException).code === 'ENOENT') continue;
-      if (e instanceof HttpError) throw e;
-      throw new KnowledgeError(503, 'SOURCE_UNAVAILABLE', '原文目录不可读', true);
+  for (const item of readdirSync(root, { withFileTypes: true }).sort((a, b) =>
+    a.name.localeCompare(b.name),
+  )) {
+    if (!validName(item.name) || item.name === 'assets' || item.isSymbolicLink()) continue;
+    if (item.isDirectory()) {
+      folders.push(item.name);
+      walk(item.name);
+    } else if (item.isFile() && isDocument(item.name)) {
+      try {
+        safePath(root, item.name, 'note');
+        notes.push(item.name);
+      } catch {}
     }
   }
-  try {
-    safePath(root, 'README.md', 'note');
-    notes.push('README.md');
-  } catch {}
   return { folders, notes };
 }

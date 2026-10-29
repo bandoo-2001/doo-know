@@ -2,14 +2,14 @@ import { createHash } from 'node:crypto';
 import { HttpError } from '../errors.js';
 import { BlogError } from './errors.js';
 import { validateRelative } from '../files.js';
-import { requireScope, underPrefix } from '../agent/auth.js';
+import { requireScope, canAccessPath } from '../agent/auth.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
 
 export const blogHash = (s: string | Uint8Array) => createHash('sha256').update(s).digest('hex');
 export function authorizeBlogPath(p: Principal, path: string, asset = false) {
   requireScope(p, 'knowledge:read');
   validateRelative(path, asset ? 'asset' : 'note');
-  if (!p.allowedPrefixes.some((prefix) => underPrefix(path, prefix)))
+  if (!canAccessPath(p, path))
     throw new BlogError(403, '资源不在授权目录内', { code: 'FORBIDDEN' });
 }
 export function publicationPng(base64: unknown): Buffer {

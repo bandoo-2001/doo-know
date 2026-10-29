@@ -1,10 +1,12 @@
+import { refreshKnowledgeData, flushKnowledgeData } from '../knowledge-data.js';
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { randomUUID } from 'node:crypto';
 import { readFileSync, readdirSync, existsSync, unlinkSync } from 'node:fs';
 import { basename } from 'node:path';
 import type { AppDatabase } from '../db.js';
 import { fail } from '../knowledge/errors.js';
-type Metadata = { kind: string; operationId?: string; waitMs?: number };
+import { organizationPending } from '../organization/schema.js';
+type Metadata = { kind: string; operationId?: string; waitMs?: number; recovery?: boolean };
 type Gate = {
   token: string;
   mode: string;
@@ -106,9 +108,25 @@ function live(db: AppDatabase, row: Gate) {
     ).some(guardIsAlive)
   );
 }
-function sweep(db: AppDatabase) {
+function sweep(db: AppDatabase, recovering = false) {
   for (const row of db.prepare('SELECT * FROM workspace_gate').all() as Gate[]) {
     if (live(db, row)) continue;
+    if (
+      row.operation_id &&
+      db
+        .prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='organization_jobs'")
+        .get() &&
+      db
+        .prepare(
+          "SELECT 1 FROM organization_jobs WHERE id=? AND status IN ('committing','needs_reconciliation')",
+        )
+        .get(row.operation_id)
+    ) {
+      if (!recovering) continue;
+      db.prepare('DELETE FROM workspace_guards WHERE token=?').run(row.token);
+      db.prepare('DELETE FROM workspace_gate WHERE token=?').run(row.token);
+      continue;
+    }
     if (
       row.operation_id &&
       db
@@ -159,6 +177,11 @@ function release(db: AppDatabase, token: string) {
   db.prepare('DELETE FROM workspace_gate WHERE token=?').run(token);
 }
 type WorkFailure = { error: unknown };
+function assertPortableParticipantsReady(db: AppDatabase) {
+  if (db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='todo_pending_files'").get()
+    && db.prepare('SELECT 1 FROM todo_pending_files LIMIT 1').get())
+    fail(409, 'RECOVERY_REQUIRED', '应用数据仍有待恢复的文件写入，请先打开 To Doo 核对恢复状态');
+}
 function releasePreservingFailure(db: AppDatabase, token: string, failure?: WorkFailure) {
   try {
     release(db, token);
@@ -182,6 +205,8 @@ function acquireShared(db: AppDatabase, meta: Metadata) {
   const token = randomUUID();
   db.transaction(() => {
     sweep(db);
+    if (organizationPending(db))
+      fail(503, 'ORGANIZATION_RECOVERY_REQUIRED', 'ORGANIZATION_RECOVERY_REQUIRED', true);
     if (db.prepare("SELECT 1 FROM workspace_gate WHERE mode<>'shared'").get())
       fail(503, 'WORKSPACE_BUSY', 'WORKSPACE_BUSY', true);
     insert(db, token, 'shared', meta);
@@ -193,7 +218,12 @@ export function workspaceWriteSync<T>(db: AppDatabase, meta: Metadata, work: () 
   const token = acquireShared(db, meta);
   let failure: WorkFailure | undefined;
   try {
-    return held.run({ db, token, exclusive: false }, work);
+    return held.run({ db, token, exclusive: false }, () => {
+      refreshKnowledgeData(db);
+      const result = work();
+      flushKnowledgeData(db);
+      return result;
+    });
   } catch (error) {
     failure = { error };
     throw error;
@@ -219,7 +249,12 @@ export async function workspaceWrite<T>(
   beat.unref();
   let failure: WorkFailure | undefined;
   try {
-    return await held.run({ db, token, exclusive: false }, work);
+    return await held.run({ db, token, exclusive: false }, async () => {
+      refreshKnowledgeData(db);
+      const result = await work();
+      flushKnowledgeData(db);
+      return result;
+    });
   } catch (error) {
     failure = { error };
     throw error;
@@ -247,7 +282,9 @@ export async function workspaceExclusive<T>(
     for (;;) {
       const ready = db
         .transaction(() => {
-          sweep(db);
+          sweep(db, meta.recovery);
+          if (!meta.recovery && organizationPending(db))
+            fail(503, 'ORGANIZATION_RECOVERY_REQUIRED', 'ORGANIZATION_RECOVERY_REQUIRED', true);
           if (!inserted) {
             if (db.prepare("SELECT 1 FROM workspace_gate WHERE mode<>'shared'").get()) return false;
             insert(db, token, 'exclusive_pending', meta);
@@ -266,6 +303,7 @@ export async function workspaceExclusive<T>(
               .get()
           )
             fail(409, 'RECOVERY_REQUIRED');
+          assertPortableParticipantsReady(db);
           db.prepare("UPDATE workspace_gate SET mode='exclusive' WHERE token=?").run(token);
           return true;
         })
@@ -274,7 +312,14 @@ export async function workspaceExclusive<T>(
       if (Date.now() >= deadline) fail(503, 'WORKSPACE_BUSY', 'WORKSPACE_BUSY', true);
       await new Promise((r) => setTimeout(r, Math.min(25, Math.max(1, deadline - Date.now()))));
     }
-    return await held.run({ db, token, exclusive: true }, work);
+    return await held.run({ db, token, exclusive: true }, async () => {
+      refreshKnowledgeData(db);
+      const result = await work();
+      refreshKnowledgeData(db);
+      flushKnowledgeData(db);
+      assertPortableParticipantsReady(db);
+      return result;
+    });
   } catch (error) {
     failure = { error };
     throw error;
@@ -330,3 +375,16 @@ export function workspaceBegin<T extends { operation: { id: string } }>(
     })
     .immediate();
 }
+
+/** A quick barrier for synchronous observation; asynchronous readers should hold workspaceRead. */
+export function assertOrganizationReadable(db: AppDatabase) {
+  if (held.getStore()?.db === db) return;
+  initializeWorkspaceGate(db);
+  sweep(db);
+  if (organizationPending(db))
+    fail(503, 'ORGANIZATION_RECOVERY_REQUIRED', 'ORGANIZATION_RECOVERY_REQUIRED', true);
+  if (db.prepare("SELECT 1 FROM workspace_gate WHERE mode<>'shared'").get())
+    fail(503, 'WORKSPACE_BUSY', 'WORKSPACE_BUSY', true);
+}
+export const workspaceRead = workspaceWrite;
+export const workspaceReadSync = workspaceWriteSync;

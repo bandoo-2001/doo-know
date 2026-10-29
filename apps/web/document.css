@@ -181,7 +181,7 @@
   overflow-x: auto;
   overscroll-behavior-x: contain;
   scrollbar-width: thin;
-  scrollbar-color: #d9e0ec transparent;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
 }
 .format-group {
   display: flex;
@@ -341,7 +341,7 @@
   overflow: auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
-  scrollbar-color: #d6dae3 transparent;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
   padding-bottom: 56px;
 }
 .outline-branch {

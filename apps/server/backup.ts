@@ -59,7 +59,19 @@ export async function backup(config: AppConfig, destination: string) {
   const before = await inventory(config.knowledgeRoot),
     db = new Database(join(config.dataRoot, 'app.sqlite'));
   try {
-    const retainedDirectories = ['history', 'reconciliation'];
+    const organizationTable = db
+      .prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='organization_jobs'")
+      .get();
+    if (
+      organizationTable &&
+      db
+        .prepare(
+          "SELECT 1 FROM organization_jobs WHERE status IN ('committing','needs_reconciliation')",
+        )
+        .get()
+    )
+      throw new Error('知识库整理尚未恢复一致，请完成恢复后备份');
+    const retainedDirectories = ['history', 'reconciliation', 'organization'];
     const retainedBefore = await Promise.all(
       retainedDirectories.map((name) => optionalInventory(join(config.dataRoot, name))),
     );

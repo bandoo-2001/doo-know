@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { test, expect } from '../support/browser-test';
-import { showSidebar } from '../support/settings-navigation';
+import { showSidebar, closeSidebar } from '../support/settings-navigation';
 import type { Page } from '@playwright/test';
 import type { TransferTask } from '../../shared/transfer-contracts';
 
@@ -12,8 +12,16 @@ async function openStatus(page: Page) {
   await page.goto('/?view=settings&section=editor');
   await expect(page.locator('.settings-workspace')).toBeVisible();
   await showSidebar(page);
-  await page.getByRole('button', { name: '后台状态', exact: true }).click();
-  const drawer = page.getByRole('dialog', { name: '后台状态', exact: true });
+  await expect(
+    page.locator('.footer-tools').getByRole('button', { name: '后台状态', exact: true }),
+  ).toHaveCount(0);
+  await page
+    .getByRole('navigation', { name: '设置分类', exact: true })
+    .getByRole('button', { name: '后台状态', exact: true })
+    .click();
+  await page.reload();
+  await closeSidebar(page);
+  const drawer = page.getByRole('region', { name: '后台状态', exact: true });
   await expect(drawer).toBeVisible();
   await expect(drawer.getByRole('button', { name: '刷新状态', exact: true })).not.toHaveClass(
     /ant-btn-loading/,
@@ -34,7 +42,7 @@ function task(id: string, kind: TransferTask['kind'], state: TransferTask['state
   };
 }
 
-test('idle drawer keeps tasks and management links visible while details remain expandable', async ({
+test('status settings keep tasks and management links visible while details remain expandable', async ({
   page,
 }, info) => {
   await page.route('**/api/manage/tasks*', (route) => route.fulfill({ json: { items: [] } }));
@@ -53,7 +61,7 @@ test('idle drawer keeps tasks and management links visible while details remain 
   const search = drawer.getByRole('heading', { name: '搜索准备', exact: true });
   expect((await tasks.boundingBox())!.y).toBeLessThan((await search.boundingBox())!.y);
   for (const name of ['导入与导出', '备份与恢复']) {
-    await expect(drawer.getByRole('button', { name, exact: true })).toBeInViewport({ ratio: 1 });
+    await expect(drawer.getByRole('button', { name, exact: true })).toBeVisible();
   }
   await expect(drawer.getByRole('button', { name: '刷新任务', exact: true })).toHaveCount(0);
   const sizes =
@@ -65,16 +73,15 @@ test('idle drawer keeps tasks and management links visible while details remain 
       : [{ width: 390, height: 664 }];
   for (const size of sizes) {
     await page.setViewportSize(size);
-    await expect.poll(async () => (await drawer.boundingBox())!.width).toBeLessThanOrEqual(461);
-    if (info.project.name === 'mobile')
-      expect((await drawer.boundingBox())!.width).toBeGreaterThanOrEqual(389);
+    await expect
+      .poll(() => drawer.evaluate((el) => el.scrollWidth <= el.clientWidth + 1))
+      .toBe(true);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
       true,
     );
-    await expect(drawer.getByRole('button', { name: '备份与恢复', exact: true })).toBeInViewport({
-      ratio: 1,
-    });
+    await expect(drawer.getByRole('button', { name: '备份与恢复', exact: true })).toBeVisible();
   }
+  if (info.project.name === 'desktop') await page.setViewportSize({ width: 1440, height: 1000 });
   await page.screenshot({ path: info.outputPath('status-idle.png'), animations: 'disabled' });
   const settings = drawer.getByRole('button', { name: '打开搜索设置', exact: true });
   await expect(settings).toBeHidden();
@@ -82,7 +89,7 @@ test('idle drawer keeps tasks and management links visible while details remain 
   await expect(settings).toBeVisible();
   await settings.click();
   await expect(drawer).toBeHidden();
-  await expect(page.locator('.settings-workspace h1')).toHaveText('搜索');
+  await expect(page.locator('.settings-workspace h1')).toHaveText('搜索与索引');
 });
 
 test('running and failed tasks precede collapsed history and cancellation remains available', async ({
@@ -118,7 +125,7 @@ test('running and failed tasks precede collapsed history and cancellation remain
   await expect(drawer.getByRole('button', { name: '取消任务', exact: true })).toHaveCount(0);
 });
 
-test('polling and header refresh update tasks without closing details, and Escape returns focus', async ({
+test('polling and refresh update tasks without closing details, and leaving stops polling', async ({
   page,
 }) => {
   let items: TransferTask[] = [];
@@ -147,9 +154,19 @@ test('polling and header refresh update tasks without closing details, and Escap
   await expect(drawer.locator('.transfer-tasks')).toContainText('导出');
   await expect(drawer.locator('.transfer-tasks')).not.toContainText('加密备份');
   await expect(updateIndex).toBeVisible();
-  await page.keyboard.press('Escape');
+  await drawer.getByRole('button', { name: '返回笔记', exact: true }).click();
   await expect(drawer).toBeHidden();
-  await expect(page.getByRole('button', { name: '后台状态', exact: true })).toBeFocused();
+  let readsAfterLeaving = 0;
+  page.on('request', (request) => {
+    if (
+      /\/api\/(index\/status|manage\/tasks|platform\/search-runtime|maintenance\/conflicts)$/.test(
+        new URL(request.url()).pathname,
+      )
+    )
+      readsAfterLeaving++;
+  });
+  await page.waitForTimeout(4300);
+  expect(readsAfterLeaving).toBe(0);
 });
 
 test('header refresh keeps an older failed task after loading more history', async ({ page }) => {

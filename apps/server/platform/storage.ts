@@ -35,7 +35,7 @@ export async function directoryUsage(
   label: string,
   warnings: Set<string>,
   accept: (name: string) => boolean = () => true,
-  descend: (name: string) => boolean = () => true,
+  descend: (name: string, depth: number) => boolean = () => true,
 ) {
   const usage: StorageUsage & { latest: number } = {
     count: 0,
@@ -56,7 +56,7 @@ export async function directoryUsage(
         const childPath = join(descriptorPath(directory), entry.name),
           info = await lstat(childPath);
         if (info.isDirectory()) {
-          if (!descend(entry.name)) continue;
+          if (!descend(entry.name, depth)) continue;
           if (depth >= DEPTH_LIMIT) {
             usage.truncated = true;
             continue;

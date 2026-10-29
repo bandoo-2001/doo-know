@@ -1,3 +1,4 @@
+import { rebindKnowledgeDataRoot } from '../../../packages/core/knowledge-data.js';
 import { randomUUID } from 'node:crypto';
 import { realpathSync, lstatSync } from 'node:fs';
 import type { AppDatabase } from '../../../packages/core/db.js';
@@ -8,11 +9,14 @@ import {
   remoteAuthGeneration,
 } from '../../../packages/core/auth/remote-auth.js';
 import type { AppConfig } from '../../../shared/contracts.js';
+import { portableBlog } from '../../../packages/core/blog/portable.js';
+import { resetToDooLocalConnections } from '../to-doo/installation.js';
 export function resetRestoredState(
   db: AppDatabase,
   config: AppConfig,
   floors: { generation?: number; cutoff?: number } = {},
 ) {
+  rebindKnowledgeDataRoot(db, config.knowledgeRoot);
   platformSettings(config, db);
   db.pragma('foreign_keys=ON');
   const tables = new Set(
@@ -20,6 +24,9 @@ export function resetRestoredState(
       (r) => r.name,
     ),
   );
+  // Adopt the copied portable snapshot before the restore's explicit withdrawal.
+  // The withdrawal then becomes the authoritative synchronized state as well.
+  const blog = tables.has('blog_posts') ? portableBlog(config, db) : undefined;
   const value = (key: string) =>
     (db.prepare('SELECT value FROM index_meta WHERE key=?').get(key) as any)?.value;
   const generation = Math.max(remoteAuthGeneration(db), floors.generation || 0),
@@ -29,7 +36,9 @@ export function resetRestoredState(
     if (tables.has('session')) db.prepare('DELETE FROM session').run();
     db.prepare('UPDATE shares SET enabled=0').run();
     if (tables.has('blog_settings'))
-      db.prepare("UPDATE blog_settings SET settings_json=json_set(settings_json,'$.enabled',json('false'),'$.version',json_extract(settings_json,'$.version')+1)").run();
+      db.prepare(
+        "UPDATE blog_settings SET settings_json=json_set(settings_json,'$.enabled',json('false'),'$.version',json_extract(settings_json,'$.version')+1)",
+      ).run();
     if (tables.has('blog_posts'))
       db.prepare("UPDATE blog_posts SET state='withdrawn',version=version+1").run();
     if (tables.has('blog_receipts')) db.prepare('DELETE FROM blog_receipts').run();
@@ -144,6 +153,8 @@ export function resetRestoredState(
       previous?.onboarding_completed_at || now,
     );
   }).immediate();
+  blog?.flush();
+  resetToDooLocalConnections(db);
   if (
     db.pragma('integrity_check', { simple: true }) !== 'ok' ||
     (db.pragma('foreign_key_check') as any[]).length

@@ -3,6 +3,7 @@ import type { PluginServices, KnowledgePort } from '../../../packages/plugin-sdk
 import type { Principal } from './contracts.js';
 import * as c from './contracts.js';
 import { BridgeError, annotateError } from './errors.js';
+import { toDooMcpQueryResult, toDooMcpContextResult, toDooMcpReceipt } from '../../../shared/to-doo-mcp-contracts.js';
 export type CallOptions = { deadline?: number; signal?: AbortSignal };
 export type KnowledgeClient = {
   [K in keyof KnowledgePort]: (p: Principal, input: any, options?: CallOptions) => Promise<any>
@@ -10,6 +11,9 @@ export type KnowledgeClient = {
   blogStatus(p: Principal, input: any, options?: CallOptions): Promise<any>;
   blogPublish(p: Principal, input: any, options?: CallOptions): Promise<any>;
   blogUnpublish(p: Principal, input: any, options?: CallOptions): Promise<any>;
+  toDooQuery(p: Principal, input: any, options?: CallOptions): Promise<any>;
+  toDooContext(p: Principal, input: any, options?: CallOptions): Promise<any>;
+  toDooCommand(p: Principal, input: any, options?: CallOptions): Promise<any>;
   externalWebOriginConfigured(): boolean;
 };
 const schemas: Record<keyof KnowledgePort, z.ZodType> = {
@@ -63,8 +67,9 @@ export function hostClient(services: () => PluginServices, configuration: () => 
     catch (e) {
       if (e instanceof BridgeError) throw annotateError(e, tool, input);
       const error = e as any;
-      if (error && typeof error.code === 'string' && /^[A-Z][A-Z0-9_]{0,63}$/.test(error.code)) {
-        const translated = new BridgeError(error.code, error.statusCode || 500, !!error.retryable, input?.requestId);
+      const code = error?.code || error?.details?.code;
+      if (typeof code === 'string' && /^[A-Z][A-Z0-9_]{0,63}$/.test(code)) {
+        const translated = new BridgeError(code, error.statusCode || 500, !!error.retryable, input?.requestId);
         translated.requiredScope = error.requiredScope;
         translated.currentModifiedAt = [error.currentModifiedAt, error.details?.currentModifiedAt].find(value => typeof value === 'string' && /^\d{1,30}$/.test(value));
         throw annotateError(translated, tool, input);
@@ -89,5 +94,20 @@ export function hostClient(services: () => PluginServices, configuration: () => 
       return blog[name](input, options);
     }, name !== 'status', false);
   }
+  client.toDooQuery = (_p, input, options = {}) => invoke('query_to_doos', input, options, toDooMcpQueryResult, async () => {
+    const port = services().toDoo;
+    if (!port) throw new BridgeError('TO_DOO_UNAVAILABLE', 503);
+    return port.query(input, options);
+  }, false, false);
+  client.toDooContext = (_p, input, options = {}) => invoke('get_to_doo_context', input, options, toDooMcpContextResult, async () => {
+    const port = services().toDoo;
+    if (!port) throw new BridgeError('TO_DOO_UNAVAILABLE', 503);
+    return port.context(input, options);
+  }, false, false);
+  client.toDooCommand = (_p, input, options = {}) => invoke('manage_to_doo', input, options, toDooMcpReceipt, async () => {
+    const port = services().toDoo;
+    if (!port) throw new BridgeError('TO_DOO_UNAVAILABLE', 503);
+    return port.command(input, options);
+  }, input.action !== 'preview_plan', false);
   return client;
 }

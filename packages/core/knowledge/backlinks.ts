@@ -5,6 +5,8 @@ import type { Principal } from '../../../shared/knowledge-contracts.js';
 import { extractNoteLinks, type NoteBacklinksPage } from '../../../shared/note-links.js';
 import { documentTitle } from '../../../shared/whiteboard.js';
 import { authorizePath } from '../agent/auth.js';
+import { pathFilter } from '../indexing/text.js';
+import { currentLibraryIdentity } from '../auth/permissions.js';
 import type { AppDatabase } from '../db.js';
 import { safePath } from '../files.js';
 import { assertRoot } from '../indexing/reconcile.js';
@@ -49,10 +51,10 @@ export function backlinkService(config: AppConfig, db: AppDatabase, notes: NoteS
     if (!/\.md$/i.test(target.path)) fail(400, 'INVALID_INPUT', '提及查询仅适用于 Markdown 笔记');
     safePath(config.knowledgeRoot, target.path, 'note');
     const scope = createHash('sha256').update(JSON.stringify([
-      principal.id, principal.clientId, [...principal.allowedPrefixes].sort(), config.knowledgeRoot,
+      principal.id, principal.clientId, [...principal.allowedPrefixes].sort(), principal.knowledgeAll, principal.permissionPolicy, currentLibraryIdentity(db)?.structureRevision, config.knowledgeRoot,
     ])).digest('hex');
-    const scopeSql = principal.allowedPrefixes.map(() => '(path=? OR instr(path,?)=1)').join(' OR ');
-    const scopeArgs = principal.allowedPrefixes.flatMap(prefix => [prefix, prefix + '/']);
+    const allowed = pathFilter(principal, 'path');
+    const scopeSql = allowed.sql, scopeArgs = allowed.values;
     const where = `active=1 AND id<>? AND (${scopeSql})`;
     let after = 0;
     let high = (db.prepare(`SELECT coalesce(max(rowid),0) AS high FROM notes WHERE ${where}`)

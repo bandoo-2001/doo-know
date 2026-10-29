@@ -7,7 +7,6 @@ defineProps<{ username: string; active?: string; collection?: 'notes' | 'recent'
 const emit = defineEmits<{
   settings: [section?: SettingsSection];
   trash: [];
-  status: [];
   logout: [];
   notes: [];
   apps: [];
@@ -66,6 +65,7 @@ function settings(section: SettingsSection) {
       </button>
       <button
         type="button"
+        class="rail-apps-button"
         :aria-current="active === 'apps' ? 'page' : undefined"
         title="应用"
         @click="emit('apps')"
@@ -76,9 +76,6 @@ function settings(section: SettingsSection) {
     <nav class="footer-tools" aria-label="常用工具">
       <button :aria-current="active === 'trash' ? 'page' : undefined" @click="emit('trash')">
         <Icon name="trash" :size="17" />回收站
-      </button>
-      <button @click="emit('status')" aria-label="后台状态">
-        <Icon name="task" :size="17" />状态
       </button>
       <button :aria-current="active === 'settings' ? 'page' : undefined" @click="emit('settings')">
         <Icon name="settings" :size="17" />设置

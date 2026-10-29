@@ -67,7 +67,7 @@ it.each(['publish_blog_post', 'unpublish_blog_post'] as const)('recovers a %s pu
   } } as unknown as PluginServices;
   const registry = createOperations({ objectIdSecret: 'error-publication-fixture-secret-at-least-32-characters' }, hostClient(() => services, () => ({})));
   const server = new McpServer({ name: 'error-publication-fixture', version: '1.1.1' });
-  registerOperations(server, registry, { ...principal, scopes: ['knowledge:read', 'knowledge:write', 'blog:publish'] }, {});
+  registerOperations(server, registry, { ...principal, scopes: ['knowledge:read', 'knowledge:write', 'blog:read', 'blog:publish'] }, {});
   const client = new Client({ name: 'error-publication-client', version: '1' });
   const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
   try {

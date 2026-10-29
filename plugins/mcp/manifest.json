@@ -1,7 +1,7 @@
 {
   "id": "mcp",
-  "version": "1.1.1",
-  "apiVersion": "^1.1.0",
+  "version": "1.2.0",
+  "apiVersion": "^1.2.0",
   "title": "MCP 服务",
   "description": "让 ChatGPT 通过授权连接知识库，查看连接与调用状态。",
   "server": "server/index.mjs",
@@ -9,8 +9,13 @@
   "capabilities": [
     "knowledge:read",
     "knowledge:write",
+    "knowledge:organize",
+    "knowledge:archive",
     "knowledge:index",
+    "blog:read",
     "blog:publish",
+    "to-doo:read",
+    "to-doo:write",
     "protocol:mcp"
   ],
   "configSchema": {
@@ -42,6 +47,34 @@
         "title": "允许公开发布博客",
         "description": "默认关闭。开启后仍须关闭只读访问，并单独授予客户端博客公开发布权限；普通笔记写入授权不会公开资料。",
         "default": false
+      },
+      "allowToDoo": {
+        "type": "boolean",
+        "title": "允许连接 To Doo",
+        "description": "默认关闭。允许客户端单独申请任务读取权限；不会自动扩大已有连接的授权。",
+        "default": false
+      },
+      "allowToDooWrite": {
+        "type": "boolean",
+        "title": "允许修改 To Doo",
+        "description": "还需要关闭只读访问，并为客户端单独授予 To Doo 写权限。",
+        "default": false
+      },
+      "toDooListIds": {
+        "type": "array",
+        "title": "允许访问的 To Doo 清单",
+        "description": "留空表示全部清单，也可以只选择部分清单和收集箱。修改后作用于所有 To Doo 连接。",
+        "items": { "type": "string", "maxLength": 128 },
+        "maxItems": 100,
+        "default": []
+      },
+      "toDooDomains": {
+        "type": "array",
+        "title": "允许的 To Doo 内容",
+        "description": "选择连接可以读取和维护哪些内容，未选中的类别不会开放。修改后作用于所有 To Doo 连接。",
+        "items": { "type": "string", "enum": ["tasks", "records", "focus", "habits", "anniversaries", "calendar", "statistics", "settings"] },
+        "maxItems": 8,
+        "default": ["tasks"]
       },
       "allowedPrefixes": {
         "type": "array",
@@ -90,6 +123,24 @@
         "description": "可选的 HTTPS Tunnel 地址；用于兼容文档和 Host 检查。",
         "default": "",
         "maxLength": 2048
+      },
+      "permissionPolicy": {
+        "type": "object",
+        "title": "分域权限",
+        "description": "按业务域设置操作和稳定资源范围；扩大上限后，已有客户端仍需重新授权。",
+        "additionalProperties": false,
+        "required": [
+          "version",
+          "domains"
+        ],
+        "properties": {
+          "version": {
+            "const": 2
+          },
+          "domains": {
+            "type": "object"
+          }
+        }
       }
     }
   },

@@ -1,3 +1,4 @@
+import type { PermissionPolicy } from './permissions.js';
 export type Principal = {
   id: string;
   clientId: string;
@@ -11,6 +12,15 @@ export type Principal = {
   authGeneration?: number;
   ownerId?: string;
   credentialRef?: string;
+  /** Host-produced policy; authorization format is independent of grantVersion. */
+  permissionPolicy?: PermissionPolicy;
+  /** Live host ceiling for persisted v1 grants; does not change their authorization format. */
+  permissionCeiling?: PermissionPolicy;
+  policyVersion?: 1 | 2;
+  knowledgeAll?: boolean;
+  knowledgeResourcePaths?: { kind: string; id: string; path: string }[];
+  /** Original verified legacy assertion selectors, retained across live identity resolution. */
+  machineClaimPrefixes?: string[];
 };
 export type AgentConfig = {
   serviceToken: string;
@@ -143,6 +153,7 @@ export type WriteConflict = {
 export type WriteConflictList = {
   items: WriteConflict[];
   syncConflicts: { id: string; status: string; resolvable: false; reason: string }[];
+  organizationConflicts?: { operationId: string; status: 'committing' | 'needs_reconciliation'; code: string }[];
 };
 export type ResolveConflictInput = {
   strategy: 'keep_disk';

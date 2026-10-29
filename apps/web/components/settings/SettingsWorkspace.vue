@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { Button as AButton } from 'ant-design-vue';
+import Icon from '../Icon.vue';
 import type { SettingsSection } from '../../../../shared/settings-contracts';
+import { settingsSections } from '../../settings';
 import EditorSettings from './EditorSettings.vue';
 import LibrarySettings from './LibrarySettings.vue';
 import SearchSettings from './SearchSettings.vue';
@@ -9,34 +11,33 @@ import BackupSettings from './BackupSettings.vue';
 import PluginsSettings from './PluginsSettings.vue';
 import AccountSettings from './AccountSettings.vue';
 import AboutSettings from './AboutSettings.vue';
+import StatusSettings from './StatusSettings.vue';
 const props = defineProps<{ section: SettingsSection; username: string }>();
 const emit = defineEmits<{
+  settings: [section: SettingsSection];
   back: [];
   logout: [];
   'open-note': [id: string];
   'preferences-changed': [];
   changed: [];
 }>();
-const titles: Record<SettingsSection, [string, string]> = {
-  editor: ['编辑器与外观', '为这台浏览器设置适合自己的阅读与编辑方式。'],
-  library: ['知识库与存储', '管理资料、导入导出与共享链接。'],
-  search: ['搜索', '查看搜索能力与本地检索准备情况。'],
-  backup: ['备份与恢复', '创建加密副本，并在独立位置验证恢复。'],
-  plugins: ['插件', '管理扩展功能及其配置。'],
-  account: ['账户与安全', '更新密码并管理已登录的设备。'],
-  about: ['关于与帮助', '查看应用信息、快捷键与诊断。'],
-};
-const heading = computed(() => titles[props.section]);
+const heading = computed(
+  () => settingsSections.find((entry) => entry.key === props.section) || settingsSections[0],
+);
 </script>
 <template>
-  <section class="settings-workspace" :aria-label="heading[0]">
+  <section class="settings-workspace" :aria-label="heading.label">
     <header class="settings-page-heading">
-      <div>
-        <p class="settings-eyebrow">设置</p>
-        <h1>{{ heading[0] }}</h1>
-        <p>{{ heading[1] }}</p>
+      <p class="settings-eyebrow">设置</p>
+      <div class="settings-page-title-row">
+        <h1 class="settings-title"><Icon :name="heading.icon" :size="24" />{{ heading.label }}</h1>
+        <AButton class="settings-return-button" aria-label="返回笔记" @click="emit('back')"
+          ><template #icon><Icon class="settings-button-icon" name="back" :size="16" /></template
+          ><span class="settings-return-full">返回笔记</span
+          ><span class="settings-return-short">返回</span></AButton
+        >
       </div>
-      <AButton @click="emit('back')">返回笔记</AButton>
+      <p class="settings-page-description">{{ heading.description }}</p>
     </header>
     <EditorSettings
       v-if="section === 'editor'"
@@ -44,6 +45,12 @@ const heading = computed(() => titles[props.section]);
     />
     <LibrarySettings
       v-else-if="section === 'library'"
+      @open-note="emit('open-note', $event)"
+      @changed="emit('changed')"
+    />
+    <StatusSettings
+      v-else-if="section === 'status'"
+      @settings="emit('settings', $event)"
       @open-note="emit('open-note', $event)"
       @changed="emit('changed')"
     />

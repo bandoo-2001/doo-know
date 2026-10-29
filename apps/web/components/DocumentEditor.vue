@@ -767,7 +767,7 @@ function focus(target?: SelectionBookmark, align: 'start' | 'center' | 'nearest'
   editor.view.focus();
   scrollDocumentPosition(editor.state.selection.from, align);
 }
-function goToLine(line: number, align: 'start' | 'center' = 'center') {
+function goToLine(line: number, align: 'start' | 'center' = 'center', query?: string) {
   if (!Number.isInteger(line) || line < 1) return;
   const text = props.session.snapshot().markdown;
   const offset =
@@ -776,6 +776,14 @@ function goToLine(line: number, align: 'start' | 'center' = 'center') {
       .slice(0, Math.max(0, line - 1))
       .join('\n').length + (line > 1 ? 1 : 0);
   focus({ anchor: offset, head: offset, affinity: 'after' }, align);
+  if (!editor || !query) return;
+  // Restrict the visible match to the clicked source line, including text inside
+  // inline code, while excluding hidden Markdown link destinations.
+  const end = text.indexOf('\n', offset);
+  const from = sourceOffsetPosition(editor.state.doc, text, offset, projection.sourceRange);
+  const to = sourceOffsetPosition(editor.state.doc, text, end < 0 ? text.length : end, projection.sourceRange);
+  const match = searchText(query).find((match) => match.from >= from && match.to <= to);
+  if (match) selectTextMatch(match);
 }
 function execute(action: MarkdownAction): boolean {
   if (!editor || props.readOnly || blocked || props.session.composing || editor.view.composing)

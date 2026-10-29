@@ -128,7 +128,7 @@ let lastState = emptyToolbarState();
 let pendingFocus: SelectionBookmark | undefined;
 // The host owns initial navigation so a late async adapter cannot override a
 // newer user focus while handling its own initialLine independently.
-let pendingLine: { line: number; align: 'start' | 'center' } | undefined = props.initialLine
+let pendingLine: { line: number; align: 'start' | 'center'; query?: string } | undefined = props.initialLine
   ? { line: props.initialLine, align: 'center' } : undefined;
 let disposed = false;
 let compositionTimer: ReturnType<typeof setTimeout> | undefined;
@@ -139,7 +139,7 @@ watch([source, documentView, () => props.visible, () => props.kind], async () =>
   if (active && props.visible && pendingLine) {
     const target = pendingLine;
     pendingLine = undefined;
-    active.goToLine(target.line, target.align);
+    active.goToLine(target.line, target.align, target.query);
   } else if (active && props.visible && pendingFocus) {
     const target = pendingFocus;
     pendingFocus = undefined;
@@ -300,7 +300,7 @@ function focus(b?: SelectionBookmark) {
   if (active) active.focus(b);
   else pendingFocus = b || session.snapshot().selection;
 }
-function goToLine(line: number, align: 'start' | 'center' = 'center') {
+function goToLine(line: number, align: 'start' | 'center' = 'center', query?: string) {
   if (!Number.isInteger(line) || line < 1) return;
   const text = session.snapshot().markdown;
   let offset = 0;
@@ -314,8 +314,8 @@ function goToLine(line: number, align: 'start' | 'center' = 'center') {
   const active = props.kind === 'document' ? documentView.value : source.value;
   if (active && props.visible) {
     pendingLine = undefined;
-    active.goToLine(line, align);
-  } else pendingLine = { line, align };
+    active.goToLine(line, align, query);
+  } else pendingLine = { line, align, query };
 }
 function selection(): SelectionBookmark {
   return (

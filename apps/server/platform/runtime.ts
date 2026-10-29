@@ -12,6 +12,12 @@ import { fail } from '../../../packages/core/knowledge/errors.js';
 import { loadAgentConfig } from '../../../packages/core/agent/config.js';
 import { collectionService } from '../../../packages/core/collections/service.js';
 import { blogService } from '../../../packages/core/blog/service.js';
+import { createToDooService } from '../../../packages/core/to-doo/service.js';
+import { createToDooInterop } from '../../../packages/core/to-doo/interop.js';
+import { createToDooNotifications } from '../../../packages/core/to-doo/notifications.js';
+import { getToDooInstallationId } from '../to-doo/installation.js';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 
 async function createRuntime(config: AppConfig, db: AppDatabase) {
   if (config.agentConfigFile)
@@ -32,12 +38,52 @@ async function createRuntime(config: AppConfig, db: AppDatabase) {
     ]);
     throw error;
   }
+  let toDooBundle: {
+    service: ReturnType<typeof createToDooService>;
+    interop: ReturnType<typeof createToDooInterop>;
+    notifications: ReturnType<typeof createToDooNotifications>;
+  } | undefined;
+  function toDoo() {
+    if (toDooBundle) return toDooBundle;
+    const service = createToDooService(config, db, notes);
+    let interop: ReturnType<typeof createToDooInterop> | undefined;
+    let notifications: ReturnType<typeof createToDooNotifications> | undefined;
+    try {
+      interop = createToDooInterop(service, { db, dataRoot: config.dataRoot });
+      notifications = createToDooNotifications(service, { db, dataRoot: config.dataRoot, installationId: getToDooInstallationId(db), origin: config.origin });
+      notifications.start();
+      interop.start();
+      toDooBundle = { service, interop, notifications };
+      return toDooBundle;
+    } catch (error) {
+      for (const stop of [() => notifications?.close(), () => interop?.close(), () => service.close()]) {
+        try { void Promise.resolve(stop()).catch(() => {}); } catch { /* Preserve the initialization error. */ }
+      }
+      toDooBundle = undefined;
+      throw error;
+    }
+  }
+  // Corrupt optional application data must not make notes or the whole host unavailable.
+  // Its own endpoints report the actual recovery error, and retry after the files are fixed.
+  if (existsSync(join(config.knowledgeRoot, '_data/apps/to-doo/manifest.json'))) {
+    try { toDoo(); } catch { /* Isolated to To Doo; do not replace or remove its data. */ }
+  }
   return {
     config,
     notes,
     knowledge,
     collections,
     blog: blogService(config, db, notes),
+    get toDoo() { return toDoo().service; },
+    get toDooInterop() { return toDoo().interop; },
+    get toDooNotifications() { return toDoo().notifications; },
+    closeToDoo: async () => {
+      if (!toDooBundle) return;
+      await toDooBundle.notifications.close();
+      await toDooBundle.interop.close();
+      toDooBundle.service.close();
+      toDooBundle = undefined;
+    },
     assets: assetService(config, db, notes),
     recovery: recoveryService(config, db, notes),
     shares: shareService(db, notes),
@@ -88,6 +134,7 @@ export function platformRuntime(config: HostConfig, db: AppDatabase) {
       await activation;
       if (!runtime) return;
       const k = runtime.knowledge;
+      await runtime.closeToDoo();
       await runtime.collections.close();
       await k.stopWatching();
       await k.worker.close();

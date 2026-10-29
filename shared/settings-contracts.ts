@@ -2,6 +2,7 @@ export type SettingsSection =
   | 'editor'
   | 'library'
   | 'search'
+  | 'status'
   | 'backup'
   | 'plugins'
   | 'account'

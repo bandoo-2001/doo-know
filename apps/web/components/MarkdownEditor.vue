@@ -260,13 +260,16 @@ function replaceTextMatches(
   emit('history-boundary');
   return true;
 }
-function goToLine(number: number, align: 'start' | 'center' = 'center') {
+function goToLine(number: number, align: 'start' | 'center' = 'center', query?: string) {
   if (!view || !Number.isInteger(number) || number < 1) return;
   const line = view.state.doc.line(Math.min(number, view.state.doc.lines));
+  const match = query ? findText(line.text, query, { caseSensitive: false })[0] : undefined;
+  const anchor = line.from + (match?.from ?? 0);
   view.dispatch({
-    selection: { anchor: line.from },
-    effects: EditorView.scrollIntoView(line.from, { y: align, yMargin: 32 }),
+    selection: { anchor, head: match ? line.from + match.to : anchor },
+    effects: EditorView.scrollIntoView(anchor, { y: align, yMargin: 32 }),
   });
+  searchSelection = !!match;
   view.focus();
 }
 watch(

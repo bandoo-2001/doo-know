@@ -15,8 +15,8 @@ export class BridgeError extends Error {
   }
 }
 
-const tools = ['search', 'fetch', 'search_notes', 'get_note_info', 'get_note_outline', 'read_note', 'list_notes', 'create_note', 'update_note', 'patch_note', 'archive_note', 'refresh_index', 'index_status', 'get_blog_status', 'publish_blog_post', 'unpublish_blog_post', 'operation_status', 'cancel_operation'] as const;
-const scopes = ['knowledge:read', 'knowledge:write', 'knowledge:index', 'blog:publish'] as const;
+const tools = ['search', 'fetch', 'search_notes', 'get_note_info', 'get_note_outline', 'read_note', 'list_notes', 'create_note', 'update_note', 'patch_note', 'archive_note', 'refresh_index', 'index_status', 'get_blog_status', 'publish_blog_post', 'unpublish_blog_post', 'operation_status', 'cancel_operation', 'query_to_doos', 'get_to_doo_context', 'create_to_doo_task', 'update_to_doo_task', 'set_to_doo_status', 'batch_to_doos', 'preview_to_doo_plan', 'apply_to_doo_plan', 'manage_to_doo'] as const;
+const scopes = ['knowledge:read', 'knowledge:write', 'knowledge:index', 'blog:publish', 'to-doo:read', 'to-doo:write'] as const;
 const fields = ['query', 'mode', 'freshness', 'filters', 'directory', 'category', 'tags', 'updatedAfter', 'limit', 'cursor', 'id', 'noteId', 'snapshotId', 'maxBytes', 'range', 'startLine', 'endLine', 'lineByteOffset', 'fileName', 'content', 'requestId', 'expectedModifiedAt', 'expectedContentHash', 'edits', 'type', 'before', 'after', 'startByte', 'endByte', 'expectedRangeHash', 'insert', 'scope', 'jobId', 'expectedPublicationVersion', 'metadata', 'slug', 'title', 'summary', 'pinned', 'cover', 'operationId'] as const;
 const issueMessages = {
   invalid_type: '字段缺失或类型不正确',

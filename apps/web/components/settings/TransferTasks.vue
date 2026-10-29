@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Icon from '../Icon.vue';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import {
   Alert as AAlert,
@@ -147,17 +148,19 @@ onUnmounted(() => clearInterval(timer));
   <section class="settings-card transfer-tasks" :class="{ 'transfer-tasks-compact': compact }">
     <div class="settings-item-header">
       <div>
-        <h2>任务与结果</h2>
-        <p v-if="!compact">离开此页后任务仍会继续，也可从左下角「状态」查看。</p>
-        <p v-else>关闭面板后，任务仍会继续。</p>
+        <h2 class="settings-section-title"><Icon name="list" :size="18" />任务与结果</h2>
+        <p v-if="!compact">离开此页后任务仍会继续，也可从设置中的「后台状态」查看。</p>
+        <p v-else>离开此页后，任务仍会继续。</p>
       </div>
       <AButton v-if="!compact" size="small" :loading="loading" @click="refresh(false, true)"
+        ><template #icon><Icon class="settings-button-icon" name="refresh" :size="15" /></template
         >刷新任务</AButton
       >
     </div>
     <AAlert v-if="error" type="error" :message="error" show-icon>
       <template v-if="compact" #action>
         <AButton size="small" :loading="loading" @click="refresh(false, true)"
+          ><template #icon><Icon class="settings-button-icon" name="refresh" :size="15" /></template
           >重新读取任务</AButton
         >
       </template>
@@ -192,6 +195,8 @@ onUnmounted(() => clearInterval(timer));
               :loading="busy === task.id"
               :disabled="!!busy"
               @click="action(task, 'cancel')"
+              ><template #icon
+                ><Icon class="settings-button-icon" name="close" :size="15" /></template
               >取消任务</AButton
             ><AButton
               v-if="
@@ -202,11 +207,15 @@ onUnmounted(() => clearInterval(timer));
               :loading="busy === task.id"
               :disabled="!!busy"
               @click="action(task, 'retry')"
+              ><template #icon
+                ><Icon class="settings-button-icon" name="refresh" :size="15" /></template
               >{{ task.kind === 'import' ? '重试未完成项目' : '重试任务' }}</AButton
             ><AButton
               v-if="task.downloadAvailable"
               size="small"
               :href="'/api/manage/tasks/' + encodeURIComponent(task.id) + '/download'"
+              ><template #icon
+                ><Icon class="settings-button-icon" name="download" :size="15" /></template
               >下载结果</AButton
             >
           </div>
@@ -264,6 +273,8 @@ onUnmounted(() => clearInterval(timer));
                 size="small"
                 type="link"
                 @click="emit('open-note', item.noteId)"
+                ><template #icon
+                  ><Icon class="settings-button-icon" name="file" :size="15" /></template
                 >打开笔记</AButton
               >
               <details v-if="item.error">

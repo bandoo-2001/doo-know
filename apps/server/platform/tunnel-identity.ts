@@ -4,6 +4,7 @@ import type { Principal } from '../../../shared/knowledge-contracts.js';
 import { oauthGrantStore } from './oauth-grants.js';
 import { mcpPolicy } from './oauth.js';
 import { fail } from '../../../packages/core/knowledge/errors.js';
+import { platformPolicy } from '../../../packages/core/auth/grants.js';
 export function initializeTunnelIdentity(db: AppDatabase) {
   db.exec(`CREATE TABLE IF NOT EXISTS mcp_tunnel_identity(owner_id TEXT PRIMARY KEY,principal_id TEXT NOT NULL,client_id TEXT NOT NULL,
     credential_reference TEXT NOT NULL,issued_at INTEGER NOT NULL,expires_at INTEGER,revoked INTEGER NOT NULL DEFAULT 0,source_migrated INTEGER NOT NULL DEFAULT 0)`);
@@ -54,31 +55,35 @@ export function tunnelPrincipal(
         ...(!policy.readOnly ? ['knowledge:write'] : []),
         ...(policy.allowIndex ? ['knowledge:index'] : []),
         ...(policy.allowPublish && !policy.readOnly ? ['blog:publish'] : []),
+        ...(policy.allowToDoo ? ['to-doo:read'] : []),
+        ...(policy.allowToDoo && policy.allowToDooWrite && !policy.readOnly ? ['to-doo:write'] : []),
       ];
       let reference = grants.activeReference(owner, identity.client_id);
       const previous = db
         .prepare('SELECT * FROM platform_grants WHERE owner_id=? AND client_id=?')
         .get(owner, identity.client_id) as any;
-      if (previous && !reference && !rotated) fail(401, 'UNAUTHORIZED');
-      if (
-        !reference ||
-        rotated ||
-        previous.scopes_json !== JSON.stringify(scopes) ||
-        previous.prefixes_json !== JSON.stringify(policy.allowedPrefixes)
-      )
-        reference = grants.approve(
-          owner,
-          identity.client_id,
-          scopes,
-          policy.allowedPrefixes,
-          identity.issued_at,
-        ).reference;
+      if (previous && !reference) fail(401, 'UNAUTHORIZED');
+      // Credential rotation changes credential evidence, never the approved grant
+      // or its stable selection bindings. Revoked grants require an owner action.
+      if (!reference)
+        reference = policy.permissionPolicy
+          ? grants.approveV2(owner, identity.client_id, policy.permissionPolicy, identity.issued_at)
+              .reference
+          : grants.approve(
+              owner,
+              identity.client_id,
+              scopes,
+              policy.allowedPrefixes,
+              identity.issued_at,
+            ).reference;
       const grant = grants.requireExact(reference!, owner, identity.client_id, []);
-      return {
+      const principal: Principal = {
         id: identity.principal_id,
         ownerId: owner,
         clientId: identity.client_id,
         scopes: grant.scopes,
+        policyVersion: grant.policyVersion,
+        permissionPolicy: grant.permissionPolicy,
         allowedPrefixes: grant.allowedPrefixes,
         tokenIssuedAt: identity.issued_at,
         ...(identity.expires_at != null ? { tokenExpiresAt: identity.expires_at } : {}),
@@ -88,6 +93,12 @@ export function tunnelPrincipal(
         authGeneration: info.authGeneration,
         credentialRef: info.reference,
       };
+      // The transport already checked the credential itself; config may not yet
+      // contain its secret reference in migrated fixtures. Preserve that check
+      // on subsequent queued calls, while computing the same live ceiling here.
+      const effective = platformPolicy(db, { ...principal, authGeneration: undefined });
+      if (!effective) fail(401, 'UNAUTHORIZED');
+      return { ...effective, authGeneration: principal.authGeneration };
     })
     .immediate();
 }

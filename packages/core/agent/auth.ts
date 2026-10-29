@@ -4,6 +4,9 @@ import type { FastifyRequest } from 'fastify';
 import type { AgentConfig, Principal } from '../../../shared/knowledge-contracts.js';
 import { fail } from '../knowledge/errors.js';
 import { validateRelative } from '../files.js';
+import { canAccessPath } from '../auth/permissions.js';
+import { isResourceScope, isLegacyResourceScope } from '../../../shared/authorization-scopes.js';
+export { canAccessPath } from '../auth/permissions.js';
 import type { AppDatabase } from '../db.js';
 const equal = (a: string, b: string) => {
   const x = Buffer.from(a),
@@ -74,7 +77,7 @@ export function authorizeAgent(
     return {
       id: policy.id,
       clientId: policy.clientId,
-      scopes: policy.scopes.filter((s) => claims.scopes.includes(s)),
+      scopes: policy.scopes.filter((s) => isLegacyResourceScope(s) && claims.scopes.includes(s)),
       allowedPrefixes: [...new Set(prefixes)],
       ...(claims.tokenIssuedAt != null ? { tokenIssuedAt: claims.tokenIssuedAt } : {}),
     };
@@ -89,8 +92,15 @@ export function authorizationCutoff(db: AppDatabase) {
   );
 }
 export function checkTokenCutoff(db: AppDatabase, p: Principal) {
-  if (p.tokenExpiresAt != null && (!Number.isInteger(p.tokenExpiresAt) || p.tokenExpiresAt <= Math.floor(Date.now() / 1000))) fail(401, 'UNAUTHORIZED');
-  if (p.authGeneration != null) { if(p.authGeneration !== remoteAuthGeneration(db)) fail(401,'UNAUTHORIZED'); return; }
+  if (
+    p.tokenExpiresAt != null &&
+    (!Number.isInteger(p.tokenExpiresAt) || p.tokenExpiresAt <= Math.floor(Date.now() / 1000))
+  )
+    fail(401, 'UNAUTHORIZED');
+  if (p.authGeneration != null) {
+    if (p.authGeneration !== remoteAuthGeneration(db)) fail(401, 'UNAUTHORIZED');
+    return;
+  }
   const cutoff = authorizationCutoff(db);
   if (
     cutoff &&
@@ -103,10 +113,18 @@ export function checkTokenCutoff(db: AppDatabase, p: Principal) {
     fail(401, 'UNAUTHORIZED');
 }
 export function requireScope(p: Principal, scope: string) {
-  if (!p.scopes.includes(scope)) fail(403, 'FORBIDDEN');
+  if (!isResourceScope(scope) || !p.scopes.includes(scope)) fail(403, 'FORBIDDEN');
+  if (p.policyVersion === 2 || p.permissionCeiling) {
+    const [domain, action] = scope.split(':');
+    const grant = (p.policyVersion === 2 ? p.permissionPolicy : p.permissionCeiling)?.domains[
+      domain
+    ];
+    if (!grant?.enabled || grant.ownerId !== (p.ownerId || p.id) || !grant.actions.includes(action))
+      fail(403, 'FORBIDDEN');
+  }
 }
 export function authorizePath(p: Principal, path: string, scope = 'knowledge:read') {
   requireScope(p, scope);
   validateRelative(path, 'note');
-  if (!p.allowedPrefixes.some((prefix) => underPrefix(path, prefix))) fail(403, 'FORBIDDEN');
+  if (!canAccessPath(p, path)) fail(403, 'FORBIDDEN');
 }

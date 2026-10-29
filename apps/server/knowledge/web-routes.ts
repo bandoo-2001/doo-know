@@ -15,6 +15,7 @@ import { conflictService } from '../../../packages/core/knowledge/conflicts.js';
 import { assertSharePrincipal, shareIdentity } from '../../../packages/core/share-policy.js';
 import { saveInput } from '../../../packages/core/notes.js';
 import type { PublicShareSource, ShareSaveReply } from '../../../shared/share-contracts.js';
+import { readOrganizationSettings, updateOrganizationSettings } from '../../../packages/core/organization/settings.js';
 export async function registerWebKnowledgeRoutes(
   app: FastifyInstance,
   config: AppConfig,
@@ -36,6 +37,8 @@ export async function registerWebKnowledgeRoutes(
     );
   });
   app.get('/api/maintenance/conflicts', async () => conflicts.list());
+  app.get('/api/maintenance/organization-settings', async () => readOrganizationSettings(db));
+  app.put('/api/maintenance/organization-settings', async (req) => updateOrganizationSettings(db, req.body as any));
   app.post<{ Params: { id: string } }>('/api/maintenance/conflicts/:id/resolve', async (req) =>
     conflicts.resolve(req.params.id, req.body),
   );

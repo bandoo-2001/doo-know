@@ -43,6 +43,7 @@ export function startWatcher(
       watcher = watch(config.knowledgeRoot, { recursive: true }, (_event, name) => {
         const parts = String(name || '').split(/[\\/]/);
         if (
+          parts[0] === '_data' ||
           parts[0] !== '.git' &&
           parts.some((p) => p.startsWith('.') || p === 'assets' || p.toLowerCase() === 'agents.md')
         )

@@ -13,11 +13,13 @@ import * as settings from '../apps/web/settings';
 import * as format from '../apps/web/markdown-format';
 import * as drafts from '../apps/web/drafts';
 import * as search from '../apps/web/search-results';
+import * as searchMatching from '../shared/search-matching';
 import * as outline from '../apps/web/document-outline';
 import { previewSource } from '../apps/web/preview-source';
 import * as collectionFeed from '../apps/web/collection-feed';
 import * as blogWorkbench from '../apps/web/blog-workbench';
 import * as blogDiagrams from '../apps/web/blog-diagrams';
+import * as toDooCapture from '../apps/web/to-doo-capture';
 import { markdownStyles } from '../shared/markdown-styles';
 import { markdownTasks } from '../shared/markdown-tasks';
 import { diagramFences } from '../shared/diagram-fences';
@@ -117,11 +119,13 @@ async function mount(waitForNote = true) {
       if (id === '../markdown-format') return format;
       if (id === '../drafts') return drafts;
       if (id === '../search-results') return search;
+      if (id === '../../../shared/search-matching') return searchMatching;
       if (id === '../document-outline') return outline;
       if (id === '../preview-source') return { previewSource };
       if (id === '../collection-feed') return collectionFeed;
       if (id === '../blog-workbench') return blogWorkbench;
       if (id === '../blog-diagrams') return blogDiagrams;
+      if (id === '../to-doo-capture') return toDooCapture;
       if (id === '../plugins')
         return {
           refreshPlugins: async () => {},
@@ -361,7 +365,7 @@ it('same-note encoded fragment positions the current unsaved draft without reope
   const goToLine = vi.fn();
   state.editorRef.value = { goToLine, cancelPendingFocus: () => {} };
   await state.openMarkdownNote('note-one', '#%E7%AB%A0%E8%8A%82');
-  expect(goToLine).toHaveBeenCalledWith(3);
+  expect(goToLine.mock.lastCall?.[0]).toBe(3);
   expect(state.leaveOpen.value).toBe(false);
   expect(state.draft.value).toContain('unsaved');
 });
@@ -378,7 +382,7 @@ it('retains the cross-note fragment through the unsaved-draft leave confirmation
   expect(goToLine).not.toHaveBeenCalled();
   await state.leave('discard');
   expect(state.note.value.id).toBe('note-two');
-  expect(goToLine).toHaveBeenCalledWith(3);
+  expect(goToLine.mock.lastCall?.[0]).toBe(3);
   expect(history.pushState).toHaveBeenLastCalledWith(
     expect.anything(),
     '',
@@ -427,7 +431,7 @@ it('preview pure fragments commit the encoded destination without leaving or reo
     '',
     'http://isolated.invalid/?note=note-one#%E7%AB%A0%E8%8A%82',
   );
-  expect(goToLine).toHaveBeenCalledWith(3);
+  expect(goToLine.mock.lastCall?.[0]).toBe(3);
   expect(state.leaveOpen.value).toBe(false);
   expect(state.draft.value).toContain('unsaved');
 });
@@ -444,7 +448,7 @@ it('editor pure fragments commit the encoded destination without leaving or reop
     '',
     'http://isolated.invalid/?note=note-one#%E7%AB%A0%E8%8A%82',
   );
-  expect(goToLine).toHaveBeenCalledWith(3);
+  expect(goToLine.mock.lastCall?.[0]).toBe(3);
   expect(state.leaveOpen.value).toBe(false);
   expect(state.draft.value).toContain('unsaved');
 });
@@ -458,7 +462,7 @@ it('restores a retained unsaved note chapter after returning from settings witho
   const calls = mockApi.mock.calls.length;
   await state.applyRoute({ note: 'note-one', fragment: '#%E7%AB%A0%E8%8A%82' });
   expect(state.panel.value).toBe('note');
-  expect(goToLine).toHaveBeenCalledWith(3);
+  expect(goToLine.mock.lastCall?.[0]).toBe(3);
   expect(state.draft.value).toContain('unsaved');
   expect(state.leaveOpen.value).toBe(false);
   expect(
@@ -472,13 +476,13 @@ it('editor navigation distinguishes colliding heading names from the genuine foo
   const goToLine = vi.fn();
   state.editorRef.value = { goToLine, cancelPendingFocus: () => {} };
   await state.revealFragment('#fn1-1');
-  expect(goToLine).toHaveBeenLastCalledWith(1);
+  expect(goToLine.mock.lastCall?.[0]).toBe(1);
   await state.revealFragment('#fnref1-1');
-  expect(goToLine).toHaveBeenLastCalledWith(3);
+  expect(goToLine.mock.lastCall?.[0]).toBe(3);
   await state.revealFragment('#fn1');
-  expect(goToLine).toHaveBeenLastCalledWith(7);
+  expect(goToLine.mock.lastCall?.[0]).toBe(7);
   await state.revealFragment('#fnref1');
-  expect(goToLine).toHaveBeenLastCalledWith(5);
+  expect(goToLine.mock.lastCall?.[0]).toBe(5);
 });
 
 it('applies the editable opening state before focusing a cross-note chapter', async () => {

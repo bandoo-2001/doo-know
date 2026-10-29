@@ -294,7 +294,76 @@ export function capturePublication(
     if (!coverHash || !resources.get(coverHash)!.mime.startsWith('image/'))
       throw new BlogError(400, '封面必须为图片');
   }
-  const html = sanitizeHtml(md.renderer.render(finalTokens, md.options, {}), {
+  const html = sanitizePublicationHtml(md.renderer.render(finalTokens, md.options, {}));
+  return {
+    html,
+    headings,
+    needs,
+    resources: [...resources.values()],
+    coverHash,
+    revalidate(fresh: Principal) {
+      for (const [path, observation] of observed) {
+        authorizeBlogPath(fresh, path, observation.kind === 'asset');
+        let current: string;
+        if (observation.kind === 'asset') {
+          const a = assets.file(path);
+          current = blogHash(a.sourceBytes ?? a.bytes);
+        } else {
+          const row = db.prepare('SELECT id FROM notes WHERE active=1 AND path=?').get(path) as
+            | { id: string }
+            | undefined;
+          if (!row) throw new BlogError(409, '引用白板已变化');
+          current = blogHash(notes.getNote(row.id).content);
+        }
+        if (current !== observation.hash) throw new BlogError(409, '发布资源已变化，请重新预览');
+      }
+    },
+  };
+}
+
+/** The same allowlist protects locally captured and synchronized publication HTML. */
+export function sanitizePublicationHtml(
+  input: string,
+  options: { resourceUrls?: ReadonlySet<string>; origin?: string } = {},
+) {
+  return sanitizeHtml(input, {
+    transformTags: options.resourceUrls
+      ? {
+          img: (tagName, attribs) =>
+            options.resourceUrls!.has(attribs.src)
+              ? { tagName, attribs }
+              : { tagName: 'span', attribs: {} },
+          a: (tagName, attribs) => {
+            const href = attribs.href || '';
+            let allowed = href.startsWith('#') || options.resourceUrls!.has(href);
+            if (/^\/blog(?:\/|$)/.test(href)) {
+              try {
+                const parsed = new URL(href, options.origin || 'https://portable.invalid');
+                allowed = /^\/blog(?:\/|$)/.test(parsed.pathname);
+              } catch {
+                allowed = false;
+              }
+            }
+            if (/^https?:\/\//i.test(href)) {
+              try {
+                const parsed = new URL(href),
+                  own = options.origin ? new URL(options.origin) : undefined;
+                allowed =
+                  !(
+                    own &&
+                    parsed.origin === own.origin &&
+                    !/^\/blog(?:\/|$)/.test(parsed.pathname)
+                  ) && !/^\/(?:api|s)(?:\/|$)/i.test(parsed.pathname);
+              } catch {
+                allowed = false;
+              }
+            }
+            return allowed
+              ? { tagName, attribs: { ...attribs, rel: 'noopener noreferrer' } }
+              : { tagName: 'span', attribs: {} };
+          },
+        }
+      : undefined,
     allowedTags: [
       ...sanitizeHtml.defaults.allowedTags,
       'img',
@@ -351,28 +420,4 @@ export function capturePublication(
     allowProtocolRelative: false,
     nonTextTags: ['script', 'style', 'textarea', 'option', 'annotation'],
   });
-  return {
-    html,
-    headings,
-    needs,
-    resources: [...resources.values()],
-    coverHash,
-    revalidate(fresh: Principal) {
-      for (const [path, observation] of observed) {
-        authorizeBlogPath(fresh, path, observation.kind === 'asset');
-        let current: string;
-        if (observation.kind === 'asset') {
-          const a = assets.file(path);
-          current = blogHash(a.sourceBytes ?? a.bytes);
-        } else {
-          const row = db.prepare('SELECT id FROM notes WHERE active=1 AND path=?').get(path) as
-            | { id: string }
-            | undefined;
-          if (!row) throw new BlogError(409, '引用白板已变化');
-          current = blogHash(notes.getNote(row.id).content);
-        }
-        if (current !== observation.hash) throw new BlogError(409, '发布资源已变化，请重新预览');
-      }
-    },
-  };
 }

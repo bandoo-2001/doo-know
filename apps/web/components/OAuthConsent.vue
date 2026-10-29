@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import {
   Card as ACard,
   Alert as AAlert,
@@ -22,15 +22,18 @@ const labels: Record<string, string> = {
   'knowledge:write': '创建、修改和归档资料',
   'knowledge:index': '检查和刷新检索索引',
   'blog:publish': '将所选资料公开发布为博客，或撤下已发布文章',
+  'to-doo:read': '读取设置范围内的 To Doo 任务与目标；不自动开放笔记原文',
+  'to-doo:write': '创建和修改设置范围内的 To Doo 任务、安排与记录',
   offline_access: '保持连接，允许刷新访问令牌',
 };
+const needsNoteDirectories = computed(() => scopes.value.some(scope => scope.startsWith('knowledge:') || scope === 'blog:publish'));
 onMounted(async () => {
   try {
     request.value = await api('/api/platform/mcp/oauth/request', 'POST', {
       oauth_query: props.oauthQuery,
     });
     scopes.value = request.value.allowedScopes.filter((s: string) =>
-      ['knowledge:read', 'offline_access'].includes(s),
+      ['knowledge:read', 'to-doo:read', 'offline_access'].includes(s),
     );
     prefixes.value = [...request.value.allowedPrefixes];
   } catch {
@@ -42,9 +45,10 @@ async function consent(accept: boolean) {
     busy.value ||
     !request.value ||
     (accept &&
-      (!prefixes.value.length || !scopes.value.some(isResourceScope) || (scopes.value.includes('blog:publish') && (!scopes.value.includes('knowledge:read') || !scopes.value.includes('knowledge:write')))))
+      ((needsNoteDirectories.value && !prefixes.value.length) || !scopes.value.some(isResourceScope) || (scopes.value.includes('blog:publish') && (!scopes.value.includes('knowledge:read') || !scopes.value.includes('knowledge:write')))))
   )
     return;
+  if (accept && scopes.value.includes('to-doo:write') && !scopes.value.includes('to-doo:read')) return;
   busy.value = true;
   error.value = '';
   try {
@@ -52,7 +56,7 @@ async function consent(accept: boolean) {
       accept,
       oauth_query: props.oauthQuery,
       scopes: scopes.value,
-      allowedPrefixes: prefixes.value,
+      allowedPrefixes: needsNoteDirectories.value ? prefixes.value : [],
     });
     window.location.assign(result.url);
   } catch {
@@ -84,8 +88,8 @@ async function consent(accept: boolean) {
             </div>
           </ACheckboxGroup>
         </fieldset>
-        <fieldset>
-          <legend>允许的目录</legend>
+        <fieldset v-if="needsNoteDirectories">
+          <legend>允许的资料目录</legend>
           <ACheckboxGroup v-model:value="prefixes" :disabled="busy">
             <div
               v-for="prefix in request.allowedPrefixes"
@@ -98,7 +102,10 @@ async function consent(accept: boolean) {
             </div>
           </ACheckboxGroup>
         </fieldset>
-        <p class="oauth-hint">
+        <p v-if="scopes.some(scope => scope.startsWith('to-doo:'))" class="oauth-hint">
+          <Icon name="task" :size="15" /><span>To Doo 仅开放 MCP 设置中选定的清单和内容类别；任务权限不会自动开放笔记原文。可在插件设置中调整范围并撤销连接。</span>
+        </p>
+        <p v-if="needsNoteDirectories" class="oauth-hint">
           <Icon name="lock" :size="15" /><span
             >未选中的目录不会开放。可随时在 MCP 插件设置中撤销连接。</span
           >
@@ -108,7 +115,7 @@ async function consent(accept: boolean) {
           <AButton
             type="primary"
             :loading="busy"
-            :disabled="busy || !prefixes.length || !scopes.some(isResourceScope) || (scopes.includes('blog:publish') && (!scopes.includes('knowledge:read') || !scopes.includes('knowledge:write')))"
+            :disabled="busy || (needsNoteDirectories && !prefixes.length) || !scopes.some(isResourceScope) || (scopes.includes('to-doo:write') && !scopes.includes('to-doo:read')) || (scopes.includes('blog:publish') && (!scopes.includes('knowledge:read') || !scopes.includes('knowledge:write')))"
             @click="consent(true)"
             >允许访问</AButton
           >

@@ -16,11 +16,15 @@
   display: flex;
   flex-direction: column;
   flex: 1;
-  min-height: min-content;
+  min-height: 0;
   overflow: hidden;
 }
 .notebook-sidebar-content > .tree-scroll {
-  min-height: min(140px, 20dvh);
+  flex: 1 1 0%;
+  min-height: 0;
+}
+.notebook-sidebar-content > :not(.tree-scroll) {
+  flex: 0 0 auto;
 }
 .document-surface .cm-editor {
   font-size: var(--editor-font-size);

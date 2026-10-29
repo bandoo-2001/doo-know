@@ -4,6 +4,7 @@ import { parse, compileScript } from '@vue/compiler-sfc';
 import ts from 'typescript';
 import * as Vue from 'vue';
 import { isResourceScope } from '../shared/authorization-scopes';
+import * as permissionHelpers from '../apps/web/mcp-permissions';
 const api = vi.fn();
 const registry = Vue.shallowRef({ installed: [] as any[] });
 const cleanup: (() => void)[] = [];
@@ -41,6 +42,8 @@ async function mount(file: string, props = {}) {
       if (id === 'vue') return Vue;
       if (id === 'ant-design-vue') return { Alert: 'aside', Button: 'button', Card: 'section', Checkbox: { Group: 'div' }, Spin: 'span' };
       if (id === '../api') return { api };
+      if (id === '../mcp-permissions') return permissionHelpers;
+      if (id === './MCPDomainPermissions.vue' || id === './MCPClientPermissions.vue') return { default: {render:()=>null} };
       if (id === '../plugins') return { pluginRegistry: registry };
       if (id === './Icon.vue') return { default: { render: () => null } };
       if (id === '../../../shared/authorization-scopes') return { isResourceScope };
@@ -151,3 +154,39 @@ it.each(['MCPAuthorizationManager.vue', 'MCPConnectionGuide.vue'])(
     expect(view.notice).toContain('撤销');
   },
 );
+
+it('loads v2 consent as independent domain permissions with publication unchecked', async () => {
+  const allowedPolicy={version:2,domains:{knowledge:{enabled:true,ownerId:'owner',instanceId:'lib',actions:['read','write','organize','archive'],resources:{mode:'all'}},blog:{enabled:true,ownerId:'owner',instanceId:'blog',actions:['read','publish'],resources:{mode:'all'}}}};
+  api.mockResolvedValueOnce({clientName:'Agent',allowedScopes:['knowledge:read','knowledge:write','knowledge:organize','knowledge:archive','blog:read','blog:publish','offline_access'],allowedPolicy,allowedPrefixes:[]});
+  const view=await mount('OAuthConsent.vue',{oauthQuery:'v2-query'});
+  expect(view.permissionPolicy.domains.knowledge.actions).toEqual(['read']);
+  expect(view.permissionPolicy.domains.blog.enabled).toBe(false);
+  expect(view.permissionPolicy.domains.blog.actions).toEqual([]);
+  expect(view.canAccept).toBe(true);
+  view.permissionPolicy.domains.knowledge.actions=['read','write','organize'];
+  expect(view.selectedScopes).toEqual(['knowledge:read','knowledge:write','knowledge:organize','offline_access']);
+});
+
+it('starts narrowing from the effective identity grant without editing the original',async()=>{
+  const permissionPolicy={version:2,domains:{knowledge:{enabled:true,ownerId:'owner',instanceId:'lib',actions:['read','write','organize'],resources:{mode:'all'}}}};
+  const view=await mount('MCPClientPermissions.vue',{client:{clientId:'agent',active:true,permissionPolicy,effectivePolicy:permissionPolicy,grantVersion:2}});
+  view.edit();expect(view.draft).toEqual(permissionPolicy);
+  view.draft.domains.knowledge.actions=['read'];
+  expect(permissionPolicy.domains.knowledge.actions).toContain('organize');
+  api.mockResolvedValueOnce({revoked:false});
+  await view.save();
+  expect(view.notice).toContain('已收窄');
+  expect(api).toHaveBeenCalledWith('/api/platform/mcp/clients/narrow','POST',expect.objectContaining({clientId:'agent',expectedGrantVersion:2,permissionPolicy:expect.objectContaining({version:2})}));
+});
+it('reviews the current Tunnel ceiling before explicitly replacing its authorization',async()=>{
+  const permissionPolicy={version:2,domains:{knowledge:{enabled:true,ownerId:'owner',instanceId:'lib',actions:['read','write','organize'],resources:{mode:'all'}}}};
+  const view=await mount('MCPConnectionGuide.vue',{plugin:{id:'mcp',state:'enabled',configVersion:1,config:{}},mode:'tunnel',dirty:false});
+  api.mockResolvedValueOnce({policy:permissionPolicy,resources:{}});
+  await view.prepareTunnel();
+  expect(view.tunnelPolicy).toEqual(permissionPolicy);
+  expect(api).not.toHaveBeenCalledWith('/api/platform/mcp/tunnel/authorize',expect.anything(),expect.anything());
+  api.mockResolvedValueOnce({authorized:true}).mockResolvedValueOnce(connection(true));
+  await view.authorizeTunnel();
+  expect(api).toHaveBeenCalledWith('/api/platform/mcp/tunnel/authorize','POST',{permissionPolicy});
+  expect(view.notice).toContain('Tunnel 授权已更新');
+});

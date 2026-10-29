@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Icon from '../Icon.vue';
 import { onMounted, ref } from 'vue';
 import { Alert as AAlert, Button as AButton } from 'ant-design-vue';
 import { api } from '../../api';
@@ -29,10 +30,13 @@ onMounted(() => void load());
     <section class="settings-card">
       <div class="settings-item-header">
         <div>
-          <h2>当前知识库</h2>
+          <h2 class="settings-section-title"><Icon name="book" :size="18" />当前知识库</h2>
           <p>这里的目录位于运行知识库的服务器上。</p>
         </div>
-        <AButton size="small" :loading="busy" @click="load">刷新信息</AButton>
+        <AButton size="small" :loading="busy" @click="load"
+          ><template #icon><Icon class="settings-button-icon" name="refresh" :size="15" /></template
+          >刷新信息</AButton
+        >
       </div>
       <AAlert v-if="error" type="error" :message="error" />
       <p v-if="busy && !state" role="status">正在读取知识库信息…</p>
@@ -55,11 +59,9 @@ onMounted(() => void load());
         </details></template
       >
     </section>
+    <TransferPanel @open-note="emit('open-note', $event)" @changed="emit('changed')" />
     <section class="settings-card"><StorageSettings /></section>
     <section class="settings-card"><GitRemotePanel @changed="emit('changed')" /></section>
-    <TransferPanel
-      @open-note="emit('open-note', $event)"
-      @changed="emit('changed')"
-    /><ShareManagement />
+    <ShareManagement />
   </div>
 </template>

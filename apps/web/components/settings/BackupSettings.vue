@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Icon from '../Icon.vue';
 import { computed, ref, onMounted, watch } from 'vue';
 import {
   Alert as AAlert,
@@ -221,7 +222,7 @@ onMounted(() => void load());
 <template>
   <div class="settings-stack">
     <section class="settings-card">
-      <h2>加密备份</h2>
+      <h2 class="settings-section-title"><Icon name="shield" :size="18" />加密备份</h2>
       <p class="settings-muted">
         保存应用数据与当前可读取的原文。任务完成后可下载加密文件；恢复需要对应私钥，请另行受控保存。重要副本应存放到独立设备或异地。
       </p>
@@ -232,8 +233,12 @@ onMounted(() => void load());
       /><AAlert v-if="error" type="error" :message="error" show-icon />
       <div class="settings-actions">
         <AButton type="primary" :loading="busy === 'create'" :disabled="!!busy" @click="create"
+          ><template #icon><Icon class="settings-button-icon" name="shield" :size="15" /></template
           >创建加密备份</AButton
-        ><AButton :loading="loading" @click="load(false, true)">刷新备份记录</AButton>
+        ><AButton :loading="loading" @click="load(false, true)"
+          ><template #icon><Icon class="settings-button-icon" name="refresh" :size="15" /></template
+          >刷新备份记录</AButton
+        >
       </div>
       <p v-if="notice" class="settings-success" role="status">{{ notice }}</p>
       <p v-if="!items.length && !error" class="settings-muted">
@@ -260,6 +265,8 @@ onMounted(() => void load());
               <AButton
                 size="small"
                 :href="'/api/manage/backups/' + encodeURIComponent(item.id) + '/download'"
+                ><template #icon
+                  ><Icon class="settings-button-icon" name="download" :size="15" /></template
                 >下载备份</AButton
               ><AButton
                 v-if="!item.external"
@@ -267,6 +274,8 @@ onMounted(() => void load());
                 :loading="busy === item.id"
                 :disabled="!!busy"
                 @click="openRecordRestore(item)"
+                ><template #icon
+                  ><Icon class="settings-button-icon" name="undo" :size="15" /></template
                 >恢复到独立副本</AButton
               >
             </div>
@@ -290,14 +299,14 @@ onMounted(() => void load());
     <SettingsActionCard
       title="恢复密钥"
       description="验证账户密码后下载恢复密钥，请与备份分开、加密保存。"
-      icon="lock"
+      icon="key"
       action-label="下载恢复密钥"
       @open="openKey"
     />
     <SettingsActionCard
       title="从已下载的备份恢复"
       description="选择加密备份与对应密钥，校验后生成独立副本。"
-      icon="refresh"
+      icon="undo"
       action-label="从备份恢复"
       @open="openUploadRestore"
     />
@@ -305,7 +314,7 @@ onMounted(() => void load());
       v-model:show="keyOpen"
       title="下载恢复密钥"
       description="输入当前账户密码后下载私钥文件。请与备份分开保存，避免丢失后无法恢复。"
-      icon="lock"
+      icon="key"
       :width="520"
       :busy="keyBusy"
       :dirty="!!password"
@@ -330,6 +339,8 @@ onMounted(() => void load());
       <template #footer="{ close }">
         <AButton :disabled="keyBusy" @click="close">取消</AButton>
         <AButton type="primary" html-type="submit" form="download-key-form" :loading="keyBusy"
+          ><template #icon
+            ><Icon class="settings-button-icon" name="download" :size="15" /></template
           >验证密码并下载密钥</AButton
         >
       </template>
@@ -338,7 +349,7 @@ onMounted(() => void load());
       v-model:show="restoreOpen"
       :title="restoreBackup ? '恢复到独立副本' : '从备份恢复'"
       description="在独立位置恢复并验证备份，当前知识库继续运行。"
-      icon="refresh"
+      icon="undo"
       kind="drawer"
       :width="760"
       :busy="!!busy"
@@ -426,6 +437,7 @@ onMounted(() => void load());
             restoreStep = 'choose';
             uploadError = '';
           "
+          ><template #icon><Icon class="settings-button-icon" name="back" :size="15" /></template
           >上一步</AButton
         >
         <AButton
@@ -433,11 +445,13 @@ onMounted(() => void load());
           type="primary"
           :disabled="!!busy"
           @click="reviewUploadRestore"
+          ><template #icon><Icon class="settings-button-icon" name="forward" :size="15" /></template
           >下一步：确认恢复</AButton
         >
-        <AButton v-else type="primary" :loading="!!busy" @click="submitRestore">{{
-          restoreBackup ? '开始独立恢复' : '上传并恢复独立副本'
-        }}</AButton>
+        <AButton v-else type="primary" :loading="!!busy" @click="submitRestore"
+          ><template #icon><Icon class="settings-button-icon" name="undo" :size="15" /></template
+          >{{ restoreBackup ? '开始独立恢复' : '上传并恢复独立副本' }}</AButton
+        >
       </template>
     </SettingsOverlay>
     <TransferTasks

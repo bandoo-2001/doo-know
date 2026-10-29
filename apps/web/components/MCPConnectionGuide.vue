@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Icon from './Icon.vue';
 import { computed, onMounted, ref, watch } from 'vue';
 import { Alert as AAlert, Button as AButton } from 'ant-design-vue';
 import type { PluginView } from '../../../packages/plugin-contracts';
@@ -54,6 +55,9 @@ function scopes(values: string[]) {
     'knowledge:read': '读取资料',
     'knowledge:write': '修改资料',
     'knowledge:index': '维护索引',
+    'blog:publish': '发布博客',
+    'to-doo:read': '读取 To Doo',
+    'to-doo:write': '修改 To Doo',
   };
   return values.map((value) => labels[value] || value).join('、') || '当前不可访问';
 }
@@ -120,10 +124,15 @@ watch(() => [props.plugin.state, props.plugin.configVersion], load);
   <section class="mcp-guide" aria-label="ChatGPT 连接指南">
     <div class="guide-heading">
       <div>
-        <h3>连接 ChatGPT：按步骤完成</h3>
+        <h3 class="settings-section-title">
+          <Icon name="link" :size="18" />连接 ChatGPT：按步骤完成
+        </h3>
         <p>让 ChatGPT 查找和读取你选择的笔记；允许修改后，也可创建和更新笔记。</p>
       </div>
-      <AButton size="small" :loading="busy" @click="load">检查本机连接条件</AButton>
+      <AButton size="small" :loading="busy" @click="load"
+        ><template #icon><Icon class="settings-button-icon" name="refresh" :size="15" /></template
+        >检查本机连接条件</AButton
+      >
     </div>
     <AAlert v-if="error" type="warning" show-icon :message="error" />
     <AAlert v-if="actionError" type="error" show-icon :message="actionError" />
@@ -187,6 +196,7 @@ watch(() => [props.plugin.state, props.plugin.configVersion], load);
           path = 'oauth';
           guideExpanded = true;
         "
+        ><template #icon><Icon class="settings-button-icon" name="help" :size="15" /></template
         >查看网页授权教程</AButton
       >
       <AButton
@@ -196,6 +206,7 @@ watch(() => [props.plugin.state, props.plugin.configVersion], load);
           path = 'tunnel';
           guideExpanded = true;
         "
+        ><template #icon><Icon class="settings-button-icon" name="help" :size="15" /></template
         >查看本地隧道教程</AButton
       >
     </div>
@@ -277,6 +288,8 @@ watch(() => [props.plugin.state, props.plugin.configVersion], load);
               size="small"
               :disabled="dirty || (path === 'oauth' && !publicOrigin)"
               @click="copy(endpoint, '连接地址')"
+              ><template #icon
+                ><Icon class="settings-button-icon" name="copy" :size="15" /></template
               >复制连接地址</AButton
             >
           </div>
@@ -299,6 +312,8 @@ watch(() => [props.plugin.state, props.plugin.configVersion], load);
             </p>
             <pre tabindex="0">{{ installation }}</pre>
             <AButton size="small" :disabled="dirty" @click="copy(installation, '启动命令')"
+              ><template #icon
+                ><Icon class="settings-button-icon" name="copy" :size="15" /></template
               >复制启动命令</AButton
             >
             <p>
@@ -388,11 +403,14 @@ watch(() => [props.plugin.state, props.plugin.configVersion], load);
           size="small"
           :disabled="busy"
           @click="revokeClient = client.clientId"
+          ><template #icon><Icon class="settings-button-icon" name="close" :size="15" /></template
           >撤销此连接授权</AButton
         >
         <div v-if="revokeClient === client.clientId" class="guide-paths">
           <span>此客户端将无法继续使用原授权。</span
-          ><AButton size="small" danger :loading="busy" @click="revoke">确认撤销授权</AButton
+          ><AButton size="small" danger :loading="busy" @click="revoke"
+            ><template #icon><Icon class="settings-button-icon" name="close" :size="15" /></template
+            >确认撤销授权</AButton
           ><AButton size="small" :disabled="busy" @click="revokeClient = ''">取消</AButton>
         </div>
       </div>

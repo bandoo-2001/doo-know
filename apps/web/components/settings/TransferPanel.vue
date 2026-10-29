@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Icon from '../Icon.vue';
 import { computed, defineComponent, h, ref, watch } from 'vue';
 import {
   Alert as AAlert,
@@ -119,9 +120,15 @@ async function select(event: Event, directory = false) {
     const result: ImportEntry[] = [];
     for (const file of files) {
       const path = importPath(directory ? file.webkitRelativePath : file.name, directory);
-      const limit = /\.excalidraw$/i.test(path) ? 8 * 1024 * 1024 : /\.md$/i.test(path) ? 1024 * 1024 : 10 * 1024 * 1024;
+      const limit = /\.excalidraw$/i.test(path)
+        ? 8 * 1024 * 1024
+        : /\.md$/i.test(path)
+          ? 1024 * 1024
+          : 10 * 1024 * 1024;
       if (file.size > limit)
-        throw Error(path + ' 超出单文件大小限制。Markdown 最多 1 MiB，白板最多 8 MiB，附件最多 10 MiB。');
+        throw Error(
+          path + ' 超出单文件大小限制。Markdown 最多 1 MiB，白板最多 8 MiB，附件最多 10 MiB。',
+        );
       result.push(await encodeImportFile(file, path));
     }
     entries.value = result;
@@ -271,7 +278,7 @@ const ImportContainer = defineComponent({
       <SettingsActionCard
         title="批量导入"
         description="导入 Markdown、Excalidraw 白板与附件，支持保留目录结构。"
-        icon="folder"
+        icon="upload"
         action-label="批量导入"
         @open="importOpen = true"
       />
@@ -279,7 +286,7 @@ const ImportContainer = defineComponent({
         v-if="showExport"
         title="导出资料"
         description="将整个知识库或指定目录打包，方便迁移原文。"
-        icon="file"
+        icon="download"
         action-label="导出资料"
         @open="exportOpen = true"
       />
@@ -303,8 +310,8 @@ const ImportContainer = defineComponent({
           <template v-if="step === 1">
             <h3>选择资料与导入位置</h3>
             <p class="settings-muted">
-              选择 Markdown、Excalidraw 白板与附件，或选择整个目录保留目录内结构。每批最多 200 个文件、合计 20
-              MiB。选择后先预览。
+              选择 Markdown、Excalidraw 白板与附件，或选择整个目录保留目录内结构。每批最多 200
+              个文件、合计 20 MiB。选择后先预览。
             </p>
             <div class="settings-form transfer-form">
               <div class="settings-field">
@@ -442,17 +449,28 @@ const ImportContainer = defineComponent({
           :loading="busy"
           :disabled="busy || !entries.length"
           @click="inspect"
+          ><template #icon><Icon class="settings-button-icon" name="eye" :size="15" /></template
           >预览导入</AButton
         >
         <template v-else-if="step === 2">
-          <AButton :disabled="busy" @click="editSelection">返回修改</AButton>
+          <AButton :disabled="busy" @click="editSelection"
+            ><template #icon><Icon class="settings-button-icon" name="back" :size="15" /></template
+            >返回修改</AButton
+          >
           <AButton type="primary" :disabled="busy || !preview" @click="step = 3"
+            ><template #icon
+              ><Icon class="settings-button-icon" name="forward" :size="15" /></template
             >下一步：确认导入</AButton
           >
         </template>
         <template v-else-if="step === 3 && preview">
-          <AButton :disabled="busy" @click="step = 2">返回预览</AButton>
+          <AButton :disabled="busy" @click="step = 2"
+            ><template #icon><Icon class="settings-button-icon" name="back" :size="15" /></template
+            >返回预览</AButton
+          >
           <AButton type="primary" :loading="busy" :disabled="busy" @click="execute"
+            ><template #icon
+              ><Icon class="settings-button-icon" name="upload" :size="15" /></template
             >确认导入 {{ preview.items.length }} 个文件</AButton
           >
         </template>
@@ -464,7 +482,7 @@ const ImportContainer = defineComponent({
       v-model:show="exportOpen"
       title="导出资料"
       description="选择导出范围，完成后下载资料归档。"
-      icon="file"
+      icon="download"
       :width="560"
       :busy="exportBusy"
       :dirty="exportScope !== 'library' || !!exportFolder"
@@ -472,7 +490,8 @@ const ImportContainer = defineComponent({
     >
       <template v-if="exportOpen">
         <p class="settings-muted">
-          包含 Markdown、Excalidraw 白板、可读取的关联附件和范围清单。账户、历史版本与完整恢复请使用加密备份。
+          包含 Markdown、Excalidraw
+          白板、可读取的关联附件和范围清单。账户、历史版本与完整恢复请使用加密备份。
         </p>
         <div class="settings-form transfer-form">
           <div class="settings-field">
@@ -507,6 +526,8 @@ const ImportContainer = defineComponent({
         >
           <template #action
             ><AButton size="small" :loading="foldersLoading" @click="loadExportFolders"
+              ><template #icon
+                ><Icon class="settings-button-icon" name="refresh" :size="15" /></template
               >重新读取目录</AButton
             ></template
           >
@@ -521,6 +542,8 @@ const ImportContainer = defineComponent({
           :loading="exportBusy"
           :disabled="exportBusy || (exportScope === 'folder' && !exportFolder)"
           @click="exportLibrary"
+          ><template #icon
+            ><Icon class="settings-button-icon" name="download" :size="15" /></template
           >{{ exportScope === 'folder' ? '导出此目录' : '导出整个知识库' }}</AButton
         >
       </template>

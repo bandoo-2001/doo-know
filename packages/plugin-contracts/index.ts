@@ -1,4 +1,4 @@
-export const HOST_PLUGIN_API = '1.1.0';
+export const HOST_PLUGIN_API = '1.2.0';
 export type ContributionSlot = 'navigation' | 'settingsPage' | 'fileDecoration' | 'noteAction' | 'notePanel' | 'libraryAction';
 export interface Contribution {
   id: string; slot: ContributionSlot; title: string; command?: string; provider?: string;
@@ -20,6 +20,11 @@ export interface PluginStorage {
   set(key: string, value: unknown): void;
   delete(key: string): void;
   entries<T = unknown>(prefix?: string): { key: string; value: T }[];
+}
+export interface PluginDataDependency {
+  id: string; title: string; version?: string; apiVersion?: string;
+  state: 'missing' | 'unavailable' | 'disabled' | 'enabled' | 'version_mismatch' | 'incompatible' | 'invalid';
+  installedVersion?: string; installAvailable: boolean;
 }
 export interface PluginView {
   id: string; installedVersion: string; activeVersion?: string; desiredEnabled: boolean;

@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import Icon from './Icon.vue';
 import { onMounted, onBeforeUnmount, ref, watch } from 'vue';
 import { Alert as AAlert, Button as AButton } from 'ant-design-vue';
 import type { MCPConnectionState } from '../../../shared/mcp-connection-contracts';
 import { api } from '../api';
+import MCPClientPermissions from './MCPClientPermissions.vue';
 import { pluginRegistry } from '../plugins';
 const clients = ref<MCPConnectionState['clients']>([]);
 const actionError = ref('');
@@ -72,27 +74,32 @@ watch(
     class="authorization-card"
     aria-label="停用或卸载后的连接授权"
   >
-    <h2>保留的连接授权</h2>
+    <h2 class="settings-section-title"><Icon name="lock" :size="18" />保留的连接授权</h2>
     <p>
       插件停用或卸载会暂停访问，但保留客户端授权。重新安装启用后，授权可能继续使用；你也可以在这里撤销。
     </p>
     <AAlert v-if="error || actionError" type="warning" :message="error || actionError" />
     <AButton v-if="error || actionError" size="small" :disabled="busy" @click="load"
+      ><template #icon><Icon class="settings-button-icon" name="refresh" :size="15" /></template
       >重新读取授权</AButton
     >
     <div v-for="client in clients" :key="client.clientId" class="authorization-row">
       <strong>{{ client.clientId }}</strong
       ><span>{{ client.active ? '授权保留' : '已撤销' }}</span>
+      <MCPClientPermissions :client="client" @updated="load" />
       <AButton
         v-if="client.active && pending !== client.clientId"
         size="small"
         :disabled="busy"
         @click="pending = client.clientId"
+        ><template #icon><Icon class="settings-button-icon" name="close" :size="15" /></template
         >撤销连接授权</AButton
       >
       <div v-if="pending === client.clientId" class="authorization-actions">
         <span>撤销后，此客户端无法继续使用原授权。</span
-        ><AButton size="small" danger :loading="busy" @click="revoke">确认撤销授权</AButton
+        ><AButton size="small" danger :loading="busy" @click="revoke"
+          ><template #icon><Icon class="settings-button-icon" name="close" :size="15" /></template
+          >确认撤销授权</AButton
         ><AButton size="small" :disabled="busy" @click="pending = ''">取消</AButton>
       </div>
     </div>

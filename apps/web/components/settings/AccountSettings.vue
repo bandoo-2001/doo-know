@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Icon from '../Icon.vue';
 import { computed, onMounted, ref, watch } from 'vue';
 import {
   Alert as AAlert,
@@ -121,10 +122,13 @@ onMounted(() => void load());
 <template>
   <div class="settings-stack">
     <section class="settings-card">
-      <h2>当前账户</h2>
+      <h2 class="settings-section-title"><Icon name="user" :size="18" />当前账户</h2>
       <p>{{ username }}</p>
       <p class="settings-muted">这是知识库所有者账户。</p>
-      <AButton danger @click="emit('logout')">退出当前设备</AButton>
+      <AButton danger @click="emit('logout')"
+        ><template #icon><Icon class="settings-button-icon" name="logout" :size="15" /></template
+        >退出当前设备</AButton
+      >
     </section>
     <SettingsActionCard
       title="修改密码"
@@ -199,6 +203,7 @@ onMounted(() => void load());
           html-type="submit"
           form="change-password-form"
           :loading="passwordBusy"
+          ><template #icon><Icon class="settings-button-icon" name="lock" :size="15" /></template
           >更新密码</AButton
         >
       </template>
@@ -206,10 +211,13 @@ onMounted(() => void load());
     <section class="settings-card">
       <div class="settings-item-header">
         <div>
-          <h2>登录设备</h2>
+          <h2 class="settings-section-title"><Icon name="monitor" :size="18" />登录设备</h2>
           <p>仅显示设备与时间信息。</p>
         </div>
-        <AButton :loading="loading" @click="load(false)">刷新设备</AButton>
+        <AButton :loading="loading" @click="load(false)"
+          ><template #icon><Icon class="settings-button-icon" name="refresh" :size="15" /></template
+          >刷新设备</AButton
+        >
       </div>
       <AAlert v-if="sessionError" type="error" :message="sessionError" show-icon />
       <p v-if="loading && !sessions.length" role="status">正在读取登录设备…</p>
@@ -230,6 +238,8 @@ onMounted(() => void load());
               cancel-text="取消"
               @confirm="revoke(session.id)"
               ><AButton danger :loading="sessionBusy === session.id" :disabled="!!sessionBusy"
+                ><template #icon
+                  ><Icon class="settings-button-icon" name="logout" :size="15" /></template
                 >退出设备</AButton
               ></APopconfirm
             >
@@ -244,6 +254,8 @@ onMounted(() => void load());
           cancel-text="取消"
           @confirm="revokeOthers"
           ><AButton :loading="sessionBusy === 'others'" :disabled="!!sessionBusy"
+            ><template #icon
+              ><Icon class="settings-button-icon" name="logout" :size="15" /></template
             >退出其他设备</AButton
           ></APopconfirm
         >

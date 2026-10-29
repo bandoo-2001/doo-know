@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Icon from './Icon.vue';
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import {
   Button as AButton,
@@ -211,6 +212,7 @@ onUnmounted(() => clearInterval(timer));
         :loading="busy"
         :disabled="busy || checking"
         @click="cancel"
+        ><template #icon><Icon class="settings-button-icon" name="close" :size="15" /></template
         >取消检索准备</AButton
       >
       <AButton
@@ -224,9 +226,13 @@ onUnmounted(() => clearInterval(timer));
         :disabled="busy || checking"
         type="primary"
         @click="prepare"
+        ><template #icon><Icon class="settings-button-icon" name="download" :size="15" /></template
         >{{ state.task ? '重新准备' : onboarding ? '下载并准备搜索' : '准备本地检索' }}</AButton
       >
-      <AButton :loading="checking" :disabled="busy || checking" @click="load">检查检索状态</AButton>
+      <AButton :loading="checking" :disabled="busy || checking" @click="load"
+        ><template #icon><Icon class="settings-button-icon" name="refresh" :size="15" /></template
+        >检查检索状态</AButton
+      >
     </div>
   </section>
 </template>

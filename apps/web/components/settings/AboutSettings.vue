@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Icon from '../Icon.vue';
 import { ref, onMounted } from 'vue';
 import { Alert as AAlert, Button as AButton } from 'ant-design-vue';
 import { api } from '../../api';
@@ -54,10 +55,13 @@ onMounted(() => void load());
     <section class="settings-card">
       <div class="settings-item-header">
         <div>
-          <h2>DooKnow</h2>
+          <h2 class="settings-section-title"><Icon name="book" :size="18" />DooKnow</h2>
           <p>让原文成为可以持续使用的知识。</p>
         </div>
-        <AButton size="small" :loading="busy" @click="load">刷新信息</AButton>
+        <AButton size="small" :loading="busy" @click="load"
+          ><template #icon><Icon class="settings-button-icon" name="refresh" :size="15" /></template
+          >刷新信息</AButton
+        >
       </div>
       <AAlert v-if="error" type="error" :message="error" />
       <p v-if="busy && !state" role="status">正在读取应用信息…</p>
@@ -75,18 +79,18 @@ onMounted(() => void load());
       >
     </section>
     <section class="settings-card">
-      <h2>使用帮助</h2>
+      <h2 class="settings-section-title"><Icon name="help" :size="18" />使用帮助</h2>
       <ul class="settings-muted">
         <li>笔记采用手动保存，按 <kbd>Ctrl / ⌘ + S</kbd> 保存内容。</li>
         <li>在左侧目录选择笔记，使用顶部搜索查找内容。</li>
         <li>新建按钮和目录菜单中可以导入资料。</li>
         <li>回收站可以找回归档的笔记；永久删除前请确认范围。</li>
-        <li>左下角「状态」显示检索、写入和后台任务进度。</li>
+        <li>设置中的「后台状态」显示检索、写入和后台任务进度。</li>
         <li>弹窗打开时按 <kbd>Esc</kbd> 关闭允许关闭的弹窗。</li>
       </ul>
     </section>
     <section class="settings-card">
-      <h2>更新与回退</h2>
+      <h2 class="settings-section-title"><Icon name="refresh" :size="18" />更新与回退</h2>
       <p class="settings-muted">
         更新由部署者在运行 DooKnow 的主机上操作。这里显示的服务版本可用于更新后核对。
       </p>
@@ -117,13 +121,16 @@ onMounted(() => void load());
       </details>
     </section>
     <section class="settings-card">
-      <h2>诊断与支持</h2>
+      <h2 class="settings-section-title"><Icon name="activity" :size="18" />诊断与支持</h2>
       <p class="settings-muted">
         下载当前版本、功能状态与数量统计，便于排查问题。诊断不包含笔记正文、密码、密钥或私有目录路径。
       </p>
       <AAlert v-if="diagnosticError" type="error" :message="diagnosticError" />
       <div class="settings-actions">
-        <AButton :loading="diagnosticBusy" @click="diagnostics">下载脱敏诊断</AButton
+        <AButton :loading="diagnosticBusy" @click="diagnostics"
+          ><template #icon
+            ><Icon class="settings-button-icon" name="download" :size="15" /></template
+          >下载脱敏诊断</AButton
         ><span class="settings-success" role="status">{{ notice }}</span>
       </div>
     </section>

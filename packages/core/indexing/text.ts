@@ -16,10 +16,15 @@ function recallResult<T>(rows: T[], hasMoreNotes = false) {
   };
 }
 export function pathFilter(p: Principal, column = 'c.path') {
+  if (p.knowledgeAll) return { sql: '1', values: [] as string[] };
   if (!p.allowedPrefixes.length) return { sql: '0', values: [] as string[] };
   const clauses: string[] = [],
     values: string[] = [];
   for (const prefix of p.allowedPrefixes) {
+    if (p.knowledgeResourcePaths?.some(ref => ref.kind === 'note' && ref.path === prefix)
+      && !p.knowledgeResourcePaths.some(ref => ref.kind === 'directory' && ref.path === prefix)) {
+      clauses.push(`${column}=?`); values.push(prefix); continue;
+    }
     clauses.push(`(${column}=? OR ${column} LIKE ? ESCAPE '\\')`);
     values.push(prefix, prefix.replace(/[\\%_]/g, '\\$&') + '/%');
   }

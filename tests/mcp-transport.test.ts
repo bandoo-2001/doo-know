@@ -32,7 +32,7 @@ it('installs the official prebuilt MCP, isolates transports, observes calls with
     const legacy = await fetch('http://127.0.0.1:15179/api/v1/tools/list_notes', { method: 'POST', headers: { ...external, 'content-type': 'application/json' }, body: '{}' });
     expect(legacy.status).toBe(200); expect(await legacy.json()).toMatchObject({ data: { items: [] } });
     const privateMcp = await fetch('http://127.0.0.1:15179/mcp', { method: 'POST', headers: { ...external, 'content-type': 'application/json' }, body: JSON.stringify(rpc) });
-    expect(privateMcp.status).toBe(200); expect((await privateMcp.json()).result.tools.length).toBe(18);
+    expect(privateMcp.status).toBe(200); expect((await privateMcp.json()).result.tools.length).toBe(23);
     db = openDatabase(f.dataRoot); const owner = (db.prepare('SELECT id FROM user').get() as any).id;
     const auth = await createAuth(f.config, db);
     const grant = oauthGrantStore(db).approve(owner, 'transport-fixture', ['knowledge:read'], ['00-Inbox']);
@@ -40,7 +40,7 @@ it('installs the official prebuilt MCP, isolates transports, observes calls with
       iat:Math.floor(Date.now()/1000),scope:'knowledge:read',dk_grant_id:grant.id,dk_grant_version:grant.version,
       iss:f.config.origin+'/api/auth',aud:f.config.origin+'/mcp'}}});
     const oauthResponse = await f.app.inject({method:'POST',url:'/mcp',headers:{...external,host:'localhost:3010',authorization:'Bearer '+accessToken},payload:rpc});
-    expect(oauthResponse.statusCode).toBe(200); expect(oauthResponse.json().result.tools.length).toBe(18);
+    expect(oauthResponse.statusCode).toBe(200); expect(oauthResponse.json().result.tools.length).toBe(23);
     const deniedOAuthOnTunnel=await fetch('http://127.0.0.1:15179/mcp',{method:'POST',headers:{...external,authorization:'Bearer '+accessToken,'content-type':'application/json'},body:JSON.stringify(rpc)});
     expect(deniedOAuthOnTunnel.status).toBe(401);
     const status = await post('/api/plugins/mcp/call', { kind: 'provider', id: 'mcp.status', input: {} });
@@ -63,11 +63,30 @@ it('installs the official prebuilt MCP, isolates transports, observes calls with
     const cookie=login.cookies.map(c=>`${c.name}=${c.value}`).join('; ');
     const csrf=await f.app.inject({url:'/api/security/csrf',headers:{cookie}});
     const newHeaders={origin:f.config.origin,cookie:cookie+'; '+csrf.cookies.map(c=>`${c.name}=${c.value}`).join('; '),'x-csrf-token':csrf.json().token};
-    const rotated=await f.app.inject({method:'PUT',url:'/api/platform/plugins/mcp/config',headers:newHeaders,payload:{configVersion:2,values:{tunnelToken:token+'-rotated'}}});
+    // Review the equivalent read-only selection; rotation alone cannot revive the revoked grant.
+    const reviewed=await f.app.inject({url:'/api/platform/mcp/permissions',headers:newHeaders});
+    expect(reviewed.statusCode).toBe(200);
+    const permissionPolicy=reviewed.json().policy;
+    expect(permissionPolicy.domains.knowledge.actions).toEqual(['read']);
+    expect(permissionPolicy.domains.knowledge.resources.mode).toBe('selected');
+    expect(permissionPolicy.domains.blog.enabled).toBe(false);
+    const rotated=await f.app.inject({method:'PUT',url:'/api/platform/plugins/mcp/config',headers:newHeaders,payload:{configVersion:2,values:{tunnelToken:token+'-rotated',permissionPolicy}}});
     expect(rotated.statusCode).toBe(200);
-    const restored=await fetch('http://127.0.0.1:15179/mcp',{method:'POST',headers:{'content-type':'application/json',accept:external.accept,authorization:'Bearer '+token+'-rotated'},body:JSON.stringify(rpc)});
+    const staticCall=(credential:string)=>fetch('http://127.0.0.1:15179/mcp',{method:'POST',headers:{'content-type':'application/json',accept:external.accept,authorization:'Bearer '+credential},body:JSON.stringify(rpc)});
+    const stillRevoked=await staticCall(token+'-rotated');
+    expect(stillRevoked.status).toBe(401); await stillRevoked.arrayBuffer();
+    const identity=db.prepare('SELECT client_id FROM mcp_tunnel_identity WHERE owner_id=?').get(owner) as {client_id:string};
+    const revoked=oauthGrantStore(db).list(owner).find(current=>current.clientId===identity.client_id)!;
+    expect(revoked.active).toBe(false);
+    const authorized=await f.app.inject({method:'POST',url:'/api/platform/mcp/tunnel/authorize',headers:newHeaders,payload:{permissionPolicy,expectedGrantVersion:revoked.version}});
+    expect(authorized.statusCode,authorized.body).toBe(200);
+    expect(authorized.json().grantVersion).toBe(revoked.version+1);
+    const restored=await staticCall(token+'-rotated');
     expect(restored.status).toBe(200); await restored.arrayBuffer();
+    const oldCredential=await staticCall(token+'-new');
+    expect(oldCredential.status).toBe(401); await oldCredential.arrayBuffer();
 
-    expect(grant.active).toBe(true);
+    expect(grant.active).toBe(true); // The old receipt remains immutable; its persisted grant stays revoked.
+    expect(oauthGrantStore(db).list(owner).find(current=>current.clientId===grant.clientId)?.active).toBe(false);
   } finally { db?.close(); await f.close(); await rm(artifacts, { recursive: true, force: true }); }
 }, 60000);

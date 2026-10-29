@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Icon from '../Icon.vue';
 import { onMounted, onBeforeUnmount, ref } from 'vue';
 import {
   Alert as AAlert,
@@ -93,7 +94,7 @@ onBeforeUnmount(() => {
 </script>
 <template>
   <section class="settings-card">
-    <h2>共享链接</h2>
+    <h2 class="settings-section-title"><Icon name="share" :size="18" />共享链接</h2>
     <p class="settings-muted">查看链接的访问权限和有效期，并撤销不再需要的访问。</p>
     <form class="settings-actions" @submit.prevent="load(false)">
       <AInput
@@ -110,7 +111,10 @@ onBeforeUnmount(() => {
           { value: 'true', label: '可访问' },
           { value: 'false', label: '已失效' },
         ]"
-      /><AButton html-type="submit" :loading="loading">查找链接</AButton>
+      /><AButton html-type="submit" :loading="loading"
+        ><template #icon><Icon class="settings-button-icon" name="search" :size="15" /></template
+        >查找链接</AButton
+      >
     </form>
     <AAlert v-if="error" type="error" :message="error" show-icon />
     <p v-if="notice" class="settings-success" role="status">{{ notice }}</p>
@@ -155,6 +159,8 @@ onBeforeUnmount(() => {
               v-if="shareState(item) === 'active' && item.url"
               size="small"
               @click="copy(item.url)"
+              ><template #icon
+                ><Icon class="settings-button-icon" name="copy" :size="15" /></template
               >复制链接</AButton
             ><APopconfirm
               v-if="shareState(item) === 'active' || shareState(item) === 'expired'"
@@ -163,6 +169,8 @@ onBeforeUnmount(() => {
               cancel-text="取消"
               @confirm="revoke(item.id)"
               ><AButton size="small" danger :disabled="!!busy" :loading="busy === item.id"
+                ><template #icon
+                  ><Icon class="settings-button-icon" name="close" :size="15" /></template
                 >撤销</AButton
               ></APopconfirm
             >
@@ -172,7 +180,10 @@ onBeforeUnmount(() => {
     </ul>
     <div class="settings-actions">
       <AButton v-if="cursor" :loading="loading" @click="load(true)">加载更多链接</AButton
-      ><AButton v-if="error" :loading="loading" @click="load(false)">重新读取</AButton>
+      ><AButton v-if="error" :loading="loading" @click="load(false)"
+        ><template #icon><Icon class="settings-button-icon" name="refresh" :size="15" /></template
+        >重新读取</AButton
+      >
     </div>
   </section>
 </template>

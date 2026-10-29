@@ -4,6 +4,7 @@ import { pluginRuntimeFixture } from './support/plugin-runtime.js';
 import { pluginHost } from '../apps/server/plugins/host.js';
 import { pluginServices } from '../apps/server/plugins/services.js';
 import { oauthGrantStore } from '../apps/server/platform/oauth-grants.js';
+import { platformPolicy } from '../packages/core/auth/grants.js';
 import { createOperations } from '../plugins/mcp/server/operations.js';
 import { hostClient } from '../plugins/mcp/server/service.js';
 import { budgets, resultSize } from '../plugins/mcp/server/budgets.js';
@@ -12,11 +13,15 @@ import { join } from 'node:path';
 
 async function fixture() {
   const f = await pluginRuntimeFixture(); pluginHost(f.config, f.db);
-  const capabilities = ['knowledge:read', 'knowledge:write', 'blog:publish'];
+  const signedScopes = ['knowledge:read', 'knowledge:write', 'blog:publish'];
+  const capabilities = [...signedScopes, 'blog:read'];
   f.db.prepare("INSERT INTO platform_plugins(id,installed_version,installed,manifest_json,files_json,state,config_json) VALUES('mcp','1.1.0',1,'{}','{}','enabled',?)").run(JSON.stringify({ readOnly: false, allowPublish: true, allowedPrefixes: ['00-Inbox'] }));
   const created = await f.services.knowledge.create({ directory: '00-Inbox', fileName: 'public.md', content: '# Public snapshot', requestId: randomUUID() });
-  const grant = oauthGrantStore(f.db).approve(f.principal.id, 'blog-integration', capabilities, ['00-Inbox']);
-  const principal = { ...f.principal, scopes: capabilities, clientId: grant.clientId, grantId: grant.id, grantVersion: grant.version, tokenIssuedAt: grant.notBefore, tokenExpiresAt: Math.floor(Date.now() / 1000) + 60, pluginId: 'mcp' };
+  const grant = oauthGrantStore(f.db).approve(f.principal.id, 'blog-integration', signedScopes, ['00-Inbox']);
+  const tokenPrincipal = { ...f.principal, scopes: signedScopes, clientId: grant.clientId, grantId: grant.id, grantVersion: grant.version, tokenIssuedAt: grant.notBefore, tokenExpiresAt: Math.floor(Date.now() / 1000) + 60, pluginId: 'mcp' };
+  // Match the real transport: derive existing v1 aliases from the persisted grant.
+  // Do not add new scopes to the old signed token or overwrite its stored grant.
+  const principal = platformPolicy(f.db, tokenPrincipal)!;
   const services = pluginServices(f.platform, f.db, 'mcp', capabilities, { ownerId: principal.id, principal, channel: 'mcp' });
   const registry = createOperations({ objectIdSecret: 'fixture-mcp-blog-reference-secret-at-least-32-characters' }, hostClient(() => services, () => ({})));
   const input = { noteId: created.id, expectedModifiedAt: created.modifiedAt, expectedContentHash: created.contentHash, expectedPublicationVersion: 0, requestId: randomUUID(), metadata: { slug: 'mcp-public-snapshot' } };
@@ -26,6 +31,11 @@ async function fixture() {
 it('publishes a private snapshot only explicitly, replays fixed receipts, recovers operation status and withdraws by publication version', async () => {
   const f = await fixture();
   try {
+    const stored = oauthGrantStore(f.db).list(f.principal.id).find(grant => grant.clientId === f.principal.clientId)!;
+    expect(stored.policyVersion).toBe(1);
+    expect(stored.scopes).toEqual(['knowledge:read', 'knowledge:write', 'blog:publish']);
+    expect(f.principal.scopes).toContain('blog:read');
+    expect(f.principal.scopes).not.toContain('knowledge:organize');
     expect(await f.registry.execute('get_blog_status', f.principal, { noteId: f.created.id })).toMatchObject({ data: { siteEnabled: false, post: null, publicationVersion: 0 } });
     const published: any = await f.registry.execute('publish_blog_post', f.principal, f.input);
     expect(published).toMatchObject({ data: { state: 'published', version: 1, url: null, sourceHash: f.created.contentHash } });

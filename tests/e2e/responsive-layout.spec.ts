@@ -1,5 +1,5 @@
 import { showRead, showSplit } from '../support/editor-navigation';
-import { showSidebar, returnToNotes } from '../support/settings-navigation';
+import { showSidebar, closeSidebar, returnToNotes } from '../support/settings-navigation';
 import { expandFolderPath } from '../support/notebook-tree';
 import { test, expect } from '../support/browser-test';
 import { readFile, writeFile, rm } from 'node:fs/promises';
@@ -62,23 +62,27 @@ test('keeps navigation reachable and content scrolling inside the window with a 
         .getByRole('button', { name: '设置', exact: true });
       await settings.scrollIntoViewIfNeeded();
       await expect(settings).toBeInViewport();
-      const status = page
-        .locator('.sidebar-footer')
-        .getByRole('button', { name: '后台状态', exact: true });
-      await expect(status).toBeInViewport();
+      await expect(
+        page.locator('.sidebar-footer').getByRole('button', { name: '后台状态', exact: true }),
+      ).toHaveCount(0);
       await inWindow('.sidebar-footer');
       await expect(page.locator('.index-status')).toHaveCount(0);
-      await status.click();
-      const details = page.getByRole('dialog', { name: '后台状态', exact: true });
-      await expect(details).toBeVisible();
-      await inWindow('.n-drawer:visible');
-      await expect(details.getByRole('heading', { name: '索引更新', exact: true })).toBeVisible();
-      await page.keyboard.press('Escape');
-      await expect(details).toBeHidden();
-      await expect(status).toBeFocused();
-      await expect(page.locator('.index-status')).toHaveCount(0);
       await settings.click();
-      await expect(page.locator('.settings-workspace h1')).toHaveText('编辑器与外观');
+      await expect(page.locator('.settings-workspace h1')).toHaveText('通用与编辑');
+      await showSidebar(page);
+      await page
+        .getByRole('navigation', { name: '设置分类', exact: true })
+        .getByRole('button', { name: '后台状态', exact: true })
+        .click();
+      await closeSidebar(page);
+      const details = page.getByRole('region', { name: '后台状态', exact: true });
+      await expect(details).toBeVisible();
+      await details
+        .getByRole('heading', { name: '索引更新', exact: true })
+        .scrollIntoViewIfNeeded();
+      await expect(
+        details.getByRole('heading', { name: '索引更新', exact: true }),
+      ).toBeInViewport();
       await inWindow('.main-content');
       await returnToNotes(page);
       await showSidebar(page);

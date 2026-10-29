@@ -1,4 +1,5 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+import nodefs from 'node:fs';
 import { mkdir, symlink, unlink, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createFixture, loginFixtureOwner, type Fixture } from './support/fixture';
@@ -10,8 +11,17 @@ describe('bounded authenticated backlinks lookup', () => {
   let f: Fixture;
   let headers: Awaited<ReturnType<typeof loginFixtureOwner>>;
   let serial = 0;
-  beforeAll(async () => { f = await createFixture(); headers = await loginFixtureOwner(f); });
-  afterAll(async () => f?.close());
+  let watchSpy: ReturnType<typeof vi.spyOn>;
+  beforeAll(async () => {
+    const originalWatch = nodefs.watch.bind(nodefs);
+    // These cases deliberately retain unreadable catalog candidates so the
+    // backlinks reader itself can verify all four skip paths. Collection
+    // withdrawal is tested separately and must not race this lookup fixture.
+    watchSpy = vi.spyOn(nodefs, 'watch').mockImplementation(((path: string, options: object) =>
+      originalWatch(path, options, () => {})) as typeof nodefs.watch);
+    f = await createFixture(); headers = await loginFixtureOwner(f);
+  });
+  afterAll(async () => { try { await f?.close(); } finally { watchSpy?.mockRestore(); } });
   async function folder() {
     const path = `00-Inbox/backlinks-${++serial}`;
     await mkdir(join(f.knowledgeRoot, path));

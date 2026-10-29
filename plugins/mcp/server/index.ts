@@ -8,7 +8,7 @@ import { hostClient } from './service.js';
 import { budgets, assertRequest } from './budgets.js';
 import { BridgeError, errorBody } from './errors.js';
 import { buildOpenApi } from './openapi.js';
-import { makeAgentInstructions } from './agent-guidance.js';
+import { makeAgentInstructions, toDooAgentGuidance } from './agent-guidance.js';
 export function activate(ctx: PluginContext) {
   const calls = new AsyncLocalStorage<PluginServices>();
   const client = hostClient(() => { const value = calls.getStore(); if (!value) throw new BridgeError('FORBIDDEN',403); return value; }, ctx.config, ctx.track);
@@ -56,7 +56,7 @@ export function activate(ctx: PluginContext) {
       }
       const b = body as any;
       if (!b || typeof b !== 'object' || Array.isArray(b) || (b.id != null && !(typeof b.id === 'number' && Number.isFinite(b.id)) && !(typeof b.id === 'string' && Buffer.byteLength(b.id)<=128))) throw new BridgeError('INVALID_INPUT');
-      const server = new McpServer({ name: 'doo-know', version: '1.1.1' }, { instructions: makeAgentInstructions(ctx.config()) });
+      const server = new McpServer({ name: 'doo-know', version: '1.2.0' }, { instructions: makeAgentInstructions(ctx.config()) + "\n" + toDooAgentGuidance });
       const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined, enableJsonResponse: true, maxRequestBodySize: budgets.request });
       const send = transport.send.bind(transport);
       transport.send = async (message, options) => {

@@ -24,6 +24,16 @@ async function fixture(unbound = false, managedNotes = false) {
   git(seed, 'config', 'user.email', 'fixture@example.invalid');
   await writeFile(join(seed, managedNotes ? 'README.md' : 'note.md'), '# Base\n');
   await writeFile(join(seed, '.gitignore'), 'private.md\n');
+  // Start with a library whose portable metadata is already part of Git history.
+  // Runtime adoption must not turn these clean-worktree transport fixtures dirty.
+  const seedDb = openDatabase(join(root, 'seed-data'));
+  const seedPlatform = platformRuntime({
+    dataRoot: join(root, 'seed-data'), knowledgeRoot: seed,
+    secret: 'seed-fixture-secret-at-least-thirty-two-characters',
+    origin: 'http://localhost', indexing: { enabled: false, watch: false },
+  }, seedDb);
+  try { await seedPlatform.activate(); }
+  finally { await seedPlatform.close(); seedDb.close(); }
   git(seed, 'add', '.');
   git(seed, 'commit', '-m', 'Base');
   execFileSync('git', ['clone', '--bare', seed, a], { stdio: 'pipe' });

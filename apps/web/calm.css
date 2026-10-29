@@ -75,7 +75,7 @@ button:disabled {
   padding-top: 24px;
   background: var(--surface);
   overflow-x: hidden;
-  overflow-y: auto;
+  overflow-y: hidden;
 }
 .sidebar > .brand {
   font-size: 22px;
@@ -176,7 +176,7 @@ button:disabled {
   overscroll-behavior: contain;
   scrollbar-gutter: stable;
   scrollbar-width: thin;
-  scrollbar-color: #d6dae3 transparent;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
 }
 .sidebar-tools {
   margin: 0 14px 12px;

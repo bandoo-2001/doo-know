@@ -15,10 +15,11 @@ import {
   budgets,
 } from "./budgets.js";
 import { BridgeError, errorBody, invalidInput, annotateError, bridgeErrorSchema } from "./errors.js";
+import { createToDooOperations } from './to-doo-operations.js';
 export type Operation = {
   name: string;
   description: string;
-  scope: string;
+  scope?: string;
   additionalScopes?: string[];
   readOnly: boolean;
   destructive?: boolean;
@@ -28,7 +29,7 @@ export type Operation = {
   run: (p: Principal, args: any, options: CallOptions) => Promise<any>;
 };
 const dataSchema = (v: z.ZodType) => z.object({ data: v }).strict();
-const inputNoteId = c.noteId.describe("笔记稳定ID，来自list_notes/search_notes；不是fetch.id。");
+const inputNoteId = c.noteId.describe("稳定noteId。");
 const publicationReceipt = (post: z.infer<typeof c.blogPost>) => {
   const { id, sourceNoteId, sourceTitle, sourceModifiedAt, sourceHash, version, state, publishedVersionId, publishedAt, updatedAt, hasUnpublishedChanges, url, slug, title } = post;
   return { id, sourceNoteId, sourceTitle, sourceModifiedAt, sourceHash, version, state, publishedVersionId, publishedAt, updatedAt, hasUnpublishedChanges, url, slug, title, omittedMetadata: [...c.blogOmittedMetadata] };
@@ -51,7 +52,7 @@ const policyKey = (p: Principal) =>
         p.clientId,
         [...p.scopes].sort(),
         [...p.allowedPrefixes].sort(),
-        p.grantId || null, p.grantVersion || null,
+        p.grantId || null, p.grantVersion || null, p.permissionPolicy || null, p.policyVersion || null, p.knowledgeAll || false,
       ]),
     )
     .digest("hex");
@@ -189,10 +190,15 @@ export function createOperations(
     return result;
   };
   const operations: Operation[] = [
+    { name:'get_mcp_context',description:'返回本人有效分域权限、实例及结构版本。保存/整理前调用；每次实时授权。',readOnly:true,input:z.object({}).strict(),output:dataSchema(c.mcpContext),run:(p,a,o)=>client.context(p,a,o) },
+    { name:'list_directories',description:'列直接子目录，含空目录；null为根。默认20、最多50；游标绑定授权和结构版本。',scope:'knowledge:read',readOnly:true,input:c.directoryListInput,output:dataSchema(c.directoryPage),run:(p,a,o)=>client.directories(p,a,o) },
+    { name:'organize_library',description:'提交最多50项目录创建、移动/改名，无逐次审批。冲突刷新context和目录；accepted后用原requestId查询终态。',scope:'knowledge:organize',additionalScopes:['knowledge:read','knowledge:write'],readOnly:false,input:c.organizeInput,output:dataSchema(c.organizationReply),run:(p,a,o)=>client.organize(p,a,o) },
+    { name:'list_organization_history',description:'分页查看本人整理任务及当前授权范围内的安全摘要；撤销材料过期后不可撤销。',scope:'knowledge:read',readOnly:true,input:c.historyInput,output:dataSchema(c.historyPage),run:(p,a,o)=>client.organizationHistory(p,a,o) },
+    { name:'undo_organization',description:'以新requestId提交完整补偿；须当前整理权限，后续变更返回UNDO_CONFLICT。',scope:'knowledge:organize',additionalScopes:['knowledge:read','knowledge:write'],readOnly:false,input:c.undoOrganizationInput,output:dataSchema(c.organizationReply),run:(p,a,o)=>client.undoOrganization(p,a,o) },
     {
       name: "search",
       description:
-        "默认混合搜索，返回最多十个可 fetch 的完整对象。小笔记对象为全文，大笔记对象为带版本的片段；不自动翻页。",
+        "混合搜索最多10个可fetch对象：小笔记全文或大笔记片段，不自动翻页。",
       scope: "knowledge:read",
       readOnly: true,
       research: true,
@@ -268,7 +274,7 @@ export function createOperations(
     {
       name: "fetch",
       description:
-        "返回 search 指定对象的完整 text。旧版本或授权变化拒绝访问；不会截断全文、自动遍历 cursor 或下载大文件。",
+        "返回search对象的完整text；版本或授权变化拒绝访问，不自动续页。",
       scope: "knowledge:read",
       readOnly: true,
       research: true,
@@ -323,7 +329,7 @@ export function createOperations(
     {
       name: "read_note",
       description:
-        "显式读取一个版本页面；默认8KiB/100行，最多16KiB/200行。单会话32页/256KiB/15分钟，调用方2并发/2MiB每分钟；不自动续读。",
+        "显式读取版本页；默认8KiB/100行，最多16KiB/200行。会话/身份预算见instructions，不自动续读。",
       scope: "knowledge:read",
       readOnly: true,
       input: c.readInput.safeExtend({ noteId: inputNoteId }),
@@ -376,14 +382,14 @@ export function createOperations(
       input: c.createInput,
       output: dataSchema(c.writeSummary),
       run: (p, a, o) => {
-        authorizePath(p, relative(a.directory) + "/" + relative(a.fileName));
+        if (a.directory !== undefined) authorizePath(p, relative(a.directory) + "/" + relative(a.fileName));
         return client.create(p, a, o);
       },
     },
     {
       name: "update_note",
       description:
-        "仅普通模式整篇替换<=32KiB，必须提供精确expectedModifiedAt与原requestId。大文件必须使用patch_note。",
+        "普通模式替换<=32KiB；须精确版本和requestId。大文件使用patch_note。",
       scope: "knowledge:write",
       readOnly: false,
       input: c.updateInput.extend({ noteId: inputNoteId }),
@@ -395,7 +401,7 @@ export function createOperations(
     {
       name: "patch_note",
       description:
-        "版本快照绑定局部修改；最多20项、旧文本与插入合计32KiB。大文件返回operationId，仅返回摘要。",
+        "按快照局部修改；最多20项/32KiB。异步返回operationId，仅返回摘要。",
       scope: "knowledge:write",
       readOnly: false,
       input: c.patchInput.safeExtend({ noteId: inputNoteId }),
@@ -406,14 +412,14 @@ export function createOperations(
       name: "archive_note",
       description:
         "按版本归档到可恢复回收流程并停用分享，不永久删除。保留原requestId。",
-      scope: "knowledge:write",
+      scope: "knowledge:archive",
       readOnly: false,
       destructive: true,
       input: z
         .object({
           noteId: inputNoteId,
           expectedModifiedAt: c.version.describe("读取获得的精确版本；冲突先重新读取并核对。"),
-          requestId: c.requestId.describe("一次操作的稳定ID；结果未知须用原ID查询或重试原请求。"),
+          requestId: c.requestId.describe("稳定操作ID；未知结果查询原ID。"),
         })
         .strict(),
       output: dataSchema(c.archiveSummary),
@@ -446,8 +452,8 @@ export function createOperations(
     },
     {
       name: 'get_blog_status',
-      description: '查看站点开关、原文版本和紧凑发布收据。收据保留标识、状态、版本、原文哈希、时间、标题、文章地址；省略摘要、分类、标签、置顶和封面，完整元数据仍保存在网页中。站点关闭时没有可访问的公开文章。',
-      scope: 'knowledge:read', readOnly: true,
+      description: '查看站点、原文及发布版本。收据省略摘要、分类、标签、置顶和封面；网页保留完整元数据。站点关闭时公开文章不可访问。',
+      scope: 'blog:read', additionalScopes:['knowledge:read'], readOnly: true,
       input: z.object({ noteId: inputNoteId }).strict(), output: dataSchema(c.blogStatusReceipt),
       run: async (p, a, o) => {
         const status = await client.blogStatus(p, a, o); authorizePath(p, status.source.relativePath);
@@ -456,22 +462,22 @@ export function createOperations(
     },
     {
       name: 'publish_blog_post',
-      description: '显式公开发布已有 Markdown 笔记的版本快照。须单独博客发布授权、关闭只读并开启公开发布。修改私有笔记不会自动更新公开版本。必须提供原文版本/哈希、发布版本（首次0）及原requestId；结果未知按原requestId查询。返回紧凑收据，省略摘要、分类、标签、置顶和封面；完整元数据保持原样保存。',
-      scope: 'blog:publish', additionalScopes: ['knowledge:read', 'knowledge:write'], readOnly: false,
+      description: '显式公开已有Markdown快照；需博客发布及原文读取权。私有编辑不更新公开版本。提供原文版本/哈希、发布版本（首次0）和requestId；未知结果按原ID查询。收据省略完整元数据。',
+      scope: 'blog:publish', additionalScopes: ['knowledge:read'], readOnly: false,
       input: c.blogPublishInput, output: dataSchema(c.blogPublicationReceipt),
       run: async (p, a, o) => publicationReceipt(await client.blogPublish(p, a, o)),
     },
     {
       name: 'unpublish_blog_post',
-      description: '显式撤下已发布文章，不修改私有笔记。须独立公开发布权限、当前发布版本及原requestId。返回紧凑收据，省略摘要、分类、标签、置顶和封面；完整元数据保持原样保存。',
-      scope: 'blog:publish', additionalScopes: ['knowledge:read', 'knowledge:write'], readOnly: false, destructive: true,
+      description: '显式撤下公开文章；须独立发布权、当前发布版本及requestId。私有笔记不变，返回紧凑收据。',
+      scope: 'blog:publish', additionalScopes: ['knowledge:read'], readOnly: false, destructive: true,
       input: c.blogUnpublishInput, output: dataSchema(c.blogPublicationReceipt),
       run: async (p, a, o) => publicationReceipt(await client.blogUnpublish(p, a, o)),
     },
     {
       name: "operation_status",
       description:
-        "按operationId或原requestId核对归属、状态和摘要；不返回正文。博客结果为紧凑发布收据，省略摘要、分类、标签、置顶和封面。建议轮询间隔至少1秒。",
+        "按operationId或原requestId查看自己的状态和摘要，无正文。博客返回紧凑收据。轮询至少间隔1秒。",
       scope: "knowledge:read",
       readOnly: true,
       input: z
@@ -496,10 +502,11 @@ export function createOperations(
       scope: "knowledge:write",
       readOnly: false,
       input: z.object({ operationId: z.string().min(1).max(256).describe("自己的后台操作ID；提交开始后须查询终态。") }).strict(),
-      output: dataSchema(c.fileOperation),
+      output: dataSchema(c.cancelOperation),
       run: (p, a, o) => client.cancel(p, a, o),
     },
   ];
+  operations.push(...createToDooOperations(client));
   const execute = async (
     name: string,
     p: Principal,
@@ -509,7 +516,7 @@ export function createOperations(
     try {
       const op = operations.find((v) => v.name === name);
       if (!op) throw new BridgeError("UNKNOWN_TOOL", 404);
-      requireScope(p, op.scope);
+      if (op.scope) requireScope(p, op.scope);
       for (const scope of op.additionalScopes || []) requireScope(p, scope);
       assertRequest(args);
       if (!op.readOnly) assertWriteBudgets(args);
@@ -533,6 +540,7 @@ export function createOperations(
   };
   return { operations, execute };
 }
+
 export function registerOperations(
   server: McpServer,
   registry: ReturnType<typeof createOperations>,
@@ -576,7 +584,7 @@ export function registerOperations(
   // SDK clients validate structured errors against the advertised output schema
   // after discovery. Keep success validation exact and add the shared error
   // core. Optional error metadata remains bounded by errorBody; repeating its
-  // detailed recovery schema for all 18 tools would exceed the discovery budget.
+  // detailed recovery schema for all tools would exceed the discovery budget.
   const core = bridgeErrorSchema.properties.error;
   const errorEnvelope = {
     type: bridgeErrorSchema.type,
@@ -589,16 +597,34 @@ export function registerOperations(
       additionalProperties: true,
     } },
   };
-  server.server.setRequestHandler(ListToolsRequestSchema, () => ({
-    tools: registry.operations.map((op) => {
+  server.server.setRequestHandler(ListToolsRequestSchema, (request) => {
+    const cursor = request.params?.cursor;
+    if (cursor && !/^tools-v1:(?:0|[1-9]\d{0,5})$/.test(cursor)) throw new BridgeError('INVALID_INPUT');
+    const start = cursor ? Number(cursor.slice('tools-v1:'.length)) : 0;
+    if (start > registry.operations.length) throw new BridgeError('INVALID_INPUT');
+    const tools: any[] = [];
+    // Keep the original first page stable; the expanded application tools use
+    // standard MCP pagination instead of increasing the transport frame limit.
+    const end = start === 0 ? Math.min(18, registry.operations.length) : registry.operations.length;
+    for (let index = start; index < end; index++) {
+      const op = registry.operations[index];
       const { $schema, ...success } = z.toJSONSchema(op.output, { target: "draft-07", io: "output" });
-      return {
+      const tool = {
         name: op.name,
         description: op.description,
         inputSchema: z.toJSONSchema(op.input, { target: "draft-07", io: "input" }) as { type: "object" },
         outputSchema: { $schema, type: "object" as const, anyOf: [success, errorEnvelope] },
         annotations: annotations(op),
       };
-    }),
-  }));
+      const nextCursor = index + 1 < registry.operations.length ? `tools-v1:${index + 1}` : undefined;
+      const frame = { jsonrpc: '2.0', id: '\0'.repeat(128), result: { tools: [...tools, tool], ...(nextCursor ? { nextCursor } : {}) } };
+      if (Buffer.byteLength(JSON.stringify(frame)) > budgets.response) {
+        if (!tools.length) throw new BridgeError('RESPONSE_TOO_LARGE', 413);
+        break;
+      }
+      tools.push(tool);
+    }
+    const next = start + tools.length;
+    return { tools, ...(next < registry.operations.length ? { nextCursor: `tools-v1:${next}` } : {}) };
+  });
 }

@@ -38,7 +38,7 @@ export function buildOpenApi(
           ),
         },
         "x-required-scope": op.scope,
-        "x-required-scopes": [op.scope, ...(op.additionalScopes || [])],
+        "x-required-scopes": [...(op.scope ? [op.scope] : []), ...(op.additionalScopes || [])],
         "x-mcp-tool": op.name,
         "x-read-only": op.readOnly,
         "x-request-max-bytes": 131072,
@@ -51,7 +51,7 @@ export function buildOpenApi(
     openapi: "3.1.0",
     info: {
       title: "DooKnow MCP",
-      version: "1.1.1",
+      version: "1.2.0",
       description:
         "同源MCP与REST契约。完整请求128KiB、MCP JSONRPC完整响应64KiB；外部OAuth与独立Bearer均不转交后端。",
     },

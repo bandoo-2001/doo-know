@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Icon from './Icon.vue';
 import { computed, nextTick, onMounted, onBeforeUnmount, ref, watch } from 'vue';
 import { Button as AButton, Alert as AAlert } from 'ant-design-vue';
 import type {
@@ -786,10 +787,17 @@ onMounted(() => {
   <section class="git-remote-panel" :aria-busy="running" aria-label="云端同步面板">
     <header v-if="!inline || !overlay" class="remote-heading">
       <div>
-        <h2>{{ mode === 'import' ? '从 GitHub／Gitee 导入' : '云端同步' }}</h2>
+        <h2 class="settings-section-title">
+          <Icon name="cloud" :size="18" />{{
+            mode === 'import' ? '从 GitHub／Gitee 导入' : '云端同步'
+          }}
+        </h2>
         <p>保存让笔记落到本机；提交记录一个版本；推送才会上传。Git 不能代替独立备份。</p>
       </div>
-      <AButton :loading="loading" :disabled="running" @click="load">刷新同步状态</AButton>
+      <AButton :loading="loading" :disabled="running" @click="load"
+        ><template #icon><Icon class="settings-button-icon" name="refresh" :size="15" /></template
+        >刷新同步状态</AButton
+      >
     </header>
     <AAlert v-if="error" type="error" show-icon :message="error" role="alert" />
     <AAlert
@@ -809,7 +817,12 @@ onMounted(() => {
       v-if="gitUnsaved"
       type="warning"
       message="当前笔记尚未保存。请返回笔记保存后再提交或拉取。仅推送只上传已提交版本，不会上传草稿。"
-      ><template #action><AButton @click="returnSave">返回笔记保存</AButton></template></AAlert
+      ><template #action
+        ><AButton @click="returnSave"
+          ><template #icon><Icon class="settings-button-icon" name="back" :size="15" /></template
+          >返回笔记保存</AButton
+        ></template
+      ></AAlert
     >
     <div
       v-if="(!inline || !overlay) && state && !repositoryPending && mode !== 'import'"
@@ -846,15 +859,23 @@ onMounted(() => {
       v-if="mode !== 'import' && state && !repositoryPending && (!inline || !overlay)"
       title="云端仓库与认证"
       description="管理仓库地址、分支和登录凭据。"
-      icon="refresh"
+      icon="cloud"
       :action-label="connection ? '管理同步' : '关联云端仓库'"
       @open="openConnection"
     />
     <div v-if="mode !== 'import' && connection && (!inline || !overlay)" class="remote-section">
       <div class="remote-actions">
-        <AButton :disabled="running" @click="startJob('check')">检查云端</AButton>
-        <AButton :disabled="running || commitUnknown" @click="startJob('push')">仅推送</AButton>
+        <AButton :disabled="running" @click="startJob('check')"
+          ><template #icon><Icon class="settings-button-icon" name="cloud" :size="15" /></template
+          >检查云端</AButton
+        >
+        <AButton :disabled="running || commitUnknown" @click="startJob('push')"
+          ><template #icon><Icon class="settings-button-icon" name="upload" :size="15" /></template
+          >仅推送</AButton
+        >
         <AButton :disabled="running || gitUnsaved || commitUnknown" @click="startJob('pull')"
+          ><template #icon
+            ><Icon class="settings-button-icon" name="download" :size="15" /></template
           >拉取更新</AButton
         >
         <AButton
@@ -862,6 +883,7 @@ onMounted(() => {
             running || (gitUnsaved && !commitUnknown) || (state?.changes === 0 && !commitUnknown)
           "
           @click="openReview"
+          ><template #icon><Icon class="settings-button-icon" name="eye" :size="15" /></template
           >预览提交并推送</AButton
         >
       </div>
@@ -889,19 +911,27 @@ onMounted(() => {
         }}
       </p>
       <div class="remote-actions">
-        <AButton :disabled="busy" @click="poll">刷新任务状态</AButton
-        ><AButton v-if="jobPending(job)" :disabled="busy" @click="cancelJob">取消当前任务</AButton
+        <AButton :disabled="busy" @click="poll"
+          ><template #icon><Icon class="settings-button-icon" name="refresh" :size="15" /></template
+          >刷新任务状态</AButton
+        ><AButton v-if="jobPending(job)" :disabled="busy" @click="cancelJob"
+          ><template #icon><Icon class="settings-button-icon" name="close" :size="15" /></template
+          >取消当前任务</AButton
         ><AButton
           v-if="['failed', 'needs_reconciliation'].includes(job.status)"
           :disabled="running || (job.kind === 'pull' && gitUnsaved)"
           @click="retryJob"
+          ><template #icon><Icon class="settings-button-icon" name="refresh" :size="15" /></template
           >核对并重试任务</AButton
         >
       </div>
     </div>
     <div v-if="unresolved && (!inline || !overlay)" class="remote-job">
       <p>请求结果尚未确认，请先读取服务器任务回执，避免重复操作。</p>
-      <AButton :disabled="running" @click="reconcile">核对请求结果</AButton>
+      <AButton :disabled="running" @click="reconcile"
+        ><template #icon><Icon class="settings-button-icon" name="refresh" :size="15" /></template
+        >核对请求结果</AButton
+      >
     </div>
     <component
       :is="frameInline ? 'div' : SettingsOverlay"
@@ -912,9 +942,12 @@ onMounted(() => {
       <div class="git-overlay-body">
         <header v-if="inline && overlay" class="remote-heading">
           <h3>{{ overlayTitle }}</h3>
-          <AButton :disabled="overlayBusy" @click="requestBack">{{
-            overlay === 'credential' && returnToConnection ? '返回同步管理' : '返回同步状态'
-          }}</AButton>
+          <AButton :disabled="overlayBusy" @click="requestBack"
+            ><template #icon><Icon class="settings-button-icon" name="back" :size="15" /></template
+            >{{
+              overlay === 'credential' && returnToConnection ? '返回同步管理' : '返回同步状态'
+            }}</AButton
+          >
         </header>
         <AAlert v-if="error && !frameInline" type="error" show-icon :message="error" role="alert" />
         <AAlert
@@ -929,7 +962,13 @@ onMounted(() => {
           type="warning"
           message="当前笔记尚未保存，请返回笔记保存后再提交或拉取。"
         >
-          <template #action><AButton @click="returnSave">返回笔记保存</AButton></template>
+          <template #action
+            ><AButton @click="returnSave"
+              ><template #icon
+                ><Icon class="settings-button-icon" name="back" :size="15" /></template
+              >返回笔记保存</AButton
+            ></template
+          >
         </AAlert>
         <AAlert
           v-if="discardOpen"
@@ -976,10 +1015,15 @@ onMounted(() => {
               </select></label
             >
             <div class="remote-actions">
-              <AButton :disabled="running" @click="editCredential()">添加凭据</AButton
+              <AButton :disabled="running" @click="editCredential()"
+                ><template #icon
+                  ><Icon class="settings-button-icon" name="plus" :size="15" /></template
+                >添加凭据</AButton
               ><AButton
                 :disabled="running || repositoryPending || !url.trim()"
                 @click="startJob('test')"
+                ><template #icon
+                  ><Icon class="settings-button-icon" name="link" :size="15" /></template
                 >测试读取连接</AButton
               >
             </div>
@@ -1006,6 +1050,8 @@ onMounted(() => {
                   running || repositoryPending || !url.trim() || (mode === 'import' && !name.trim())
                 "
                 @click="startJob(mode === 'import' ? 'clone' : 'connect')"
+                ><template #icon
+                  ><Icon class="settings-button-icon" name="link" :size="15" /></template
                 >{{ mode === 'import' ? '导入并继续' : '关联云端仓库' }}</AButton
               >
             </div>
@@ -1019,18 +1065,28 @@ onMounted(() => {
                   >{{ entry.name }} · {{ entry.host }} · {{ entry.kind.toUpperCase()
                   }}{{ entry.temporary ? ' · 临时 30 分钟' : '' }}</span
                 ><AButton size="small" :disabled="running" @click="editCredential(entry)"
+                  ><template #icon
+                    ><Icon class="settings-button-icon" name="key" :size="15" /></template
                   >更换凭据 {{ entry.name }}</AButton
                 ><AButton size="small" danger :disabled="running" @click="removeCredential(entry)"
+                  ><template #icon
+                    ><Icon class="settings-button-icon" name="trash" :size="15" /></template
                   >移除凭据 {{ entry.name }}</AButton
                 >
               </li>
             </ul>
-            <AButton :disabled="running" @click="editCredential()">添加新的凭据</AButton>
+            <AButton :disabled="running" @click="editCredential()"
+              ><template #icon
+                ><Icon class="settings-button-icon" name="plus" :size="15" /></template
+              >添加新的凭据</AButton
+            >
           </section>
           <details v-if="connection && mode !== 'import'" class="disconnect">
             <summary>解除云端关联</summary>
             <p>只移除 DooKnow 的同步关联，本地原文、版本历史与 Git 远端配置会保留。</p>
             <AButton danger :disabled="running || commitUnknown" @click="startJob('disconnect')"
+              ><template #icon
+                ><Icon class="settings-button-icon" name="close" :size="15" /></template
               >确认解除云端关联</AButton
             >
           </details>
@@ -1130,6 +1186,8 @@ onMounted(() => {
                   autocomplete="new-password"
                   :disabled="running" /></label
               ><AButton :disabled="running || repositoryPending" @click="startJob('ssh-host')"
+                ><template #icon
+                  ><Icon class="settings-button-icon" name="shield" :size="15" /></template
                 >读取 SSH 主机指纹</AButton
               >
               <pre v-if="fingerprints.length">{{ fingerprints.join('\n') }}</pre>
@@ -1165,6 +1223,8 @@ onMounted(() => {
                 :disabled="
                   running || !credentialName.trim() || (credentialKind === 'ssh' && !trustHost)
                 "
+                ><template #icon
+                  ><Icon class="settings-button-icon" name="save" :size="15" /></template
                 >保存仓库凭据</AButton
               ><AButton :disabled="running" @click="requestBack">取消编辑凭据</AButton>
             </div>
@@ -1188,6 +1248,8 @@ onMounted(() => {
             ><AButton
               :disabled="running || !authorName.trim() || !authorEmail.trim()"
               @click="saveAuthor"
+              ><template #icon
+                ><Icon class="settings-button-icon" name="save" :size="15" /></template
               >保存同步署名</AButton
             >
           </details>
@@ -1211,6 +1273,7 @@ onMounted(() => {
                 state?.changes === 0
               "
               @click="previewCommit"
+              ><template #icon><Icon class="settings-button-icon" name="eye" :size="15" /></template
               >{{ preview ? '重新预览本次提交' : '预览本次提交' }}</AButton
             >
           </div>
@@ -1232,6 +1295,8 @@ onMounted(() => {
               type="primary"
               :disabled="running || repositoryPending || gitUnsaved || !previewCurrent"
               @click="confirmCommit"
+              ><template #icon
+                ><Icon class="settings-button-icon" name="upload" :size="15" /></template
               >{{ commitUnknown ? '核对提交结果' : '确认提交并推送' }}</AButton
             >
             <AButton :disabled="overlayBusy" @click="requestBack">取消提交</AButton>
@@ -1241,13 +1306,24 @@ onMounted(() => {
           <strong>{{ jobPhases[job!.phase] || '正在处理任务' }}</strong>
           <p>任务在服务器上继续，可刷新查看进度。</p>
           <div class="remote-actions">
-            <AButton :disabled="busy" @click="poll">刷新任务状态</AButton
-            ><AButton :disabled="busy" @click="cancelJob">取消当前任务</AButton>
+            <AButton :disabled="busy" @click="poll"
+              ><template #icon
+                ><Icon class="settings-button-icon" name="refresh" :size="15" /></template
+              >刷新任务状态</AButton
+            ><AButton :disabled="busy" @click="cancelJob"
+              ><template #icon
+                ><Icon class="settings-button-icon" name="close" :size="15" /></template
+              >取消当前任务</AButton
+            >
           </div>
         </div>
         <div v-if="overlay && unresolved" class="remote-job">
           <p>请求结果尚未确认，请先读取服务器任务回执。</p>
-          <AButton :disabled="running" @click="reconcile">核对请求结果</AButton>
+          <AButton :disabled="running" @click="reconcile"
+            ><template #icon
+              ><Icon class="settings-button-icon" name="refresh" :size="15" /></template
+            >核对请求结果</AButton
+          >
         </div>
       </div>
     </component>

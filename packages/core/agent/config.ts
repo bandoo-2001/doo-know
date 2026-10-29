@@ -4,8 +4,17 @@ import type { AppConfig } from '../../../shared/contracts.js';
 import type { AgentConfig, Principal } from '../../../shared/knowledge-contracts.js';
 import { validateRelative } from '../files.js';
 import type { AppDatabase } from '../db.js';
-import { platformPolicy } from '../auth/grants.js';
-import { isResourceScope } from '../../../shared/authorization-scopes.js';
+import { platformPolicy, initializeGrants, resolveLegacyPrefixes } from '../auth/grants.js';
+import {
+  currentLibraryIdentity,
+  intersectPermissionPolicies,
+  projectPermissionPrincipal,
+  resourceContains,
+  underPrefix,
+} from '../auth/permissions.js';
+import { syncDirectoryCatalog } from '../organization/catalog.js';
+import { sha256 } from '../knowledge/operations.js';
+import { isLegacyResourceScope, isResourceScope } from '../../../shared/authorization-scopes.js';
 export function privateFile(path: string, maxBytes = 65536) {
   let fd: number | undefined;
   try {
@@ -51,9 +60,7 @@ export function loadAgentConfig(file: string, knowledgeRoot: string): AgentConfi
       !p.clientId.length ||
       p.clientId.length > 256 ||
       !Array.isArray(p.scopes) ||
-      p.scopes.some(
-        (s: any) => typeof s !== 'string' || !isResourceScope(s),
-      ) ||
+      p.scopes.some((s: any) => typeof s !== 'string' || !isLegacyResourceScope(s)) ||
       !Array.isArray(p.allowedPrefixes) ||
       p.allowedPrefixes.length > 64
     )
@@ -86,8 +93,68 @@ export function currentAgentConfig(config: AppConfig) {
     ? loadAgentConfig(config.agentConfigFile, config.knowledgeRoot)
     : config.agent;
 }
+/** Resolve trusted machine selectors by persistent identity, never by a reused path. */
+export function projectMachinePrincipal(
+  config: AppConfig,
+  db: AppDatabase,
+  p: Principal,
+): Principal | undefined {
+  const trusted = currentAgentConfig(config)?.policies.find(
+    (x) => x.id === p.id && x.clientId === p.clientId,
+  );
+  if (!trusted) return;
+  if (trusted.permissionPolicy) {
+    const effective = intersectPermissionPolicies(
+      p.permissionPolicy || trusted.permissionPolicy,
+      trusted.permissionPolicy,
+      resourceContains(db),
+    );
+    return projectPermissionPrincipal(db, p, effective);
+  }
+  // Explicit host-internal principals already normalized to all retain their
+  // mode. authorizeAgent never copies this field from an assertion or old config.
+  if (trusted.knowledgeAll === true && p.knowledgeAll === true)
+    return {
+      ...p,
+      scopes: p.scopes.filter((scope) => isResourceScope(scope) && trusted.scopes.includes(scope)),
+    };
+  syncDirectoryCatalog(config, db);
+  initializeGrants(db);
+  // The row's prefix column supplies the path part of this stable identity.
+  // Editing other roots or actions must not rebind existing selections.
+  const key = 'machine:' + sha256(JSON.stringify([trusted.id, trusted.clientId]));
+  const roots = trusted.allowedPrefixes.flatMap((prefix) => {
+    const resolved = resolveLegacyPrefixes(db, key + ':roots', [prefix]);
+    return resolved.map((path) => ({ prefix, path }));
+  });
+  const claims = p.machineClaimPrefixes || p.allowedPrefixes;
+  const narrowed = resolveLegacyPrefixes(db, key + ':claims', claims, (prefix) => {
+    const anchor = roots
+      .filter((root) => underPrefix(prefix, root.prefix))
+      .sort((a, b) => b.prefix.length - a.prefix.length)[0];
+    return anchor ? anchor.path + prefix.slice(anchor.prefix.length) : undefined;
+  }).filter((path) => roots.some((root) => underPrefix(path, root.path)));
+  const library = currentLibraryIdentity(db)!;
+  const refs = narrowed.flatMap((path) => {
+    const dir = db
+      .prepare('SELECT id FROM organization_directories WHERE library_id=? AND path=? AND active=1')
+      .get(library.libraryId, path) as any;
+    const note =
+      !dir && (db.prepare('SELECT id FROM notes WHERE path=? AND active=1').get(path) as any);
+    return dir || note ? [{ kind: dir ? 'directory' : 'note', id: dir?.id || note.id, path }] : [];
+  });
+  return {
+    ...p,
+    scopes: p.scopes.filter((scope) => isResourceScope(scope) && trusted.scopes.includes(scope)),
+    permissionPolicy: undefined,
+    permissionCeiling: undefined,
+    knowledgeAll: false,
+    allowedPrefixes: [...new Set(narrowed)],
+    knowledgeResourcePaths: refs,
+    machineClaimPrefixes: [...claims],
+  };
+}
 export function currentPrincipalPolicy(config: AppConfig, db: AppDatabase, p: Principal) {
   if (p.grantId || p.clientId.startsWith('plugin-web:')) return platformPolicy(db, p);
-  return currentAgentConfig(config)?.policies.find(x => x.id === p.id && x.clientId === p.clientId)
-    || platformPolicy(db, p);
+  return projectMachinePrincipal(config, db, p) || platformPolicy(db, p);
 }

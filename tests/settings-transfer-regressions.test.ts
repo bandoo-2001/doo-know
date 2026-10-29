@@ -6,6 +6,7 @@ import * as Vue from 'vue';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import * as pagedRecords from '../apps/web/components/settings/paged-records';
 import * as transferFiles from '../apps/web/components/settings/transfer-files';
+import * as settings from '../apps/web/settings';
 const nodeRequire = createRequire(import.meta.url),
   mockApi = vi.fn();
 const cleanups: (() => void)[] = [];
@@ -39,6 +40,7 @@ function component(name: string, realChildren: string[] = []): any {
     (id: string) => {
       if (id === 'vue') return Vue;
       if (id === '../../api') return { api: mockApi };
+      if (id === '../../settings') return settings;
       if (id === 'ant-design-vue')
         return new Proxy(
           {},

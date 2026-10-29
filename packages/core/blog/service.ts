@@ -17,6 +17,7 @@ import { isWhiteboard } from '../../../shared/whiteboard.js';
 import type { AppDatabase } from '../db.js';
 import type { NoteService } from '../notes.js';
 import { requireScope } from '../agent/auth.js';
+import { authorizeDomainResource } from '../auth/permissions.js';
 import { HttpError } from '../errors.js';
 import { BlogError, typedBlogError } from './errors.js';
 import { isMissingSource } from '../files.js';
@@ -25,6 +26,8 @@ import { workspaceWriteSync } from '../workspace/gate.js';
 import { beginOperation, completeOperation, findOperation } from '../knowledge/operations.js';
 import { authorizeBlogPath, blogHash } from './resources.js';
 import { capturePublication } from './publication.js';
+import { portableBlog } from './portable.js';
+import { portableLibrary } from '../portable-library.js';
 
 type PostRow = {
   id: string;
@@ -114,10 +117,20 @@ function validVersion(value: unknown) {
 }
 function actor(p: Principal, publication = false) {
   requireScope(p, 'knowledge:read');
-  requireScope(p, 'knowledge:write');
-  if (publication) requireScope(p, 'blog:publish');
+  if (p.policyVersion === 2) {
+    if (!publication) throw new BlogError(403, '未授予博客草稿编辑权限', { code: 'FORBIDDEN' });
+    requireScope(p, 'blog:publish');
+  } else {
+    if (p.permissionCeiling && !publication)
+      throw new BlogError(403, '未授予博客草稿编辑权限', { code: 'FORBIDDEN' });
+    requireScope(p, 'knowledge:write');
+    if (publication) requireScope(p, 'blog:publish');
+  }
 }
 export function blogService(config: AppConfig, db: AppDatabase, notes: NoteService) {
+  const library = portableLibrary(config, db);
+  library.refresh();
+  const portable = portableBlog(config, db);
   const rowByNote = (id: string) =>
     db.prepare('SELECT * FROM blog_posts WHERE source_note_id=?').get(id) as PostRow | undefined;
   const row = (id: string) => {
@@ -130,7 +143,13 @@ export function blogService(config: AppConfig, db: AppDatabase, notes: NoteServi
       ? (db.prepare('SELECT * FROM blog_versions WHERE id=?').get(id) as VersionRow | undefined)
       : undefined;
   const settings = (_p?: Principal): BlogSettings => {
-    if (_p) requireScope(_p, 'knowledge:read');
+    if (_p) {
+      requireScope(_p, 'knowledge:read');
+      if (_p.policyVersion === 2 || _p.permissionCeiling) {
+        requireScope(_p, 'blog:read');
+        authorizeDomainResource(_p, 'blog', 'read');
+      }
+    }
     return JSON.parse(
       (
         db.prepare('SELECT settings_json FROM blog_settings WHERE id=1').get() as {
@@ -212,6 +231,10 @@ export function blogService(config: AppConfig, db: AppDatabase, notes: NoteServi
   }
   function noteStatus(p: Principal, noteId: string): BlogNoteStatus {
     requireScope(p, 'knowledge:read');
+    if (p.policyVersion === 2 || p.permissionCeiling) {
+      requireScope(p, 'blog:read');
+      authorizeDomainResource(p, 'blog', 'read', rowByNote(noteId)?.id);
+    }
     const { n, hash } = source(p, noteId),
       r = rowByNote(noteId);
     return {
@@ -327,6 +350,7 @@ export function blogService(config: AppConfig, db: AppDatabase, notes: NoteServi
     validVersion(input.expectedPublicationVersion);
     return mutate('publish', () => {
       authorizeBlogPath(p, notes.row(input.noteId, true).path);
+      authorizeDomainResource(p, 'blog', 'publish', rowByNote(input.noteId)?.id);
       return receipt(p, 'publish', input, () => {
         const old = rowByNote(input.noteId);
         if ((old?.version || 0) !== input.expectedPublicationVersion)
@@ -358,6 +382,7 @@ export function blogService(config: AppConfig, db: AppDatabase, notes: NoteServi
           const captured = capturePublication(config, db, notes, p, n, m, url, input.diagrams);
           const fresh = revalidate?.() || p;
           actor(fresh, true);
+          authorizeDomainResource(fresh, 'blog', 'publish', r.id);
           if (fresh.id !== p.id || fresh.clientId !== p.clientId)
             throw new BlogError(403, '发布授权已变化');
           authorizeBlogPath(fresh, n.relativePath);
@@ -410,6 +435,7 @@ export function blogService(config: AppConfig, db: AppDatabase, notes: NoteServi
     validVersion(input.expectedPublicationVersion);
     return mutate('unpublish', () => {
       authorizeBlogPath(p, notes.row(input.noteId, true).path);
+      authorizeDomainResource(p, 'blog', 'publish', rowByNote(input.noteId)?.id);
       return receipt(p, 'unpublish', input, () => {
         const r = rowByNote(input.noteId);
         if (!r) throw new BlogError(404, '博客文章不存在');
@@ -417,6 +443,7 @@ export function blogService(config: AppConfig, db: AppDatabase, notes: NoteServi
           throw new BlogError(409, '博客记录已变化');
         const fresh = revalidate?.() || p;
         actor(fresh, true);
+        authorizeDomainResource(fresh, 'blog', 'publish', r.id);
         if (fresh.id !== p.id || fresh.clientId !== p.clientId)
           throw new BlogError(403, '授权已变化');
         authorizeBlogPath(fresh, notes.row(input.noteId, true).path);
@@ -429,6 +456,10 @@ export function blogService(config: AppConfig, db: AppDatabase, notes: NoteServi
   }
   function postDetail(p: Principal, id: string): BlogPostDetail {
     requireScope(p, 'knowledge:read');
+    if (p.policyVersion === 2 || p.permissionCeiling) {
+      requireScope(p, 'blog:read');
+      authorizeDomainResource(p, 'blog', 'read', id);
+    }
     const r = row(id);
     authorizeBlogPath(p, notes.row(r.source_note_id, true).path);
     let sourceContent = '';
@@ -535,6 +566,7 @@ export function blogService(config: AppConfig, db: AppDatabase, notes: NoteServi
     query: { limit?: unknown; query?: unknown; cursor?: unknown } = {},
   ): BlogDashboard {
     requireScope(p, 'knowledge:read');
+    if (p.policyVersion === 2 || p.permissionCeiling) requireScope(p, 'blog:read');
     const limit = query.limit == null ? 30 : Number(query.limit);
     if (!Number.isInteger(limit) || limit < 1 || limit > 100)
       throw new BlogError(400, '分页大小不正确');
@@ -558,6 +590,7 @@ export function blogService(config: AppConfig, db: AppDatabase, notes: NoteServi
         .all() as PostRow[]
     ).flatMap((r) => {
       try {
+        authorizeDomainResource(p, 'blog', 'read', r.id);
         return [describe(r, p)];
       } catch (error) {
         if (error instanceof HttpError && [403, 404].includes(error.statusCode)) return [];
@@ -745,6 +778,10 @@ export function blogService(config: AppConfig, db: AppDatabase, notes: NoteServi
     return a;
   }
   function previewResource(p: Principal, id: string, hash: string) {
+    if (p.policyVersion === 2 || p.permissionCeiling) {
+      requireScope(p, 'blog:read');
+      authorizeDomainResource(p, 'blog', 'read', id);
+    }
     const r = row(id),
       { n } = source(p, r.source_note_id),
       capture = capturePublication(
@@ -764,6 +801,7 @@ export function blogService(config: AppConfig, db: AppDatabase, notes: NoteServi
   }
   function operationStatus(p: Principal, key: { operationId?: string; requestId?: string }) {
     requireScope(p, 'knowledge:read');
+    if (p.policyVersion === 2 || p.permissionCeiling) requireScope(p, 'blog:read');
     if (!key || !!key.operationId === !!key.requestId)
       throw new BlogError(400, '只提供一种操作标识');
     const op = findOperation(db, p, { id: key.operationId, requestId: key.requestId });
@@ -774,9 +812,10 @@ export function blogService(config: AppConfig, db: AppDatabase, notes: NoteServi
       .get(p.id, p.clientId, op.operationId) as { source_note_id: string } | undefined;
     if (!receipt || !op.kind.startsWith('blog.')) throw new BlogError(404, '博客操作不存在');
     authorizeBlogPath(p, notes.row(receipt.source_note_id, true).path);
+    authorizeDomainResource(p, 'blog', 'read', rowByNote(receipt.source_note_id)?.id);
     return op;
   }
-  return {
+  const api = {
     noteStatus,
     publishNote,
     unpublishNote,
@@ -793,5 +832,19 @@ export function blogService(config: AppConfig, db: AppDatabase, notes: NoteServi
     previewResource,
     operationStatus,
   };
+  const refresh = <T extends (...args: any[]) => any>(method: T): T =>
+    ((...args: Parameters<T>) => {
+      library.refresh();
+      portable.refresh();
+      try {
+        return method(...args);
+      } finally {
+        // Source checks can withdraw a publication even during an ordinary read.
+        portable.flush();
+      }
+    }) as T;
+  return Object.fromEntries(
+    Object.entries(api).map(([name, method]) => [name, refresh(method)]),
+  ) as typeof api;
 }
 export type BlogService = ReturnType<typeof blogService>;

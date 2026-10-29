@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import Icon from './Icon.vue';
 import { ref, onMounted } from 'vue';
 import { NModal } from 'naive-ui';
 import { Alert as AAlert, Button as AButton } from 'ant-design-vue';
 import { api, ApiError } from '../api';
+import OrganizationRetentionSettings from './OrganizationRetentionSettings.vue';
 import type {
   WriteConflict,
   WriteConflictList,
@@ -89,15 +91,18 @@ onMounted(() => void load());
   <section class="maintenance-settings" aria-label="数据与恢复">
     <header>
       <div>
-        <h2>异常写入恢复</h2>
+        <h2 class="settings-section-title"><Icon name="undo" :size="18" />异常写入恢复</h2>
         <p class="muted">核对未完成的写入，保留当前磁盘内容和冲突材料。</p>
       </div>
-      <AButton :loading="loading" :disabled="loading" @click="load">检查恢复状态</AButton>
+      <AButton :loading="loading" :disabled="loading" @click="load"
+        ><template #icon><Icon class="settings-button-icon" name="refresh" :size="15" /></template
+        >检查恢复状态</AButton
+      >
     </header>
     <AAlert v-if="error" type="error" :message="error" role="alert" />
     <p v-if="loading && !state.items.length" role="status">正在读取恢复状态…</p>
     <p
-      v-else-if="!state.items.length && !state.syncConflicts.length && !error"
+      v-else-if="!state.items.length && !state.syncConflicts.length && !state.organizationConflicts?.length && !error"
       class="muted"
       role="status"
     >
@@ -109,7 +114,10 @@ onMounted(() => void load());
         ><small>操作编号：{{ item.id }}</small>
         <p>{{ item.resolvable ? '原操作未完成，当前磁盘版本可以核对。' : reason(item) }}</p>
       </div>
-      <AButton v-if="item.resolvable" @click="inspect(item)">核对磁盘版本</AButton>
+      <AButton v-if="item.resolvable" @click="inspect(item)"
+        ><template #icon><Icon class="settings-button-icon" name="eye" :size="15" /></template
+        >核对磁盘版本</AButton
+      >
     </article>
     <AAlert
       v-for="item in state.syncConflicts"
@@ -117,6 +125,14 @@ onMounted(() => void load());
       type="warning"
       message="Git 工作区需要人工核对"
       :description="'请保留整个工作区和冲突材料，再按 Git 同步恢复流程处理。操作编号：' + item.id"
+    />
+    <OrganizationRetentionSettings />
+    <AAlert
+      v-for="item in state.organizationConflicts"
+      :key="item.operationId"
+      type="warning"
+      :message="item.status === 'needs_reconciliation' ? '目录整理需要人工核对' : '目录整理尚未完成'"
+      :description="'请保留知识库和恢复材料，重新检查恢复状态。操作编号：' + item.operationId"
     />
     <NModal
       :show="!!selected"
@@ -143,13 +159,17 @@ onMounted(() => void load());
         </p>
         <div class="dialog-actions">
           <AButton :disabled="busy" @click="selected = undefined">取消</AButton
-          ><AButton :disabled="busy" @click="recheck">重新检查</AButton
+          ><AButton :disabled="busy" @click="recheck"
+            ><template #icon
+              ><Icon class="settings-button-icon" name="refresh" :size="15" /></template
+            >重新检查</AButton
           ><AButton
             type="primary"
             aria-label="采用磁盘版本"
             :loading="busy"
             :disabled="busy"
             @click="resolve"
+            ><template #icon><Icon class="settings-button-icon" name="check" :size="15" /></template
             >采用磁盘版本</AButton
           >
         </div>

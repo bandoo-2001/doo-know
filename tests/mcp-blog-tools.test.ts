@@ -4,7 +4,7 @@ import { hostClient } from '../plugins/mcp/server/service.js';
 import { buildOpenApi } from '../plugins/mcp/server/openapi.js';
 import type { BlogPost } from '../shared/blog-contracts.js';
 
-const p = { id: 'fixture-owner', clientId: 'fixture-client', scopes: ['knowledge:read', 'knowledge:write', 'blog:publish'], allowedPrefixes: ['00-Inbox'] };
+const p = { id: 'fixture-owner', clientId: 'fixture-client', scopes: ['knowledge:read', 'knowledge:write', 'blog:read', 'blog:publish'], allowedPrefixes: ['00-Inbox'] };
 const post: BlogPost = { id: 'post-1', sourceNoteId: 'note-1', sourceTitle: 'Private title', sourceModifiedAt: '123', sourceHash: 'a'.repeat(64), version: 1, state: 'published', publishedVersionId: 'version-1', publishedAt: '2026-10-26T00:00:00.000Z', updatedAt: '2026-10-26T00:00:00.000Z', hasUnpublishedChanges: false, url: 'https://blog.example/blog/post', slug: 'post', title: 'Public title', summary: '', category: '', tags: [], pinned: false, cover: null };
 function registry() {
   const services: any = { knowledge: {}, blog: {
@@ -29,10 +29,14 @@ it('exposes bounded blog status, publish and unpublish through tools and matchin
   expect(receipt.properties.omittedMetadata).toBeDefined();
   for (const key of ['summary', 'category', 'tags', 'pinned', 'cover']) expect(receipt.properties[key]).toBeUndefined();
 });
-it.each(['knowledge:read', 'knowledge:write', 'blog:publish'])('requires %s independently for publication', async (scope) => {
+it.each(['knowledge:read', 'blog:publish'])('requires %s independently for publication', async (scope) => {
   await expect(registry().execute('publish_blog_post', { ...p, scopes: p.scopes.filter((value) => value !== scope) }, { noteId: 'note-1', expectedModifiedAt: '123', expectedContentHash: 'a'.repeat(64), expectedPublicationVersion: 0, requestId: 'publish-denied' })).rejects.toMatchObject({ code: 'INSUFFICIENT_SCOPE' });
 });
 it('rejects unexpected publication body fields and source paths outside the actor prefixes', async () => {
   await expect(registry().execute('publish_blog_post', p, { noteId: 'note-1', expectedModifiedAt: '123', expectedContentHash: 'a'.repeat(64), expectedPublicationVersion: 0, requestId: 'publish-invalid', content: 'unsaved private text' })).rejects.toMatchObject({ code: 'INVALID_INPUT' });
   await expect(registry().execute('get_blog_status', { ...p, allowedPrefixes: ['10-Projects'] }, { noteId: 'note-1' })).rejects.toMatchObject({ code: 'FORBIDDEN' });
+});
+
+it('publishes with source reading and blog publishing without private-note write', async () => {
+  expect(await registry().execute('publish_blog_post',{...p,scopes:['knowledge:read','blog:publish']},{noteId:'note-1',expectedModifiedAt:'123',expectedContentHash:'a'.repeat(64),expectedPublicationVersion:0,requestId:'read-and-publish'})).toMatchObject({data:{state:'published'}});
 });

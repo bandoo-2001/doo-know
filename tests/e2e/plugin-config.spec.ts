@@ -1,3 +1,4 @@
+import { openLegacyMcpSettings } from '../support/settings-navigation';
 import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
 import type { PluginView } from '../../packages/plugin-contracts';
@@ -22,6 +23,7 @@ async function openMcp(page: Page) {
     await page.getByRole('button', { name: '安装MCP 服务', exact: true }).click();
   }
   await expect(page.getByRole('heading', { name: 'MCP 服务设置', exact: true })).toBeVisible();
+  await openLegacyMcpSettings(page);
 }
 
 async function saveRemote(page: Page, values: Record<string, unknown>, configVersion: number) {
@@ -135,4 +137,29 @@ test('preserves input on remote changes, requires explicit reload and saves agai
     const current = await mcp(page);
     await saveRemote(page, initial.config, current.configVersion);
   }
+});
+
+test('selects full-library autonomous organization while archive, index and public disclosure stay independent',async({page})=>{
+  await openMcp(page);
+  const saved=await mcp(page);
+  const knowledge=page.locator('.domain-card[aria-label="知识库权限"]');
+  const blog=page.locator('.domain-card[aria-label="博客权限"]');
+  await expect(knowledge).toBeVisible();
+  await knowledge.locator('summary').click();
+  const archive=knowledge.getByRole('checkbox',{name:'归档',exact:true});
+  const index=knowledge.getByRole('checkbox',{name:'维护索引',exact:true});
+  const archived=await archive.isChecked(),indexed=await index.isChecked();
+  const published=await blog.getByRole('switch',{name:'启用博客权限',exact:true}).getAttribute('aria-checked');
+  await page.getByRole('combobox',{name:'知识库能力预设',exact:true}).press('ArrowDown');
+  await page.locator('.ant-select-item-option').filter({hasText:/^自主整理$/}).click();
+  await page.getByRole('combobox',{name:'知识库资源范围',exact:true}).press('ArrowDown');
+  await page.locator('.ant-select-item-option').filter({hasText:/^整个知识库$/}).click();
+  await expect(knowledge.getByRole('checkbox',{name:'读取',exact:true})).toBeChecked();
+  await expect(knowledge.getByRole('checkbox',{name:'内容编辑',exact:true})).toBeChecked();
+  await expect(knowledge.getByRole('checkbox',{name:'自主整理',exact:true})).toBeChecked();
+  expect(await archive.isChecked()).toBe(archived);
+  expect(await index.isChecked()).toBe(indexed);
+  await expect(blog.getByRole('switch',{name:'启用博客权限',exact:true})).toHaveAttribute('aria-checked',published!);
+  expect((await mcp(page)).config).toEqual(saved.config);
+  await expect(page.locator('.plugin-draft-notice')).toContainText('未保存');
 });

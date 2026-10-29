@@ -1,6 +1,6 @@
 /** Discovery hints only. Every operation checks the caller's current authority. */
 export function makeAgentInstructions(config: { readOnly?: boolean; allowIndex?: boolean; allowPublish?: boolean }) {
-  return `DooKnow：18项有界工具；调用须实时核验身份、目录和权限，工具可见不代表获准。配置提示：readOnly=${config.readOnly !== false}，allowIndex=${config.allowIndex === true}，allowPublish=${config.allowPublish === true}，不授予权限。
+  return `DooKnow：知识与 To Doo 有界工具；调用须实时核验身份、目录和权限，工具可见不代表获准。配置提示：readOnly=${config.readOnly !== false}，allowIndex=${config.allowIndex === true}，allowPublish=${config.allowPublish === true}，不授予权限。
 
 研究：search(query)返回最多10个对象，再将原样id交给fetch(id)获取完整text。fetch.id是签名对象引用，15分钟有效且绑定版本和授权；它不是笔记noteId。search_notes和list_notes返回稳定noteId，供其他笔记工具使用。引用失效时重新搜索。
 
@@ -18,3 +18,5 @@ export function makeAgentInstructions(config: { readOnly?: boolean; allowIndex?:
 
 完整请求最多128KiB，完整JSON-RPC响应最多64KiB。错误包含安全issues和recovery时据此修正；不要猜测ID、自动续读或越过权限。`;
 }
+
+export const toDooAgentGuidance = `To Doo：query_to_doos/get_to_doo_context 分页核对当前范围；任务定义与执行实例分开。完成/重开用实例ID和expectedRevision，重复实例不能用任务ID代替。预览计划不写入；只有用户已明确授权才apply_to_doo_plan，数据变化先重新预览。所有修改用稳定requestId重试核对，不扩大用户的批量范围。独立to-doo:read/write默认不授予；资料原文仍需knowledge:read及目录权限。批量与级联先冻结实例全集和task/occ版本；缺成员先刷新核对。receiptTruncated仅表示回执分批，已提交操作勿换ID重建，用query_to_doos的receiptRequestId续查。`;

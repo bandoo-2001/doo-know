@@ -105,6 +105,7 @@ export function renameRootInPlace(
     ['write_intents', "status IN ('prepared','conflicted')"],
     ['file_operations', "status IN ('queued','running','committing')"],
     ['sync_runs', "status IN ('running','needs_reconciliation')"],
+    ['organization_jobs', "status IN ('queued','running','committing','needs_reconciliation')"],
   ])
     if (tableExists(db, table) && db.prepare(`SELECT 1 FROM ${table} WHERE ${where} LIMIT 1`).get())
       throw Error('仍有未完成写入或同步，请先排空并核对');
@@ -113,6 +114,10 @@ export function renameRootInPlace(
     ((root: string, connection: AppDatabase) =>
       assertRoot({ knowledgeRoot: root } as AppConfig, connection));
   verify(oldRoot, db);
+  const library = tableExists(db, 'organization_library')
+    ? (db.prepare('SELECT * FROM organization_library WHERE id=1').get() as any)
+    : undefined;
+  if (library && library.root_identity !== previous) throw Error('目录整理身份与原根身份不一致');
   const digest = rootBusinessDigest(db),
     next = JSON.stringify({ path: newRoot, dev: String(before.dev), ino: String(before.ino) });
   let moved = false,
@@ -133,6 +138,18 @@ export function renameRootInPlace(
         .prepare("UPDATE index_meta SET value=? WHERE key='root_identity' AND value=?")
         .run(next, previous);
       if (changed.changes !== 1) throw Error('根身份比较更新必须恰好一行');
+      if (library) {
+        const rebound = db
+          .prepare(
+            'UPDATE organization_library SET root_identity=?,binding_version=binding_version+1 WHERE id=1 AND root_identity=? AND binding_version=?',
+          )
+          .run(next, previous, library.binding_version);
+        if (rebound.changes !== 1) throw Error('目录整理绑定比较更新失败');
+        if (tableExists(db, 'organization_jobs'))
+          db.prepare(
+            "UPDATE organization_jobs SET manifest=json_set(manifest,'$.bindingVersion',?) WHERE status='succeeded' AND json_valid(manifest) AND json_extract(manifest,'$.libraryId')=? AND json_extract(manifest,'$.bindingVersion')=?",
+          ).run(library.binding_version + 1, library.library_id, library.binding_version);
+      }
       if (tableExists(db, 'platform_settings')) {
         const binding = db
           .prepare('SELECT knowledge_root,binding_version FROM platform_settings WHERE id=1')

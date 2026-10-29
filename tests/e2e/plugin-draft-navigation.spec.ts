@@ -1,3 +1,4 @@
+import { openLegacyMcpSettings } from '../support/settings-navigation';
 import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
@@ -24,6 +25,7 @@ async function configureCurrentMcp(page: Page) {
     await page.getByRole('button', { name: '安装MCP 服务', exact: true }).click();
   }
   await expect(page.getByRole('heading', { name: 'MCP 服务设置', exact: true })).toBeVisible();
+  await openLegacyMcpSettings(page);
 }
 
 async function section(page: Page, label: string) {
@@ -216,6 +218,7 @@ test('first-use plugin settings also warn before a refresh and retain input when
   await page.goto('/');
   await expect(page.getByRole('heading', { name: '选择需要的功能', exact: true })).toBeVisible();
   await page.getByRole('button', { name: /^(添加|查看)连接设置$/ }).click();
+  await openLegacyMcpSettings(page);
   const prefixes = page.getByLabel('允许访问的目录', { exact: true });
   await prefixes.click();
   await prefixes.fill('00-Inbox\n向导中的未保存输入');

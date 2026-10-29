@@ -59,9 +59,9 @@
 }
 .settings-overlay-close {
   display: grid;
-  flex: 0 0 30px;
-  width: 30px;
-  height: 30px;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
   place-items: center;
   margin: -4px -5px 0 0;
   padding: 0;
@@ -228,18 +228,22 @@ html[data-theme='dark'] .settings-overlay :is(input:not([type='checkbox']), sele
   gap: 8px;
 }
 .settings-workspace .settings-action-card {
-  display: flex;
+  container-type: inline-size;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: 16px;
-  padding: 20px 22px;
+  gap: 12px 16px;
+  padding: var(--settings-card-padding, 20px);
+}
+.settings-workspace .settings-action-card-with-icon {
+  grid-template-columns: 40px minmax(0, 1fr) auto;
 }
 .settings-action-copy {
-  flex: 1;
   min-width: 0;
 }
 .settings-workspace .settings-action-copy h2 {
   margin-bottom: 5px;
-  font-size: 15px;
+  font-size: 16px;
 }
 .settings-workspace .settings-action-copy p {
   margin: 0;
@@ -247,7 +251,6 @@ html[data-theme='dark'] .settings-overlay :is(input:not([type='checkbox']), sele
 }
 .settings-action-button.ant-btn {
   display: inline-flex;
-  flex: 0 0 auto;
   align-items: center;
   gap: 9px;
   min-height: 34px;
@@ -255,6 +258,18 @@ html[data-theme='dark'] .settings-overlay :is(input:not([type='checkbox']), sele
   color: var(--blue, #4566c6);
   border-color: var(--border, #e3e6ec);
   background: var(--panel, #fff);
+}
+@container (max-width: 440px) {
+  .settings-action-copy {
+    grid-column: 1 / -1;
+  }
+  .settings-action-card-with-icon > .settings-action-copy {
+    grid-column: 2 / -1;
+  }
+  .settings-action-button.ant-btn {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
 }
 @media (max-width: 600px) {
   .settings-overlay-header {
@@ -273,16 +288,5 @@ html[data-theme='dark'] .settings-overlay :is(input:not([type='checkbox']), sele
   .settings-overlay-modal {
     max-height: calc(100dvh - 24px);
     margin-block: 12px;
-  }
-  .settings-workspace .settings-action-card {
-    flex-wrap: wrap;
-    gap: 12px;
-    padding: 18px;
-  }
-  .settings-action-copy {
-    flex-basis: calc(100% - 56px);
-  }
-  .settings-action-button.ant-btn {
-    margin-left: 52px;
   }
 }

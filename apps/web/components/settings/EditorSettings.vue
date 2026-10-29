@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Icon from '../Icon.vue';
 import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue';
 import { Button as AButton, Select as ASelect, Switch as ASwitch } from 'ant-design-vue';
 import { editorPreferences, setEditorPreferences } from '../../preferences';
@@ -79,11 +80,29 @@ function reset() {
 <template>
   <div class="settings-stack">
     <section class="settings-card">
-      <h2>编辑与阅读</h2>
+      <h2 class="settings-section-title"><Icon name="file" :size="18" />编辑与阅读</h2>
       <p class="settings-muted">
         设置保存在当前账户的这台浏览器中。保存后用于笔记显示，原文格式保持不变。
       </p>
-      <form @submit.prevent="save" @change="notice = ''">
+      <div class="editor-settings-toolbar">
+        <div class="settings-actions" role="group" aria-label="编辑器偏好操作">
+          <AButton type="primary" html-type="submit" form="editor-preferences-form"
+            ><template #icon><Icon class="settings-button-icon" name="save" :size="15" /></template
+            >保存偏好</AButton
+          ><AButton :disabled="!dirty" @click="cancel">取消更改</AButton
+          ><AButton @click="reset"
+            ><template #icon
+              ><Icon class="settings-button-icon" name="refresh" :size="15" /></template
+            >恢复默认设置</AButton
+          >
+        </div>
+        <p class="editor-settings-status" role="status">
+          <span :class="notice && !dirty ? 'settings-success' : 'settings-muted'">{{
+            notice || (dirty ? '有未保存的更改' : '当前偏好已保存')
+          }}</span>
+        </p>
+      </div>
+      <form id="editor-preferences-form" @submit.prevent="save" @change="notice = ''">
         <div v-if="documentEditingEnabled" class="settings-row">
           <div>
             <label for="pref-editor-kind">默认编辑方式</label>
@@ -121,14 +140,14 @@ function reset() {
             style="min-width: 150px"
           />
         </div>
-        <div class="settings-row">
+        <div class="settings-row settings-row-switch">
           <div>
             <label for="pref-wrap">自动换行</label>
             <p class="settings-muted">Markdown 源码中的长段落随编辑区域宽度换行。</p>
           </div>
           <ASwitch id="pref-wrap" aria-label="自动换行" v-model:checked="draft.wrap" />
         </div>
-        <div class="settings-row">
+        <div class="settings-row settings-row-switch">
           <div>
             <label for="pref-lines">显示行号</label>
             <p class="settings-muted">在 Markdown 源码中显示行号，便于定位原文段落。</p>
@@ -173,65 +192,62 @@ function reset() {
             style="min-width: 150px"
           />
         </div>
-        <section
-          class="editor-preview"
-          aria-label="编辑器显示预览"
-          :data-preview-theme="previewTheme"
-        >
-          <div class="preview-toolbar">
-            <strong>显示预览</strong
-            ><span
-              >{{ readingLabels[draft.readingWidth] }} · {{ draft.fontSize }} px ·
-              {{ previewTheme === 'dark' ? '深色' : '浅色' }}</span
-            >
-          </div>
-          <p class="preview-caption">预览为缩略示意；点击「保存偏好」后应用到笔记。</p>
-          <div
-            class="preview-view"
-            :class="{ 'preview-split': draft.mode === 'split' }"
-            :style="{ fontSize: draft.fontSize + 'px' }"
+        <details class="editor-preview-details">
+          <summary>显示预览</summary>
+          <section
+            class="editor-preview"
+            aria-label="编辑器显示预览"
+            :data-preview-theme="previewTheme"
           >
-            <div v-if="draft.mode !== 'preview'" class="preview-pane preview-source">
-              <div class="preview-source-line">
-                <span v-if="draft.lineNumbers" class="preview-line-number" aria-hidden="true"
-                  >1</span
-                ><code># 阅读与记录</code>
+            <div class="preview-toolbar">
+              <strong>显示预览</strong
+              ><span
+                >{{ readingLabels[draft.readingWidth] }} · {{ draft.fontSize }} px ·
+                {{ previewTheme === 'dark' ? '深色' : '浅色' }}</span
+              >
+            </div>
+            <p class="preview-caption">预览为缩略示意；点击「保存偏好」后应用到笔记。</p>
+            <div
+              class="preview-view"
+              :class="{ 'preview-split': draft.mode === 'split' }"
+              :style="{ fontSize: draft.fontSize + 'px' }"
+            >
+              <div v-if="draft.mode !== 'preview'" class="preview-pane preview-source">
+                <div class="preview-source-line">
+                  <span v-if="draft.lineNumbers" class="preview-line-number" aria-hidden="true"
+                    >1</span
+                  ><code># 阅读与记录</code>
+                </div>
+                <div class="preview-source-line">
+                  <span v-if="draft.lineNumbers" class="preview-line-number" aria-hidden="true"
+                    >2</span
+                  ><code
+                    :style="{
+                      whiteSpace: draft.wrap ? 'pre-wrap' : 'pre',
+                      overflowWrap: draft.wrap ? 'anywhere' : 'normal',
+                    }"
+                    >{{ sample }}</code
+                  >
+                </div>
               </div>
-              <div class="preview-source-line">
-                <span v-if="draft.lineNumbers" class="preview-line-number" aria-hidden="true"
-                  >2</span
-                ><code
-                  :style="{
-                    whiteSpace: draft.wrap ? 'pre-wrap' : 'pre',
-                    overflowWrap: draft.wrap ? 'anywhere' : 'normal',
-                  }"
-                  >{{ sample }}</code
-                >
+              <div v-if="draft.mode !== 'edit'" class="preview-pane preview-reading">
+                <div :style="{ width: previewWidth }" class="preview-reading-page">
+                  <div class="preview-title">阅读与记录</div>
+                  <p>{{ sample }}</p>
+                </div>
               </div>
             </div>
-            <div v-if="draft.mode !== 'edit'" class="preview-pane preview-reading">
-              <div :style="{ width: previewWidth }" class="preview-reading-page">
-                <div class="preview-title">阅读与记录</div>
-                <p>{{ sample }}</p>
-              </div>
-            </div>
-          </div>
-          <p v-if="draft.mode === 'edit'" class="preview-caption">
-            阅读宽度：{{ readingLabels[draft.readingWidth] }}，在预览或分屏视图中查看效果。
-          </p>
-        </section>
-        <div class="settings-actions">
-          <AButton type="primary" html-type="submit">保存偏好</AButton
-          ><AButton :disabled="!dirty" @click="cancel">取消更改</AButton
-          ><AButton @click="reset">恢复默认设置</AButton
-          ><span class="settings-success" role="status">{{ notice }}</span>
-        </div>
+            <p v-if="draft.mode === 'edit'" class="preview-caption">
+              阅读宽度：{{ readingLabels[draft.readingWidth] }}，在预览或分屏视图中查看效果。
+            </p>
+          </section>
+        </details>
       </form>
     </section>
     <SettingsActionCard
       title="键盘操作"
       description="查看常用快捷键，让编辑和浏览更顺手。"
-      icon="file"
+      icon="keyboard"
       action-label="查看快捷键"
       @open="shortcutsOpen = true"
     />
@@ -239,7 +255,7 @@ function reset() {
       v-model:show="shortcutsOpen"
       title="键盘操作"
       description="Ctrl 用于 Windows 和 Linux，⌘ 用于 macOS。"
-      icon="file"
+      icon="keyboard"
     >
       <dl class="settings-shortcuts">
         <div v-for="[label, keys] in shortcuts" :key="label">
@@ -250,12 +266,48 @@ function reset() {
         </div>
       </dl>
       <p class="settings-muted">笔记采用手动保存，离开前请留意保存状态。</p>
-      <template #footer="{ close }"><AButton type="primary" @click="close">完成</AButton></template>
+      <template #footer="{ close }"
+        ><AButton type="primary" @click="close"
+          ><template #icon><Icon class="settings-button-icon" name="check" :size="15" /></template
+          >完成</AButton
+        ></template
+      >
     </SettingsOverlay>
   </div>
 </template>
 
 <style scoped>
+.editor-settings-toolbar {
+  position: sticky;
+  top: var(--settings-sticky-top, 0px);
+  z-index: 2;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border, #e3e6ec);
+  background: var(--panel, #fff);
+}
+.settings-workspace .editor-settings-toolbar .settings-actions {
+  gap: 8px;
+  margin-top: 0;
+}
+.settings-workspace .editor-settings-status {
+  min-height: 22px;
+  margin: 6px 0 0;
+}
+.editor-preview-details > summary {
+  width: fit-content;
+}
+.settings-row :deep(input),
+.settings-row :deep(button),
+.editor-preview-details > summary {
+  scroll-margin-top: calc(var(--settings-sticky-top, 0px) + 148px);
+  scroll-margin-bottom: 16px;
+}
+@media (max-width: 600px) {
+  .editor-settings-toolbar .ant-btn {
+    padding-inline: 8px;
+    font-size: 13px;
+  }
+}
 .editor-preview {
   --preview-bg: #fff;
   --preview-text: #293344;
@@ -267,7 +319,7 @@ function reset() {
   overflow: hidden;
   background: var(--preview-bg);
   color: var(--preview-text);
-  margin-top: 22px;
+  margin-top: 10px;
 }
 .editor-preview[data-preview-theme='dark'] {
   --preview-bg: #20252e;

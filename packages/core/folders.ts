@@ -7,6 +7,7 @@ import { safePath, validName, validateRelative } from './files.js';
 import { assertRoot } from './indexing/reconcile.js';
 import { assertWritable, fsyncDirectory, webPrincipal } from './knowledge/core.js';
 import { fail } from './knowledge/errors.js';
+import { portableLibrary } from './portable-library.js';
 import { beginOperation, completeOperation, existingResult } from './knowledge/operations.js';
 import {
   operationHasLiveWorkspaceWriter,
@@ -106,6 +107,7 @@ export function rebindRestoredFolders(config: AppConfig, db: AppDatabase) {
 }
 
 function finish(config: AppConfig, db: AppDatabase, row: FolderRow) {
+  const library = portableLibrary(config, db);
   const restoring = row.state === 'restoring';
   const destination = restoring
     ? safePath(config.knowledgeRoot, row.restore_path!, 'folder')
@@ -114,6 +116,7 @@ function finish(config: AppConfig, db: AppDatabase, row: FolderRow) {
     fail(409, 'RECOVERY_REQUIRED', '文件夹发生变化，请核对后重试');
   db.transaction(() => {
     for (const note of JSON.parse(row.notes_json) as FolderNote[]) {
+      library.remember(note.id);
       if (restoring) {
         const path = row.restore_path! + note.path.slice(row.path.length);
         db.prepare('UPDATE notes SET path=?,active=1,trash_path=NULL WHERE id=?').run(
