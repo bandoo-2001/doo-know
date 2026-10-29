@@ -63,7 +63,7 @@ async function modelCall<T>(work: () => T | Promise<T>): Promise<T> {
 
 function parseQuery(raw: Record<string, unknown>): GraphExploreQuery {
   const strings = ['folder', 'q', 'focus', 'target', 'view', 'mode'];
-  const numbers = ['depth', 'limit', 'minConfidence'];
+  const numbers = ['depth', 'limit', 'minConfidence', 'similarityThreshold'];
   const booleans = ['includeSuggested', 'includeSimilarity'];
   const arrays = ['nodeKinds', 'edgeKinds'];
   const keys = [...strings, ...numbers, ...booleans, ...arrays];
@@ -92,6 +92,10 @@ function parseQuery(raw: Record<string, unknown>): GraphExploreQuery {
       (!Number.isFinite(input.minConfidence) ||
         Number(input.minConfidence) < 0 ||
         Number(input.minConfidence) > 1)) ||
+    (input.similarityThreshold !== undefined &&
+      (!Number.isFinite(input.similarityThreshold) ||
+        Number(input.similarityThreshold) < 0 ||
+        Number(input.similarityThreshold) > 1)) ||
     (Array.isArray(input.nodeKinds) &&
       input.nodeKinds.some(
         (value) => !['note', ...graphEntityKinds].includes(String(value) as 'note'),

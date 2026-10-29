@@ -185,11 +185,18 @@ watch(
       <ASpace wrap :size="[4, 8]">
         <ATag>{{ graphLabels[edge.kind] || '关系' }}</ATag>
         <ATag
+          v-if="edge.kind !== 'similarity'"
           :color="edge.status === 'accepted' ? 'green' : edge.status === 'manual' ? 'blue' : 'gold'"
           >{{ graphReviewStatusLabels[edge.status] || '待审核' }}</ATag
         >
-        <span class="inspector-muted">置信度 {{ Math.round(edge.confidence * 100) }}%</span>
+        <span v-if="edge.similarity" class="inspector-muted"
+          >余弦相似度 {{ edge.similarity.score.toFixed(3) }}</span
+        >
+        <span v-else class="inspector-muted">置信度 {{ Math.round(edge.confidence * 100) }}%</span>
       </ASpace>
+      <p v-if="edge.similarity" class="inspector-muted">
+        来自现有向量模型的内容相近线索，分数表示相似程度，不能作为事实关系的证据。
+      </p>
       <ASpace wrap class="inspector-actions">
         <AButton @click="emit('select', edge.source)">查看起点</AButton>
         <AButton @click="emit('select', edge.target)">查看终点</AButton>
@@ -254,7 +261,9 @@ watch(
               ? '基础词项分析'
               : ev.method === 'model'
                 ? '模型提取'
-                : '人工关系'
+                : ev.method === 'embedding'
+                  ? '向量索引片段'
+                  : '人工关系'
           }}{{ ev.model ? ' · ' + ev.model : '' }}
         </div>
       </ACard>

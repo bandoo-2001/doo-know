@@ -60,8 +60,10 @@ export type GraphEvidence = {
   startLine: number;
   endLine: number;
   quote: string;
-  method: 'local' | 'model' | 'manual';
+  method: 'local' | 'model' | 'manual' | 'embedding';
   model?: string;
+  embeddingSpaceId?: string;
+  chunkId?: string;
 };
 export type GraphKnowledgeNode = GraphNode & {
   kind: 'note' | GraphEntityKind;
@@ -77,6 +79,13 @@ export type GraphKnowledgeEdge = GraphEdge & {
   status: 'suggested' | 'accepted' | 'manual';
   confidence: number;
   evidence: GraphEvidence[];
+  similarity?: {
+    method: 'embedding-cosine';
+    score: number;
+    spaceId: string;
+    dimensions: number;
+    aggregation: 'overlap-weighted-mean';
+  };
 };
 export type GraphExploreQuery = Omit<GraphQuery, 'mode'> & {
   view?: 'notes' | 'knowledge';
@@ -85,10 +94,25 @@ export type GraphExploreQuery = Omit<GraphQuery, 'mode'> & {
   edgeKinds?: GraphKnowledgeEdge['kind'][];
   includeSuggested?: boolean;
   includeSimilarity?: boolean;
+  similarityThreshold?: number;
   minConfidence?: number;
   target?: string;
 };
 export type GraphJobState = 'idle' | 'running' | 'paused' | 'waiting-model' | 'failed' | 'queued';
+export type GraphSimilarityStatus = {
+  state: 'unconfigured' | 'pending' | 'ready' | 'partial' | 'invalid';
+  method: 'embedding';
+  spaceId?: string;
+  dimensions?: number;
+  readyNotes: number;
+  totalNotes: number;
+  pendingNotes: number;
+  invalidNotes: number;
+  truncated: boolean;
+  reason?: string;
+  /** Principal-scoped vector metadata revision, never a hidden-source change counter. */
+  revision: string;
+};
 export type GraphAnalysisStatus = {
   state: GraphJobState;
   automatic: boolean;
@@ -103,12 +127,14 @@ export type GraphAnalysisStatus = {
   revision: string;
   lastUpdatedAt?: string;
   errors: { noteId: string; title: string; code: string }[];
+  similarity?: GraphSimilarityStatus;
 };
 export type GraphKnowledgeResponse = Omit<KnowledgeGraphResponse, 'nodes' | 'edges'> & {
   nodes: GraphKnowledgeNode[];
   edges: GraphKnowledgeEdge[];
   status: GraphAnalysisStatus;
   path?: string[];
+  similarity?: GraphSimilarityStatus;
 };
 export type GraphReviewItem = {
   id: string;

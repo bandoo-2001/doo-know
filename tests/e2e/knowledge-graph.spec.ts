@@ -52,6 +52,16 @@ test('keeps explicit note exploration available in the calm graph workspace', as
   await page.getByRole('button', { name: '筛选', exact: true }).click();
   const filters = page.getByRole('dialog', { name: '筛选与路径' });
   await expect(filters.getByRole('slider', { name: '最低置信度', exact: true })).toBeVisible();
+  await expect(filters.getByRole('slider', { name: '最低语义相似度', exact: true })).toHaveCount(0);
+  await filters.getByRole('checkbox', { name: '显示语义相似（向量）', exact: true }).check();
+  const similarity = filters.getByRole('slider', { name: '最低语义相似度', exact: true });
+  await expect(similarity).toBeVisible();
+  await expect(similarity).toHaveAttribute('aria-valuenow', '0.65');
+  await captureGraph(page, info.project.name, 'vector-filters');
+  await filters.getByRole('button', { name: '关闭筛选与路径' }).click();
+  await expect(page.getByRole('alert').filter({ hasText: '设置 → 搜索与索引' })).toBeVisible();
+  await page.getByRole('button', { name: '筛选', exact: true }).click();
+  await filters.getByRole('checkbox', { name: '显示语义相似（向量）', exact: true }).uncheck();
   await filters.getByRole('checkbox', { name: '仅孤立节点' }).check();
   await filters.getByRole('button', { name: '关闭筛选与路径' }).click();
   await expect(nodes).toHaveCount(1);

@@ -84,6 +84,25 @@ const reviewSearch = ref('');
 const edits = ref<Record<string, string>>({});
 const node = computed(() => state.result?.nodes.find((n) => n.id === state.selectedId));
 const edge = computed(() => state.result?.edges.find((e) => e.id === state.selectedId));
+const similarityThreshold = computed({
+  get: () => state.query.similarityThreshold ?? 0.65,
+  set: (value: number) => {
+    state.query.similarityThreshold = value;
+  },
+});
+const similarityStatus = computed(() => state.result?.similarity || state.status?.similarity);
+const similarityNotice = computed(() => {
+  if (!state.query.includeSimilarity || !similarityStatus.value) return '';
+  const s = similarityStatus.value;
+  if (s.state === 'unconfigured')
+    return '语义相似尚未启用：请在“设置 → 搜索与索引”准备向量模型并建立索引。';
+  if (s.state === 'invalid' || s.invalidNotes > 0)
+    return `向量索引已就绪 ${s.readyNotes} / ${s.totalNotes} 篇，部分索引无法使用，请在“设置 → 搜索与索引”检查或重建索引。`;
+  if (s.truncated) return '当前比较了部分笔记，可选择起点进行局部探索。';
+  if (s.state === 'pending' || s.state === 'partial')
+    return `向量索引已就绪 ${s.readyNotes} / ${s.totalNotes} 篇；其余笔记完成索引后会自动参与比较。`;
+  return '';
+});
 const dirty = computed(
   () =>
     panel.value === 'model' &&
@@ -638,6 +657,13 @@ onBeforeUnmount(() => {
         ><AButton size="small" type="link" @click="refresh">重试</AButton></template
       ></AAlert
     >
+    <AAlert
+      v-if="similarityNotice"
+      class="graph-notice"
+      type="info"
+      show-icon
+      :message="similarityNotice"
+    />
     <div class="graph-body" :class="{ 'has-inspector': !!state.selectedId && !mobile }">
       <main class="graph-main">
         <ACard v-show="view === 'graph'" class="graph-canvas-card" :body-style="{ padding: 0 }">
@@ -817,7 +843,7 @@ onBeforeUnmount(() => {
               ><ACheckbox v-model:checked="state.query.includeSuggested" @change="refresh"
                 >显示待审核候选</ACheckbox
               ><ACheckbox v-model:checked="state.query.includeSimilarity" @change="refresh"
-                >显示词项相似（辅助线索）</ACheckbox
+                >显示语义相似（向量）</ACheckbox
               ><ACheckbox
                 :checked="state.query.mode === 'orphans'"
                 @update:checked="
@@ -830,6 +856,25 @@ onBeforeUnmount(() => {
               ></ASpace
             ></AFormItem
           >
+          <AFormItem
+            v-if="state.query.includeSimilarity"
+            name="similarityThreshold"
+            label="最低语义相似度"
+            extra="余弦分数越高，内容越相近。每篇笔记保留最相近的少量连接。"
+          >
+            <div class="graph-slider-row">
+              <ASlider
+                v-model:value="similarityThreshold"
+                aria-label="最低语义相似度"
+                aria-label-for-handle="最低语义相似度"
+                :min="0"
+                :max="1"
+                :step="0.05"
+                @after-change="refresh"
+              />
+              <ATag :bordered="false">{{ similarityThreshold.toFixed(2) }}</ATag>
+            </div>
+          </AFormItem>
           <AFormItem name="minConfidence" label="最低置信度"
             ><div class="graph-slider-row">
               <ASlider

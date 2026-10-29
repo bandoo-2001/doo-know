@@ -286,7 +286,7 @@ it('portable decisions import into a new library database and malformed/conflict
   writeFileSync(join(destination, '_data/apps/knowledge-graph/state.json'), '{}');
   expect(() => copy.userState(webPrincipal)).toThrow();
 });
-it('labels similarity as term based and enforces limits on dense graph output', async () => {
+it('reports unconfigured vector similarity without lexical fallback and enforces output limits', async () => {
   const f = fixture({ settings: () => ({ ...settings, provider: 'none' }) });
   for (let i = 0; i < 8; i++)
     f.note('n' + i, `Public/${i}.md`, '# Knowledge\nGraph theory connects retrieval networks.');
@@ -299,11 +299,11 @@ it('labels similarity as term based and enforces limits on dense graph output', 
   });
   expect(graph.nodes).toHaveLength(3);
   expect(graph.truncated).toBe(true);
-  expect(
-    graph.edges.filter((e) => e.kind === 'similarity').every((e) => e.label === '词项相似'),
-  ).toBe(true);
+  expect(graph.edges.some((e) => e.kind === 'similarity')).toBe(false);
+  expect(graph.similarity).toMatchObject({ state: 'unconfigured', method: 'embedding' });
   const full = await f.service.explore(webPrincipal, { view: 'notes', includeSimilarity: true });
-  expect(full.edges.some((e) => e.kind === 'similarity')).toBe(true);
+  expect(full.edges.some((e) => e.kind === 'similarity')).toBe(false);
+  expect(full.status.similarity?.state).toBe('unconfigured');
   await expect(f.service.explore(webPrincipal, { limit: 1001 })).rejects.toMatchObject({
     statusCode: 400,
   });
@@ -599,7 +599,7 @@ it('returns one principal-wide revision across filtered views and metadata-only 
     restricted = f.service.status(p).revision;
   expect((await f.service.explore(p, { q: 'Violin' })).status.revision).toBe(restricted);
 });
-it('shows term similarities independently from unreviewed semantic suggestions', async () => {
+it('keeps unconfigured vector similarity honest independently from model suggestions', async () => {
   const f = fixture();
   f.note('a', 'Public/a.md', '# Shared\nAda designs Engines.');
   f.note('b', 'Public/b.md', '# Shared\nAda designs Engines.');
@@ -609,7 +609,8 @@ it('shows term similarities independently from unreviewed semantic suggestions',
     includeSimilarity: true,
     includeSuggested: false,
   });
-  expect(shown.edges.some((e) => e.kind === 'similarity')).toBe(true);
+  expect(shown.edges.some((e) => e.kind === 'similarity')).toBe(false);
+  expect(shown.similarity?.state).toBe('unconfigured');
   expect(shown.edges.some((e) => e.kind === 'semantic')).toBe(false);
   const hidden = await f.service.explore(webPrincipal, {
     includeSimilarity: false,

@@ -21,6 +21,7 @@ export function createGraphWorkbench(request: Request) {
       limit: 80,
       includeSuggested: false,
       includeSimilarity: false,
+      similarityThreshold: 0.65,
     } as GraphExploreQuery,
     result: undefined as GraphKnowledgeResponse | undefined,
     resultQuery: undefined as GraphExploreQuery | undefined,
@@ -190,8 +191,13 @@ export function createGraphWorkbench(request: Request) {
         const status = await request('/api/graph/status');
         if (!disposed) {
           const changed = state.result?.status?.revision !== status.revision;
+          // A focused note can finish indexing outside the bounded status metadata sample.
+          const retryFocusedSimilarity =
+            state.query.includeSimilarity &&
+            state.query.focus &&
+            state.result?.similarity?.truncated;
           state.status = status;
-          if (changed && !state.loading) await load();
+          if ((changed || retryFocusedSimilarity) && !state.loading) await load();
         }
       } catch (e) {
         if (!disposed) state.error = message(e);

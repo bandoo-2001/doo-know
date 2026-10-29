@@ -1,5 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 import { createGraphWorkbench } from '../apps/web/graph-workbench';
+import type { GraphSimilarityStatus } from '../shared/graph-semantic-contracts';
 const response = (id = 'a', pending = 0) => ({
   nodes: [{ id, title: id, relativePath: `${id}.md`, directory: '', incoming: 0, outgoing: 0 }],
   edges: [],
@@ -8,6 +9,42 @@ const response = (id = 'a', pending = 0) => ({
   totalEdges: 0,
   truncated: false,
   index: { scanned: 1, indexed: 1, skipped: 0, pending, complete: pending === 0 },
+});
+const similarityResponse = (ready = false, truncated = true) => ({
+  ...response('tail'),
+  similarity: {
+    state: 'partial',
+    method: 'embedding',
+    spaceId: 'test-space',
+    dimensions: 512,
+    readyNotes: 2048,
+    totalNotes: 2049,
+    pendingNotes: 0,
+    invalidNotes: 0,
+    truncated,
+    revision: 'sample-unchanged',
+  } satisfies GraphSimilarityStatus,
+  edges: ready
+    ? [
+        {
+          id: 'tail-neighbor',
+          source: 'tail',
+          target: 'neighbor',
+          kind: 'similarity',
+          label: '语义相似',
+          status: 'suggested',
+          confidence: 0.8,
+          evidence: [],
+          similarity: {
+            method: 'embedding-cosine',
+            score: 0.8,
+            spaceId: 'test-space',
+            dimensions: 512,
+            aggregation: 'overlap-weighted-mean',
+          },
+        },
+      ]
+    : [],
 });
 describe('graph workbench', () => {
   test('serializes filters and drops stale responses and stale errors', async () => {
@@ -138,6 +175,119 @@ describe('graph workbench', () => {
     await vi.advanceTimersByTimeAsync(6000);
     expect(request).toHaveBeenCalledTimes(1);
     vi.useRealTimers();
+  });
+  test('poll refreshes a truncated focused similarity result even when status revision is stable', async () => {
+    vi.useFakeTimers();
+    let vectorsReady = false;
+    const request = vi.fn(async (url: string) =>
+      url === '/api/graph/status' ? response('tail').status : similarityResponse(vectorsReady),
+    );
+    const model = createGraphWorkbench(request);
+    try {
+      Object.assign(model.state.query, { includeSimilarity: true, focus: 'tail' });
+      await model.load();
+      expect(model.state.result?.edges).toEqual([]);
+      vectorsReady = true;
+      model.startPolling();
+      await vi.advanceTimersByTimeAsync(3000);
+      expect(model.state.result?.status.revision).toBe('tail');
+      expect(model.state.result?.edges.map((edge) => edge.id)).toEqual(['tail-neighbor']);
+    } finally {
+      model.dispose();
+      vi.useRealTimers();
+    }
+  });
+  test.each([
+    { name: 'unfocused', focus: undefined, includeSimilarity: true, truncated: true },
+    { name: 'disabled', focus: 'tail', includeSimilarity: false, truncated: true },
+    { name: 'untruncated', focus: 'tail', includeSimilarity: true, truncated: false },
+  ])('stable polling does not explore again for a $name view', async (scope) => {
+    vi.useFakeTimers();
+    const request = vi.fn(async (url: string) =>
+      url === '/api/graph/status'
+        ? response('tail').status
+        : similarityResponse(false, scope.truncated),
+    );
+    const model = createGraphWorkbench(request);
+    try {
+      Object.assign(model.state.query, {
+        includeSimilarity: scope.includeSimilarity,
+        focus: scope.focus,
+      });
+      await model.load();
+      model.startPolling();
+      await vi.advanceTimersByTimeAsync(9000);
+      expect(
+        request.mock.calls.filter(([url]) => url.startsWith('/api/graph/explore')),
+      ).toHaveLength(1);
+      expect(model.state.result?.edges).toEqual([]);
+    } finally {
+      model.dispose();
+      vi.useRealTimers();
+    }
+  });
+  test('focused similarity polling waits for refresh and skips a concurrent load before disposal', async () => {
+    vi.useFakeTimers();
+    let resolve!: (value: ReturnType<typeof similarityResponse>) => void;
+    let explores = 0;
+    const request = vi.fn(async (url: string) => {
+      if (url === '/api/graph/status') return response('tail').status;
+      if (++explores === 1) return similarityResponse();
+      return new Promise<ReturnType<typeof similarityResponse>>((done) => {
+        resolve = done;
+      });
+    });
+    const model = createGraphWorkbench(request);
+    try {
+      Object.assign(model.state.query, { includeSimilarity: true, focus: 'tail' });
+      await model.load();
+      const manualLoad = model.load();
+      model.startPolling();
+      await vi.advanceTimersByTimeAsync(3000);
+      expect(explores).toBe(2);
+      resolve(similarityResponse());
+      await manualLoad;
+      await vi.advanceTimersByTimeAsync(3000);
+      expect(explores).toBe(3);
+      expect(model.state.loading).toBe(true);
+      const callsDuringRefresh = request.mock.calls.length;
+      await vi.advanceTimersByTimeAsync(12000);
+      expect(request).toHaveBeenCalledTimes(callsDuringRefresh);
+      model.dispose();
+      resolve(similarityResponse(true));
+      await vi.advanceTimersByTimeAsync(6000);
+      expect(request).toHaveBeenCalledTimes(callsDuringRefresh);
+      expect(model.state.result?.edges).toEqual([]);
+      expect(model.state.loading).toBe(false);
+    } finally {
+      model.dispose();
+      vi.useRealTimers();
+    }
+  });
+  test('focused truncated similarity polling waits while the tab is hidden', async () => {
+    vi.useFakeTimers();
+    const visibility = { hidden: true };
+    vi.stubGlobal('document', visibility);
+    const request = vi.fn(async (url: string) =>
+      url === '/api/graph/status' ? response('tail').status : similarityResponse(true),
+    );
+    const model = createGraphWorkbench(request);
+    try {
+      Object.assign(model.state.query, { includeSimilarity: true, focus: 'tail' });
+      await model.load();
+      model.startPolling();
+      await vi.advanceTimersByTimeAsync(6000);
+      expect(request).toHaveBeenCalledTimes(1);
+      visibility.hidden = false;
+      await vi.advanceTimersByTimeAsync(3000);
+      expect(
+        request.mock.calls.filter(([url]) => url.startsWith('/api/graph/explore')),
+      ).toHaveLength(2);
+    } finally {
+      model.dispose();
+      vi.unstubAllGlobals();
+      vi.useRealTimers();
+    }
   });
   test('refreshes portable state after a version conflict so retry can recover', async () => {
     const request = vi.fn(async (url: string) => {

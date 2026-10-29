@@ -68,6 +68,9 @@ describe('full content-aware graph API', () => {
       'nodeKinds=unknown',
       'includeSuggested=maybe',
       'minConfidence=2',
+      'similarityThreshold=1.01',
+      'similarityThreshold=-0.1',
+      'similarityThreshold=NaN',
       'unknown=value',
       'limit=1001',
     ])
@@ -82,6 +85,15 @@ describe('full content-aware graph API', () => {
         })
       ).statusCode,
     ).toBe(400);
+  });
+
+  it('accepts cosine thresholds independently of relation confidence', async () => {
+    for (const threshold of [0, 0.65, 1]) {
+      const result = await get(
+        `/api/graph/explore?view=notes&includeSimilarity=true&similarityThreshold=${threshold}&minConfidence=1`,
+      );
+      expect(result.statusCode, result.body).toBe(200);
+    }
   });
 
   it('version-checks model configuration and returns only safe public settings', async () => {
@@ -131,7 +143,7 @@ describe('full content-aware graph API', () => {
       expectedVersion: before.version,
       action: 'save-view',
       name: '容器知识',
-      query: { view: 'knowledge', q: 'Docker' },
+      query: { view: 'knowledge', q: 'Docker', includeSimilarity: true, similarityThreshold: 0.7 },
     };
     const saved = await f.app.inject({
       method: 'POST',
@@ -143,6 +155,9 @@ describe('full content-aware graph API', () => {
     expect(saved.json().views.some((view: { name: string }) => view.name === '容器知识')).toBe(
       true,
     );
+    expect(
+      saved.json().views.find((view: { name: string }) => view.name === '容器知识').query,
+    ).toMatchObject({ includeSimilarity: true, similarityThreshold: 0.7 });
     const retry = await f.app.inject({
       method: 'POST',
       url: '/api/graph/commands',

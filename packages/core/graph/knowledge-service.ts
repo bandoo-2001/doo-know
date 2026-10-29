@@ -23,6 +23,10 @@ import { sourceAccess, hash, type SourceVersion } from './analysis-source.js';
 import { analysisWorker } from './analysis-worker.js';
 import { knowledgeState, canonical, validateQuery, type Portable } from './knowledge-state.js';
 import { terms, type Analysis } from './analysis-content.js';
+import {
+  createGraphVectorSimilarity,
+  type GraphVectorSimilarityPlan,
+} from './vector-similarity.js';
 type SnapshotMetadata = SourceVersion & {
   note_id: string;
   fingerprint: string;
@@ -62,7 +66,8 @@ export function createKnowledgeGraph(
   migrateLookup(db);
   const access = sourceAccess(config, db),
     state = knowledgeState(config, db),
-    worker = analysisWorker(config, db, model, access);
+    worker = analysisWorker(config, db, model, access),
+    similarity = createGraphVectorSimilarity(config, db);
   let closed = false,
     queued = 0;
   function authorize(p: Principal, owner = false) {
@@ -75,6 +80,7 @@ export function createKnowledgeGraph(
     portable: Portable,
     anchors?: string[],
     budget: ReadBudget = { used: 0 },
+    additionalNoteIds: readonly string[] = [],
   ) {
     const filter = acl(p),
       args: unknown[] = [...filter.args],
@@ -139,6 +145,18 @@ export function createKnowledgeGraph(
         found.set(row.id, { ...row, analysis: JSON.parse(payload.data) });
       }
     }
+    if (additionalNoteIds.length && query.focus) {
+      const ids = equivalents([query.focus, ...(query.target ? [query.target] : [])]);
+      add(select('n.id IN (SELECT value FROM json_each(?))', [JSON.stringify(ids)]));
+      add(
+        select(
+          'EXISTS(SELECT 1 FROM graph_analysis_lookup l WHERE l.note_id=n.id AND l.node_id IN (SELECT value FROM json_each(?)))',
+          [JSON.stringify(ids)],
+        ),
+      );
+    }
+    if (additionalNoteIds.length)
+      add(select('n.id IN (SELECT value FROM json_each(?))', [JSON.stringify(additionalNoteIds)]));
     if (anchors) {
       for (const anchor of anchors)
         add(
@@ -245,31 +263,122 @@ export function createKnowledgeGraph(
     } else add(select('1', []));
     return { rows: [...found.values()], truncated };
   }
+  function portableFor(p: Principal): Portable {
+    const saved = state.read();
+    // Unanchored owner annotations are private; manual relations have explicit note anchors.
+    return p.id === 'web-owner'
+      ? saved
+      : {
+          ...saved,
+          merges: {},
+          aliases: {},
+          decisions: Object.fromEntries(
+            Object.entries(saved.decisions).map(([id, value]) => [
+              id,
+              { decision: value.decision },
+            ]),
+          ),
+        };
+  }
+  function similaritySeeds(p: Principal, query: GraphExploreQuery): string[] | undefined {
+    if (!query.focus && !query.q?.trim()) return;
+    const portable = portableFor(p),
+      filter = acl(p),
+      ids = [query.focus, query.target].filter((id): id is string => !!id),
+      needle = query.q?.trim().toLowerCase() ?? '';
+    if (!query.focus)
+      ids.push(
+        ...Object.entries(portable.aliases)
+          .filter(([, aliases]) => aliases.some((a) => a.toLowerCase().includes(needle)))
+          .map(([id]) => id),
+      );
+    const equivalents = [
+      ...new Set([
+        ...ids,
+        ...Object.keys(portable.merges).filter((id) => ids.includes(canonical(portable, id))),
+      ]),
+    ];
+    // Seed discovery reads only principal-scoped metadata. The adapter validates source currency.
+    const seeds = (
+      db
+        .prepare(
+          `SELECT n.id FROM notes n WHERE n.active=1 AND (${filter.sql}) AND (?='' OR instr(n.path,?)=1) AND (n.id IN (SELECT value FROM json_each(?)) OR EXISTS(SELECT 1 FROM graph_analysis_lookup l WHERE l.note_id=n.id AND (l.node_id IN (SELECT value FROM json_each(?)) OR (?<>'' AND dooknow_search_contains(l.search_text,?)=1))) OR (?<>'' AND dooknow_search_contains(n.path,?)=1)) ORDER BY CASE WHEN n.id=? THEN 0 WHEN n.id=? THEN 1 ELSE 2 END,n.rowid LIMIT ?`,
+        )
+        .all(
+          ...filter.args,
+          query.folder ?? '',
+          query.folder ? query.folder + '/' : '',
+          JSON.stringify(equivalents),
+          JSON.stringify(equivalents),
+          query.focus ? '' : needle,
+          needle,
+          query.focus ? '' : needle,
+          needle,
+          query.focus ?? '',
+          query.target ?? '',
+          MAX_SOURCES,
+        ) as { id: string }[]
+    ).map((row) => row.id);
+    if (
+      !query.focus ||
+      (!query.target && (query.depth ?? 1) < 2) ||
+      (query.edgeKinds?.length && !query.edgeKinds.includes('reference')) ||
+      (query.nodeKinds?.length && !query.nodeKinds.includes('note'))
+    )
+      return seeds;
+    // A reference can consume the first graph hop before a similarity edge. Discover
+    // that frontier from indexed links, without parsing the source analysis twice.
+    const currentSources = (extra: string, values: string[]) =>
+      (
+        db
+          .prepare(
+            `SELECT ${SOURCE_METADATA} FROM graph_analysis_sources s JOIN notes n ON n.id=s.note_id WHERE n.active=1 AND (${filter.sql}) AND (?='' OR instr(n.path,?)=1) AND s.config_hash=? AND (${extra}) ORDER BY n.rowid LIMIT ?`,
+          )
+          .all(
+            ...filter.args,
+            query.folder ?? '',
+            query.folder ? query.folder + '/' : '',
+            model.fingerprint(),
+            ...values,
+            MAX_SOURCES,
+          ) as SnapshotMetadata[]
+      ).filter((row) => access.allowed(p, row.path) && access.valid(row));
+    const anchors = currentSources('n.id IN (SELECT value FROM json_each(?))', [
+      JSON.stringify(seeds),
+    ]);
+    if (!anchors.length) return seeds;
+    const outgoing = (
+      db
+        .prepare(
+          `SELECT n.id,n.path FROM notes n WHERE n.active=1 AND (${filter.sql}) AND (?='' OR instr(n.path,?)=1) AND n.path IN (SELECT l.target_path FROM graph_analysis_links l WHERE l.note_id IN (SELECT value FROM json_each(?))) ORDER BY n.rowid LIMIT ?`,
+        )
+        .all(
+          ...filter.args,
+          query.folder ?? '',
+          query.folder ? query.folder + '/' : '',
+          JSON.stringify(anchors.map((row) => row.id)),
+          MAX_SOURCES,
+        ) as { id: string; path: string }[]
+    ).filter((row) => access.allowed(p, row.path) && access.current(row.id)?.path === row.path);
+    const incoming = currentSources(
+      'EXISTS(SELECT 1 FROM graph_analysis_links l WHERE l.note_id=n.id AND l.target_path IN (SELECT value FROM json_each(?)))',
+      [JSON.stringify(anchors.map((row) => row.path))],
+    );
+    // Preparation applies its smaller seed budget and explicitly reports truncation.
+    return [
+      ...new Set([...seeds, ...outgoing.map((row) => row.id), ...incoming.map((row) => row.id)]),
+    ];
+  }
   function aggregate(
     p: Principal,
     query: GraphExploreQuery = {},
     includeIgnored = false,
     anchors?: string[],
     budget: ReadBudget = { used: 0 },
+    plan?: GraphVectorSimilarityPlan,
   ) {
-    const saved = state.read();
-    // Unanchored owner annotations are private. Model metadata remains source-scoped;
-    // manual relations carry an explicit note anchor and are filtered below.
-    const portable: Portable =
-      p.id === 'web-owner'
-        ? saved
-        : {
-            ...saved,
-            merges: {},
-            aliases: {},
-            decisions: Object.fromEntries(
-              Object.entries(saved.decisions).map(([id, value]) => [
-                id,
-                { decision: value.decision },
-              ]),
-            ),
-          };
-    const source = snapshots(p, query, portable, anchors, budget);
+    const portable = portableFor(p),
+      source = snapshots(p, query, portable, anchors, budget, plan?.noteIds);
     if (anchors?.every((id) => id.startsWith('relation:'))) {
       const ids = new Set(anchors),
         endpoints = new Set(
@@ -288,7 +397,7 @@ export function createKnowledgeGraph(
     const nodes = new Map<string, GraphKnowledgeNode>(),
       edges = new Map<string, GraphKnowledgeEdge>(),
       ignored = new Set<string>();
-    let truncated = source.truncated;
+    let truncated = source.truncated || !!plan?.truncated;
     const base = (
       id: string,
       title: string,
@@ -351,6 +460,14 @@ export function createKnowledgeGraph(
         addNode(node, row.id);
       }
     }
+    // Prepared vector nodes are source-validated even without entity-analysis snapshots.
+    // Copy request data before rendering mutates counts, evidence and communities.
+    for (const node of plan?.nodes ?? [])
+      if (!query.folder || node.relativePath.startsWith(query.folder + '/'))
+        addNode(
+          { ...node, incoming: 0, outgoing: 0, evidence: node.evidence.map((e) => ({ ...e })) },
+          node.id,
+        );
     // An explicitly chosen merge target gets its visible label, never metadata from a hidden source.
     for (const row of source.rows)
       for (const entity of row.analysis.entities) {
@@ -360,7 +477,11 @@ export function createKnowledgeGraph(
           nodes.get(id)!.kind = entity.kind;
         }
       }
-    const byPath = new Map(source.rows.map((r) => [r.path, r.id]));
+    const byPath = new Map(
+      [...nodes.values()]
+        .filter((node) => node.kind === 'note')
+        .map((node) => [node.relativePath, node.id]),
+    );
     for (const row of source.rows) {
       for (const entity of row.analysis.entities) {
         const id = canonical(portable, entity.id);
@@ -429,44 +550,8 @@ export function createKnowledgeGraph(
         evidence,
       });
     }
-    if (query.includeSimilarity) {
-      // Bounded inverted term postings avoid quadratic whole-library pair comparisons.
-      const postings = new Map<string, Snapshot[]>(),
-        pairs = new Map<string, { a: Snapshot; b: Snapshot; count: number }>();
-      for (const row of source.rows)
-        for (const term of row.analysis.terms) {
-          const list = postings.get(term) ?? [];
-          if (list.length < 64) list.push(row);
-          postings.set(term, list);
-        }
-      for (const list of postings.values())
-        for (let a = 0; a < list.length; a++)
-          for (let b = a + 1; b < list.length; b++) {
-            const key = list[a].id + '\0' + list[b].id,
-              prev = pairs.get(key);
-            if (prev) prev.count++;
-            else if (pairs.size < 10000) pairs.set(key, { a: list[a], b: list[b], count: 1 });
-            else truncated = true;
-          }
-      for (const pair of [...pairs.values()].sort((a, b) => b.count - a.count).slice(0, 1000)) {
-        const score =
-          pair.count / (pair.a.analysis.terms.length + pair.b.analysis.terms.length - pair.count);
-        if (score >= 0.15)
-          addEdge({
-            id: 'similarity:' + hash(pair.a.id + '\0' + pair.b.id).slice(0, 24),
-            source: pair.a.id,
-            target: pair.b.id,
-            kind: 'similarity',
-            label: '词项相似',
-            status: 'suggested',
-            confidence: score,
-            evidence: [
-              ...pair.a.analysis.entities.flatMap((e) => e.evidence).slice(0, 1),
-              ...pair.b.analysis.entities.flatMap((e) => e.evidence).slice(0, 1),
-            ],
-          });
-      }
-    }
+    for (const edge of plan?.edges ?? [])
+      addEdge({ ...edge, evidence: edge.evidence.map((e) => ({ ...e })) });
     return { nodes, edges, ignored, source, portable, truncated };
   }
   function fence(graph: ReturnType<typeof aggregate>) {
@@ -541,6 +626,7 @@ export function createKnowledgeGraph(
           )
           .get(...filter.args, model.fingerprint()) as { latest: string | null }
       ).latest ?? undefined;
+    const similarityStatus = similarity.status(p);
     const revision = hash(
       JSON.stringify([
         sourceRows.map((r) => [r.id, r.fingerprint, r.config_hash]),
@@ -552,6 +638,7 @@ export function createKnowledgeGraph(
         settings.version,
         suggested,
         lastUpdatedAt,
+        similarityStatus.revision,
       ]),
     ).slice(0, 24);
     if (existing) fence(existing);
@@ -581,11 +668,16 @@ export function createKnowledgeGraph(
       revision,
       lastUpdatedAt,
       errors,
+      similarity: similarityStatus,
     };
   }
-  function render(p: Principal, input: GraphExploreQuery): GraphKnowledgeResponse {
-    const query = validateQuery(input),
-      graph = aggregate(p, query),
+  function render(
+    p: Principal,
+    input: GraphExploreQuery,
+    query: GraphExploreQuery,
+    plan?: GraphVectorSimilarityPlan,
+  ): GraphKnowledgeResponse {
+    const graph = aggregate(p, query, false, undefined, undefined, plan),
       needle = query.q?.trim().toLowerCase();
     let nodes = [...graph.nodes.values()].filter(
       (n) =>
@@ -603,7 +695,7 @@ export function createKnowledgeGraph(
         chosen.has(e.target) &&
         (!query.edgeKinds?.length || query.edgeKinds.includes(e.kind)) &&
         (query.includeSuggested !== false || e.kind !== 'semantic' || e.status !== 'suggested') &&
-        e.confidence >= (query.minConfidence ?? 0),
+        (e.kind === 'similarity' || e.confidence >= (query.minConfidence ?? 0)),
     );
     const adjacent = new Map<string, Set<string>>();
     for (const e of edges) {
@@ -703,13 +795,18 @@ export function createKnowledgeGraph(
       ...(query.focus ? { focus: query.focus } : {}),
       ...(path ? { path } : {}),
       status,
+      ...(plan ? { similarity: plan.status } : {}),
       index: {
         scanned: graph.source.rows.length,
         indexed: status.completed,
         skipped: status.failed,
         pending: status.pending + status.running,
         complete:
-          status.pending === 0 && status.running === 0 && status.failed === 0 && !graph.truncated,
+          status.pending === 0 &&
+          status.running === 0 &&
+          status.failed === 0 &&
+          !graph.truncated &&
+          (!plan || plan.status.state === 'ready'),
       },
     };
   }
@@ -800,7 +897,7 @@ export function createKnowledgeGraph(
     async close() {
       if (closed) return;
       closed = true;
-      await worker.close();
+      await Promise.all([worker.close(), similarity.close()]);
     },
     async explore(p: Principal, query: GraphExploreQuery = {}) {
       authorize(p);
@@ -809,7 +906,13 @@ export function createKnowledgeGraph(
       try {
         return await workspaceRead(db, { kind: 'graph.explore' }, async () => {
           authorize(p);
-          return render(p, query);
+          const validated = validateQuery(query),
+            plan = validated.includeSimilarity
+              ? await similarity.prepare(p, validated, similaritySeeds(p, validated))
+              : undefined;
+          const response = render(p, query, validated, plan);
+          if (plan) similarity.assertFresh(p, plan);
+          return response;
         });
       } finally {
         queued--;

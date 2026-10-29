@@ -9,7 +9,7 @@ export const graphLabels: Record<string, string> = {
   reference: '引用',
   mentions: '提及',
   cooccurs: '词项共现',
-  similarity: '词项相似',
+  similarity: '语义相似',
   semantic: '模型关系',
   manual: '人工关系',
 };

@@ -35,6 +35,7 @@ export function validateQuery(q: GraphExploreQuery): GraphExploreQuery {
           'edgeKinds',
           'includeSuggested',
           'includeSimilarity',
+          'similarityThreshold',
           'minConfidence',
           'target',
         ].includes(k),
@@ -59,11 +60,9 @@ export function validateQuery(q: GraphExploreQuery): GraphExploreQuery {
   if (q.depth !== undefined && q.depth !== 1 && q.depth !== 2) fail(400, 'INVALID_INPUT');
   if (q.mode !== undefined && !['all', 'orphans'].includes(q.mode)) fail(400, 'INVALID_INPUT');
   if (q.view !== undefined && !['notes', 'knowledge'].includes(q.view)) fail(400, 'INVALID_INPUT');
-  if (
-    q.minConfidence !== undefined &&
-    (!Number.isFinite(q.minConfidence) || q.minConfidence < 0 || q.minConfidence > 1)
-  )
-    fail(400, 'INVALID_INPUT');
+  for (const key of ['minConfidence', 'similarityThreshold'] as const)
+    if (q[key] !== undefined && (!Number.isFinite(q[key]) || q[key]! < 0 || q[key]! > 1))
+      fail(400, 'INVALID_INPUT');
   for (const k of ['includeSuggested', 'includeSimilarity'] as const)
     if (q[k] !== undefined && typeof q[k] !== 'boolean') fail(400, 'INVALID_INPUT');
   for (const [key, allowed] of [
