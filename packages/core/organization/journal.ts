@@ -26,6 +26,7 @@ import { fail } from '../knowledge/errors.js';
 import { sha256 } from '../knowledge/operations.js';
 import { restoreHash, fsyncDirectory, enqueueSource } from '../knowledge/core.js';
 import { syncDirectoryCatalog } from './catalog.js';
+import { readOrganizationSettings } from './settings.js';
 import {
   evidence,
   sameIdentity,
@@ -354,9 +355,11 @@ export function commitOrganization(
         indexState: m.objects.some((o) => o.kind === 'file' && o.note) ? 'pending' : 'ready',
         undoAvailable: m.objects.length > 0 && !m.undoOf,
       };
+      const finishedAt = Date.now(),
+        retentionDays = readOrganizationSettings(db).retentionDays;
       db.prepare(
         "UPDATE organization_jobs SET status='succeeded',finished_at=?,expires_at=?,manifest=?,error=NULL WHERE id=?",
-      ).run(Date.now(), Date.now() + 30 * 86400000, JSON.stringify(m), m.operationId);
+      ).run(finishedAt, finishedAt + retentionDays * 86400000, JSON.stringify(m), m.operationId);
       db.prepare(
         "UPDATE operations SET status='succeeded',result=?,error=NULL,updated_at=? WHERE id=?",
       ).run(JSON.stringify(result), Date.now(), m.operationId);
