@@ -136,14 +136,14 @@ export function portablePluginData(db: AppDatabase, knowledgeRoot: () => string 
           portable_plugin_state: { column: 'plugin_id', value: id },
           portable_plugin_data: { column: 'plugin_id', value: id },
         },
-        read: () => read(root, id),
+        read: (boundRoot) => read(boundRoot, id),
         validate: (input) => validateState(id, input),
-        write: (state) => {
+        write: (state, boundRoot) => {
           db.prepare('INSERT INTO portable_plugin_state VALUES(?,?,?,?) ON CONFLICT(root,plugin_id) DO UPDATE SET metadata_json=excluded.metadata_json,config_json=excluded.config_json')
-            .run(root, id, JSON.stringify(state.plugin), JSON.stringify(state.config));
-          db.prepare('DELETE FROM portable_plugin_data WHERE root=? AND plugin_id=?').run(root, id);
+            .run(boundRoot, id, JSON.stringify(state.plugin), JSON.stringify(state.config));
+          db.prepare('DELETE FROM portable_plugin_data WHERE root=? AND plugin_id=?').run(boundRoot, id);
           const insert = db.prepare('INSERT INTO portable_plugin_data VALUES(?,?,?,?)');
-          for (const [key, value] of Object.entries(state.userData)) insert.run(root, id, key, JSON.stringify(value));
+          for (const [key, value] of Object.entries(state.userData)) insert.run(boundRoot, id, key, JSON.stringify(value));
         },
       });
       registered.set(key, value);

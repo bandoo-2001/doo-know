@@ -9,6 +9,8 @@ import { budgets, assertRequest } from './budgets.js';
 import { BridgeError, errorBody } from './errors.js';
 import { buildOpenApi } from './openapi.js';
 import { makeAgentInstructions, toDooAgentGuidance } from './agent-guidance.js';
+import { permissionPolicy } from './contracts.js';
+import { permissionDomains } from '../../../shared/permissions.js';
 export function activate(ctx: PluginContext) {
   const calls = new AsyncLocalStorage<PluginServices>();
   const client = hostClient(() => { const value = calls.getStore(); if (!value) throw new BridgeError('FORBIDDEN',403); return value; }, ctx.config, ctx.track);
@@ -26,7 +28,15 @@ export function activate(ctx: PluginContext) {
     }
   };
   const validate = (config: Record<string, any>) => {
-    for (const p of config.allowedPrefixes) if (typeof p !== 'string' || p.startsWith('/') || /[\\\x00-\x1f]/.test(p) || p.split('/').some(x => x === '.' || x === '..' || !x || x.startsWith('.'))) throw new BridgeError('INVALID_CONFIGURATION');
+    if(config.permissionPolicy !== undefined){
+      const parsed=permissionPolicy.safeParse(config.permissionPolicy);
+      if(!parsed.success)throw new BridgeError('INVALID_CONFIGURATION');
+      for(const [id,grant] of Object.entries(parsed.data.domains)){
+        const domain=permissionDomains.find(domain=>domain.id===id && domain.implemented);
+        if(!domain || grant.actions.some(action=>!domain.actions.some(known=>known.id===action && known.implemented)) || (grant.resources.mode==='selected' && grant.resources.resources.some(resource=>!domain.resourceKinds.includes(resource.kind))))throw new BridgeError('INVALID_CONFIGURATION');
+      }
+    }
+    for (const p of config.allowedPrefixes || []) if (typeof p !== 'string' || p.startsWith('/') || /[\\\x00-\x1f]/.test(p) || p.split('/').some(x => x === '.' || x === '..' || !x || x.startsWith('.'))) throw new BridgeError('INVALID_CONFIGURATION');
     for (const value of [config.externalWebOrigin,config.tunnelOrigin].filter(Boolean)) { const u = new URL(value); if (u.protocol !== 'https:' || u.origin !== value) throw new BridgeError('INVALID_CONFIGURATION'); }
   };
   validate(ctx.config()); ctx.onConfigure(validate);
@@ -56,7 +66,7 @@ export function activate(ctx: PluginContext) {
       }
       const b = body as any;
       if (!b || typeof b !== 'object' || Array.isArray(b) || (b.id != null && !(typeof b.id === 'number' && Number.isFinite(b.id)) && !(typeof b.id === 'string' && Buffer.byteLength(b.id)<=128))) throw new BridgeError('INVALID_INPUT');
-      const server = new McpServer({ name: 'doo-know', version: '1.2.0' }, { instructions: makeAgentInstructions(ctx.config()) + "\n" + toDooAgentGuidance });
+      const server = new McpServer({ name: 'doo-know', version: '1.2.0' }, { instructions: makeAgentInstructions(ctx.config()) + '\n' + toDooAgentGuidance });
       const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined, enableJsonResponse: true, maxRequestBodySize: budgets.request });
       const send = transport.send.bind(transport);
       transport.send = async (message, options) => {

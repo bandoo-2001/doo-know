@@ -46,3 +46,23 @@ it('persists bounded organization retention as an owner maintenance setting', as
     await f.close();
   }
 });
+
+it('offers the new task domain disabled for existing v2 settings without changing stored grants', async () => {
+  const { pluginRuntimeFixture } = await import('./support/plugin-runtime.js');
+  const { pluginHost } = await import('../apps/server/plugins/host.js');
+  const { registerMcpPermissionRoutes } = await import('../apps/server/platform/mcp-permissions.js');
+  const { default: Fastify } = await import('fastify');
+  const f = await pluginRuntimeFixture();
+  const app = Fastify();
+  try {
+    pluginHost(f.config, f.db);
+    f.db.prepare("INSERT INTO platform_plugins(id,installed_version,installed,manifest_json,files_json,state,config_json) VALUES('mcp','1.2.0',1,'{}','{}','enabled',?)").run(JSON.stringify({ permissionPolicy: { version: 2, domains: {} } }));
+    app.addHook('onRequest', async request => { (request as any).ownerId = f.principal.id; });
+    registerMcpPermissionRoutes(app, f.db, f.platform);
+    const response = await app.inject({ url: '/api/platform/mcp/permissions' });
+    expect(response.statusCode).toBe(200);
+    expect(response.json().policy.domains['to-doo']).toMatchObject({ enabled: false, ownerId: f.principal.id, actions: [] });
+    expect(response.json().policy.domains['to-doo'].instanceId).toBe(f.platform.get().toDoo.exportCheckpoint().datasetId);
+    expect(JSON.parse((f.db.prepare("SELECT config_json FROM platform_plugins WHERE id='mcp'").get() as any).config_json).permissionPolicy.domains).toEqual({});
+  } finally { await app.close(); await f.close(); }
+});

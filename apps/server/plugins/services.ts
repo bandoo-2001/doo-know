@@ -1,18 +1,46 @@
-import type { PluginServices, HostCallContext, ServiceCallOptions } from '../../../packages/plugin-sdk/index.js';
+import type {
+  PluginServices,
+  HostCallContext,
+  ServiceCallOptions,
+} from '../../../packages/plugin-sdk/index.js';
 import type { AppDatabase } from '../../../packages/core/db.js';
 import type { platformRuntime } from '../platform/runtime.js';
-import { workspaceExclusive, workspaceWrite } from '../../../packages/core/workspace/gate.js';
+import {
+  workspaceExclusive,
+  workspaceWrite,
+  workspaceRead,
+} from '../../../packages/core/workspace/gate.js';
 import { workspaceExec } from '../../../packages/core/workspace/exec.js';
 import { webPrincipal } from '../../../packages/core/knowledge/core.js';
 import { currentPrincipalPolicy } from '../../../packages/core/agent/config.js';
-import { authorizePath, checkTokenCutoff, requireScope, underPrefix } from '../../../packages/core/agent/auth.js';
-import { beginOperation, completeOperation, findOperation } from '../../../packages/core/knowledge/operations.js';
+import {
+  authorizePath,
+  checkTokenCutoff,
+  requireScope,
+} from '../../../packages/core/agent/auth.js';
+import {
+  beginOperation,
+  completeOperation,
+  findOperation,
+} from '../../../packages/core/knowledge/operations.js';
 import { fail } from '../../../packages/core/knowledge/errors.js';
 import { listMetadata } from '../../../packages/core/knowledge/catalog.js';
 import { flushKnowledgeData } from '../../../packages/core/knowledge-data.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
+import {
+  intersectPermissionPolicies,
+  permissionPolicyForPrincipal,
+  projectPermissionPrincipal,
+  resourceContains,
+} from '../../../packages/core/auth/permissions.js';
+import {
+  resolveDirectory,
+  syncDirectoryCatalog,
+} from '../../../packages/core/organization/catalog.js';
+import { organizationPending } from '../../../packages/core/organization/schema.js';
 import { createToDooAgentPort } from '../to-doo/agent-port.js';
 import { mcpPolicy } from '../platform/oauth.js';
+import { v2ToolRequirements } from '../../../shared/permissions.js';
 
 export function pluginServices(
   platform: ReturnType<typeof platformRuntime>,
@@ -30,13 +58,23 @@ export function pluginServices(
     id: context.ownerId,
     clientId: 'plugin-web:' + id,
     tokenIssuedAt: Math.floor(Date.now() / 1000),
-    scopes: [...webPrincipal.scopes, 'blog:publish', 'to-doo:read', 'to-doo:write'].filter((scope) => capabilities.includes(scope)),
+    scopes: [
+      ...webPrincipal.scopes,
+      'knowledge:organize',
+      'knowledge:archive',
+      'blog:read',
+      'blog:publish',
+      'to-doo:read',
+      'to-doo:write',
+    ].filter((scope) => capabilities.includes(scope)),
   };
   let finishingCommit = false;
-  function authorized(capability: string, options?: ServiceCallOptions) {
-    if (options?.signal?.aborted || (options?.deadline != null && Date.now() >= options.deadline)) fail(499, 'CALL_CANCELLED');
-    if (!capabilities.includes(capability)) fail(403, 'PLUGIN_CAPABILITY_REQUIRED');
+  function authorized(capability?: string, options?: ServiceCallOptions) {
+    if (options?.signal?.aborted || (options?.deadline != null && Date.now() >= options.deadline))
+      fail(499, 'CALL_CANCELLED');
+    if (capability && !capabilities.includes(capability)) fail(403, 'PLUGIN_CAPABILITY_REQUIRED');
     checkTokenCutoff(db, principal);
+    if (!organizationPending(db)) syncDirectoryCatalog(runtime.config, db);
     let policy = currentPrincipalPolicy(runtime.config, db, principal);
     if (
       !policy &&
@@ -52,32 +90,64 @@ export function pluginServices(
         allowedPrefixes: webPrincipal.allowedPrefixes,
       };
     if (!policy) fail(403, 'FORBIDDEN');
-    const prefixes = principal.allowedPrefixes.flatMap((original) =>
-      policy.allowedPrefixes.flatMap((current) =>
-        underPrefix(original, current)
-          ? [original]
-          : underPrefix(current, original)
-            ? [current]
-            : [],
+    let p: Principal = policy;
+    // Grant-backed policy is already intersected with signed scopes and the live plugin ceiling.
+    // Machine policies are trusted configuration but still restricted to this call's original identity.
+    if (!principal.grantId && !principal.clientId.startsWith('plugin-web:')) {
+      if (policy.permissionPolicy) {
+        const effective = intersectPermissionPolicies(
+          principal.permissionPolicy || policy.permissionPolicy,
+          policy.permissionPolicy,
+          resourceContains(db),
+        );
+        for (const [domain, grant] of Object.entries(effective.domains))
+          grant.actions = grant.actions.filter((action) =>
+            principal.scopes.includes(`${domain}:${action}`),
+          );
+        p = projectPermissionPrincipal(db, principal, effective);
+      } else {
+        p = {
+          ...policy,
+          scopes: principal.scopes.filter((scope) => policy!.scopes.includes(scope)),
+          knowledgeAll: false,
+        };
+      }
+    }
+    p = {
+      ...p,
+      scopes: p.scopes.filter(
+        (scope) =>
+          capabilities.includes(scope) ||
+          (p.policyVersion === 1 && (scope === 'knowledge:archive' || scope === 'blog:read')),
       ),
-    );
-    const p = {
-      ...principal,
-      scopes: principal.scopes.filter((scope) => policy.scopes.includes(scope)),
-      allowedPrefixes: [...new Set(prefixes)],
     };
-    requireScope(p, capability);
+    if (capability) requireScope(p, capability);
+    return p;
+  }
+  function toolAuthorized(tool: keyof typeof v2ToolRequirements, options?: ServiceCallOptions) {
+    const p = authorized(undefined, options);
+    for (const scope of v2ToolRequirements[tool]) {
+      if (!capabilities.includes(scope)) fail(403, 'PLUGIN_CAPABILITY_REQUIRED');
+      requireScope(p, scope);
+    }
     return p;
   }
   function blogAuthorized(write: boolean, options?: ServiceCallOptions) {
     let p = authorized('knowledge:read', options);
+    if (p.policyVersion === 2)
+      return toolAuthorized(write ? 'publish_blog_post' : 'get_blog_status', options);
     if (write) {
       authorized('knowledge:write', options);
       p = authorized('blog:publish', options);
       if (id === 'mcp') {
-        const row = db.prepare("SELECT config_json FROM platform_plugins WHERE id='mcp' AND installed=1 AND state='enabled'").get() as { config_json: string } | undefined;
+        const row = db
+          .prepare(
+            "SELECT config_json FROM platform_plugins WHERE id='mcp' AND installed=1 AND state='enabled'",
+          )
+          .get() as { config_json: string } | undefined;
         const policy = row ? JSON.parse(row.config_json) : {};
-        if (policy.readOnly !== false || policy.allowPublish !== true) fail(403, 'FORBIDDEN');
+        if (!policy.permissionPolicy && (policy.readOnly !== false || policy.allowPublish !== true))
+          fail(403, 'FORBIDDEN');
       }
     }
     return p;
@@ -90,18 +160,38 @@ export function pluginServices(
     return row;
   }
   function taskPort(options?: ServiceCallOptions) {
+    function taskAuthorized(write: boolean) {
+      let p = authorized('to-doo:read', options);
+      if (write) p = authorized('to-doo:write', options);
+      if (id === 'mcp') {
+        const config = mcpPolicy(db);
+        if (!config.enabled) fail(403, 'FORBIDDEN');
+        if (config.permissionPolicy) {
+          const original = p.policyVersion === 2 ? p.permissionPolicy : p.permissionCeiling;
+          p = projectPermissionPrincipal(db, p, original
+            ? intersectPermissionPolicies(original, config.permissionPolicy, resourceContains(db))
+            : config.permissionPolicy);
+          requireScope(p, 'to-doo:read');
+          if (write) requireScope(p, 'to-doo:write');
+        } else if (!config.allowToDoo || (write && (config.readOnly || !config.allowToDooWrite)))
+          fail(403, 'FORBIDDEN');
+      }
+      return p;
+    }
     return createToDooAgentPort(runtime.toDoo, {
-      authorize(write) {
-        let p = authorized('to-doo:read', options);
-        if (write) p = authorized('to-doo:write', options);
-        if (id === 'mcp') {
-          const policy = mcpPolicy(db);
-          if (!policy.enabled || !policy.allowToDoo || (write && (policy.readOnly || !policy.allowToDooWrite))) fail(403, 'FORBIDDEN');
-        }
-        return p;
+      authorize: taskAuthorized,
+      access() {
+        const p = taskAuthorized(false);
+        const grant = (p.policyVersion === 2 ? p.permissionPolicy : p.permissionCeiling)?.domains['to-doo'];
+        const config = id === 'mcp' ? mcpPolicy(db) : undefined;
+        return {
+          listIds: config?.toDooListIds ?? [],
+          domains: config?.toDooDomains ?? ['tasks','records','focus','habits','anniversaries','calendar','statistics','settings'],
+          ...(grant?.resources.mode === 'selected'
+            ? { resourceListIds: grant.resources.resources.filter(ref => ref.kind === 'list').map(ref => ref.id) }
+            : {}),
+        };
       },
-      access: () => id === 'mcp' ? { listIds: mcpPolicy(db).toDooListIds, domains: mcpPolicy(db).toDooDomains }
-        : { listIds: [], domains: ['tasks','records','focus','habits','anniversaries','calendar','statistics','settings'] },
       canReadNote: async (_p, noteId) => {
         try { await k.info(authorized('knowledge:read', options), noteId); return true; } catch { return false; }
       },
@@ -116,6 +206,36 @@ export function pluginServices(
       context: (input, options) => taskPort(options).context(input, options),
       command: (input, options) => taskPort(options).command(input, options),
     },
+    permissions: {
+      context: async (options) => {
+        const p = toolAuthorized('get_mcp_context', options);
+        return {
+          policy: permissionPolicyForPrincipal(db, p),
+          ...(p.scopes.includes('knowledge:read')
+            ? { organization: k.organization.context(p) }
+            : {}),
+        };
+      },
+    },
+    knowledgeOrganization: {
+      context: async (options) => k.organization.context(authorized('knowledge:read', options)),
+      list: async (b, options) =>
+        k.organization.list(toolAuthorized('list_directories', options), b),
+      submit: async (b, options) =>
+        k.organization.submit(toolAuthorized('organize_library', options), b, () =>
+          toolAuthorized('organize_library'),
+        ),
+      history: async (b, options) =>
+        k.organization.history(toolAuthorized('list_organization_history', options), b),
+      undo: async (b, options) =>
+        k.organization.undo(toolAuthorized('undo_organization', options), b, () =>
+          toolAuthorized('undo_organization'),
+        ),
+      operation: async (b, options) =>
+        k.organization.operation(authorized('knowledge:read', options), b),
+      cancel: async (b, options) =>
+        k.organization.cancel(authorized('knowledge:organize', options), b),
+    },
     ...(id === 'mcp' &&
     context.channel === 'web' &&
     !context.principal &&
@@ -123,25 +243,48 @@ export function pluginServices(
       ? { authorization }
       : {}),
     knowledge: {
-      info: async (b, options) => k.info(authorized('knowledge:read', options), b.noteId),
+      info: async (b, options) =>
+        workspaceRead(db, { kind: 'knowledge.info' }, () =>
+          k.info(authorized('knowledge:read', options), b.noteId),
+        ),
       list: async (b, options) =>
-        listMetadata(runtime.config, db, runtime.notes, k.info, authorized('knowledge:read', options), b),
-      outline: async (b, options) => k.snapshots.outline(authorized('knowledge:read', options), b.noteId, b.cursor),
+        workspaceRead(db, { kind: 'knowledge.list' }, () =>
+          listMetadata(
+            runtime.config,
+            db,
+            runtime.notes,
+            k.info,
+            authorized('knowledge:read', options),
+            b,
+          ),
+        ),
+      outline: async (b, options) =>
+        workspaceRead(db, { kind: 'knowledge.outline' }, () =>
+          k.snapshots.outline(authorized('knowledge:read', options), b.noteId, b.cursor),
+        ),
       readPage: async ({ noteId, ...b }, options) =>
-        k.snapshots.read(
-          authorized('knowledge:read', options),
-          noteId,
-          b,
-          context.channel === 'mcp' ? 'mcp' : 'web',
+        workspaceRead(db, { kind: 'knowledge.read' }, () =>
+          k.snapshots.read(
+            authorized('knowledge:read', options),
+            noteId,
+            b,
+            context.channel === 'mcp' ? 'mcp' : 'web',
+          ),
         ),
       create: async (b, options) =>
-        k.core.create(
-          authorized('knowledge:write', options),
-          b.directory,
-          b.fileName,
-          b.content,
-          b.requestId,
-        ),
+        workspaceWrite(db, { kind: 'knowledge.create' }, async () => {
+          const p = authorized('knowledge:write', options);
+          let directory = b.directory;
+          if (Object.hasOwn(b, 'directoryId')) {
+            syncDirectoryCatalog(runtime.config, db);
+            const target = b.directoryId === null ? '' : resolveDirectory(db, b.directoryId)?.path;
+            if (target === undefined) fail(404, 'DIRECTORY_NOT_FOUND');
+            if (directory !== undefined && directory !== target) fail(409, 'VERSION_CONFLICT');
+            directory = target;
+          }
+          if (typeof directory !== 'string') fail(400, 'INVALID_DIRECTORY');
+          return k.core.create(p, directory, b.fileName, b.content, b.requestId);
+        }),
       update: async (b, options) =>
         k.core.update(
           authorized('knowledge:write', options),
@@ -157,20 +300,30 @@ export function pluginServices(
           b,
           context.channel === 'mcp' ? 'mcp' : 'web',
         ),
-      archive: async (b, options) =>
-        k.core.archive(authorized('knowledge:write', options), b.noteId, b.expectedModifiedAt, b.requestId),
-      search: async (b, options) => k.search.search(authorized('knowledge:read', options), b),
+      archive: async (b, options) => {
+        const p = authorized('knowledge:write', options);
+        if (p.policyVersion === 2 || p.permissionCeiling) toolAuthorized('archive_note', options);
+        return k.core.archive(p, b.noteId, b.expectedModifiedAt, b.requestId);
+      },
+      search: async (b, options) =>
+        workspaceRead(db, { kind: 'knowledge.search' }, () =>
+          k.search.search(authorized('knowledge:read', options), b),
+        ),
       research: async (b, options) =>
-        k.research.fetch(authorized('knowledge:read', options), b.noteId, b.chunkId, {
-          sourceHash: b.sourceHash,
-          sourceRevision: b.sourceRevision == null ? undefined : String(b.sourceRevision),
-        }),
+        workspaceRead(db, { kind: 'knowledge.fetch' }, () =>
+          k.research.fetch(authorized('knowledge:read', options), b.noteId, b.chunkId, {
+            sourceHash: b.sourceHash,
+            sourceRevision: b.sourceRevision == null ? undefined : String(b.sourceRevision),
+          }),
+        ),
       refresh: async (b, options) => k.indexing.refresh(authorized('knowledge:index', options), b),
       status: async (b, options) => k.indexing.status(authorized('knowledge:index', options), b),
       operation: async (b, options) => {
         const p = authorized('knowledge:read', options),
           op = findOperation(db, p, { id: b.operationId, requestId: b.requestId });
-        if (op.kind === 'blog.publish' || op.kind === 'blog.unpublish') return runtime.blog.operationStatus(p, b);
+        if (op.kind.startsWith('organization.')) return k.organization.operation(p, b);
+        if (op.kind === 'blog.publish' || op.kind === 'blog.unpublish')
+          return runtime.blog.operationStatus(p, b);
         if (db.prepare('SELECT 1 FROM file_operations WHERE id=?').get(op.operationId))
           return k.files.operation(p, op.operationId);
         const intent = db
@@ -179,13 +332,38 @@ export function pluginServices(
         if (intent) authorizePath(p, intent.path);
         return op;
       },
-      cancel: async (b, options) => k.files.cancel(authorized('knowledge:write', options), b.operationId),
+      cancel: async (b, options) => {
+        const p = authorized('knowledge:write', options),
+          op = findOperation(db, p, { id: b.operationId });
+        if (op.kind.startsWith('organization.')) {
+          requireScope(p, 'knowledge:organize');
+          return k.organization.cancel(p, b);
+        }
+        return k.files.cancel(p, b.operationId);
+      },
     },
-    ...(runtime.blog && capabilities.includes('knowledge:read') ? { blog: {
-      status: async (b: { noteId: string }, options?: ServiceCallOptions) => runtime.blog.noteStatus(blogAuthorized(false, options), b.noteId),
-      publish: async (b: Parameters<NonNullable<PluginServices['blog']>['publish']>[0], options?: ServiceCallOptions) => runtime.blog.publishNote(blogAuthorized(true, options), b, () => blogAuthorized(true, options)),
-      unpublish: async (b: Parameters<NonNullable<PluginServices['blog']>['unpublish']>[0], options?: ServiceCallOptions) => runtime.blog.unpublishNote(blogAuthorized(true, options), b, () => blogAuthorized(true, options)),
-    } } : {}),
+    ...(runtime.blog && capabilities.includes('knowledge:read')
+      ? {
+          blog: {
+            status: async (b: { noteId: string }, options?: ServiceCallOptions) =>
+              runtime.blog.noteStatus(blogAuthorized(false, options), b.noteId),
+            publish: async (
+              b: Parameters<NonNullable<PluginServices['blog']>['publish']>[0],
+              options?: ServiceCallOptions,
+            ) =>
+              runtime.blog.publishNote(blogAuthorized(true, options), b, () =>
+                blogAuthorized(true, options),
+              ),
+            unpublish: async (
+              b: Parameters<NonNullable<PluginServices['blog']>['unpublish']>[0],
+              options?: ServiceCallOptions,
+            ) =>
+              runtime.blog.unpublishNote(blogAuthorized(true, options), b, () =>
+                blogAuthorized(true, options),
+              ),
+          },
+        }
+      : {}),
     ...(capabilities.includes('workspace:git')
       ? {
           workspace: {

@@ -5,23 +5,30 @@ import { createKnowledgeDataDomain } from './knowledge-data.js';
 import { fail } from './knowledge/errors.js';
 import { assertRoot } from './indexing/reconcile.js';
 
-type PortableNote = { id: string; path: string; active: boolean };
+type PortableNote = { id: string; path: string; active: boolean; archived?: boolean };
 type PortableFavorite = { username: string; noteId: string };
 type LibraryState = { version: 1; notes: PortableNote[]; favorites: PortableFavorite[] };
 type NoteIdentity = { id: string; path: string; active: number; trash_path: string | null };
 const libraries = new WeakMap<AppDatabase, { root: string; library: ReturnType<typeof createLibrary> }>();
 const label = (value: unknown): value is string =>
   typeof value === 'string' && value.length > 0 && value.length <= 256 && !/[\x00-\x1f]/.test(value);
+const reservedDataNote = (path: string) => path.startsWith('_data/');
 
 function validateState(value: unknown): LibraryState {
   const state = value as LibraryState;
   if (!state || state.version !== 1 || !Array.isArray(state.notes) || !Array.isArray(state.favorites))
     fail(409, 'INVALID_KNOWLEDGE_DATA', '知识库身份数据格式不正确');
-  const ids = new Set<string>(), paths = new Set<string>(), favorites = new Set<string>();
+  const ids = new Set<string>(), paths = new Set<string>(), favorites = new Set<string>(), retired = new Set<string>();
   for (const note of state.notes) {
     if (!note || !label(note.id) || typeof note.path !== 'string' || typeof note.active !== 'boolean' || ids.has(note.id))
       fail(409, 'INVALID_KNOWLEDGE_DATA', '知识库笔记身份重复或无效');
-    try { validateRelative(note.path, 'note'); } catch { fail(409, 'INVALID_KNOWLEDGE_DATA', '知识库笔记路径不正确'); }
+    if ((note.archived !== undefined && typeof note.archived !== 'boolean') || (note.active && note.archived))
+      fail(409, 'INVALID_KNOWLEDGE_DATA', '知识库笔记归档状态无效');
+    // Previous scanners could register application-owned Markdown as notes.
+    // Accept only otherwise-valid legacy paths so migration cannot hide corrupt paths.
+    try { validateRelative(reservedDataNote(note.path) ? 'legacy/' + note.path : note.path, 'note'); }
+    catch { fail(409, 'INVALID_KNOWLEDGE_DATA', '知识库笔记路径不正确'); }
+    if (reservedDataNote(note.path)) retired.add(note.id);
     if (note.active && paths.has(note.path)) fail(409, 'INVALID_KNOWLEDGE_DATA', '知识库笔记路径重复');
     ids.add(note.id);
     if (note.active) paths.add(note.path);
@@ -36,15 +43,18 @@ function validateState(value: unknown): LibraryState {
   // Select portable fields explicitly; imported objects cannot carry local paths or auth state.
   return {
     version: 1,
-    notes: state.notes.map(({ id, path, active }) => ({ id, path, active })),
-    favorites: state.favorites.map(({ username, noteId }) => ({ username, noteId })),
+    notes: state.notes.filter((note) => !retired.has(note.id))
+      .map(({ id, path, active, archived }) => ({ id, path, active, ...(archived ? { archived: true } : {}) })),
+    favorites: state.favorites.filter((favorite) => !retired.has(favorite.noteId))
+      .map(({ username, noteId }) => ({ username, noteId })),
   };
 }
 
 function createLibrary(config: { knowledgeRoot: string }, db: AppDatabase) {
   db.exec(`CREATE TABLE IF NOT EXISTS portable_library_pending_favorites(
     username TEXT NOT NULL,note_id TEXT NOT NULL,PRIMARY KEY(username,note_id));
-    CREATE TABLE IF NOT EXISTS portable_library_omitted_notes(id TEXT PRIMARY KEY);`);
+    CREATE TABLE IF NOT EXISTS portable_library_omitted_notes(id TEXT PRIMARY KEY);
+    CREATE TABLE IF NOT EXISTS portable_library_archived_notes(id TEXT PRIMARY KEY);`);
   const hasUsers = () => !!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='user'").get();
   const localOwner = (username: string) => hasUsers()
     ? (db.prepare('SELECT id FROM user WHERE username=?').get(username) as { id: string } | undefined)?.id
@@ -60,12 +70,34 @@ function createLibrary(config: { knowledgeRoot: string }, db: AppDatabase) {
       db.prepare('DELETE FROM portable_library_pending_favorites WHERE username=? AND note_id=?').run(row.username, row.note_id);
     }
   }
+  function retireReservedNotes() {
+    const reserved = db.prepare("SELECT id,path FROM notes WHERE substr(path,1,6)='_data/'").all() as { id: string; path: string }[];
+    if (!reserved.length) return;
+    db.transaction(() => {
+      for (const note of reserved) {
+        validateRelative('legacy/' + note.path, 'note');
+        db.prepare('UPDATE notes SET active=0 WHERE id=? AND active<>0').run(note.id);
+        db.prepare('INSERT OR IGNORE INTO portable_library_omitted_notes VALUES(?)').run(note.id);
+        db.prepare('DELETE FROM note_favorites WHERE note_id=?').run(note.id);
+        db.prepare('DELETE FROM portable_library_pending_favorites WHERE note_id=?').run(note.id);
+        db.prepare('UPDATE shares SET enabled=0 WHERE note_id=? AND enabled<>0').run(note.id);
+        db.prepare('UPDATE document_state SET active=0 WHERE note_id=? AND active<>0').run(note.id);
+        db.prepare('UPDATE chunks SET active=0 WHERE note_id=? AND active<>0').run(note.id);
+        db.prepare("UPDATE index_jobs SET status='superseded' WHERE note_id=? AND status NOT IN ('done','superseded')").run(note.id);
+      }
+    }).immediate();
+  }
   const domain = createKnowledgeDataDomain<LibraryState>(config, db, 'library/state.json', {
-    tables: ['notes', 'note_favorites', 'portable_library_pending_favorites', 'portable_library_omitted_notes'],
+    tables: ['notes', 'note_favorites', 'portable_library_pending_favorites', 'portable_library_omitted_notes', 'portable_library_archived_notes'],
     validate: validateState,
     read: () => {
-      const notes = (db.prepare('SELECT id,path,active FROM notes WHERE id NOT IN (SELECT id FROM portable_library_omitted_notes) ORDER BY id').all() as { id: string; path: string; active: number }[])
-        .map(({ id, path, active }) => ({ id, path, active: !!active }));
+      const notes = (db.prepare(`SELECT id,path,active,
+        NOT active AND (trash_path IS NOT NULL OR
+          id IN (SELECT id FROM portable_library_archived_notes) OR
+          EXISTS(SELECT 1 FROM folder_trash f,json_each(f.notes_json) n
+            WHERE f.state IN ('trashed','archiving','restoring') AND json_extract(n.value,'$.id')=notes.id)) AS archived
+        FROM notes WHERE id NOT IN (SELECT id FROM portable_library_omitted_notes) ORDER BY id`).all() as { id: string; path: string; active: number; archived: number }[])
+        .map(({ id, path, active, archived }) => ({ id, path, active: !!active, ...(archived ? { archived: true } : {}) }));
       const included = new Set(notes.map((note) => note.id));
       const favorites = new Map<string, PortableFavorite>();
       for (const row of db.prepare('SELECT username,note_id FROM portable_library_pending_favorites').all() as { username: string; note_id: string }[]) {
@@ -98,9 +130,16 @@ function createLibrary(config: { knowledgeRoot: string }, db: AppDatabase) {
           db.prepare('UPDATE notes SET path=? WHERE id=?').run('_data/import/' + current.id, current.id);
         }
       }
-      for (const note of state.notes)
+      for (const note of state.notes) {
         db.prepare('INSERT INTO notes(id,path,active) VALUES(?,?,?) ON CONFLICT(id) DO UPDATE SET path=excluded.path,active=excluded.active,trash_path=CASE WHEN excluded.active=1 THEN NULL ELSE notes.trash_path END')
           .run(note.id, note.path, Number(note.active));
+        // Older clients omit the marker. Only an explicit active restoration
+        // clears a known tombstone; inactive imports cannot recycle its identity.
+        if (note.active)
+          db.prepare('DELETE FROM portable_library_archived_notes WHERE id=?').run(note.id);
+        else if (note.archived)
+          db.prepare('INSERT OR IGNORE INTO portable_library_archived_notes VALUES(?)').run(note.id);
+      }
       db.prepare('DELETE FROM note_favorites').run();
       db.prepare('DELETE FROM portable_library_pending_favorites').run();
       for (const favorite of state.favorites)
@@ -109,13 +148,19 @@ function createLibrary(config: { knowledgeRoot: string }, db: AppDatabase) {
     }).immediate(),
   });
   return {
-    refresh() { domain.refresh(); db.transaction(resolveFavorites).immediate(); },
+    refresh() {
+      domain.refresh();
+      retireReservedNotes();
+      db.transaction(resolveFavorites).immediate();
+      domain.flush();
+    },
     flush: domain.flush,
     identity(path: string, preferred?: string) {
       const active = db.prepare('SELECT id FROM notes WHERE path=? AND active=1').get(path) as { id: string } | undefined;
       if (active) return active.id;
       const eligible = (note: NoteIdentity | undefined) => note && !note.active && !note.trash_path &&
         !db.prepare('SELECT 1 FROM portable_library_omitted_notes WHERE id=?').get(note.id) &&
+        !db.prepare('SELECT 1 FROM portable_library_archived_notes WHERE id=?').get(note.id) &&
         !db.prepare("SELECT 1 FROM folder_trash f,json_each(f.notes_json) n WHERE f.state IN ('trashed','archiving','restoring') AND json_extract(n.value,'$.id')=? LIMIT 1").get(note.id) &&
         !db.prepare("SELECT 1 FROM write_intents WHERE note_id=? AND status IN ('prepared','conflicted')").get(note.id);
       if (preferred) {
@@ -125,7 +170,10 @@ function createLibrary(config: { knowledgeRoot: string }, db: AppDatabase) {
       const previous = db.prepare('SELECT * FROM notes WHERE path=? AND active=0 AND trash_path IS NULL AND id NOT IN (SELECT id FROM portable_library_omitted_notes) ORDER BY rowid DESC LIMIT 1').get(path) as NoteIdentity | undefined;
       return eligible(previous) ? previous!.id : randomUUID();
     },
-    remember(id: string) { db.prepare('DELETE FROM portable_library_omitted_notes WHERE id=?').run(id); },
+    remember(id: string) {
+      db.prepare('DELETE FROM portable_library_omitted_notes WHERE id=?').run(id);
+      db.prepare('DELETE FROM portable_library_archived_notes WHERE id=?').run(id);
+    },
   };
 }
 
@@ -137,7 +185,7 @@ export function portableLibrary(config: { knowledgeRoot: string }, db: AppDataba
     return existing.library;
   }
   const library = createLibrary(config, db);
-  libraries.set(db, { root: config.knowledgeRoot, library });
+  libraries.set(db, { get root() { return config.knowledgeRoot; }, library });
   library.refresh();
   return library;
 }

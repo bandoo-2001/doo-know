@@ -8,6 +8,7 @@ import type {
 import { permissionDomains } from '../../../shared/permissions.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
 import type { AppDatabase } from '../db.js';
+import { readKnowledgeDataFile } from '../knowledge-data.js';
 import { validName } from '../files.js';
 import { fail } from '../knowledge/errors.js';
 export { permissionDomains } from '../../../shared/permissions.js';
@@ -141,6 +142,31 @@ export function currentBlogInstanceId(db: AppDatabase): string {
   return (db.prepare("SELECT value FROM index_meta WHERE key='blog_instance_id'").get() as any)
     .value;
 }
+/** Host identity for the portable task service, independent of knowledge permissions. */
+export function currentToDooInstanceId(db: AppDatabase): string {
+  // Read identity metadata only; a corrupt optional task store must not initialize here.
+  if (hasTable(db, 'todo_instance_state')) {
+    const root = (db.prepare('SELECT root FROM todo_instance_state WHERE id=1').get() as any)?.root;
+    if (root)
+      try {
+        const bytes = readKnowledgeDataFile(root, 'apps/to-doo/manifest.json');
+        const manifest = bytes && JSON.parse(bytes.toString('utf8'));
+        if (manifest?.format === 1 && manifest.appId === 'to-doo' && identifier(manifest.datasetId))
+          return manifest.datasetId;
+      } catch {
+        /* Task endpoints report unreadable optional data independently. */
+      }
+  }
+  const row = db
+    .prepare("SELECT value FROM index_meta WHERE key='to_doo_instance_id'")
+    .get() as any;
+  if (row?.value) return row.value;
+  db.prepare("INSERT OR IGNORE INTO index_meta(key,value) VALUES('to_doo_instance_id',?)").run(
+    randomUUID(),
+  );
+  return (db.prepare("SELECT value FROM index_meta WHERE key='to_doo_instance_id'").get() as any)
+    .value;
+}
 function resourcePath(db: AppDatabase, ref: ResourceRef, libraryId?: string): string | undefined {
   if (ref.kind === 'directory' && hasTable(db, 'organization_directories')) {
     const row = db
@@ -170,7 +196,7 @@ export const underPrefix = (path: string, prefix: string) =>
   path === prefix || path.startsWith(prefix + '/');
 /** Business syntax only. Filesystem evidence is additionally checked by every read/mutation. */
 export function canAccessPath(p: Principal, path: string): boolean {
-  if (typeof path !== 'string') return false;
+  if (typeof path !== 'string' || path === '_data' || path.startsWith('_data/')) return false;
   if (path === '') return p.knowledgeAll === true;
   if (
     path.startsWith('/') ||
@@ -199,6 +225,12 @@ export function projectPermissionPrincipal(
     (blog.instanceId !== currentBlogInstanceId(db) || blog.ownerId !== (p.ownerId || p.id))
   )
     delete policy.domains.blog;
+  const tasks = policy.domains['to-doo'];
+  if (
+    tasks &&
+    (tasks.instanceId !== currentToDooInstanceId(db) || tasks.ownerId !== (p.ownerId || p.id))
+  )
+    delete policy.domains['to-doo'];
   const grant = policy.domains.knowledge;
   const library = currentLibraryIdentity(db);
   const available =
@@ -300,6 +332,29 @@ export function permissionPolicyForPrincipal(db: AppDatabase, p: Principal): Per
       instanceId: currentBlogInstanceId(db),
       actions: blogActions,
       resources: p.knowledgeAll ? { mode: 'all' } : { mode: 'selected', resources: selected },
+    };
+  }
+  const taskActions = p.scopes
+    .filter((scope) => scope.startsWith('to-doo:'))
+    .map((scope) => scope.slice(7))
+    .filter((action) => ['read', 'write'].includes(action));
+  if (taskActions.length) {
+    let listIds: string[] = [];
+    if (p.pluginId === 'mcp' && hasTable(db, 'platform_plugins')) {
+      const plugin = db
+        .prepare("SELECT config_json FROM platform_plugins WHERE id='mcp'")
+        .get() as any;
+      const config = plugin ? JSON.parse(plugin.config_json) : {};
+      if (Array.isArray(config.toDooListIds)) listIds = config.toDooListIds;
+    }
+    domains['to-doo'] = {
+      enabled: true,
+      ownerId,
+      instanceId: currentToDooInstanceId(db),
+      actions: taskActions,
+      resources: listIds.length
+        ? { mode: 'selected', resources: listIds.map((id) => ({ kind: 'list', id })) }
+        : { mode: 'all' },
     };
   }
   const displayed: PermissionPolicy = { version: 2, domains };

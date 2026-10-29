@@ -71,7 +71,14 @@ it('runs the packaged MCP 1.2.0 agent and blog contracts over HTTP with explicit
     expect(initialized.body.result.instructions).toContain('requestId');
     const listed = await rpc('tools/list', {});
     expect(listed.status, listed.text).toBe(200);
-    const tools: any[] = listed.body.result.tools;
+    const tools: any[] = [...listed.body.result.tools];
+    let discoveryCursor = listed.body.result.nextCursor;
+    while (discoveryCursor) {
+      const page = await rpc('tools/list', { cursor: discoveryCursor });
+      expect(page.status, page.text).toBe(200);
+      tools.push(...page.body.result.tools);
+      discoveryCursor = page.body.result.nextCursor;
+    }
     const byName = new Map(tools.map((tool) => [tool.name, tool]));
     for (const name of ['get_blog_status', 'publish_blog_post', 'unpublish_blog_post', 'operation_status']) expect(byName.has(name)).toBe(true);
     const publishSchema = byName.get('publish_blog_post');

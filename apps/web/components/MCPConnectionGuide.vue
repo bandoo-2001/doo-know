@@ -5,6 +5,9 @@ import { Alert as AAlert, Button as AButton } from 'ant-design-vue';
 import type { PluginView } from '../../../packages/plugin-contracts';
 import type { MCPConnectionState } from '../../../shared/mcp-connection-contracts';
 import { api } from '../api';
+import MCPClientPermissions from './MCPClientPermissions.vue';
+import MCPDomainPermissions from './MCPDomainPermissions.vue';
+import type { PermissionPolicy } from '../../../shared/permissions';
 const props = defineProps<{ plugin: PluginView; mode: string; dirty: boolean }>();
 const state = ref<MCPConnectionState>();
 const busy = ref(false),
@@ -12,6 +15,22 @@ const busy = ref(false),
   actionError = ref(''),
   notice = ref(''),
   revokeClient = ref('');
+const tunnelPolicy=ref<PermissionPolicy>(),tunnelCeiling=ref<PermissionPolicy>();
+async function prepareTunnel(){
+  if(busy.value || props.dirty)return;
+  busy.value=true;actionError.value='';
+  try{const current=await api<{policy:PermissionPolicy}>('/api/platform/mcp/permissions');tunnelCeiling.value=current.policy;tunnelPolicy.value=JSON.parse(JSON.stringify(current.policy));}
+  catch{actionError.value='暂时无法读取当前权限，请刷新后重试。';}
+  finally{busy.value=false;}
+}
+async function authorizeTunnel(){
+  if(busy.value || props.dirty || !tunnelPolicy.value)return;
+  busy.value=true;actionError.value='';
+  try{await api('/api/platform/mcp/tunnel/authorize','POST',{permissionPolicy:tunnelPolicy.value});tunnelPolicy.value=undefined;notice.value='Tunnel 授权已更新，后续调用使用新权限。';}
+  catch{actionError.value='未能确认 Tunnel 授权更新，请刷新连接状态后核对。';}
+  finally{busy.value=false;}
+  await load();
+}
 const guideExpanded = ref(false);
 const path = ref(props.mode === 'tunnel' ? 'tunnel' : 'oauth');
 watch(
@@ -55,7 +74,10 @@ function scopes(values: string[]) {
     'knowledge:read': '读取资料',
     'knowledge:write': '修改资料',
     'knowledge:index': '维护索引',
-    'blog:publish': '发布博客',
+    'knowledge:organize': '自主整理',
+    'knowledge:archive': '归档资料',
+    'blog:read': '查看博客',
+    'blog:publish': '公开发布博客',
     'to-doo:read': '读取 To Doo',
     'to-doo:write': '修改 To Doo',
   };
@@ -378,12 +400,22 @@ watch(() => [props.plugin.state, props.plugin.configVersion], load);
         <li>
           工具发现或调用失败：确认插件已启用、配置已保存，隧道客户端仍运行；密钥更新后两端同步。
         </li>
-        <li>没有笔记或不能修改：检查笔记已保存、允许目录和只读开关，以及客户端授权的范围。</li>
+        <li>没有笔记或不能修改：检查笔记已保存、分域能力及资源范围，以及客户端授权的范围。</li>
         <li>
           暂无调用记录：连接可能在授权或工具发现阶段失败，该记录只统计工具执行；请同时检查客户端和隧道诊断。
         </li>
       </ul>
     </details>
+    <section v-if="mode==='tunnel' || mode==='both'" class="guide-clients" aria-label="Tunnel 客户端授权">
+      <h4>Tunnel 客户端授权</h4>
+      <p class="guide-muted">插件上限扩大不会改变已有 Tunnel 授权。先保存配置，再检查并授予新权限。</p>
+      <AButton v-if="!tunnelPolicy" size="small" :disabled="busy || dirty || plugin.state!=='enabled'" @click="prepareTunnel">检查并更新 Tunnel 授权</AButton>
+      <template v-else>
+        <MCPDomainPermissions v-model="tunnelPolicy" :ceiling="tunnelCeiling" :disabled="busy || dirty" consent />
+        <AButton size="small" :disabled="dirty" :loading="busy" @click="authorizeTunnel">保存 Tunnel 授权</AButton>
+        <AButton size="small" :disabled="busy" @click="tunnelPolicy=undefined">取消</AButton>
+      </template>
+    </section>
     <section v-if="state?.clients.length" class="guide-clients" aria-label="连接授权管理">
       <h4>已授权的连接</h4>
       <p class="guide-muted">
@@ -392,8 +424,9 @@ watch(() => [props.plugin.state, props.plugin.configVersion], load);
       <div v-for="client in state.clients" :key="client.clientId" class="guide-client">
         <strong>{{ client.clientId }}</strong
         ><span>{{ client.active ? '授权保留' : '已撤销' }}</span>
-        <p>已授予：{{ scopes(client.scopes) }}</p>
-        <p>
+        <MCPClientPermissions :client="client" @updated="load" />
+        <p v-if="!client.permissionPolicy">已授予：{{ scopes(client.scopes) }}</p>
+        <p v-if="!client.effectivePolicy">
           当前生效：{{ scopes(client.effectiveScopes) }}；目录：{{
             client.effectivePrefixes.join('、') || '无'
           }}

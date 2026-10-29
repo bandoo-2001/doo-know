@@ -18,6 +18,7 @@ import { pluginComponents } from '../../../packages/plugin-ui/host';
 import PluginBoundary from './PluginBoundary.vue';
 import Icon from './Icon.vue';
 import MCPConnectionGuide from './MCPConnectionGuide.vue';
+import MCPDomainPermissions from './MCPDomainPermissions.vue';
 import GitRemotePanel from './GitRemotePanel.vue';
 import SettingsOverlay from './settings/SettingsOverlay.vue';
 import {
@@ -142,15 +143,18 @@ const standardFields = computed(() =>
   Object.fromEntries(
     Object.entries(installed.value?.manifest.configSchema.properties || {}).filter(
       ([key, field]) =>
+        !(installed.value?.id === 'mcp' && ['permissionPolicy','readOnly','allowIndex','allowPublish','allowToDoo','allowToDooWrite','allowedPrefixes'].includes(key)) &&
         (!['object', 'array'].includes((field as any).type) || prefixField(key) || taskArrayField(key)) &&
         pluginFieldVisible(installed.value?.id || '', key, values.value.mode),
     ),
   ),
 );
+const legacyOpen=ref(false);
+const legacyFields=computed(()=>Object.fromEntries(Object.entries(installed.value?.manifest.configSchema.properties || {}).filter(([key])=>['readOnly','allowIndex','allowPublish','allowToDoo','allowToDooWrite','allowedPrefixes'].includes(key))));
 const advancedFields = computed(() =>
   Object.fromEntries(
     Object.entries(installed.value?.manifest.configSchema.properties || {}).filter(
-      ([key, field]) => ['object', 'array'].includes((field as any).type) && !prefixField(key) && !taskArrayField(key),
+      ([key, field]) => key !== 'permissionPolicy' && ['object', 'array'].includes((field as any).type) && !prefixField(key) && !taskArrayField(key),
     ),
   ),
 );
@@ -158,6 +162,9 @@ const capabilityLabels: Record<string, string> = {
   'knowledge:read': '读取知识库',
   'knowledge:write': '写入知识库',
   'knowledge:index': '维护搜索索引',
+  'knowledge:organize': '整理知识库目录',
+  'knowledge:archive': '归档资料',
+  'blog:read': '查看博客状态',
   'to-doo:read': '读取 To Doo',
   'to-doo:write': '修改 To Doo',
   'blog:publish': '公开发布与撤下博客文章',
@@ -641,6 +648,19 @@ onMounted(() => {
         有未保存的更改。返回插件列表后，本页会保留各插件的输入。
       </p>
       <form class="plugin-form" @submit.prevent="save">
+        <MCPDomainPermissions v-if="installed.id === 'mcp'" :key="installed.configVersion" v-model="values.permissionPolicy" :disabled="busy" />
+        <details v-if="installed.id==='mcp' && !values.permissionPolicy" class="field-wide" :open="legacyOpen" @toggle="legacyOpen=($event.target as HTMLDetailsElement).open">
+          <summary>旧版兼容设置</summary>
+          <p class="muted">保留旧连接的目录与只读语义。编辑并保存上方分域权限后，使用新的独立能力与资源范围。</p>
+          <div v-for="(field,key) in legacyFields as Record<string,any>" :key="key" class="plugin-field">
+            <label :for="'plugin-field-'+key">{{field.title}}</label>
+            <ASwitch v-if="field.type==='boolean'" v-model:checked="values[key]" :id="'plugin-field-'+key" :aria-label="field.title" :disabled="busy" />
+            <AInput.TextArea v-else v-model:value="values[key]" :id="'plugin-field-'+key" :aria-label="field.title" :aria-invalid="invalidField===String(key)" :status="invalidField===String(key)?'error':undefined" :disabled="busy" :auto-size="{minRows:4,maxRows:10}" spellcheck="false" />
+            <p v-if="key==='allowedPrefixes'" class="muted">每行一个知识库相对目录或文件，最多64项；不支持上级路径、隐藏目录或绝对路径。</p>
+            <p v-else-if="field.description" class="muted">{{field.description}}</p>
+            <p v-if="invalidField===String(key)" class="plugin-field-error" role="alert">{{error}}</p>
+          </div>
+        </details>
         <div
           v-for="(field, key) in standardFields as Record<string, any>"
           :key="key"
@@ -680,7 +700,7 @@ onMounted(() => {
             :id="'plugin-field-' + key"
             :options="key === 'toDooListIds' ? toDooListOptions : taskDomainOptions"
             :aria-label="field.title || String(key)"
-            :disabled="busy || !values.allowToDoo"
+            :disabled="busy || !(values.permissionPolicy ? values.permissionPolicy.domains?.['to-doo']?.enabled : values.allowToDoo)"
             :placeholder="key === 'toDooListIds' ? '全部清单，可选择缩小范围' : '选择允许的内容'"
           />
           <AInputNumber

@@ -55,7 +55,7 @@ export function statistics(store: Store, q: ToDooQuery = {}): ToDooStatistics {
     if (!listIds) return { sql: '', params: [] };
     if (!listIds.length) return { sql: ' AND 0', params: [] };
     return {
-      sql: ' AND ' + listSql(kind) + ' IN (' + listIds.map(() => '?').join(',') + ')',
+      sql: ' AND ' + listIdentitySql(kind) + ' IN (' + listIds.map(() => '?').join(',') + ')',
       params: listIds,
     };
   }
@@ -155,7 +155,9 @@ export function statistics(store: Store, q: ToDooQuery = {}): ToDooStatistics {
   );
   const listWhere = listIds
     ? listIds.length
-      ? " AND json_extract(t.data,'$.listId') IN (" + listIds.map(() => '?').join(',') + ')'
+      ? " AND COALESCE(json_extract(t.data,'$.listId'),'inbox') IN (" +
+        listIds.map(() => '?').join(',') +
+        ')'
       : ' AND 0'
     : '';
   for (const row of db
@@ -194,6 +196,29 @@ function listSql(kind: ToDooEntityKind): string {
       return "COALESCE(json_extract(e.data,'$.listId'),(SELECT json_extract(t.data,'$.listId') FROM todo_entities o JOIN todo_entities t ON t.kind='task' AND t.id=json_extract(o.data,'$.taskId') WHERE o.kind='occurrence' AND o.id=json_extract(e.data,'$.occurrenceId')))";
     default:
       return 'NULL';
+  }
+}
+/** Public list selectors use the inbox identity; stored task list IDs use SQL NULL. */
+function listIdentitySql(kind: ToDooEntityKind): string {
+  const taskList = "COALESCE(json_extract(t.data,'$.listId'),'inbox')";
+  const fromTask = `(SELECT ${taskList} FROM todo_entities t WHERE t.kind='task' AND t.id=json_extract(e.data,'$.taskId'))`;
+  const fromOccurrence = `(SELECT ${taskList} FROM todo_entities o JOIN todo_entities t ON t.kind='task' AND t.id=json_extract(o.data,'$.taskId') WHERE o.kind='occurrence' AND o.id=json_extract(e.data,'$.occurrenceId'))`;
+  switch (kind) {
+    case 'task':
+    case 'section':
+      return "COALESCE(json_extract(e.data,'$.listId'),'inbox')";
+    case 'occurrence':
+      return fromTask;
+    case 'timeBlock':
+      return fromOccurrence;
+    case 'outcome':
+    case 'record':
+    case 'focusSession':
+    case 'review':
+      // Missing task/occurrence references remain NULL rather than becoming Inbox.
+      return `COALESCE(json_extract(e.data,'$.listId'),${fromTask},${fromOccurrence})`;
+    default:
+      return listSql(kind);
   }
 }
 function compileFilterGroup(
@@ -385,7 +410,7 @@ function where(
     clauses.push(group.sql);
     params.push(...group.params);
   }
-  if (q.listIds ?? f.listIds) inside(listSql(kind), q.listIds ?? f.listIds!);
+  if (q.listIds ?? f.listIds) inside(listIdentitySql(kind), q.listIds ?? f.listIds!);
   if (f.query) {
     clauses.push("LOWER(e.data) LIKE ? ESCAPE '\\'");
     params.push('%' + f.query.toLowerCase().replace(/[\\%_]/g, '\\$&') + '%');

@@ -41,6 +41,16 @@ import { validateToDooPlan, previewToDooDependentAdjustment } from './planning.j
 import type { ToDooCommandContext } from '../../../shared/to-doo-contracts.js';
 import { buildToDooSnapshot } from './queries.js';
 
+export function interruptImportedToDooFocusSession<T extends Record<string, unknown>>(session: T) {
+  if (session.status !== 'running') return session;
+  const segments = toDooEntitySchemas.focusSession.shape.segments.parse(session.segments);
+  return {
+    ...session,
+    status: 'interrupted' as const,
+    segments: segments.map((part) => (part.end ? part : { ...part, end: part.start })),
+  };
+}
+
 function validateRelations(s: ToDooState, changedIds?: Set<string>) {
   const affected = changedIds ?? new Set(s.task.keys());
   if (!affected.size) return;
@@ -280,7 +290,7 @@ export function createToDooService(
     }
     function createTask(value: Record<string, unknown>): ToDooTask {
       const { due, plan, ...fields } = value;
-      const task = put('task', fields);
+      const task = put('task', fields, null);
       const rule = effectiveRule(task);
       let occurrenceId: string;
       if (rule) {
@@ -763,14 +773,7 @@ export function createToDooService(
         { action: 'interrupt_restored_focus' },
         (c) =>
           running.map(
-            (session) =>
-              c.put('focusSession', {
-                ...session,
-                status: 'interrupted',
-                segments: session.segments.map((part) =>
-                  part.end ? part : { ...part, end: part.start },
-                ),
-              }).id,
+            (session) => c.put('focusSession', interruptImportedToDooFocusSession(session)).id,
           ),
       );
   }
@@ -847,12 +850,16 @@ export function createToDooService(
               : null;
           if (statusSelection)
             c.checkStatusSelection(statusSelection, p.expectedOccurrenceIds, p.expectedRevisions);
-          const outcome = c.put('outcome', {
-            ...p.outcome,
-            occurrenceId: occurrence.id,
-            listId: task.listId,
-            evidenceRefs,
-          });
+          const outcome = c.put(
+            'outcome',
+            {
+              ...p.outcome,
+              occurrenceId: occurrence.id,
+              listId: task.listId,
+              evidenceRefs,
+            },
+            null,
+          );
           if (p.complete) {
             if (statusSelection) c.applyStatusSelection(statusSelection, 'done', occurrence.id);
             else c.setStatus(occurrence.id, 'done', false);
@@ -1248,7 +1255,9 @@ export function createToDooService(
               if (!e.expectedRevision) toDooError('导入修改需要预期版本', 400);
               c.check(e.kind, existing.id, e.expectedRevision);
             }
-            return c.put(e.kind, e.entity, e.expectedRevision).id;
+            const entity =
+              e.kind === 'focusSession' ? interruptImportedToDooFocusSession(e.entity) : e.entity;
+            return c.put(e.kind, entity, e.expectedRevision).id;
           });
       }
     });
@@ -1300,7 +1309,9 @@ export function createToDooService(
         ...(options ? { expectedRevisions: options.expectedRevisions ?? {} } : {}),
       },
       (c) =>
-        checkpoint.entities.map(({ kind, entity }) => {
+        checkpoint.entities.map(({ kind, entity: original }) => {
+          const entity =
+            kind === 'focusSession' ? interruptImportedToDooFocusSession(original) : original;
           const existing = c.state[kind].get(entity.id),
             expected = options?.expectedRevisions?.[kind + ':' + entity.id];
           if (expected) {

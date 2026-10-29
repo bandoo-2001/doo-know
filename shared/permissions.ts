@@ -48,15 +48,13 @@ export const permissionDomains: readonly PermissionDomainDefinition[] = [
     ],
   },
   {
-    id: 'todo',
-    title: '待办',
-    implemented: false,
-    resourceKinds: ['list', 'task'],
+    id: 'to-doo',
+    title: 'To Doo',
+    implemented: true,
+    resourceKinds: ['list'],
     actions: [
-      action('read', '读取', '读取待办', false),
-      action('write', '编辑', '编辑待办', false),
-      action('organize', '整理', '整理待办', false),
-      action('archive', '归档', '归档待办', false),
+      action('read', '读取', '读取授权清单与内容类别中的任务及记录'),
+      action('write', '编辑', '创建和修改授权清单与内容类别中的任务及记录'),
     ],
   },
 ];

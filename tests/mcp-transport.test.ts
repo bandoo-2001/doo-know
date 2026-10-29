@@ -32,7 +32,33 @@ it('installs the official prebuilt MCP, isolates transports, observes calls with
     const legacy = await fetch('http://127.0.0.1:15179/api/v1/tools/list_notes', { method: 'POST', headers: { ...external, 'content-type': 'application/json' }, body: '{}' });
     expect(legacy.status).toBe(200); expect(await legacy.json()).toMatchObject({ data: { items: [] } });
     const privateMcp = await fetch('http://127.0.0.1:15179/mcp', { method: 'POST', headers: { ...external, 'content-type': 'application/json' }, body: JSON.stringify(rpc) });
-    expect(privateMcp.status).toBe(200); expect((await privateMcp.json()).result.tools.length).toBe(23);
+    const verifyDiscovery = async (
+      first: { status: number; text: string },
+      next: (cursor: string) => Promise<{ status: number; text: string }>,
+    ) => {
+      const names: string[] = [];
+      let page = first;
+      while (true) {
+        expect(page.status).toBe(200);
+        expect(Buffer.byteLength(page.text)).toBeLessThanOrEqual(65536);
+        const frame = JSON.parse(page.text);
+        names.push(...frame.result.tools.map((tool: { name: string }) => tool.name));
+        if (!frame.result.nextCursor) break;
+        page = await next(frame.result.nextCursor);
+      }
+      expect(names).toEqual(expect.arrayContaining([
+        'list_notes', 'get_note_info', 'get_mcp_context', 'list_directories',
+        'organize_library', 'query_to_doos', 'create_to_doo_task', 'publish_blog_post',
+      ]));
+      expect(new Set(names).size).toBe(names.length);
+    };
+    await verifyDiscovery({ status: privateMcp.status, text: await privateMcp.text() }, async cursor => {
+      const page = await fetch('http://127.0.0.1:15179/mcp', {
+        method: 'POST', headers: { ...external, 'content-type': 'application/json' },
+        body: JSON.stringify({ ...rpc, params: { cursor } }),
+      });
+      return { status: page.status, text: await page.text() };
+    });
     db = openDatabase(f.dataRoot); const owner = (db.prepare('SELECT id FROM user').get() as any).id;
     const auth = await createAuth(f.config, db);
     const grant = oauthGrantStore(db).approve(owner, 'transport-fixture', ['knowledge:read'], ['00-Inbox']);
@@ -40,7 +66,14 @@ it('installs the official prebuilt MCP, isolates transports, observes calls with
       iat:Math.floor(Date.now()/1000),scope:'knowledge:read',dk_grant_id:grant.id,dk_grant_version:grant.version,
       iss:f.config.origin+'/api/auth',aud:f.config.origin+'/mcp'}}});
     const oauthResponse = await f.app.inject({method:'POST',url:'/mcp',headers:{...external,host:'localhost:3010',authorization:'Bearer '+accessToken},payload:rpc});
-    expect(oauthResponse.statusCode).toBe(200); expect(oauthResponse.json().result.tools.length).toBe(23);
+    await verifyDiscovery({ status: oauthResponse.statusCode, text: oauthResponse.body }, async cursor => {
+      const page = await f.app.inject({
+        method: 'POST', url: '/mcp',
+        headers: { ...external, host: 'localhost:3010', authorization: 'Bearer ' + accessToken },
+        payload: { ...rpc, params: { cursor } },
+      });
+      return { status: page.statusCode, text: page.body };
+    });
     const deniedOAuthOnTunnel=await fetch('http://127.0.0.1:15179/mcp',{method:'POST',headers:{...external,authorization:'Bearer '+accessToken,'content-type':'application/json'},body:JSON.stringify(rpc)});
     expect(deniedOAuthOnTunnel.status).toBe(401);
     const status = await post('/api/plugins/mcp/call', { kind: 'provider', id: 'mcp.status', input: {} });

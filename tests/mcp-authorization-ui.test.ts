@@ -190,3 +190,46 @@ it('reviews the current Tunnel ceiling before explicitly replacing its authoriza
   expect(api).toHaveBeenCalledWith('/api/platform/mcp/tunnel/authorize','POST',{permissionPolicy});
   expect(view.notice).toContain('Tunnel 授权已更新');
 });
+
+it('accepts task-only legacy consent without requiring a note directory', async () => {
+  api.mockResolvedValueOnce({ clientName: 'Task agent', allowedScopes: ['to-doo:read', 'to-doo:write'], allowedPrefixes: [] });
+  const view = await mount('OAuthConsent.vue', { oauthQuery: 'tasks-only' });
+  expect(view.canAccept).toBe(true);
+  expect(view.selectedScopes).toEqual(['to-doo:read']);
+  view.scopes = ['to-doo:write'];
+  expect(view.canAccept).toBe(false);
+});
+
+it('defaults an explicitly requested task domain to read without enabling knowledge or task edits', async () => {
+  const allowedPolicy = { version: 2, domains: { 'to-doo': { enabled: true, ownerId: 'owner', instanceId: 'tasks', actions: ['read', 'write'], resources: { mode: 'all' } } } };
+  api.mockResolvedValueOnce({ clientName: 'Task agent', allowedScopes: ['to-doo:read', 'to-doo:write'], allowedPrefixes: [], allowedPolicy });
+  const view = await mount('OAuthConsent.vue', { oauthQuery: 'tasks-v2' });
+  expect(view.canAccept).toBe(true);
+  expect(view.selectedScopes).toEqual(['to-doo:read']);
+  expect(view.permissionPolicy.domains).not.toHaveProperty('knowledge');
+});
+
+it('offers a newly introduced task domain in an old v2 settings draft without overwriting dirty choices', async () => {
+  const knowledge = { enabled: true, ownerId: 'owner', instanceId: 'library', actions: ['read'], resources: { mode: 'selected', resources: [{ kind: 'directory', id: 'dirty-selection' }] } };
+  const modelValue = { version: 2, domains: { knowledge, blog: { enabled: false, ownerId: 'owner', instanceId: 'blog', actions: [], resources: { mode: 'all' } } } };
+  const task = { enabled: false, ownerId: 'owner', instanceId: 'tasks', actions: [], resources: { mode: 'all' } };
+  api.mockResolvedValueOnce({ policy: { version: 2, domains: { ...modelValue.domains, knowledge: { ...knowledge, actions: ['read', 'write'], resources: { mode: 'all' } }, 'to-doo': task } }, resources: {} });
+  const updates: any[] = [];
+  const view = await mount('MCPDomainPermissions.vue', { modelValue, 'onUpdate:modelValue': (value: unknown) => updates.push(value) });
+  expect(view.domains.map((domain: any) => domain.id)).toContain('to-doo');
+  expect(view.policy.domains['to-doo']).toEqual(task);
+  expect(view.policy.domains.knowledge).toEqual(knowledge);
+  expect(updates).toEqual([]);
+  view.update('to-doo', (grant: any) => { grant.enabled = true; grant.actions = ['read']; });
+  expect(updates[0].domains['to-doo']).toMatchObject({ enabled: true, actions: ['read'] });
+  expect(updates[0].domains.knowledge).toEqual(knowledge);
+  expect(modelValue.domains).not.toHaveProperty('to-doo');
+});
+
+it.each(['consent', 'narrow'])('keeps newly inventoried task domains outside an existing %s ceiling', async (mode) => {
+  const modelValue = { version: 2, domains: { knowledge: { enabled: true, ownerId: 'owner', instanceId: 'library', actions: ['read'], resources: { mode: 'all' } } } };
+  api.mockResolvedValueOnce({ policy: { version: 2, domains: { ...modelValue.domains, 'to-doo': { enabled: false, ownerId: 'owner', instanceId: 'tasks', actions: [], resources: { mode: 'all' } } } }, resources: {} });
+  const view = await mount('MCPDomainPermissions.vue', { modelValue, ceiling: modelValue, consent: mode === 'consent' });
+  expect(view.domains.map((domain: any) => domain.id)).toEqual(['knowledge']);
+  expect(view.policy.domains).not.toHaveProperty('to-doo');
+});

@@ -98,6 +98,112 @@ function snapshot(): ToDooSnapshot {
   } as ToDooSnapshot;
 }
 describe('portable JSON and TickTick mapping', () => {
+  it.each(['checkpoint', 'legacy', 'batched checkpoint'] as const)(
+    'interrupts a running focus on %s JSON import while preserving measured time and receipts',
+    async (format) => {
+      const source = await domain(),
+        destination = await domain();
+      const command = (action: string, payload: unknown) =>
+        source.service.command({ requestId: randomUUID(), action, payload });
+      const finishedId = command('start_focus', {
+        mode: 'stopwatch',
+        at: '2026-10-01T08:00:00.000Z',
+      }).ids[0];
+      command('control_focus', {
+        id: finishedId,
+        expectedRevision: source.service.getEntity('focusSession', finishedId)!.revision,
+        operation: 'finish',
+        at: '2026-10-01T08:07:00.000Z',
+        note: 'Completed work',
+      });
+      const start = {
+        requestId: randomUUID(),
+        action: 'start_focus',
+        payload: { mode: 'stopwatch', at: '2026-10-01T09:00:00.000Z' },
+      };
+      const id = source.service.command(start).ids[0];
+      command('control_focus', {
+        id,
+        expectedRevision: source.service.getEntity('focusSession', id)!.revision,
+        operation: 'pause',
+        at: '2026-10-01T09:12:00.000Z',
+      });
+      command('control_focus', {
+        id,
+        expectedRevision: source.service.getEntity('focusSession', id)!.revision,
+        operation: 'resume',
+        at: '2026-10-01T09:20:00.000Z',
+      });
+      const original = source.service.exportCheckpoint();
+      const exporter = createToDooInterop(source.service, {
+        db: source.db,
+        dataRoot: source.config.dataRoot,
+      });
+      const importer = createToDooInterop(destination.service, {
+        db: destination.db,
+        dataRoot: destination.config.dataRoot,
+        ...(format === 'batched checkpoint' ? { importBatchSize: 1 } : {}),
+      });
+      try {
+        const content =
+          format === 'legacy'
+            ? exportPortableJson(source.service.snapshot({ all: true }), {
+                transactions: original.transactions,
+              })
+            : exporter.exportJson();
+        const preview = importer.previewImport({ format: 'json', content });
+        const applied = importer.applyImport({ previewId: preview.id, requestId: 'restore-focus' });
+        await importer.processImportJobs();
+        expect(destination.service.getEntity('focusSession', id)).toMatchObject({
+          status: 'interrupted',
+          segments: [
+            { start: '2026-10-01T09:00:00.000Z', end: '2026-10-01T09:12:00.000Z' },
+            { start: '2026-10-01T09:20:00.000Z', end: '2026-10-01T09:20:00.000Z' },
+          ],
+        });
+        expect(destination.service.getEntity('focusSession', finishedId)).toMatchObject({
+          status: 'finished',
+          segments: [{ start: '2026-10-01T08:00:00.000Z', end: '2026-10-01T08:07:00.000Z' }],
+        });
+        expect(destination.service.snapshot({ all: true }).statistics.focusMinutes).toBe(19);
+        expect(preview.changes.find((entry) => entry.id === id)?.after.status).toBe('interrupted');
+        const revision = destination.service.getEntity('focusSession', id)!.revision;
+        if (format !== 'legacy') {
+          expect(destination.service.command(start).replayed).toBe(true);
+          expect(destination.service.getEntity('focusSession', id)!.revision).toBe(revision);
+          const restored = destination.service.exportCheckpoint();
+          const importTransaction = restored.transactions.find(
+            (tx: any) => tx.importedTransactions?.length,
+          ) as any;
+          expect(importTransaction.importedTransactions).toEqual(original.transactions);
+          for (const receipt of original.receipts)
+            expect(destination.service.getReceipt(receipt.requestId)).toEqual(receipt);
+        }
+        const repeated = importer.applyImport({
+          previewId: preview.id,
+          requestId: 'restore-focus',
+        });
+        if (format === 'batched checkpoint') {
+          expect(importer.importStatus(preview.id).status).toBe('completed');
+          expect(repeated.transactionId).toBe(
+            importer.importStatus(preview.id).result.transactionId,
+          );
+        } else expect(repeated.transactionId).toBe(applied.transactionId);
+        expect(destination.service.getEntity('focusSession', id)!.revision).toBe(revision);
+        expect(() =>
+          destination.service.command({
+            requestId: randomUUID(),
+            action: 'start_focus',
+            payload: { mode: 'stopwatch' },
+          }),
+        ).not.toThrow();
+      } finally {
+        await importer.close();
+        await exporter.close();
+      }
+    },
+  );
+
   it('round-trips versioned entities, tombstones and transaction receipts with an integrity inventory', () => {
     const state = snapshot();
     state.tasks.push(

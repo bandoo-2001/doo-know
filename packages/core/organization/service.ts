@@ -358,6 +358,41 @@ export function organizationService(config: AppConfig, db: AppDatabase, notes: N
       .get(id) as any;
     if (!row || row.status !== 'running' || row.lease_epoch !== epoch) fail(409, 'TASK_CANCELLED');
   }
+  function checkUndoIdentities(objects: Change[], published = false) {
+    for (const object of objects) {
+      const path = published && object.kind !== 'remove_directory' ? object.to : object.from;
+      if (object.kind === 'file') {
+        const row = object.note
+          ? db.prepare('SELECT path FROM notes WHERE id=? AND active=1').get(object.id) as { path: string } | undefined
+          : db.prepare('SELECT path FROM assets WHERE id=?').get(object.id) as { path: string } | undefined;
+        if (!row || row.path !== path) fail(409, 'UNDO_CONFLICT');
+      } else if (object.kind === 'remove_directory' || object.business) {
+        if (resolveDirectory(db, object.id)?.path !== path) fail(409, 'UNDO_CONFLICT');
+      }
+    }
+  }
+  function revalidate(p: Principal, manifest: OrganizationManifest) {
+    if (manifest.undoOf) {
+      checkUndoIdentities(manifest.objects);
+      const current = db.prepare('SELECT id,path FROM notes WHERE active=1').all() as { id: string; path: string }[];
+      const expected = new Map(manifest.coverage.map(({ id, path }) => [id, path]));
+      if (current.length !== expected.size || current.some((note) => expected.get(note.id) !== note.path))
+        fail(409, 'UNDO_CONFLICT');
+      for (const object of manifest.objects) {
+        if (object.kind === 'file') {
+          const owner = object.note
+            ? db.prepare('SELECT id FROM notes WHERE path=? AND active=1 AND id<>?').get(object.to, object.id)
+            : db.prepare('SELECT id FROM assets WHERE path=? AND id<>?').get(object.to, object.id);
+          if (owner) fail(409, 'UNDO_CONFLICT');
+        } else if (object.kind === 'directory' && object.business &&
+          db.prepare('SELECT id FROM organization_directories WHERE library_id=? AND path=? AND active=1 AND id<>?')
+            .get(manifest.libraryId, object.to, object.id)) {
+          fail(409, 'UNDO_CONFLICT');
+        }
+      }
+    }
+    revalidateManifest(config, db, p, manifest);
+  }
   function prepareUndo(p: Principal, originalId: string, id: string): OrganizationManifest {
     const original = rowFor(p, { operationId: originalId });
     if (
@@ -377,6 +412,8 @@ export function organizationService(config: AppConfig, db: AppDatabase, notes: N
     const state = syncDirectoryCatalog(config, db),
       binding = libraryIdentity(db)!;
     if (state.libraryId !== old.libraryId) fail(409, 'UNDO_CONFLICT');
+    // File evidence alone cannot prove ownership after a portable registry import.
+    checkUndoIdentities(old.objects, true);
     const objects: Change[] = [],
       permissions: OrganizationManifest['permissions'] = [];
     for (const o of old.objects) {
@@ -507,10 +544,10 @@ export function organizationService(config: AppConfig, db: AppDatabase, notes: N
       await workspaceExclusive(db, { kind: 'organization.commit', operationId: id }, async () => {
         checkRunning(id, epoch);
         const current = live(payload.principal, callbacks.get(id));
-        revalidateManifest(config, db, current, m);
+        revalidate(current, m);
         stageOrganization(config, db, m);
         checkRunning(id, epoch);
-        revalidateManifest(config, db, live(payload.principal, callbacks.get(id)), m);
+        revalidate(live(payload.principal, callbacks.get(id)), m);
         db.transaction(() => {
           db.prepare(
             "UPDATE organization_jobs SET status='committing',manifest=? WHERE id=? AND lease_epoch=?",

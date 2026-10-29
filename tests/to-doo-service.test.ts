@@ -57,6 +57,92 @@ const freezeCascade = (state: ToDooSnapshot, id: string, status: 'done' | 'todo'
     expectedRevisions: selection.expectedRevisions,
   };
 };
+it('rejects a duplicate task ID without changing its content, occurrences, or receipt', () => {
+  const request = {
+    requestId: randomUUID(),
+    action: 'create_task',
+    payload: { id: 'existing-task', title: 'Original', description: 'Keep this content' },
+  };
+  const created = service.command(request);
+  const original = service.getEntity('task', 'existing-task');
+  const occurrences = service.snapshot({ all: true }).occurrences;
+  const collision = {
+    ...request,
+    requestId: randomUUID(),
+    payload: { ...request.payload, title: 'Overwrite' },
+  };
+  expect(() => service.command(collision)).toThrow();
+  expect(service.getEntity('task', 'existing-task')).toEqual(original);
+  expect(service.snapshot({ all: true }).occurrences).toEqual(occurrences);
+  expect(service.getReceipt(collision.requestId)).toBeUndefined();
+  expect(service.command(request)).toMatchObject({
+    replayed: true,
+    transactionId: created.transactionId,
+  });
+
+  cmd('delete_entity', { kind: 'task', id: original!.id, expectedRevision: original!.revision });
+  const deleted = service.getEntity('task', original!.id);
+  expect(() => service.command(collision)).toThrow();
+  expect(service.getEntity('task', original!.id)).toEqual(deleted);
+});
+
+it('rejects an outcome ID collision before completing an occurrence and allows versioned edits', () => {
+  const first = task('First'),
+    second = task('Second');
+  const occurrences = service.snapshot({ all: true }).occurrences;
+  const source = occurrences.find((o) => o.taskId === first)!;
+  const destination = occurrences.find((o) => o.taskId === second)!;
+  const request = {
+    requestId: randomUUID(),
+    action: 'save_outcome',
+    payload: {
+      occurrenceId: source.id,
+      expectedRevision: source.revision,
+      outcome: { id: 'existing-outcome', summary: 'Original' },
+    },
+  };
+  const created = service.command(request);
+  const original = service.getEntity('outcome', 'existing-outcome')!;
+  const collision = {
+    requestId: randomUUID(),
+    action: 'save_outcome',
+    payload: {
+      occurrenceId: destination.id,
+      expectedRevision: destination.revision,
+      outcome: { id: original.id, summary: 'Overwrite' },
+      complete: true,
+    },
+  };
+  expect(() => service.command(collision)).toThrow();
+  expect(service.getEntity('outcome', original.id)).toEqual(original);
+  expect(service.getEntity('occurrence', destination.id)).toEqual(destination);
+  expect(service.getReceipt(collision.requestId)).toBeUndefined();
+  expect(service.command(request)).toMatchObject({
+    replayed: true,
+    transactionId: created.transactionId,
+  });
+  expect(() =>
+    cmd('save_entity', { kind: 'outcome', entity: { id: original.id, summary: 'Unversioned' } }),
+  ).toThrow();
+  cmd('save_entity', {
+    kind: 'outcome',
+    entity: { ...original, summary: 'Reviewed' },
+    expectedRevision: original.revision,
+  });
+  expect(service.getEntity('outcome', original.id)).toMatchObject({
+    summary: 'Reviewed',
+    occurrenceId: source.id,
+  });
+  expect(() =>
+    cmd('save_entity', {
+      kind: 'outcome',
+      entity: { ...original, summary: 'Stale' },
+      expectedRevision: original.revision,
+    }),
+  ).toThrow();
+  expect(service.getEntity('outcome', original.id)).toMatchObject({ summary: 'Reviewed' });
+});
+
 it('persists tasks and idempotent updates before checking stale revisions', async () => {
   const id = task('Read design');
   const original = service.snapshot().tasks.find((t) => t.id === id)!;
@@ -242,6 +328,35 @@ it('restores an unfinished focus as interrupted instead of charging time on a ne
   const recovered = createToDooService(dest, fresh, noteService(dest, fresh));
   expect(recovered.snapshot().focusSessions[0].status).toBe('interrupted');
   recovered.close();
+});
+it('interrupts imported focus drafts while generating their entity metadata normally', () => {
+  const request = {
+    requestId: randomUUID(),
+    action: 'import_entities',
+    payload: {
+      entities: [
+        {
+          kind: 'focusSession',
+          entity: {
+            id: 'imported-focus',
+            mode: 'stopwatch',
+            status: 'running',
+            segments: [{ start: '2026-10-01T09:00:00.000Z', end: null }],
+          },
+        },
+      ],
+    },
+  };
+  const result = service.command(request);
+  expect(service.getEntity('focusSession', 'imported-focus')).toMatchObject({
+    status: 'interrupted',
+    revision: expect.any(String),
+    segments: [{ start: '2026-10-01T09:00:00.000Z', end: '2026-10-01T09:00:00.000Z' }],
+  });
+  expect(service.command(request)).toMatchObject({
+    replayed: true,
+    transactionId: result.transactionId,
+  });
 });
 it('keeps the original dataset identity on a full restore into an empty application', async () => {
   task('Dataset identity');

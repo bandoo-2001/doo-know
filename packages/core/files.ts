@@ -44,7 +44,8 @@ export function validateRelative(path: string, kind: 'note' | 'folder' | 'asset'
     throw new HttpError(400, '路径不允许');
   if (path === 'README.md' && kind === 'note') return;
   const parts = path.split('/');
-  if (parts.some((p) => !validName(p))) throw new HttpError(400, '路径不允许');
+  if (parts[0] === '_data' || parts.some((p) => !validName(p)))
+    throw new HttpError(400, '路径不允许');
   if (kind === 'note' && (!isDocument(path) || parts.includes('assets')))
     throw new HttpError(400, '仅允许 Markdown 或 Excalidraw 白板文件');
 }
@@ -156,7 +157,7 @@ export function scanFiles(root: string) {
   for (const item of readdirSync(root, { withFileTypes: true }).sort((a, b) =>
     a.name.localeCompare(b.name),
   )) {
-    if (!validName(item.name) || item.name === 'assets' || item.isSymbolicLink()) continue;
+    if (!validName(item.name) || item.name === 'assets' || item.name === '_data' || item.isSymbolicLink()) continue;
     if (item.isDirectory()) {
       folders.push(item.name);
       walk(item.name);

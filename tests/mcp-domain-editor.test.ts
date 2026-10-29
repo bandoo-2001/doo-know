@@ -3,7 +3,7 @@ import { reactive } from 'vue';
 import { domainPreset, domainResourceMode, selectableDomains, defaultConsentPolicy, describePermissionPolicy } from '../apps/web/mcp-permissions.js';
 const policy = () => ({version:2 as const,domains:{knowledge:{enabled:true,ownerId:'owner',instanceId:'library',actions:['read'],resources:{mode:'selected' as const,resources:[{kind:'directory',id:'inbox'}]}},blog:{enabled:false,ownerId:'owner',instanceId:'blog',actions:[],resources:{mode:'selected' as const,resources:[]}}}});
 it('offers only implemented domains and independent knowledge presets', () => {
-  expect(selectableDomains.map(d=>d.id)).toEqual(['knowledge','blog']);
+  expect(selectableDomains.map(d=>d.id)).toEqual(['knowledge','blog','to-doo']);
   const initial=policy(), edited=domainPreset(initial,'organize');
   expect(edited.domains.knowledge.actions).toEqual(['read','write','organize']);
   expect(edited.domains.knowledge.resources).toEqual(initial.domains.knowledge.resources);

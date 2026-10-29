@@ -17,7 +17,7 @@ import { requireScope } from '../../../packages/core/agent/auth.js';
 import { dateTimeInstant } from '../../../packages/core/to-doo/recurrence.js';
 import { createHash } from 'node:crypto';
 
-type Access = { listIds: string[]; domains: string[] };
+type Access = { listIds: string[]; domains: string[]; resourceListIds?: string[] };
 type Options = {
   authorize(write: boolean): Principal;
   access(): Access;
@@ -71,6 +71,7 @@ export function createToDooAgentPort(service: ToDooService, options: Options): T
       [...principal.allowedPrefixes].sort(),
       [...access.listIds].sort(),
       [...access.domains].sort(),
+      access.resourceListIds ? [...access.resourceListIds].sort() : null,
     ]);
   function recheck(write: boolean, original: string) {
     const current = options.authorize(write);
@@ -128,15 +129,24 @@ export function createToDooAgentPort(service: ToDooService, options: Options): T
     return undefined;
   }
   function allowedList(list: string | null | undefined, access: Access) {
+    const id = list === null ? 'inbox' : list;
     return (
-      !access.listIds.length ||
-      (list === null
-        ? access.listIds.includes('inbox')
-        : typeof list === 'string' && access.listIds.includes(list))
+      (!access.listIds.length || (typeof id === 'string' && access.listIds.includes(id))) &&
+      (access.resourceListIds === undefined ||
+        (typeof id === 'string' && access.resourceListIds.includes(id)))
     );
+  }
+  function queryLists(access: Access) {
+    if (access.resourceListIds !== undefined)
+      return access.resourceListIds.filter(
+        (id) => !access.listIds.length || access.listIds.includes(id),
+      );
+    return access.listIds.length ? access.listIds : undefined;
   }
   function allowed(kind: ToDooEntityKind, entity: Record<string, any>, access: Access) {
     if (!access.domains.includes(domains[kind])) return false;
+    if (access.resourceListIds !== undefined && !allowedList(listOf(kind, entity), access))
+      return false;
     if (!access.listIds.length) return true;
     if (['anniversaries', 'calendar', 'settings'].includes(domains[kind])) return true;
     if (kind === 'plan')
@@ -251,16 +261,14 @@ export function createToDooAgentPort(service: ToDooService, options: Options): T
       const end = Math.min(changed.length, offset + input.limit);
       recheck(false, admitted);
       return {
-        items: changed
-          .slice(offset, end)
-          .map((change) => ({
-            kind: change.kind,
-            entity: {
-              id: change.id,
-              revision: change.revision,
-              transactionId: receipt.transactionId,
-            },
-          })),
+        items: changed.slice(offset, end).map((change) => ({
+          kind: change.kind,
+          entity: {
+            id: change.id,
+            revision: change.revision,
+            transactionId: receipt.transactionId,
+          },
+        })),
         total: changed.length,
         hasMore: end < changed.length,
         ...(end < changed.length
@@ -418,7 +426,7 @@ export function createToDooAgentPort(service: ToDooService, options: Options): T
       ...input,
       kind: input.kind,
       limit: Math.min(input.limit, 5),
-      listIds: access.listIds.length ? (input.listIds ?? access.listIds) : input.listIds,
+      listIds: input.listIds ?? queryLists(access),
     });
     const entities: ToDooEntity[] =
       input.kind === 'settings'
@@ -469,6 +477,7 @@ export function createToDooAgentPort(service: ToDooService, options: Options): T
     function guardIntent() {
       switch (cmd.action) {
         case 'create_task':
+          if (get('task', p.id)) target('task', p.id);
           prospective('task', p);
           target('task', p.parentTaskId);
           break;
@@ -482,6 +491,7 @@ export function createToDooAgentPort(service: ToDooService, options: Options): T
           break;
         case 'save_outcome':
           if (!access.domains.includes('records') || p.operationId) fail(403, 'FORBIDDEN');
+          if (get('outcome', p.outcome.id)) target('outcome', p.outcome.id);
           target('occurrence', p.occurrenceId);
           break;
         case 'batch_tasks':
@@ -506,6 +516,7 @@ export function createToDooAgentPort(service: ToDooService, options: Options): T
           break;
         case 'start_focus':
           if (!access.domains.includes('focus')) fail(403, 'FORBIDDEN');
+          if (access.resourceListIds !== undefined) prospective('focusSession', p);
           target('occurrence', p.occurrenceId);
           if (p.listId !== null && !allowedList(p.listId, access)) fail(403, 'FORBIDDEN');
           break;
@@ -580,7 +591,8 @@ export function createToDooAgentPort(service: ToDooService, options: Options): T
       }
     }
     const trustedContext =
-      ['preview_plan', 'apply_plan'].includes(cmd.action) && access.listIds.length
+      ['preview_plan', 'apply_plan'].includes(cmd.action) &&
+      (access.listIds.length || access.resourceListIds !== undefined)
         ? {
             allowedTaskIds: service
               .snapshot({ all: true, kind: 'task' })

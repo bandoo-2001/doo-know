@@ -313,6 +313,6 @@ export function portableBlog(config: Pick<AppConfig, 'knowledgeRoot' | 'origin'>
         db.prepare('INSERT INTO blog_version_resources VALUES(?,?)').run(r.version_id, r.hash);
     },
   });
-  domains.set(db, { root: config.knowledgeRoot, domain });
+  domains.set(db, { get root() { return domain.root; }, domain });
   return domain;
 }

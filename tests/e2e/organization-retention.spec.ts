@@ -9,7 +9,7 @@ test('loads advanced retention on demand and preserves a saved duration after re
   });
   async function open() {
     await page.locator('summary').filter({ hasText: /^异常写入恢复$/ }).click();
-    await expect(page.getByRole('heading', { name: '异常写入恢复', exact: true })).toBeVisible();
+    await expect(page.getByRole('region', { name: '数据与恢复', exact: true })).toBeVisible();
     await page.locator('summary').filter({ hasText: /^整理撤销材料保留期限（高级）$/ }).click();
     await expect(page.getByRole('spinbutton', { name: '整理撤销材料保留天数', exact: true })).toBeVisible();
   }

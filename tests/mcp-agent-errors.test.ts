@@ -74,6 +74,12 @@ it.each(['publish_blog_post', 'unpublish_blog_post'] as const)('recovers a %s pu
     await server.connect(serverTransport);
     await client.connect(clientTransport);
     const discovered = await client.listTools();
+    let discoveryCursor = discovered.nextCursor;
+    while (discoveryCursor) {
+      const page = await client.listTools({ cursor: discoveryCursor });
+      discovered.tools.push(...page.tools);
+      discoveryCursor = page.nextCursor;
+    }
     expect(discovered.tools.some(entry => entry.name === tool)).toBe(true);
     const result = await client.callTool({ name: tool, arguments: {
       noteId: 'fixture-note', expectedPublicationVersion: 1, requestId: 'blog-review-attempt',

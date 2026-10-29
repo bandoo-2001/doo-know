@@ -965,3 +965,13 @@ it('a read-only legacy grant under a v2 ceiling can search without manual index 
     await f.close();
   }
 });
+
+it('keeps root application data outside both full-library and legacy path access', () => {
+  const all = { id: 'owner', clientId: 'owner-client', scopes: ['knowledge:read'], allowedPrefixes: [], knowledgeAll: true };
+  const legacy = { ...all, knowledgeAll: false, allowedPrefixes: ['_data', 'Topic'] };
+  for (const p of [all, legacy]) {
+    expect(policies.canAccessPath(p, '_data')).toBe(false);
+    expect(policies.canAccessPath(p, '_data/private.md')).toBe(false);
+    expect(policies.canAccessPath(p, 'Topic/_data/readme.md')).toBe(true);
+  }
+});

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import {
   Card as ACard,
   Alert as AAlert,
@@ -10,6 +10,9 @@ import {
 import { api } from '../api';
 import Icon from './Icon.vue';
 import { isResourceScope } from '../../../shared/authorization-scopes';
+import type { PermissionPolicy } from '../../../shared/permissions';
+import MCPDomainPermissions from './MCPDomainPermissions.vue';
+import { defaultConsentPolicy, policyScopes, validConsentPolicy } from '../mcp-permissions';
 const ACheckboxGroup = ACheckbox.Group;
 const props = defineProps<{ oauthQuery: string }>();
 const request = ref<any>(),
@@ -17,10 +20,16 @@ const request = ref<any>(),
   prefixes = ref<string[]>([]),
   busy = ref(false),
   error = ref('');
+const permissionPolicy=ref<PermissionPolicy>();
+const selectedScopes=computed(()=>permissionPolicy.value ? [...policyScopes(permissionPolicy.value),...(scopes.value.includes('offline_access')?['offline_access']:[])] : scopes.value);
+const canAccept=computed(()=>permissionPolicy.value ? validConsentPolicy(permissionPolicy.value) : (!needsNoteDirectories.value || prefixes.value.length>0) && (!scopes.value.includes('to-doo:write') || scopes.value.includes('to-doo:read')) && scopes.value.some(isResourceScope) && (!scopes.value.includes('blog:publish') || (scopes.value.includes('knowledge:read') && scopes.value.includes('knowledge:write'))));
 const labels: Record<string, string> = {
   'knowledge:read': '读取所选目录中的资料',
   'knowledge:write': '创建、修改和归档资料',
   'knowledge:index': '检查和刷新检索索引',
+  'knowledge:organize': '创建目录、移动和重命名资料',
+  'knowledge:archive': '归档资料',
+  'blog:read': '查看博客发布状态',
   'blog:publish': '将所选资料公开发布为博客，或撤下已发布文章',
   'to-doo:read': '读取设置范围内的 To Doo 任务与目标；不自动开放笔记原文',
   'to-doo:write': '创建和修改设置范围内的 To Doo 任务、安排与记录',
@@ -35,28 +44,22 @@ onMounted(async () => {
     scopes.value = request.value.allowedScopes.filter((s: string) =>
       ['knowledge:read', 'to-doo:read', 'offline_access'].includes(s),
     );
-    prefixes.value = [...request.value.allowedPrefixes];
+    prefixes.value = [...(request.value.allowedPrefixes || [])];
+    if(request.value.allowedPolicy)permissionPolicy.value=defaultConsentPolicy(request.value.allowedPolicy,request.value.allowedScopes);
   } catch {
     error.value = '授权请求无效或已过期，请回到连接客户端重新发起授权。';
   }
 });
 async function consent(accept: boolean) {
-  if (
-    busy.value ||
-    !request.value ||
-    (accept &&
-      ((needsNoteDirectories.value && !prefixes.value.length) || !scopes.value.some(isResourceScope) || (scopes.value.includes('blog:publish') && (!scopes.value.includes('knowledge:read') || !scopes.value.includes('knowledge:write')))))
-  )
-    return;
-  if (accept && scopes.value.includes('to-doo:write') && !scopes.value.includes('to-doo:read')) return;
+  if (busy.value || !request.value || (accept && !canAccept.value)) return;
   busy.value = true;
   error.value = '';
   try {
     const result = await api('/api/platform/mcp/oauth/consent', 'POST', {
       accept,
       oauth_query: props.oauthQuery,
-      scopes: scopes.value,
-      allowedPrefixes: needsNoteDirectories.value ? prefixes.value : [],
+      scopes: selectedScopes.value,
+      ...(permissionPolicy.value ? { permissionPolicy:permissionPolicy.value } : {allowedPrefixes:needsNoteDirectories.value ? prefixes.value : []}),
     });
     window.location.assign(result.url);
   } catch {
@@ -79,7 +82,12 @@ async function consent(accept: boolean) {
             <h2>{{ request.clientName }}</h2>
           </div>
         </div>
-        <p class="oauth-intro">该连接请求访问你的知识库。请选择允许的操作与目录。</p>
+        <p class="oauth-intro">请选择此连接允许的业务能力与资源范围。</p>
+        <template v-if="permissionPolicy">
+          <MCPDomainPermissions v-model="permissionPolicy" :ceiling="request.allowedPolicy" :disabled="busy" consent />
+          <ACheckbox v-if="request.allowedScopes.includes('offline_access')" :checked="scopes.includes('offline_access')" :disabled="busy" @update:checked="value=>{scopes=value?[...scopes.filter(s=>s!=='offline_access'),'offline_access']:scopes.filter(s=>s!=='offline_access')}">保持连接，允许刷新访问令牌</ACheckbox>
+        </template>
+        <template v-else>
         <fieldset>
           <legend>允许的操作</legend>
           <ACheckboxGroup v-model:value="scopes" :disabled="busy">
@@ -102,12 +110,11 @@ async function consent(accept: boolean) {
             </div>
           </ACheckboxGroup>
         </fieldset>
-        <p v-if="scopes.some(scope => scope.startsWith('to-doo:'))" class="oauth-hint">
-          <Icon name="task" :size="15" /><span>To Doo 仅开放 MCP 设置中选定的清单和内容类别；任务权限不会自动开放笔记原文。可在插件设置中调整范围并撤销连接。</span>
-        </p>
-        <p v-if="needsNoteDirectories" class="oauth-hint">
+        </template>
+        <p v-if="selectedScopes.some(scope => scope.startsWith('to-doo:'))" class="oauth-hint"><Icon name="task" :size="15" /><span>To Doo 仅开放所选清单及 MCP 设置允许的内容类别；任务权限不会自动开放笔记原文。</span></p>
+        <p class="oauth-hint">
           <Icon name="lock" :size="15" /><span
-            >未选中的目录不会开放。可随时在 MCP 插件设置中撤销连接。</span
+            >未选择的业务能力和资源不会开放。可随时在 MCP 设置中收窄或撤销连接。</span
           >
         </p>
         <footer class="oauth-actions">
@@ -115,7 +122,7 @@ async function consent(accept: boolean) {
           <AButton
             type="primary"
             :loading="busy"
-            :disabled="busy || (needsNoteDirectories && !prefixes.length) || !scopes.some(isResourceScope) || (scopes.includes('to-doo:write') && !scopes.includes('to-doo:read')) || (scopes.includes('blog:publish') && (!scopes.includes('knowledge:read') || !scopes.includes('knowledge:write')))"
+            :disabled="busy || !canAccept"
             @click="consent(true)"
             >允许访问</AButton
           >

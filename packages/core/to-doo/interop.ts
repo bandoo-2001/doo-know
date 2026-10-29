@@ -12,6 +12,7 @@ import {
   type ToDooRecurrence,
 } from '../../../shared/to-doo-contracts.js';
 import { canonical as checkpointCanonical } from './store.js';
+import { interruptImportedToDooFocusSession } from './service.js';
 import {
   addDays,
   dateTimeInstant,
@@ -861,7 +862,14 @@ export function createToDooInterop(service: ToDooService, options: ToDooInteropO
         });
     }
     const batchSize = Math.max(1, Math.min(options.importBatchSize ?? 500, 1000));
-    const ordered = orderImportEntries(items);
+    const ordered = orderImportEntries(items).map((item) =>
+      item.kind === 'focusSession'
+        ? {
+            ...item,
+            entity: interruptImportedToDooFocusSession(item.entity),
+          }
+        : item,
+    );
     validateImportEntries(ordered, snapshot, now().toISOString());
     const preview: StoredPreview = {
       id: previewId,

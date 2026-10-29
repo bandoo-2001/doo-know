@@ -3,7 +3,10 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { pluginRuntimeFixture } from './support/plugin-runtime.js';
 import { backup, restore } from '../apps/server/backup.js';
-import { currentBlogInstanceId } from '../packages/core/auth/permissions.js';
+import {
+  currentBlogInstanceId,
+  currentToDooInstanceId,
+} from '../packages/core/auth/permissions.js';
 
 it('retains organization recovery material and rebinds stable directory identities during verified restore', async () => {
   const f = await pluginRuntimeFixture();
@@ -12,6 +15,7 @@ it('retains organization recovery material and rebinds stable directory identiti
       .prepare("SELECT id FROM organization_directories WHERE path='00-Inbox' AND active=1")
       .get() as { id: string };
     const blogInstance = currentBlogInstanceId(f.db);
+    const toDooInstance = currentToDooInstanceId(f.db);
     await f.platform.close();
     const retained = join(f.config.dataRoot, 'organization', 'retained-job');
     await mkdir(retained, { recursive: true });
@@ -31,6 +35,7 @@ it('retains organization recovery material and rebinds stable directory identiti
     const db = openDatabase(restored.dataRoot);
     try {
       expect(currentBlogInstanceId(db)).toBe(blogInstance);
+      expect(currentToDooInstanceId(db)).toBe(toDooInstance);
       const found = db
         .prepare("SELECT id FROM organization_directories WHERE path='00-Inbox' AND active=1")
         .get() as { id: string };

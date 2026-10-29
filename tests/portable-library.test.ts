@@ -241,7 +241,7 @@ it('exposes synced favorites through the authenticated API with a newly created 
   } finally { await second?.close(); await first.close(); }
 });
 
-it('rejects invalid synchronized registry paths without changing local identities or replacing the file', async () => {
+it.each(['../private.md', '_data/../private.md', '_data/not-a-note.txt'])('rejects invalid synchronized registry path %s without changing local identities or replacing the file', async (path) => {
   const root = await mkdtemp(join(tmpdir(), 'portable-invalid-'));
   const config = {
     knowledgeRoot: join(root, 'knowledge'), dataRoot: join(root, 'data'),
@@ -255,7 +255,7 @@ it('rejects invalid synchronized registry paths without changing local identitie
     const original = notes.createNote('00-Inbox', 'safe.md', '# Safe');
     const invalid = JSON.parse(readKnowledgeDataFile(config.knowledgeRoot, 'library/state.json')!.toString());
     invalid.revision = randomUUID();
-    invalid.data.notes[0].path = '_data/private.md';
+    invalid.data.notes[0].path = path;
     const invalidBytes = JSON.stringify(invalid);
     writeKnowledgeDataFile(config.knowledgeRoot, 'library/state.json', invalidBytes);
     expect(() => notes.tree()).toThrow();

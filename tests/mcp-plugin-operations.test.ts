@@ -9,7 +9,7 @@ it('runs inherited MCP tools through the host SDK and retains fixed write receip
   try {
     const registry = createOperations({ objectIdSecret: 'fixture-reference-secret-at-least-thirty-two-characters' },
       hostClient(() => f.services, () => ({ externalWebOrigin: 'https://notes.example' })));
-    expect(registry.operations).toHaveLength(27);
+    expect(registry.operations.map(operation => operation.name)).toEqual(expect.arrayContaining(['get_mcp_context', 'organize_library', 'query_to_doos', 'create_to_doo_task', 'publish_blog_post']));
     const created: any = await registry.execute('create_note', f.principal, { directory: '00-Inbox', fileName: 'mcp.md', content: '# A', requestId: 'mcp-create' });
     const input = { noteId: created.data.id, content: '# B', expectedModifiedAt: created.data.modifiedAt, requestId: 'mcp-save-B' };
     const first: any = await registry.execute('update_note', f.principal, input);

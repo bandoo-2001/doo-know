@@ -5,6 +5,7 @@ import type { AppDatabase } from '../../../packages/core/db.js';
 import type { AppConfig } from '../../../shared/contracts.js';
 import { assertRoot } from '../../../packages/core/indexing/reconcile.js';
 import { processIsAlive } from '../../../packages/core/workspace/gate.js';
+import { rebindKnowledgeDataRoot } from '../../../packages/core/knowledge-data.js';
 const tableExists = (db: AppDatabase, name: string) =>
   !!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?").get(name);
 export function rootBusinessDigest(db: AppDatabase) {
@@ -122,6 +123,7 @@ export function renameRootInPlace(
     next = JSON.stringify({ path: newRoot, dev: String(before.dev), ino: String(before.ino) });
   let moved = false,
     configurationAttempted = false;
+  let rollbackPortable: (() => void) | undefined;
   try {
     db.transaction(() => {
       if (
@@ -134,6 +136,7 @@ export function renameRootInPlace(
       const after = lstatSync(newRoot, { bigint: true });
       if (after.dev !== before.dev || after.ino !== before.ino || existsSync(oldRoot))
         throw Error('改名后的目录身份不一致');
+      rollbackPortable = rebindKnowledgeDataRoot(db, newRoot, { previousRoot: oldRoot, preservePending: true });
       const changed = db
         .prepare("UPDATE index_meta SET value=? WHERE key='root_identity' AND value=?")
         .run(next, previous);
@@ -203,6 +206,7 @@ export function renameRootInPlace(
       if (actual.dev !== before.dev || actual.ino !== before.ino)
         throw Error('目录被外部替换，保留现场并停止自动回退');
       renameSync(newRoot, oldRoot);
+      rollbackPortable?.();
       verify(oldRoot, db);
     }
     if (configurationError) throw Error('目录已回退，但配置恢复失败；请核对迁移日志后再启动服务');

@@ -163,3 +163,36 @@ test('selects full-library autonomous organization while archive, index and publ
   expect((await mcp(page)).config).toEqual(saved.config);
   await expect(page.locator('.plugin-draft-notice')).toContainText('未保存');
 });
+
+test('upgrades an existing domain policy with a disabled To Doo card and saves only explicit task access', async ({ page }) => {
+  await openMcp(page);
+  const initial = await mcp(page);
+  const inventory = await (await page.request.get('/api/platform/mcp/permissions')).json();
+  const oldPolicy = structuredClone(inventory.policy);
+  delete oldPolicy.domains['to-doo'];
+  try {
+    await saveRemote(page, { ...initial.config, permissionPolicy: oldPolicy }, initial.configVersion);
+    await openMcp(page);
+    const card = page.locator('.domain-card[aria-label="To Doo权限"]');
+    await expect(card).toBeVisible();
+    const enabled = card.getByRole('switch', { name: '启用To Doo权限', exact: true });
+    await expect(enabled).toHaveAttribute('aria-checked', 'false');
+    expect((await mcp(page)).config.permissionPolicy).toEqual(oldPolicy);
+    await enabled.click();
+    await card.locator('summary').filter({ hasText: /^任务能力$/ }).click();
+    await card.getByText('读取', { exact: true }).click();
+    await expect(card.getByRole('checkbox', { name: '读取', exact: true })).toBeChecked();
+    const saved = page.waitForResponse(response =>
+      new URL(response.url()).pathname === '/api/platform/plugins/mcp/config' &&
+      response.request().method() === 'PUT');
+    await page.getByRole('button', { name: '保存插件配置', exact: true }).click();
+    expect((await saved).ok()).toBe(true);
+    const policy = (await mcp(page)).config.permissionPolicy as typeof oldPolicy;
+    expect(policy.domains['to-doo']).toMatchObject({ enabled: true, actions: ['read'] });
+    expect(policy.domains.knowledge).toEqual(oldPolicy.domains.knowledge);
+    expect(policy.domains.blog).toEqual(oldPolicy.domains.blog);
+  } finally {
+    const current = await mcp(page);
+    await saveRemote(page, initial.config, current.configVersion);
+  }
+});

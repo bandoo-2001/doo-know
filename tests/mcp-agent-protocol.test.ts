@@ -153,18 +153,16 @@ it('discovers strict schemas and instructions within the complete JSON-RPC frame
     expect(Buffer.byteLength(session.client.getInstructions()!)).toBeLessThanOrEqual(4096);
     const frame = await session.raw({ jsonrpc: '2.0', id: '\0'.repeat(128), method: 'tools/list', params: {} });
     expect(Buffer.byteLength(JSON.stringify(frame))).toBeLessThanOrEqual(65536);
-    const tools = (frame as any).result.tools;
-    expect(tools).toHaveLength(18);
-    const allTools = [...tools];
+    const tools = [...(frame as any).result.tools];
     let cursor = (frame as any).result.nextCursor;
     while (cursor) {
-      const page: any = await session.raw({ jsonrpc: '2.0', id: '\0'.repeat(128), method: 'tools/list', params: { cursor } });
-      expect(Buffer.byteLength(JSON.stringify(page))).toBeLessThanOrEqual(65536);
-      allTools.push(...page.result.tools);
-      cursor = page.result.nextCursor;
+      const next = await session.raw({ jsonrpc: '2.0', id: '\0'.repeat(128), method: 'tools/list', params: { cursor } });
+      expect(Buffer.byteLength(JSON.stringify(next))).toBeLessThanOrEqual(65536);
+      tools.push(...(next as any).result.tools);
+      cursor = (next as any).result.nextCursor;
     }
-    expect(allTools).toHaveLength(27);
-    expect(allTools.some((tool: any) => tool.name === 'query_to_doos')).toBe(true);
+    expect(tools.map((tool: any) => tool.name)).toEqual(expect.arrayContaining(['get_mcp_context', 'organize_library', 'query_to_doos', 'create_to_doo_task', 'publish_blog_post']));
+    expect(new Set(tools.map((tool: any) => tool.name)).size).toBe(tools.length);
     const info = tools.find((tool: any) => tool.name === 'get_note_info');
     expect(info.inputSchema.additionalProperties).toBe(false);
     expect(info.inputSchema.properties.noteId.description).toEqual(expect.any(String));
@@ -198,4 +196,9 @@ it('keeps defaulted OpenAPI input fields optional', () => {
   expect(error).toBe(bridgeErrorSchema);
   expect(error.properties.error.additionalProperties).toBe(false);
   for (const field of ['requiredScope', 'currentModifiedAt', 'issues', 'recovery']) expect(error.properties.error.properties[field]).toBeDefined();
+});
+
+it('keeps combined organization and task guidance within the instruction budget', async () => {
+  const { toDooAgentGuidance } = await import('../plugins/mcp/server/agent-guidance.js');
+  expect(Buffer.byteLength(makeAgentInstructions({ readOnly: true }) + '\n' + toDooAgentGuidance)).toBeLessThanOrEqual(4096);
 });

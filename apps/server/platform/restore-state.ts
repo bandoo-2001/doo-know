@@ -11,6 +11,7 @@ import {
 import type { AppConfig } from '../../../shared/contracts.js';
 import { portableBlog } from '../../../packages/core/blog/portable.js';
 import { resetToDooLocalConnections } from '../to-doo/installation.js';
+import { rebindRestoredOrganization } from '../../../packages/core/organization/catalog.js';
 export function resetRestoredState(
   db: AppDatabase,
   config: AppConfig,
@@ -31,7 +32,9 @@ export function resetRestoredState(
     (db.prepare('SELECT value FROM index_meta WHERE key=?').get(key) as any)?.value;
   const generation = Math.max(remoteAuthGeneration(db), floors.generation || 0),
     cutoff = Math.max(Number(value('remote_auth_not_before') || 0), floors.cutoff || 0),
-    space = value('desired_embedding_space');
+    space = value('desired_embedding_space'),
+    blogInstance = value('blog_instance_id'),
+    toDooInstance = value('to_doo_instance_id');
   db.transaction(() => {
     if (tables.has('session')) db.prepare('DELETE FROM session').run();
     db.prepare('UPDATE shares SET enabled=0').run();
@@ -118,6 +121,10 @@ export function resetRestoredState(
       String(Math.max(cutoff, Math.floor(Date.now() / 1000))),
     );
     if (space) db.prepare("INSERT INTO index_meta VALUES('desired_embedding_space',?)").run(space);
+    if (blogInstance)
+      db.prepare("INSERT INTO index_meta VALUES('blog_instance_id',?)").run(blogInstance);
+    if (toDooInstance)
+      db.prepare("INSERT INTO index_meta VALUES('to_doo_instance_id',?)").run(toDooInstance);
     invalidateRemoteAuth(db);
     const root = realpathSync(config.knowledgeRoot),
       st = lstatSync(root, { bigint: true });
@@ -126,6 +133,7 @@ export function resetRestoredState(
       JSON.stringify({ path: root, dev: String(st.dev), ino: String(st.ino) }),
     );
     if (tables.has('folder_trash')) rebindRestoredFolders(config, db);
+    if (tables.has('organization_library')) rebindRestoredOrganization(config, db);
     const previous = db.prepare('SELECT * FROM platform_settings WHERE id=1').get() as any,
       id = randomUUID(),
       now = Date.now();

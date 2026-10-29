@@ -5,6 +5,7 @@ import type { PermissionPolicy, ResourceRef } from '../../../shared/permissions.
 import {
   normalizePermissionPolicy,
   currentBlogInstanceId,
+  currentToDooInstanceId,
 } from '../../../packages/core/auth/permissions.js';
 import {
   directoryByPath,
@@ -35,6 +36,12 @@ export function registerMcpPermissionRoutes(
       .get() as { config_json: string } | undefined;
     const config = row ? JSON.parse(row.config_json) : {};
     const blogInstance = currentBlogInstanceId(db);
+    // Unavailable optional task data must not prevent editing the other domain settings.
+    let taskLists: { id: string; name: string; deletedAt?: string | null }[] = [];
+    try {
+      taskLists = runtime.toDoo.snapshot({ kind: 'list', limit: 1000 }).lists;
+    } catch {}
+    const taskInstance = currentToDooInstanceId(db);
     let policy: PermissionPolicy;
     if (config.permissionPolicy) policy = normalizePermissionPolicy(config.permissionPolicy);
     else {
@@ -59,6 +66,27 @@ export function registerMcpPermissionRoutes(
             ],
             resources: { mode: 'selected', resources },
           },
+          'to-doo': {
+            enabled: config.allowToDoo === true,
+            ownerId,
+            instanceId: taskInstance,
+            actions:
+              config.allowToDoo === true
+                ? [
+                    'read',
+                    ...(config.allowToDooWrite === true && config.readOnly === false
+                      ? ['write']
+                      : []),
+                  ]
+                : [],
+            resources:
+              Array.isArray(config.toDooListIds) && config.toDooListIds.length
+                ? {
+                    mode: 'selected',
+                    resources: config.toDooListIds.map((id: string) => ({ kind: 'list', id })),
+                  }
+                : { mode: 'all' },
+          },
           blog: {
             enabled: config.allowPublish === true && config.readOnly === false,
             ownerId,
@@ -70,6 +98,13 @@ export function registerMcpPermissionRoutes(
         },
       };
     }
+    policy.domains['to-doo'] ??= {
+      enabled: false,
+      ownerId,
+      instanceId: taskInstance,
+      actions: [],
+      resources: { mode: 'all' },
+    };
     const articles = db.prepare('SELECT id,slug FROM blog_posts ORDER BY slug').all() as {
       id: string;
       slug: string;
@@ -80,6 +115,12 @@ export function registerMcpPermissionRoutes(
         knowledge: [
           ...directories.map((d) => ({ kind: 'directory', id: d.id, label: d.path })),
           ...notes.map((n) => ({ kind: 'note', id: n.id, label: n.path })),
+        ],
+        'to-doo': [
+          { kind: 'list', id: 'inbox', label: '收集箱' },
+          ...taskLists
+            .filter((list) => !list.deletedAt)
+            .map((list) => ({ kind: 'list', id: list.id, label: list.name })),
         ],
         blog: [
           { kind: 'site', id: blogInstance, label: '整个博客' },

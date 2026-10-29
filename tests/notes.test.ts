@@ -47,14 +47,13 @@ it('creates a root README with a stable write receipt in an empty knowledge base
     await f.close();
   }
 });
-it('keeps root creation inside the managed categories and refuses unsafe parents', async () => {
+it('supports ordinary top-level directories and root notes while refusing unsafe parents', async () => {
   const f = await createFixture();
   try {
     const headers = await loginFixtureOwner(f);
     await mkdir(join(f.root, 'outside'));
     await symlink(join(f.root, 'outside'), join(f.knowledgeRoot, '00-Inbox/link'));
     for (const [parent, name] of [
-      ['', 'other'],
       ['', 'assets'],
       ['', '.hidden'],
       ['', '../escaped'],
@@ -72,7 +71,7 @@ it('keeps root creation inside the managed categories and refuses unsafe parents
       });
       expect(result.statusCode, `${parent}/${name}: ${result.body}`).toBe(400);
     }
-    for (const fileName of ['other.md', 'AGENTS.md']) {
+    for (const fileName of ['AGENTS.md']) {
       const result = await f.app.inject({
         method: 'POST',
         url: '/api/notes',
@@ -82,7 +81,32 @@ it('keeps root creation inside the managed categories and refuses unsafe parents
       expect(result.statusCode).toBeGreaterThanOrEqual(400);
       expect(result.statusCode).toBeLessThan(500);
     }
-    expect(await readdir(f.knowledgeRoot)).toEqual(['00-Inbox', '_data']);
+    const created = await f.app.inject({
+      method: 'POST',
+      url: '/api/folders',
+      headers,
+      payload: { parent: '', name: 'other' },
+    });
+    expect(created.statusCode).toBe(201);
+    const rootNote = await f.app.inject({
+      method: 'POST',
+      url: '/api/notes',
+      headers,
+      payload: { folderPath: '', fileName: 'other.md', content: '# Root note' },
+    });
+    expect(rootNote.statusCode).toBe(201);
+    expect((await f.app.inject({ url: '/api/tree', headers })).json()).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ path: 'other', type: 'folder' }),
+        expect.objectContaining({ path: 'other.md', type: 'note' }),
+      ]),
+    );
+    expect((await readdir(f.knowledgeRoot)).sort()).toEqual([
+      '00-Inbox',
+      '_data',
+      'other',
+      'other.md',
+    ]);
     expect(await readdir(join(f.root, 'outside'))).toEqual([]);
   } finally {
     await f.close();

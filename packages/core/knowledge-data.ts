@@ -19,14 +19,14 @@ import { dirname, join } from 'node:path';
 import type { AppDatabase } from './db.js';
 import { HttpError } from './errors.js';
 
-export type KnowledgeDataDomain = { refresh(): void; flush(): void };
+export type KnowledgeDataDomain = { readonly root: string; refresh(): void; flush(): void };
 type Options<T> = {
   tables: string[];
   workspace?: boolean;
   rows?: Record<string, { column: string; value: string }>;
-  read(): T;
-  validate(data: unknown): T;
-  write(data: T): void;
+  read(root: string): T;
+  validate(data: unknown, root: string): T;
+  write(data: T, root: string): void;
 };
 type State = {
   root: string;
@@ -40,7 +40,9 @@ type State = {
 };
 const domains = new WeakMap<AppDatabase, Map<string, KnowledgeDataDomain>>();
 const workspaceDomains = new WeakSet<KnowledgeDataDomain>();
+const rootBindings = new WeakMap<KnowledgeDataDomain, (root: string) => () => void>();
 const hash = (value: Buffer | string) => createHash('sha256').update(value).digest('hex');
+const literal = (value: string) => "'" + value.replaceAll("'", "''") + "'";
 function unavailable(message: string, code = 'KNOWLEDGE_DATA_UNAVAILABLE'): never {
   throw new HttpError(code === 'KNOWLEDGE_DATA_CONFLICT' ? 409 : 503, message, { code });
 }
@@ -183,13 +185,13 @@ export function createKnowledgeDataDomain<T>(
   options: Options<T>,
 ): KnowledgeDataDomain {
   parts(path);
-  const root = checkedRoot(config.knowledgeRoot);
+  let root = checkedRoot(config.knowledgeRoot);
   let registered = domains.get(db);
   if (!registered) {
     registered = new Map();
     domains.set(db, registered);
   }
-  const key = root + '\0' + path;
+  let key = root + '\0' + path;
   const existing = registered.get(key);
   if (existing) return existing;
   db.exec(`CREATE TABLE IF NOT EXISTS knowledge_data_state(
@@ -199,7 +201,6 @@ export function createKnowledgeDataDomain<T>(
     CREATE TABLE IF NOT EXISTS knowledge_data_context(id INTEGER PRIMARY KEY CHECK(id=1),importing INTEGER NOT NULL);
     INSERT OR IGNORE INTO knowledge_data_context VALUES(1,0)`);
   db.prepare('INSERT OR IGNORE INTO knowledge_data_state(root,path) VALUES(?,?)').run(root, path);
-  const literal = (value: string) => "'" + value.replaceAll("'", "''") + "'";
   for (const table of options.tables) {
     if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) throw Error('Invalid tracked table');
     for (const operation of ['INSERT', 'UPDATE', 'DELETE']) {
@@ -241,7 +242,7 @@ export function createKnowledgeDataDomain<T>(
         !Object.hasOwn(envelope, 'data')
       )
         throw Error();
-      return options.validate(envelope.data);
+      return options.validate(envelope.data, root);
     } catch {
       return unavailable('应用数据格式不支持或文件损坏，请保留文件后检查');
     }
@@ -261,7 +262,7 @@ export function createKnowledgeDataDomain<T>(
           conflict();
         // Projection writes must not masquerade as local edits in another portable domain.
         db.prepare('UPDATE knowledge_data_context SET importing=1 WHERE id=1').run();
-        options.write(value);
+        options.write(value, root);
         db.prepare('UPDATE knowledge_data_context SET importing=0 WHERE id=1').run();
         db.prepare('UPDATE knowledge_data_state SET digest=?,dirty=0 WHERE root=? AND path=?').run(
           digest,
@@ -314,7 +315,7 @@ export function createKnowledgeDataDomain<T>(
         s = state();
         if (s.pending) return;
         if (current().digest !== disk.digest) conflict();
-        const value = options.validate(options.read());
+        const value = options.validate(options.read(root), root);
         if (disk.bytes && JSON.stringify(decode(disk.bytes)) === JSON.stringify(value)) {
           db.prepare('UPDATE knowledge_data_state SET dirty=0 WHERE root=? AND path=?').run(
             root,
@@ -354,7 +355,22 @@ export function createKnowledgeDataDomain<T>(
     }
     flush();
   }
-  const domain = { refresh, flush };
+  const domain = { get root() { return root; }, refresh, flush };
+  rootBindings.set(domain, (next) => {
+    const previous = root, priorConfig = config.knowledgeRoot;
+    registered!.delete(key);
+    root = next;
+    key = root + '\0' + path;
+    config.knowledgeRoot = root;
+    registered!.set(key, domain);
+    return () => {
+      registered!.delete(key);
+      root = previous;
+      key = root + '\0' + path;
+      config.knowledgeRoot = priorConfig;
+      registered!.set(key, domain);
+    };
+  });
   if (options.workspace !== false) workspaceDomains.add(domain);
   registered.set(key, domain);
   try {
@@ -375,22 +391,28 @@ export function flushKnowledgeData(db: AppDatabase) {
     if (workspaceDomains.has(domain)) domain.flush();
 }
 
-/** Rebind only local bookkeeping when a consistent backup is restored to a new directory. */
-export function rebindKnowledgeDataRoot(db: AppDatabase, knowledgeRoot: string): void {
+/** Rebind portable bookkeeping; offline renames retain outboxes until the next normal refresh. */
+export function rebindKnowledgeDataRoot(
+  db: AppDatabase,
+  knowledgeRoot: string,
+  options: { previousRoot?: string; preservePending?: boolean } = {},
+): () => void {
   const tables = new Set(
     (
       db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all() as { name: string }[]
     ).map((r) => r.name),
   );
-  if (!tables.has('knowledge_data_state')) return;
+  if (!tables.has('knowledge_data_state')) return () => {};
   const saved = db.prepare("SELECT value FROM index_meta WHERE key='root_identity'").get() as
     | { value: string }
     | undefined;
-  if (!saved) return;
-  const previous = JSON.parse(saved.value).path;
+  if (!saved && !options.previousRoot) return () => {};
+  const previous = options.previousRoot ?? JSON.parse(saved!.value).path;
   const root = checkedRoot(knowledgeRoot);
-  if (typeof previous !== 'string' || previous === root) return;
+  if (typeof previous !== 'string' || previous === root) return () => {};
   db.transaction(() => {
+    const importing = (db.prepare('SELECT importing FROM knowledge_data_context WHERE id=1').get() as { importing: number }).importing;
+    db.prepare('UPDATE knowledge_data_context SET importing=1 WHERE id=1').run();
     const pending = db
       .prepare('SELECT * FROM knowledge_data_state WHERE root=? ORDER BY path')
       .all(previous) as State[];
@@ -404,7 +426,7 @@ export function rebindKnowledgeDataRoot(db: AppDatabase, knowledgeRoot: string):
           '恢复目标存在另一份应用数据状态，请保留恢复副本后检查',
           'KNOWLEDGE_DATA_CONFLICT',
         );
-      if (item.pending) {
+      if (item.pending && !options.preservePending) {
         const bytes = readKnowledgeDataFile(root, item.path),
           digest = bytes ? hash(bytes) : null;
         if (digest !== item.pending_digest) {
@@ -424,9 +446,24 @@ export function rebindKnowledgeDataRoot(db: AppDatabase, knowledgeRoot: string):
         ).run(previous, item.path);
       }
     }
-    for (const table of ['knowledge_data_state', 'portable_plugin_state', 'portable_plugin_data']) {
+    for (const table of ['knowledge_data_state', 'portable_plugin_state', 'portable_plugin_data', ...(options.preservePending ? ['todo_instance_state'] : [])]) {
       if (tables.has(table))
         db.prepare(`UPDATE "${table}" SET root=? WHERE root=?`).run(root, previous);
     }
+    // Persisted triggers also need rebinding when migration runs on a fresh connection.
+    const triggers = db.prepare("SELECT name,tbl_name,sql FROM sqlite_master WHERE type='trigger' AND name GLOB 'knowledge_data_*'").all() as { name: string; tbl_name: string; sql: string }[];
+    for (const trigger of triggers) {
+      if (!trigger.sql.includes('WHERE root=' + literal(previous) + ' AND path=')) continue;
+      const path = /AND path='([^']+)'/.exec(trigger.sql)?.[1];
+      const operation = /AFTER (INSERT|UPDATE|DELETE) ON /.exec(trigger.sql)?.[1];
+      if (!path || !operation) unavailable('应用数据触发器格式不支持，请保留迁移现场');
+      const name = 'knowledge_data_' + hash(root + '\0' + path + trigger.tbl_name + operation).slice(0, 24);
+      db.exec(`DROP TRIGGER ${trigger.name}; DROP TRIGGER IF EXISTS ${name}; ${trigger.sql.replace(trigger.name, name).replaceAll(literal(previous), literal(root))}`);
+    }
+    db.prepare('UPDATE knowledge_data_context SET importing=? WHERE id=1').run(importing);
   }).immediate();
+  const rollback: Array<() => void> = [];
+  for (const domain of [...(domains.get(db)?.values() || [])])
+    if (domain.root === previous) rollback.push(rootBindings.get(domain)!(root));
+  return () => { for (const undo of rollback.reverse()) undo(); };
 }

@@ -9,6 +9,8 @@ import { fail } from '../../../packages/core/knowledge/errors.js';
 import { checkTokenCutoff, underPrefix } from '../../../packages/core/agent/auth.js';
 import { webPrincipal } from '../../../packages/core/knowledge/core.js';
 import { isResourceScope, oauthScopes } from '../../../shared/authorization-scopes.js';
+import { normalizePermissionPolicy, intersectPermissionPolicies, policyScopes, resourceContains } from '../../../packages/core/auth/permissions.js';
+import { platformPolicy } from '../../../packages/core/auth/grants.js';
 
 type OwnerAuth = Awaited<ReturnType<typeof createAuth>>;
 const queues = new WeakMap<AppDatabase, Promise<unknown>>();
@@ -27,7 +29,8 @@ export function mcpPolicy(db: AppDatabase) {
     toDooListIds: Array.isArray(config.toDooListIds) ? config.toDooListIds as string[] : [],
     toDooDomains: Array.isArray(config.toDooDomains) ? config.toDooDomains as string[] : ['tasks'],
     allowedPrefixes: Array.isArray(config.allowedPrefixes) ? config.allowedPrefixes as string[] : webPrincipal.allowedPrefixes,
-    enabled: row?.state === 'enabled' };
+    enabled: row?.state === 'enabled',
+    permissionPolicy: config.permissionPolicy ? normalizePermissionPolicy(config.permissionPolicy) : undefined };
 }
 export async function oauthConsentRequest(auth: OwnerAuth, config: HostConfig, db: AppDatabase, headers: Headers, raw: unknown) {
   const session = await auth.api.getSession({ headers });
@@ -44,11 +47,14 @@ export async function oauthConsentRequest(auth: OwnerAuth, config: HostConfig, d
   const requestedScopes = [...new Set((query.get('scope') || '').split(/\s+/).filter(Boolean))];
   if (requestedScopes.some(s => !oauthScopes.includes(s))) fail(400, 'INVALID_OAUTH_SCOPE');
   const policy = mcpPolicy(db);
+  const allowedPolicy = policy.permissionPolicy ? normalizePermissionPolicy(policy.permissionPolicy) : undefined;
+  if (allowedPolicy) for (const [domain, grant] of Object.entries(allowedPolicy.domains)) {
+    if (grant.ownerId !== session.user.id) grant.enabled = false;
+    grant.actions = grant.actions.filter(action => requestedScopes.includes(`${domain}:${action}`));
+  }
   return { ownerId: session.user.id, clientId, clientName: String(client.name || client.clientName || clientId),
-    requestedScopes, resource: config.origin + '/mcp', allowedPrefixes: policy.allowedPrefixes,
-    allowedScopes: requestedScopes.filter(s => s !== 'knowledge:write' || !policy.readOnly).filter(s => s !== 'knowledge:index' || policy.allowIndex).filter(s => s !== 'blog:publish' || (policy.allowPublish && !policy.readOnly))
-      .filter(s => s !== 'to-doo:read' || policy.allowToDoo).filter(s => s !== 'to-doo:write' || (policy.allowToDoo && policy.allowToDooWrite && !policy.readOnly)),
-    toDooAccess: { listIds: policy.toDooListIds, domains: policy.toDooDomains } };
+    requestedScopes, resource: config.origin + '/mcp', allowedPrefixes: policy.allowedPrefixes, allowedPolicy,
+    allowedScopes: allowedPolicy ? requestedScopes.filter(scope => scope === 'offline_access' || policyScopes(allowedPolicy).includes(scope)) : requestedScopes.filter(s => s !== 'knowledge:write' || !policy.readOnly).filter(s => s !== 'knowledge:index' || policy.allowIndex).filter(s => s !== 'blog:publish' || (policy.allowPublish && !policy.readOnly)).filter(s => s !== 'to-doo:read' || policy.allowToDoo).filter(s => s !== 'to-doo:write' || (policy.allowToDoo && policy.allowToDooWrite && !policy.readOnly)) };
 }
 export async function approveOAuthConsent(auth: OwnerAuth, config: HostConfig, db: AppDatabase, headers: Headers, input: any) {
   return serializeOAuth(db, async () => {
@@ -67,6 +73,20 @@ export async function approveOAuthConsent(auth: OwnerAuth, config: HostConfig, d
     if (!input.accept) return redirectResult(await auth.api.oauth2Consent({ headers: endpointHeaders, request: endpointRequest, body: { accept: false, oauth_query: input.oauth_query } }));
     const scopes: string[] = input.scopes;
     const prefixes: string[] = input.allowedPrefixes;
+    if (input.permissionPolicy != null) {
+      if (!request.allowedPolicy || !Array.isArray(scopes) || scopes.some(s => !request.allowedScopes.includes(s))) fail(403, 'INVALID_OAUTH_GRANT');
+      const selected = normalizePermissionPolicy(input.permissionPolicy);
+      const effective = intersectPermissionPolicies(selected, request.allowedPolicy, resourceContains(db));
+      if (JSON.stringify(effective) !== JSON.stringify(selected) || policyScopes(selected).some(s => !scopes.includes(s))
+        || scopes.filter(isResourceScope).some(s => !policyScopes(selected).includes(s))) fail(403, 'INVALID_OAUTH_GRANT');
+      if (policyScopes(selected).includes('to-doo:write') && !policyScopes(selected).includes('to-doo:read')) fail(403, 'INVALID_OAUTH_GRANT');
+      if (policyScopes(selected).includes('blog:publish') && !policyScopes(selected).includes('knowledge:read')) fail(403, 'INVALID_OAUTH_GRANT');
+      const grants = oauthGrantStore(db);
+      grants.approveV2(request.ownerId, request.clientId, selected);
+      try { return await redirectResult(await auth.api.oauth2Consent({ headers: endpointHeaders, request: endpointRequest, body: { accept: true, scope: scopes.join(' '), oauth_query: input.oauth_query } })); }
+      catch (e) { grants.revoke(request.ownerId, request.clientId); throw e; }
+    }
+    if (request.allowedPolicy) fail(403, 'INVALID_OAUTH_GRANT');
     if (!Array.isArray(scopes) || scopes.some(s => !request.allowedScopes.includes(s))
       || !Array.isArray(prefixes) || prefixes.some(p => typeof p !== 'string' || !request.allowedPrefixes.some(a => underPrefix(p, a)))) fail(403, 'INVALID_OAUTH_GRANT');
     const grants = oauthGrantStore(db);
@@ -86,7 +106,8 @@ export async function verifyMcpBearer(auth: OwnerAuth, config: HostConfig, db: A
       || !Number.isInteger(payload.dk_grant_version) || !Number.isInteger(payload.iat)) throw new Error();
     const scopes = String(payload.scope || '').split(' ').filter(isResourceScope);
     const grant = oauthGrantStore(db).requireExact(`${payload.dk_grant_id}:${payload.dk_grant_version}`, payload.sub, payload.client_id, scopes);
-    const p: Principal = { id: grant.ownerId, clientId: grant.clientId, scopes, allowedPrefixes: grant.allowedPrefixes,
+    const p: Principal = { id: grant.ownerId, ownerId: grant.ownerId, clientId: grant.clientId, scopes, allowedPrefixes: grant.allowedPrefixes, pluginId: 'mcp',
+      policyVersion: grant.policyVersion, permissionPolicy: grant.permissionPolicy,
       tokenIssuedAt: payload.iat, ...(typeof payload.exp === 'number' ? { tokenExpiresAt: payload.exp } : {}), grantId: grant.id, grantVersion: grant.version };
     checkTokenCutoff(db, p); return p;
   } catch { fail(401, 'UNAUTHORIZED', '需要有效且未撤销的访问令牌'); }

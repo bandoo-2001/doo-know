@@ -15,9 +15,9 @@ export class BridgeError extends Error {
   }
 }
 
-const tools = ['search', 'fetch', 'search_notes', 'get_note_info', 'get_note_outline', 'read_note', 'list_notes', 'create_note', 'update_note', 'patch_note', 'archive_note', 'refresh_index', 'index_status', 'get_blog_status', 'publish_blog_post', 'unpublish_blog_post', 'operation_status', 'cancel_operation', 'query_to_doos', 'get_to_doo_context', 'create_to_doo_task', 'update_to_doo_task', 'set_to_doo_status', 'batch_to_doos', 'preview_to_doo_plan', 'apply_to_doo_plan', 'manage_to_doo'] as const;
-const scopes = ['knowledge:read', 'knowledge:write', 'knowledge:index', 'blog:publish', 'to-doo:read', 'to-doo:write'] as const;
-const fields = ['query', 'mode', 'freshness', 'filters', 'directory', 'category', 'tags', 'updatedAfter', 'limit', 'cursor', 'id', 'noteId', 'snapshotId', 'maxBytes', 'range', 'startLine', 'endLine', 'lineByteOffset', 'fileName', 'content', 'requestId', 'expectedModifiedAt', 'expectedContentHash', 'edits', 'type', 'before', 'after', 'startByte', 'endByte', 'expectedRangeHash', 'insert', 'scope', 'jobId', 'expectedPublicationVersion', 'metadata', 'slug', 'title', 'summary', 'pinned', 'cover', 'operationId'] as const;
+const tools = ['search', 'fetch', 'search_notes', 'get_note_info', 'get_note_outline', 'read_note', 'list_notes', 'create_note', 'update_note', 'patch_note', 'archive_note', 'refresh_index', 'index_status', 'get_blog_status', 'publish_blog_post', 'unpublish_blog_post', 'operation_status', 'cancel_operation', 'get_mcp_context', 'list_directories', 'organize_library', 'list_organization_history', 'undo_organization', 'query_to_doos', 'get_to_doo_context', 'create_to_doo_task', 'update_to_doo_task', 'set_to_doo_status', 'batch_to_doos', 'preview_to_doo_plan', 'apply_to_doo_plan', 'manage_to_doo'] as const;
+const scopes = ['knowledge:read', 'knowledge:write', 'knowledge:index', 'knowledge:organize', 'knowledge:archive', 'blog:read', 'blog:publish', 'to-doo:read', 'to-doo:write'] as const;
+const fields = ['query', 'mode', 'freshness', 'filters', 'directory', 'category', 'tags', 'updatedAfter', 'limit', 'cursor', 'id', 'noteId', 'snapshotId', 'maxBytes', 'range', 'startLine', 'endLine', 'lineByteOffset', 'fileName', 'content', 'requestId', 'expectedModifiedAt', 'expectedContentHash', 'edits', 'type', 'before', 'after', 'startByte', 'endByte', 'expectedRangeHash', 'insert', 'scope', 'jobId', 'expectedPublicationVersion', 'metadata', 'slug', 'title', 'summary', 'pinned', 'cover', 'operationId', 'libraryId', 'directoryId', 'parentId', 'toDirectoryId', 'name', 'expectedStructureRevision', 'expectedSubtreeRevision', 'actions'] as const;
 const issueMessages = {
   invalid_type: '字段缺失或类型不正确',
   too_big: '超过字段允许的上限',
@@ -56,11 +56,12 @@ function recoveryFor(code: string, tool?: typeof tools[number]): Recovery | unde
       ? '先查看最新发布版本和原文状态，复核原发布意图；原文变化时读取并审阅最新正文，确认公开内容后使用新的 requestId，不能只替换版本号重试。'
       : '先查看最新发布版本和原文状态，复核原撤下意图；确认仍要撤下当前文章后使用新的 requestId，不能只替换版本号重试。',
   };
+  if (['STRUCTURE_CONFLICT','STRUCTURE_REVISION_CONFLICT','UNDO_CONFLICT'].includes(code) || (code === 'VERSION_CONFLICT' && (tool === 'organize_library' || tool === 'undo_organization'))) return {action:'restart_read',tool:'get_mcp_context',requestIdPolicy:'new_after_review',message:'刷新context、相关目录及对象版本，重新规划完整任务；不覆盖后续变更。'};
   if (code === 'VERSION_CONFLICT' || code === 'RANGE_HASH_CONFLICT') return { action: 'read_and_merge', tool: 'read_note', requestIdPolicy: 'new_after_review', message: '读取新版本正文，保留并合并草稿后核对变更；新操作使用新的 requestId，不能只替换时间戳重试。' };
   if (code === 'IDEMPOTENCY_CONFLICT') return { action: 'check_operation', tool: 'operation_status', requestIdPolicy: 'new_after_review', message: '先按原 requestId 核对原操作结果；确认不同的新操作后使用新的 requestId，不得覆盖原操作。' };
   if (code === 'PATCH_NOT_UNIQUE' || code === 'PATCH_NOT_FOUND') return { action: 'refine_patch', tool: 'read_note', requestIdPolicy: 'new_after_review', message: '重新读取目标范围，核对唯一旧文本或范围哈希；调整后的新操作使用新的 requestId。' };
   if (code === 'LARGE_FILE_MODE_REQUIRED') return { action: 'read_and_merge', tool: 'read_note', requestIdPolicy: 'new_after_review', message: '读取版本快照并核对草稿后使用 patch_note 局部修改；新操作使用新的 requestId。' };
-  if (['RESULT_STALE', 'CURSOR_EXPIRED', 'STALE_CURSOR', 'INVALID_CURSOR', 'SNAPSHOT_NOT_FOUND', 'SNAPSHOT_STALE'].includes(code)) return { action: 'restart_read', tool: tool === 'fetch' ? 'search' : tool && ['list_notes', 'search_notes', 'get_note_outline'].includes(tool) ? tool : 'read_note', requestIdPolicy: 'not_applicable', message: '重新发起对应搜索、列表或快照读取；丢弃旧对象标识或游标，不混用不同版本的内容。' };
+  if (['RESULT_STALE', 'CURSOR_EXPIRED', 'STALE_CURSOR', 'INVALID_CURSOR', 'SNAPSHOT_NOT_FOUND', 'SNAPSHOT_STALE'].includes(code)) return { action: 'restart_read', tool: tool === 'fetch' ? 'search' : tool && ['list_notes', 'search_notes', 'get_note_outline', 'list_directories', 'list_organization_history'].includes(tool) ? tool : 'read_note', requestIdPolicy: 'not_applicable', message: '重新发起对应搜索、列表或快照读取；丢弃旧对象标识或游标，不混用不同版本的内容。' };
   if (['READ_RATE_LIMIT', 'READ_RATE_EXCEEDED', 'READ_CONCURRENCY_LIMIT', 'READ_CONCURRENCY_EXCEEDED'].includes(code)) return { action: 'wait_and_retry', ...(tool ? { tool } : {}), requestIdPolicy: 'not_applicable', message: '降低读取并发并等待预算恢复后重试；不要自动遍历剩余内容。' };
 }
 

@@ -35,6 +35,7 @@ test('synchronized plugin data shows a dependency hint without installation or a
       installationRequests.push(request.url());
   });
   await page.goto('/?view=settings&section=plugins');
+  await expect(page.getByRole('region', { name: '插件与连接', exact: true })).toBeVisible();
   await closeSidebar(page);
   const hint = page.locator('.plugin-feedback').filter({ hasText: '计数验收插件 · 用户资料' });
   await expect(hint).toBeVisible();

@@ -55,7 +55,13 @@ async function workflowFixture() {
     await server.connect(serverTransport);
     await client.connect(clientTransport);
     const listed = await client.listTools();
-    expect(listed.tools.map(tool => tool.name).sort()).toEqual([...toolNames].sort());
+    let discoveryCursor = listed.nextCursor;
+    while (discoveryCursor) {
+      const page = await client.listTools({ cursor: discoveryCursor });
+      listed.tools.push(...page.tools);
+      discoveryCursor = page.nextCursor;
+    }
+    expect(listed.tools.map(tool => tool.name)).toEqual(expect.arrayContaining([...toolNames, 'query_to_doos', 'create_to_doo_task']));
     const called = new Set<string>();
     const call = async (name: string, args: Record<string, unknown>) => {
       called.add(name);

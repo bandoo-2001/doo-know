@@ -8,7 +8,17 @@ const props=defineProps<{modelValue?:PermissionPolicy;initialPolicy?:PermissionP
 const componentId=useId();
 const emit=defineEmits<{ 'update:modelValue':[value:PermissionPolicy] }>();
 const state=ref<PermissionEditorState>(),error=ref('');
-const policy=computed(()=>props.modelValue ?? props.initialPolicy ?? state.value?.policy);
+const policy=computed(()=>{
+  const current=props.modelValue ?? props.initialPolicy ?? state.value?.policy;
+  if(!current || props.ceiling || props.consent || !state.value?.policy)return current;
+  const domains={...current.domains};
+  for(const definition of selectableDomains){
+    const available=state.value.policy.domains[definition.id];
+    if(!domains[definition.id] && available)
+      domains[definition.id]={...available,enabled:false,actions:[]};
+  }
+  return {...current,domains};
+});
 const domains=computed(()=>selectableDomains.filter(domain=>policy.value?.domains[domain.id] && (!props.ceiling || props.ceiling.domains[domain.id])));
 async function load(){try{state.value=await api<PermissionEditorState>('/api/platform/mcp/permissions');error.value='';}catch{error.value='暂时无法读取资源范围，请重试。';}}
 onMounted(load);
@@ -42,15 +52,16 @@ function toggleAction(domain:string,action:string,checked:boolean){update(domain
         </div>
         <div class="domain-field"><label :for="componentId+'-scope-'+domain.id">{{domain.title}}资源范围</label>
           <ASelect :id="componentId+'-scope-'+domain.id" :value="policy!.domains[domain.id].resources.mode" :disabled="disabled" :aria-label="domain.title+'资源范围'" @update:value="value=>mode(domain.id,String(value))">
-            <ASelect.Option value="all" :disabled="ceiling?.domains[domain.id]?.resources.mode==='selected'">{{domain.id==='knowledge'?'整个知识库':'全站'}}</ASelect.Option>
-            <ASelect.Option value="selected">{{domain.id==='knowledge'?'指定目录/笔记':'指定文章'}}</ASelect.Option>
+            <ASelect.Option value="all" :disabled="ceiling?.domains[domain.id]?.resources.mode==='selected'">{{domain.id==='knowledge'?'整个知识库':domain.id==='to-doo'?'全部清单':'全站'}}</ASelect.Option>
+            <ASelect.Option value="selected">{{domain.id==='knowledge'?'指定目录/笔记':domain.id==='to-doo'?'指定清单':'指定文章'}}</ASelect.Option>
           </ASelect>
         </div>
         <label v-if="policy!.domains[domain.id].resources.mode==='selected'" :for="componentId+'-resources-'+domain.id">选择{{domain.title}}资源</label>
         <ASelect :id="componentId+'-resources-'+domain.id" v-if="policy!.domains[domain.id].resources.mode==='selected'" mode="multiple" :value="(policy!.domains[domain.id].resources as any).resources.map(key)" :options="options(domain.id)" :disabled="disabled" :aria-label="'选择'+domain.title+'资源'" @update:value="values=>select(domain.id,values as string[])" />
         <p v-if="domain.id==='knowledge'">目录授权跟随身份并覆盖后代；自主整理允许直接创建、移动和改名。归档和维护索引独立设置。</p>
+        <p v-else-if="domain.id==='to-doo'">清单范围与允许的内容类别同时生效；任务授权不会开放笔记原文。读取和编辑分别授权。</p>
         <p v-else>公开发布需要读取原文和附件；不会要求知识库写入。修改私有笔记不会自动更新公开文章。</p>
-        <details :open="domain.id==='blog'"><summary>{{domain.id==='knowledge'?'独立权限与高级选项':'博客能力'}}</summary>
+        <details :open="domain.id==='blog'"><summary>{{domain.id==='knowledge'?'独立权限与高级选项':domain.id==='to-doo'?'任务能力':'博客能力'}}</summary>
           <ACheckbox v-for="action in actions(domain.id)" :key="action.id" :checked="policy!.domains[domain.id].actions.includes(action.id)" :disabled="disabled" @update:checked="value=>toggleAction(domain.id,action.id,!!value)">{{action.title}}</ACheckbox>
         </details>
       </template>
