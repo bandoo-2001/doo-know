@@ -4,7 +4,8 @@ import { readFileSync, readdirSync, existsSync, unlinkSync } from 'node:fs';
 import { basename } from 'node:path';
 import type { AppDatabase } from '../db.js';
 import { fail } from '../knowledge/errors.js';
-type Metadata = { kind: string; operationId?: string; waitMs?: number };
+import { organizationPending } from '../organization/schema.js';
+type Metadata = { kind: string; operationId?: string; waitMs?: number; recovery?: boolean };
 type Gate = {
   token: string;
   mode: string;
@@ -106,9 +107,25 @@ function live(db: AppDatabase, row: Gate) {
     ).some(guardIsAlive)
   );
 }
-function sweep(db: AppDatabase) {
+function sweep(db: AppDatabase, recovering = false) {
   for (const row of db.prepare('SELECT * FROM workspace_gate').all() as Gate[]) {
     if (live(db, row)) continue;
+    if (
+      row.operation_id &&
+      db
+        .prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='organization_jobs'")
+        .get() &&
+      db
+        .prepare(
+          "SELECT 1 FROM organization_jobs WHERE id=? AND status IN ('committing','needs_reconciliation')",
+        )
+        .get(row.operation_id)
+    ) {
+      if (!recovering) continue;
+      db.prepare('DELETE FROM workspace_guards WHERE token=?').run(row.token);
+      db.prepare('DELETE FROM workspace_gate WHERE token=?').run(row.token);
+      continue;
+    }
     if (
       row.operation_id &&
       db
@@ -182,6 +199,8 @@ function acquireShared(db: AppDatabase, meta: Metadata) {
   const token = randomUUID();
   db.transaction(() => {
     sweep(db);
+    if (organizationPending(db))
+      fail(503, 'ORGANIZATION_RECOVERY_REQUIRED', 'ORGANIZATION_RECOVERY_REQUIRED', true);
     if (db.prepare("SELECT 1 FROM workspace_gate WHERE mode<>'shared'").get())
       fail(503, 'WORKSPACE_BUSY', 'WORKSPACE_BUSY', true);
     insert(db, token, 'shared', meta);
@@ -247,7 +266,9 @@ export async function workspaceExclusive<T>(
     for (;;) {
       const ready = db
         .transaction(() => {
-          sweep(db);
+          sweep(db, meta.recovery);
+          if (!meta.recovery && organizationPending(db))
+            fail(503, 'ORGANIZATION_RECOVERY_REQUIRED', 'ORGANIZATION_RECOVERY_REQUIRED', true);
           if (!inserted) {
             if (db.prepare("SELECT 1 FROM workspace_gate WHERE mode<>'shared'").get()) return false;
             insert(db, token, 'exclusive_pending', meta);
@@ -330,3 +351,16 @@ export function workspaceBegin<T extends { operation: { id: string } }>(
     })
     .immediate();
 }
+
+/** A quick barrier for synchronous observation; asynchronous readers should hold workspaceRead. */
+export function assertOrganizationReadable(db: AppDatabase) {
+  if (held.getStore()?.db === db) return;
+  initializeWorkspaceGate(db);
+  sweep(db);
+  if (organizationPending(db))
+    fail(503, 'ORGANIZATION_RECOVERY_REQUIRED', 'ORGANIZATION_RECOVERY_REQUIRED', true);
+  if (db.prepare("SELECT 1 FROM workspace_gate WHERE mode<>'shared'").get())
+    fail(503, 'WORKSPACE_BUSY', 'WORKSPACE_BUSY', true);
+}
+export const workspaceRead = workspaceWrite;
+export const workspaceReadSync = workspaceWriteSync;

@@ -1,4 +1,10 @@
-import {isDocument,isWhiteboard,whiteboardText,documentTitle,MAX_WHITEBOARD_BYTES} from '../../../shared/whiteboard.js';
+import {
+  isDocument,
+  isWhiteboard,
+  whiteboardText,
+  documentTitle,
+  MAX_WHITEBOARD_BYTES,
+} from '../../../shared/whiteboard.js';
 import fs from 'node:fs/promises';
 import nodefs, { constants, lstatSync } from 'node:fs';
 import type { BigIntStats } from 'node:fs';
@@ -14,7 +20,6 @@ import type {
 import type { AppDatabase } from '../db.js';
 import type { NoteService } from '../notes.js';
 import {
-  categories,
   safePath,
   validateRelative,
   validName,
@@ -58,7 +63,7 @@ export function collectionService(config: AppConfig, db: AppDatabase, notes: Not
   // true means a filesystem event requiring subtree reconciliation. false is
   // a degraded-monitor discovery pass, which only lists immediate children.
   const pending = new Map<string, boolean>();
-  const directories = new Map(categories.map((path) => [path, '']));
+  const directories = new Map<string, string>([['', '']]);
   const inFlight = new Map<string, Promise<void>>();
   const totals = new Map<string, CollectionStatus>();
   let stopped = false;
@@ -122,7 +127,8 @@ export function collectionService(config: AppConfig, db: AppDatabase, notes: Not
   async function* directoryNotes(path: string, discovery: boolean): AsyncGenerator<string> {
     let absolute: string;
     try {
-      absolute = safePath(config.knowledgeRoot, path, 'folder');
+      absolute =
+        path === '' ? config.knowledgeRoot : safePath(config.knowledgeRoot, path, 'folder');
       directories.set(path, lstatSync(absolute, { bigint: true }).mtimeNs.toString());
     } catch {
       return;
@@ -133,7 +139,7 @@ export function collectionService(config: AppConfig, db: AppDatabase, notes: Not
       if (stopped) return;
       if (++entries % 32 === 0) await yieldWork();
       if (!validName(child.name) || child.name === 'assets') continue;
-      const nested = `${path}/${child.name}`;
+      const nested = path ? `${path}/${child.name}` : child.name;
       seen.add(nested);
       if (child.isDirectory() && !child.isSymbolicLink()) {
         if (!discovery || !directories.has(nested)) yield* directoryNotes(nested, false);
@@ -143,7 +149,7 @@ export function collectionService(config: AppConfig, db: AppDatabase, notes: Not
       }
     }
     if (discovery) {
-      const prefix = path + '/';
+      const prefix = path ? path + '/' : '';
       for (const note of db
         .prepare(
           "SELECT path FROM notes WHERE active=1 AND substr(path,1,?)=? AND instr(substr(path,?),'/')=0",
@@ -157,7 +163,7 @@ export function collectionService(config: AppConfig, db: AppDatabase, notes: Not
     try {
       validateRelative(path, 'folder');
     } catch {
-      if (path !== 'README.md') return;
+      if (path !== '') return;
     }
     let folder = false;
     try {
@@ -298,7 +304,7 @@ export function collectionService(config: AppConfig, db: AppDatabase, notes: Not
         .all(noteCursor) as { id: string; path: string }[];
       noteCursor = rows.at(-1)?.id || '';
       for (const row of rows) pending.set(row.path, false);
-      pending.set('README.md', false);
+      pending.set('', false);
       for (let count = 0; count < 4; count++) {
         let next = directoryCursor.next();
         if (next.done) {
@@ -310,7 +316,10 @@ export function collectionService(config: AppConfig, db: AppDatabase, notes: Not
         let modified = '';
         try {
           modified = (
-            await fs.lstat(safePath(config.knowledgeRoot, path, 'folder'), { bigint: true })
+            await fs.lstat(
+              path === '' ? config.knowledgeRoot : safePath(config.knowledgeRoot, path, 'folder'),
+              { bigint: true },
+            )
           ).mtimeNs.toString();
         } catch {}
         if (directories.get(path) !== modified) {
@@ -387,8 +396,11 @@ export function collectionService(config: AppConfig, db: AppDatabase, notes: Not
             (row.identity && `${before.dev}:${before.ino}:${before.ctimeNs}` !== row.identity)
           )
             throw new Error('source changed');
-          if (isWhiteboard(row.path) && before.size > BigInt(MAX_WHITEBOARD_BYTES)) throw Error('白板过大');
-          const buffer = Buffer.alloc(Math.min(isWhiteboard(row.path) ? MAX_WHITEBOARD_BYTES : 8192, Number(before.size)));
+          if (isWhiteboard(row.path) && before.size > BigInt(MAX_WHITEBOARD_BYTES))
+            throw Error('白板过大');
+          const buffer = Buffer.alloc(
+            Math.min(isWhiteboard(row.path) ? MAX_WHITEBOARD_BYTES : 8192, Number(before.size)),
+          );
           const { bytesRead } = await handle.read(buffer, 0, buffer.length, 0);
           const decoder = new TextDecoder('utf-8', { fatal: true });
           // A bounded prefix may end in the middle of a valid UTF-8 character.
@@ -409,7 +421,9 @@ export function collectionService(config: AppConfig, db: AppDatabase, notes: Not
             named.nlink !== 1n
           )
             throw new Error('source changed');
-          ({ title, summary } = collectionText(isWhiteboard(row.path) ? whiteboardText(content) : content));
+          ({ title, summary } = collectionText(
+            isWhiteboard(row.path) ? whiteboardText(content) : content,
+          ));
           state = 'ready';
         } finally {
           await handle.close();
