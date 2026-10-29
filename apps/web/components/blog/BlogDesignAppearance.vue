@@ -10,7 +10,12 @@ const templates: { id: BlogTemplate; title: string; description: string }[] = [
 </script>
 <template>
   <section class="blog-studio-card">
-    <h3>选择一种表达</h3>
+    <div class="blog-studio-card-heading">
+      <div>
+        <h3>选择一种表达</h3>
+        <p class="blog-muted">从适合内容的版式开始，随时可以切换主题。</p>
+      </div>
+    </div>
     <div class="blog-template-options">
       <button
         v-for="template in templates"
@@ -19,6 +24,7 @@ const templates: { id: BlogTemplate; title: string; description: string }[] = [
         class="blog-template-choice"
         :class="{ selected: design.template === template.id }"
         :aria-pressed="design.template === template.id"
+        :aria-label="template.title + ' ' + template.description"
         @click="design.template = template.id"
       >
         <span class="blog-template-mini" :class="template.id" aria-hidden="true"
@@ -59,7 +65,12 @@ const templates: { id: BlogTemplate; title: string; description: string }[] = [
     </div>
   </section>
   <section class="blog-studio-card">
-    <h3>让读者认识你</h3>
+    <div class="blog-studio-card-heading">
+      <div>
+        <h3>让读者认识你</h3>
+        <p class="blog-muted">个人资料会展示在主页介绍中。</p>
+      </div>
+    </div>
     <div class="blog-form-row">
       <label
         >姓名<input v-model="design.profile.name" maxlength="120" placeholder="你的名字" /></label
@@ -80,6 +91,9 @@ const templates: { id: BlogTemplate; title: string; description: string }[] = [
     </label>
     <div class="blog-profile-media">
       <div>
+        <div v-if="!design.profile.avatar" class="blog-avatar-placeholder" aria-hidden="true">
+          <span>你</span>
+        </div>
         <img
           v-if="design.profile.avatar"
           class="blog-avatar-preview"
@@ -94,6 +108,9 @@ const templates: { id: BlogTemplate; title: string; description: string }[] = [
         />
       </div>
       <div>
+        <div v-if="!design.profile.cover" class="blog-banner-placeholder" aria-hidden="true">
+          <span>给主页留一张风景</span>
+        </div>
         <img
           v-if="design.profile.cover"
           class="blog-banner-preview"

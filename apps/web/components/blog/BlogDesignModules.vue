@@ -33,6 +33,10 @@ function move(index: number, direction: number) {
         <p class="blog-muted">按顺序组合主页；隐藏的模块仍保留设置。</p>
       </div>
     </div>
+    <div v-if="!modules.length" class="blog-studio-empty">
+      <strong>为主页添加第一个模块</strong>
+      <p>选择下方的内容类型，开始编排你的主页。</p>
+    </div>
     <div
       v-for="(module, index) in modules"
       :key="module.id"
@@ -40,8 +44,12 @@ function move(index: number, direction: number) {
       :class="{ 'blog-module-hidden': !module.enabled }"
     >
       <div class="blog-studio-card-heading">
-        <span class="blog-badge">{{ kinds.find((item) => item[0] === module.kind)?.[1] }}</span
-        ><label class="blog-checkbox"
+        <div class="blog-module-identity">
+          <span class="blog-item-number">{{ index + 1 }}</span
+          ><span class="blog-badge">{{ kinds.find((item) => item[0] === module.kind)?.[1] }}</span
+          ><span v-if="!module.enabled" class="blog-module-visibility">已隐藏</span>
+        </div>
+        <label class="blog-checkbox"
           ><input
             v-model="module.enabled"
             type="checkbox"

@@ -36,12 +36,20 @@ function name(id: string) {
       </div>
       <button type="button" class="blog-text-button" @click="add">＋ 添加专题</button>
     </div>
-    <p v-if="!collections.length" class="blog-muted">还没有专题。可以从一个共同的主题开始。</p>
+    <div v-if="!collections.length" class="blog-studio-empty">
+      <strong>把文章串成一个专题</strong>
+      <p>从一个共同的主题开始，为已发布文章安排阅读顺序。</p>
+    </div>
     <article
       v-for="(collection, collectionIndex) in collections"
       :key="collection.id"
       class="blog-edit-list-item"
     >
+      <div class="blog-edit-item-heading">
+        <span class="blog-item-number">{{ collectionIndex + 1 }}</span
+        ><strong>{{ collection.title || '新专题' }}</strong
+        ><span class="blog-badge">{{ collection.postIds.length }} 篇</span>
+      </div>
       <div class="blog-form-row">
         <label>专题名称<input v-model="collection.title" maxlength="120" /></label
         ><label
@@ -52,8 +60,11 @@ function name(id: string) {
         /></label>
       </div>
       <label>专题介绍<textarea v-model="collection.description" rows="2" maxlength="1000" /></label>
+      <p v-if="!collection.postIds.length" class="blog-muted blog-collection-empty">
+        专题还没有文章，从下方的已发布文章中添加。
+      </p>
       <ol class="blog-collection-order">
-        <li v-for="(id, index) in collection.postIds" :key="id">
+        <li v-for="(id, index) in collection.postIds" :key="id" :data-post-id="id">
           <span
             >{{ name(id)
             }}<small v-if="!posts.some((post) => post.id === id && post.state === 'published')">
@@ -97,6 +108,8 @@ function name(id: string) {
             :key="post.id"
             type="button"
             class="blog-text-button"
+            :data-post-id="post.id"
+            :aria-pressed="collection.postIds.includes(post.id)"
             :disabled="collection.postIds.includes(post.id)"
             @click="collection.postIds.push(post.id)"
           >
@@ -105,14 +118,16 @@ function name(id: string) {
           <p v-if="!published.length" class="blog-muted">没有匹配的已发布文章。</p>
         </div>
       </details>
-      <button
-        type="button"
-        class="blog-text-button danger"
-        :aria-label="'删除专题 ' + collection.title"
-        @click="collections.splice(collectionIndex, 1)"
-      >
-        删除专题
-      </button>
+      <div class="blog-row-actions">
+        <button
+          type="button"
+          class="blog-text-button danger"
+          :aria-label="'删除专题 ' + collection.title"
+          @click="collections.splice(collectionIndex, 1)"
+        >
+          删除专题
+        </button>
+      </div>
     </article>
   </section>
 </template>

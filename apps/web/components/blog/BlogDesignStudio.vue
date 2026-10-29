@@ -6,48 +6,49 @@ import BlogDesignLinks from './BlogDesignLinks.vue';
 import BlogDesignModules from './BlogDesignModules.vue';
 import BlogDesignCollections from './BlogDesignCollections.vue';
 import BlogDesignProjects from './BlogDesignProjects.vue';
+import BlogPreviewViewport from './BlogPreviewViewport.vue';
+import '../../blog-studio-admin.css';
 const props = defineProps<{ model: BlogWorkbench }>();
 const state = props.model.state;
 const tab = ref('appearance'),
   size = ref('desktop'),
   live = ref(true);
 const dirty = computed(() => props.model.designDirty());
-const previewHost = ref<HTMLElement>();
-const previewBounds = ref({ width: 0, height: 600 });
-const viewportWidth = computed(() => (size.value === 'mobile' ? 375 : 1100));
-const deviceBorder = computed(() => (size.value === 'mobile' ? 6 : 1));
-const previewScale = computed(() =>
-  Math.min(
-    1,
-    Math.max(
-      1,
-      (previewBounds.value.width || viewportWidth.value + deviceBorder.value * 2) -
-        deviceBorder.value * 2,
-    ) / viewportWidth.value,
-  ),
-);
-const deviceStyle = computed(() => ({
-  width: `${viewportWidth.value * previewScale.value + deviceBorder.value * 2}px`,
-}));
-const frameStyle = computed(() => ({
-  width: `${viewportWidth.value}px`,
-  height: `${Math.max(1, previewBounds.value.height - deviceBorder.value * 2) / previewScale.value}px`,
-  transform: `scale(${previewScale.value})`,
-}));
-watch(
-  previewHost,
-  (host, _previous, onCleanup) => {
-    if (!host) return;
-    const measure = () => {
-      previewBounds.value = { width: host.clientWidth, height: host.clientHeight };
-    };
-    const observer = new ResizeObserver(measure);
-    observer.observe(host);
-    measure();
-    onCleanup(() => observer.disconnect());
-  },
-  { flush: 'post' },
-);
+const previewDialog = ref<HTMLDialogElement>();
+const expanded = ref(false);
+let previewTrigger: HTMLElement | undefined;
+let previousOverflow: string | undefined;
+function openPreview(event: MouseEvent) {
+  if (!previewDialog.value || previewDialog.value.open) return;
+  previewTrigger = event.currentTarget as HTMLElement;
+  previousOverflow = document.body.style.overflow;
+  document.body.style.overflow = 'hidden';
+  expanded.value = true;
+  previewDialog.value.showModal();
+}
+function previewClosed() {
+  if (previewDialog.value?.open) return;
+  expanded.value = false;
+  if (previousOverflow !== undefined) document.body.style.overflow = previousOverflow;
+  previousOverflow = undefined;
+  if (previewTrigger?.isConnected) previewTrigger.focus({ preventScroll: true });
+  previewTrigger = undefined;
+}
+function closePreview() {
+  previewDialog.value?.close();
+}
+function onPreviewBackdrop(event: MouseEvent) {
+  const dialog = previewDialog.value;
+  if (!dialog || event.target !== dialog) return;
+  const bounds = dialog.getBoundingClientRect();
+  if (
+    event.clientX < bounds.left ||
+    event.clientX > bounds.right ||
+    event.clientY < bounds.top ||
+    event.clientY > bounds.bottom
+  )
+    closePreview();
+}
 
 const tabs = [
   ['appearance', '主题与个人资料'],
@@ -72,7 +73,11 @@ onMounted(() => {
   if (!state.design) void props.model.loadDesign();
   else void props.model.previewDesign();
 });
-onBeforeUnmount(() => clearTimeout(timer));
+onBeforeUnmount(() => {
+  clearTimeout(timer);
+  closePreview();
+  previewClosed();
+});
 async function upload(file: File) {
   const result = await props.model.uploadDesignMedia(file);
   return result.url;
@@ -90,21 +95,30 @@ onBeforeUnmount(() => window.removeEventListener('beforeunload', beforeUnload));
   <div class="blog-studio">
     <div class="blog-section-title">
       <div>
-        <span class="blog-eyebrow">MAKE IT YOURS</span>
+        <span class="blog-eyebrow">主页设计</span>
         <h2>装修主页</h2>
-        <p>给文字、作品和生活，安排一个属于你的空间。</p>
+        <p>选择主题、编排内容，预览你的下一版主页。</p>
       </div>
-      <span
-        class="blog-badge"
-        :class="{ changes: dirty || state.designState?.hasUnpublishedChanges }"
-        >{{
-          dirty
-            ? '有未保存修改'
-            : state.designState?.hasUnpublishedChanges
-              ? '草稿尚未发布'
-              : '与线上一致'
-        }}</span
-      >
+      <div class="blog-studio-heading-actions">
+        <span
+          class="blog-badge"
+          :class="{ changes: dirty || state.designState?.hasUnpublishedChanges }"
+          >{{
+            dirty
+              ? '有未保存修改'
+              : state.designState?.hasUnpublishedChanges
+                ? '草稿尚未发布'
+                : '与线上一致'
+          }}</span
+        ><button
+          v-if="state.design"
+          type="button"
+          class="blog-button blog-expand-preview"
+          @click="openPreview"
+        >
+          放大预览
+        </button>
+      </div>
     </div>
     <div v-if="state.designError" class="blog-alert error" role="alert">
       {{ state.designError
@@ -129,6 +143,7 @@ onBeforeUnmount(() => window.removeEventListener('beforeunload', beforeUnload));
           <button
             v-for="[id, label] in tabs"
             :key="id"
+            type="button"
             class="blog-text-button"
             :class="{ active: tab === id }"
             :aria-pressed="tab === id"
@@ -158,15 +173,18 @@ onBeforeUnmount(() => window.removeEventListener('beforeunload', beforeUnload));
           /></template>
           <BlogDesignProjects v-else-if="tab === 'projects'" :projects="state.design.projects" />
           <div class="blog-studio-savebar">
-            <p role="status">
-              {{
-                state.designBusy
-                  ? '正在保存更改…'
-                  : dirty
-                    ? '修改仅存在于当前编辑器'
-                    : '装修草稿已保存'
-              }}
-            </p>
+            <div class="blog-studio-save-status" role="status">
+              <strong>{{
+                state.designBusy ? '正在处理更改…' : dirty ? '有未保存修改' : '装修草稿已保存'
+              }}</strong>
+              <span>{{
+                dirty
+                  ? '先保存草稿，再发布到主页。'
+                  : state.designState?.hasUnpublishedChanges
+                    ? '草稿已保存，发布后访客才能看到。'
+                    : '当前装修已与线上主页同步。'
+              }}</span>
+            </div>
             <div>
               <button
                 type="submit"
@@ -197,6 +215,7 @@ onBeforeUnmount(() => window.removeEventListener('beforeunload', beforeUnload));
           <p v-if="!state.designState?.history.length" class="blog-muted">
             首次发布后，历史版本会保存在这里。
           </p>
+          <p v-else class="blog-muted">恢复只会更新草稿；核对并发布后才会影响线上主页。</p>
           <div
             v-for="revision in state.designState?.history"
             :key="revision.revision"
@@ -245,8 +264,9 @@ onBeforeUnmount(() => window.removeEventListener('beforeunload', beforeUnload));
             :disabled="state.designPreviewBusy"
             @click="model.previewDesign()"
           >
-            刷新预览</button
-          ><span v-if="state.designPreviewBusy" role="status">正在生成…</span>
+            刷新预览
+          </button>
+          <span v-if="state.designPreviewBusy" role="status">正在生成…</span>
         </div>
         <p v-if="state.designPreviewError" class="blog-alert error" role="alert">
           {{ state.designPreviewError
@@ -254,29 +274,23 @@ onBeforeUnmount(() => window.removeEventListener('beforeunload', beforeUnload));
             重试预览
           </button>
         </p>
-        <div ref="previewHost" class="blog-preview-host">
-          <div class="blog-preview-device" :class="size" :style="deviceStyle">
-            <iframe
-              v-if="state.designPreviewHtml"
-              :srcdoc="state.designPreviewHtml"
-              :style="frameStyle"
-              sandbox="allow-same-origin"
-              title="博客主页草稿预览"
-              referrerpolicy="no-referrer"
-            />
-            <div v-else class="blog-empty">
-              <p>正在准备你的主页。</p>
-              <button
-                type="button"
-                class="blog-button"
-                :disabled="state.designPreviewBusy"
-                @click="model.previewDesign()"
-              >
-                生成预览
-              </button>
-            </div>
+        <BlogPreviewViewport
+          :html="state.designPreviewHtml"
+          :device="size"
+          title="博客主页草稿预览"
+        >
+          <div class="blog-empty">
+            <p>正在准备你的主页。</p>
+            <button
+              type="button"
+              class="blog-button"
+              :disabled="state.designPreviewBusy"
+              @click="model.previewDesign()"
+            >
+              生成预览
+            </button>
           </div>
-        </div>
+        </BlogPreviewViewport>
         <p class="blog-muted">预览仅自己可见。发布主页后访客才能看到更改。</p>
       </aside>
     </div>
@@ -284,5 +298,76 @@ onBeforeUnmount(() => window.removeEventListener('beforeunload', beforeUnload));
       <h3>准备你的主页装修</h3>
       <button type="button" class="blog-button" @click="model.loadDesign()">读取装修配置</button>
     </div>
+    <dialog
+      ref="previewDialog"
+      class="blog-preview-dialog"
+      aria-label="主页预览"
+      @cancel.prevent="closePreview"
+      @close="previewClosed"
+      @click="onPreviewBackdrop"
+    >
+      <div class="blog-preview-dialog-heading">
+        <div>
+          <h3>主页预览</h3>
+          <p>查看当前草稿的访客视角</p>
+        </div>
+        <button type="button" class="blog-button" autofocus @click="closePreview">关闭预览</button>
+      </div>
+      <template v-if="expanded">
+        <div class="blog-preview-dialog-toolbar">
+          <div class="blog-preview-devices" aria-label="预览设备">
+            <button
+              type="button"
+              class="blog-text-button"
+              :aria-pressed="size === 'desktop'"
+              @click="size = 'desktop'"
+            >
+              桌面
+            </button>
+            <button
+              type="button"
+              class="blog-text-button"
+              :aria-pressed="size === 'mobile'"
+              @click="size = 'mobile'"
+            >
+              手机
+            </button>
+          </div>
+          <span>{{ size === 'mobile' ? '375' : '1100' }} px 视口 · 按窗口缩放</span>
+          <button
+            type="button"
+            class="blog-text-button"
+            :disabled="state.designPreviewBusy"
+            @click="model.previewDesign()"
+          >
+            刷新预览
+          </button>
+          <span v-if="state.designPreviewBusy" role="status">正在生成…</span>
+        </div>
+        <p v-if="state.designPreviewError" class="blog-alert error" role="alert">
+          {{ state.designPreviewError }}
+        </p>
+        <BlogPreviewViewport
+          :html="state.designPreviewHtml"
+          :device="size"
+          title="博客主页放大预览"
+          capture-escape
+          @escape="closePreview"
+        >
+          <div class="blog-empty">
+            <p>正在准备你的主页。</p>
+            <button
+              type="button"
+              class="blog-button"
+              :disabled="state.designPreviewBusy"
+              @click="model.previewDesign()"
+            >
+              生成预览
+            </button>
+          </div>
+        </BlogPreviewViewport>
+        <p class="blog-preview-dialog-note">预览仅自己可见。按 Escape 可关闭并返回编辑。</p>
+      </template>
+    </dialog>
   </div>
 </template>

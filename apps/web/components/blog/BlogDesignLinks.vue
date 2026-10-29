@@ -12,11 +12,29 @@ function move(index: number, direction: number) {
 <template>
   <section class="blog-studio-card">
     <div class="blog-studio-card-heading">
-      <h3>{{ title }}</h3>
+      <div>
+        <h3>{{ title }}</h3>
+        <p class="blog-muted">
+          {{
+            title === '站点导航'
+              ? '让读者从主页找到重要内容。'
+              : title === '社交链接'
+                ? '添加你在其他平台的公开主页。'
+                : '连接值得推荐的朋友与网站。'
+          }}
+        </p>
+      </div>
       <button type="button" class="blog-text-button" @click="add">＋ 添加链接</button>
     </div>
-    <p v-if="!links.length" class="blog-muted">添加名称和地址，让读者继续探索。</p>
+    <div v-if="!links.length" class="blog-studio-empty">
+      <strong>还没有{{ title }}</strong>
+      <p>添加名称和地址，让读者继续探索。</p>
+    </div>
     <div v-for="(link, index) in links" :key="link.id" class="blog-edit-list-item">
+      <div class="blog-edit-item-heading">
+        <span class="blog-item-number">{{ index + 1 }}</span
+        ><strong>{{ link.label || '新链接' }}</strong>
+      </div>
       <div class="blog-form-row">
         <label
           >名称<input

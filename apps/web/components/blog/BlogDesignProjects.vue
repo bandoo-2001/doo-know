@@ -12,11 +12,21 @@ function move(index: number, direction: number) {
 <template>
   <section class="blog-studio-card">
     <div class="blog-studio-card-heading">
-      <h3>我的项目</h3>
+      <div>
+        <h3>我的项目</h3>
+        <p class="blog-muted">展示作品，分享持续投入的事情。</p>
+      </div>
       <button type="button" class="blog-text-button" @click="add">＋ 添加项目</button>
     </div>
-    <p v-if="!projects.length" class="blog-muted">展示正在创造的作品，或长期投入的事情。</p>
+    <div v-if="!projects.length" class="blog-studio-empty">
+      <strong>给作品一个展示的位置</strong>
+      <p>添加项目名称、地址和简短介绍，让读者了解你正在创造什么。</p>
+    </div>
     <div v-for="(project, index) in projects" :key="project.id" class="blog-edit-list-item">
+      <div class="blog-edit-item-heading">
+        <span class="blog-item-number">{{ index + 1 }}</span
+        ><strong>{{ project.title || '新项目' }}</strong>
+      </div>
       <div class="blog-form-row">
         <label>项目名称<input v-model="project.title" maxlength="120" /></label
         ><label>项目地址<input v-model="project.href" placeholder="https://" /></label>

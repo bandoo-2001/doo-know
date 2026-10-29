@@ -114,6 +114,7 @@ async function save() {
         >选择图片<input
           type="file"
           accept="image/jpeg,image/png,image/webp"
+          :aria-label="'选择' + label + '图片'"
           :disabled="pending"
           @change="choose" /></label
       ><button
@@ -126,7 +127,23 @@ async function save() {
         移除
       </button>
     </div>
-    <div v-if="source" class="blog-crop-editor">
+    <p class="blog-image-help">
+      支持 JPEG、PNG、WebP，最大 10 MB。{{
+        aspect === 1
+          ? '头像将裁切为正方形。'
+          : aspect === 3
+            ? '横幅将裁切为 3:1。'
+            : '选择后可调整裁切范围。'
+      }}
+    </p>
+    <div
+      v-if="source"
+      class="blog-crop-editor"
+      role="region"
+      :aria-label="label + '图片裁切'"
+      :aria-busy="pending"
+    >
+      <p class="blog-image-help">调整缩放和位置，确认画面后上传。</p>
       <div class="blog-crop-window" :style="{ aspectRatio: aspect || 16 / 9 }">
         <img ref="image" :src="source" :style="style" alt="裁切预览" @load="loaded" />
       </div>
@@ -159,7 +176,8 @@ async function save() {
         </button>
       </div>
     </div>
-    <p v-if="value && !source" class="blog-media-selected">已选择图片</p>
+    <p v-if="pending" class="blog-media-selected" role="status">正在处理并上传图片，请稍候…</p>
+    <p v-else-if="value && !source" class="blog-media-selected" role="status">已选择图片</p>
     <p v-if="error" class="blog-alert error" role="alert">{{ error }}</p>
   </div>
 </template>
