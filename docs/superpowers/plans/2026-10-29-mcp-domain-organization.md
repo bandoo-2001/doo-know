@@ -1,6 +1,6 @@
 # MCP 分域权限与全库自主整理 Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** 提供分业务域授权及可恢复的全库目录发现、创建、移动、改名和撤销，保持博客和未来待办权限独立。
 
@@ -36,12 +36,12 @@
 
 **Interfaces:** Define `PermissionPolicy`, `DomainGrant`, `ResourceRef`, `ResourceSet` in shared/permissions. Principal gains optional permissionPolicy/policyVersion and normalized `knowledgeAll` for SQL ACL consumers; legacy allowedPrefixes remains. `normalizePermissionPolicy`, `intersectPermissionPolicies`, `effectivePermissionPolicy` enforce domain actions, resource identity and instance. `canAccessPath(p,path)` is shared by authorizePath and post-filter checks; identity selectors resolve to current directory/note paths at live host boundary. Directory lookup consumes Task 2 exports.
 
-- [ ] Write tests named `does not infer blog or todo from knowledge organize`, `intersects all with selected without widening`, `rejects unimplemented todo`, `legacy write retains archive but never organize`, `tunnel policy expansion preserves old grant` and `v2 blog publishing does not require source write`.
-- [ ] Run `npx vitest run tests/domain-permissions.test.ts` and record failures before implementation.
-- [ ] Implement registry, validation and v1 adapter; persist policy version and domain resources with grants; apply same runtime ceiling across OAuth/Tunnel. Replace Tunnel mismatch auto-expansion with preserved grant and explicit reauthorization path. Return effective domain policy in consent/client metadata.
-- [ ] Update every legacy allowedPrefixes ACL use to respect normalized all and fresh selected IDs; filtered search must still obey caller directory filters even for all.
-- [ ] Run new tests plus `tests/mcp-authorization-ui.test.ts`, `tests/mcp-blog-authorization.test.ts`, `tests/collection-observation-permissions.test.ts`; document intentional compatibility expectation changes.
-- [ ] Commit only Task 1 files.
+- [x] Write tests named `does not infer blog or todo from knowledge organize`, `intersects all with selected without widening`, `rejects unimplemented todo`, `legacy write retains archive but never organize`, `tunnel policy expansion preserves old grant` and `v2 blog publishing does not require source write`.
+- [x] Run `npx vitest run tests/domain-permissions.test.ts` and record failures before implementation.
+- [x] Implement registry, validation and v1 adapter; persist policy version and domain resources with grants; apply same runtime ceiling across OAuth/Tunnel. Replace Tunnel mismatch auto-expansion with preserved grant and explicit reauthorization path. Return effective domain policy in consent/client metadata.
+- [x] Update every legacy allowedPrefixes ACL use to respect normalized all and fresh selected IDs; filtered search must still obey caller directory filters even for all.
+- [x] Run new tests plus `tests/mcp-authorization-ui.test.ts`, `tests/mcp-blog-authorization.test.ts`, `tests/collection-observation-permissions.test.ts`; document intentional compatibility expectation changes.
+- [x] Commit only Task 1 files.
 
 ### Task 2: 动态目录、身份与整理事务
 
@@ -49,12 +49,12 @@
 
 **Interfaces:** `syncDirectoryCatalog(config,db): {libraryId:string;structureRevision:string}`; `resolveDirectory(db,id)` and `directoryByPath(db,path)` return `{id,path,parentId,subtreeRevision}` or undefined. `organizationService(config,db,notes)` returns context/list/submit/history/undo/operation/cancel/recover/cleanup; methods accept Principal first, submit/undo receive `recheck?:()=>Principal`. Input action names/fields follow spec section 6 verbatim. Task 3 provides reference rewrite function; Task 5 provides startup and PluginServices adapters.
 
-- [ ] Write real temporary-library tests for empty/new top-level discovery, stable directory IDs after rename, old-path replacement isolation, ID retention, no-op, name collision and protected paths; observe RED.
-- [ ] Implement dynamic root discovery with safe names/types, directory identity and version reconciliation; remove category hardcodes from scanning/listening/filter validation while retaining bootstrap defaults and protected runtime containers.
-- [ ] Write failing task tests for create-directory, move-note, move-directory with shared assets, old requestId replay, stale versions, overlap/cycles, limits and permission denial before any write.
-- [ ] Implement immutable bounded plan, exclusive gate commit, persistent object journal/staging, database publication and source/asset/index updates; call Task 3 rewrite and authorize all source dependencies. Queue ownership survives HTTP disconnect. Add pending-journal reader/writer gate and recovery before catalog scans.
-- [ ] Write failing crash-boundary, cancel, revocation, undo-conflict and retention tests; implement recover/undo/cleanup with 30-day default, no overwrite of later changes, never clean unfinished journals.
-- [ ] Run `npx vitest run tests/organization-catalog.test.ts tests/organization-service.test.ts` and affected workspace/file tests; commit only Task 2 files.
+- [x] Write real temporary-library tests for empty/new top-level discovery, stable directory IDs after rename, old-path replacement isolation, ID retention, no-op, name collision and protected paths; observe RED.
+- [x] Implement dynamic root discovery with safe names/types, directory identity and version reconciliation; remove category hardcodes from scanning/listening/filter validation while retaining bootstrap defaults and protected runtime containers.
+- [x] Write failing task tests for create-directory, move-note, move-directory with shared assets, old requestId replay, stale versions, overlap/cycles, limits and permission denial before any write.
+- [x] Implement immutable bounded plan, exclusive gate commit, persistent object journal/staging, database publication and source/asset/index updates; call Task 3 rewrite and authorize all source dependencies. Queue ownership survives HTTP disconnect. Add pending-journal reader/writer gate and recovery before catalog scans.
+- [x] Write failing crash-boundary, cancel, revocation, undo-conflict and retention tests; implement recover/undo/cleanup with 30-day default, no overwrite of later changes, never clean unfinished journals.
+- [x] Run `npx vitest run tests/organization-catalog.test.ts tests/organization-service.test.ts` and affected workspace/file tests; commit only Task 2 files.
 
 ### Task 3: 精确引用改写
 
@@ -62,10 +62,10 @@
 
 **Interfaces:** Export `rewriteLibraryReferences(content:string,sourcePath:string,targetPath:string,moves:Array<{from:string;to:string}>,whiteboard?:boolean): {content:string;changed:boolean}`. `from/to` may be directory prefixes (longest exact-or-descendant match); output leaves non-reference bytes intact; unsupported ambiguous syntax fails closed with knowledge error. The organization service builds authoritative source/version coverage and calls this once per affected Markdown/whiteboard.
 
-- [ ] Write hand-checked tests for moved outgoing/incoming Markdown/image/reference links, encoded paths+query+fragment, relative attachment, code fences/inline code, external and stable IDs, whiteboard path links; observe RED.
-- [ ] Use existing parser/available dependency source positions and a lossless destination-span parser; preserve formatting and modify destinations only, never whole-document string replacement.
-- [ ] Add malformed/ambiguous reference tests that require explicit refusal, not silent success; exercise move-directory prefix boundaries and longest-match mapping.
-- [ ] Run `npx vitest run tests/organization-references.test.ts`; commit only Task 3 files.
+- [x] Write hand-checked tests for moved outgoing/incoming Markdown/image/reference links, encoded paths+query+fragment, relative attachment, code fences/inline code, external and stable IDs, whiteboard path links; observe RED.
+- [x] Use existing parser/available dependency source positions and a lossless destination-span parser; preserve formatting and modify destinations only, never whole-document string replacement.
+- [x] Add malformed/ambiguous reference tests that require explicit refusal, not silent success; exercise move-directory prefix boundaries and longest-match mapping.
+- [x] Run `npx vitest run tests/organization-references.test.ts`; commit only Task 3 files.
 
 ### Task 4: MCP 工具、分域设置与版本
 
@@ -73,11 +73,11 @@
 
 **Interfaces:** Add optional `PluginServices.knowledgeOrganization` with context/list/submit/history/undo/operation/cancel methods (service calls omit Principal; host supplies it), optional `permissions.context()` for caller-only effective context. New tools `get_mcp_context`, `list_directories`, `organize_library`, `list_organization_history`, `undo_organization` use these services; existing operation_status/cancel_operation dispatch new operation kinds. create_note adds optional directoryId (null means root) without breaking path-only legacy input.
 
-- [ ] Write SDK registry/schema tests for new tool discovery, all action validation, own-context only, capability refusal and unchanged read-only behavior; run RED.
-- [ ] Add bounded schemas/operations, recovery messages and new workflow instructions. Keep output schemas concise enough for full discovery <=65536 bytes.
-- [ ] Version host API to 1.2.0 and MCP to 1.2.0 with ^1.2.0 floor. Add version-2 permission config and per-domain cards/presets; todo remains unavailable; display effective client rights and one-time reauthorization on expansion.
-- [ ] Write real component/consent tests for independent knowledge/blog, no implicit archive/index/publish, all vs selected and old config migration. Preserve original UI work by editing only isolated checkout.
-- [ ] Run MCP protocol, workflow, authorization, packaged-plugin and new MCP organization tests; commit only Task 4 files.
+- [x] Write SDK registry/schema tests for new tool discovery, all action validation, own-context only, capability refusal and unchanged read-only behavior; run RED.
+- [x] Add bounded schemas/operations, recovery messages and new workflow instructions. Keep output schemas concise enough for full discovery <=65536 bytes.
+- [x] Version host API to 1.2.0 and MCP to 1.2.0 with ^1.2.0 floor. Add version-2 permission config and per-domain cards/presets; todo remains unavailable; display effective client rights and one-time reauthorization on expansion.
+- [x] Write real component/consent tests for independent knowledge/blog, no implicit archive/index/publish, all vs selected and old config migration. Preserve original UI work by editing only isolated checkout.
+- [x] Run MCP protocol, workflow, authorization, packaged-plugin and new MCP organization tests; commit only Task 4 files.
 
 ### Task 5: 宿主接入、恢复和完整工作流
 
@@ -85,21 +85,25 @@
 
 **Interfaces:** Adapt Task 1 effective policies and Task 2 service into Task 4 ports. Live authorization callback runs at queued start and precommit. Scope and resource instance checks run on every call; source-write is required for mechanical link patches, not public blog operations. Organization pending journals block old scan/read pipelines before recovery.
 
-- [ ] Build real host+MCP SDK fixture from existing plugin-runtime support. Assert full workflow: context→empty/new directory→create note via directoryId→move/rename note and directory→read/search same IDs and corrected links→history→undo, without confirmation API.
-- [ ] Observe RED, integrate services and dynamic root use across indexing/catalog/collection/transfer/share, preserve index freshness and versioned snapshots. Add directoryId resolution before create_note core mutation under gate.
-- [ ] Add restart tests with persisted journal checkpoints and new backlink during preparation; enforce recovery and fresh graph coverage, update backup/restore to preserve or explicitly invalidate identity-bound grants.
-- [ ] Add end-to-end domain denial tests for knowledge-only client, v2 blog reader/publisher, unknown todo, selected grants and mixed-reference dependencies. Verify error metadata does not leak unauthorized paths or counts.
-- [ ] Run integration/recovery and affected auth/backup/share/worker suites; commit integration changes.
+- [x] Build real host+MCP SDK fixture from existing plugin-runtime support. Assert full workflow: context→empty/new directory→create note via directoryId→move/rename note and directory→read/search same IDs and corrected links→history→undo, without confirmation API.
+- [x] Observe RED, integrate services and dynamic root use across indexing/catalog/collection/transfer/share, preserve index freshness and versioned snapshots. Add directoryId resolution before create_note core mutation under gate.
+- [x] Add restart tests with persisted journal checkpoints and new backlink during preparation; enforce recovery and fresh graph coverage, update backup/restore to preserve or explicitly invalidate identity-bound grants.
+- [x] Add end-to-end domain denial tests for knowledge-only client, v2 blog reader/publisher, unknown todo, selected grants and mixed-reference dependencies. Verify error metadata does not leak unauthorized paths or counts.
+- [x] Run integration/recovery and affected auth/backup/share/worker suites; commit integration changes.
 
 ### Task 6: 回归、审阅与交付
 
 **Files:** plan progress/evidence and necessary regression fixes only.
 
-- [ ] Run `npm run typecheck`, `npm test`, `npm run build`; isolate baseline/environment failures and fix regressions with RED→GREEN evidence.
-- [ ] Run relevant Playwright authorization/directory workflows using temporary data and the project e2e launcher; verify packaged MCP discovery and actual HTTP authorization.
-- [ ] Obtain independent whole-branch security/recovery review against spec and Review Focus; fix material findings with regression tests.
-- [ ] Mark plan checkboxes from real evidence; scoped commits and clean branch status; report isolated worktree path, functionality, validations and material unresolved limits. Keep original working copy intact; no merge/push/deploy without separate authorization.
+- [x] Run `npm run typecheck`, `npm test`, `npm run build`; isolate baseline/environment failures and fix regressions with RED→GREEN evidence.
+- [x] Run relevant Playwright authorization/directory workflows using temporary data and the project e2e launcher; verify packaged MCP discovery and actual HTTP authorization.
+- [x] Obtain independent whole-branch security/recovery review against spec and Review Focus; fix material findings with regression tests.
+- [x] Mark plan checkboxes from real evidence; scoped commits and clean branch status; report isolated worktree path, functionality, validations and material unresolved limits. Keep original working copy intact; no merge/push/deploy without separate authorization.
 
 ## Execution decision and tracking
 
 用户已明确授权“制定实现计划并推进开发”，不再重复要求批准同一方向。采用独立任务并行实施、父代理集成，任务共享接口以本计划为准；写入重叠文件前由父代理分配所有权。持久进展记录在此计划对应的 `.superpowers` 工作目录中，模型或上下文恢复后先读记录，不重新分配已完成工作。
+
+## 完成验证
+
+最终完整命令：`npm test -- --reporter=verbose --fileParallelism --maxWorkers=2`。结果：286 个套件通过、2 个按条件跳过；1,866 项测试通过、16 项跳过、零失败。`npm run typecheck` 与 `npm run build` 均退出 0。桌面和移动端分别通过 5 项 MCP 配置/授权检查及 1 项保留期持久化检查。详细边界与验收见 `docs/验收记录/2026-10-29-mcp-domain-organization.md`。
