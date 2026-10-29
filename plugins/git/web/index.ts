@@ -9,6 +9,7 @@ import {
 } from 'vue';
 import { NButton, NInput, NAlert, type PluginUIApi } from '@dooknow/plugin-ui';
 import { gitDecoration } from './decoration';
+import { createGitHistoryModel, gitRestoreMessages } from '../../../packages/plugin-ui/git-history';
 
 const RawDiffFallback = defineComponent({
   props: ['diff', 'truncated', 'error'],
@@ -89,18 +90,7 @@ export function activate(api: PluginUIApi) {
     VERSION_CONFLICT: '文件已更新，请保留草稿后重新核对',
     WORKSPACE_BUSY: '工作区正在写入，请稍后重试',
   };
-  const restoreLimits: Record<string, string> = {
-    GIT_RESTORE_UNSUPPORTED:
-      '当前笔记不支持 Git 恢复：仅支持不超过 1 MiB 的 Markdown 笔记，元数据模式不可恢复。仍可查看历史和差异。',
-    GIT_RESTORE_VERSION_TOO_LARGE:
-      '所选历史版本超过 1 MiB，无法在页面恢复。仍可查看历史和差异；请部署者在服务器导出该版本，保留当前笔记后再处理。',
-    GIT_VERSION_NOT_FOUND:
-      '所选版本中没有可恢复的此笔记文件，仍可查看历史和删除差异。请选择其他版本。',
-    GIT_OUTPUT_TOO_LARGE:
-      '所选历史版本超出恢复读取限制，无法在页面恢复。请部署者在服务器导出该版本，保留当前笔记后再处理。',
-    LARGE_FILE_MODE_REQUIRED:
-      '当前笔记需要大文件模式，无法使用此 Git 恢复操作。仍可查看历史和差异；请部署者在服务器导出所选版本，保留当前笔记后再处理。',
-  };
+  const restoreLimits = gitRestoreMessages;
   const friendly = (e: any) => messages[e.code || e.message] || e.message;
   function refresh() {
     if (loading) return loading;
@@ -212,18 +202,6 @@ export function activate(api: PluginUIApi) {
             : null;
         };
       },
-    }),
-  );
-  register(
-    'git.historyAction',
-    defineComponent({
-      props: ['context'],
-      setup: (props) => () =>
-        h(
-          NButton,
-          { size: 'small', onClick: () => api.openPanel('git.history', props.context) },
-          () => 'Git 版本',
-        ),
     }),
   );
   register(
@@ -398,128 +376,40 @@ export function activate(api: PluginUIApi) {
     defineComponent({
       props: ['context'],
       setup(props) {
-        const rows = ref<any[]>([]),
-          cursor = ref<string>(),
-          diff = ref(''),
-          diffTruncated = ref(false),
-          diffCommit = ref<string>(),
-          diffLoading = ref(false),
-          error = ref(''),
-          selected = ref<string>(),
-          confirmRestore = ref(false),
-          restoreNeedsReload = ref(false),
-          restoreBlockedCode = ref(''),
-          busy = ref(false),
-          pendingRestore = ref<any>();
-        let diffRequest = 0;
-        const noteId = () => props.context?.note?.id || props.context?.noteId;
-        async function load(next = false) {
-          try {
-            const result = await api.call('provider', 'git.history', {
-              noteId: noteId(),
-              ...(next ? { cursor: cursor.value } : {}),
-            });
-            rows.value = next ? [...rows.value, ...result.items] : result.items;
-            cursor.value = result.nextCursor;
-          } catch (e) {
-            error.value = friendly(e);
-          }
-        }
-        async function show(commit: string) {
-          if (busy.value) return;
-          if (pendingRestore.value && pendingRestore.value.commit !== commit) {
-            error.value = '请先核对上一次恢复结果';
-            return;
-          }
-          const request = ++diffRequest;
-          selected.value = commit;
-          diffCommit.value = undefined;
-          restoreBlockedCode.value = '';
-          diff.value = '';
-          diffTruncated.value = false;
-          diffLoading.value = true;
-          error.value = '';
-          confirmRestore.value = false;
-          try {
-            const result = await api.call('provider', 'git.diff', { noteId: noteId(), commit });
-            if (request !== diffRequest) return;
-            diff.value = result.truncated ? '差异超过 256 KiB，请在服务器查看。' : result.diff;
-            diffTruncated.value = result.truncated === true;
-            restoreBlockedCode.value =
-              result.restore?.supported === false
-                ? result.restore.code || 'GIT_RESTORE_UNSUPPORTED'
-                : '';
-            diffCommit.value = commit;
-          } catch (e) {
-            if (request === diffRequest) error.value = friendly(e);
-          } finally {
-            if (request === diffRequest) diffLoading.value = false;
-          }
-        }
-        async function restore() {
-          if (
-            !confirmRestore.value ||
-            busy.value ||
-            restoreNeedsReload.value ||
-            restoreBlockedCode.value ||
-            diffLoading.value ||
-            !diffCommit.value ||
-            diffCommit.value !== selected.value
-          )
-            return;
-          busy.value = true;
-          try {
-            if (!pendingRestore.value && !props.context?.expectedModifiedAt) {
-              restoreNeedsReload.value = true;
-              confirmRestore.value = false;
-              return;
-            }
-            pendingRestore.value ||= {
-              noteId: noteId(),
-              commit: diffCommit.value,
-              expectedModifiedAt: props.context?.expectedModifiedAt,
-              requestId: crypto.randomUUID(),
-            };
-            await api.call('command', 'git.restore', pendingRestore.value);
-            pendingRestore.value = undefined;
-            api.notifyChanged(noteId());
+        const model = createGitHistoryModel({
+          call: (kind, id, input) => api.call(kind, id, input),
+          context: () => ({
+            noteId: props.context?.note?.id || props.context?.noteId,
+            expectedModifiedAt: props.context?.expectedModifiedAt,
+          }),
+          friendlyError: friendly,
+          onRestored: async (noteId) => {
+            api.notifyChanged(noteId);
             api.notify('笔记已恢复，当前编辑草稿仍保留');
-            confirmRestore.value = false;
             await refresh();
-          } catch (e) {
-            const response = e as any,
-              status = response.status ?? response.statusCode,
-              data = response.data || {},
-              code = data.code || data.error?.code || response.code || response.message,
-              retryable = data.retryable || data.error?.retryable || response.retryable;
-            if (restoreLimits[String(code)]) {
-              pendingRestore.value = undefined;
-              confirmRestore.value = false;
-              restoreBlockedCode.value = String(code);
-              error.value = '';
-            } else if (
-              status >= 400 &&
-              status < 500 &&
-              !retryable &&
-              !String(code).includes('OUTCOME_UNKNOWN')
-            ) {
-              pendingRestore.value = undefined;
-              confirmRestore.value = false;
-              restoreNeedsReload.value = true;
-            }
-            if (!restoreLimits[String(code)]) error.value = friendly(e);
-          } finally {
-            busy.value = false;
-          }
-        }
-        function cancelRestore() {
-          if (busy.value || pendingRestore.value) return;
-          confirmRestore.value = false;
-        }
-        onMounted(() => load());
-        onUnmounted(() => {
-          diffRequest++;
+          },
         });
+        const {
+          rows,
+          cursor,
+          diff,
+          diffTruncated,
+          diffCommit,
+          diffLoading,
+          error,
+          selected,
+          confirmRestore,
+          restoreNeedsReload,
+          restoreBlockedCode,
+          busy,
+          pendingRestore,
+          load,
+          show,
+          restore,
+          cancelRestore,
+        } = model;
+        onMounted(() => load());
+        onUnmounted(() => model.dispose());
         return () =>
           h('div', { class: 'dooknow-git-history dooknow-git-view' }, [
             h('style', styles),

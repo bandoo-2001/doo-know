@@ -1,3 +1,4 @@
+import './browser-crypto';
 import { createApp } from 'vue';
 import App from './App.vue';
 import { installAntDesign } from './ant-design';

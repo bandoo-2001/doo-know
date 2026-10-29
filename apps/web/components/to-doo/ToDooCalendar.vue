@@ -1,6 +1,15 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import {
+  Alert as AAlert,
+  Button as AButton,
+  Checkbox as ACheckbox,
+  Empty as AEmpty,
+  Modal as AModal,
+  Segmented as ASegmented,
+} from 'ant-design-vue';
+import ToDooDateField from './ToDooDateField.vue';
+import {
   shiftToDooDate,
   toDooLocalDate,
   toDooDisplayTime,
@@ -74,6 +83,13 @@ function move(delta: number) {
   d.setUTCDate(1);
   d.setUTCMonth(d.getUTCMonth() + delta);
   emit('navigate', { date: d.toISOString().slice(0, 10), calendarView: props.view });
+}
+function calendarViewChanged(value: string | number) {
+  if (value === 'week' || value === 'month')
+    emit('navigate', { date: anchor.value, calendarView: value });
+}
+function calendarDateChanged(date: string) {
+  if (date) emit('navigate', { date, calendarView: props.view });
 }
 function blocks(date: string) {
   return (
@@ -297,9 +313,15 @@ function slotStyle(event: ReturnType<typeof weekEvents>[number]) {
 <template>
   <div class="todo-calendar-toolbar">
     <div class="todo-actions">
-      <button class="todo-icon-button" type="button" aria-label="上一周期" @click="move(-1)">
+      <AButton
+        class="todo-icon-button"
+        html-type="button"
+        aria-label="上一周期"
+        @click="move(-1)"
+        type="text"
+      >
         ‹
-      </button>
+      </AButton>
       <h2>
         {{
           timeline
@@ -309,43 +331,42 @@ function slotStyle(event: ReturnType<typeof weekEvents>[number]) {
               : anchor.slice(0, 4) + ' 年 ' + Number(anchor.slice(5, 7)) + ' 月'
         }}
       </h2>
-      <button class="todo-icon-button" type="button" aria-label="下一周期" @click="move(1)">
-        ›</button
-      ><button
+      <AButton
+        class="todo-icon-button"
+        html-type="button"
+        aria-label="下一周期"
+        @click="move(1)"
+        type="text"
+      >
+        ›</AButton
+      ><AButton
         class="todo-button"
-        type="button"
+        html-type="button"
         @click="emit('navigate', { date: today, calendarView: view })"
+        type="default"
       >
         今天
-      </button>
+      </AButton>
     </div>
     <div class="todo-actions">
-      <input
+      <ToDooDateField
         type="date"
         aria-label="跳转日期"
         :value="anchor"
-        @change="
-          emit('navigate', { date: ($event.target as HTMLInputElement).value, calendarView: view })
-        "
-      /><template v-if="!timeline"
-        ><button
-          class="todo-button"
-          :class="{ 'todo-primary': view === 'week' }"
-          type="button"
-          @click="emit('navigate', { date: anchor, calendarView: 'week' })"
-        >
-          周</button
-        ><button
-          class="todo-button"
-          :class="{ 'todo-primary': view !== 'week' }"
-          type="button"
-          @click="emit('navigate', { date: anchor, calendarView: 'month' })"
-        >
-          月
-        </button></template
-      ><button
+        :allow-clear="false"
+        @change="calendarDateChanged"
+      /><ASegmented
+        v-if="!timeline"
+        aria-label="日历视图"
+        :value="view === 'week' ? 'week' : 'month'"
+        :options="[
+          { label: '周', value: 'week' },
+          { label: '月', value: 'month' },
+        ]"
+        @change="calendarViewChanged"
+      /><AButton
         class="todo-button todo-primary"
-        type="button"
+        html-type="button"
         @click="
           emit('edit', 'timeBlock', undefined, {
             start: {
@@ -355,16 +376,17 @@ function slotStyle(event: ReturnType<typeof weekEvents>[number]) {
             },
           })
         "
+        type="primary"
       >
         ＋ 时间安排
-      </button>
+      </AButton>
     </div>
   </div>
   <div class="todo-calendar-options">
     <span>显示时区：{{ state.snapshot?.settings.timeZone }}</span
-    ><label class="todo-checkbox"><input v-model="showExternal" type="checkbox" />外部日历</label
-    ><label class="todo-checkbox"><input v-model="showHabits" type="checkbox" />习惯</label
-    ><label class="todo-checkbox"><input v-model="showAnniversaries" type="checkbox" />纪念日</label
+    ><ACheckbox v-model:checked="showExternal" class="todo-checkbox">外部日历</ACheckbox
+    ><ACheckbox v-model:checked="showHabits" class="todo-checkbox">习惯</ACheckbox
+    ><ACheckbox v-model:checked="showAnniversaries" class="todo-checkbox">纪念日</ACheckbox
     ><span class="todo-spacer"></span><span>计划与截止分别显示</span>
   </div>
   <div v-if="state.preview" class="todo-plan-preview todo-panel">
@@ -373,9 +395,13 @@ function slotStyle(event: ReturnType<typeof weekEvents>[number]) {
       <span class="todo-badge">{{ state.preview.changes.length }} 项安排待确认</span>
     </div>
     <div class="todo-pad">
-      <p v-for="conflict in state.preview.conflicts" :key="conflict" class="todo-warning">
-        {{ conflict }}
-      </p>
+      <AAlert
+        v-for="conflict in state.preview.conflicts"
+        :key="conflict"
+        type="warning"
+        :message="conflict"
+        show-icon
+      />
       <div
         v-for="change in state.preview.changes"
         :key="change.occurrenceId"
@@ -397,18 +423,26 @@ function slotStyle(event: ReturnType<typeof weekEvents>[number]) {
         >
       </div>
       <div class="todo-actions">
-        <button
+        <AButton
           class="todo-button todo-primary"
-          type="button"
+          html-type="button"
           :disabled="state.busy || !!state.preview.conflicts.length"
+          :loading="state.busy"
           @click="
             model
               .execute({ action: 'apply_plan', payload: { plan: state.preview! } }, '安排已应用')
               .then((r) => r && (state.preview = null))
           "
+          type="primary"
         >
-          确认应用安排</button
-        ><button class="todo-button" type="button" @click="state.preview = null">取消</button>
+          确认应用安排</AButton
+        ><AButton
+          class="todo-button"
+          html-type="button"
+          @click="state.preview = null"
+          type="default"
+          >取消</AButton
+        >
       </div>
     </div>
   </div>
@@ -423,9 +457,9 @@ function slotStyle(event: ReturnType<typeof weekEvents>[number]) {
         </div>
       </div>
       <div v-for="item in items" :key="item.key" class="todo-timeline-row">
-        <button class="todo-task-body" type="button" @click="emit('open', item)">
+        <AButton class="todo-task-body" html-type="button" @click="emit('open', item)" type="text">
           {{ item.title }}<small>{{ item.list?.name || '收集箱' }}</small>
-        </button>
+        </AButton>
         <div class="todo-timeline-track">
           <button
             v-for="b in item.blocks.filter(
@@ -466,7 +500,12 @@ function slotStyle(event: ReturnType<typeof weekEvents>[number]) {
           >
         </div>
       </div>
-      <p v-if="!items.length" class="todo-empty">为行动安排第一段时间，时间线会在这里展开。</p>
+      <AEmpty
+        v-if="!items.length"
+        class="todo-empty"
+        description="为行动安排第一段时间，时间线会在这里展开。"
+        :image="AEmpty.PRESENTED_IMAGE_SIMPLE"
+      />
     </div>
     <p class="todo-muted todo-small">
       紫色区段代表计划；◆ 代表截止。点击区段调整时间，任务详情可设置前置依赖。
@@ -609,38 +648,41 @@ function slotStyle(event: ReturnType<typeof weekEvents>[number]) {
         class="todo-panel"
       >
         <h3 class="todo-panel-header">{{ label(day) }}{{ day === today ? ' · 今天' : '' }}</h3>
-        <button
+        <AButton
           v-for="b in blocks(day)"
           :key="b.id"
           class="todo-saved-row todo-text-button"
-          type="button"
+          html-type="button"
           @click="emit('edit', 'timeBlock', b)"
+          type="text"
         >
           <span>{{ b.start.time || '全天' }}</span
           ><span
             >{{ itemFor(b.occurrenceId)?.title || b.title || '时间安排'
             }}<small>{{ b.durationMinutes }} 分钟</small></span
-          ></button
-        ><button
+          ></AButton
+        ><AButton
           v-for="item in due(day)"
           :key="item.key"
-          type="button"
+          html-type="button"
           class="todo-saved-row todo-text-button"
           @click="emit('open', item)"
+          type="text"
         >
           ◆ 截止 · {{ item.title }}
-        </button>
-        <button
+        </AButton>
+        <AButton
           v-for="e in external(day)"
           :key="e.id"
-          type="button"
+          html-type="button"
           class="todo-saved-row todo-text-button"
           @click="inspectExternal(e)"
+          type="text"
         >
           {{ e.title }} · {{ e.readOnly ? '只读事件' : '日历事件' }}
-        </button>
-        <button
-          type="button"
+        </AButton>
+        <AButton
+          html-type="button"
           class="todo-link todo-pad"
           @click="
             emit('edit', 'timeBlock', undefined, {
@@ -651,9 +693,10 @@ function slotStyle(event: ReturnType<typeof weekEvents>[number]) {
               },
             })
           "
+          type="link"
         >
           ＋ 添加安排
-        </button>
+        </AButton>
       </section>
     </div>
   </template>
@@ -671,19 +714,16 @@ function slotStyle(event: ReturnType<typeof weekEvents>[number]) {
       }}</span
     >
   </div>
-  <div v-if="selectedExternal" class="todo-modal-backdrop">
-    <section class="todo-modal" role="dialog" aria-modal="true" aria-label="外部日历事件">
-      <div class="todo-between">
-        <h2>{{ selectedExternal.title }}</h2>
-        <button
-          type="button"
-          class="todo-icon-button"
-          aria-label="关闭事件详情"
-          @click="selectedExternal = undefined"
-        >
-          ×
-        </button>
-      </div>
+  <AModal
+    :open="!!selectedExternal"
+    title="外部日历事件"
+    :footer="null"
+    :mask-closable="true"
+    :focus-trigger-after-close="true"
+    @cancel="selectedExternal = undefined"
+  >
+    <template v-if="selectedExternal">
+      <h2>{{ selectedExternal.title }}</h2>
       <p>
         {{ selectedExternal.start.date }} {{ selectedExternal.start.time || '全天' }} ·
         {{ selectedExternal.start.timeZone }}
@@ -692,22 +732,25 @@ function slotStyle(event: ReturnType<typeof weekEvents>[number]) {
         结束：{{ selectedExternal.end.date }} {{ selectedExternal.end.time || '全天' }}
       </p>
       <p>{{ selectedExternal.description || '来源未提供说明' }}</p>
-      <span class="todo-badge">外部只读来源，变更需在原日历完成</span
-      ><button class="todo-button" type="button" @click="selectedExternal = undefined">关闭</button>
-    </section>
-  </div>
+      <AAlert type="info" message="外部只读来源，变更需在原日历完成" show-icon />
+      <div class="todo-actions todo-top-gap">
+        <AButton html-type="button" @click="selectedExternal = undefined">关闭</AButton>
+      </div>
+    </template>
+  </AModal>
   <div class="todo-plan-tools">
-    <label class="todo-checkbox"
-      ><input v-model="includeDependents" type="checkbox" />联动调整后续安排</label
+    <ACheckbox v-model:checked="includeDependents" class="todo-checkbox">联动调整后续安排</ACheckbox
     ><span class="todo-muted todo-small"
       >拖动先预览，确认后更新。按当前任务顺序安排至 {{ anchor }}，最多 20 项</span
-    ><input v-model="planTime" type="time" aria-label="连续安排开始时间" /><button
+    ><ToDooDateField v-model="planTime" type="time" aria-label="连续安排开始时间" /><AButton
       class="todo-button"
-      type="button"
-      :disabled="state.busy"
+      html-type="button"
+      :disabled="state.busy || !planTime"
+      :loading="state.busy"
       @click="preview"
+      type="default"
     >
       预览连续安排
-    </button>
+    </AButton>
   </div>
 </template>

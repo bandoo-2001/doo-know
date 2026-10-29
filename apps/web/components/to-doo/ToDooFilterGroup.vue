@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import { Button as AButton, Input as AInput } from 'ant-design-vue';
+import ToDooSelect from './ToDooSelect.vue';
+import ToDooDateField from './ToDooDateField.vue';
 import {
   toDooLocalDate,
   toDooPriorityLabels,
@@ -144,22 +147,24 @@ function add(group = false) {
   <section class="todo-filter-group" :aria-label="'第 ' + depth + ' 层筛选条件组'">
     <div class="todo-between">
       <label class="todo-inline-label"
-        >满足<select
+        >满足<ToDooSelect
           :value="modelValue.operator"
           aria-label="条件组匹配方式"
-          @change="
-            emit('update:modelValue', {
-              ...modelValue,
-              operator: ($event.target as HTMLSelectElement).value as 'and' | 'or',
-            })
-          "
+          @change="emit('update:modelValue', { ...modelValue, operator: $event as 'and' | 'or' })"
         >
           <option value="and">以下所有条件</option>
           <option value="or">以下任一条件</option>
-        </select></label
-      ><button v-if="depth > 1" class="todo-link todo-danger" type="button" @click="emit('remove')">
-        移除组
-      </button>
+        </ToDooSelect></label
+      >
+      <AButton
+        v-if="depth > 1"
+        class="todo-link todo-danger"
+        type="link"
+        danger
+        html-type="button"
+        @click="emit('remove')"
+        >移除组</AButton
+      >
     </div>
     <div
       v-for="(condition, index) in modelValue.conditions"
@@ -176,127 +181,109 @@ function add(group = false) {
         @remove="remove(index)"
       />
       <div v-else class="todo-condition-controls">
-        <select
+        <ToDooSelect
           :value="condition.field"
           aria-label="筛选字段"
-          @change="field(index, ($event.target as HTMLSelectElement).value as Field)"
+          @change="field(index, $event as Field)"
         >
-          <option v-for="(name, key) in fields" :key="key" :value="key">{{ name }}</option></select
-        ><select
+          <option v-for="(name, key) in fields" :key="key" :value="key">{{ name }}</option>
+        </ToDooSelect>
+        <ToDooSelect
           :value="condition.operator"
           aria-label="筛选比较方式"
-          @change="
-            operator(index, condition, ($event.target as HTMLSelectElement).value as Operator)
-          "
+          @change="operator(index, condition, $event as Operator)"
         >
           <option v-for="op in operators(condition.field)" :key="op" :value="op">
             {{ labels[op] }}
-          </option></select
-        ><template v-if="!['is_empty', 'not_empty'].includes(condition.operator)"
-          ><select
+          </option>
+        </ToDooSelect>
+        <template v-if="!['is_empty', 'not_empty'].includes(condition.operator)">
+          <ToDooSelect
             v-if="boolFields.includes(condition.field)"
-            :value="String(condition.value)"
+            :value="condition.value"
             aria-label="筛选值"
-            @change="
-              replace(index, {
-                ...condition,
-                value: ($event.target as HTMLSelectElement).value === 'true',
-              })
-            "
+            @change="replace(index, { ...condition, value: $event as boolean })"
           >
-            <option value="true">是</option>
-            <option value="false">否</option></select
-          ><template v-else-if="condition.operator === 'between'"
-            ><input
+            <option :value="true">是</option>
+            <option :value="false">否</option>
+          </ToDooSelect>
+          <template v-else-if="condition.operator === 'between'">
+            <ToDooDateField
               type="date"
               :value="(condition.value as string[])?.[0] || ''"
               aria-label="筛选开始日期"
               @change="
                 replace(index, {
                   ...condition,
-                  value: [
-                    ($event.target as HTMLInputElement).value,
-                    (condition.value as string[])?.[1] || toDooLocalDate(),
-                  ],
+                  value: [$event, (condition.value as string[])?.[1] || toDooLocalDate()],
                 })
-              " /><input
+              "
+            />
+            <ToDooDateField
               type="date"
               :value="(condition.value as string[])?.[1] || ''"
               aria-label="筛选结束日期"
               @change="
                 replace(index, {
                   ...condition,
-                  value: [
-                    (condition.value as string[])?.[0] || toDooLocalDate(),
-                    ($event.target as HTMLInputElement).value,
-                  ],
+                  value: [(condition.value as string[])?.[0] || toDooLocalDate(), $event],
                 })
-              " /></template
-          ><input
+              "
+            />
+          </template>
+          <ToDooDateField
             v-else-if="dateFields.includes(condition.field)"
             type="date"
             :value="condition.value as string"
             aria-label="筛选日期"
-            @change="
-              replace(index, { ...condition, value: ($event.target as HTMLInputElement).value })
-            "
-          /><input
+            @change="replace(index, { ...condition, value: $event })"
+          />
+          <AInput
             v-else-if="condition.field === 'query'"
             :value="condition.value as string"
             aria-label="筛选关键词"
-            @input="
-              replace(index, { ...condition, value: ($event.target as HTMLInputElement).value })
-            "
-          /><select
+            @update:value="replace(index, { ...condition, value: $event })"
+          />
+          <ToDooSelect
             v-else
             :multiple="['in', 'not_in'].includes(condition.operator)"
-            :value="['in', 'not_in'].includes(condition.operator) ? undefined : condition.value"
+            :value="condition.value"
             aria-label="筛选选项"
-            @change="
-              replace(index, {
-                ...condition,
-                value: ['in', 'not_in'].includes(condition.operator)
-                  ? Array.from(($event.target as HTMLSelectElement).selectedOptions).map(
-                      (o) => o.value,
-                    )
-                  : ($event.target as HTMLSelectElement).value,
-              })
-            "
+            @change="replace(index, { ...condition, value: $event as string | string[] })"
           >
-            <option
-              v-for="option in options(condition.field)"
-              :key="option[0]"
-              :value="option[0]"
-              :selected="
-                Array.isArray(condition.value)
-                  ? condition.value.includes(option[0])
-                  : condition.value === option[0]
-              "
-            >
+            <option v-for="option in options(condition.field)" :key="option[0]" :value="option[0]">
               {{ option[1] }}
             </option>
-          </select></template
-        ><button
+          </ToDooSelect>
+        </template>
+        <AButton
           class="todo-icon-button"
-          type="button"
+          type="text"
+          html-type="button"
           aria-label="移除此筛选条件"
           @click="remove(index)"
+          >×</AButton
         >
-          ×
-        </button>
       </div>
     </div>
     <div class="todo-actions">
-      <button class="todo-link" type="button" :disabled="leafCount >= 30" @click="add()">
-        ＋ 添加条件</button
-      ><button
+      <AButton
         class="todo-link"
-        type="button"
+        type="link"
+        html-type="button"
+        :disabled="leafCount >= 30"
+        @click="add()"
+        >＋ 添加条件</AButton
+      >
+      <AButton
+        class="todo-link"
+        type="link"
+        html-type="button"
         :disabled="depth >= 3 || leafCount >= 30"
         @click="add(true)"
+        >＋ 添加条件组</AButton
       >
-        ＋ 添加条件组</button
-      ><small class="todo-muted">{{ leafCount }}/30 条件</small>
+      <small class="todo-muted">{{ leafCount }}/30 条件</small>
     </div>
   </section>
 </template>

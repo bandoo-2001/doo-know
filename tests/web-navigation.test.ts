@@ -57,6 +57,7 @@ beforeEach(async () => {
       },
       apply: async (route: { note?: string; view?: string }) => {
         if (route.note === 'B' && state.holdB) await state.holdB;
+        if (route.note === 'B' && (state as any).cancelB) return false;
         if (route.note === 'B' && state.rejectB)
           throw new Error('Controlled document read failure');
         if (route.view && (state as any).returnRoutes)
@@ -125,6 +126,18 @@ test('a failed back navigation restores the real pointer before later push, canc
     state.dirty = false;
     await state.pending();
   });
+  await expectRoute('B');
+  await page.goForward();
+  await expectRoute('C');
+});
+
+test('an application can cancel a history transition without changing its route or losing the real history pointer', async () => {
+  await page.evaluate(() => { (window as any).navigationState.cancelB = true; });
+  await page.goBack();
+  await expectRoute('C');
+  expect(await page.evaluate(() => (window as any).navigationState.errors)).toBe(0);
+  await page.evaluate(() => { (window as any).navigationState.cancelB = false; });
+  await page.goBack();
   await expectRoute('B');
   await page.goForward();
   await expectRoute('C');

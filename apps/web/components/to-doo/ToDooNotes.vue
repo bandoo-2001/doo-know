@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Button as AButton, Input as AInput } from 'ant-design-vue';
 import { computed, ref } from 'vue';
 import type { TreeEntry } from '../../../../shared/contracts';
 import type { ToDooEntityMap } from '../../../../shared/to-doo-contracts';
@@ -39,15 +40,16 @@ function add(note: TreeEntry) {
   <div class="todo-notes">
     <div class="todo-between">
       <h3>{{ label || '关联资料' }}</h3>
-      <button type="button" class="todo-link" @click="choosing = !choosing">
+      <AButton html-type="button" class="todo-link" @click="choosing = !choosing" type="link">
         {{ choosing ? '收起' : '+ 关联资料' }}
-      </button>
+      </AButton>
     </div>
     <div v-for="(link, i) in modelValue" :key="link.noteId" class="todo-note-row">
       <span class="todo-note-icon">▤</span
-      ><button
-        type="button"
+      ><AButton
+        html-type="button"
         class="todo-note-name"
+        type="text"
         :disabled="!notes.some((n) => n.id === link.noteId)"
         @click="emit('open-note', link.noteId)"
       >
@@ -64,10 +66,11 @@ function add(note: TreeEntry) {
                   : '关联资料'
           }}
           ↗</small
-        ></button
-      ><button
-        type="button"
+        ></AButton
+      ><AButton
+        html-type="button"
         class="todo-icon-button"
+        type="text"
         :aria-label="'解除关联 ' + (link.title || '资料')"
         @click="
           emit(
@@ -77,14 +80,14 @@ function add(note: TreeEntry) {
         "
       >
         ×
-      </button>
+      </AButton>
     </div>
     <p v-if="!modelValue.length && !choosing" class="todo-muted todo-small">还没有关联资料</p>
     <div v-if="choosing" class="todo-note-picker">
-      <label>搜索资料<input v-model="query" placeholder="按资料名称或路径搜索" /></label
-      ><button v-for="n in available" :key="n.id" type="button" @click="add(n)">
+      <label>搜索资料<AInput v-model:value="query" placeholder="按资料名称或路径搜索" /></label
+      ><AButton v-for="n in available" :key="n.id" html-type="button" @click="add(n)">
         {{ n.name }}<small>{{ n.path }}</small>
-      </button>
+      </AButton>
       <p v-if="!available.length" class="todo-muted">没有可关联的资料</p>
     </div>
   </div>

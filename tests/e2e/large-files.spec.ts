@@ -1,4 +1,4 @@
-import { clickNoteAction } from '../support/note-actions';
+import { clickNoteAction, selectHistoryVersion } from '../support/note-actions';
 import { test, expect } from '../support/browser-test';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -98,7 +98,10 @@ test('large document loads a fragment and saving preserves the unloaded tail', a
   );
   expect((await readFile(path, 'utf8')).endsWith('UNLOADED_SENTINEL')).toBe(true);
   await clickNoteAction(page, '历史版本');
-  await page.getByRole('button', { name: '恢复此版本', exact: true }).last().click();
+  const history = page.locator('.note-history-dialog');
+  await selectHistoryVersion(page, -1);
+  await history.getByRole('button', { name: '恢复此版本', exact: true }).click();
+  await history.getByRole('button', { name: '确认恢复', exact: true }).click();
   await expect(page.locator('.large-workspace .cm-content')).toContainText('FIRST');
   expect((await readFile(path, 'utf8')).endsWith('UNLOADED_SENTINEL')).toBe(true);
 });

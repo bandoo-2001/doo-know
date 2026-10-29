@@ -1,5 +1,14 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
+import {
+  Alert as AAlert,
+  Button as AButton,
+  Empty as AEmpty,
+  Progress as AProgress,
+  Segmented as ASegmented,
+  Statistic as AStatistic,
+} from 'ant-design-vue';
+import ToDooDateField from './ToDooDateField.vue';
 import type { ToDooEntityKind } from '../../../../shared/to-doo-contracts';
 import { shiftToDooDate, toDooLocalDate, type ToDooWorkbench } from '../../to-doo-workbench';
 const props = defineProps<{ model: ToDooWorkbench; section: 'stats' | 'notifications' }>();
@@ -12,6 +21,28 @@ const state = props.model.state,
   from = ref(shiftToDooDate(today, -6)),
   to = ref(today),
   unreadOnly = ref(false);
+const customRange = ref(false);
+const periodPreset = computed(() =>
+  customRange.value
+    ? 'custom'
+    : from.value === shiftToDooDate(today, -6) && to.value === today
+      ? 'week'
+      : from.value === shiftToDooDate(today, -29) && to.value === today
+        ? 'month'
+        : 'custom',
+);
+async function selectPeriod(value: string | number) {
+  customRange.value = value === 'custom';
+  if (customRange.value) return;
+  from.value = shiftToDooDate(today, value === 'month' ? -29 : -6);
+  to.value = today;
+  await range();
+}
+const lists = computed(() => state.snapshot?.lists.filter((l) => !l.deletedAt) || []);
+const listProgress = (id: string) => {
+  const item = state.snapshot?.statistics.byList[id];
+  return item?.total ? Math.min(100, Math.round((item.completed / item.total) * 100)) : 0;
+};
 const reminders = computed(
   () =>
     state.snapshot?.reminderEvents
@@ -57,6 +88,10 @@ const daily = computed(() =>
 const reviews = computed(() => state.snapshot?.reviews.filter((r) => !r.deletedAt) || []);
 const outcomes = computed(() => state.snapshot?.outcomes.filter((r) => !r.deletedAt) || []);
 async function range() {
+  if (!from.value || !to.value) {
+    state.error = '请选择开始日期和结束日期';
+    return;
+  }
   if (from.value > to.value) {
     state.error = '结束日期不能早于开始日期';
     return;
@@ -102,12 +137,34 @@ async function markAll() {
   <template v-if="section === 'stats'"
     ><form class="todo-calendar-toolbar" @submit.prevent="range">
       <div class="todo-actions">
-        <label class="todo-inline-label">从<input v-model="from" type="date" required /></label
-        ><label class="todo-inline-label">到<input v-model="to" type="date" required /></label
-        ><button type="submit" class="todo-button">查看区间</button>
+        <ASegmented
+          :value="periodPreset"
+          :options="[
+            { label: '近 7 天', value: 'week' },
+            { label: '近 30 天', value: 'month' },
+            { label: '自定义', value: 'custom' },
+          ]"
+          :disabled="state.busy"
+          @change="selectPeriod"
+        />
+        <label class="todo-inline-label"
+          >从<ToDooDateField
+            v-model="from"
+            type="date"
+            required
+            aria-label="统计开始日期"
+            :max="to || undefined" /></label
+        ><label class="todo-inline-label"
+          >到<ToDooDateField
+            v-model="to"
+            type="date"
+            required
+            aria-label="统计结束日期"
+            :min="from || undefined" /></label
+        ><AButton type="default" html-type="submit" class="todo-button">查看区间</AButton>
       </div>
-      <button
-        type="button"
+      <AButton
+        type="primary"
         class="todo-button todo-primary"
         @click="
           emit('edit', 'review', undefined, {
@@ -122,32 +179,39 @@ async function markAll() {
         "
       >
         ＋ 写一篇复盘
-      </button>
+      </AButton>
     </form>
     <div class="todo-stats">
       <article class="todo-panel">
-        <span>完成行动</span
-        ><strong>{{ state.snapshot?.statistics.completed || 0 }}<small>项</small></strong>
+        <AStatistic
+          title="完成行动"
+          :value="state.snapshot?.statistics.completed || 0"
+          suffix="项"
+        />
         <p>按执行实例统计</p>
       </article>
       <article class="todo-panel">
-        <span>专注时间</span
-        ><strong
-          >{{ Math.round(state.snapshot?.statistics.focusMinutes || 0) }}<small>分钟</small></strong
-        >
+        <AStatistic
+          title="专注时间"
+          :value="Math.round(state.snapshot?.statistics.focusMinutes || 0)"
+          suffix="分钟"
+        />
         <p>来自实际专注记录</p>
       </article>
       <article class="todo-panel">
-        <span>沉淀成果</span
-        ><strong>{{ state.snapshot?.statistics.outcomes || 0 }}<small>份</small></strong>
+        <AStatistic
+          title="沉淀成果"
+          :value="state.snapshot?.statistics.outcomes || 0"
+          suffix="份"
+        />
         <p>成果与完成分别记录</p>
       </article>
     </div>
-    <p class="todo-muted todo-small">
-      上方为{{
-        state.snapshot?.statistics.scope === 'period' ? '所选日期区间' : '知识库累计'
-      }}统计。下方明细基于 {{ from }} — {{ to }} 当前载入的记录，可在页尾继续载入。
-    </p>
+    <AAlert
+      type="info"
+      show-icon
+      :message="`上方为${state.snapshot?.statistics.scope === 'period' ? '所选日期区间' : '知识库累计'}统计。下方明细基于 ${from} — ${to} 当前载入的记录，可在页尾继续载入。`"
+    />
     <div class="todo-review-grid">
       <section class="todo-panel">
         <div class="todo-panel-header">
@@ -173,11 +237,7 @@ async function markAll() {
           </div>
         </div>
         <div class="todo-panel-header"><h2>目标进展</h2></div>
-        <div
-          v-for="l in state.snapshot?.lists.filter((l) => !l.deletedAt)"
-          :key="l.id"
-          class="todo-progress-row"
-        >
+        <div v-for="l in lists" :key="l.id" class="todo-progress-row">
           <div class="todo-between">
             <span>{{ l.name }}</span
             ><span
@@ -186,19 +246,24 @@ async function markAll() {
               }}</span
             >
           </div>
-          <progress
-            :max="state.snapshot?.statistics.byList[l.id]?.total || 1"
-            :value="state.snapshot?.statistics.byList[l.id]?.completed || 0"
-          ></progress>
+          <AProgress
+            :percent="listProgress(l.id)"
+            :show-info="false"
+            :aria-label="l.name + '完成进度'"
+          />
         </div>
-        <p v-if="!state.snapshot?.lists.length" class="todo-empty">创建目标后，在这里回顾进展。</p>
+        <AEmpty
+          v-if="!lists.length"
+          class="todo-empty"
+          description="创建目标后，在这里回顾进展。"
+        />
       </section>
       <section class="todo-panel">
         <div class="todo-panel-header"><h2>复盘与成果</h2></div>
-        <button
+        <AButton
+          type="text"
           v-for="r in reviews"
           :key="r.id"
-          type="button"
           class="todo-saved-row todo-text-button"
           @click="emit('edit', 'review', r)"
         >
@@ -207,15 +272,17 @@ async function markAll() {
             ><small>{{ r.from }} — {{ r.to }}</small>
             <p>{{ r.content.slice(0, 160) }}</p></span
           ><span>↗</span>
-        </button>
-        <p v-if="!reviews.length" class="todo-empty">
-          写下做对的事与下一次调整，让记录成为下一步的依据。
-        </p>
-        <button
+        </AButton>
+        <AEmpty
+          v-if="!reviews.length"
+          class="todo-empty"
+          description="写下做对的事与下一次调整，让记录成为下一步的依据。"
+        />
+        <AButton
+          type="text"
           v-for="o in outcomes"
           :key="o.id"
           class="todo-saved-row todo-text-button"
-          type="button"
           @click="emit('edit', 'outcome', o)"
         >
           <span
@@ -231,23 +298,24 @@ async function markAll() {
               }}
               · {{ o.evidenceRefs.length }} 份证据</small
             ></span
-          ></button
-        ><button class="todo-link todo-pad" type="button" @click="emit('edit', 'record')">
+          ></AButton
+        ><AButton type="link" class="todo-link todo-pad" @click="emit('edit', 'record')">
           ＋ 新增推进记录
-        </button>
+        </AButton>
       </section>
     </div></template
   >
   <template v-else
     ><div class="todo-calendar-toolbar">
-      <div class="todo-segment">
-        <button type="button" :class="{ active: !unreadOnly }" @click="unreadOnly = false">
-          全部</button
-        ><button type="button" :class="{ active: unreadOnly }" @click="unreadOnly = true">
-          未读
-        </button>
-      </div>
-      <button class="todo-button" type="button" @click="markAll">全部标为已读</button>
+      <ASegmented
+        :value="unreadOnly ? 'unread' : 'all'"
+        :options="[
+          { label: '全部', value: 'all' },
+          { label: '未读', value: 'unread' },
+        ]"
+        @change="unreadOnly = $event === 'unread'"
+      />
+      <AButton type="default" class="todo-button" @click="markAll">全部标为已读</AButton>
     </div>
     <section class="todo-panel">
       <article v-for="r in reminders" :key="r.id" class="todo-notification">
@@ -273,28 +341,32 @@ async function markAll() {
             }}</small
           >
           <div class="todo-actions todo-top-gap">
-            <button
+            <AButton
+              type="link"
               v-if="r.sourceType === 'task'"
               class="todo-link"
-              type="button"
               @click="emit('task', r.sourceId)"
             >
-              查看任务</button
-            ><button class="todo-button" type="button" @click="reminder(r.id, 'read')">已读</button
-            ><button class="todo-button" type="button" @click="reminder(r.id, 'acknowledge')">
-              已处理</button
-            ><button class="todo-button" type="button" @click="reminder(r.id, 'snooze')">
-              15 分钟后提醒</button
-            ><button class="todo-link" type="button" @click="reminder(r.id, 'dismiss')">
+              查看任务</AButton
+            ><AButton type="default" class="todo-button" @click="reminder(r.id, 'read')"
+              >已读</AButton
+            ><AButton type="default" class="todo-button" @click="reminder(r.id, 'acknowledge')">
+              已处理</AButton
+            ><AButton type="default" class="todo-button" @click="reminder(r.id, 'snooze')">
+              15 分钟后提醒</AButton
+            ><AButton type="link" class="todo-link" @click="reminder(r.id, 'dismiss')">
               忽略
-            </button>
+            </AButton>
           </div>
         </div>
       </article>
-      <div v-if="!reminders.length" class="todo-empty">
-        <h2>{{ unreadOnly ? '当前没有未读提醒' : '这里暂时没有提醒' }}</h2>
-        <p>为任务、习惯或重要日子添加提醒，到时会集中显示。</p>
-      </div>
+      <AEmpty
+        v-if="!reminders.length"
+        class="todo-empty"
+        :description="unreadOnly ? '当前没有未读提醒' : '这里暂时没有提醒'"
+      >
+        <p class="todo-muted">为任务、习惯或重要日子添加提醒，到时会集中显示。</p>
+      </AEmpty>
     </section></template
   >
 </template>

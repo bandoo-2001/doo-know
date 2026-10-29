@@ -110,6 +110,7 @@ async function initialize() {
     git('-C', seed, 'commit', '-m', 'Seed isolated onboarding repository');
     git('-C', seed, 'push', '--', gitRemoteRoot, 'main');
   }
+
   if (shutdownRequested) return;
   let searchDistribution: any;
   if (process.env.DOOKNOW_E2E_SEARCH_RUNTIME === '1') {
@@ -142,11 +143,10 @@ async function initialize() {
     await listenFrontend(requestedPort);
     frontendPort = (frontend.address() as { port: number }).port;
   }
-  const origin = 'http://127.0.0.1:' + frontendPort;
   await writeFile(
     '.local/e2e-config.json',
     JSON.stringify({
-      origin,
+      origin: 'http://127.0.0.1:' + frontendPort,
       graphModelURL: graphModel?.url,
       knowledgeRoot,
       dataRoot,
@@ -170,7 +170,7 @@ async function initialize() {
         }
       : {}),
     secret: 'e2e-only-at-least-thirty-two-character-secret',
-    origin,
+    origin: 'http://127.0.0.1:' + frontendPort,
     pluginCatalog: [
       await pluginFixture(root),
       ...(await buildPlugins({

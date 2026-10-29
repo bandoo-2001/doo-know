@@ -1,5 +1,7 @@
 export const toDooSections = ['overview', 'tasks', 'board', 'calendar', 'timeline', 'matrix', 'focus', 'habits', 'anniversaries', 'stats', 'notifications', 'settings'] as const;
 export type ToDooAppSection = (typeof toDooSections)[number];
+export const toDooTaskFilters = ['all', 'inbox', 'today', 'upcoming', 'overdue', 'unscheduled', 'done', 'blocked', 'archived', 'trash'] as const;
+export type ToDooTaskFilter = (typeof toDooTaskFilters)[number];
 export type WorkspaceRoute = {
   app?: 'blog' | 'to-doo' | 'graph';
   appSection?: 'overview' | 'articles' | 'taxonomy' | 'settings' | 'design' | ToDooAppSection;
@@ -7,6 +9,7 @@ export type WorkspaceRoute = {
   list?: string;
   date?: string;
   calendarView?: 'week' | 'month';
+  taskFilter?: ToDooTaskFilter;
   note?: string;
   line?: number;
   fragment?: string;
@@ -40,6 +43,7 @@ export function readWorkspaceRoute(href = window.location.href): WorkspaceRoute 
     ...(toDoo ? {
       app: 'to-doo' as const,
       ...(toDooSections.includes(query.get('appSection') as ToDooAppSection) ? { appSection: query.get('appSection') as ToDooAppSection } : {}),
+      ...(toDooTaskFilters.includes(query.get('taskFilter') as ToDooTaskFilter) ? { taskFilter: query.get('taskFilter') as ToDooTaskFilter } : {}),
       ...(entity('task') ? { task: entity('task') } : {}),
       ...(entity('list') ? { list: entity('list') } : {}),
       ...(validDate ? { date } : {}),
@@ -85,7 +89,7 @@ export function createWorkspaceNavigation(options: {
   dirty: () => boolean;
   canPreserveDraft?: (route: WorkspaceRoute) => boolean;
   guard: (apply: () => Promise<void>) => Promise<void>;
-  apply: (route: WorkspaceRoute) => Promise<void>;
+  apply: (route: WorkspaceRoute) => Promise<void | boolean>;
   error: (cause: unknown) => void;
   onState?: (state: WorkspaceNavigationState) => void;
 }) {
@@ -110,7 +114,7 @@ export function createWorkspaceNavigation(options: {
       return;
     }
     const url = new URL(location.href);
-    for (const key of ['note', 'folder', 'view', 'section', 'app', 'appSection', 'task', 'list', 'date', 'calendarView'])
+    for (const key of ['note', 'folder', 'view', 'section', 'app', 'appSection', 'task', 'list', 'date', 'calendarView', 'taskFilter'])
       url.searchParams.delete(key);
     if (route.note) url.searchParams.set('note', route.note);
     if (route.folder) url.searchParams.set('folder', route.folder);
@@ -120,7 +124,7 @@ export function createWorkspaceNavigation(options: {
     if (route.view === 'apps' && route.app && route.appSection)
       url.searchParams.set('appSection', route.appSection);
     if (route.view === 'apps' && route.app === 'to-doo') {
-      for (const key of ['task', 'list', 'date', 'calendarView'] as const)
+      for (const key of ['task', 'list', 'date', 'calendarView', 'taskFilter'] as const)
         if (route[key]) url.searchParams.set(key, route[key]!);
     }
     url.hash = route.line ? 'L' + route.line : route.fragment || '';
@@ -157,7 +161,11 @@ export function createWorkspaceNavigation(options: {
     if (disposed) return;
     const current = ++generation;
     try {
-      await options.apply(readWorkspaceRoute(target.href));
+      const applied = await options.apply(readWorkspaceRoute(target.href));
+      if (applied === false) {
+        if (current === generation) await restoreHistory(target);
+        return;
+      }
       if (current === generation) {
         active = target;
         furthestIndex = Math.max(furthestIndex, target.index);

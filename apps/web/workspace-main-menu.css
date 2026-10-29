@@ -1,0 +1,139 @@
+.workspace-main-menu .workspace-menu-identity {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.workspace-main-menu .workspace-menu-return {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  color: var(--muted);
+  border: 1px solid color-mix(in srgb, var(--muted) 28%, transparent);
+  background: var(--workbench-paper, var(--panel, #fff));
+  cursor: pointer;
+  border-radius: 12px;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+.workspace-main-menu .workspace-menu-return:hover {
+  color: var(--blue);
+  border-color: color-mix(in srgb, var(--blue) 40%, transparent);
+  background: var(--blue-soft, #eaf0fc);
+}
+.workspace-footer.workspace-main-menu .workspace-menu-identity:has(.workspace-menu-return) {
+  justify-content: center;
+  width: 100%;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--workbench-line, var(--border));
+}
+.workspace-main-menu button:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+.workspace-footer.workspace-main-menu .rail-notes-navigation button,
+.workspace-footer.workspace-main-menu .footer-tools button {
+  position: relative;
+  border-radius: 10px;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+.workspace-footer.workspace-main-menu .rail-notes-navigation button:hover,
+.workspace-footer.workspace-main-menu .footer-tools button:hover {
+  background: color-mix(in srgb, var(--blue) 7%, transparent);
+  color: var(--blue);
+  box-shadow: none;
+}
+.workspace-footer.workspace-main-menu .rail-notes-navigation button[aria-current='page'],
+.workspace-footer.workspace-main-menu .footer-tools button[aria-current='page'] {
+  background: var(--blue-soft, #eaf0fc);
+  color: var(--blue);
+  font-weight: 600;
+  box-shadow: none;
+}
+.workspace-main-menu .workspace-menu-badge {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  padding: 0 3px;
+  border-radius: 7px;
+  background: var(--blue);
+  color: white;
+  font-size: 9px;
+}
+@media (min-width: 721px) {
+  .workspace-footer.workspace-main-menu .workspace-menu-identity {
+    order: -2;
+  }
+  .workspace-footer.workspace-main-menu .rail-notes-navigation {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 6px;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  .workspace-footer.workspace-main-menu .rail-notes-navigation button {
+    flex: 0 0 auto;
+  }
+  .workspace-footer.workspace-main-menu .workspace-menu-return {
+    flex-direction: column;
+    width: 44px;
+    min-height: 48px;
+    padding: 3px;
+    font-size: 10px;
+    line-height: 1.2;
+  }
+  .workspace-footer.workspace-main-menu .workspace-menu-return > svg {
+    display: block;
+    width: 20px;
+    height: 20px;
+  }
+  .workspace-footer.workspace-main-menu .footer-tools {
+    margin-top: 0;
+    gap: 6px;
+  }
+}
+@media (max-width: 720px) {
+  .workspace-footer.workspace-main-menu {
+    gap: 12px;
+  }
+  .workspace-footer.workspace-main-menu .workspace-menu-identity {
+    order: -2;
+    width: 100%;
+  }
+  .workspace-footer.workspace-main-menu .workspace-menu-identity:has(.workspace-menu-return) {
+    justify-content: flex-start;
+  }
+  .workspace-footer.workspace-main-menu .workspace-menu-return {
+    min-height: 38px;
+    padding: 7px 9px;
+    font-size: 13px;
+  }
+  .workspace-footer.workspace-main-menu .rail-notes-navigation {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+  }
+  .workspace-footer.workspace-main-menu .rail-notes-navigation button {
+    min-width: 0;
+    width: auto;
+    min-height: 54px;
+    padding: 6px 3px;
+    overflow-wrap: anywhere;
+  }
+  .workspace-footer.workspace-main-menu .rail-notes-navigation button span {
+    white-space: normal;
+  }
+  .workspace-footer.workspace-main-menu .footer-tools {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}

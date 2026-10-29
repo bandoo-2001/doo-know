@@ -41,6 +41,7 @@
   margin-top: 34px;
 }
 .app-card {
+  width: 100%;
   text-align: left;
   background: var(--blog-surface);
   border: 1px solid var(--blog-line);
@@ -57,6 +58,32 @@
 .app-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 12px 30px #1e365615;
+}
+.app-entry {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  min-width: 0;
+}
+.app-pin-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 7px 12px;
+  border: 1px solid var(--blog-line);
+  border-radius: 8px;
+  color: var(--blog-muted);
+  background: var(--blog-surface);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.app-pin-button:hover,
+.app-pin-button[aria-pressed='true'] {
+  color: var(--blog-accent);
+  background: var(--blog-accent-soft);
 }
 .app-card-top {
   display: flex;

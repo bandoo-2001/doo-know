@@ -5,6 +5,8 @@ import * as Vue from 'vue';
 import MarkdownIt from 'markdown-it';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { ApiError } from '../apps/web/api';
+import * as appShortcuts from '../apps/web/app-shortcuts';
+import * as workspaceMainMenu from '../apps/web/workspace-main-menu';
 import * as navigation from '../apps/web/navigation';
 import * as markdownLinks from '../apps/web/markdown-links';
 import * as imageRequests from '../apps/web/image-requests';
@@ -108,6 +110,8 @@ async function mount(waitForNote = true) {
           pluginRegistry: Vue.ref([]),
         };
       if (id === '../git-sync') return { gitUnsaved: Vue.ref(false) };
+      if (id === '../app-shortcuts') return appShortcuts;
+      if (id === '../workspace-main-menu') return workspaceMainMenu;
       if (id === '../plugin-drafts') return { clearPluginDrafts: vi.fn() };
       if (id === '../useNoteDraft')
         return {
@@ -744,6 +748,7 @@ it('preserves a note draft typed while the post-pull tree refresh is pending', a
   expect(state.note.value.content).toBe(original.content);
   expect(state.notice.value).toContain('草稿会保留');
   expect(state.leaveOpen.value).toBe(false);
+  expect(state.staleHistoryBase.value).toEqual({ noteId: original.id, modifiedAt: original.modifiedAt });
 });
 
 it('preserves a draft typed while the clean selected note is being reloaded', async () => {

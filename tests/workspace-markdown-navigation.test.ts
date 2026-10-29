@@ -20,6 +20,8 @@ import * as collectionFeed from '../apps/web/collection-feed';
 import * as blogWorkbench from '../apps/web/blog-workbench';
 import * as blogDiagrams from '../apps/web/blog-diagrams';
 import * as toDooCapture from '../apps/web/to-doo-capture';
+import * as appShortcuts from '../apps/web/app-shortcuts';
+import * as workspaceMainMenu from '../apps/web/workspace-main-menu';
 import { markdownStyles } from '../shared/markdown-styles';
 import { markdownTasks } from '../shared/markdown-tasks';
 import { diagramFences } from '../shared/diagram-fences';
@@ -112,6 +114,8 @@ async function mount(waitForNote = true) {
       if (id === '../editor/toolbar-state') return format;
       if (id === '../api') return { api: mockApi, ApiError, resetCsrf: vi.fn() };
       if (id === '../navigation') return navigation;
+      if (id === '../app-shortcuts') return appShortcuts;
+      if (id === '../workspace-main-menu') return workspaceMainMenu;
       if (id === '../markdown-links') return markdownLinks;
       if (id === '../image-requests') return imageRequests;
       if (id === '../preferences') return preferences;

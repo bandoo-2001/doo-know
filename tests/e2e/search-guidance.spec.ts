@@ -165,7 +165,11 @@ test('a missing search component can be prepared and the original filtered searc
   const query = '入门指南';
   await page.getByRole('textbox', { name: '搜索笔记与目录', exact: true }).fill(query);
   await selectSearchOption(page, '搜索模式', '文本检索');
-  await selectSearchOption(page, '搜索目录', '30-Knowledge/个人知识管理/方法');
+  const directory = page.getByRole('combobox', { name: '搜索目录', exact: true });
+  await directory.focus();
+  await directory.press('ArrowDown');
+  await directory.fill('30-Knowledge/个人知识管理/方法');
+  await page.locator('.directory-tree-popup:visible').getByTitle('方法', { exact: true }).click();
   const result = page.locator('.search-result').filter({ hasText: note.path });
   await expect(result).toBeVisible();
   await expect(page.locator('.tree-scroll').getByRole('alert')).toContainText(

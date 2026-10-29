@@ -45,12 +45,6 @@
       "component": "git.decoration"
     },
     {
-      "id": "git.historyAction",
-      "slot": "noteAction",
-      "title": "Git 版本",
-      "component": "git.historyAction"
-    },
-    {
       "id": "git.history",
       "slot": "notePanel",
       "title": "Git 历史与差异",
