@@ -69,11 +69,16 @@ export type PortablePackage = {
 };
 export function exportPortableJson(
   snapshot: ToDooSnapshot,
-  extra: { transactions?: unknown[]; assets?: { sha256: string; content: string }[] } = {},
+  extra: {
+    transactions?: unknown[];
+    assets?: { sha256: string; content: string }[];
+    includeSettings?: boolean;
+  } = {},
 ): string {
-  const entities: PortableEntity[] = [
-    { kind: 'settings', entity: snapshot.settings, sha256: hash(snapshot.settings) },
-  ];
+  const entities: PortableEntity[] =
+    extra.includeSettings === false
+      ? []
+      : [{ kind: 'settings', entity: snapshot.settings, sha256: hash(snapshot.settings) }];
   for (const [kind, collection] of Object.entries(TO_DOO_COLLECTIONS))
     for (const entity of (snapshot as unknown as Record<string, Record<string, unknown>[]>)[
       collection
@@ -453,7 +458,22 @@ export function createToDooInterop(service: ToDooService, options: ToDooInteropO
   db.exec(`CREATE TABLE IF NOT EXISTS to_doo_import_previews(id TEXT PRIMARY KEY,content TEXT NOT NULL,created_at TEXT NOT NULL,applied_result TEXT);
     CREATE TABLE IF NOT EXISTS to_doo_import_jobs(preview_id TEXT PRIMARY KEY,request_id TEXT NOT NULL UNIQUE,state TEXT NOT NULL,offset INTEGER NOT NULL,total INTEGER NOT NULL,error TEXT,result TEXT);
     CREATE TABLE IF NOT EXISTS to_doo_feed_tokens(hash TEXT PRIMARY KEY,feed_id TEXT NOT NULL,created_at TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS to_doo_import_guards(preview_id TEXT PRIMARY KEY);
     CREATE TABLE IF NOT EXISTS to_doo_calendar_connections(source_id TEXT PRIMARY KEY,url TEXT NOT NULL,headers TEXT NOT NULL,etag TEXT,last_fetched_at TEXT,status TEXT NOT NULL DEFAULT 'ready',error TEXT);`);
+  // Protected previews cannot resume background mutations until their caller's live
+  // authorization callback is reattached. The durable flag survives host restarts.
+  const importGuards = new Map<string, () => void>();
+  function protectImport(previewId: string, guard: () => void) {
+    guard();
+    db.prepare('INSERT OR IGNORE INTO to_doo_import_guards VALUES(?)').run(previewId);
+    importGuards.set(previewId, guard);
+  }
+  function checkImportGuard(previewId: string) {
+    if (!db.prepare('SELECT 1 FROM to_doo_import_guards WHERE preview_id=?').get(previewId)) return;
+    const guard = importGuards.get(previewId);
+    if (!guard) throw new ToDooInteropError('Import caller must reauthorize before resuming', 403);
+    guard();
+  }
   const all = () => service.snapshot({ all: true });
   const existing = (snapshot: ToDooSnapshot, kind: ToDooEntityKind, id: string) =>
     kind === 'settings'
@@ -906,6 +926,7 @@ export function createToDooInterop(service: ToDooService, options: ToDooInteropO
     return preview;
   }
   function applyImport(input: { previewId: string; requestId: string }) {
+    checkImportGuard(input.previewId);
     const row = db
       .prepare('SELECT content,applied_result FROM to_doo_import_previews WHERE id=?')
       .get(input.previewId) as { content: string; applied_result: string | null } | undefined;
@@ -930,7 +951,13 @@ export function createToDooInterop(service: ToDooService, options: ToDooInteropO
         if (item.expectedRevision ? previous?.revision !== item.expectedRevision : !!previous)
           throw new ToDooInteropError('Import preview is stale; preview again', 409);
       }
-    if (preview.items.length > preview.batchSize) {
+    // A protected checkpoint can replace the portable dataset identity. Commit it
+    // once under the explicit full-dataset authorization, so an identity change
+    // cannot strand half an import between separately authorized batches.
+    const protectedCheckpoint =
+      !!preview.package?.checkpoint &&
+      !!db.prepare('SELECT 1 FROM to_doo_import_guards WHERE preview_id=?').get(preview.id);
+    if (preview.items.length > preview.batchSize && !protectedCheckpoint) {
       db.prepare(
         "INSERT INTO to_doo_import_jobs(preview_id,request_id,state,offset,total) VALUES(?,?,'queued',0,?)",
       ).run(preview.id, input.requestId, preview.items.length);
@@ -1002,6 +1029,7 @@ export function createToDooInterop(service: ToDooService, options: ToDooInteropO
     };
   }
   function cancelImport(previewId: string) {
+    importGuards.delete(previewId);
     const job = db.prepare('SELECT * FROM to_doo_import_jobs WHERE preview_id=?').get(previewId) as
       | ImportJob
       | undefined;
@@ -1024,6 +1052,7 @@ export function createToDooInterop(service: ToDooService, options: ToDooInteropO
     return importStatus(previewId);
   }
   function resumeImport(previewId: string) {
+    checkImportGuard(previewId);
     const job = db.prepare('SELECT * FROM to_doo_import_jobs WHERE preview_id=?').get(previewId) as
       | ImportJob
       | undefined;
@@ -1066,6 +1095,7 @@ export function createToDooInterop(service: ToDooService, options: ToDooInteropO
             job.preview_id,
           );
           try {
+            checkImportGuard(preview.id);
             const requestId =
               'import_batch_' +
               hash([job.request_id, preview.fingerprint, job.offset]).slice(0, 40);
@@ -1145,10 +1175,13 @@ export function createToDooInterop(service: ToDooService, options: ToDooInteropO
       includeDescription: input.includeDescription,
     });
   }
-  function createFeed(input: { name: string; listIds?: string[]; includeDescription?: boolean }) {
-    const id = randomUUID();
+  function createFeed(
+    input: { name: string; listIds?: string[]; includeDescription?: boolean },
+    intent?: { id: string; requestId: string; token: string },
+  ) {
+    const id = intent?.id ?? randomUUID();
     service.command({
-      requestId: randomUUID(),
+      requestId: intent?.requestId ?? randomUUID(),
       action: 'save_entity',
       payload: {
         kind: 'calendarFeed',
@@ -1161,8 +1194,8 @@ export function createToDooInterop(service: ToDooService, options: ToDooInteropO
         },
       },
     });
-    const token = randomBytes(32).toString('base64url');
-    db.prepare('INSERT INTO to_doo_feed_tokens VALUES(?,?,?)').run(
+    const token = intent?.token ?? randomBytes(32).toString('base64url');
+    db.prepare('INSERT OR IGNORE INTO to_doo_feed_tokens VALUES(?,?,?)').run(
       hash(token),
       id,
       now().toISOString(),
@@ -1198,12 +1231,16 @@ export function createToDooInterop(service: ToDooService, options: ToDooInteropO
       includeCompleted: feed.includeCompleted,
     });
   }
-  async function connectCalendar(input: {
-    sourceId?: string;
-    name: string;
-    url: string;
-    headers?: Record<string, string>;
-  }) {
+  async function connectCalendar(
+    input: {
+      sourceId?: string;
+      name: string;
+      url: string;
+      headers?: Record<string, string>;
+    },
+    guard?: () => void,
+  ) {
+    guard?.();
     const sourceId = input.sourceId ?? randomUUID();
     const response = await network.request({ url: input.url, headers: input.headers });
     if (response.status !== 200)
@@ -1211,6 +1248,7 @@ export function createToDooInterop(service: ToDooService, options: ToDooInteropO
     const parsed = parseCalendar(response.body.toString('utf8'), {
       timeZone: all().settings.timeZone,
     });
+    guard?.();
     applyCalendar(sourceId, input.name, parsed.items);
     db.prepare(
       'INSERT OR REPLACE INTO to_doo_calendar_connections(source_id,url,headers,etag,last_fetched_at,status) VALUES(?,?,?,?,?,?)',
@@ -1274,7 +1312,8 @@ export function createToDooInterop(service: ToDooService, options: ToDooInteropO
       payload: { entities: entries },
     });
   }
-  async function refreshCalendar(sourceId: string) {
+  async function refreshCalendar(sourceId: string, guard?: () => void) {
+    guard?.();
     const row = db
       .prepare('SELECT * FROM to_doo_calendar_connections WHERE source_id=?')
       .get(sourceId) as
@@ -1285,6 +1324,7 @@ export function createToDooInterop(service: ToDooService, options: ToDooInteropO
       const headers = JSON.parse(row.headers);
       if (row.etag) headers['if-none-match'] = row.etag;
       const response = await network.request({ url: row.url, headers });
+      guard?.();
       if (response.status === 304) {
         db.prepare(
           'UPDATE to_doo_calendar_connections SET last_fetched_at=?,status=?,error=NULL WHERE source_id=?',
@@ -1363,6 +1403,7 @@ export function createToDooInterop(service: ToDooService, options: ToDooInteropO
     void processImportJobs();
   }
   function close() {
+    importGuards.clear();
     closed = true;
     if (timer) clearInterval(timer);
     timer = null;
@@ -1370,6 +1411,7 @@ export function createToDooInterop(service: ToDooService, options: ToDooInteropO
   }
   return {
     previewImport,
+    protectImport,
     applyImport,
     importStatus,
     cancelImport,
@@ -1776,7 +1818,7 @@ function mapCalendarRule(item: CalendarItem, id: string): ToDooRecurrence | null
   });
   return result.success ? result.data : null;
 }
-function snapshotCalendarItems(
+export function snapshotCalendarItems(
   snapshot: ToDooSnapshot,
   input: {
     listIds?: string[];
@@ -1791,8 +1833,7 @@ function snapshotCalendarItems(
     snapshot.tasks
       .filter(
         (t) =>
-          !t.deletedAt &&
-          (!input.listIds?.length || (!!t.listId && input.listIds.includes(t.listId))),
+          !t.deletedAt && (!input.listIds?.length || input.listIds.includes(t.listId ?? 'inbox')),
       )
       .map((t) => [t.id, t]),
   );

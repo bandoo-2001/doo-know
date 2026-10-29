@@ -650,6 +650,10 @@ const schemas = {
     .object({
       ...base,
       kind: z.literal('outcome_note'),
+      callerIdentity: z
+        .string()
+        .regex(/^[a-f0-9]{64}$/)
+        .optional(),
       requestId: toDooId,
       fingerprint: text(128).min(1),
       occurrenceId: toDooId,

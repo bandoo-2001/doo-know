@@ -9,6 +9,7 @@ import {
 import { assertWritable, acquireNoteWrite, releaseNoteWrite } from './write-lease.js';
 export { assertWritable } from './write-lease.js';
 import { randomUUID, createHash } from 'node:crypto';
+import { lifecyclePrincipal } from './lifecycle-access.js';
 import {
   readFileSync,
   copyFileSync,
@@ -657,10 +658,12 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
   function restore(p: Principal, id: string, fileName: string | undefined, requestId: string) {
     if (p.policyVersion === 2 || p.permissionCeiling) requireScope(p, 'knowledge:archive');
     const n = row(id, true);
+    p = lifecyclePrincipal(db, p, 'note', id, n.path);
     authorizePath(p, n.path, 'knowledge:write');
     const name = fileName || basename(n.path);
     if (!validName(name) || !isDocument(name) || documentTypeMismatch(name,n.path)) fail(400, 'INVALID_INPUT');
     const path = dirname(n.path) === '.' ? name : `${dirname(n.path)}/${name}`;
+    p = lifecyclePrincipal(db, p, 'note', id, path);
     authorizePath(p, path, 'knowledge:write');
     const op = workspaceBegin(db, () =>
       beginOperation(db, p, 'restore', requestId, { id, fileName: fileName ?? null }),

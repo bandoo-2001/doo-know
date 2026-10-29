@@ -1,4 +1,4 @@
-import type { ToDooPort } from '../../../packages/plugin-sdk/index.js';
+import type { ToDooPort, ServiceCallOptions } from '../../../packages/plugin-sdk/index.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
 import {
   TO_DOO_COLLECTIONS,
@@ -17,10 +17,10 @@ import { requireScope } from '../../../packages/core/agent/auth.js';
 import { dateTimeInstant } from '../../../packages/core/to-doo/recurrence.js';
 import { createHash } from 'node:crypto';
 
-type Access = { listIds: string[]; domains: string[]; resourceListIds?: string[] };
+export type ToDooAgentAccess = { listIds: string[]; domains: string[]; resourceListIds?: string[] };
 type Options = {
   authorize(write: boolean): Principal;
-  access(): Access;
+  access(): ToDooAgentAccess;
   canReadNote(principal: Principal, id: string): boolean | Promise<boolean>;
 };
 const domains: Record<ToDooEntityKind, string> = {
@@ -60,8 +60,8 @@ function shortText(value: string, maximum = 2048) {
 }
 
 /** Scope enforcement belongs to the host, never to model-supplied filters. */
-export function createToDooAgentPort(service: ToDooService, options: Options): ToDooPort {
-  const signature = (principal: Principal, access: Access) =>
+export function createToDooAgentPort(service: ToDooService, options: Options) {
+  const signature = (principal: Principal, access: ToDooAgentAccess) =>
     JSON.stringify([
       principal.id,
       principal.clientId,
@@ -128,7 +128,7 @@ export function createToDooAgentPort(service: ToDooService, options: Options): T
     }
     return undefined;
   }
-  function allowedList(list: string | null | undefined, access: Access) {
+  function allowedList(list: string | null | undefined, access: ToDooAgentAccess) {
     const id = list === null ? 'inbox' : list;
     return (
       (!access.listIds.length || (typeof id === 'string' && access.listIds.includes(id))) &&
@@ -136,15 +136,19 @@ export function createToDooAgentPort(service: ToDooService, options: Options): T
         (typeof id === 'string' && access.resourceListIds.includes(id)))
     );
   }
-  function queryLists(access: Access) {
+  function queryLists(access: ToDooAgentAccess) {
     if (access.resourceListIds !== undefined)
       return access.resourceListIds.filter(
         (id) => !access.listIds.length || access.listIds.includes(id),
       );
     return access.listIds.length ? access.listIds : undefined;
   }
-  function allowed(kind: ToDooEntityKind, entity: Record<string, any>, access: Access) {
+  function allowed(kind: ToDooEntityKind, entity: Record<string, any>, access: ToDooAgentAccess) {
     if (!access.domains.includes(domains[kind])) return false;
+    if (kind === 'calendarFeed')
+      return entity.listIds?.length
+        ? entity.listIds.every((id: string) => allowedList(id === 'inbox' ? null : id, access))
+        : !access.listIds.length && access.resourceListIds === undefined;
     if (access.resourceListIds !== undefined && !allowedList(listOf(kind, entity), access))
       return false;
     if (!access.listIds.length) return true;
@@ -167,7 +171,7 @@ export function createToDooAgentPort(service: ToDooService, options: Options): T
     if (list === undefined && ['focus', 'habits'].includes(domains[kind])) return true;
     return allowedList(list, access);
   }
-  function check(kind: ToDooEntityKind, id: string, access: Access) {
+  function check(kind: ToDooEntityKind, id: string, access: ToDooAgentAccess) {
     const value = get(kind, id);
     if (!value || !allowed(kind, value, access))
       fail(403, 'FORBIDDEN', 'To Doo 项目不在当前授权范围');
@@ -178,16 +182,19 @@ export function createToDooAgentPort(service: ToDooService, options: Options): T
     principal: Principal,
     truncated: string[],
     path = '',
+    complete = false,
   ): Promise<any> {
     if (typeof value === 'string') {
-      const text = shortText(value);
+      const text = complete ? value : shortText(value);
       if (text !== value) truncated.push(path);
       return text;
     }
     if (Array.isArray(value)) {
-      if (value.length > 30) truncated.push(path);
+      if (!complete && value.length > 30) truncated.push(path);
       const result = await Promise.all(
-        value.slice(0, 30).map((item, i) => sanitize(item, principal, truncated, `${path}[${i}]`)),
+        (complete ? value : value.slice(0, 30)).map((item, i) =>
+          sanitize(item, principal, truncated, `${path}[${i}]`, complete),
+        ),
       );
       return result.filter((item) => item !== null);
     }
@@ -196,7 +203,13 @@ export function createToDooAgentPort(service: ToDooService, options: Options): T
       return null;
     const result: Record<string, unknown> = {};
     for (const [key, item] of Object.entries(value))
-      result[key] = await sanitize(item, principal, truncated, path ? `${path}.${key}` : key);
+      result[key] = await sanitize(
+        item,
+        principal,
+        truncated,
+        path ? `${path}.${key}` : key,
+        complete,
+      );
     return result;
   }
   async function bounded(kind: ToDooEntityKind, entity: ToDooEntity, principal: Principal) {
@@ -225,7 +238,10 @@ export function createToDooAgentPort(service: ToDooService, options: Options): T
     }
     return { kind, entity: safe, ...(truncatedFields.length ? { truncatedFields } : {}) };
   }
-  async function query(raw: Parameters<ToDooPort['query']>[0]): Promise<ToDooMcpQueryResult> {
+  async function query(
+    raw: Parameters<ToDooPort['query']>[0],
+    _callOptions?: ServiceCallOptions,
+  ): Promise<ToDooMcpQueryResult> {
     const principal = options.authorize(false);
     requireScope(principal, 'to-doo:read');
     const input = toDooMcpQuery.parse(raw),
@@ -456,7 +472,10 @@ export function createToDooAgentPort(service: ToDooService, options: Options): T
     recheck(false, admitted);
     return result;
   }
-  async function command(raw: Parameters<ToDooPort['command']>[0]) {
+  async function command(
+    raw: Parameters<ToDooPort['command']>[0],
+    _callOptions?: ServiceCallOptions,
+  ) {
     const parsed = toDooCommandSchema.safeParse(raw);
     if (!parsed.success) fail(400, 'INVALID_INPUT');
     const cmd = parsed.data,
@@ -502,12 +521,16 @@ export function createToDooAgentPort(service: ToDooService, options: Options): T
           target('task', p.parentTaskId);
           break;
         case 'save_entity': {
+          if (['calendarFeed', 'calendarSource', 'import', 'operation'].includes(p.kind))
+            fail(403, 'FORBIDDEN', '该实体需要专用的分享、集成或成果操作工具');
           const current = get(p.kind, p.entity.id);
           if (current) target(p.kind, p.entity.id);
           prospective(p.kind, { ...current, ...p.entity });
           break;
         }
         case 'delete_entity':
+          if (['calendarFeed', 'calendarSource', 'import', 'operation'].includes(p.kind))
+            fail(403, 'FORBIDDEN', '该实体需要专用管理工具');
           target(p.kind, p.id);
           break;
         case 'materialize_occurrences':
@@ -625,9 +648,92 @@ export function createToDooAgentPort(service: ToDooService, options: Options): T
     return receipt;
   }
   return {
+    /** Host-only access checks reused by full adapters; never accepted from model input. */
+    inspect(kind: ToDooEntityKind, id: string) {
+      const principal = options.authorize(false);
+      requireScope(principal, 'to-doo:read');
+      return check(kind, id, options.access());
+    },
+    async readEntity(kind: ToDooEntityKind, id: string, expectedRevision: string) {
+      const principal = options.authorize(false),
+        access = options.access();
+      requireScope(principal, 'to-doo:read');
+      const admitted = signature(principal, access),
+        entity = check(kind, id, access);
+      if (entity.revision !== expectedRevision) fail(409, 'VERSION_CONFLICT');
+      const result = await sanitize(entity, principal, [], '', true);
+      recheck(false, admitted);
+      const current = check(kind, id, options.access());
+      if (current.revision !== expectedRevision) fail(409, 'VERSION_CONFLICT');
+      if (!result) fail(403, 'FORBIDDEN');
+      return result as Record<string, unknown>;
+    },
+    access: () => options.access(),
+    assertList(id: string | null) {
+      if (!allowedList(id, options.access())) fail(403, 'FORBIDDEN');
+    },
+    async validateEntity(
+      kind: ToDooEntityKind,
+      entity: Record<string, any>,
+      allowInternal = false,
+    ) {
+      const principal = options.authorize(true),
+        access = options.access();
+      const admitted = signature(principal, access);
+      requireScope(principal, 'to-doo:write');
+      if (
+        !allowInternal &&
+        ['calendarFeed', 'calendarSource', 'import', 'operation'].includes(kind)
+      )
+        fail(403, 'FORBIDDEN');
+      const current = get(kind, entity.id);
+      if (current) check(kind, current.id, access);
+      if (!allowed(kind, { ...current, ...entity }, access)) fail(403, 'FORBIDDEN');
+      const related: Record<string, ToDooEntityKind> = {
+        parentTaskId: 'task',
+        taskId: 'task',
+        occurrenceId: 'occurrence',
+        parentOccurrenceId: 'occurrence',
+        habitId: 'habit',
+        sourceSessionId: 'focusSession',
+        sectionId: 'section',
+        blockId: 'timeBlock',
+      };
+      async function visit(value: any): Promise<void> {
+        if (Array.isArray(value)) {
+          for (const item of value) await visit(item);
+          return;
+        }
+        if (!value || typeof value !== 'object') return;
+        for (const [key, item] of Object.entries(value)) {
+          if (
+            key === 'listId' &&
+            item !== undefined &&
+            !allowedList(item as string | null, options.access())
+          )
+            fail(403, 'FORBIDDEN');
+          if (related[key] && typeof item === 'string') check(related[key], item, options.access());
+          if (
+            key === 'noteId' &&
+            typeof item === 'string' &&
+            !(await options.canReadNote(principal, item))
+          )
+            fail(403, 'FORBIDDEN');
+          await visit(item);
+        }
+      }
+      await visit(entity);
+      recheck(true, admitted);
+      if (current) check(kind, current.id, options.access());
+      if (!allowed(kind, { ...get(kind, entity.id), ...entity }, options.access()))
+        fail(403, 'FORBIDDEN');
+    },
     query,
     command,
-    context: async (raw) => {
+    context: async (
+      raw: Parameters<ToDooPort['context']>[0],
+      _callOptions?: ServiceCallOptions,
+    ) => {
       const input = toDooMcpContext.parse(raw),
         access = options.access();
       const principal = options.authorize(false);

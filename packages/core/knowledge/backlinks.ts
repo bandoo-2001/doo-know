@@ -14,7 +14,6 @@ import type { NoteService } from '../notes.js';
 import { fail } from './errors.js';
 import { sameFile } from './file-reader.js';
 
-const pageSize = 50;
 const maxSourceBytes = 256 * 1024;
 type CatalogRow = { sequence: number; id: string; path: string };
 type Cursor = { v: 1; target: string; path: string; scope: string; after: number; high: number };
@@ -42,7 +41,7 @@ function readSource(root: string, path: string) {
 }
 
 /** Explicit, read-only catalog pages. It never walks the library or creates an index. */
-export function backlinkService(config: AppConfig, db: AppDatabase, notes: NoteService, principal: Principal) {
+export function backlinkService(config: AppConfig, db: AppDatabase, notes: NoteService, principal: Principal, pageSize = 50) {
   const sign = (value: string) => createHmac('sha256', config.secret).update(value).digest('base64url');
   function page(noteId: string, cursor?: unknown): NoteBacklinksPage {
     if (principal.id.startsWith('share:')) fail(403, 'FORBIDDEN');
@@ -85,7 +84,7 @@ export function backlinkService(config: AppConfig, db: AppDatabase, notes: NoteS
         if (!current?.active || current.path !== source.path) { result.skipped++; continue; }
         const links = extractNoteLinks(content, source.path);
         result.checked++;
-        if (links.includes(target.path)) result.matches.push({ id: source.id, title: documentTitle(source.path, content), relativePath: source.path });
+        if (links.includes(target.path)) result.matches.push({ id: source.id, title: Array.from(documentTitle(source.path, content)).slice(0,256).join(''), relativePath: source.path });
       } catch { result.skipped++; }
     }
     assertRoot(config, db);

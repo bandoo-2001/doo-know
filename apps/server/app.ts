@@ -20,6 +20,7 @@ import { oauthGrantStore } from './platform/oauth-grants.js';
 import { invalidateRemoteAuth } from '../../packages/core/auth/remote-auth.js';
 import { pluginServices } from './plugins/services.js';
 import { registerPluginRoutes } from './plugins/routes.js';
+import { registerMcpTransferRoutes } from './plugins/mcp-transfer-routes.js';
 import { registerMcpManagementRoutes } from './platform/mcp-management.js';
 import { registerMcpPermissionRoutes } from './platform/mcp-permissions.js';
 import { registerMcpClientPermissionRoutes } from './platform/mcp-client-permissions.js';
@@ -250,6 +251,7 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     async (req) => searchRuntime.cancel((req as any).ownerId, req.params.id),
   );
   registerPluginRoutes(app, plugins, gitRemote.assertPluginIdle);
+  registerMcpTransferRoutes(app, config, db);
   registerGitRemoteRoutes(app, gitRemote);
   registerPluginInstallRoutes(app, pluginInstallations);
   registerMcpManagementRoutes(app, config, db, plugins, transports, auth);

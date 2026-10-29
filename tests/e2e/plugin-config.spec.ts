@@ -196,3 +196,42 @@ test('upgrades an existing domain policy with a disabled To Doo card and saves o
     await saveRemote(page, initial.config, current.configVersion);
   }
 });
+
+test('keeps new share and management grants opt-in and saves independent draft access', async ({ page }) => {
+  await openMcp(page);
+  const initial = await mcp(page);
+  const inventory = await (await page.request.get('/api/platform/mcp/permissions')).json();
+  const policy = structuredClone(inventory.policy);
+  policy.domains.knowledge.enabled = true;
+  policy.domains.knowledge.actions = ['read'];
+  policy.domains.blog.enabled = true;
+  policy.domains.blog.actions = ['read', 'publish'];
+  policy.domains['to-doo'].enabled = true;
+  policy.domains['to-doo'].actions = ['read', 'write'];
+  try {
+    await saveRemote(page, { ...initial.config, permissionPolicy: policy }, initial.configVersion);
+    await openMcp(page);
+    const knowledge = page.locator('.domain-card[aria-label="知识库权限"]');
+    const blog = page.locator('.domain-card[aria-label="博客权限"]');
+    const tasks = page.locator('.domain-card[aria-label="To Doo权限"]');
+    await knowledge.locator('summary').click();
+    await tasks.locator('summary').click();
+    for (const [card, label] of [[knowledge, '分享管理'], [knowledge, '资料维护'], [blog, '编辑草稿'], [blog, '站点与文章管理'], [tasks, '导出与分享'], [tasks, '外部连接与设备']] as const)
+      await expect(card.getByRole('checkbox', { name: label, exact: true })).not.toBeChecked();
+    expect((await mcp(page)).config.permissionPolicy).toEqual(policy);
+    await blog.getByText('编辑草稿', { exact: true }).click();
+    await blog.getByText('公开发布', { exact: true }).click();
+    await knowledge.getByText('分享管理', { exact: true }).click();
+    await tasks.getByText('导出与分享', { exact: true }).click();
+    const saved = page.waitForResponse(response => new URL(response.url()).pathname === '/api/platform/plugins/mcp/config' && response.request().method() === 'PUT');
+    await page.getByRole('button', { name: '保存插件配置', exact: true }).click();
+    expect((await saved).ok()).toBe(true);
+    const actual = (await mcp(page)).config.permissionPolicy as typeof policy;
+    expect(actual.domains.blog.actions.sort()).toEqual(['read', 'write']);
+    expect(actual.domains.knowledge.actions.sort()).toEqual(['read', 'share']);
+    expect(actual.domains['to-doo'].actions.sort()).toEqual(['read', 'share', 'write']);
+  } finally {
+    const current = await mcp(page);
+    await saveRemote(page, initial.config, current.configVersion);
+  }
+});

@@ -444,7 +444,9 @@ export const blogPublicationReceipt = blogPost.pick({
   omittedMetadata: z.tuple([z.literal('summary'), z.literal('category'), z.literal('tags'), z.literal('pinned'), z.literal('cover')]),
 }).strict();
 export const blogStatusReceipt = blogNoteStatus.extend({ post: blogPublicationReceipt.nullable() }).strict();
-export const mcpFileOperation = fileOperation.extend({ result: fileResult.or(blogPublicationReceipt).or(z.lazy(() => organizationResult)).optional() });
+export const blogManagementOperationResult = z.object({deleted:z.literal(true)}).strict().or(
+  z.object({version:z.number().int(),enabled:z.boolean(),title:z.string().max(256),aboutBytes:z.number().int().nonnegative(),aboutHash:z.string(),omittedFields:z.array(z.string())}).strict());
+export const mcpFileOperation = fileOperation.extend({ result: fileResult.or(blogPublicationReceipt).or(blogManagementOperationResult).or(z.lazy(() => organizationResult)).optional() });
 export const blogPublishInput = z.object({
   noteId: noteId.describe("已有Markdown笔记的稳定ID，不是fetch.id。"),
   expectedModifiedAt: version.describe("核对过的原文精确版本。"),
@@ -485,6 +487,7 @@ export const historyInput = z.object({cursor:z.string().max(8192).optional(),lim
 export const historyPage = z.object({items:z.array(organizationOperation).max(50),nextCursor:z.string().max(8192).optional()}).strict();
 export const undoOrganizationInput = z.object({operationId:objectId,requestId}).strict();
 
-export const hostOperation = fileOperation.extend({result:fileResult.or(blogPost).or(organizationResult).optional()});
+export const hostOperation = fileOperation.extend({result:fileResult.or(blogPost).or(organizationResult).or(blogManagementOperationResult).optional()});
 
 export const cancelOperation = fileOperation.extend({result:fileResult.or(organizationResult).optional()});
+export const zDomainResult = z.record(z.string(), z.unknown());

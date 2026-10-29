@@ -3,6 +3,9 @@ import { lstatSync, readdirSync, mkdirSync, renameSync } from 'node:fs';
 import { basename, dirname, join } from 'node:path';
 import type { AppConfig } from '../../shared/contracts.js';
 import type { AppDatabase } from './db.js';
+import type { Principal } from '../../shared/knowledge-contracts.js';
+import { requireScope } from './agent/auth.js';
+import { authorizeFolderPath } from './knowledge/lifecycle-access.js';
 import { safePath, validName, validateRelative } from './files.js';
 import { assertRoot } from './indexing/reconcile.js';
 import { assertWritable, fsyncDirectory, webPrincipal } from './knowledge/core.js';
@@ -195,13 +198,17 @@ export function archiveFolder(
   path: string,
   requestId: string,
   scan: () => unknown,
+  principal: Principal = webPrincipal,
+  revalidate?: () => Principal,
 ) {
   workspacePermit(db);
   assertRoot(config, db);
   assertWritable(db);
   allowed(path);
+  const authorize = () => { const p=revalidate?.()||principal; authorizeFolderPath(p,path,'knowledge:write'); if(p.id!=='web-owner') { requireScope(p,'knowledge:archive');requireScope(p,'knowledge:organize'); } return p; };
+  authorize();
   recoverFolders(config, db);
-  const started = beginOperation(db, webPrincipal, 'folder.archive', requestId, { path });
+  const started = beginOperation(db, principal, 'folder.archive', requestId, { path });
   if (!started.fresh) return existingResult(started.operation);
   workspaceOperation(db, started.operation.id);
   let journaled = false;
@@ -231,6 +238,7 @@ export function archiveFolder(
     ).run(row);
     journaled = true;
     if (identity(source) !== stamp) fail(409, 'TRASH_CHANGED');
+    authorize();
     renameSync(source, destination);
     fsyncDirectory(dirname(source));
     fsyncDirectory(dirname(destination));
@@ -259,12 +267,14 @@ export function restoreFolder(
   id: string,
   name: string | undefined,
   requestId: string,
+  principal: Principal = webPrincipal,
+  revalidate?: () => Principal,
 ) {
   workspacePermit(db);
   assertRoot(config, db);
   assertWritable(db);
   recoverFolders(config, db);
-  const started = beginOperation(db, webPrincipal, 'folder.restore', requestId, {
+  const started = beginOperation(db, principal, 'folder.restore', requestId, {
     id,
     name: name ?? null,
   });
@@ -280,6 +290,8 @@ export function restoreFolder(
     if (!validName(leaf) || leaf === 'assets') fail(400, 'INVALID_INPUT', '文件夹名称无效');
     const path = dirname(row.path) === '.' ? leaf : dirname(row.path) + '/' + leaf;
     allowed(path);
+    const authorize=()=> { const p=revalidate?.()||principal;authorizeFolderPath(p,row.path,'knowledge:write');authorizeFolderPath(p,path,'knowledge:write');if(p.id!=='web-owner'){requireScope(p,'knowledge:archive');requireScope(p,'knowledge:organize');} };
+    authorize();
     // Recreate missing ancestors, validating each segment before creating it.
     let parent = '';
     for (const part of path.split('/').slice(0, -1)) {
@@ -307,6 +319,7 @@ export function restoreFolder(
       "UPDATE folder_trash SET state='restoring',restore_path=?,operation_id=? WHERE id=?",
     ).run(path, started.operation.id, id);
     journaled = true;
+    authorize();
     renameSync(source, destination);
     fsyncDirectory(dirname(source));
     fsyncDirectory(dirname(destination));

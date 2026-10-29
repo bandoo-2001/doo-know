@@ -17,6 +17,10 @@ import type {
   CollectionStatus,
 } from '../../../shared/collection-contracts.js';
 import type { AppDatabase } from '../db.js';
+import type { Principal } from '../../../shared/knowledge-contracts.js';
+import { pathFilter } from '../indexing/text.js';
+import { sha256 } from '../knowledge/operations.js';
+import { mcpResultFrameSize, mcpMaximumFrameBytes } from '../../../shared/mcp-frame.js';
 import type { NoteService } from '../notes.js';
 import {
   safePath,
@@ -115,7 +119,9 @@ export function collectionService(config: AppConfig, db: AppDatabase, notes: Not
       | undefined;
     if (!row) {
       row = { id: library.identity(path) };
-      db.prepare('INSERT INTO notes(id,path) VALUES(?,?) ON CONFLICT(id) DO UPDATE SET path=excluded.path,active=1').run(row.id, path);
+      db.prepare(
+        'INSERT INTO notes(id,path) VALUES(?,?) ON CONFLICT(id) DO UPDATE SET path=excluded.path,active=1',
+      ).run(row.id, path);
     }
     observeCollectionSource(
       db,
@@ -354,11 +360,27 @@ export function collectionService(config: AppConfig, db: AppDatabase, notes: Not
   const from = `FROM notes n JOIN collection_catalog c ON c.note_id=n.id
     LEFT JOIN note_favorites f ON f.note_id=n.id AND f.owner_id=?
     WHERE n.active=1 AND (?='recent' OR f.note_id IS NOT NULL)`;
-  function status(owner: string, rawKind: unknown): CollectionStatus {
+  const access = (principal?: Principal) =>
+    principal ? pathFilter(principal, 'n.path') : { sql: '1', values: [] };
+  const scope = (principal?: Principal) =>
+    principal
+      ? sha256(
+          JSON.stringify([
+            principal.id,
+            principal.clientId,
+            principal.knowledgeAll,
+            principal.allowedPrefixes,
+            principal.knowledgeResourcePaths,
+            principal.permissionPolicy,
+            principal.permissionCeiling,
+          ]),
+        )
+      : '';
+  function status(owner: string, rawKind: unknown, principal?: Principal): CollectionStatus {
     const kind = kindInput(rawKind);
     check();
     const currentVersion = version(),
-      key = JSON.stringify([owner, kind]);
+      key = JSON.stringify([owner, kind, scope(principal)]);
     const cached = totals.get(key);
     if (cached?.version === currentVersion) {
       totals.delete(key);
@@ -366,7 +388,9 @@ export function collectionService(config: AppConfig, db: AppDatabase, notes: Not
       return { ...cached };
     }
     const total = (
-      db.prepare(`SELECT count(*) total ${from}`).get(owner, kind) as { total: number }
+      db
+        .prepare(`SELECT count(*) total ${from} AND (${access(principal).sql})`)
+        .get(owner, kind, ...access(principal).values) as { total: number }
     ).total;
     const result = { version: currentVersion, total };
     totals.delete(key);
@@ -451,6 +475,8 @@ export function collectionService(config: AppConfig, db: AppDatabase, notes: Not
   async function page(
     owner: string,
     query: { kind?: unknown; limit?: unknown; cursor?: unknown },
+    principal?: Principal,
+    revalidate?: () => Principal,
   ): Promise<CollectionPage> {
     const kind = kindInput(query.kind);
     const limit = query.limit === undefined ? 24 : Number(query.limit);
@@ -461,7 +487,8 @@ export function collectionService(config: AppConfig, db: AppDatabase, notes: Not
       (query.limit !== undefined && !/^\d+$/.test(String(query.limit)))
     )
       fail(400, 'INVALID_LIMIT');
-    const current = status(owner, kind);
+    const current = status(owner, kind, principal),
+      effectiveScope = scope(principal);
     let anchor: { modified: string; id: string } | undefined;
     if (query.cursor !== undefined) {
       const token = decodeCursor(config.secret, query.cursor as string);
@@ -469,6 +496,7 @@ export function collectionService(config: AppConfig, db: AppDatabase, notes: Not
         !token ||
         token.type !== 'collection' ||
         token.owner !== owner ||
+        token.scope !== scope(principal) ||
         token.kind !== kind ||
         typeof token.version !== 'string' ||
         !/^\d{24}$/.test(token.modified) ||
@@ -482,18 +510,21 @@ export function collectionService(config: AppConfig, db: AppDatabase, notes: Not
     }
     const rows = db
       .prepare(
-        `SELECT n.id,n.path,c.*,f.note_id IS NOT NULL AS favorite ${from}
+        `SELECT n.id,n.path,c.*,f.note_id IS NOT NULL AS favorite ${from} AND (${access(principal).sql})
       ${anchor ? 'AND (c.modified_ns<? OR (c.modified_ns=? AND n.id>?))' : ''}
       ORDER BY c.modified_ns DESC,n.id ASC LIMIT ?`,
       )
       .all(
         owner,
         kind,
+        ...access(principal).values,
         ...(anchor ? [anchor.modified, anchor.modified, anchor.id] : []),
         limit + 1,
       ) as Row[];
     const selected = rows.slice(0, limit);
     await Promise.all(selected.map(summary));
+    if (principal && revalidate && scope(revalidate()) !== effectiveScope)
+      fail(409, 'COLLECTION_CHANGED');
     check();
     if (version() !== current.version) fail(409, 'COLLECTION_CHANGED', '列表已更新，请刷新后继续');
     const items: CollectionNote[] = selected.map((row) => {
@@ -516,22 +547,32 @@ export function collectionService(config: AppConfig, db: AppDatabase, notes: Not
         favorite: !!row.favorite,
       };
     });
-    const last = selected.at(-1);
-    return {
-      ...current,
-      items,
-      nextCursor:
-        rows.length > limit && last
-          ? signCursor(config.secret, {
-              type: 'collection',
-              kind,
-              owner,
-              version: current.version,
-              modified: last.modified_ns,
-              id: last.id,
-            })
-          : null,
+    const output = () => {
+      const last = selected.at(-1);
+      return {
+        ...current,
+        items,
+        nextCursor:
+          rows.length > selected.length && last
+            ? signCursor(config.secret, {
+                type: 'collection',
+                kind,
+                owner,
+                scope: scope(principal),
+                version: current.version,
+                modified: last.modified_ns,
+                id: last.id,
+              })
+            : null,
+      };
     };
+    if (principal)
+      while (items.length && mcpResultFrameSize({ data: output() }) > mcpMaximumFrameBytes) {
+        items.pop();
+        selected.pop();
+      }
+    if (principal && !items.length && rows.length) fail(413, 'RESPONSE_TOO_LARGE');
+    return output();
   }
   return {
     status,

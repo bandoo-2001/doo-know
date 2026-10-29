@@ -76,10 +76,16 @@ function scopes(values: string[]) {
     'knowledge:index': '维护索引',
     'knowledge:organize': '自主整理',
     'knowledge:archive': '归档资料',
+    'knowledge:share': '管理资料分享',
+    'knowledge:manage': '维护资料设置',
     'blog:read': '查看博客',
+    'blog:write': '编辑博客草稿',
+    'blog:manage': '管理博客设置和文章',
     'blog:publish': '公开发布博客',
     'to-doo:read': '读取 To Doo',
     'to-doo:write': '修改 To Doo',
+    'to-doo:share': '导出和分享 To Doo',
+    'to-doo:integrations': '管理日历与提醒设备',
   };
   return values.map((value) => labels[value] || value).join('、') || '当前不可访问';
 }

@@ -11,6 +11,7 @@ import { pluginServices } from '../apps/server/plugins/services.js';
 import { oauthGrantStore } from '../apps/server/platform/oauth-grants.js';
 import { createOperations, registerOperations } from '../plugins/mcp/server/operations.js';
 import { hostClient } from '../plugins/mcp/server/service.js';
+import { webPrincipal } from '../packages/core/knowledge/core.js';
 
 const toolNames = [
   'search', 'fetch', 'search_notes', 'get_note_info', 'get_note_outline', 'read_note',
@@ -248,7 +249,7 @@ it('requires explicit blog publish/update/withdrawal, preserves private changes 
     // Enable only this temporary site's public projection to check that private
     // edits do not replace the immutable publication until an explicit publish.
     const blog = f.platform.get().blog;
-    blog.updateSettings(f.principal, { settings: { ...blog.settings(f.principal), enabled: true, baseUrl: 'https://blog.example' }, requestId: 'workflow-site-enable' });
+    blog.updateSettings({ ...webPrincipal, id: f.principal.id }, { settings: { ...blog.settings(f.principal), enabled: true, baseUrl: 'https://blog.example' }, requestId: 'workflow-site-enable' });
     expect(blog.publicPost('workflow-public').html).toContain('Public version one');
     const privateContent = '# Private version two\n';
     const updated = (await f.ok('update_note', { noteId: created.id, expectedModifiedAt: created.modifiedAt, content: privateContent, requestId: 'workflow-private-edit' })).data;

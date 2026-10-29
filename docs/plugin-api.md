@@ -1,4 +1,4 @@
-# DooKnow 官方插件 API 1.2
+# DooKnow 官方插件 API 1.3
 
 本文件描述已经实现的宿主合同。MCP、Git 的具体实现和发布按全量计划继续交付。
 
@@ -46,7 +46,7 @@ API 1.2 新增 `context.userData: PluginStorage`，提供与 `storage` 相同的
 
 ## MCP 官方插件
 
-`plugins/mcp` 独立构建与安装，32 个有界工具通过宿主知识、权限、整理和 To Doo 端口执行；读取预算在插件激活期间共享，单次研究候选以最多两个并发读取，过期候选被略过并标明降级原因。研究引用绑定客户端授权版本，只有明确的 HTTPS 网页地址才返回网页链接。
+`plugins/mcp` 1.3 独立构建与安装，110 个有界工具覆盖知识库、博客、To Doo 及共享传输。旧工具保持兼容；新增业务服务通过可选 `PluginServices.knowledgeTools/blogTools/toDooTools/transfers.call` 暴露，参数和结果以 `shared/mcp-*-tools.ts` 的严格契约为准。读取预算在插件激活期间共享，单次研究候选以最多两个并发读取，过期候选被略过并标明降级原因。研究引用绑定客户端授权版本，只有明确的 HTTPS 网页地址才返回网页链接。
 
 公开 `/mcp` 只接受标准 OAuth 的短期令牌。宿主提供 DCR、Authorization Code、PKCE S256、资源发现、主人同意及本地授权版本检查。`oauth / tunnel / both` 三种模式显式选择；没有可达的 HTTPS 授权站点时，界面显示条件未满足。
 
@@ -58,7 +58,11 @@ Tunnel 使用独立的 loopback 监听端口、Bearer 密钥和本地授权记�
 
 ## 分域权限与整理端口（API 1.2）
 
-MCP 1.2.0 要求宿主 API `^1.2.0`。新增宿主能力 `knowledge:organize`、`knowledge:archive` 和 `blog:read`，原有 KnowledgePort 保持兼容。业务权限由宿主注册表定义；To Doo 使用独立的 `to-doo` 域及 `to-doo:read` / `to-doo:write`，不会由知识库或博客授权隐式授予。待办可限制到指定清单，原有内容类别限制继续生效。博客发布依赖 `knowledge:read` 和 `blog:publish`，不需要知识库写入；发布状态另需 `blog:read`。旧连接的历史归档、博客查看语义由宿主持久化 v1 标记适配，插件不根据客户端输入猜测版本。
+MCP 1.3.0 要求宿主 API `^1.3.0`；宿主继续兼容声明兼容范围的旧插件。API 1.2 已提供 `knowledge:organize`、`knowledge:archive` 和 `blog:read`，原有 KnowledgePort 保持兼容。业务权限由宿主注册表定义；To Doo 使用独立的 `to-doo` 域及 `to-doo:read` / `to-doo:write`，不会由知识库或博客授权隐式授予。待办可限制到指定清单，原有内容类别限制继续生效。博客发布依赖 `knowledge:read` 和 `blog:publish`，不需要知识库写入；发布状态另需 `blog:read`。旧连接的历史归档、博客查看语义由宿主持久化 v1 标记适配，插件不根据客户端输入猜测版本。
+
+API 1.3 新增 `knowledge:share/manage`、`blog:write/manage`、`to-doo:share/integrations`，旧连接不会自动获得。分享编辑链接还需资料写权限；站点管理与公开发布分开；任务导出、订阅和外部连接保留清单及内容类别限制。完整功能、权限与恢复说明见 [MCP 完整功能与权限](MCP完整功能与权限.md)，逐项覆盖见 [知识库](mcp-knowledge-coverage.md)、[博客](mcp-blog-coverage.md)、[待办](mcp-to-doo-coverage.md)。
+
+大文件采用绑定主人、主体、客户端、当前知识库和资源版本的临时传输。通过公共传输工具追加/读取受限字节页，领域提交前原子占用最终请求身份；同一上传不能由另一请求或另一种提交用途消费。业务回执持久化，临时字节过期后仍通过对应操作查询恢复结果。需要主人登录的下载链接不含访问令牌。取消释放活动配额，过期会话定期清理；创建、读取和删除都会检查受控目录及链接。
 
 可选 `PluginServices.permissions.context(options?)` 只返回调用者的 `{policy,organization?}`；`policy` 是绑定 owner 和域实例的 v2 策略，`organization` 包含 libraryId、结构版本及预算。选定资源使用稳定目录/笔记/文章 ID，`all` 仅表示同一业务实例的全部资源。
 

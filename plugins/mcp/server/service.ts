@@ -1,13 +1,14 @@
-import type { z } from 'zod';
+import { ZodError, type z } from 'zod';
 import type { PluginServices, KnowledgePort } from '../../../packages/plugin-sdk/index.js';
 import type { Principal } from './contracts.js';
 import * as c from './contracts.js';
-import { BridgeError, annotateError } from './errors.js';
+import { BridgeError, annotateError, invalidInput } from './errors.js';
 import { toDooMcpQueryResult, toDooMcpContextResult, toDooMcpReceipt } from '../../../shared/to-doo-mcp-contracts.js';
 export type CallOptions = { deadline?: number; signal?: AbortSignal };
 export type KnowledgeClient = {
   [K in keyof KnowledgePort]: (p: Principal, input: any, options?: CallOptions) => Promise<any>
 } & {
+  domainTool(p: Principal, domain: 'knowledge' | 'blog' | 'to-doo' | 'transfers', tool: string, input: unknown, write: boolean, options?: CallOptions): Promise<Record<string, unknown>>;
   blogStatus(p: Principal, input: any, options?: CallOptions): Promise<any>;
   blogPublish(p: Principal, input: any, options?: CallOptions): Promise<any>;
   blogUnpublish(p: Principal, input: any, options?: CallOptions): Promise<any>;
@@ -52,7 +53,7 @@ export function hostClient(services: () => PluginServices, configuration: () => 
     }
     return result;
   }
-  async function invoke(tool: string, input: any, options: CallOptions, schema: z.ZodType, work: () => Promise<unknown>, write: boolean, rewriteLinks: boolean) {
+  async function invoke<T extends z.ZodType>(tool: string, input: any, options: CallOptions, schema: T, work: () => Promise<unknown>, write: boolean, rewriteLinks: boolean) {
     if (options.signal?.aborted || (options.deadline != null && Date.now() > options.deadline)) throw new BridgeError('CALL_CANCELLED', 499);
     let value: unknown;
     try {
@@ -70,6 +71,7 @@ export function hostClient(services: () => PluginServices, configuration: () => 
       });
     }
     catch (e) {
+      if (e instanceof ZodError) throw invalidInput(tool, e.issues);
       if (e instanceof BridgeError) throw annotateError(e, tool, input);
       const error = e as any;
       const code = error?.code || error?.details?.code;
@@ -81,12 +83,28 @@ export function hostClient(services: () => PluginServices, configuration: () => 
       }
       throw annotateError(new BridgeError(write ? 'OPERATION_OUTCOME_UNKNOWN' : 'INTERNAL_ERROR', 502, write, input?.requestId), tool, input);
     }
-    const blogOperation = typeof value === 'object' && value !== null && ['blog.publish', 'blog.unpublish'].includes((value as any).kind);
+    const blogOperation = typeof value === 'object' && value !== null && typeof (value as any).kind === 'string' && (value as any).kind.startsWith('blog.');
     const checked = schema.safeParse(rewriteLinks && !blogOperation ? links(value, origin()) : value);
     if (!checked.success) throw annotateError(new BridgeError(write ? 'OPERATION_OUTCOME_UNKNOWN' : 'INVALID_BACKEND_RESPONSE', 502, write, input?.requestId), tool, input);
     return checked.data;
   }
   const client = { externalWebOriginConfigured: () => !!origin() } as KnowledgeClient;
+  client.domainTool = async (_p, domain, tool, input, write, options = {}) => {
+    const result = await invoke(tool, input, options, c.zDomainResult, () => {
+    const key = ({ knowledge: 'knowledgeTools', blog: 'blogTools', 'to-doo': 'toDooTools', transfers: 'transfers' } as const)[domain];
+    const port = services()[key];
+    if (!port) throw new BridgeError('CAPABILITY_UNAVAILABLE', 503);
+    return port.call(tool, input, options);
+    }, write, false);
+    if (domain === 'transfers' && typeof result.downloadUrl === 'string') {
+      const base = origin();
+      if (base) {
+        const url = new URL(result.downloadUrl);
+        return { ...result, downloadUrl: base + url.pathname + url.search + url.hash };
+      }
+    }
+    return result;
+  };
   for (const name of Object.keys(schemas) as (keyof KnowledgePort)[]) client[name] = (_p, input, options = {}) =>
     invoke(toolNames[name], input, options, schemas[name], () => services().knowledge[name](input, options), writes.has(name), true);
   const blogSchemas = { status: c.blogNoteStatus, publish: c.blogPost, unpublish: c.blogPost };

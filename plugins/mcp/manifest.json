@@ -1,9 +1,9 @@
 {
   "id": "mcp",
-  "version": "1.2.0",
-  "apiVersion": "^1.2.0",
+  "version": "1.3.0",
+  "apiVersion": "^1.3.0",
   "title": "MCP 服务",
-  "description": "让 ChatGPT 通过授权连接知识库，查看连接与调用状态。",
+  "description": "通过独立授权连接知识库、博客与 To Doo，管理业务工具与调用状态。",
   "server": "server/index.mjs",
   "web": "web/index.js",
   "capabilities": [
@@ -16,6 +16,12 @@
     "blog:publish",
     "to-doo:read",
     "to-doo:write",
+    "knowledge:share",
+    "knowledge:manage",
+    "blog:write",
+    "blog:manage",
+    "to-doo:share",
+    "to-doo:integrations",
     "protocol:mcp"
   ],
   "configSchema": {
@@ -64,7 +70,10 @@
         "type": "array",
         "title": "允许访问的 To Doo 清单",
         "description": "留空表示全部清单，也可以只选择部分清单和收集箱。修改后作用于所有 To Doo 连接。",
-        "items": { "type": "string", "maxLength": 128 },
+        "items": {
+          "type": "string",
+          "maxLength": 128
+        },
         "maxItems": 100,
         "default": []
       },
@@ -72,9 +81,23 @@
         "type": "array",
         "title": "允许的 To Doo 内容",
         "description": "选择连接可以读取和维护哪些内容，未选中的类别不会开放。修改后作用于所有 To Doo 连接。",
-        "items": { "type": "string", "enum": ["tasks", "records", "focus", "habits", "anniversaries", "calendar", "statistics", "settings"] },
+        "items": {
+          "type": "string",
+          "enum": [
+            "tasks",
+            "records",
+            "focus",
+            "habits",
+            "anniversaries",
+            "calendar",
+            "statistics",
+            "settings"
+          ]
+        },
         "maxItems": 8,
-        "default": ["tasks"]
+        "default": [
+          "tasks"
+        ]
       },
       "allowedPrefixes": {
         "type": "array",

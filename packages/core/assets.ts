@@ -109,7 +109,7 @@ export function assetService(config: AppConfig, db: AppDatabase, notes: NoteServ
       return;
     }
   }
-  function list(id: string) {
+  function candidatePaths(id: string) {
     const n = notes.exists(id),
       found = new Set<string>();
     try {
@@ -123,7 +123,10 @@ export function assetService(config: AppConfig, db: AppDatabase, notes: NoteServ
       for (const entry of readdirSync(dir, { withFileTypes: true }))
         if (entry.isFile() && !entry.isSymbolicLink()) found.add(`${rel}/${entry.name}`);
     } catch {}
-    return [...found].flatMap((p) => {
+    return [...found];
+  }
+  function list(id:string) {
+    return candidatePaths(id).flatMap((p) => {
       try {
         return [register(p)];
       } catch {
@@ -217,6 +220,7 @@ export function assetService(config: AppConfig, db: AppDatabase, notes: NoteServ
     byId,
     mapUrl,
     list,
+    candidatePaths,
     upload: (...args: Parameters<typeof upload>) =>
       workspaceWriteSync(db, { kind: 'asset.upload' }, () => upload(...args)),
     publicAsset,

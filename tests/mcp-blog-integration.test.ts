@@ -90,7 +90,7 @@ it.each([
   const f = await fixture();
   try {
     const blog = f.platform.get().blog;
-    blog.updateSettings(f.principal, { settings: { ...blog.settings(f.principal), enabled: true, baseUrl }, requestId: randomUUID() });
+    blog.updateSettings({ ...f.principal, pluginId: undefined }, { settings: { ...blog.settings(f.principal), enabled: true, baseUrl }, requestId: randomUUID() });
     const registry = createOperations({ objectIdSecret: 'fixture-mcp-blog-reference-secret-at-least-32-characters' }, hostClient(() => f.services, () => ({ externalWebOrigin })));
     const published: any = await registry.execute('publish_blog_post', f.principal, f.input);
     expect(published.data.url).toBe(expectedUrl);
@@ -110,7 +110,7 @@ it.each(['mcp', 'web'])('recovers compact publication receipts for schema-valid 
       cover: 'figure.svg?' + '中'.repeat(8000),
     };
     const input = { ...f.input, metadata }, blog = f.platform.get().blog;
-    blog.updateSettings(f.principal, { settings: { ...blog.settings(f.principal), enabled: true, baseUrl: 'https://blog.example' }, requestId: randomUUID() });
+    blog.updateSettings({ ...f.principal, pluginId: undefined }, { settings: { ...blog.settings(f.principal), enabled: true, baseUrl: 'https://blog.example' }, requestId: randomUUID() });
     let published: any, firstError: unknown;
     try {
       if (createdThrough === 'mcp') published = await f.registry.execute('publish_blog_post', f.principal, input);

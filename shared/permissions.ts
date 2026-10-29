@@ -35,6 +35,8 @@ export const permissionDomains: readonly PermissionDomainDefinition[] = [
       action('organize', '自主整理', '创建目录、移动和重命名笔记及目录'),
       action('archive', '归档', '归档及恢复笔记'),
       action('index', '维护索引', '刷新和查看检索索引'),
+      action('share', '分享管理', '显式创建、轮换和撤销资料分享'),
+      action('manage', '资料维护', '管理回收站和资料维护设置'),
     ],
   },
   {
@@ -44,6 +46,8 @@ export const permissionDomains: readonly PermissionDomainDefinition[] = [
     resourceKinds: ['site', 'post'],
     actions: [
       action('read', '查看', '查看博客发布状态'),
+      action('write', '编辑草稿', '创建和编辑博客草稿及文章元信息，不公开发布'),
+      action('manage', '站点与文章管理', '管理获准站点设置及文章删除，不隐含公开发布'),
       action('publish', '公开发布', '显式公开发布及撤下文章，需原文和附件读取权'),
     ],
   },
@@ -55,6 +59,8 @@ export const permissionDomains: readonly PermissionDomainDefinition[] = [
     actions: [
       action('read', '读取', '读取授权清单与内容类别中的任务及记录'),
       action('write', '编辑', '创建和修改授权清单与内容类别中的任务及记录'),
+      action('share', '导出与分享', '导出授权数据并显式管理私有订阅'),
+      action('integrations', '外部连接与设备', '管理导入、外部日历及提醒设备'),
     ],
   },
 ];

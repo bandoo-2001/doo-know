@@ -1,4 +1,4 @@
-export const HOST_PLUGIN_API = '1.2.0';
+export const HOST_PLUGIN_API = '1.3.0';
 export type ContributionSlot = 'navigation' | 'settingsPage' | 'fileDecoration' | 'noteAction' | 'notePanel' | 'libraryAction';
 export interface Contribution {
   id: string; slot: ContributionSlot; title: string; command?: string; provider?: string;
