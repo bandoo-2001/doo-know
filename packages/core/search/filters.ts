@@ -1,6 +1,6 @@
 import type { Principal, SearchInput } from '../../../shared/knowledge-contracts.js';
 import { pathFilter } from '../indexing/text.js';
-import { validateRelative, categories } from '../files.js';
+import { validateRelative, validName } from '../files.js';
 import { fail } from '../knowledge/errors.js';
 export function validateFilters(filters: SearchInput['filters']) {
   if (filters == null) return;
@@ -12,7 +12,7 @@ export function validateFilters(filters: SearchInput['filters']) {
       fail(400, 'INVALID_FILTER');
     }
   }
-  if (filters.category != null && !categories.includes(filters.category))
+  if (filters.category != null && (typeof filters.category !== 'string' || !validName(filters.category)))
     fail(400, 'INVALID_FILTER');
   if (
     filters.updatedAfter != null &&
@@ -35,7 +35,7 @@ export function recallFilter(p: Principal, filters: SearchInput['filters'], colu
     values: (string | number)[] = [...path.values];
   for (const prefix of [filters?.directory, filters?.category])
     if (prefix) {
-      const part = pathFilter({ ...p, allowedPrefixes: [prefix] }, column);
+      const part = pathFilter({ ...p, knowledgeAll: false, knowledgeResourcePaths: undefined, allowedPrefixes: [prefix] }, column);
       clauses.push(`(${part.sql})`);
       values.push(...part.values);
     }

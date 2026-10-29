@@ -51,7 +51,7 @@ it('rejects a queued Tunnel actor as soon as its configured credential reference
   }
 });
 
-it('keeps migrated receipt identity and original issuance while rotating credentials and changing explicit scope', async () => {
+it('keeps migrated identity without implicit scope expansion and preserves it across credential rotation', async () => {
   const { tunnelPrincipal, initializeTunnelIdentity } =
     await import('../apps/server/platform/tunnel-identity.js');
   const f = await createFixture(),
@@ -99,7 +99,7 @@ it('keeps migrated receipt identity and original issuance while rotating credent
     expect(
       tunnelPrincipal(db, owner, { reference: 'old', createdAt: Date.now(), authGeneration: 0 })
         .scopes,
-    ).toContain('knowledge:write');
+    ).not.toContain('knowledge:write');
     oauthGrantStore(db).revoke(owner, 'legacy-client');
     expect(() =>
       tunnelPrincipal(db, owner, { reference: 'old', createdAt: Date.now(), authGeneration: 0 }),

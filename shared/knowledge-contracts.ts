@@ -1,3 +1,4 @@
+import type { PermissionPolicy } from './permissions.js';
 export type Principal = {
   id: string;
   clientId: string;
@@ -11,6 +12,11 @@ export type Principal = {
   authGeneration?: number;
   ownerId?: string;
   credentialRef?: string;
+  /** Host-produced policy; authorization format is independent of grantVersion. */
+  permissionPolicy?: PermissionPolicy;
+  policyVersion?: 1 | 2;
+  knowledgeAll?: boolean;
+  knowledgeResourcePaths?: { kind: string; id: string; path: string }[];
 };
 export type AgentConfig = {
   serviceToken: string;

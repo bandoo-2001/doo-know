@@ -27,7 +27,7 @@ it('requires an explicit publication grant and both publication config controls 
   } finally { await f.close(); }
 });
 
-it('gives Tunnel publication permission only after explicit allowPublish with writable access', async () => {
+it('keeps Tunnel publication disabled after ceiling expansion until explicit reauthorization', async () => {
   const f = await pluginRuntimeFixture();
   pluginHost(f.config, f.db);
   try {
@@ -35,6 +35,9 @@ it('gives Tunnel publication permission only after explicit allowPublish with wr
     const credential = { reference: 'fixture-ref', createdAt: Date.now(), authGeneration: 0 };
     expect(tunnelPrincipal(f.db, f.principal.id, credential).scopes).not.toContain('blog:publish');
     f.db.prepare("UPDATE platform_plugins SET config_json=? WHERE id='mcp'").run(JSON.stringify({ readOnly: false, allowPublish: true, allowedPrefixes: ['00-Inbox'] }));
+    const client = tunnelPrincipal(f.db, f.principal.id, credential);
+    expect(client.scopes).not.toContain('blog:publish');
+    oauthGrantStore(f.db).approve(f.principal.id, client.clientId, scopes, ['00-Inbox']);
     expect(tunnelPrincipal(f.db, f.principal.id, credential).scopes).toContain('blog:publish');
     f.db.prepare("UPDATE platform_plugins SET config_json=? WHERE id='mcp'").run(JSON.stringify({ readOnly: true, allowPublish: true, allowedPrefixes: ['00-Inbox'] }));
     expect(tunnelPrincipal(f.db, f.principal.id, credential).scopes).not.toContain('blog:publish');

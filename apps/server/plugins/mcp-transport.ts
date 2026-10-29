@@ -64,7 +64,7 @@ export function mcpTransports(app: FastifyInstance, host: Host, auth: Awaited<Re
           checkTokenCutoff(db,principal);
           const runtime=platform.get(); const policy=currentPrincipalPolicy(runtime.config,db,principal);
           if(!policy) fail(401,'UNAUTHORIZED');
-          principal.scopes=principal.scopes.filter(s=>policy.scopes.includes(s)); principal.allowedPrefixes=policy.allowedPrefixes;
+          Object.assign(principal,policy);
         }
         if (principal) latestAttempt = { at: new Date().toISOString(), mode, outcome: 'authenticated', code: 'AUTHENTICATED' };
         if(path.pathname==='/mcp' && req.method!=='POST') return reply.code(405).header('Allow','POST').send({jsonrpc:'2.0',id:null,error:{code:-32000,message:'POST required'}});

@@ -9,6 +9,7 @@ import { sha256 } from './operations.js';
 import { decodeCursor, signCursor } from '../agent/budgets.js';
 import { recallFilter } from '../search/filters.js';
 import { messageSize } from './limits.js';
+import { currentLibraryIdentity } from '../auth/permissions.js';
 export async function listMetadata(config: AppConfig, db: AppDatabase, notes: NoteService,
   info: (p: Principal, id: string) => Promise<NoteInfo>, p: Principal,
   q: { limit?: number | string; cursor?: string; directory?: string }) {
@@ -16,7 +17,7 @@ export async function listMetadata(config: AppConfig, db: AppDatabase, notes: No
   if (q.directory) { try { validateRelative(q.directory, 'folder'); } catch { fail(400, 'INVALID_DIRECTORY'); } }
   const limit = Number(q.limit || 10);
   if (!Number.isInteger(limit) || limit < 1 || limit > 50) fail(400, 'INVALID_LIMIT');
-  const fingerprint = sha256(JSON.stringify([p.id, p.clientId, p.allowedPrefixes, q.directory, limit]));
+  const fingerprint = sha256(JSON.stringify([p.id, p.clientId, p.allowedPrefixes, p.knowledgeAll, p.permissionPolicy, currentLibraryIdentity(db)?.structureRevision, q.directory, limit]));
   let offset = 0;
   if (q.cursor) {
     const c = decodeCursor(config.secret, q.cursor); if (c.fingerprint !== fingerprint) fail(403, 'FORBIDDEN');

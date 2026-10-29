@@ -11,7 +11,7 @@ import type {
 import type { indexWorker } from '../indexing/worker.js';
 import type { reconcileService } from '../indexing/reconcile.js';
 import { safePath } from '../files.js';
-import { requireScope, underPrefix } from '../agent/auth.js';
+import { requireScope, underPrefix, canAccessPath } from '../agent/auth.js';
 import { fail, KnowledgeError } from '../knowledge/errors.js';
 import { boundedText, messageSize } from '../knowledge/limits.js';
 import { sha256 } from '../knowledge/operations.js';
@@ -55,7 +55,7 @@ export function searchService(
     )
       fail(503, 'SYNC_IN_PROGRESS');
     const until = Date.now() + 10000;
-    const scopes = p.allowedPrefixes
+    const scopes = p.knowledgeAll ? (input.filters?.directory ? [input.filters.directory] : undefined) : p.allowedPrefixes
       .map((prefix) =>
         input.filters?.directory && underPrefix(input.filters.directory, prefix)
           ? input.filters.directory
@@ -78,7 +78,7 @@ export function searchService(
                 'SELECT 1 FROM document_state d JOIN notes n ON n.id=d.note_id WHERE d.conflict=1 AND n.active=1',
               )
               .all().length &&
-            indexing.status({ ...p, scopes: [...p.scopes, 'knowledge:index'] }).conflicts
+            indexing.status({ ...p, policyVersion: undefined, scopes: [...p.scopes, 'knowledge:index'] }).conflicts
           )
             fail(409, 'GIT_CONFLICT');
           await worker.drain();
@@ -88,7 +88,7 @@ export function searchService(
                 'SELECT n.path,d.* FROM document_state d JOIN notes n ON n.id=d.note_id WHERE d.active=1 AND n.active=1',
               )
               .all() as any[]
-          ).filter((n) => scopes.some((scope) => underPrefix(n.path, scope)));
+          ).filter((n) => !scopes || scopes.some((scope) => underPrefix(n.path, scope)));
           if (
             rows.some(
               (n) =>
@@ -139,6 +139,8 @@ export function searchService(
           id: p.id,
           clientId: p.clientId,
           prefixes: p.allowedPrefixes,
+          all: p.knowledgeAll, policy: p.permissionPolicy,
+          structure: (db.prepare("SELECT value FROM index_meta WHERE key='index_epoch'").get() as any)?.value,
           scopes: p.scopes,
           query: normalized.query,
           filters: normalized.filters || {},
@@ -223,7 +225,7 @@ export function searchService(
         c.conflict ||
         c.source_hash !== c.content_hash ||
         c.source_revision !== c.current_revision ||
-        !p.allowedPrefixes.some((prefix) => underPrefix(c.path, prefix))
+        !canAccessPath(p, c.path)
       )
         continue;
       if (
@@ -279,7 +281,7 @@ export function searchService(
       };
       item.matches.push(hit);
     }
-    const status = indexing.status({ ...p, scopes: [...p.scopes, 'knowledge:index'] });
+    const status = indexing.status({ ...p, policyVersion: undefined, scopes: [...p.scopes, 'knowledge:index'] });
     if (status.pending || status.retrying || status.failed) reasons.push('INDEX_PENDING');
     if (status.conflicts) reasons.push('GIT_CONFLICT');
     if (status.error) reasons.push(status.error);

@@ -7,7 +7,7 @@ import { fail } from '../knowledge/errors.js';
 import { hashFile, stableStat, sameFile } from '../knowledge/file-reader.js';
 import { limits } from '../knowledge/limits.js';
 import { enqueueSource } from '../knowledge/core.js';
-import { underPrefix, requireScope } from '../agent/auth.js';
+import { underPrefix, requireScope, canAccessPath } from '../agent/auth.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
 import { gitState } from './git-state.js';
 import { pathFilter } from './text.js';
@@ -42,10 +42,10 @@ export function scopeFor(p: Principal, scope?: string) {
   requireScope(p, 'knowledge:index');
   if (
     scope != null &&
-    (typeof scope !== 'string' || !p.allowedPrefixes.some((prefix) => underPrefix(scope, prefix)))
+    (typeof scope !== 'string' || !canAccessPath(p, scope))
   )
     fail(403, 'FORBIDDEN');
-  return scope ? [scope] : p.allowedPrefixes;
+  return scope ? [scope] : p.knowledgeAll ? undefined : p.allowedPrefixes;
 }
 export const scopeKey = (scopes?: string[]) =>
   scopes ? 'scope:' + sha256(JSON.stringify([...scopes].sort())) : 'root';
@@ -278,7 +278,7 @@ export function reconcileService(config: AppConfig, db: AppDatabase) {
         .get(input.jobId, p.id, p.clientId)
     )
       fail(404, 'OPERATION_NOT_FOUND');
-    const filter = pathFilter({ ...p, allowedPrefixes: scopes }, 'n.path');
+    const filter = pathFilter({ ...p, knowledgeAll: scopes === undefined, allowedPrefixes: scopes || [] }, 'n.path');
     const base = `FROM notes n LEFT JOIN document_state d ON d.note_id=n.id WHERE n.active=1 AND (${filter.sql})`;
     const notes = db
       .prepare(`SELECT n.id,n.path,d.* ${base} ORDER BY n.path LIMIT 10`)
