@@ -1,5 +1,6 @@
 import { mkdir, readFile } from 'node:fs/promises';
 import { test, expect } from '../support/browser-test';
+import { chooseGraphMode, captureGraph, graphArtifactRoot } from '../support/graph-navigation';
 
 test.use({ sourceEditorPreference: true });
 test('keeps explicit note exploration available in the calm graph workspace', async ({
@@ -33,10 +34,10 @@ test('keeps explicit note exploration available in the calm graph workspace', as
     .toBe(4);
   await page.goto('/?view=apps&app=graph&appSection=overview');
   await expect(page.getByRole('heading', { name: '知识图谱', exact: true })).toBeVisible();
-  await page.getByRole('combobox', { name: '图谱类型' }).selectOption('notes');
+  await chooseGraphMode(page, '图谱类型', '笔记');
   await page.getByRole('searchbox', { name: '搜索图谱' }).fill(prefix.toUpperCase());
-  await page.getByRole('combobox', { name: '显示方式' }).selectOption('list');
-  const nodes = page.locator('.graph-note-list > button[aria-pressed]');
+  await chooseGraphMode(page, '显示方式', '列表');
+  const nodes = page.locator('.graph-node-select');
   await expect(nodes).toHaveCount(4);
   await nodes.filter({ hasText: '从引用开始' }).click();
   const detail = page.locator('.graph-inspector:visible');
@@ -50,6 +51,7 @@ test('keeps explicit note exploration available in the calm graph workspace', as
   await expect(nodes).toHaveCount(4);
   await page.getByRole('button', { name: '筛选', exact: true }).click();
   const filters = page.getByRole('dialog', { name: '筛选与路径' });
+  await expect(filters.getByRole('slider', { name: '最低置信度', exact: true })).toBeVisible();
   await filters.getByRole('checkbox', { name: '仅孤立节点' }).check();
   await filters.getByRole('button', { name: '关闭筛选与路径' }).click();
   await expect(nodes).toHaveCount(1);
@@ -65,12 +67,12 @@ test('keeps explicit note exploration available in the calm graph workspace', as
   await page.goBack();
   await expect(page.getByRole('heading', { name: '知识图谱', exact: true })).toBeVisible();
   await page.reload();
-  await page.getByRole('combobox', { name: '显示方式' }).selectOption('graph');
+  await chooseGraphMode(page, '显示方式', '画布');
   const canvas = page.getByRole('region', { name: /知识关系画布/ });
   await expect(canvas.locator('canvas').first()).toBeVisible();
   await expect(page.locator('.graph-note-list')).toHaveCount(0);
   await expect(page.locator('.graph-details')).toHaveCount(0);
-  await mkdir('.local/semantic-graph-artifacts', { recursive: true });
+  await mkdir(graphArtifactRoot, { recursive: true });
   await page.evaluate(() => {
     document.querySelectorAll('.graph-workspace, .main-content').forEach((element) => {
       element.scrollTop = 0;
@@ -78,21 +80,37 @@ test('keeps explicit note exploration available in the calm graph workspace', as
     window.scrollTo(0, 0);
   });
   await page.screenshot({
-    path: `.local/semantic-graph-artifacts/${info.project.name}-overview.png`,
+    path: `${graphArtifactRoot}/${info.project.name}-overview.png`,
     fullPage: true,
     animations: 'disabled',
   });
   await page.evaluate(() => {
-    document.documentElement.dataset.theme = 'dark';
+    for (const key of Object.keys(localStorage).filter((key) =>
+      key.startsWith('dooknow.preferences.v1:'),
+    )) {
+      const preference = JSON.parse(localStorage.getItem(key) || '{}');
+      localStorage.setItem(key, JSON.stringify({ ...preference, theme: 'dark' }));
+    }
   });
+  await page.reload();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await expect(canvas.locator('canvas').first()).toBeVisible();
   await page.screenshot({
-    path: `.local/semantic-graph-artifacts/${info.project.name}-overview-dark.png`,
+    path: `${graphArtifactRoot}/${info.project.name}-overview-dark.png`,
     fullPage: true,
     animations: 'disabled',
   });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
     true,
   );
+  await chooseGraphMode(page, '显示方式', '列表');
+  await page.locator('.graph-node-select').first().click();
+  const darkEvidence = page.locator('.graph-inspector:visible .inspector-evidence-card').first();
+  await expect(darkEvidence).toBeVisible();
+  const background = await darkEvidence.evaluate(
+    (element) => getComputedStyle(element).backgroundColor,
+  );
+  expect(Math.max(...(background.match(/\d+/g) || []).slice(0, 3).map(Number))).toBeLessThan(100);
+  await captureGraph(page, info.project.name, 'inspector-dark');
   expect(errors).toEqual([]);
 });

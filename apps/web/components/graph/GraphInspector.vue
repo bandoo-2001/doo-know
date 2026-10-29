@@ -1,12 +1,26 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
-import { Button as AButton } from 'ant-design-vue';
+import { computed, ref, useId, watch } from 'vue';
+import {
+  Button as AButton,
+  Card as ACard,
+  Collapse as ACollapse,
+  CollapsePanel as ACollapsePanel,
+  Divider as ADivider,
+  Empty as AEmpty,
+  Form as AForm,
+  FormItem as AFormItem,
+  Input as AInput,
+  Select as ASelect,
+  Space as ASpace,
+  Tag as ATag,
+} from 'ant-design-vue';
 import type {
   GraphKnowledgeNode,
   GraphKnowledgeEdge,
 } from '../../../../shared/graph-semantic-contracts';
 import type { GraphCommandInput } from '../../graph-workbench';
 import { graphLabels, graphReviewStatusLabels } from './labels';
+const formId = `graph-inspector-${useId()}`;
 const props = defineProps<{
   node?: GraphKnowledgeNode;
   edge?: GraphKnowledgeEdge;
@@ -26,6 +40,23 @@ const alias = ref(''),
   predicate = ref('关联'),
   noteId = ref('');
 const evidence = computed(() => props.node?.evidence || props.edge?.evidence || []);
+const entityOptions = computed(() =>
+  props.nodes
+    .filter((node) => node.kind !== 'note' && node.id !== props.node?.id)
+    .map((node) => ({
+      label: `${node.title} · ${graphLabels[node.kind] || '实体'}`,
+      value: node.id,
+    })),
+);
+const noteOptions = computed(() => {
+  const notes = new Map(
+    props.nodes.filter((node) => node.kind === 'note').map((node) => [node.id, node.title]),
+  );
+  for (const item of evidence.value) {
+    if (!notes.has(item.noteId)) notes.set(item.noteId, item.title);
+  }
+  return Array.from(notes, ([value, label]) => ({ value, label }));
+});
 watch(
   () => props.node?.id,
   () => {
@@ -50,100 +81,131 @@ watch(
   <div class="graph-panel graph-inspector">
     <div class="graph-inspector-heading">
       <h2>{{ node?.title || edge?.label || '详情' }}</h2>
-      <AButton aria-label="关闭详情" @click="emit('close')">×</AButton>
+      <AButton type="text" aria-label="关闭详情" @click="emit('close')">×</AButton>
     </div>
-    <template v-if="node"
-      ><p>{{ node.description || node.relativePath }}</p>
-      <small
-        >{{ graphLabels[node.kind] || '知识' }} · {{ node.sourceCount }} 来源 ·
-        {{ node.community ? '已归入关系分组' : '尚未分组' }}</small
+    <template v-if="node">
+      <ASpace wrap :size="[4, 8]">
+        <ATag color="blue">{{ graphLabels[node.kind] || '知识' }}</ATag>
+        <span class="inspector-muted">{{ node.sourceCount }} 来源</span>
+        <span class="inspector-muted">{{ node.community ? '已归入关系分组' : '尚未分组' }}</span>
+      </ASpace>
+      <p class="inspector-description">{{ node.description || node.relativePath }}</p>
+      <ASpace v-if="node.aliases?.length" wrap :size="[4, 4]" class="inspector-aliases">
+        <span class="inspector-muted">别名</span>
+        <ATag v-for="name in node.aliases" :key="name">{{ name }}</ATag>
+      </ASpace>
+      <ASpace wrap class="inspector-actions">
+        <AButton v-if="node.kind === 'note'" type="primary" @click="emit('open', node.id)"
+          >打开原文</AButton
+        >
+        <AButton @click="emit('focus', 1)">1 跳关系</AButton>
+        <AButton @click="emit('focus', 2)">2 跳关系</AButton>
+      </ASpace>
+      <ACollapse v-if="node.kind !== 'note'" ghost class="inspector-management">
+        <ACollapsePanel key="organize" header="整理实体">
+          <AForm :name="`${formId}-organize`" layout="vertical" :required-mark="false">
+            <AFormItem name="alias" label="新增别名">
+              <AInput
+                v-model:value="alias"
+                aria-label="新增别名"
+                :maxlength="100"
+                placeholder="输入实体的其他名称"
+              />
+            </AFormItem>
+            <AButton
+              :disabled="!alias.trim() || busy"
+              @click="emit('command', { action: 'alias', entityId: node.id, alias })"
+              >保存别名</AButton
+            >
+            <ADivider />
+            <AFormItem name="into" label="合并到">
+              <ASelect
+                :value="into || undefined"
+                @update:value="(value) => (into = typeof value === 'string' ? value : '')"
+                aria-label="合并到"
+                :options="entityOptions"
+                :show-search="true"
+                option-filter-prop="label"
+                placeholder="选择实体"
+              />
+            </AFormItem>
+            <AButton
+              :disabled="!into || busy"
+              @click="emit('command', { action: 'merge', from: node.id, into })"
+              >合并实体</AButton
+            >
+          </AForm>
+        </ACollapsePanel>
+        <ACollapsePanel key="relation" header="新增人工关系">
+          <AForm :name="`${formId}-relation`" layout="vertical" :required-mark="false">
+            <AFormItem name="target" label="目标">
+              <ASelect
+                :value="target || undefined"
+                @update:value="(value) => (target = typeof value === 'string' ? value : '')"
+                aria-label="目标"
+                :options="entityOptions"
+                show-search
+                option-filter-prop="label"
+                placeholder="选择目标"
+              />
+            </AFormItem>
+            <AFormItem name="predicate" label="关系">
+              <AInput v-model:value="predicate" aria-label="关系" :maxlength="100" />
+            </AFormItem>
+            <AFormItem name="noteId" label="原文依据">
+              <ASelect
+                :value="noteId || undefined"
+                @update:value="(value) => (noteId = typeof value === 'string' ? value : '')"
+                aria-label="原文依据"
+                :options="noteOptions"
+                show-search
+                option-filter-prop="label"
+                placeholder="选择来源笔记"
+              />
+            </AFormItem>
+            <AButton
+              type="primary"
+              :disabled="!target || !predicate.trim() || !noteId || busy"
+              @click="
+                emit('command', {
+                  action: 'manual-relation',
+                  source: node.id,
+                  target,
+                  predicate,
+                  noteId,
+                })
+              "
+              >添加关系</AButton
+            >
+          </AForm>
+        </ACollapsePanel>
+      </ACollapse>
+    </template>
+    <template v-if="edge">
+      <ASpace wrap :size="[4, 8]">
+        <ATag>{{ graphLabels[edge.kind] || '关系' }}</ATag>
+        <ATag
+          :color="edge.status === 'accepted' ? 'green' : edge.status === 'manual' ? 'blue' : 'gold'"
+          >{{ graphReviewStatusLabels[edge.status] || '待审核' }}</ATag
+        >
+        <span class="inspector-muted">置信度 {{ Math.round(edge.confidence * 100) }}%</span>
+      </ASpace>
+      <ASpace wrap class="inspector-actions">
+        <AButton @click="emit('select', edge.source)">查看起点</AButton>
+        <AButton @click="emit('select', edge.target)">查看终点</AButton>
+      </ASpace>
+      <AForm
+        v-if="edge.kind === 'semantic'"
+        :name="`${formId}-review`"
+        layout="vertical"
+        :required-mark="false"
       >
-      <p v-if="node.aliases?.length">别名：{{ node.aliases.join('、') }}</p>
-      <AButton v-if="node.kind === 'note'" @click="emit('open', node.id)">打开原文</AButton>
-      <div class="graph-actions">
-        <AButton @click="emit('focus', 1)">1 跳关系</AButton
-        ><AButton @click="emit('focus', 2)">2 跳关系</AButton>
-      </div>
-      <details v-if="node.kind !== 'note'">
-        <summary>整理实体</summary>
-        <label>新增别名<input v-model="alias" maxlength="100" /></label
-        ><AButton
-          :disabled="!alias.trim() || busy"
-          @click="emit('command', { action: 'alias', entityId: node.id, alias })"
-          >保存别名</AButton
-        ><label
-          >合并到<select v-model="into">
-            <option value="">选择实体</option>
-            <option
-              v-for="n in nodes.filter((n) => n.kind !== 'note' && n.id !== node?.id)"
-              :key="n.id"
-              :value="n.id"
-            >
-              {{ n.title }}
-            </option>
-          </select></label
-        ><AButton
-          :disabled="!into || busy"
-          @click="emit('command', { action: 'merge', from: node.id, into })"
-          >合并实体</AButton
-        >
-      </details>
-      <details v-if="node.kind !== 'note'">
-        <summary>新增人工关系</summary>
-        <label
-          >目标<select v-model="target">
-            <option value="">选择目标</option>
-            <option
-              v-for="n in nodes.filter((n) => n.kind !== 'note' && n.id !== node?.id)"
-              :key="n.id"
-              :value="n.id"
-            >
-              {{ n.title }}
-            </option>
-          </select></label
-        ><label>关系<input v-model="predicate" maxlength="100" /></label
-        ><label
-          >原文依据<select v-model="noteId">
-            <option value="">选择来源笔记</option>
-            <option v-for="n in nodes.filter((n) => n.kind === 'note')" :key="n.id" :value="n.id">
-              {{ n.title }}
-            </option>
-            <option
-              v-for="ev in evidence.filter((e) => !nodes.some((n) => n.id === e.noteId))"
-              :key="ev.id"
-              :value="ev.noteId"
-            >
-              {{ ev.title }}
-            </option>
-          </select></label
-        ><AButton
-          :disabled="!target || !predicate.trim() || !noteId || busy"
-          @click="
-            emit('command', {
-              action: 'manual-relation',
-              source: node.id,
-              target,
-              predicate,
-              noteId,
-            })
-          "
-          >添加关系</AButton
-        >
-      </details></template
-    ><template v-if="edge"
-      ><p>
-        {{ graphLabels[edge.kind] || '关系' }} ·
-        {{ graphReviewStatusLabels[edge.status] || '待审核' }} · 置信度
-        {{ Math.round(edge.confidence * 100) }}%
-      </p>
-      <div class="graph-actions">
-        <AButton @click="emit('select', edge.source)">查看起点</AButton
-        ><AButton @click="emit('select', edge.target)">查看终点</AButton>
-      </div>
-      <template v-if="edge.kind === 'semantic'"
-        ><label>关系名称<input v-model="edgePredicate" /></label>
-        <div class="graph-actions">
+        <AFormItem name="edgePredicate" label="关系名称">
+          <AInput v-model:value="edgePredicate" aria-label="关系名称" />
+        </AFormItem>
+        <ASpace wrap>
           <AButton
+            type="primary"
             :disabled="busy || !edgePredicate.trim()"
             @click="
               emit('command', {
@@ -154,25 +216,105 @@ watch(
               })
             "
             >确认 / 保存</AButton
-          ><AButton
+          >
+          <AButton
             :disabled="busy"
             @click="emit('command', { action: 'review', id: edge.id, decision: 'ignore' })"
             >忽略关系</AButton
           >
-        </div></template
-      ></template
+        </ASpace>
+      </AForm>
+    </template>
+    <ADivider orientation="left"
+      >原文证据 <span class="inspector-muted">{{ evidence.length }}</span></ADivider
     >
-    <h3>原文证据</h3>
-    <p v-if="!evidence.length">此项暂无可显示的原文证据。</p>
-    <article v-for="ev in evidence" :key="ev.id" class="graph-evidence">
-      <blockquote>{{ ev.quote }}</blockquote>
-      <AButton size="small" @click="emit('open', ev.noteId, ev.startLine)"
-        >{{ ev.title }} · L{{ ev.startLine }}–{{ ev.endLine }}</AButton
-      ><small
-        >{{
-          ev.method === 'local' ? '基础词项分析' : ev.method === 'model' ? '模型提取' : '人工关系'
-        }}{{ ev.model ? ' · ' + ev.model : '' }}</small
+    <AEmpty
+      v-if="!evidence.length"
+      :image="AEmpty.PRESENTED_IMAGE_SIMPLE"
+      description="此项暂无可显示的原文证据。"
+    />
+    <ASpace v-else direction="vertical" :size="12" class="inspector-evidence-list">
+      <ACard
+        v-for="ev in evidence"
+        :key="ev.id"
+        size="small"
+        class="graph-evidence inspector-evidence-card"
       >
-    </article>
+        <blockquote>{{ ev.quote }}</blockquote>
+        <AButton
+          type="link"
+          size="small"
+          class="inspector-source"
+          @click="emit('open', ev.noteId, ev.startLine)"
+          >{{ ev.title }} · L{{ ev.startLine }}–{{ ev.endLine }}</AButton
+        >
+        <div class="inspector-muted inspector-evidence-method">
+          {{
+            ev.method === 'local'
+              ? '基础词项分析'
+              : ev.method === 'model'
+                ? '模型提取'
+                : '人工关系'
+          }}{{ ev.model ? ' · ' + ev.model : '' }}
+        </div>
+      </ACard>
+    </ASpace>
   </div>
 </template>
+<style scoped>
+.inspector-muted {
+  color: var(--muted, #687486);
+  font-size: 12px;
+}
+.inspector-description {
+  margin: 14px 0;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.inspector-aliases {
+  margin-bottom: 14px;
+}
+.inspector-actions {
+  display: flex;
+  margin: 16px 0;
+}
+.inspector-management {
+  margin: 8px -12px 0;
+}
+.inspector-management :deep(.ant-collapse-content-box) {
+  padding-top: 8px;
+}
+:deep(.ant-form-item) {
+  margin-bottom: 16px;
+}
+:deep(.ant-form-item-label) {
+  padding-bottom: 6px;
+}
+:deep(.ant-select) {
+  width: 100%;
+}
+.inspector-evidence-list {
+  width: 100%;
+}
+.inspector-evidence-card {
+  margin: 0;
+  background: var(--surface-soft, #f5f6f8);
+}
+.inspector-evidence-card blockquote {
+  margin: 0 0 10px;
+  padding: 0;
+  border: 0;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.inspector-source {
+  height: auto;
+  padding: 0;
+  white-space: normal;
+  text-align: left;
+}
+.inspector-evidence-method {
+  margin-top: 6px;
+  overflow-wrap: anywhere;
+}
+</style>

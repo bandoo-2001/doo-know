@@ -1,6 +1,37 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import { Button as AButton } from 'ant-design-vue';
+import {
+  Alert as AAlert,
+  Badge as ABadge,
+  Button as AButton,
+  Card as ACard,
+  Checkbox as ACheckbox,
+  Collapse as ACollapse,
+  CollapsePanel as ACollapsePanel,
+  Divider as ADivider,
+  Dropdown as ADropdown,
+  Empty as AEmpty,
+  Form as AForm,
+  FormItem as AFormItem,
+  FormItemRest as AFormItemRest,
+  Input as AInput,
+  InputNumber as AInputNumber,
+  InputPassword as AInputPassword,
+  InputSearch as AInputSearch,
+  List as AList,
+  ListItem as AListItem,
+  Menu as AMenu,
+  MenuItem as AMenuItem,
+  Progress as AProgress,
+  Segmented as ASegmented,
+  Select as ASelect,
+  Slider as ASlider,
+  Space as ASpace,
+  Switch as ASwitch,
+  Tag as ATag,
+  Textarea as ATextarea,
+  Tooltip as ATooltip,
+} from 'ant-design-vue';
 import type { Core, NodeSingular } from 'cytoscape';
 import type { TreeEntry } from '../../../shared/contracts';
 import {
@@ -8,8 +39,10 @@ import {
   type GraphModelUpdate,
   type GraphEvidence,
 } from '../../../shared/graph-semantic-contracts';
-import SettingsOverlay from './settings/SettingsOverlay.vue';
+import GraphOverlay from './graph/GraphOverlay.vue';
 import GraphInspectorContent from './graph/GraphInspector.vue';
+import DirectoryTreeSelect from './DirectoryTreeSelect.vue';
+import Icon from './Icon.vue';
 import { graphLabels as labels, graphTaskErrorLabel } from './graph/labels';
 import { graphApi } from '../graph-request';
 import { createGraphWorkbench } from '../graph-workbench';
@@ -25,6 +58,21 @@ const panel = ref('');
 const mobile = ref(false);
 const graphError = ref('');
 const draft = ref<GraphModelUpdate>();
+// Ant form slots can finish their closing render after the draft is cleared.
+const modelDraft = computed<GraphModelUpdate>(
+  () =>
+    draft.value || {
+      expectedVersion: 0,
+      provider: 'none',
+      baseUrl: '',
+      model: '',
+      automatic: true,
+      remoteContentAllowed: false,
+      timeoutMs: 60000,
+      maxInputCharacters: 12000,
+      outputFormat: 'schema',
+    },
+);
 const baseline = ref('');
 const secret = ref('');
 const clearKey = ref(false);
@@ -89,6 +137,65 @@ const folders = computed(() => {
   walk(props.tree);
   return result;
 });
+const folderOptions = computed(() => folders.value.map((path) => ({ label: path, value: path })));
+const nodeTypeOptions = ['note', ...graphEntityKinds].map((value) => ({
+  value,
+  label: labels[value],
+}));
+const relationTypeOptions = [
+  'reference',
+  'mentions',
+  'cooccurs',
+  'similarity',
+  'semantic',
+  'manual',
+].map((value) => ({ value, label: labels[value] }));
+const availableNodeOptions = computed(() =>
+  (state.result?.nodes || []).map((item) => ({ value: item.id, label: item.title })),
+);
+const providerOptions = [
+  { value: 'none', label: '基础本地分析' },
+  { value: 'ollama', label: 'Ollama · 本地模型' },
+  { value: 'openai-compatible', label: 'OpenAI 兼容 API' },
+];
+const progressPercent = computed(() =>
+  Math.min(
+    100,
+    Math.round(((state.status?.completed || 0) / Math.max(1, state.status?.total || 0)) * 100),
+  ),
+);
+const statusKind = computed<'default' | 'processing' | 'success' | 'error'>(() =>
+  state.status?.state === 'failed'
+    ? 'error'
+    : state.status?.state === 'running' || state.status?.state === 'queued'
+      ? 'processing'
+      : state.status?.state === 'paused'
+        ? 'default'
+        : 'success',
+);
+const panelDescription = computed(
+  () =>
+    ({
+      filters: '缩小范围，聚焦值得探索的联系。',
+      tasks: '查看自动分析进度，管理待处理和失败的资料。',
+      model: '选择基础分析，或连接已有的本地模型与模型 API。',
+      review: '核对原文证据，再确认、修改或忽略模型建议。',
+      views: '保存探索范围，或导出当前图谱。',
+      ask: '根据原文证据提问，回答保留可追溯的来源。',
+    })[panel.value],
+);
+function changeGraphView(value: string | number) {
+  if (value === 'notes' || value === 'knowledge') {
+    state.query.view = value;
+    refresh();
+  }
+}
+function changeDisplayView(value: string | number) {
+  view.value = value === 'list' ? 'list' : 'graph';
+}
+function nodeTitle(id: string) {
+  return state.result?.nodes.find((item) => item.id === id)?.title || '笔记';
+}
 let cy: Core | undefined,
   disposed = false,
   renderGeneration = 0;
@@ -410,303 +517,525 @@ onBeforeUnmount(() => {
 <template>
   <section class="graph-workspace" aria-labelledby="graph-title">
     <header class="graph-header">
-      <AButton @click="emit('back')">← 返回</AButton>
-      <h1 id="graph-title">知识图谱</h1>
-      <span class="graph-baseline">{{
-        state.status?.provider === 'none' ? '基础词项分析' : '内容感知'
-      }}</span
-      ><AButton class="graph-status-pill" @click="openPanel('tasks')"
-        >{{ statusText }} · {{ state.status?.pending || 0 }} 待处理</AButton
+      <ASpace :size="12" align="center">
+        <AButton type="text" class="graph-back" @click="emit('back')"
+          ><Icon name="back" :size="16" />返回</AButton
+        >
+        <div class="graph-heading">
+          <h1 id="graph-title">知识图谱</h1>
+          <span>让资料中的联系清晰可见</span>
+        </div>
+        <ATag
+          class="graph-mode-tag"
+          :bordered="false"
+          :color="state.status?.provider === 'none' ? 'default' : 'blue'"
+          >{{ state.status?.provider === 'none' ? '基础分析' : '模型增强' }}</ATag
+        >
+      </ASpace>
+      <AButton
+        class="graph-status-pill"
+        type="text"
+        :aria-label="`后台分析：${statusText}，${state.status?.pending || 0} 待处理`"
+        @click="openPanel('tasks')"
       >
+        <ABadge :status="statusKind" /><span>{{ statusText }}</span
+        ><ATag v-if="state.status?.pending" :bordered="false"
+          >{{ state.status.pending }} 待处理</ATag
+        ><Icon name="forward" :size="12" />
+      </AButton>
     </header>
     <nav class="graph-toolbar" aria-label="图谱工具栏">
-      <select v-model="state.query.view" aria-label="图谱类型" @change="refresh">
-        <option value="knowledge">知识</option>
-        <option value="notes">笔记</option></select
-      ><input
-        v-model="state.query.q"
+      <ASegmented
+        :value="state.query.view || 'knowledge'"
+        :options="[
+          { label: '知识', value: 'knowledge' },
+          { label: '笔记', value: 'notes' },
+        ]"
+        role="group"
+        aria-label="图谱类型"
+        @change="changeGraphView"
+      />
+      <AInputSearch
+        v-model:value="state.query.q"
         type="search"
-        placeholder="搜索知识或笔记"
+        class="graph-search"
         aria-label="搜索图谱"
-        @input="search"
-      /><AButton @click="openPanel('filters')">筛选</AButton
-      ><select v-model="view" aria-label="显示方式">
-        <option value="graph">画布</option>
-        <option value="list">列表</option></select
-      ><AButton @click="openPanel('review')">审核</AButton
-      ><AButton @click="openPanel('views')">视图</AButton
-      ><AButton @click="openPanel('ask')">问答</AButton
-      ><AButton @click="openPanel('model')">模型</AButton>
+        placeholder="搜索概念、实体或笔记"
+        allow-clear
+        @change="search"
+        @search="refresh"
+      />
+      <AButton class="graph-filter-trigger" aria-label="筛选" @click="openPanel('filters')"
+        ><Icon name="settings" :size="15" /><span class="graph-action-label">筛选</span></AButton
+      >
+      <ADivider type="vertical" class="graph-toolbar-divider" />
+      <ASegmented
+        :value="view"
+        :options="[
+          { label: '画布', value: 'graph' },
+          { label: '列表', value: 'list' },
+        ]"
+        role="group"
+        aria-label="显示方式"
+        @change="changeDisplayView"
+      />
+      <AButton v-if="!mobile" @click="openPanel('review')"
+        >审核<ATag v-if="state.status?.suggested" :bordered="false" color="blue">{{
+          state.status.suggested
+        }}</ATag></AButton
+      >
+      <ADropdown :trigger="['click']" placement="bottomRight">
+        <AButton class="graph-more-trigger" aria-label="更多图谱操作"
+          ><Icon name="more" :size="18" /><span class="graph-action-label">更多</span></AButton
+        >
+        <template #overlay
+          ><AMenu @click="({ key }) => openPanel(String(key))"
+            ><AMenuItem v-if="mobile" key="review"
+              ><Icon name="check" :size="15" />关系审核</AMenuItem
+            ><AMenuItem key="views"><Icon name="star" :size="15" />视图与导出</AMenuItem
+            ><AMenuItem key="ask"><Icon name="help" :size="15" />图谱问答</AMenuItem
+            ><AMenuItem key="model"><Icon name="plug" :size="15" />模型设置</AMenuItem></AMenu
+          ></template
+        >
+      </ADropdown>
     </nav>
     <div class="graph-summary" role="status" aria-live="polite">
-      <span v-if="state.loading">正在更新…</span
-      ><span v-else
-        >显示 {{ state.result?.nodes.length || 0 }} 节点 ·
-        {{ state.result?.edges.length || 0 }} 关系</span
-      ><span v-if="state.result?.truncated"
-        >当前为有限子图（最多 120 条关系；范围内共 {{ state.result.totalNodes }} 节点 /
-        {{ state.result.totalEdges }} 关系），请缩小范围或探索局部。</span
-      ><AButton
-        v-if="state.query.focus || state.query.target"
-        size="small"
-        @click="
-          state.query.focus = undefined;
-          state.query.target = undefined;
-          refresh();
-        "
-        >清除局部 / 路径</AButton
-      ><AButton size="small" :loading="state.loading" @click="refresh">刷新</AButton>
+      <ASpace :size="12"
+        ><span>{{
+          state.loading ? '正在更新图谱…' : `${state.result?.nodes.length || 0} 个节点`
+        }}</span
+        ><span v-if="!state.loading">{{ state.result?.edges.length || 0 }} 条关系</span
+        ><ATag v-if="state.result?.truncated" :bordered="false" color="gold">有限子图</ATag></ASpace
+      >
+      <ASpace :size="4"
+        ><AButton
+          v-if="state.query.focus || state.query.target"
+          size="small"
+          type="link"
+          @click="
+            state.query.focus = undefined;
+            state.query.target = undefined;
+            refresh();
+          "
+          >清除局部 / 路径</AButton
+        ><ATooltip title="重新读取当前图谱"
+          ><AButton size="small" type="text" :loading="state.loading" @click="refresh"
+            ><Icon name="refresh" :size="14" />刷新</AButton
+          ></ATooltip
+        ></ASpace
+      >
     </div>
-    <div v-if="state.error" class="graph-error" role="alert">
-      {{ state.error }}<AButton size="small" @click="refresh">重试</AButton>
-    </div>
+    <AAlert
+      v-if="state.result?.truncated"
+      class="graph-notice"
+      type="info"
+      show-icon
+      :message="`当前显示有限子图，范围内共 ${state.result.totalNodes} 个节点、${state.result.totalEdges} 条关系`"
+      description="最多展示 120 条关系，可通过筛选或局部探索聚焦内容。"
+    />
+    <AAlert v-if="state.error" class="graph-notice" type="error" show-icon :message="state.error"
+      ><template #action
+        ><AButton size="small" type="link" @click="refresh">重试</AButton></template
+      ></AAlert
+    >
     <div class="graph-body" :class="{ 'has-inspector': !!state.selectedId && !mobile }">
       <main class="graph-main">
-        <div v-show="view === 'graph'" class="graph-canvas-wrap">
-          <div
-            ref="canvas"
-            class="graph-canvas"
-            role="region"
-            aria-label="知识关系画布，使用列表可键盘浏览"
-          />
-          <div class="graph-canvas-tools">
-            <AButton aria-label="放大" @click="cy?.zoom(cy.zoom() * 1.25)">＋</AButton
-            ><AButton aria-label="缩小" @click="cy?.zoom(cy.zoom() / 1.25)">−</AButton
-            ><AButton @click="cy?.fit(undefined, 40)">适应画布</AButton>
+        <ACard v-show="view === 'graph'" class="graph-canvas-card" :body-style="{ padding: 0 }">
+          <div class="graph-canvas-wrap">
+            <div
+              ref="canvas"
+              class="graph-canvas"
+              role="region"
+              aria-label="知识关系画布，使用列表可键盘浏览"
+            />
+            <div class="graph-canvas-tools">
+              <ASpace :size="2"
+                ><ATooltip title="放大"
+                  ><AButton
+                    size="small"
+                    type="text"
+                    aria-label="放大"
+                    @click="cy?.zoom(cy.zoom() * 1.25)"
+                    ><Icon name="plus" :size="16" /></AButton></ATooltip
+                ><ATooltip title="缩小"
+                  ><AButton
+                    size="small"
+                    type="text"
+                    aria-label="缩小"
+                    @click="cy?.zoom(cy.zoom() / 1.25)"
+                    >−</AButton
+                  ></ATooltip
+                ><ADivider type="vertical" /><AButton
+                  size="small"
+                  type="text"
+                  @click="cy?.fit(undefined, 40)"
+                  >适应画布</AButton
+                ></ASpace
+              >
+            </div>
+            <div class="graph-legend">
+              <span
+                v-for="kind in colorBy === 'type' ? ['note', ...graphEntityKinds] : []"
+                :key="kind"
+                ><i :style="{ background: colors[kind] }" />{{ labels[kind] }}</span
+              ><span
+                >{{
+                  colorBy === 'community' ? '按关系分组着色 · ' : ''
+                }}虚线表示候选或相似线索</span
+              >
+            </div>
+            <AAlert
+              v-if="graphError"
+              class="graph-canvas-error"
+              type="warning"
+              show-icon
+              :message="graphError"
+            />
           </div>
-          <div class="graph-legend">
-            <span
-              v-for="kind in colorBy === 'type' ? ['note', ...graphEntityKinds] : []"
-              :key="kind"
-              ><i :style="{ background: colors[kind] }" />{{ labels[kind] }}</span
-            ><span>{{ colorBy === 'community' ? '当前按社区着色 · ' : '' }}虚线：候选 / 相似</span>
+        </ACard>
+        <ACard v-if="view === 'list'" class="graph-list-card" :body-style="{ padding: '0 16px' }">
+          <div class="graph-note-list" aria-label="图谱节点列表">
+            <AList
+              :data-source="state.result?.nodes || []"
+              :loading="state.loading"
+              :locale="{ emptyText: '暂无匹配节点' }"
+            >
+              <template #renderItem="{ item }"
+                ><AListItem
+                  ><AButton
+                    type="text"
+                    block
+                    class="graph-node-select"
+                    :aria-pressed="item.id === state.selectedId"
+                    @click="select(item.id)"
+                    ><span class="graph-node-dot" :style="{ background: colors[item.kind] }" /><span
+                      class="graph-node-copy"
+                      ><strong>{{ item.title }}</strong
+                      ><span>{{
+                        item.relativePath || `${item.sourceCount} 份来源资料`
+                      }}</span></span
+                    ><ATag :bordered="false">{{ labels[item.kind] }}</ATag
+                    ><Icon name="forward" :size="14" /></AButton></AListItem
+              ></template>
+            </AList>
+            <template v-if="state.result?.edges.length"
+              ><ADivider orientation="left">关系</ADivider
+              ><AList size="small" :data-source="state.result.edges"
+                ><template #renderItem="{ item }"
+                  ><AListItem
+                    ><AButton
+                      class="graph-relation-select"
+                      type="text"
+                      block
+                      @click="select(item.id)"
+                      ><span>{{ nodeTitle(item.source) }}</span
+                      ><ATag :bordered="false">{{ item.label }}</ATag
+                      ><span>{{ nodeTitle(item.target) }}</span></AButton
+                    ></AListItem
+                  ></template
+                ></AList
+              ></template
+            >
           </div>
-          <p v-if="graphError" class="graph-error">{{ graphError }}</p>
-        </div>
-        <div v-if="view === 'list'" class="graph-note-list" aria-label="图谱节点列表">
-          <button
-            v-for="n in state.result?.nodes || []"
-            :key="n.id"
-            :aria-pressed="n.id === state.selectedId"
-            @click="select(n.id)"
-          >
-            <strong>{{ n.title }}</strong
-            ><span>{{ labels[n.kind] }} · {{ n.sourceCount }} 来源</span
-            ><small>{{ n.relativePath }}</small>
-          </button>
-          <h3 v-if="state.result?.edges.length">关系</h3>
-          <button v-for="e in state.result?.edges || []" :key="e.id" @click="select(e.id)">
-            {{ state.result?.nodes.find((n) => n.id === e.source)?.title }} → {{ e.label }} →
-            {{ state.result?.nodes.find((n) => n.id === e.target)?.title }}
-          </button>
-        </div>
-        <div v-if="state.result && !state.result.nodes.length" class="graph-empty">
-          暂无匹配内容。尝试其他搜索或筛选；后台分析会持续更新。
-        </div>
+        </ACard>
+        <AEmpty
+          v-if="state.result && !state.result.nodes.length && view === 'graph'"
+          class="graph-empty"
+          description="暂无匹配内容，可调整搜索或筛选条件。"
+        />
       </main>
       <aside v-if="state.selectedId && !mobile" class="graph-details">
-        <GraphInspectorContent
-          :node="node"
-          :edge="edge"
-          :nodes="state.result?.nodes || []"
-          :busy="state.busy"
-          @close="select('')"
-          @focus="focus"
-          @open="forwardOpenNote"
-          @select="select"
-          @command="model.command($event)"
-        />
+        <ACard size="small"
+          ><GraphInspectorContent
+            :node="node"
+            :edge="edge"
+            :nodes="state.result?.nodes || []"
+            :busy="state.busy"
+            @close="select('')"
+            @focus="focus"
+            @open="forwardOpenNote"
+            @select="select"
+            @command="model.command($event)"
+        /></ACard>
       </aside>
     </div>
-    <SettingsOverlay
+    <GraphOverlay
       :show="!!panel"
       :title="title"
+      :description="panelDescription"
       :busy="state.busy"
       :dirty="dirty"
       :width="620"
       @update:show="panel = ''"
     >
       <div class="graph-panel">
-        <template v-if="panel === 'filters'"
-          ><label
-            >目录<select v-model="state.query.folder" @change="refresh">
-              <option :value="undefined">全部目录</option>
-              <option v-for="f in folders" :key="f">{{ f }}</option>
-            </select></label
-          ><label
-            >节点类型<select v-model="state.query.nodeKinds" multiple @change="refresh">
-              <option value="note">笔记</option>
-              <option v-for="k in graphEntityKinds" :key="k" :value="k">{{ labels[k] }}</option>
-            </select></label
-          ><label
-            >关系类型<select v-model="state.query.edgeKinds" multiple @change="refresh">
-              <option
-                v-for="k in [
-                  'reference',
-                  'mentions',
-                  'cooccurs',
-                  'similarity',
-                  'semantic',
-                  'manual',
-                ]"
-                :key="k"
-                :value="k"
-              >
-                {{ labels[k] }}
-              </option>
-            </select></label
-          ><label
-            ><input
-              v-model="state.query.includeSuggested"
-              type="checkbox"
-              @change="refresh"
-            />显示待审核候选</label
-          ><label
-            ><input
-              v-model="state.query.includeSimilarity"
-              type="checkbox"
-              @change="refresh"
-            />显示词项相似（辅助线索）</label
-          ><label
-            >最低置信度<input
-              v-model.number="state.query.minConfidence"
-              type="range"
-              min="0"
-              max="1"
-              step="0.05"
-              @change="refresh"
-            />{{ state.query.minConfidence || 0 }}</label
-          ><label
-            ><input
-              type="checkbox"
-              :checked="state.query.mode === 'orphans'"
-              @change="
-                state.query.mode = ($event.target as HTMLInputElement).checked ? 'orphans' : 'all';
-                refresh();
+        <AForm
+          name="graph-filter"
+          :model="state.query"
+          v-if="panel === 'filters'"
+          layout="vertical"
+          :required-mark="false"
+          class="graph-form"
+        >
+          <AFormItem label="目录"
+            ><DirectoryTreeSelect
+              :value="state.query.folder || ''"
+              :folders="folderOptions"
+              label="目录"
+              @update:value="
+                (value) => {
+                  state.query.folder = value || undefined;
+                  refresh();
+                }
               "
-            />仅孤立节点</label
-          >
-          <details>
-            <summary>路径与范围</summary>
-            <label
-              >节点颜色<select v-model="colorBy" @change="renderGraph">
-                <option value="type">按类型</option>
-                <option value="community">按社区</option>
-              </select></label
-            >
-            <label
-              >起点<select v-model="state.query.focus">
-                <option :value="undefined">不限</option>
-                <option v-for="n in state.result?.nodes" :key="n.id" :value="n.id">
-                  {{ n.title }}
-                </option>
-              </select></label
-            ><label
-              >终点<select v-model="state.query.target">
-                <option :value="undefined">不限</option>
-                <option v-for="n in state.result?.nodes" :key="n.id" :value="n.id">
-                  {{ n.title }}
-                </option>
-              </select></label
-            ><AButton @click="refresh">查找路径</AButton
-            ><label
-              >节点上限<input
-                v-model.number="state.query.limit"
-                type="number"
-                min="1"
-                max="1000"
+          /></AFormItem>
+          <div class="graph-form-columns">
+            <AFormItem name="nodeKinds" label="节点类型"
+              ><ASelect
+                v-model:value="state.query.nodeKinds"
+                aria-label="节点类型"
+                mode="multiple"
+                :options="nodeTypeOptions"
+                placeholder="全部类型"
+                :max-tag-count="'responsive'"
+                allow-clear
+                @change="refresh" /></AFormItem
+            ><AFormItem name="edgeKinds" label="关系类型"
+              ><ASelect
+                v-model:value="state.query.edgeKinds"
+                aria-label="关系类型"
+                mode="multiple"
+                :options="relationTypeOptions"
+                placeholder="全部关系"
+                :max-tag-count="'responsive'"
+                allow-clear
                 @change="refresh"
-            /></label></details
-        ></template>
-        <template v-else-if="panel === 'tasks'"
-          ><p>
-            {{ statusText }} · 完成 {{ state.status?.completed || 0 }} /
-            {{ state.status?.total || 0 }}
-          </p>
-          <progress :value="state.status?.completed || 0" :max="state.status?.total || 1" />
-          <p>
-            自动更新{{ state.status?.automatic ? '开启' : '关闭' }} ·
-            {{ state.status?.modelReady ? '模型已配置' : '基础分析可用；模型未就绪' }}
-          </p>
-          <div class="graph-actions">
-            <AButton
-              v-for="(label, action) in {
-                pause: '暂停',
-                resume: '继续',
-                retry: '重试失败',
-                rebuild: '重建索引',
-                cancel: '取消任务',
-              }"
-              :key="action"
-              :disabled="state.busy"
-              @click="model.job(action)"
-              >{{ label }}</AButton
+            /></AFormItem>
+          </div>
+          <AFormItem label="关系线索"
+            ><ASpace direction="vertical" :size="12"
+              ><ACheckbox v-model:checked="state.query.includeSuggested" @change="refresh"
+                >显示待审核候选</ACheckbox
+              ><ACheckbox v-model:checked="state.query.includeSimilarity" @change="refresh"
+                >显示词项相似（辅助线索）</ACheckbox
+              ><ACheckbox
+                :checked="state.query.mode === 'orphans'"
+                @update:checked="
+                  (checked) => {
+                    state.query.mode = checked ? 'orphans' : 'all';
+                    refresh();
+                  }
+                "
+                >仅孤立节点</ACheckbox
+              ></ASpace
+            ></AFormItem
+          >
+          <AFormItem name="minConfidence" label="最低置信度"
+            ><div class="graph-slider-row">
+              <ASlider
+                v-model:value="state.query.minConfidence"
+                aria-label="最低置信度"
+                aria-label-for-handle="最低置信度"
+                :min="0"
+                :max="1"
+                :step="0.05"
+                @after-change="refresh"
+              /><ATag :bordered="false"
+                >{{ Math.round((state.query.minConfidence || 0) * 100) }}%</ATag
+              >
+            </div></AFormItem
+          >
+          <ACollapse ghost
+            ><ACollapsePanel key="path" header="路径与范围"
+              ><AFormItem name="colorBy" label="节点颜色"
+                ><ASelect
+                  v-model:value="colorBy"
+                  aria-label="节点颜色"
+                  :options="[
+                    { value: 'type', label: '按类型' },
+                    { value: 'community', label: '按关系分组' },
+                  ]"
+                  @change="renderGraph"
+              /></AFormItem>
+              <div class="graph-form-columns">
+                <AFormItem name="focus" label="起点"
+                  ><ASelect
+                    v-model:value="state.query.focus"
+                    aria-label="起点"
+                    :options="availableNodeOptions"
+                    show-search
+                    option-filter-prop="label"
+                    allow-clear
+                    placeholder="选择起点" /></AFormItem
+                ><AFormItem name="target" label="终点"
+                  ><ASelect
+                    v-model:value="state.query.target"
+                    aria-label="终点"
+                    :options="availableNodeOptions"
+                    show-search
+                    option-filter-prop="label"
+                    allow-clear
+                    placeholder="选择终点"
+                /></AFormItem>
+              </div>
+              <ASpace align="end" wrap
+                ><AFormItem name="limit" label="节点上限" class="graph-inline-form-item"
+                  ><AInputNumber
+                    v-model:value="state.query.limit"
+                    aria-label="节点上限"
+                    :min="1"
+                    :max="1000"
+                    :precision="0"
+                    @change="refresh" /></AFormItem
+                ><AButton type="primary" @click="refresh">查找路径</AButton></ASpace
+              ></ACollapsePanel
+            ></ACollapse
+          >
+        </AForm>
+        <template v-else-if="panel === 'tasks'">
+          <div class="graph-task-heading">
+            <ABadge :status="statusKind" :text="statusText" /><span
+              >{{ state.status?.completed || 0 }} / {{ state.status?.total || 0 }} 份资料</span
             >
           </div>
-          <article v-for="error in state.status?.errors" :key="error.noteId">
-            <p>{{ error.title }} · {{ graphTaskErrorLabel(error.code) }}</p>
-            <details>
-              <summary>诊断详情</summary>
-              <code>{{ error.code }}</code>
-            </details>
-          </article>
-          <small>重建保留人工决定与视图。后台任务无需保持此窗口开启。</small></template
+          <AProgress
+            :percent="progressPercent"
+            :status="
+              state.status?.failed
+                ? 'exception'
+                : state.status?.state === 'running'
+                  ? 'active'
+                  : 'normal'
+            "
+          />
+          <ASpace wrap
+            ><ATag :bordered="false" :color="state.status?.automatic ? 'green' : 'default'"
+              >自动更新{{ state.status?.automatic ? '开启' : '关闭' }}</ATag
+            ><ATag :bordered="false" :color="state.status?.modelReady ? 'blue' : 'default'">{{
+              state.status?.modelReady ? '模型已配置' : '基础分析可用'
+            }}</ATag></ASpace
+          >
+          <ASpace wrap
+            ><AButton :disabled="state.busy" @click="model.job('pause')">暂停</AButton
+            ><AButton type="primary" :disabled="state.busy" @click="model.job('resume')"
+              >继续</AButton
+            ><AButton :disabled="state.busy" @click="model.job('retry')">重试失败</AButton
+            ><AButton :disabled="state.busy" @click="model.job('rebuild')">重建索引</AButton
+            ><AButton type="text" danger :disabled="state.busy" @click="model.job('cancel')"
+              >取消任务</AButton
+            ></ASpace
+          >
+          <ACollapse v-if="state.status?.errors.length" ghost
+            ><ACollapsePanel
+              v-for="error in state.status.errors"
+              :key="error.noteId"
+              :header="error.title"
+              ><AAlert type="warning" show-icon :message="graphTaskErrorLabel(error.code)" />
+              <p class="graph-diagnostic">
+                诊断代码：<code>{{ error.code }}</code>
+              </p></ACollapsePanel
+            ></ACollapse
+          >
+          <AAlert
+            type="info"
+            show-icon
+            message="重建会保留人工决定与已保存视图，后台任务无需保持此窗口开启。"
+          />
+        </template>
+        <AForm
+          name="graph-model"
+          :model="modelDraft"
+          v-else-if="panel === 'model' && draft"
+          layout="vertical"
+          :required-mark="false"
+          :disabled="state.busy"
+          class="graph-form"
         >
-        <template v-else-if="panel === 'model' && draft"
-          ><label
-            >提供方<select v-model="draft.provider">
-              <option value="none">基础本地分析（无需模型）</option>
-              <option value="ollama">Ollama</option>
-              <option value="openai-compatible">OpenAI 兼容 API</option>
-            </select></label
-          ><template v-if="draft.provider !== 'none'"
-            ><label
-              >服务地址<input v-model="draft.baseUrl" placeholder="http://127.0.0.1:11434" /></label
-            ><label
-              >模型名称<input v-model="draft.model" placeholder="输入已安装或可用模型" /></label
-            ><label
-              >API 密钥<input
-                v-model="secret"
-                type="password"
+          <AFormItem name="provider" label="提供方"
+            ><ASelect
+              v-model:value="modelDraft.provider"
+              aria-label="提供方"
+              :options="providerOptions"
+          /></AFormItem>
+          <template v-if="modelDraft.provider !== 'none'">
+            <AFormItem
+              name="baseUrl"
+              label="服务地址"
+              help="填写 DooKnow 服务器能够访问的基础地址。"
+              ><AInput
+                v-model:value="modelDraft.baseUrl"
+                aria-label="服务地址"
+                placeholder="http://127.0.0.1:11434"
+            /></AFormItem>
+            <AFormItem name="model" label="模型名称"
+              ><AInput
+                v-model:value="modelDraft.model"
+                aria-label="模型名称"
+                placeholder="输入已经安装或可用的模型"
+            /></AFormItem>
+            <AFormItem name="apiKey" label="API 密钥"
+              ><AInputPassword
+                v-model:value="secret"
+                aria-label="API 密钥"
                 autocomplete="new-password"
-                :placeholder="
-                  state.settings?.apiKeyConfigured ? '已配置；留空保留' : '选填'
-                " /></label
-            ><label v-if="state.settings?.apiKeyConfigured"
-              ><input v-model="clearKey" type="checkbox" />清除已保存密钥</label
-            ><label
-              ><input
-                v-model="draft.remoteContentAllowed"
-                type="checkbox"
-              />允许将笔记内容发送到非本机模型服务</label
-            ><small
-              >仅在明确授权后向远端发送正文；测试使用合成文本。密钥只写入本机，不回传。</small
-            ></template
-          ><label><input v-model="draft.automatic" type="checkbox" />自动分析内容变化</label>
-          <details>
-            <summary>高级参数</summary>
-            <label
-              >结构化输出<select v-model="draft.outputFormat">
-                <option value="schema">JSON Schema（默认）</option>
-                <option value="json">JSON 模式（兼容服务）</option>
-              </select></label
+                :placeholder="state.settings?.apiKeyConfigured ? '已配置，留空保留' : '选填'"
+              /><AFormItemRest
+                ><ACheckbox
+                  v-if="state.settings?.apiKeyConfigured"
+                  v-model:checked="clearKey"
+                  class="graph-clear-key"
+                  >清除已保存密钥</ACheckbox
+                ></AFormItemRest
+              ></AFormItem
             >
-            <label
-              >超时（毫秒）<input
-                v-model.number="draft.timeoutMs"
-                type="number"
-                min="1000"
-                max="120000" /></label
-            ><label
-              >单次输入字符上限<input
-                v-model.number="draft.maxInputCharacters"
-                type="number"
-                min="1000"
-                max="50000"
-            /></label>
-          </details>
-          <div class="graph-actions">
-            <AButton type="primary" :loading="state.busy" @click="saveSettings">保存设置</AButton
+            <AFormItem
+              ><ACheckbox v-model:checked="modelDraft.remoteContentAllowed"
+                >允许将笔记内容发送到非本机模型服务</ACheckbox
+              >
+              <p class="graph-field-help">
+                测试连接使用合成文本；密钥仅加密保存在本机。
+              </p></AFormItem
+            >
+          </template>
+          <AFormItem name="automatic" label="自动分析内容变化"
+            ><ASwitch
+              v-model:checked="modelDraft.automatic"
+              aria-label="自动分析内容变化"
+              checked-children="开启"
+              un-checked-children="关闭"
+          /></AFormItem>
+          <ACollapse ghost
+            ><ACollapsePanel key="advanced" header="高级参数"
+              ><AFormItem name="outputFormat" label="结构化输出"
+                ><ASelect
+                  v-model:value="modelDraft.outputFormat"
+                  aria-label="结构化输出"
+                  :options="[
+                    { value: 'schema', label: 'JSON Schema（默认）' },
+                    { value: 'json', label: 'JSON 模式（兼容服务）' },
+                  ]"
+              /></AFormItem>
+              <div class="graph-form-columns">
+                <AFormItem name="timeoutMs" label="超时（毫秒）"
+                  ><AInputNumber
+                    v-model:value="modelDraft.timeoutMs"
+                    aria-label="超时（毫秒）"
+                    :min="100"
+                    :max="120000"
+                    :step="1000"
+                    :precision="0" /></AFormItem
+                ><AFormItem name="maxInputCharacters" label="单次输入字符上限"
+                  ><AInputNumber
+                    v-model:value="modelDraft.maxInputCharacters"
+                    aria-label="单次输入字符上限"
+                    :min="100"
+                    :max="50000"
+                    :step="1000"
+                    :precision="0"
+                /></AFormItem></div></ACollapsePanel
+          ></ACollapse>
+          <ADivider /><ASpace wrap
+            ><AButton type="primary" :loading="state.busy" @click="saveSettings">保存设置</AButton
             ><AButton
               :disabled="dirty || state.busy"
               @click="
@@ -722,92 +1051,167 @@ onBeforeUnmount(() => {
                   )
               "
               >测试已保存连接</AButton
-            >
-          </div>
-          <p role="status">{{ testMessage }}</p></template
-        >
+            ></ASpace
+          >
+          <p v-if="testMessage" class="graph-feedback" role="status">{{ testMessage }}</p>
+        </AForm>
         <template v-else-if="panel === 'model'"
-          ><p role="status">正在读取模型配置…</p>
-          <AButton @click="model.initialize()">重新加载配置</AButton></template
+          ><AEmpty description="正在读取模型配置…" /><AButton @click="model.initialize()"
+            >重新加载配置</AButton
+          ></template
         >
-        <template v-else-if="panel === 'review'"
-          ><select v-model="reviewStatus" aria-label="审核状态" @change="refreshReview">
-            <option value="suggested">待审核</option>
-            <option value="accepted">已确认</option>
-            <option value="ignored">已忽略</option>
-          </select>
-          <input
-            v-model="reviewSearch"
-            type="search"
-            aria-label="搜索审核关系"
-            placeholder="搜索实体或关系"
-            @input="searchReview"
-          />
-          <p v-if="state.reviewLoading" role="status">正在加载审核关系…</p>
-          <p v-if="!state.reviewLoading && !state.reviews.length">当前没有此类关系。</p>
-          <article v-for="item in state.reviews" :key="item.id" class="graph-review">
-            <strong>{{ item.source.name }} → {{ item.target.name }}</strong
-            ><label>关系<input v-model="edits[item.id]" :placeholder="item.predicate" /></label
-            ><small>置信度 {{ Math.round(item.confidence * 100) }}%</small>
-            <blockquote v-for="ev in item.evidence" :key="ev.id">
-              {{ ev.quote
-              }}<button @click="openSource(ev)">{{ ev.title }} · L{{ ev.startLine }}</button>
-            </blockquote>
-            <div class="graph-actions">
-              <AButton
-                @click="
-                  model.command({
-                    action: 'review',
-                    id: item.id,
-                    decision: 'accept',
-                    predicate: edits[item.id] || item.predicate,
-                  })
-                "
-                >确认 / 保存</AButton
-              ><AButton
-                @click="model.command({ action: 'review', id: item.id, decision: 'ignore' })"
-                >忽略</AButton
-              ><AButton
-                v-if="reviewStatus !== 'suggested'"
-                @click="model.command({ action: 'review', id: item.id, decision: 'reset' })"
-                >恢复候选</AButton
-              >
-            </div>
-          </article>
+        <template v-else-if="panel === 'review'">
+          <div class="graph-review-toolbar">
+            <label for="graph-review-status" class="sr-only">审核状态</label>
+            <ASelect
+              id="graph-review-status"
+              v-model:value="reviewStatus"
+              aria-label="审核状态"
+              :options="[
+                { value: 'suggested', label: '待审核' },
+                { value: 'accepted', label: '已确认' },
+                { value: 'ignored', label: '已忽略' },
+              ]"
+              @change="refreshReview"
+            /><AInputSearch
+              v-model:value="reviewSearch"
+              type="search"
+              aria-label="搜索审核关系"
+              placeholder="搜索实体或关系"
+              allow-clear
+              @change="searchReview"
+              @search="refreshReview"
+            />
+          </div>
+          <AList
+            :loading="state.reviewLoading"
+            :data-source="state.reviews"
+            :locale="{ emptyText: '当前没有此类关系' }"
+            class="graph-review-list"
+          >
+            <template #renderItem="{ item }"
+              ><AListItem
+                ><ACard class="graph-review" size="small"
+                  ><template #title
+                    ><span
+                      >{{ item.source.name }}<span class="graph-inline-arrow">→</span
+                      >{{ item.target.name }}</span
+                    ></template
+                  ><template #extra
+                    ><ATag :bordered="false" color="blue"
+                      >置信分 {{ Math.round(item.confidence * 100) }}%</ATag
+                    ></template
+                  ><AForm
+                    :name="'graph-review-' + item.id"
+                    :model="{ predicate: edits[item.id] }"
+                    layout="vertical"
+                    :required-mark="false"
+                    ><AFormItem name="predicate" label="关系"
+                      ><AInput
+                        v-model:value="edits[item.id]"
+                        aria-label="关系"
+                        :placeholder="item.predicate" /></AFormItem
+                  ></AForm>
+                  <div v-for="ev in item.evidence" :key="ev.id" class="graph-evidence">
+                    <blockquote>{{ ev.quote }}</blockquote>
+                    <AButton type="link" size="small" @click="openSource(ev)"
+                      >{{ ev.title }} · L{{ ev.startLine }}</AButton
+                    >
+                  </div>
+                  <ASpace wrap
+                    ><AButton
+                      type="primary"
+                      size="small"
+                      :disabled="state.busy"
+                      @click="
+                        model.command({
+                          action: 'review',
+                          id: item.id,
+                          decision: 'accept',
+                          predicate: edits[item.id] || item.predicate,
+                        })
+                      "
+                      >确认 / 保存</AButton
+                    ><AButton
+                      size="small"
+                      :disabled="state.busy"
+                      @click="model.command({ action: 'review', id: item.id, decision: 'ignore' })"
+                      >忽略</AButton
+                    ><AButton
+                      v-if="reviewStatus !== 'suggested'"
+                      size="small"
+                      type="text"
+                      :disabled="state.busy"
+                      @click="model.command({ action: 'review', id: item.id, decision: 'reset' })"
+                      >恢复候选</AButton
+                    ></ASpace
+                  ></ACard
+                ></AListItem
+              ></template
+            >
+          </AList>
           <AButton
             v-if="state.reviewHasMore"
+            block
             :loading="state.reviewLoading"
             @click="model.review(reviewStatus, reviewSearch, true)"
             >加载更多关系</AButton
-          ></template
-        >
-        <template v-else-if="panel === 'views'"
-          ><label
-            >保存当前视图<input v-model="viewName" maxlength="100" placeholder="视图名称" /></label
-          ><AButton
-            :disabled="!viewName.trim()"
-            @click="
-              model
-                .command({ action: 'save-view', name: viewName, query: state.query })
-                .then((saved) => {
-                  if (saved) viewName = '';
-                })
-            "
-            >保存视图</AButton
           >
-          <div v-for="saved in state.user.views" :key="saved.id" class="graph-actions">
-            <AButton
-              @click="
-                state.query = JSON.parse(JSON.stringify(saved.query));
-                refresh();
-                panel = '';
-              "
-              >{{ saved.name }}</AButton
-            ><AButton @click="model.command({ action: 'delete-view', id: saved.id })">删除</AButton>
-          </div>
-          <hr />
-          <div class="graph-actions">
-            <AButton
+        </template>
+        <template v-else-if="panel === 'views'">
+          <AForm name="graph-view" :model="{ viewName }" layout="vertical" :required-mark="false"
+            ><AFormItem name="viewName" label="保存当前视图"
+              ><ASpace class="graph-save-view" :size="8"
+                ><AInput
+                  v-model:value="viewName"
+                  aria-label="保存当前视图"
+                  :maxlength="100"
+                  placeholder="为当前探索命名"
+                /><AButton
+                  type="primary"
+                  :disabled="!viewName.trim() || state.busy"
+                  @click="
+                    model
+                      .command({ action: 'save-view', name: viewName, query: state.query })
+                      .then((saved) => {
+                        if (saved) viewName = '';
+                      })
+                  "
+                  >保存视图</AButton
+                ></ASpace
+              ></AFormItem
+            ></AForm
+          >
+          <AList
+            :data-source="state.user.views"
+            :locale="{ emptyText: '尚未保存视图' }"
+            size="small"
+            ><template #renderItem="{ item }"
+              ><AListItem
+                ><AButton
+                  type="link"
+                  @click="
+                    state.query = JSON.parse(JSON.stringify(item.query));
+                    refresh();
+                    panel = '';
+                  "
+                  >{{ item.name }}</AButton
+                ><template #actions
+                  ><AButton
+                    type="text"
+                    danger
+                    size="small"
+                    :disabled="state.busy"
+                    @click="model.command({ action: 'delete-view', id: item.id })"
+                    >删除</AButton
+                  ></template
+                ></AListItem
+              ></template
+            ></AList
+          >
+          <ADivider orientation="left">导出</ADivider
+          ><ASpace wrap
+            ><AButton
               :disabled="!state.result"
               @click="
                 download(
@@ -816,49 +1220,73 @@ onBeforeUnmount(() => {
                   'application/json',
                 )
               "
-              >导出当前 JSON</AButton
-            ><AButton :disabled="!cy" @click="exportPng">导出画布 PNG</AButton>
-          </div>
-          <small>只导出当前可见、已授权的图谱结果。</small></template
-        >
-        <template v-else-if="panel === 'ask'"
-          ><p>基于{{ node?.title || '问题命中的资料' }}的有限原文证据回答。</p>
-          <label
-            >问题<textarea
-              v-model="question"
-              rows="3"
-              maxlength="2000"
-              placeholder="这些概念之间有什么联系？"
-            /></label
-          ><AButton
-            type="primary"
-            :loading="state.busy"
-            :disabled="!question.trim()"
-            @click="model.ask(question)"
-            >提问</AButton
+              ><Icon name="download" :size="15" />导出当前 JSON</AButton
+            ><AButton :disabled="!cy" @click="exportPng"
+              ><Icon name="image" :size="15" />导出画布 PNG</AButton
+            ></ASpace
           >
-          <p v-if="!state.settings || state.settings.provider === 'none'">
-            问答需要先配置模型。基础词项分析不会生成答案。
-          </p>
+          <p class="graph-field-help">只导出当前可见、已授权的图谱结果。</p>
+        </template>
+        <template v-else-if="panel === 'ask'">
+          <AAlert
+            type="info"
+            show-icon
+            :message="`根据${node?.title ? '「' + node.title + '」' : '问题命中的资料'}中的原文证据回答`"
+          />
+          <AForm
+            name="graph-question"
+            :model="{ question }"
+            layout="vertical"
+            :required-mark="false"
+            ><AFormItem name="question" label="问题"
+              ><ATextarea
+                v-model:value="question"
+                aria-label="问题"
+                :auto-size="{ minRows: 3, maxRows: 6 }"
+                :maxlength="2000"
+                show-count
+                placeholder="这些概念之间有什么联系？" /></AFormItem
+            ><AButton
+              type="primary"
+              :loading="state.busy"
+              :disabled="!question.trim() || !state.settings || state.settings.provider === 'none'"
+              @click="model.ask(question)"
+              >提问</AButton
+            ></AForm
+          >
+          <AAlert
+            v-if="!state.settings || state.settings.provider === 'none'"
+            type="warning"
+            show-icon
+            message="请先配置模型，基础词项分析不会生成答案。"
+            ><template #action
+              ><AButton type="link" size="small" @click="openPanel('model')"
+                >模型设置</AButton
+              ></template
+            ></AAlert
+          >
           <template v-if="state.answer"
-            ><p class="graph-answer">{{ state.answer.answer }}</p>
-            <article
+            ><ACard size="small" title="回答"
+              ><p class="graph-answer">{{ state.answer.answer }}</p></ACard
+            ><ADivider orientation="left">引用来源</ADivider
+            ><ACard
               v-for="ev in state.answer.evidence.filter((e) =>
                 state.answer?.citations.includes(e.id),
               )"
               :key="ev.id"
-            >
-              <blockquote>{{ ev.quote }}</blockquote>
-              <AButton @click="openSource(ev)"
+              size="small"
+              class="graph-evidence-card"
+              ><blockquote>{{ ev.quote }}</blockquote>
+              <AButton type="link" size="small" @click="openSource(ev)"
                 >{{ ev.title }} · L{{ ev.startLine }}–{{ ev.endLine }}</AButton
-              >
-            </article></template
-          ></template
-        >
-        <p v-if="state.error" class="graph-error" role="alert">{{ state.error }}</p>
-      </div></SettingsOverlay
-    >
-    <SettingsOverlay
+              ></ACard
+            ></template
+          >
+        </template>
+        <AAlert v-if="state.error" type="error" show-icon :message="state.error" />
+      </div>
+    </GraphOverlay>
+    <GraphOverlay
       :show="mobile && !!state.selectedId && !panel"
       title="图谱详情"
       kind="drawer"
@@ -874,6 +1302,6 @@ onBeforeUnmount(() => {
         @open="forwardOpenNote"
         @select="select"
         @command="model.command($event)"
-    /></SettingsOverlay>
+    /></GraphOverlay>
   </section>
 </template>
