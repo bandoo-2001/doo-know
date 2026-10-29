@@ -25,7 +25,22 @@ export interface KnowledgePort {
   operation(input: any, options?: ServiceCallOptions): Promise<any>;
   cancel(input: any, options?: ServiceCallOptions): Promise<any>;
 }
+export interface McpPermissionContext {
+  policy: import('../../shared/permissions.js').PermissionPolicy;
+  organization?: import('../../shared/organization-contracts.js').OrganizationContext;
+}
+export interface KnowledgeOrganizationPort {
+  context(options?: ServiceCallOptions): Promise<import('../../shared/organization-contracts.js').OrganizationContext>;
+  list(input: import('../../shared/organization-contracts.js').DirectoryListInput, options?: ServiceCallOptions): Promise<import('../../shared/organization-contracts.js').DirectoryPage>;
+  submit(input: import('../../shared/organization-contracts.js').OrganizeInput, options?: ServiceCallOptions): Promise<import('../../shared/organization-contracts.js').OrganizationReply>;
+  history(input: import('../../shared/organization-contracts.js').HistoryInput, options?: ServiceCallOptions): Promise<import('../../shared/organization-contracts.js').HistoryPage>;
+  undo(input: import('../../shared/organization-contracts.js').UndoOrganizationInput, options?: ServiceCallOptions): Promise<import('../../shared/organization-contracts.js').OrganizationReply>;
+  operation(input: {operationId?: string; requestId?: string}, options?: ServiceCallOptions): Promise<import('../../shared/organization-contracts.js').OrganizationOperation>;
+  cancel(input: {operationId: string}, options?: ServiceCallOptions): Promise<import('../../shared/organization-contracts.js').OrganizationOperation>;
+}
 export interface PluginServices {
+  permissions?: { context(options?: ServiceCallOptions): Promise<McpPermissionContext> };
+  knowledgeOrganization?: KnowledgeOrganizationPort;
   knowledge: KnowledgePort;
   blog?: BlogPort;
   authorization?: {

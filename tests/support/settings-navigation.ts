@@ -41,6 +41,7 @@ export async function configurePlugin(page: Page, title: string) {
   await expect(
     page.locator('.plugin-settings').getByRole('heading', { name: title + '设置', exact: true }),
   ).toBeVisible();
+  if(title==='MCP 服务')await openLegacyMcpSettings(page);
 }
 export async function returnToNotes(page: Page) {
   await page
@@ -48,4 +49,13 @@ export async function returnToNotes(page: Page) {
     .getByRole('button', { name: '返回笔记', exact: true })
     .click();
   await expect(page.locator('.settings-workspace')).toHaveCount(0);
+}
+
+/** Legacy compatibility scenarios deliberately open the v1 form. New rights use domain cards. */
+export async function openLegacyMcpSettings(page:Page){
+  const summary=page.locator('summary').filter({hasText:'旧版兼容设置'});
+  if(await summary.isVisible()){
+    const open=await summary.evaluate(element=>(element.parentElement as HTMLDetailsElement).open);
+    if(!open)await summary.click();
+  }
 }

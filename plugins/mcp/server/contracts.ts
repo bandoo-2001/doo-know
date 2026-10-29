@@ -1,13 +1,5 @@
 import { z } from "zod";
-export type Principal = {
-  id: string;
-  clientId: string;
-  scopes: string[];
-  allowedPrefixes: string[];
-  tokenIssuedAt?: number;
-  grantId?: string;
-  grantVersion?: number;
-};
+export type Principal = import('../../../shared/knowledge-contracts.js').Principal;
 export type BackendConfig = {
   baseUrl: string;
   serviceToken: string;
@@ -115,7 +107,7 @@ export const patchInput = z
     snapshotId: z.string().describe("read_note或get_note_outline返回的版本快照。"),
     expectedModifiedAt: version.describe("快照的精确版本；冲突先读取最新正文并合并草稿。"),
     expectedContentHash: hash.describe("快照原文的SHA256。"),
-    requestId: requestId.describe("一次操作的稳定ID；结果未知保留原ID及原请求。"),
+    requestId: requestId.describe("稳定操作ID；未知结果查询原ID。"),
     edits: z.array(patchEdit).min(1).max(20).describe("最多20项，旧文本与插入合计最多32KiB UTF8。"),
   })
   .strict()
@@ -184,7 +176,7 @@ export const fileOperation = z.object({
     "needs_reconciliation",
   ]),
   snapshotId: z.string().optional(),
-  result: fileResult.or(z.lazy(() => blogPost)).optional(),
+  result: fileResult.optional(),
   error: z
     .object({
       code: z.string().regex(/^[A-Z][A-Z0-9_]{0,63}$/),
@@ -192,12 +184,12 @@ export const fileOperation = z.object({
     })
     .optional(),
 });
-export const fileReply = <T extends z.ZodType>(data: T) =>
+export const fileReply = <T extends z.ZodType>(data: T, includeResult = true) =>
   z.discriminatedUnion("kind", [
     z.object({ kind: z.literal("ready"), data }),
-    z.object({ kind: z.literal("accepted"), operation: fileOperation }),
+    z.object({ kind: z.literal("accepted"), operation: includeResult ? fileOperation : fileOperation.omit({result:true}) }),
   ]);
-export const readReply = fileReply(readPage);
+export const readReply = fileReply(readPage, false);
 export const outlineReply = fileReply(
   z.object({
     snapshotId: z.string(),
@@ -212,21 +204,22 @@ export const outlineReply = fileReply(
       }),
     ),
     nextCursor: z.string().optional(),
-  }),
+  }), false,
 );
 export const createInput = z
   .object({
-    directory: z.string().min(1).max(1000).describe("授权范围内相对目录，不使用绝对路径或..。"),
+    directory: z.string().min(1).max(1000).optional().describe("兼容路径；与directoryId同传时须匹配当前路径。"),
+    directoryId: z.string().min(1).max(256).nullable().optional().describe("稳定目录ID；null为业务根目录。优先使用此字段。"),
     fileName: z.string().min(1).max(180).describe("新笔记文件名；同名冲突不会覆盖。"),
     content: inlineText.describe("完整正文，最多32768个UTF8字节。"),
-    requestId: requestId.describe("一次创建的稳定ID；结果未知先用原ID查询。"),
+    requestId: requestId.describe("稳定操作ID；未知结果查询原ID。"),
   })
-  .strict();
+  .strict().refine(v => v.directoryId !== undefined || v.directory !== undefined, "需要directoryId或directory");
 export const updateInput = z
   .object({
     content: inlineText.describe("普通编辑模式的完整替换正文，最多32KiB UTF8；大文件用patch_note。"),
     expectedModifiedAt: version.describe("读取获得的精确版本；冲突先读取最新正文并合并草稿。"),
-    requestId: requestId.describe("一次写入的稳定ID；结果未知保留原ID及原请求。"),
+    requestId: requestId.describe("稳定操作ID；未知结果查询原ID。"),
   })
   .strict();
 export const searchInput = z
@@ -328,7 +321,7 @@ export const listOutput = z
 export const refreshInput = z
   .object({
     scope: z.string().max(1000).optional().describe("授权范围内相对目录；省略使用当前授权范围。"),
-    requestId: requestId.describe("索引操作稳定ID；结果未知先按原ID查询。"),
+    requestId: requestId.describe("稳定操作ID；未知结果查询原ID。"),
   })
   .strict();
 export const refreshOutput = z
@@ -451,17 +444,47 @@ export const blogPublicationReceipt = blogPost.pick({
   omittedMetadata: z.tuple([z.literal('summary'), z.literal('category'), z.literal('tags'), z.literal('pinned'), z.literal('cover')]),
 }).strict();
 export const blogStatusReceipt = blogNoteStatus.extend({ post: blogPublicationReceipt.nullable() }).strict();
-export const mcpFileOperation = fileOperation.extend({ result: fileResult.or(blogPublicationReceipt).optional() });
+export const mcpFileOperation = fileOperation.extend({ result: fileResult.or(blogPublicationReceipt).or(z.lazy(() => organizationResult)).optional() });
 export const blogPublishInput = z.object({
   noteId: noteId.describe("已有Markdown笔记的稳定ID，不是fetch.id。"),
   expectedModifiedAt: version.describe("核对过的原文精确版本。"),
   expectedContentHash: hash.describe("核对过的原文SHA256。"),
   expectedPublicationVersion: z.number().int().nonnegative().describe("get_blog_status的发布版本，首次为0。"),
-  requestId: requestId.describe("本次显式公开发布的稳定ID；未知结果按原ID查询。"),
+  requestId: requestId.describe("稳定操作ID；未知结果查询原ID。"),
   metadata: blogMetadata.partial().optional().describe("显式公开元数据；省略字段保留已有设置。"),
 }).strict();
 export const blogUnpublishInput = z.object({
   noteId: noteId.describe("原文笔记稳定ID，不是fetch.id。"),
   expectedPublicationVersion: z.number().int().nonnegative().describe("get_blog_status返回的当前发布版本。"),
-  requestId: requestId.describe("本次撤下的稳定ID；结果未知按原ID查询。"),
+  requestId: requestId.describe("稳定操作ID；未知结果查询原ID。"),
 }).strict();
+
+// Organization receipts are separate from file patch results and never contain body/journal data.
+const objectId = z.string().min(1).max(256);
+const revision = z.string().min(1).max(256);
+export const organizationContext = z.object({
+  libraryId: objectId, bindingVersion: z.number().int().nonnegative(), structureRevision: revision,
+  inboxDirectoryId: objectId.nullable(),
+  limits: z.object({actions:z.number(),files:z.number(),directories:z.number(),bodyBytes:z.number(),assetBytes:z.number()}).strict(),
+}).strict();
+const resourceSet = z.discriminatedUnion('mode', [z.object({mode:z.literal('all')}).strict(), z.object({mode:z.literal('selected'),resources:z.array(z.object({kind:z.string().max(64),id:objectId}).strict()).max(256)}).strict()]);
+export const permissionPolicy = z.object({version:z.literal(2),domains:z.record(z.string().max(64),z.object({enabled:z.boolean(),ownerId:objectId,instanceId:objectId,actions:z.array(z.string().max(64)).max(16),resources:resourceSet}).strict())}).strict();
+export const mcpContext = z.object({policy:permissionPolicy,organization:organizationContext.optional()}).strict();
+export const directoryListInput = z.object({parentId:objectId.nullable().optional(),cursor:z.string().max(8192).optional(),limit:z.number().int().min(1).max(50).default(20)}).strict();
+export const directoryPage = z.object({libraryId:objectId,structureRevision:revision,items:z.array(z.object({id:objectId,path:z.string().max(1200),parentId:objectId.nullable(),subtreeRevision:revision,name:z.string().max(180),writable:z.boolean(),organizable:z.boolean()}).strict()).max(50),nextCursor:z.string().max(8192).optional()}).strict();
+export const organizationAction = z.discriminatedUnion('type',[
+  z.object({type:z.literal('create_directory'),parentId:objectId.nullable(),name:z.string().min(1).max(180)}).strict(),
+  z.object({type:z.literal('move_note'),noteId,toDirectoryId:objectId.nullable(),fileName:z.string().min(1).max(180),expectedModifiedAt:version,expectedContentHash:hash}).strict(),
+  z.object({type:z.literal('move_directory'),directoryId:objectId,toDirectoryId:objectId.nullable(),name:z.string().min(1).max(180),expectedSubtreeRevision:revision}).strict(),
+]);
+export const organizeInput = z.object({requestId,libraryId:objectId,expectedStructureRevision:revision,actions:z.array(organizationAction).min(1).max(50)}).strict();
+export const organizationResult = z.object({operationId:objectId,libraryId:objectId,structureRevision:revision,changes:z.array(z.object({type:z.string().max(64),id:objectId,from:z.string().max(1200).optional(),to:z.string().max(1200)}).strict()).max(50),indexState:z.enum(['pending','ready']),undoAvailable:z.boolean()}).strict();
+export const organizationOperation = fileOperation.omit({snapshotId:true,result:true}).extend({result:organizationResult.optional()}).strict();
+export const organizationReply = z.object({kind:z.literal('accepted'),operation:organizationOperation}).strict();
+export const historyInput = z.object({cursor:z.string().max(8192).optional(),limit:z.number().int().min(1).max(50).default(20)}).strict();
+export const historyPage = z.object({items:z.array(organizationOperation).max(50),nextCursor:z.string().max(8192).optional()}).strict();
+export const undoOrganizationInput = z.object({operationId:objectId,requestId}).strict();
+
+export const hostOperation = fileOperation.extend({result:fileResult.or(blogPost).or(organizationResult).optional()});
+
+export const cancelOperation = fileOperation.extend({result:fileResult.or(organizationResult).optional()});

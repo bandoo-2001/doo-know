@@ -10,13 +10,18 @@ export type KnowledgeClient = {
   blogStatus(p: Principal, input: any, options?: CallOptions): Promise<any>;
   blogPublish(p: Principal, input: any, options?: CallOptions): Promise<any>;
   blogUnpublish(p: Principal, input: any, options?: CallOptions): Promise<any>;
+  context(p: Principal,input: any,options?: CallOptions): Promise<any>;
+  directories(p: Principal,input: any,options?: CallOptions): Promise<any>;
+  organize(p: Principal,input: any,options?: CallOptions): Promise<any>;
+  organizationHistory(p: Principal,input: any,options?: CallOptions): Promise<any>;
+  undoOrganization(p: Principal,input: any,options?: CallOptions): Promise<any>;
   externalWebOriginConfigured(): boolean;
 };
 const schemas: Record<keyof KnowledgePort, z.ZodType> = {
   info: c.noteInfo, list: c.listOutput, outline: c.outlineReply, readPage: c.readReply,
   create: c.writeSummary, update: c.writeSummary, patch: c.fileReply(c.patchResult), archive: c.archiveSummary,
   search: c.searchOutput, research: c.researchObject, refresh: c.refreshOutput,
-  status: c.indexStatusOutput, operation: c.fileOperation, cancel: c.fileOperation,
+  status: c.indexStatusOutput, operation: c.hostOperation, cancel: c.hostOperation,
 };
 const writes = new Set<keyof KnowledgePort>(['create','update','patch','archive','refresh','cancel']);
 const toolNames: Record<keyof KnowledgePort, string> = {
@@ -89,5 +94,21 @@ export function hostClient(services: () => PluginServices, configuration: () => 
       return blog[name](input, options);
     }, name !== 'status', false);
   }
+  client.context = (_p, _input, options = {}) => invoke('get_mcp_context', {}, options, c.mcpContext, () => {
+    const permissions = services().permissions;
+    if (!permissions) throw new BridgeError('CAPABILITY_UNAVAILABLE',503);
+    return permissions.context(options);
+  }, false, false);
+  const organizationCalls = [
+    ['directories','list_directories','list',c.directoryPage,false],
+    ['organize','organize_library','submit',c.organizationReply,true],
+    ['organizationHistory','list_organization_history','history',c.historyPage,false],
+    ['undoOrganization','undo_organization','undo',c.organizationReply,true],
+  ] as const;
+  for (const [key,tool,method,schema,write] of organizationCalls) client[key] = (_p,input,options = {}) => invoke(tool,input,options,schema,() => {
+    const organization = services().knowledgeOrganization;
+    if (!organization) throw new BridgeError('CAPABILITY_UNAVAILABLE',503);
+    return (organization[method] as (input:any, options:CallOptions)=>Promise<unknown>)(input,options);
+  },write,false);
   return client;
 }

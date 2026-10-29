@@ -3,6 +3,7 @@ import { onMounted, onBeforeUnmount, ref, watch } from 'vue';
 import { Alert as AAlert, Button as AButton } from 'ant-design-vue';
 import type { MCPConnectionState } from '../../../shared/mcp-connection-contracts';
 import { api } from '../api';
+import MCPClientPermissions from './MCPClientPermissions.vue';
 import { pluginRegistry } from '../plugins';
 const clients = ref<MCPConnectionState['clients']>([]);
 const actionError = ref('');
@@ -83,6 +84,7 @@ watch(
     <div v-for="client in clients" :key="client.clientId" class="authorization-row">
       <strong>{{ client.clientId }}</strong
       ><span>{{ client.active ? '授权保留' : '已撤销' }}</span>
+      <MCPClientPermissions :client="client" @updated="load" />
       <AButton
         v-if="client.active && pending !== client.clientId"
         size="small"

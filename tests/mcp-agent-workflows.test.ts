@@ -17,6 +17,7 @@ const toolNames = [
   'list_notes', 'create_note', 'update_note', 'patch_note', 'archive_note',
   'refresh_index', 'index_status', 'operation_status', 'cancel_operation',
   'get_blog_status', 'publish_blog_post', 'unpublish_blog_post',
+  'get_mcp_context','list_directories','organize_library','list_organization_history','undo_organization',
 ];
 const sha256 = (text: string) => createHash('sha256').update(text).digest('hex');
 
@@ -25,14 +26,14 @@ async function workflowFixture() {
   try {
     pluginHost(f.config, f.db);
     const manifest = JSON.parse(await readFile(new URL('../plugins/mcp/manifest.json', import.meta.url), 'utf8'));
-    const capabilities = ['knowledge:read', 'knowledge:write', 'knowledge:index', 'blog:publish'];
+    const capabilities = ['knowledge:read', 'knowledge:write', 'knowledge:index', 'knowledge:archive', 'blog:read', 'blog:publish'];
     // Only fixture configuration and grants use SQL. Business outcomes below
     // must be produced by the real core through the registered MCP tools.
     f.db.prepare(`INSERT INTO platform_plugins
       (id,installed_version,installed,manifest_json,files_json,state,config_json)
       VALUES('mcp',?,1,'{}','{}','enabled',?)`).run(manifest.version,
       JSON.stringify({ readOnly: false, allowIndex: true, allowPublish: true, allowedPrefixes: ['00-Inbox'] }));
-    const grant = oauthGrantStore(f.db).approve(f.principal.id, 'agent-workflow', capabilities, ['00-Inbox']);
+    const grant = oauthGrantStore(f.db).approve(f.principal.id, 'agent-workflow', capabilities.filter(scope=>!['knowledge:archive','blog:read'].includes(scope)), ['00-Inbox']);
     const principal = { ...f.principal, scopes: [...capabilities], clientId: grant.clientId,
       grantId: grant.id, grantVersion: grant.version, tokenIssuedAt: grant.notBefore,
       tokenExpiresAt: Math.floor(Date.now() / 1000) + 300, pluginId: 'mcp' };
@@ -176,7 +177,7 @@ it('keeps immutable write receipts, rejects stale/forbidden writes, commits a pa
     f.principal.allowedPrefixes = ['00-Inbox'];
     f.principal.scopes = ['knowledge:read'];
     await f.error('update_note', { ...update, requestId: 'workflow-missing-scope' }, 'INSUFFICIENT_SCOPE');
-    f.principal.scopes = ['knowledge:read', 'knowledge:write', 'knowledge:index', 'blog:publish'];
+    f.principal.scopes = ['knowledge:read', 'knowledge:write', 'knowledge:index', 'knowledge:archive', 'blog:read', 'blog:publish'];
 
     const beforePatch = await f.readyRead(created.id);
     expect(beforePatch.content).toBe(update.content);
@@ -233,7 +234,7 @@ it('requires explicit blog publish/update/withdrawal, preserves private changes 
       expectedPublicationVersion: 0, requestId: 'workflow-publish', metadata: { slug: 'workflow-public' } };
     f.principal.scopes = ['knowledge:read', 'knowledge:write'];
     await f.error('publish_blog_post', input, 'INSUFFICIENT_SCOPE');
-    f.principal.scopes = ['knowledge:read', 'knowledge:write', 'knowledge:index', 'blog:publish'];
+    f.principal.scopes = ['knowledge:read', 'knowledge:write', 'knowledge:index', 'knowledge:archive', 'blog:read', 'blog:publish'];
     const published = (await f.ok('publish_blog_post', input)).data;
     expect(published).toMatchObject({ state: 'published', version: 1, sourceHash: sha256(content), url: null });
     expect((await f.ok('operation_status', { requestId: input.requestId })).data)

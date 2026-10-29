@@ -5,5 +5,13 @@ export function requireScope(p: Principal, scope: string) {
 }
 export function underPrefix(path: string, prefix: string) { return prefix === '' || path === prefix || path.startsWith(prefix + '/'); }
 export function authorizePath(p: Principal, path: string) {
-  if (!p.allowedPrefixes.some(prefix => underPrefix(path, prefix))) throw new BridgeError('FORBIDDEN', 403);
+  // Resource identities and live plugin ceilings are checked by host services.
+  // The signed grant can arrive before the host projects its current path ACL.
+  const grant = p.permissionPolicy?.domains.knowledge;
+  const owned = grant?.enabled && grant.ownerId === (p.ownerId || p.id);
+  const all = owned && grant.resources.mode === 'all';
+  // Raw selected-ID grants have no local path projection. Only the host can
+  // resolve current ancestry; it checks paths before each read and mutation.
+  const hostSelection = owned && grant.resources.mode === 'selected' && p.allowedPrefixes.length === 0;
+  if (!p.knowledgeAll && !all && !hostSelection && !p.allowedPrefixes.some(prefix => underPrefix(path, prefix))) throw new BridgeError('FORBIDDEN', 403);
 }

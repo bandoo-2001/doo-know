@@ -1,5 +1,7 @@
 import { defineComponent, h, ref, onMounted, onUnmounted } from 'vue';
 import { NButton, NAlert, type PluginUIApi } from '@dooknow/plugin-ui';
+import { permissionDomains, type PermissionPolicy } from '../../../shared/permissions.js';
+const describePolicy=(policy:PermissionPolicy)=>permissionDomains.filter(domain=>domain.implemented && policy.domains[domain.id]?.enabled).map(domain=>{const grant=policy.domains[domain.id];return domain.title+'：'+domain.actions.filter(action=>grant.actions.includes(action.id)).map(action=>action.title).join('、')+'（'+(grant.resources.mode==='all'?'全部业务资源':grant.resources.resources.length+' 个指定资源')+'）';}).join('；')||'当前不可访问';
 
 const styles = `
 .dooknow-mcp-settings { min-width: 0; color: var(--text, #262b36); font-size: 13px; line-height: 1.6; }
@@ -124,7 +126,7 @@ export function activate(api: PluginUIApi) {
                                   c.active ? '已授权' : '已撤销',
                                 ),
                               ]),
-                              h('p', { class: 'mcp-scopes' }, c.scopes.join(' · ')),
+                              h('p', { class: 'mcp-scopes' }, c.effectivePolicy ? describePolicy(c.effectivePolicy) : c.permissionPolicy ? '已授予：'+describePolicy(c.permissionPolicy) : c.scopes.join(' · ')),
                             ]),
                             c.active &&
                               h(

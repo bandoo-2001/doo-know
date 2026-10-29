@@ -1,4 +1,4 @@
-# DooKnow 官方插件 API 1.0
+# DooKnow 官方插件 API 1.2
 
 本文件描述已经实现的宿主合同。MCP、Git 的具体实现和发布按全量计划继续交付。
 
@@ -34,7 +34,7 @@
 
 ## MCP 官方插件
 
-`plugins/mcp` 独立构建与安装，15 个原有工具通过宿主知识端口执行；读取预算在插件激活期间共享，单次研究候选以最多两个并发读取，过期候选被略过并标明降级原因。研究引用绑定客户端授权版本，只有明确的 HTTPS 网页地址才返回网页链接。
+`plugins/mcp` 独立构建与安装，23 个有界工具通过宿主知识、权限和整理端口执行；读取预算在插件激活期间共享，单次研究候选以最多两个并发读取，过期候选被略过并标明降级原因。研究引用绑定客户端授权版本，只有明确的 HTTPS 网页地址才返回网页链接。
 
 公开 `/mcp` 只接受标准 OAuth 的短期令牌。宿主提供 DCR、Authorization Code、PKCE S256、资源发现、主人同意及本地授权版本检查。`oauth / tunnel / both` 三种模式显式选择；没有可达的 HTTPS 授权站点时，界面显示条件未满足。
 
@@ -43,6 +43,18 @@ Tunnel 使用独立的 loopback 监听端口、Bearer 密钥和本地授权记�
 调用观察最多保留 500 条元数据，分页 50 条，不记录工具参数、查询、正文或令牌。撤销先禁用本地授权版本，再清理 provider 的令牌记录；清理失败会返回 `cleanupPending`，旧授权仍立即失效。Web 主人的连接管理能力只在 Web 通道提供，外部工具调用不能管理授权。
 
 构建单独插件：`node scripts/build-plugins.mjs <产物目录>`；制品包括预构建服务端、共享宿主 Vue 的浏览器 ESM 和清单。发行构建时用真实私有制品源生成目录地址。
+
+## 分域权限与整理端口（API 1.2）
+
+MCP 1.2.0 要求宿主 API `^1.2.0`。新增宿主能力 `knowledge:organize`、`knowledge:archive` 和 `blog:read`，原有 KnowledgePort 保持兼容。业务权限由宿主注册表定义；待办尚未实现，不允许请求或开启。博客发布依赖 `knowledge:read` 和 `blog:publish`，不需要知识库写入；发布状态另需 `blog:read`。旧连接的历史归档、博客查看语义由宿主持久化 v1 标记适配，插件不根据客户端输入猜测版本。
+
+可选 `PluginServices.permissions.context(options?)` 只返回调用者的 `{policy,organization?}`；`policy` 是绑定 owner 和域实例的 v2 策略，`organization` 包含 libraryId、结构版本及预算。选定资源使用稳定目录/笔记/文章 ID，`all` 仅表示同一业务实例的全部资源。
+
+可选 `PluginServices.knowledgeOrganization` 提供 `context/list/submit/history/undo/operation/cancel`。方法接收 `shared/organization-contracts.ts` 的类型及 deadline/signal，主体由宿主绑定。MCP 工具为 `get_mcp_context`、`list_directories`、`organize_library`、`list_organization_history`、`undo_organization`。普通状态及取消工具也支持整理收据。缺少新服务明确返回 `CAPABILITY_UNAVAILABLE`，不会退回原始文件操作。
+
+`create_note` 可使用 `directoryId`；null 明确表示业务根目录，省略时保留旧 directory 路径输入，同时提供二者时宿主校验当前路径一致。整理每次最多50个显式动作，目录列表默认20/最多50项；完整请求128KiB，完整工具发现及JSON-RPC响应64KiB。accepted仅表示有后台任务；成功须查询succeeded，索引状态单独报告。
+
+插件策略保存为 `permissionPolicy`，主设置页按域提供能力预设及全部/指定资源范围。未升级配置保留折叠的旧版兼容表单，查看页面不把旧选区变成all。缩小上限立即生效；扩大上限不改变已有客户端授权。OAuth重新发起授权，Tunnel通过设置页明确检查并保存新授权。连接详情显示已授予/当前生效策略并允许收窄或撤销。
 
 ## Git 官方插件与写入协调
 

@@ -154,7 +154,7 @@ it('discovers strict schemas and instructions within the complete JSON-RPC frame
     const frame = await session.raw({ jsonrpc: '2.0', id: '\0'.repeat(128), method: 'tools/list', params: {} });
     expect(Buffer.byteLength(JSON.stringify(frame))).toBeLessThanOrEqual(65536);
     const tools = (frame as any).result.tools;
-    expect(tools).toHaveLength(18);
+    expect(tools).toHaveLength(23);
     const info = tools.find((tool: any) => tool.name === 'get_note_info');
     expect(info.inputSchema.additionalProperties).toBe(false);
     expect(info.inputSchema.properties.noteId.description).toEqual(expect.any(String));

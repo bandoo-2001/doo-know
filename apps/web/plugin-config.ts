@@ -18,9 +18,10 @@ export class PluginConfigError extends Error {
 }
 
 export function createPluginDraft(plugin: PluginView): PluginConfigDraft {
-  const values: Record<string, any> = { ...plugin.config };
+  const values: Record<string, any> = JSON.parse(JSON.stringify(plugin.config));
   for (const [key, schema] of Object.entries(plugin.manifest.configSchema.properties || {})) {
     const field = schema as any;
+    if (plugin.id === 'mcp' && key === 'permissionPolicy') continue;
     if (field.writeOnly) values[key] = '';
     else if (plugin.id === 'mcp' && key === 'allowedPrefixes' && field.type === 'array')
       values[key] = (values[key] ?? field.default ?? []).join('\n');
@@ -73,6 +74,7 @@ export function serializePluginDraft(draft: PluginConfigDraft, plugin: PluginVie
   const values = { ...draft.values };
   for (const [key, schema] of Object.entries(plugin.manifest.configSchema.properties || {})) {
     const field = schema as any;
+    if (plugin.id === 'mcp' && key === 'permissionPolicy') continue;
     if (field.writeOnly && values[key] === '') delete values[key];
     else if (plugin.id === 'mcp' && key === 'allowedPrefixes' && field.type === 'array') {
       const entries = String(values[key]).split(/\r?\n/);

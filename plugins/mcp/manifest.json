@@ -1,7 +1,7 @@
 {
   "id": "mcp",
-  "version": "1.1.1",
-  "apiVersion": "^1.1.0",
+  "version": "1.2.0",
+  "apiVersion": "^1.2.0",
   "title": "MCP 服务",
   "description": "让 ChatGPT 通过授权连接知识库，查看连接与调用状态。",
   "server": "server/index.mjs",
@@ -9,7 +9,10 @@
   "capabilities": [
     "knowledge:read",
     "knowledge:write",
+    "knowledge:organize",
+    "knowledge:archive",
     "knowledge:index",
+    "blog:read",
     "blog:publish",
     "protocol:mcp"
   ],
@@ -90,6 +93,24 @@
         "description": "可选的 HTTPS Tunnel 地址；用于兼容文档和 Host 检查。",
         "default": "",
         "maxLength": 2048
+      },
+      "permissionPolicy": {
+        "type": "object",
+        "title": "分域权限",
+        "description": "按业务域设置操作和稳定资源范围；扩大上限后，已有客户端仍需重新授权。",
+        "additionalProperties": false,
+        "required": [
+          "version",
+          "domains"
+        ],
+        "properties": {
+          "version": {
+            "const": 2
+          },
+          "domains": {
+            "type": "object"
+          }
+        }
       }
     }
   },
