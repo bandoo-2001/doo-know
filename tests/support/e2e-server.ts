@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { createServer } from 'vite';
 import { createApp } from '../../apps/server/app.js';
+import { graphModelFixture } from './graph-model-fixture.js';
 import { initializeOwner } from '../../apps/server/auth.js';
 import { testPassword } from './credentials.js';
 import { pathToFileURL } from 'node:url';
@@ -23,6 +24,7 @@ let shutdownRequested = false;
 let initializationFinished = false;
 let app: Awaited<ReturnType<typeof createApp>> | undefined;
 let vite: Awaited<ReturnType<typeof createServer>> | undefined;
+let graphModel: Awaited<ReturnType<typeof graphModelFixture>> | undefined;
 let teardownPromise: Promise<void> | undefined;
 async function listenFrontend(port: number) {
   await new Promise<void>((resolve, reject) => {
@@ -48,6 +50,7 @@ function teardown() {
       }),
       vite?.close(),
       app?.close(),
+      graphModel?.close(),
     ]);
     await rm(root, { recursive: true, force: true });
     const errors = results
@@ -73,6 +76,9 @@ for (const signal of ['SIGINT', 'SIGTERM'])
     if (initializationFinished) void shutdown();
   });
 async function initialize() {
+  const webPort = Number(process.env.DOOKNOW_E2E_WEB_PORT || 4179);
+  const apiPort = Number(process.env.DOOKNOW_E2E_API_PORT || 4180);
+  if (process.env.DOOKNOW_E2E_GRAPH_MODEL === '1') graphModel = await graphModelFixture();
   const gitOnboarding = process.env.DOOKNOW_E2E_GIT_ONBOARDING === '1';
   const gitImportParent = join(root, 'imported-libraries');
   const gitImportContent = '# 从隔离远端克隆的原文\n\n这份资料只存在于浏览器测试夹具中。\n';
@@ -104,19 +110,6 @@ async function initialize() {
     git('-C', seed, 'commit', '-m', 'Seed isolated onboarding repository');
     git('-C', seed, 'push', '--', gitRemoteRoot, 'main');
   }
-  await writeFile(
-    '.local/e2e-config.json',
-    JSON.stringify({
-      knowledgeRoot,
-      dataRoot,
-      gitRemoteURL,
-      gitRemoteRoot,
-      gitExternalRoot,
-      gitOnboarding,
-      gitImportParent,
-      gitImportContent,
-    }),
-  );
   if (shutdownRequested) return;
   let searchDistribution: any;
   if (process.env.DOOKNOW_E2E_SEARCH_RUNTIME === '1') {
@@ -140,7 +133,7 @@ async function initialize() {
   // Lifecycle tests own both listeners. Keep the Playwright defaults unchanged,
   // while port 0 reserves a frontend socket before constructing the auth origin.
   const isolatedPort = process.env.DOOKNOW_E2E_PORT;
-  let frontendPort = 4179;
+  let frontendPort = webPort;
   if (isolatedPort !== undefined && process.env.DOOKNOW_E2E_PRODUCTION !== '1') {
     const requestedPort = Number(isolatedPort);
     if (!Number.isInteger(requestedPort) || requestedPort < 0 || requestedPort > 65535)
@@ -149,6 +142,22 @@ async function initialize() {
     await listenFrontend(requestedPort);
     frontendPort = (frontend.address() as { port: number }).port;
   }
+  const origin = 'http://127.0.0.1:' + frontendPort;
+  await writeFile(
+    '.local/e2e-config.json',
+    JSON.stringify({
+      origin,
+      graphModelURL: graphModel?.url,
+      knowledgeRoot,
+      dataRoot,
+      gitRemoteURL,
+      gitRemoteRoot,
+      gitExternalRoot,
+      gitOnboarding,
+      gitImportParent,
+      gitImportContent,
+    }),
+  );
   const config = {
     ...(gitOnboarding ? { allowedKnowledgeBases: [gitImportParent] } : { knowledgeRoot }),
     dataRoot,
@@ -161,7 +170,7 @@ async function initialize() {
         }
       : {}),
     secret: 'e2e-only-at-least-thirty-two-character-secret',
-    origin: 'http://127.0.0.1:' + frontendPort,
+    origin,
     pluginCatalog: [
       await pluginFixture(root),
       ...(await buildPlugins({
@@ -206,7 +215,7 @@ async function initialize() {
   }
   await app.listen({
     host: '127.0.0.1',
-    port: process.env.DOOKNOW_E2E_PRODUCTION === '1' ? 4179 : isolatedPort !== undefined ? 0 : 4180,
+    port: process.env.DOOKNOW_E2E_PRODUCTION === '1' ? webPort : isolatedPort !== undefined ? 0 : apiPort,
   });
   if (shutdownRequested) return;
   const login = await app.inject({

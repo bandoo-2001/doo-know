@@ -8,7 +8,7 @@ export function registerKnowledgeReadBarrier(app: FastifyInstance, db: AppDataba
     const path = request.url.split('?')[0];
     const readsKnowledge =
       request.method === 'GET' || request.method === 'HEAD'
-        ? /^\/api\/(?:tree|notes|assets|search|collections|index|trash|public)(?:\/|$)/.test(
+        ? /^\/api\/(?:tree|notes|assets|search|collections|graph|index|trash|public)(?:\/|$)/.test(
             path,
           ) || /^\/api\/agent\/v1\/(?:notes|index|search)(?:\/|$)/.test(path)
         : request.method === 'POST' &&

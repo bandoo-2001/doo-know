@@ -30,10 +30,10 @@ export const test = base.extend<{ _authBudget: void; sourceEditorPreference: boo
       }
       if (sourceEditorPreference) {
         if (!ownerId) throw Error('Source preference requires the isolated fixture owner');
-        await context.addInitScript(({ key }) => {
-          if (location.origin === 'http://127.0.0.1:4179' && localStorage.getItem(key) === null)
+        await context.addInitScript(({ key, origin }) => {
+          if (location.origin === origin && localStorage.getItem(key) === null)
             localStorage.setItem(key, JSON.stringify({ editorKind: 'source', mode: 'edit' }));
-        }, { key: 'dooknow.preferences.v1:' + encodeURIComponent(ownerId) });
+        }, { key: 'dooknow.preferences.v1:' + encodeURIComponent(ownerId), origin: config.origin || 'http://127.0.0.1:4179' });
       }
       await use();
     },
