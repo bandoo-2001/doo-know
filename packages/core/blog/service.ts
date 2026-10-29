@@ -119,6 +119,8 @@ function actor(p: Principal, publication = false) {
     if (!publication) throw new BlogError(403, '未授予博客草稿编辑权限', { code: 'FORBIDDEN' });
     requireScope(p, 'blog:publish');
   } else {
+    if (p.permissionCeiling && !publication)
+      throw new BlogError(403, '未授予博客草稿编辑权限', { code: 'FORBIDDEN' });
     requireScope(p, 'knowledge:write');
     if (publication) requireScope(p, 'blog:publish');
   }
@@ -136,7 +138,13 @@ export function blogService(config: AppConfig, db: AppDatabase, notes: NoteServi
       ? (db.prepare('SELECT * FROM blog_versions WHERE id=?').get(id) as VersionRow | undefined)
       : undefined;
   const settings = (_p?: Principal): BlogSettings => {
-    if (_p) { requireScope(_p, 'knowledge:read'); if (_p.policyVersion === 2) { requireScope(_p, 'blog:read'); authorizeDomainResource(_p, 'blog', 'read'); } }
+    if (_p) {
+      requireScope(_p, 'knowledge:read');
+      if (_p.policyVersion === 2 || _p.permissionCeiling) {
+        requireScope(_p, 'blog:read');
+        authorizeDomainResource(_p, 'blog', 'read');
+      }
+    }
     return JSON.parse(
       (
         db.prepare('SELECT settings_json FROM blog_settings WHERE id=1').get() as {
@@ -218,7 +226,10 @@ export function blogService(config: AppConfig, db: AppDatabase, notes: NoteServi
   }
   function noteStatus(p: Principal, noteId: string): BlogNoteStatus {
     requireScope(p, 'knowledge:read');
-    if (p.policyVersion === 2) { requireScope(p, 'blog:read'); authorizeDomainResource(p, 'blog', 'read', rowByNote(noteId)?.id); }
+    if (p.policyVersion === 2 || p.permissionCeiling) {
+      requireScope(p, 'blog:read');
+      authorizeDomainResource(p, 'blog', 'read', rowByNote(noteId)?.id);
+    }
     const { n, hash } = source(p, noteId),
       r = rowByNote(noteId);
     return {
@@ -440,7 +451,10 @@ export function blogService(config: AppConfig, db: AppDatabase, notes: NoteServi
   }
   function postDetail(p: Principal, id: string): BlogPostDetail {
     requireScope(p, 'knowledge:read');
-    if (p.policyVersion === 2) { requireScope(p, 'blog:read'); authorizeDomainResource(p, 'blog', 'read', id); }
+    if (p.policyVersion === 2 || p.permissionCeiling) {
+      requireScope(p, 'blog:read');
+      authorizeDomainResource(p, 'blog', 'read', id);
+    }
     const r = row(id);
     authorizeBlogPath(p, notes.row(r.source_note_id, true).path);
     let sourceContent = '';
@@ -547,7 +561,7 @@ export function blogService(config: AppConfig, db: AppDatabase, notes: NoteServi
     query: { limit?: unknown; query?: unknown; cursor?: unknown } = {},
   ): BlogDashboard {
     requireScope(p, 'knowledge:read');
-    if (p.policyVersion === 2) requireScope(p, 'blog:read');
+    if (p.policyVersion === 2 || p.permissionCeiling) requireScope(p, 'blog:read');
     const limit = query.limit == null ? 30 : Number(query.limit);
     if (!Number.isInteger(limit) || limit < 1 || limit > 100)
       throw new BlogError(400, '分页大小不正确');
@@ -759,7 +773,10 @@ export function blogService(config: AppConfig, db: AppDatabase, notes: NoteServi
     return a;
   }
   function previewResource(p: Principal, id: string, hash: string) {
-    if (p.policyVersion === 2) { requireScope(p, 'blog:read'); authorizeDomainResource(p, 'blog', 'read', id); }
+    if (p.policyVersion === 2 || p.permissionCeiling) {
+      requireScope(p, 'blog:read');
+      authorizeDomainResource(p, 'blog', 'read', id);
+    }
     const r = row(id),
       { n } = source(p, r.source_note_id),
       capture = capturePublication(
@@ -779,7 +796,7 @@ export function blogService(config: AppConfig, db: AppDatabase, notes: NoteServi
   }
   function operationStatus(p: Principal, key: { operationId?: string; requestId?: string }) {
     requireScope(p, 'knowledge:read');
-    if (p.policyVersion === 2) requireScope(p, 'blog:read');
+    if (p.policyVersion === 2 || p.permissionCeiling) requireScope(p, 'blog:read');
     if (!key || !!key.operationId === !!key.requestId)
       throw new BlogError(400, '只提供一种操作标识');
     const op = findOperation(db, p, { id: key.operationId, requestId: key.requestId });

@@ -14,6 +14,8 @@ export type Principal = {
   credentialRef?: string;
   /** Host-produced policy; authorization format is independent of grantVersion. */
   permissionPolicy?: PermissionPolicy;
+  /** Live host ceiling for persisted v1 grants; does not change their authorization format. */
+  permissionCeiling?: PermissionPolicy;
   policyVersion?: 1 | 2;
   knowledgeAll?: boolean;
   knowledgeResourcePaths?: { kind: string; id: string; path: string }[];

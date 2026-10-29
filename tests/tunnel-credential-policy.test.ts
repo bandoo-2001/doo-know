@@ -100,10 +100,6 @@ it('keeps migrated identity without implicit scope expansion and preserves it ac
       tunnelPrincipal(db, owner, { reference: 'old', createdAt: Date.now(), authGeneration: 0 })
         .scopes,
     ).not.toContain('knowledge:write');
-    oauthGrantStore(db).revoke(owner, 'legacy-client');
-    expect(() =>
-      tunnelPrincipal(db, owner, { reference: 'old', createdAt: Date.now(), authGeneration: 0 }),
-    ).toThrow();
     const rotated = tunnelPrincipal(db, owner, {
       reference: 'new',
       createdAt: Date.now(),
@@ -115,6 +111,13 @@ it('keeps migrated identity without implicit scope expansion and preserves it ac
       credentialRef: 'new',
     });
     expect(rotated.tokenIssuedAt).toBeGreaterThan(issued);
+    oauthGrantStore(db).revoke(owner, 'legacy-client');
+    expect(() =>
+      tunnelPrincipal(db, owner, { reference: 'old', createdAt: Date.now(), authGeneration: 0 }),
+    ).toThrow();
+    expect(() =>
+      tunnelPrincipal(db, owner, { reference: 'third', createdAt: Date.now(), authGeneration: 0 }),
+    ).toThrow();
   } finally {
     db.close();
     await f.close();

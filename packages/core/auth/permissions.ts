@@ -194,7 +194,11 @@ export function projectPermissionPrincipal(
   for (const [domain, grant] of Object.entries(policy.domains))
     grant.actions = grant.actions.filter((action) => p.scopes.includes(`${domain}:${action}`));
   const blog = policy.domains.blog;
-  if (blog && blog.instanceId !== currentBlogInstanceId(db)) delete policy.domains.blog;
+  if (
+    blog &&
+    (blog.instanceId !== currentBlogInstanceId(db) || blog.ownerId !== (p.ownerId || p.id))
+  )
+    delete policy.domains.blog;
   const grant = policy.domains.knowledge;
   const library = currentLibraryIdentity(db);
   const available =
@@ -214,6 +218,7 @@ export function projectPermissionPrincipal(
   return {
     ...p,
     permissionPolicy: policy,
+    permissionCeiling: undefined,
     policyVersion: 2,
     scopes: policyScopes(policy),
     knowledgeResourcePaths: refs,
@@ -227,8 +232,9 @@ export function authorizeDomainResource(
   action: string,
   resourceId?: string,
 ): void {
-  if (p.policyVersion !== 2) return;
-  const grant = p.permissionPolicy?.domains[domain];
+  const policy = p.policyVersion === 2 ? p.permissionPolicy : p.permissionCeiling;
+  if (!policy && p.policyVersion !== 2) return;
+  const grant = policy?.domains[domain];
   if (!grant?.enabled || grant.ownerId !== (p.ownerId || p.id) || !grant.actions.includes(action))
     fail(403, 'FORBIDDEN');
   if (
@@ -296,6 +302,9 @@ export function permissionPolicyForPrincipal(db: AppDatabase, p: Principal): Per
       resources: p.knowledgeAll ? { mode: 'all' } : { mode: 'selected', resources: selected },
     };
   }
-  return { version: 2, domains };
+  const displayed: PermissionPolicy = { version: 2, domains };
+  return p.permissionCeiling
+    ? intersectPermissionPolicies(displayed, p.permissionCeiling, resourceContains(db))
+    : displayed;
 }
 export const legacyPermissionPolicy = permissionPolicyForPrincipal;

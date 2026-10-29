@@ -114,7 +114,7 @@ export function authorizeMcpTunnel(db: AppDatabase, ownerId: string, input: any 
       const ceiling = normalizePermissionPolicy(config.permissionPolicy);
       const policy = subset(db, input?.permissionPolicy ?? ceiling, ceiling);
       const grants = oauthGrantStore(db),
-        old = grants.list(ownerId).find((g) => g.clientId === identity.client_id && g.active);
+        old = grants.list(ownerId).find((g) => g.clientId === identity.client_id);
       if (!old) fail(403, 'OAUTH_GRANT_REVOKED');
       expectedVersion(input?.expectedGrantVersion, old.version);
       const next = grants.approveV2(ownerId, identity.client_id, policy, identity.issued_at);

@@ -158,6 +158,7 @@ export function platformPolicy(db: AppDatabase, p: Principal): Principal | undef
     }
     return projectPermissionPrincipal(db, p, policy);
   }
+  let permissionCeiling: PermissionPolicy | undefined;
   let scopes: string[] = JSON.parse(grant.scopes_json);
   let prefixes = resolveLegacyPrefixes(
     db,
@@ -168,8 +169,13 @@ export function platformPolicy(db: AppDatabase, p: Principal): Principal | undef
     if (config.permissionPolicy) {
       const ceiling = normalizePermissionPolicy(config.permissionPolicy);
       // A v1 client remains a path selection even after plugin policy upgrades.
-      const allowed = projectPermissionPrincipal(db, p, ceiling);
-      scopes = scopes.filter((scope) => policyScopes(ceiling).includes(scope));
+      const allowed = projectPermissionPrincipal(
+        db,
+        { ...p, scopes: legacyScopes(scopes, p.scopes) },
+        ceiling,
+      );
+      permissionCeiling = allowed.permissionPolicy;
+      scopes = scopes.filter((scope) => allowed.scopes.includes(scope));
       if (!allowed.knowledgeAll)
         prefixes = prefixes.flatMap((a) =>
           allowed.allowedPrefixes.flatMap((b) =>
@@ -194,9 +200,9 @@ export function platformPolicy(db: AppDatabase, p: Principal): Principal | undef
     }
   }
   let effectiveScopes = legacyScopes(scopes, p.scopes);
-  if (config?.permissionPolicy)
+  if (permissionCeiling)
     effectiveScopes = effectiveScopes.filter((scope) =>
-      policyScopes(normalizePermissionPolicy(config.permissionPolicy)).includes(scope),
+      policyScopes(permissionCeiling).includes(scope),
     );
   const library = currentLibraryIdentity(db);
   const refs = library
@@ -217,6 +223,7 @@ export function platformPolicy(db: AppDatabase, p: Principal): Principal | undef
     ...p,
     policyVersion: 1,
     permissionPolicy: undefined,
+    permissionCeiling,
     scopes: effectiveScopes,
     knowledgeResourcePaths: refs,
     knowledgeAll: false,

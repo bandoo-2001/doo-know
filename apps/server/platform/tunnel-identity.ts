@@ -60,18 +60,20 @@ export function tunnelPrincipal(
       const previous = db
         .prepare('SELECT * FROM platform_grants WHERE owner_id=? AND client_id=?')
         .get(owner, identity.client_id) as any;
-      if (previous && !reference && !rotated) fail(401, 'UNAUTHORIZED');
-      if (!reference || rotated) {
-        // Credential rotation preserves previously approved rights. Configuration
-        // changes are live ceilings, never implicit client reauthorization.
-        if (previous) {
-          reference = previous.policy_version === 2
-            ? grants.approveV2(owner, identity.client_id, JSON.parse(previous.policy_json), identity.issued_at).reference
-            : grants.approve(owner, identity.client_id, JSON.parse(previous.scopes_json), JSON.parse(previous.prefixes_json), identity.issued_at).reference;
-        } else reference = policy.permissionPolicy
-          ? grants.approveV2(owner, identity.client_id, policy.permissionPolicy, identity.issued_at).reference
-          : grants.approve(owner, identity.client_id, scopes, policy.allowedPrefixes, identity.issued_at).reference;
-      }
+      if (previous && !reference) fail(401, 'UNAUTHORIZED');
+      // Credential rotation changes credential evidence, never the approved grant
+      // or its stable selection bindings. Revoked grants require an owner action.
+      if (!reference)
+        reference = policy.permissionPolicy
+          ? grants.approveV2(owner, identity.client_id, policy.permissionPolicy, identity.issued_at)
+              .reference
+          : grants.approve(
+              owner,
+              identity.client_id,
+              scopes,
+              policy.allowedPrefixes,
+              identity.issued_at,
+            ).reference;
       const grant = grants.requireExact(reference!, owner, identity.client_id, []);
       const principal: Principal = {
         id: identity.principal_id,

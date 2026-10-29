@@ -92,8 +92,15 @@ export function authorizationCutoff(db: AppDatabase) {
   );
 }
 export function checkTokenCutoff(db: AppDatabase, p: Principal) {
-  if (p.tokenExpiresAt != null && (!Number.isInteger(p.tokenExpiresAt) || p.tokenExpiresAt <= Math.floor(Date.now() / 1000))) fail(401, 'UNAUTHORIZED');
-  if (p.authGeneration != null) { if(p.authGeneration !== remoteAuthGeneration(db)) fail(401,'UNAUTHORIZED'); return; }
+  if (
+    p.tokenExpiresAt != null &&
+    (!Number.isInteger(p.tokenExpiresAt) || p.tokenExpiresAt <= Math.floor(Date.now() / 1000))
+  )
+    fail(401, 'UNAUTHORIZED');
+  if (p.authGeneration != null) {
+    if (p.authGeneration !== remoteAuthGeneration(db)) fail(401, 'UNAUTHORIZED');
+    return;
+  }
   const cutoff = authorizationCutoff(db);
   if (
     cutoff &&
@@ -107,10 +114,13 @@ export function checkTokenCutoff(db: AppDatabase, p: Principal) {
 }
 export function requireScope(p: Principal, scope: string) {
   if (!isResourceScope(scope) || !p.scopes.includes(scope)) fail(403, 'FORBIDDEN');
-  if (p.policyVersion === 2) {
+  if (p.policyVersion === 2 || p.permissionCeiling) {
     const [domain, action] = scope.split(':');
-    const grant = p.permissionPolicy?.domains[domain];
-    if (!grant?.enabled || grant.ownerId !== (p.ownerId || p.id) || !grant.actions.includes(action)) fail(403, 'FORBIDDEN');
+    const grant = (p.policyVersion === 2 ? p.permissionPolicy : p.permissionCeiling)?.domains[
+      domain
+    ];
+    if (!grant?.enabled || grant.ownerId !== (p.ownerId || p.id) || !grant.actions.includes(action))
+      fail(403, 'FORBIDDEN');
   }
 }
 export function authorizePath(p: Principal, path: string, scope = 'knowledge:read') {

@@ -503,3 +503,331 @@ it('a missing legacy selection never binds a later same-path directory', async (
     await f.close();
   }
 });
+
+it('a persisted v1 publisher obeys the v2 blog article selection ceiling', async () => {
+  const { pluginRuntimeFixture } = await import('./support/plugin-runtime.js');
+  const { syncDirectoryCatalog } = await import('../packages/core/organization/catalog.js');
+  const f = await pluginRuntimeFixture();
+  pluginHost(f.config, f.db);
+  try {
+    const owner = f.principal.id,
+      blog = f.platform.get().blog,
+      k = f.platform.get().knowledge;
+    const { libraryId } = syncDirectoryCatalog(f.config, f.db);
+    const signedScopes = ['knowledge:read', 'knowledge:write', 'blog:publish'];
+    const publisher = { ...f.principal, scopes: signedScopes };
+    const source = k.core.create(
+      f.principal,
+      '00-Inbox',
+      'legacy-selected.md',
+      '# private legacy source',
+      'legacy-selected-create',
+    );
+    const status = blog.noteStatus(publisher, source.id);
+    const post = blog.publishNote(publisher, {
+      noteId: source.id,
+      expectedModifiedAt: status.source.modifiedAt,
+      expectedContentHash: status.source.contentHash,
+      expectedPublicationVersion: 0,
+      requestId: 'legacy-selected-publish',
+    });
+    const second = k.core.create(
+      f.principal,
+      '00-Inbox',
+      'legacy-new.md',
+      '# unpublished source',
+      'legacy-new-create',
+    );
+    const secondStatus = blog.noteStatus(publisher, second.id);
+    const ceiling: PermissionPolicy = {
+      version: 2,
+      domains: {
+        knowledge: {
+          enabled: true,
+          ownerId: owner,
+          instanceId: libraryId,
+          actions: ['read', 'write', 'organize', 'archive'],
+          resources: { mode: 'all' },
+        },
+        blog: {
+          enabled: true,
+          ownerId: owner,
+          instanceId: policies.currentBlogInstanceId(f.db),
+          actions: ['read', 'publish'],
+          resources: { mode: 'selected', resources: [] },
+        },
+      },
+    };
+    f.db
+      .prepare(
+        "INSERT INTO platform_plugins(id,installed_version,installed,manifest_json,files_json,state,config_json) VALUES('mcp','1.2.0',1,'{}','{}','enabled',?)",
+      )
+      .run(JSON.stringify({ permissionPolicy: ceiling }));
+    const g = oauthGrantStore(f.db).approve(owner, 'legacy-selected-blog', signedScopes, [
+      '00-Inbox',
+    ]);
+    const actor = {
+      id: owner,
+      clientId: g.clientId,
+      scopes: signedScopes,
+      allowedPrefixes: g.allowedPrefixes,
+      grantId: g.id,
+      grantVersion: g.version,
+      tokenIssuedAt: g.notBefore,
+      pluginId: 'mcp',
+    };
+    const denied = platformPolicy(f.db, actor)!;
+    expect(() => blog.noteStatus(denied, source.id)).toThrow();
+    expect(() =>
+      blog.unpublishNote(denied, {
+        noteId: source.id,
+        expectedPublicationVersion: post.version,
+        requestId: 'legacy-selected-denied',
+      }),
+    ).toThrow();
+    expect(blog.dashboard(denied).posts).toEqual([]);
+    expect(() =>
+      blog.publishNote(denied, {
+        noteId: second.id,
+        expectedModifiedAt: secondStatus.source.modifiedAt,
+        expectedContentHash: secondStatus.source.contentHash,
+        expectedPublicationVersion: 0,
+        requestId: 'legacy-selected-new-denied',
+      }),
+    ).toThrow();
+    expect(f.db.prepare('SELECT state FROM blog_posts WHERE id=?').get(post.id)).toEqual({
+      state: 'published',
+    });
+    expect(
+      f.db.prepare('SELECT 1 FROM blog_posts WHERE source_note_id=?').get(second.id),
+    ).toBeUndefined();
+    ceiling.domains.blog.resources = {
+      mode: 'selected',
+      resources: [{ kind: 'post', id: post.id }],
+    };
+    f.db
+      .prepare("UPDATE platform_plugins SET config_json=? WHERE id='mcp'")
+      .run(JSON.stringify({ permissionPolicy: ceiling }));
+    const allowed = platformPolicy(f.db, actor)!;
+    expect(allowed.policyVersion).toBe(1);
+    expect(allowed.knowledgeAll).toBe(false);
+    expect(allowed.scopes).not.toContain('knowledge:organize');
+    expect(blog.noteStatus(allowed, source.id).post?.id).toBe(post.id);
+    const context = policies.permissionPolicyForPrincipal(f.db, allowed);
+    expect(context.domains.blog.resources).toEqual({
+      mode: 'selected',
+      resources: [{ kind: 'post', id: post.id }],
+    });
+    expect(
+      blog.unpublishNote(allowed, {
+        noteId: source.id,
+        expectedPublicationVersion: post.version,
+        requestId: 'legacy-selected-allowed',
+      }).state,
+    ).toBe('withdrawn');
+  } finally {
+    await f.close();
+  }
+});
+
+it.each(['owner', 'instance'] as const)(
+  'a persisted v1 publisher rejects a mismatched blog %s ceiling',
+  async (mismatch) => {
+    const { pluginRuntimeFixture } = await import('./support/plugin-runtime.js');
+    const { syncDirectoryCatalog } = await import('../packages/core/organization/catalog.js');
+    const f = await pluginRuntimeFixture();
+    pluginHost(f.config, f.db);
+    try {
+      const owner = f.principal.id,
+        { libraryId } = syncDirectoryCatalog(f.config, f.db);
+      const ceiling: PermissionPolicy = {
+        version: 2,
+        domains: {
+          knowledge: {
+            enabled: true,
+            ownerId: owner,
+            instanceId: libraryId,
+            actions: ['read', 'write'],
+            resources: { mode: 'all' },
+          },
+          blog: {
+            enabled: true,
+            ownerId: mismatch === 'owner' ? 'other-owner' : owner,
+            instanceId:
+              mismatch === 'instance' ? 'other-site' : policies.currentBlogInstanceId(f.db),
+            actions: ['read', 'publish'],
+            resources: { mode: 'all' },
+          },
+        },
+      };
+      f.db
+        .prepare(
+          "INSERT INTO platform_plugins(id,installed_version,installed,manifest_json,files_json,state,config_json) VALUES('mcp','1.2.0',1,'{}','{}','enabled',?)",
+        )
+        .run(JSON.stringify({ permissionPolicy: ceiling }));
+      const g = oauthGrantStore(f.db).approve(
+        owner,
+        'legacy-mismatch',
+        ['knowledge:read', 'knowledge:write', 'blog:publish'],
+        ['00-Inbox'],
+      );
+      const effective = platformPolicy(f.db, {
+        id: owner,
+        clientId: g.clientId,
+        scopes: g.scopes,
+        allowedPrefixes: g.allowedPrefixes,
+        grantId: g.id,
+        grantVersion: g.version,
+        tokenIssuedAt: g.notBefore,
+        pluginId: 'mcp',
+      })!;
+      expect(effective.scopes).not.toContain('blog:publish');
+      expect(effective.scopes).not.toContain('blog:read');
+      expect(() =>
+        policies.authorizeDomainResource(effective, 'blog', 'publish', 'any-post'),
+      ).toThrow();
+    } finally {
+      await f.close();
+    }
+  },
+);
+
+it('Tunnel key rotation preserves the bound identities of a v1 grant after settings migrate', async () => {
+  const { pluginRuntimeFixture } = await import('./support/plugin-runtime.js');
+  const { syncDirectoryCatalog } = await import('../packages/core/organization/catalog.js');
+  const { rename, mkdir } = await import('node:fs/promises');
+  const { join } = await import('node:path');
+  const f = await pluginRuntimeFixture();
+  pluginHost(f.config, f.db);
+  try {
+    const owner = f.principal.id,
+      { libraryId } = syncDirectoryCatalog(f.config, f.db);
+    f.db
+      .prepare(
+        "INSERT INTO platform_plugins(id,installed_version,installed,manifest_json,files_json,state,config_json) VALUES('mcp','1.1.0',1,'{}','{}','enabled',?)",
+      )
+      .run(JSON.stringify({ readOnly: false, allowedPrefixes: ['00-Inbox'] }));
+    const oldCredential = {
+      reference: 'rotation-old',
+      createdAt: Date.now() - 120000,
+      authGeneration: 0,
+    };
+    const original = tunnelPrincipal(f.db, owner, oldCredential);
+    await rename(join(f.config.knowledgeRoot, '00-Inbox'), join(f.config.knowledgeRoot, 'Renamed'));
+    await mkdir(join(f.config.knowledgeRoot, '00-Inbox'));
+    syncDirectoryCatalog(f.config, f.db);
+    const ceiling = policy(['read', 'write'], { mode: 'all' }, libraryId);
+    ceiling.domains.knowledge.ownerId = owner;
+    f.db
+      .prepare("UPDATE platform_plugins SET config_json=? WHERE id='mcp'")
+      .run(JSON.stringify({ permissionPolicy: ceiling }));
+    const admitted = tunnelPrincipal(f.db, owner, oldCredential);
+    expect(admitted.allowedPrefixes).toEqual(['Renamed']);
+    expect(() => requireScope(admitted, 'knowledge:archive')).toThrow();
+    const rotated = tunnelPrincipal(f.db, owner, {
+      reference: 'rotation-new',
+      createdAt: Date.now(),
+      authGeneration: 0,
+    });
+    expect(rotated.allowedPrefixes).toEqual(['Renamed']);
+    expect(rotated.grantVersion).toBe(original.grantVersion);
+    expect(policies.canAccessPath(rotated, '00-Inbox/replacement.md')).toBe(false);
+    expect(() => requireScope(rotated, 'knowledge:archive')).toThrow();
+    expect(rotated.scopes).not.toContain('knowledge:organize');
+    expect(rotated.knowledgeAll).toBe(false);
+  } finally {
+    await f.close();
+  }
+});
+
+it.each(['archive', 'restore'] as const)(
+  'v1 %s cannot bypass a v2 ceiling that removed archive',
+  async (operation) => {
+    const { pluginRuntimeFixture } = await import('./support/plugin-runtime.js');
+    const { syncDirectoryCatalog } = await import('../packages/core/organization/catalog.js');
+    const f = await pluginRuntimeFixture();
+    pluginHost(f.config, f.db);
+    try {
+      const owner = f.principal.id,
+        k = f.platform.get().knowledge,
+        { libraryId } = syncDirectoryCatalog(f.config, f.db);
+      const n = k.core.create(
+        f.principal,
+        '00-Inbox',
+        `legacy-${operation}.md`,
+        '# Archive boundary',
+        'legacy-archive-create-' + operation,
+      );
+      if (operation === 'restore')
+        k.core.archive(f.principal, n.id, n.modifiedAt, 'owner-prior-archive');
+      const ceiling = policy(['read', 'write'], { mode: 'all' }, libraryId);
+      ceiling.domains.knowledge.ownerId = owner;
+      f.db
+        .prepare(
+          "INSERT INTO platform_plugins(id,installed_version,installed,manifest_json,files_json,state,config_json) VALUES('mcp','1.2.0',1,'{}','{}','enabled',?)",
+        )
+        .run(JSON.stringify({ permissionPolicy: ceiling }));
+      const g = oauthGrantStore(f.db).approve(
+        owner,
+        'legacy-archive-blocked',
+        ['knowledge:read', 'knowledge:write'],
+        ['00-Inbox'],
+      );
+      const p = platformPolicy(f.db, {
+        id: owner,
+        clientId: g.clientId,
+        scopes: g.scopes,
+        allowedPrefixes: g.allowedPrefixes,
+        grantId: g.id,
+        grantVersion: g.version,
+        tokenIssuedAt: g.notBefore,
+        pluginId: 'mcp',
+      })!;
+      expect(() =>
+        operation === 'archive'
+          ? k.core.archive(p, n.id, n.modifiedAt, 'legacy-archive-forbidden')
+          : k.core.restore(p, n.id, undefined, 'legacy-restore-forbidden'),
+      ).toThrow();
+    } finally {
+      await f.close();
+    }
+  },
+);
+
+it('revoked Tunnel grants require explicit owner authorization even after key rotation', async () => {
+  const { pluginRuntimeFixture } = await import('./support/plugin-runtime.js');
+  const { syncDirectoryCatalog } = await import('../packages/core/organization/catalog.js');
+  const { authorizeMcpTunnel } = await import('../apps/server/platform/mcp-client-permissions.js');
+  const f = await pluginRuntimeFixture();
+  pluginHost(f.config, f.db);
+  try {
+    const owner = f.principal.id,
+      { libraryId } = syncDirectoryCatalog(f.config, f.db);
+    const ceiling = policy(['read'], { mode: 'all' }, libraryId);
+    ceiling.domains.knowledge.ownerId = owner;
+    f.db
+      .prepare(
+        "INSERT INTO platform_plugins(id,installed_version,installed,manifest_json,files_json,state,config_json) VALUES('mcp','1.2.0',1,'{}','{}','enabled',?)",
+      )
+      .run(JSON.stringify({ permissionPolicy: ceiling }));
+    const initial = tunnelPrincipal(f.db, owner, {
+      reference: 'revoked-old',
+      createdAt: Date.now() - 120000,
+      authGeneration: 0,
+    });
+    const grants = oauthGrantStore(f.db);
+    grants.revoke(owner, initial.clientId);
+    const rotated = { reference: 'revoked-rotated', createdAt: Date.now(), authGeneration: 0 };
+    expect(() => tunnelPrincipal(f.db, owner, rotated)).toThrow();
+    const revoked = grants.list(owner).find((g) => g.clientId === initial.clientId)!;
+    const next = authorizeMcpTunnel(f.db, owner, { expectedGrantVersion: revoked.version });
+    expect(next.version).toBe(revoked.version + 1);
+    expect(tunnelPrincipal(f.db, owner, rotated)).toMatchObject({
+      clientId: initial.clientId,
+      grantVersion: next.version,
+      scopes: ['knowledge:read'],
+    });
+  } finally {
+    await f.close();
+  }
+});
