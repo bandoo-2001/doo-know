@@ -35,7 +35,7 @@ function startActualFixture(cwd: string, temporary: string) {
     },
   );
   let stderr = '';
-  child.stderr.on('data', (bytes) => {
+  child.stderr!.on('data', (bytes) => {
     stderr = (stderr + bytes).slice(-16384);
   });
   const exit = new Promise<{ code: number | null; signal: NodeJS.Signals | null }>(
@@ -94,7 +94,7 @@ async function stopOwnedFixture(fixture: ReturnType<typeof startActualFixture>) 
   if (fixture.child.exitCode === null && fixture.child.signalCode === null)
     fixture.child.kill('SIGKILL');
   await waitForFixtureExit(fixture);
-  fixture.child.stdin.destroy();
+  fixture.child.stdin!.destroy();
 }
 
 it.skipIf(process.platform !== 'linux')(
