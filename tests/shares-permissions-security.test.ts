@@ -63,14 +63,15 @@ async function source(f: Fixture, base: string) {
   return response.json<PublicShareSource>();
 }
 
-async function visitor(f: Fixture, base: string): Promise<VisitorHeaders> {
-  const response = await f.app.inject({ url: `${base}/csrf` });
+async function visitor(f: Fixture, base: string, csrfSecret?: string): Promise<VisitorHeaders> {
+  const initialCookie = csrfSecret ? `_csrf=${encodeURIComponent(f.app.signCookie(csrfSecret))}` : '';
+  const response = await f.app.inject({ url: `${base}/csrf`, ...(initialCookie ? { headers: { cookie: initialCookie } } : {}) });
   expect(response.statusCode, response.body).toBe(200);
   expect(response.json().token).toEqual(expect.any(String));
-  expect(response.cookies.length).toBeGreaterThan(0);
+  if (!initialCookie) expect(response.cookies.length).toBeGreaterThan(0);
   return {
     origin,
-    cookie: response.cookies.map((c) => `${c.name}=${c.value}`).join('; '),
+    cookie: [initialCookie, ...response.cookies.map((c) => `${c.name}=${c.value}`)].filter(Boolean).join('; '),
     'x-csrf-token': response.json().token,
   };
 }
@@ -117,13 +118,17 @@ it('requires anonymous CSRF and the same Origin, preserves CAS, and scopes retry
     expect(initial).toMatchObject({ permission: 'edit', canEdit: true, expiresAt: null, documentType: 'markdown', content: '# Before' });
     expect(initial).not.toHaveProperty('id');
     expect(initial).not.toHaveProperty('relativePath');
-    const headers = await visitor(f, base);
+    // Keep the valid cookie's first byte equal to the formerly hardcoded
+    // replacement so the tampering case cannot accidentally become a no-op.
+    const headers = await visitor(f, base, 'x-controlled-csrf-secret-for-test');
     const content = '# Anonymous saved';
+    const tamperedCookie = headers.cookie.replace(/=(.)/, (_match, first) => first === 'x' ? '=y' : '=x');
+    expect(tamperedCookie).not.toBe(headers.cookie);
     for (const invalid of [
       { origin },
       { ...headers, origin: 'https://attacker.invalid' },
       { ...headers, origin: '' },
-      { ...headers, cookie: headers.cookie.replace(/=./, '=x') },
+      { ...headers, cookie: tamperedCookie },
       { ...headers, 'x-csrf-token': 'forged-token' },
     ]) {
       expect((await save(f, base, invalid, content, initial.modifiedAt)).statusCode).toBe(403);
@@ -375,4 +380,24 @@ it.each(['downgrade', 'expire'] as const)('rechecks the live grant before commit
     db.close();
     await f.close();
   }
+});
+
+it('keeps public share principals limited to the shared note when the owner can read the whole library', async () => {
+  const {shareService}=await import('../packages/core/shares.js');
+  const {noteService}=await import('../packages/core/notes.js');
+  const {authorizePath,canAccessPath}=await import('../packages/core/agent/auth.js');
+  const {webPrincipal}=await import('../packages/core/knowledge/core.js');
+  const f=await createFixture();const db=openDatabase(f.dataRoot);
+  try {
+    const owner=await loginFixtureOwner(f);
+    const a=await note(f,owner,'share-scoped.md','# Shared');
+    const b=await note(f,owner,'share-sibling.md','# Private sibling');
+    const base=await share(f,owner,a.id);
+    const token=base.slice(base.lastIndexOf('/')+1);
+    const {p}=shareService(db,noteService(f.config,db)).principal(token);
+    expect(canAccessPath(webPrincipal,b.relativePath)).toBe(true);
+    expect(()=>authorizePath(p,a.relativePath)).not.toThrow();
+    expect(()=>authorizePath(p,b.relativePath)).toThrow();
+    expect(canAccessPath(p,'')).toBe(false);
+  } finally {db.close();await f.close();}
 });
