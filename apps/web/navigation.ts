@@ -1,7 +1,7 @@
 export const toDooSections = ['overview', 'tasks', 'board', 'calendar', 'timeline', 'matrix', 'focus', 'habits', 'anniversaries', 'stats', 'notifications', 'settings'] as const;
 export type ToDooAppSection = (typeof toDooSections)[number];
 export type WorkspaceRoute = {
-  app?: 'blog' | 'to-doo';
+  app?: 'blog' | 'to-doo' | 'graph';
   appSection?: 'overview' | 'articles' | 'taxonomy' | 'settings' | ToDooAppSection;
   task?: string;
   list?: string;
@@ -33,6 +33,10 @@ export function readWorkspaceRoute(href = window.location.href): WorkspaceRoute 
   const validDate = /^\d{4}-\d{2}-\d{2}$/.test(date) && Number.isFinite(Date.parse(date)) && new Date(date).toISOString().slice(0, 10) === date;
   const entity = (key: string) => /^[A-Za-z0-9_-]{1,128}$/.test(query.get(key) || '') ? query.get(key)! : undefined;
   return {
+    ...(query.get('view') === 'apps' && query.get('app') === 'graph' ? {
+      app: 'graph' as const,
+      ...(query.get('appSection') === 'overview' ? { appSection: 'overview' as const } : {}),
+    } : {}),
     ...(toDoo ? {
       app: 'to-doo' as const,
       ...(toDooSections.includes(query.get('appSection') as ToDooAppSection) ? { appSection: query.get('appSection') as ToDooAppSection } : {}),

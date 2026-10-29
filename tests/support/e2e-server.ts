@@ -64,6 +64,9 @@ for (const signal of ['SIGINT', 'SIGTERM'])
     if (initializationFinished) void shutdown();
   });
 async function initialize() {
+  const webPort = Number(process.env.DOOKNOW_E2E_WEB_PORT || 4179);
+  const apiPort = Number(process.env.DOOKNOW_E2E_API_PORT || 4180);
+  const origin = `http://127.0.0.1:${webPort}`;
   const gitOnboarding = process.env.DOOKNOW_E2E_GIT_ONBOARDING === '1';
   const gitImportParent = join(root, 'imported-libraries');
   const gitImportContent = '# 从隔离远端克隆的原文\n\n这份资料只存在于浏览器测试夹具中。\n';
@@ -98,6 +101,7 @@ async function initialize() {
   await writeFile(
     '.local/e2e-config.json',
     JSON.stringify({
+      origin,
       knowledgeRoot,
       dataRoot,
       gitRemoteURL,
@@ -140,7 +144,7 @@ async function initialize() {
         }
       : {}),
     secret: 'e2e-only-at-least-thirty-two-character-secret',
-    origin: 'http://127.0.0.1:4179',
+    origin,
     pluginCatalog: [
       await pluginFixture(root),
       ...(await buildPlugins({
@@ -185,7 +189,7 @@ async function initialize() {
   }
   await app.listen({
     host: '127.0.0.1',
-    port: process.env.DOOKNOW_E2E_PRODUCTION === '1' ? 4179 : 4180,
+    port: process.env.DOOKNOW_E2E_PRODUCTION === '1' ? webPort : apiPort,
   });
   if (shutdownRequested) return;
   const login = await app.inject({
@@ -225,17 +229,17 @@ async function initialize() {
     cacheDir: join(root, 'vite-cache'),
     server: {
       middlewareMode: { server: frontend },
-      port: 4179,
+      port: webPort,
       host: '127.0.0.1',
       ws: { server: frontend },
-      proxy: { '/api/': 'http://127.0.0.1:4180', '/plugins/': 'http://127.0.0.1:4180', '^/blog(?:/|\\?|$)': 'http://127.0.0.1:4180' },
+      proxy: { '/api/': `http://127.0.0.1:${apiPort}`, '/plugins/': `http://127.0.0.1:${apiPort}`, '^/blog(?:/|\\?|$)': `http://127.0.0.1:${apiPort}` },
     },
   });
   if (shutdownRequested) return;
   frontend.on('request', vite.middlewares);
   await new Promise<void>((resolve, reject) => {
     frontend!.once('error', reject);
-    frontend!.listen(4179, '127.0.0.1', () => {
+    frontend!.listen(webPort, '127.0.0.1', () => {
       frontend!.off('error', reject);
       resolve();
     });

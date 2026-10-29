@@ -37,6 +37,7 @@ import { recoveryService } from '../../packages/core/recovery.js';
 import { assetService } from '../../packages/core/assets.js';
 import { diagramArtifactService, DIAGRAM_SOURCE_MIMES } from '../../packages/core/knowledge/diagram-artifacts.js';
 import { backlinkService } from '../../packages/core/knowledge/backlinks.js';
+import { registerGraphRoutes } from './graph/routes.js';
 import { registerAgentRoutes } from './agent/routes.js';
 import { registerWebKnowledgeRoutes } from './knowledge/web-routes.js';
 import { webPrincipal } from '../../packages/core/knowledge/core.js';
@@ -216,6 +217,7 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     platform.get().collections.status((req as any).ownerId, (req.query as any).kind));
   app.get('/api/collections', async (req) =>
     platform.get().collections.page((req as any).ownerId, req.query as any));
+  registerGraphRoutes(app, () => platform.get().graph);
   registerBlogRoutes(app, businessConfig, () => platform.get().blog);
   registerToDooRoutes(app, () => platform.get().toDoo, () => {
     const runtime = platform.get();

@@ -205,7 +205,7 @@ const noteInfo = ref<NoteInfo>(),
   largeRef = ref<InstanceType<typeof LargeFileWorkspace>>(),
   largeDirty = ref(false);
 const blogModel = createBlogWorkbench(api, prepareBlogDiagrams);
-const appsApp = ref<'blog' | 'to-doo' | undefined>(readWorkspaceRoute().app);
+const appsApp = ref<WorkspaceRoute['app']>(readWorkspaceRoute().app);
 const appsSection = ref<BlogSection | ToDooAppSection>(readWorkspaceRoute().appSection || 'overview');
 type ToDooSelection = Pick<WorkspaceRoute, 'task' | 'list' | 'date' | 'calendarView'>;
 const toDooSelection = ref<ToDooSelection>({ task: readWorkspaceRoute().task, list: readWorkspaceRoute().list, date: readWorkspaceRoute().date, calendarView: readWorkspaceRoute().calendarView });
@@ -247,7 +247,7 @@ async function openBlogNote(id: string) {
     } else await openNote(id);
   });
 }
-async function navigateApp(app: 'blog' | 'to-doo' | undefined, section: BlogSection | ToDooAppSection = 'overview', selection: ToDooSelection = {}) {
+async function navigateApp(app: WorkspaceRoute['app'], section: BlogSection | ToDooAppSection = 'overview', selection: ToDooSelection = {}) {
   if (appsApp.value === 'to-doo' && app !== 'to-doo' && (await appsRef.value?.requestLeave()) === false) return;
   appsApp.value = app; appsSection.value = section;
   toDooSelection.value = selection;

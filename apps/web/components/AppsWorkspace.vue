@@ -7,17 +7,18 @@ import type { BlogSection, BlogWorkbench } from '../blog-workbench';
 import type { ToDooAppSection, WorkspaceRoute } from '../navigation';
 import '../blog.css';
 const ToDooWorkspace = defineAsyncComponent(() => import('./ToDooWorkspace.vue'));
+const GraphWorkspace = defineAsyncComponent(() => import('./GraphWorkspace.vue'));
 type Selection = Pick<WorkspaceRoute, 'task' | 'list' | 'date' | 'calendarView'>;
 const toDooRef = ref<{ hasUnsavedChanges(): boolean; requestLeave(): Promise<boolean> }>();
 const props = defineProps<{
-  app?: 'blog' | 'to-doo';
+  app?: 'blog' | 'to-doo' | 'graph';
   section: BlogSection | ToDooAppSection;
   selection?: Selection;
   tree: TreeEntry[];
   model: BlogWorkbench;
 }>();
 const emit = defineEmits<{
-  navigate: [app: 'blog' | 'to-doo' | undefined, section?: BlogSection | ToDooAppSection, selection?: Selection];
+  navigate: [app: 'blog' | 'to-doo' | 'graph' | undefined, section?: BlogSection | ToDooAppSection, selection?: Selection];
   'open-note': [id: string];
   'note-created': [id: string];
 }>();
@@ -54,11 +55,32 @@ watch(
     @back="emit('navigate', undefined)"
     @note-created="emit('note-created', $event)"
   />
+  <GraphWorkspace
+    v-else-if="app === 'graph'"
+    :tree="tree"
+    @back="emit('navigate', undefined)"
+    @open-note="emit('open-note', $event)"
+  />
   <section v-else class="apps-home" aria-labelledby="apps-title">
     <div class="apps-eyebrow">YOUR WORKSPACE, EXTENDED</div>
     <h1 id="apps-title">应用</h1>
     <p class="apps-description">让知识走得更远。为你的笔记，打开新的可能。</p>
     <div class="apps-grid">
+      <button class="app-card" type="button" @click="emit('navigate', 'graph', 'overview')">
+        <div class="app-card-top">
+          <span class="blog-app-icon"><Icon name="share" :size="28" /></span>
+          <span class="app-native">原生应用</span>
+        </div>
+        <h2>知识图谱</h2>
+        <p>沿着笔记中的引用，发现知识之间的联系。</p>
+        <div class="app-card-preview" aria-hidden="true">
+          <span class="app-preview-dot"></span><span></span><span></span>
+          <div></div><i></i><i></i><i></i>
+        </div>
+        <div class="app-card-bottom">
+          <span>笔记关联 · 局部探索 · 孤立笔记</span><Icon name="forward" :size="18" />
+        </div>
+      </button>
       <button class="app-card" type="button" @click="emit('navigate', 'blog', 'overview')">
         <div class="app-card-top">
           <span class="blog-app-icon"><Icon name="book" :size="28" /></span

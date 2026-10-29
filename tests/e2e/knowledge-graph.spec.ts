@@ -1,0 +1,77 @@
+import { mkdir, readFile } from 'node:fs/promises';
+import { test, expect } from '../support/browser-test';
+
+test.use({ sourceEditorPreference: true });
+
+test('explores real note references, filters orphans and opens the original on desktop and mobile', async ({ page, context }, info) => {
+  const pageErrors: string[] = [];
+  page.on('pageerror', (error) => pageErrors.push(error.message));
+  await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
+  const csrf = await (await page.request.get('/api/security/csrf')).json();
+  const headers = { origin: new URL(info.project.use.baseURL || 'http://127.0.0.1:4179').origin, 'x-csrf-token': csrf.token };
+  const prefix = 'graph-e2e-' + info.project.name + '-' + Date.now();
+  const create = async (name: string, content: string) => {
+    const result = await page.request.post('/api/notes', { headers, data: { folderPath: '00-Inbox', fileName: `${prefix}-${name}.md`, content, requestId: crypto.randomUUID() } });
+    expect(result.status(), await result.text()).toBe(201);
+    return result.json();
+  };
+  await create('target', '# 概念与实践');
+  await create('middle', `# 连接知识\n\n[[${prefix}-target]]`);
+  const source = await create('source', `# 从引用开始\n\n[[${prefix}-middle]]\n\n原文保持完整。`);
+  await create('orphan', '# 等待连接的想法');
+
+  await page.goto('/?view=apps');
+  await page.getByRole('button', { name: /知识图谱.*沿着笔记/ }).click();
+  await expect(page.getByRole('heading', { name: '知识图谱', exact: true })).toBeVisible();
+  await expect(page).toHaveURL(/app=graph/);
+  await page.getByRole('searchbox', { name: '搜索图谱笔记' }).fill(prefix.toUpperCase());
+  const notes = page.locator('.graph-note-list button');
+  await expect(notes).toHaveCount(4);
+  await expect(page.getByRole('region', { name: '笔记关系图' }).locator('canvas').first()).toBeVisible();
+  await notes.filter({ hasText: '从引用开始' }).click();
+  const detail = page.getByRole('complementary', { name: '笔记详情' });
+  await expect(detail.getByRole('heading', { name: '从引用开始' })).toBeVisible();
+  await expect(detail.getByRole('button', { name: '连接知识', exact: true })).toBeVisible();
+  await detail.getByRole('button', { name: '查看 1 跳关系' }).click();
+  await expect(notes).toHaveCount(2);
+  await detail.getByRole('button', { name: '查看 2 跳关系' }).click();
+  await expect(notes).toHaveCount(3);
+  await page.getByRole('button', { name: '清除局部关系筛选' }).click();
+  await expect(notes).toHaveCount(4);
+  await page.getByRole('button', { name: '放大图谱' }).click();
+  await page.getByRole('button', { name: '适应画布' }).click();
+  await mkdir('.local/graph-artifacts', { recursive: true });
+  await page.getByRole('heading', { name: '知识图谱', exact: true }).scrollIntoViewIfNeeded();
+  await page.screenshot({ path: `.local/graph-artifacts/${info.project.name}-graph.png`, fullPage: true, animations: 'disabled' });
+  const lightColor = await page.locator('.graph-workspace').evaluate((element) => getComputedStyle(element).color);
+  await page.evaluate(() => { document.documentElement.dataset.theme = 'dark'; });
+  await expect.poll(() => page.locator('.graph-workspace').evaluate((element) => getComputedStyle(element).color)).not.toBe(lightColor);
+  await expect(page.getByRole('region', { name: '笔记关系图' }).locator('canvas').first()).toBeVisible();
+  await page.screenshot({ path: `.local/graph-artifacts/${info.project.name}-graph-dark.png`, fullPage: true, animations: 'disabled' });
+  await page.evaluate(() => { document.documentElement.dataset.theme = 'light'; });
+
+  await page.getByRole('checkbox', { name: '仅显示孤立笔记' }).check();
+  await expect(notes).toHaveCount(1);
+  await expect(notes.first()).toContainText('等待连接的想法');
+  await page.getByRole('checkbox', { name: '仅显示孤立笔记' }).uncheck();
+  await page.getByRole('combobox', { name: '图谱目录' }).selectOption('00-Inbox');
+  await expect(notes).toHaveCount(4);
+  await page.getByRole('searchbox', { name: '搜索图谱笔记' }).fill('no-such-graph-note-' + prefix);
+  await expect(page.getByRole('heading', { name: '暂无匹配的笔记' })).toBeVisible();
+  await page.getByRole('searchbox', { name: '搜索图谱笔记' }).fill(prefix);
+  await expect(notes).toHaveCount(4);
+  await page.getByRole('button', { name: '列表', exact: true }).click();
+  await expect(page.getByRole('region', { name: '笔记关系图' })).toBeHidden();
+  await notes.filter({ hasText: '从引用开始' }).click();
+  await detail.getByRole('button', { name: '打开原文', exact: true }).click();
+  await expect(page).toHaveURL(new RegExp('note=' + source.id));
+  await expect(page.locator('.cm-content').first()).toContainText('原文保持完整。');
+  await page.goBack();
+  await expect(page.getByRole('heading', { name: '知识图谱', exact: true })).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole('heading', { name: '知识图谱', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '返回应用', exact: false }).click();
+  await expect(page.getByRole('heading', { name: '应用', exact: true })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  expect(pageErrors).toEqual([]);
+});
