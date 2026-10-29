@@ -19,6 +19,13 @@ export function registerKnowledgeReadBarrier(app: FastifyInstance, db: AppDataba
       done();
       return;
     }
+    // Authentication may finish after the client disconnected. Its close event
+    // has already fired, so do not acquire a lease or run a now-unobserved read.
+    if (reply.raw.destroyed || reply.raw.writableFinished) {
+      reply.hijack();
+      done();
+      return;
+    }
     let handedOff = false;
     void workspaceRead(
       db,

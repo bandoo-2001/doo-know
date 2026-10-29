@@ -86,7 +86,7 @@ test('reports share errors inside the dialog and locks the submitted action', as
     await held;
     await route.fulfill({ status: 503, json: { message: '分享暂时不可用' } });
   });
-  const create = page.getByRole('button', { name: '生成分享链接', exact: true });
+  const create = page.locator('.share-dialog').getByRole('button', { name: /生成分享链接$/ });
   try {
     await create.click();
     await expect(create).toBeDisabled();

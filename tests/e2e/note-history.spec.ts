@@ -130,18 +130,24 @@ test('超过单次阅读会话页数时仍能连续读取完整历史并对比�
 
 test('差异视图加载失败保留原始差异并提供本地重试', async ({ page }) => {
   await historyNote(page, ['重试之前\n', '重试之后\n']);
+  let intercepted = 0;
   await page.route(
-    /\/packages\/plugin-ui\/diff-view\.ts(?:\?|$)/,
-    (route) => route.abort('failed'),
+    /\/(?:packages\/plugin-ui\/diff-view\.ts|assets\/diff-view-[^/?]+\.js)(?:\?|$)/,
+    (route) => {
+      intercepted++;
+      return route.abort('failed');
+    },
     { times: 1 },
   );
   await clickNoteAction(page, '历史版本');
   const dialog = page.locator('.note-history-dialog');
+  await expect.poll(() => intercepted).toBe(1);
   await expect(dialog).toContainText('原始差异');
   await expect(dialog.getByRole('button', { name: '重试差异视图', exact: true })).toBeVisible();
   await expect(dialog.locator('.note-history-source')).toContainText('-重试之前');
   await dialog.getByRole('button', { name: '重试差异视图', exact: true }).click();
   await expect(dialog.locator('.git-diff-delete')).toContainText(['重试之前']);
+  expect(intercepted).toBe(1);
 });
 
 test('读取失败在面板内重试，关闭后可以重新打开', async ({ page }) => {
