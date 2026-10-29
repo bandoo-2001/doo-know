@@ -191,6 +191,8 @@ export function projectPermissionPrincipal(
   policy: PermissionPolicy,
 ): Principal {
   policy = normalizePermissionPolicy(policy);
+  for (const [domain, grant] of Object.entries(policy.domains))
+    grant.actions = grant.actions.filter((action) => p.scopes.includes(`${domain}:${action}`));
   const blog = policy.domains.blog;
   if (blog && blog.instanceId !== currentBlogInstanceId(db)) delete policy.domains.blog;
   const grant = policy.domains.knowledge;

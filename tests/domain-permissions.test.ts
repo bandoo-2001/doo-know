@@ -62,6 +62,21 @@ describe('domain permission boundaries', () => {
     ).toThrow();
     expect(() => policies.normalizePermissionPolicy(policy(['superuser']))).toThrow();
   });
+  it('projection never restores actions removed from the admitted principal', () => {
+    const db = new Database(':memory:');
+    db.exec(
+      "CREATE TABLE index_meta(key TEXT PRIMARY KEY,value TEXT); CREATE TABLE organization_library(library_id TEXT); INSERT INTO organization_library VALUES('library')",
+    );
+    const p = policies.projectPermissionPrincipal(
+      db as any,
+      { id: 'owner', clientId: 'client', scopes: ['knowledge:read'], allowedPrefixes: [] },
+      policy(),
+    );
+    expect(p.scopes).toEqual(['knowledge:read']);
+    expect(p.permissionPolicy?.domains.knowledge.actions).toEqual(['read']);
+    expect(() => requireScope(p, 'knowledge:organize')).toThrow();
+    db.close();
+  });
   it('removes an all grant when its library instance is unavailable', () => {
     const db = new Database(':memory:');
     db.exec(
