@@ -16,7 +16,7 @@ import type { Principal } from '../../../shared/knowledge-contracts.js';
 import type { AppDatabase } from '../db.js';
 import { safePath, validName, readDocument } from '../files.js';
 import { references, localReference } from '../render.js';
-import { authorizePath } from '../agent/auth.js';
+import { authorizePath, requireScope } from '../agent/auth.js';
 import { assertRoot } from '../indexing/reconcile.js';
 import { workspaceBegin, workspaceWriteSync } from '../workspace/gate.js';
 import { assertWritable, fsyncDirectory, restoreHash } from './core.js';
@@ -194,6 +194,7 @@ export function moveService(config: AppConfig, db: AppDatabase, record: (intent:
     expectedModifiedAt: string,
     requestId: string,
   ) {
+    if (p.policyVersion === 2) requireScope(p, 'knowledge:organize');
     assertRoot(config, db);
     if (
       typeof folderPath !== 'string' ||

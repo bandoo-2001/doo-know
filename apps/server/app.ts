@@ -21,6 +21,9 @@ import { invalidateRemoteAuth } from '../../packages/core/auth/remote-auth.js';
 import { pluginServices } from './plugins/services.js';
 import { registerPluginRoutes } from './plugins/routes.js';
 import { registerMcpManagementRoutes } from './platform/mcp-management.js';
+import { registerMcpPermissionRoutes } from './platform/mcp-permissions.js';
+import { registerMcpClientPermissionRoutes } from './platform/mcp-client-permissions.js';
+import { registerKnowledgeReadBarrier } from './knowledge/read-barrier.js';
 import { registerOAuthRoutes, forwardAuthResponse } from './platform/oauth-routes.js';
 import { serializeOAuth, revokeOAuthClient } from './platform/oauth.js';
 import { openDatabase } from '../../packages/core/db.js';
@@ -198,6 +201,7 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
       return forwardAuthResponse(response, reply);
     },
   });
+  registerKnowledgeReadBarrier(app, db);
   app.get('/api/security/csrf', async (_req, reply) => ({ token: reply.generateCsrf() }));
   app.get('/api/collections/status', async (req) =>
     platform.get().collections.status((req as any).ownerId, (req.query as any).kind));
@@ -231,6 +235,8 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
   registerGitRemoteRoutes(app, gitRemote);
   registerPluginInstallRoutes(app, pluginInstallations);
   registerMcpManagementRoutes(app, config, db, plugins, transports, auth);
+  registerMcpPermissionRoutes(app, db, platform);
+  registerMcpClientPermissionRoutes(app, auth, config, db);
   app.post('/api/platform/setup/directories', async (req) =>
     platform.settings.directories(req.body),
   );

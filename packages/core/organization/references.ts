@@ -10,9 +10,41 @@ const escaped = (source: string, at: number) => {
   for (let i = at - 1; i >= 0 && source[i] === '\\'; i--) count++;
   return count % 2 === 1;
 };
-const encodePath = (path: string) => path.split('/').map((part) =>
-  encodeURIComponent(part).replace(/[!'()*]/g, (c) => '%' + c.charCodeAt(0).toString(16).toUpperCase()),
-).join('/');
+const encodePath = (path: string) =>
+  path
+    .split('/')
+    .map((part) =>
+      encodeURIComponent(part).replace(
+        /[!'()*]/g,
+        (c) => '%' + c.charCodeAt(0).toString(16).toUpperCase(),
+      ),
+    )
+    .join('/');
+function unescapeUrl(source: string) {
+  let value = '',
+    at = 0;
+  const offsets: number[] = [];
+  for (const match of source.matchAll(
+    /\\[^\p{L}\p{N}\s]|&(?:#[xX][0-9a-fA-F]+|#\d+|[a-zA-Z][a-zA-Z0-9]+);/gu,
+  )) {
+    const start = match.index!;
+    for (; at < start; at++) {
+      offsets.push(at);
+      value += source[at];
+    }
+    const decoded = markdown.utils.unescapeAll(match[0]);
+    for (let i = 0; i < decoded.length; i++) {
+      offsets.push(start);
+      value += decoded[i];
+    }
+    at = start + match[0].length;
+  }
+  for (; at < source.length; at++) {
+    offsets.push(at);
+    value += source[at];
+  }
+  return { value, offsets };
+}
 
 /** Rewrites syntax destinations only. Offsets index the original JS string, never a rendered document. */
 export function rewriteLibraryReferences(
@@ -25,13 +57,16 @@ export function rewriteLibraryReferences(
   const ordered = [...moves].sort((a, b) => b.from.length - a.from.length);
   const edits: Edit[] = [];
   const rewrite = (url: string, wiki = false) => {
-    if (!url || url.startsWith('#') || url.startsWith('/') || /^[a-z][a-z\d+.-]*:/i.test(url)) return url;
-    const suffixAt = url.search(/[?#]/),
-      suffix = suffixAt < 0 ? '' : url.slice(suffixAt),
-      rawPath = suffixAt < 0 ? url : url.slice(0, suffixAt);
+    if (!url || url.startsWith('#') || url.startsWith('/') || /^[a-z][a-z\d+.-]*:/i.test(url))
+      return url;
+    const parsed = wiki || whiteboard ? { value: url, offsets: undefined } : unescapeUrl(url);
+    const suffixAt = parsed.value.search(/[?#]/),
+      suffix = suffixAt < 0 ? '' : url.slice(parsed.offsets?.[suffixAt] ?? suffixAt),
+      rawPath = suffixAt < 0 ? parsed.value : parsed.value.slice(0, suffixAt);
     let decoded: string;
-    try { decoded = decodeURIComponent(markdown.utils.unescapeAll(rawPath)); }
-    catch {
+    try {
+      decoded = decodeURIComponent(rawPath);
+    } catch {
       if (sourcePath !== targetPath || ordered.length) fail(409, 'UNSUPPORTED_REFERENCE');
       return url;
     }
@@ -56,14 +91,24 @@ export function rewriteLibraryReferences(
   };
 
   if (whiteboard) {
-    try { JSON.parse(content); } catch { fail(409, 'UNSUPPORTED_REFERENCE'); }
+    try {
+      JSON.parse(content);
+    } catch {
+      fail(409, 'UNSUPPORTED_REFERENCE');
+    }
     let at = 0;
-    const whitespace = () => { while (/\s/.test(content[at] || '') && at < content.length) at++; };
+    const whitespace = () => {
+      while (/\s/.test(content[at] || '') && at < content.length) at++;
+    };
     const string = () => {
       const start = at++;
       while (at < content.length) {
-        if (content[at] === '\\') { at += 2; continue; }
-        if (content[at++] === '"') return { start, end: at, value: JSON.parse(content.slice(start, at)) as string };
+        if (content[at] === '\\') {
+          at += 2;
+          continue;
+        }
+        if (content[at++] === '"')
+          return { start, end: at, value: JSON.parse(content.slice(start, at)) as string };
       }
       return fail(409, 'UNSUPPORTED_REFERENCE');
     };
@@ -71,24 +116,40 @@ export function rewriteLibraryReferences(
       whitespace();
       if (content[at] === '"') {
         const token = string();
-        if (path.length === 3 && path[0] === 'elements' && typeof path[1] === 'number' && path[2] === 'link') {
+        if (
+          path.length === 3 &&
+          path[0] === 'elements' &&
+          typeof path[1] === 'number' &&
+          path[2] === 'link'
+        ) {
           const next = rewrite(token.value);
-          if (next !== token.value) edits.push({ start: token.start, end: token.end, text: JSON.stringify(next) });
+          if (next !== token.value)
+            edits.push({ start: token.start, end: token.end, text: JSON.stringify(next) });
         }
       } else if (content[at] === '{') {
-        at++; whitespace();
+        at++;
+        whitespace();
         while (content[at] !== '}') {
-          const key = string().value; whitespace(); at++; value([...path, key]); whitespace();
+          const key = string().value;
+          whitespace();
+          at++;
+          value([...path, key]);
+          whitespace();
           if (content[at] !== ',') break;
-          at++; whitespace();
+          at++;
+          whitespace();
         }
         at++;
       } else if (content[at] === '[') {
-        at++; whitespace(); let index = 0;
+        at++;
+        whitespace();
+        let index = 0;
         while (content[at] !== ']') {
-          value([...path, index++]); whitespace();
+          value([...path, index++]);
+          whitespace();
           if (content[at] !== ',') break;
-          at++; whitespace();
+          at++;
+          whitespace();
         }
         at++;
       } else {
@@ -103,16 +164,22 @@ export function rewriteLibraryReferences(
     if (front) mark(0, front.end);
     const lineStarts = [0];
     for (let i = 0; i < content.length; i++) if (content[i] === '\n') lineStarts.push(i + 1);
-    const source = content.split('').map((c, i) => excluded[i] && c !== '\n' && c !== '\r' ? ' ' : c).join('');
-    const env: { references?: Record<string, { href: string }> } = {};
+    const source = content
+      .split('')
+      .map((c, i) => (excluded[i] && c !== '\n' && c !== '\r' ? ' ' : c))
+      .join('');
+    const env: { references?: Record<string, { href: string; title: string }> } = {};
     const tokens = markdown.parse(source, env);
     const urls = new Set<string>();
     const visit = (list: typeof tokens) => {
       for (const token of list) {
-        if (['fence', 'code_block', 'math_block', 'math_block_eqno'].includes(token.type) && token.map)
+        if (
+          ['fence', 'code_block', 'math_block', 'math_block_eqno'].includes(token.type) &&
+          token.map
+        )
           mark(lineStarts[token.map[0]] || 0, lineStarts[token.map[1]] ?? content.length);
-        if (token.type === 'link_open') urls.add(token.attrGet('href') || '');
-        if (token.type === 'image') urls.add(token.attrGet('src') || '');
+        if (token.type === 'link_open') urls.add(String(token.attrGet('href') || ''));
+        if (token.type === 'image') urls.add(String(token.attrGet('src') || ''));
         if (token.children) visit(token.children);
       }
     };
@@ -125,12 +192,31 @@ export function rewriteLibraryReferences(
         while (content[end] === '`') end++;
         const delimiter = content.slice(i, end);
         let close = content.indexOf(delimiter, end);
-        while (close >= 0 && (content[close - 1] === '`' || content[close + delimiter.length] === '`')) close = content.indexOf(delimiter, close + delimiter.length);
-        if (close >= 0) { mark(i, close + delimiter.length); i = close + delimiter.length - 1; }
-      } else if (content[i] === '$' && content[i + 1] !== '$' && !/\s/.test(content[i + 1] || ' ')) {
+        while (
+          close >= 0 &&
+          (content[close - 1] === '`' || content[close + delimiter.length] === '`')
+        )
+          close = content.indexOf(delimiter, close + delimiter.length);
+        if (close >= 0) {
+          mark(i, close + delimiter.length);
+          i = close + delimiter.length - 1;
+        }
+      } else if (
+        content[i] === '$' &&
+        content[i + 1] !== '$' &&
+        !/\s/.test(content[i + 1] || ' ')
+      ) {
         let close = i + 1;
-        while (close < content.length && content[close] !== '\n' && (content[close] !== '$' || escaped(content, close))) close++;
-        if (content[close] === '$' && !/\s/.test(content[close - 1])) { mark(i, close + 1); i = close; }
+        while (
+          close < content.length &&
+          content[close] !== '\n' &&
+          (content[close] !== '$' || escaped(content, close))
+        )
+          close++;
+        if (content[close] === '$' && !/\s/.test(content[close - 1])) {
+          mark(i, close + 1);
+          i = close;
+        }
       }
     }
     const canonical = (url: string) => markdown.normalizeLink(markdown.utils.unescapeAll(url));
@@ -140,8 +226,11 @@ export function rewriteLibraryReferences(
       let normalized = canonical(raw);
       if (wiki) {
         const [path, ...fragment] = raw.split('#');
-        const target = (path && !/\.[a-z\d]+$/i.test(path) ? path + '.md' : path)
-          .split('/').map(encodeURIComponent).join('/') + (fragment.length ? '#' + encodeURIComponent(fragment.join('#')) : '');
+        const target =
+          (path && !/\.[a-z\d]+$/i.test(path) ? path + '.md' : path)
+            .split('/')
+            .map(encodeURIComponent)
+            .join('/') + (fragment.length ? '#' + encodeURIComponent(fragment.join('#')) : '');
         normalized = markdown.normalizeLink(target);
       }
       if (!force && !urls.has(normalized)) return;
@@ -177,8 +266,11 @@ export function rewriteLibraryReferences(
       if (content[i + 1] === '[') {
         const end = content.indexOf(']]', i + 2);
         if (end >= 0 && !/[\r\n]/.test(content.slice(i, end))) {
-          const separator = content.indexOf('|', i + 2), stop = separator >= 0 && separator < end ? separator : end;
-          add(i + 2, stop, true); i = end + 1; continue;
+          const separator = content.indexOf('|', i + 2),
+            stop = separator >= 0 && separator < end ? separator : end;
+          add(i + 2, stop, true);
+          i = end + 1;
+          continue;
         }
       }
       const labelEnd = closeLabel(i);

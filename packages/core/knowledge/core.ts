@@ -35,7 +35,7 @@ import type { AppDatabase } from '../db.js';
 import { safePath, validName, readDocument } from '../files.js';
 import { assertSharePrincipal, isSharePrincipal } from '../share-policy.js';
 import { assertShareResources } from '../share-resources.js';
-import { authorizePath } from '../agent/auth.js';
+import { authorizePath, requireScope } from '../agent/auth.js';
 import { fail, KnowledgeError } from './errors.js';
 import type { OperationRow } from './operations.js';
 import {
@@ -56,6 +56,7 @@ export const webPrincipal: Principal = {
   id: 'web-owner',
   clientId: 'browser',
   scopes: ['knowledge:read', 'knowledge:write', 'knowledge:index'],
+  knowledgeAll: true,
   allowedPrefixes: [
     'README.md',
     '00-Inbox',
@@ -324,6 +325,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     content: string,
     requestId: string,
   ) {
+    if (typeof directory !== 'string') fail(400, 'INVALID_DIRECTORY');
     if (typeof content !== 'string' || Buffer.byteLength(content) > (isWhiteboard(fileName) ? MAX_WHITEBOARD_BYTES : 1024 * 1024))
       fail(413, 'REQUEST_TOO_LARGE');
     if (isWhiteboard(fileName)) { try { parseWhiteboard(content); } catch(e) { fail(400, 'INVALID_WHITEBOARD', (e as Error).message); } }
@@ -440,6 +442,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     }, id);
   }
   function archive(p: Principal, id: string, expected: string, requestId: string) {
+    if (p.policyVersion === 2 || p.permissionCeiling) requireScope(p, 'knowledge:archive');
     const n = row(id, true);
     authorizePath(p, n.path, 'knowledge:write');
     const op = workspaceBegin(db, () =>
@@ -647,6 +650,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     fsyncDirectory(dirname(source));
   }
   function restore(p: Principal, id: string, fileName: string | undefined, requestId: string) {
+    if (p.policyVersion === 2 || p.permissionCeiling) requireScope(p, 'knowledge:archive');
     const n = row(id, true);
     authorizePath(p, n.path, 'knowledge:write');
     const name = fileName || basename(n.path);

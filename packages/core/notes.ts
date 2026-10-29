@@ -1,6 +1,6 @@
 import {documentTitle,documentType,isWhiteboard,parseWhiteboard,MAX_WHITEBOARD_BYTES,withWhiteboardId,whiteboardId} from '../../shared/whiteboard.js';
 import { hasActiveShare } from './share-policy.js';
-import { workspaceWriteSync } from './workspace/gate.js';
+import { assertOrganizationReadable, workspaceWriteSync } from './workspace/gate.js';
 import { randomUUID } from 'node:crypto';
 import {
   mkdirSync,
@@ -31,6 +31,7 @@ export interface NoteRow {
 export function noteService(config: AppConfig, db: AppDatabase) {
   const mutations = mutationCore(config, db);
   function scan() {
+    assertOrganizationReadable(db);
     assertRoot(config, db);
     recoverFolders(config, db);
     if (
@@ -76,6 +77,7 @@ export function noteService(config: AppConfig, db: AppDatabase) {
     return files;
   }
   function row(id: string, deleted = false) {
+    assertOrganizationReadable(db);
     assertRoot(config, db);
     const note = db.prepare('SELECT * FROM notes WHERE id=?').get(id) as NoteRow | undefined;
     if (!note || (!deleted && !note.active)) throw new HttpError(404, '笔记不存在');
