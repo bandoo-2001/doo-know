@@ -19,6 +19,8 @@ export type Principal = {
   policyVersion?: 1 | 2;
   knowledgeAll?: boolean;
   knowledgeResourcePaths?: { kind: string; id: string; path: string }[];
+  /** Original verified legacy assertion selectors, retained across live identity resolution. */
+  machineClaimPrefixes?: string[];
 };
 export type AgentConfig = {
   serviceToken: string;

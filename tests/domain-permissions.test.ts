@@ -831,3 +831,85 @@ it('revoked Tunnel grants require explicit owner authorization even after key ro
     await f.close();
   }
 });
+
+it('trusted legacy machine policies follow directory identity after rename and replacement', async () => {
+  const { pluginRuntimeFixture } = await import('./support/plugin-runtime.js');
+  const { currentPrincipalPolicy } = await import('../packages/core/agent/config.js');
+  const { syncDirectoryCatalog } = await import('../packages/core/organization/catalog.js');
+  const { rename, mkdir } = await import('node:fs/promises');
+  const { join } = await import('node:path');
+  const f = await pluginRuntimeFixture();
+  try {
+    syncDirectoryCatalog(f.config, f.db);
+    expect(currentPrincipalPolicy(f.config, f.db, f.principal)!.allowedPrefixes).toEqual([
+      '00-Inbox',
+    ]);
+    await rename(join(f.config.knowledgeRoot, '00-Inbox'), join(f.config.knowledgeRoot, 'Renamed'));
+    await mkdir(join(f.config.knowledgeRoot, '00-Inbox'));
+    const projected = currentPrincipalPolicy(f.config, f.db, f.principal)!;
+    expect(projected.allowedPrefixes).toEqual(['Renamed']);
+    expect(policies.canAccessPath(projected, '00-Inbox/replacement.md')).toBe(false);
+    expect(projected.knowledgeAll).not.toBe(true);
+    expect(projected.scopes).not.toContain('knowledge:organize');
+    expect(currentPrincipalPolicy(f.config, f.db, projected)!.allowedPrefixes).toEqual(['Renamed']);
+    f.config.agent!.policies[0].allowedPrefixes.push('10-Projects');
+    expect(currentPrincipalPolicy(f.config, f.db, projected)!.allowedPrefixes).toEqual(['Renamed']);
+  } finally {
+    await f.close();
+  }
+});
+it('narrowed machine assertions stay bound to their selected child identity', async () => {
+  const { pluginRuntimeFixture } = await import('./support/plugin-runtime.js');
+  const { currentPrincipalPolicy } = await import('../packages/core/agent/config.js');
+  const { rename, mkdir } = await import('node:fs/promises');
+  const { join } = await import('node:path');
+  const f = await pluginRuntimeFixture();
+  try {
+    await mkdir(join(f.config.knowledgeRoot, '00-Inbox/Sub'));
+    const claim = { ...f.principal, scopes: ['knowledge:read'], allowedPrefixes: ['00-Inbox/Sub'] };
+    expect(currentPrincipalPolicy(f.config, f.db, claim)!.allowedPrefixes).toEqual([
+      '00-Inbox/Sub',
+    ]);
+    await rename(
+      join(f.config.knowledgeRoot, '00-Inbox/Sub'),
+      join(f.config.knowledgeRoot, '00-Inbox/RenamedSub'),
+    );
+    await mkdir(join(f.config.knowledgeRoot, '00-Inbox/Sub'));
+    const p = currentPrincipalPolicy(f.config, f.db, claim)!;
+    expect(p.allowedPrefixes).toEqual(['00-Inbox/RenamedSub']);
+    expect(p.scopes).toEqual(['knowledge:read']);
+    expect(policies.canAccessPath(p, '00-Inbox/Sub/replacement.md')).toBe(false);
+    expect(policies.canAccessPath(p, '00-Inbox/Other/note.md')).toBe(false);
+    expect(currentPrincipalPolicy(f.config, f.db, p)!.allowedPrefixes).toEqual([
+      '00-Inbox/RenamedSub',
+    ]);
+  } finally {
+    await f.close();
+  }
+});
+it('the legacy Agent HTTP boundary binds configured directory identity before listing notes', async () => {
+  const { createFixture } = await import('./support/fixture.js');
+  const { agentConfig, agentHeaders } = await import('./support/agent.js');
+  const { rename, mkdir, writeFile } = await import('node:fs/promises');
+  const { join } = await import('node:path');
+  const f = await createFixture({ agent: agentConfig });
+  try {
+    await writeFile(join(f.knowledgeRoot, '00-Inbox/original.md'), '# Original');
+    const url = '/api/agent/v1/notes';
+    const initial = await f.app.inject({ url, headers: agentHeaders() });
+    expect(initial.statusCode, initial.body).toBe(200);
+    expect(initial.json().data.items.map((x: any) => x.relativePath)).toEqual([
+      '00-Inbox/original.md',
+    ]);
+    await rename(join(f.knowledgeRoot, '00-Inbox'), join(f.knowledgeRoot, 'Renamed'));
+    await mkdir(join(f.knowledgeRoot, '00-Inbox'));
+    await writeFile(join(f.knowledgeRoot, '00-Inbox/replacement.md'), '# Forbidden replacement');
+    const response = await f.app.inject({ url, headers: agentHeaders() });
+    expect(response.statusCode).toBe(200);
+    expect(response.json().data.items.map((x: any) => x.relativePath)).toEqual([
+      'Renamed/original.md',
+    ]);
+  } finally {
+    await f.close();
+  }
+});

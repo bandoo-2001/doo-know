@@ -30,7 +30,12 @@ export function initializeGrants(db: AppDatabase) {
     resource_id TEXT,PRIMARY KEY(selection_key,prefix));`);
 }
 /** Bind a legacy path once, including missing paths. Never rebind it to a later replacement. */
-export function resolveLegacyPrefixes(db: AppDatabase, key: string, prefixes: string[]): string[] {
+export function resolveLegacyPrefixes(
+  db: AppDatabase,
+  key: string,
+  prefixes: string[],
+  initialPath: (prefix: string) => string | undefined = (prefix) => prefix,
+): string[] {
   const library = currentLibraryIdentity(db);
   if (!library) return prefixes.filter(Boolean);
   const result: string[] = [];
@@ -39,15 +44,19 @@ export function resolveLegacyPrefixes(db: AppDatabase, key: string, prefixes: st
       .prepare('SELECT * FROM platform_permission_selections WHERE selection_key=? AND prefix=?')
       .get(key, prefix) as any;
     if (!row) {
+      const lookup = initialPath(prefix);
       const dir =
+        lookup !== undefined &&
         hasTable(db, 'organization_directories') &&
         (db
           .prepare(
             'SELECT id FROM organization_directories WHERE path=? AND active=1 AND library_id=?',
           )
-          .get(prefix, library.libraryId) as any);
+          .get(lookup, library.libraryId) as any);
       const note =
-        !dir && (db.prepare('SELECT id FROM notes WHERE path=? AND active=1').get(prefix) as any);
+        lookup !== undefined &&
+        !dir &&
+        (db.prepare('SELECT id FROM notes WHERE path=? AND active=1').get(lookup) as any);
       db.prepare(
         'INSERT OR IGNORE INTO platform_permission_selections(selection_key,prefix,library_id,resource_kind,resource_id) VALUES(?,?,?,?,?)',
       ).run(
