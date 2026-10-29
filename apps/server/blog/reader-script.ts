@@ -11,7 +11,8 @@ export const blogReaderScript = `(() => {
         field.value = text; field.setAttribute('readonly', '');
         field.style.position = 'fixed'; field.style.opacity = '0';
         document.body.append(field); field.select();
-        const copied = document.execCommand('copy'); field.remove();
+        let copied;
+        try { copied = document.execCommand('copy'); } finally { field.remove(); }
         if (!copied) throw new Error('copy unavailable');
       }
       return true;
@@ -29,11 +30,52 @@ export const blogReaderScript = `(() => {
     pre.prepend(button);
   });
   const url = document.querySelector('link[rel="canonical"]')?.href || location.href;
-  document.querySelector('[data-copy-link]')?.addEventListener('click', async () => report(await copy(url) ? '链接已复制' : '无法复制，请复制地址栏链接'));
-  document.querySelector('[data-share]')?.addEventListener('click', async () => {
+  const copyLink = document.querySelector('[data-copy-link]');
+  copyLink?.addEventListener('click', async () => report(await copy(url) ? '链接已复制' : '无法复制，请复制地址栏链接'));
+  if (copyLink) copyLink.hidden = false;
+  const share = document.querySelector('[data-share]');
+  share?.addEventListener('click', async () => {
     try {
       if (navigator.share) await navigator.share({ title: document.querySelector('article h1')?.textContent || document.title, url });
       else report(await copy(url) ? '链接已复制，可以分享给朋友' : '请复制地址栏链接分享');
-    } catch (error) { if (error.name !== 'AbortError') report('暂时无法分享，请复制链接'); }
+    } catch (error) { if (error?.name !== 'AbortError') report('暂时无法分享，请复制链接'); }
   });
+  if (share) share.hidden = false;
+
+  // Reading is complete when the end of the snapshot reaches the viewport.
+  // Native anchors and details remain the entire navigation mechanism.
+  const body = document.querySelector('.reader-article .article-body');
+  const progress = document.querySelector('[data-reading-progress]');
+  if (!body) return;
+  const sections = Array.from(document.querySelectorAll('.toc-links a')).flatMap(anchor => {
+    const heading = document.getElementById(anchor.getAttribute('href').slice(1));
+    return heading && body.contains(heading) ? [{ anchor, heading }] : [];
+  });
+  let queued = false;
+  const updateReading = () => {
+    queued = false;
+    const rect = body.getBoundingClientRect();
+    const viewport = window.innerHeight || document.documentElement.clientHeight;
+    const range = rect.height - viewport;
+    if (progress) {
+      progress.hidden = range <= 0;
+      progress.value = range > 0 ? Math.round(Math.min(100, Math.max(0, -rect.top / range * 100))) : 100;
+    }
+    let current = sections[0];
+    for (const section of sections) {
+      if (section.heading.getBoundingClientRect().top <= 128) current = section;
+    }
+    for (const section of sections) {
+      if (section === current) section.anchor.setAttribute('aria-current', 'location');
+      else section.anchor.removeAttribute('aria-current');
+    }
+  };
+  const scheduleReading = () => {
+    if (!queued) { queued = true; window.requestAnimationFrame(updateReading); }
+  };
+  window.addEventListener('scroll', scheduleReading, { passive: true });
+  window.addEventListener('resize', scheduleReading, { passive: true });
+  window.addEventListener('load', scheduleReading, { once: true });
+  if (typeof ResizeObserver !== 'undefined') new ResizeObserver(scheduleReading).observe(body);
+  updateReading();
 })();`;

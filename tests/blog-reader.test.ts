@@ -5,6 +5,115 @@ import { join } from 'node:path';
 import Database from 'better-sqlite3';
 import { createFixture, loginFixtureOwner, type Fixture } from './support/fixture';
 import { defaultBlogDesign, type BlogDesign } from '../shared/blog-design';
+import {
+  documentHtml,
+  homeHtml,
+  readerHtml,
+  type ReaderPost,
+  type RenderContext,
+  type PublicPageSource,
+} from '../apps/server/blog/render';
+
+const renderContext: RenderContext = {
+  settings: {
+    version: 1,
+    enabled: true,
+    title: 'Notebook',
+    description: 'Ideas in progress',
+    author: 'Writer',
+    baseUrl: '',
+    about: '',
+    theme: 'light',
+  },
+  design: defaultBlogDesign(),
+  origin: 'https://example.org',
+};
+const emptySource: PublicPageSource = () => ({
+  posts: [],
+  total: 0,
+  page: 1,
+  pageSize: 12,
+  totalPages: 0,
+});
+const readerPost: ReaderPost = {
+  id: 'reader',
+  slug: 'reader',
+  title: 'A public note',
+  summary: 'A useful summary',
+  category: 'Writing',
+  tags: ['notes'],
+  pinned: false,
+  cover: null,
+  publishedAt: '2026-10-29T09:00:00.000Z',
+  updatedAt: '2026-10-29T10:00:00.000Z',
+  url: '/blog/reader',
+  html: '<h1 id="original">Source title</h1><h2 id="a&amp;b">A &amp; B</h2><p>Original text.</p>',
+  headings: [
+    { id: 'original', text: 'Source title' },
+    { id: 'a&b', text: 'A & B' },
+  ],
+};
+
+it('provides native article navigation and author context while preserving snapshot HTML exactly', () => {
+  const html = readerHtml(renderContext, readerPost, emptySource);
+  expect(html).toContain('aria-label="面包屑"');
+  expect(html).toContain('href="/blog/-/articles"');
+  expect(html).toContain('id="article-top"');
+  expect(html).toContain('href="#article-top"');
+  expect(html).toContain('href="#a&amp;b"');
+  expect(html).toContain('<details>');
+  expect(html).not.toContain('<details open');
+  expect(html).toContain('class="reader-author">Writer</span>');
+  expect(html).toContain('<div class="article-body">' + readerPost.html + '</div>');
+  expect(html).toMatch(/<progress[^>]*data-reading-progress[^>]*hidden/);
+  // Share controls need scripting; native links remain useful with scripting disabled.
+  expect(html).toMatch(/<button[^>]*data-copy-link[^>]*hidden/);
+});
+
+it('omits an empty table of contents without removing the native return link', () => {
+  const html = readerHtml(
+    renderContext,
+    { ...readerPost, html: '<p>A short note.</p>', headings: [] },
+    emptySource,
+  );
+  expect(html).not.toContain('<aside class="toc"');
+  expect(html).toContain('href="#article-top"');
+  expect(html).toContain('1 分钟阅读');
+});
+
+it('keeps previews script free while public readers retain their self hosted enhancement', () => {
+  const publicHtml = documentHtml(
+    renderContext,
+    readerPost.title,
+    '<p>Body</p>',
+    readerPost.url,
+    readerPost,
+  );
+  const preview = documentHtml(
+    { ...renderContext, preview: true },
+    readerPost.title,
+    '<p>Body</p>',
+    readerPost.url,
+    readerPost,
+  );
+  expect(publicHtml).toContain('src="/blog/reader.js"');
+  expect(preview).not.toContain('<script');
+  expect(preview).toContain('href="/blog/-/articles"');
+  expect(preview).toContain('<p>Body</p>');
+});
+
+it('keeps a profile homepage usable when its intro is disabled', () => {
+  const design = defaultBlogDesign();
+  design.template = 'profile';
+  design.modules = [
+    { id: 'latest', kind: 'latest', title: 'Recent writing', enabled: true, limit: 2 },
+  ];
+  const html = homeHtml({ ...renderContext, design }, emptySource);
+  expect(html).toContain('class="home-profile no-intro"');
+  expect(html).toContain('Recent writing');
+  expect(html).toContain('href="/blog/-/articles"');
+  expect(html).not.toContain('profile-sidebar');
+});
 
 let f: Fixture;
 let headers: Awaited<ReturnType<typeof loginFixtureOwner>>;

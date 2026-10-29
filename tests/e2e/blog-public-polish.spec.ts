@@ -146,7 +146,7 @@ test('public reading contains long content and provides keyboard and filter exit
           .evaluate((element) => element.scrollWidth > element.clientWidth),
       ).toBe(true);
     const titleSize = await reader
-      .locator('article > h1')
+      .locator('.reader-header > h1')
       .evaluate((element) => parseFloat(getComputedStyle(element).fontSize));
     const bodyHeadingSize = await reader
       .locator('.article-body h1')

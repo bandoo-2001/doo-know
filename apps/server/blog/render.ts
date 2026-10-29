@@ -66,25 +66,30 @@ export function documentHtml(
   const social = d.socialLinks.length
     ? `<nav aria-label="社交链接">${d.socialLinks.map((n) => link(n.href, n.label)).join('')}</nav>`
     : '';
-  const structured = post
-    ? `<script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@type': 'BlogPosting', headline: post.title, description: post.summary, datePublished: post.publishedAt, dateModified: post.updatedAt, url: canonical, author: { '@type': 'Person', name: d.profile.name || s.author || s.title }, ...(post.cover ? { image: base + post.cover } : {}) }).replace(/[<>&\u2028\u2029]/g, (c) => '\\u' + c.charCodeAt(0).toString(16).padStart(4, '0'))}</script>`
-    : '';
+  const structured =
+    post && !context.preview
+      ? `<script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@type': 'BlogPosting', headline: post.title, description: post.summary, datePublished: post.publishedAt, dateModified: post.updatedAt, url: canonical, author: { '@type': 'Person', name: d.profile.name || s.author || s.title }, ...(post.cover ? { image: base + post.cover } : {}) }).replace(/[<>&\u2028\u2029]/g, (c) => '\\u' + c.charCodeAt(0).toString(16).padStart(4, '0'))}</script>`
+      : '';
   const accent = /^#[\da-f]{6}$/i.test(d.accent) ? d.accent : '#44684f';
-  return `<!doctype html><html lang="zh-CN" data-theme="${esc(s.theme)}" data-template="${esc(d.template)}" data-font="${esc(d.font)}" data-width="${esc(d.width)}" data-cards="${esc(d.cardStyle)}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)} · ${esc(s.title)}</title><meta name="description" content="${esc(description)}"><link rel="canonical" href="${esc(canonical)}"><link rel="alternate" type="application/rss+xml" title="RSS" href="${esc(base)}/blog/rss.xml"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(description)}"><meta property="og:url" content="${esc(canonical)}"><meta property="og:type" content="${post ? 'article' : 'website'}">${post?.cover ? `<meta property="og:image" content="${esc(base + post.cover)}"><meta name="twitter:card" content="summary_large_image">` : '<meta name="twitter:card" content="summary">'}<style>${publicBlogStyles}\n:root{--brand-accent:${accent}}</style>${structured}${post ? '<script defer src="/blog/reader.js"></script>' : ''}</head><body>${context.preview ? '<div class="preview-banner" role="status">装修草稿预览 · 仅你可见</div>' : ''}<a class="skip-link" href="#blog-content">跳到正文</a><header class="site-header"><a class="brand" href="/blog">${esc(s.title)}</a><nav aria-label="博客导航">${navigation}</nav></header><main id="blog-content" tabindex="-1">${body}</main><footer>${esc(s.author || s.title)}${social}<a href="/blog/rss.xml">订阅 RSS</a></footer></body></html>`;
+  return `<!doctype html><html lang="zh-CN" data-theme="${esc(s.theme)}" data-template="${esc(d.template)}" data-font="${esc(d.font)}" data-width="${esc(d.width)}" data-cards="${esc(d.cardStyle)}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)} · ${esc(s.title)}</title><meta name="description" content="${esc(description)}"><link rel="canonical" href="${esc(canonical)}"><link rel="alternate" type="application/rss+xml" title="RSS" href="${esc(base)}/blog/rss.xml"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(description)}"><meta property="og:url" content="${esc(canonical)}"><meta property="og:type" content="${post ? 'article' : 'website'}">${post?.cover ? `<meta property="og:image" content="${esc(base + post.cover)}"><meta name="twitter:card" content="summary_large_image">` : '<meta name="twitter:card" content="summary">'}<style>${publicBlogStyles}\n:root{--brand-accent:${accent}}</style>${structured}${post && !context.preview ? '<script defer src="/blog/reader.js"></script>' : ''}</head><body>${context.preview ? '<div class="preview-banner" role="status">装修草稿预览 · 仅你可见</div>' : ''}<a class="skip-link" href="#blog-content">跳到正文</a><header class="site-header"><div class="site-identity"><a class="brand" href="/blog">${esc(s.title)}</a>${s.description ? `<p class="site-description">${esc(s.description)}</p>` : ''}</div><nav class="site-nav" aria-label="博客导航">${navigation}</nav></header><main id="blog-content" tabindex="-1">${body}</main><footer class="site-footer"><div class="footer-identity"><a href="/blog">${esc(s.title)}</a><p>${esc(s.author || s.title)}</p></div><div class="footer-links">${social}<a href="/blog/rss.xml">订阅 RSS</a></div></footer></body></html>`;
 }
-export function postCards(posts: BlogPublicPostSummary[], empty = '暂无文章'): string {
+export function postCards(
+  posts: BlogPublicPostSummary[],
+  empty = '暂无文章',
+  featured = false,
+): string {
   return (
     posts
       .map(
-        (p) =>
-          `<article class="post-card">${p.cover ? `<a class="card-cover-link" href="${esc(p.url)}"><img class="cover" src="${esc(p.cover)}" alt="" loading="lazy"></a>` : ''}<div class="card-copy"><div class="card-meta">${p.pinned ? '<span class="pinned">置顶</span>' : ''}<time datetime="${esc(p.publishedAt)}">${esc(p.publishedAt.slice(0, 10))}</time>${p.category ? ` · ${esc(p.category)}` : ''}</div><h2><a href="${esc(p.url)}">${esc(p.title)}</a></h2>${p.summary ? `<p class="summary">${esc(p.summary)}</p>` : ''}</div></article>`,
+        (p, index) =>
+          `<article class="post-card${featured && index === 0 ? ' post-card-featured' : ''}">${p.cover ? `<a class="card-cover-link" href="${esc(p.url)}" aria-label="${esc(p.title)}"><img class="cover" src="${esc(p.cover)}" alt="" loading="lazy" decoding="async"></a>` : ''}<div class="card-copy"><div class="card-meta">${p.pinned ? '<span class="pinned">置顶</span>' : ''}<time datetime="${esc(p.publishedAt)}">${esc(p.publishedAt.slice(0, 10))}</time>${p.category ? ` · ${esc(p.category)}` : ''}</div><h2><a href="${esc(p.url)}">${esc(p.title)}</a></h2>${p.summary ? `<p class="summary">${esc(p.summary)}</p>` : ''}</div></article>`,
       )
       .join('') || `<div class="empty-state"><p>${esc(empty)}</p></div>`
   );
 }
 function profileIntro(c: RenderContext): string {
   const { profile: p } = c.design;
-  return `${p.cover ? `<img class="profile-cover" src="${esc(p.cover)}" alt="">` : ''}<div class="identity">${p.avatar ? `<img class="avatar" src="${esc(p.avatar)}" alt="${esc(p.name || c.settings.author)}的头像">` : ''}<div><p class="eyebrow">${esc(p.tagline || c.settings.description)}</p><h1>${esc(p.name || c.settings.author || c.settings.title)}</h1>${p.bio ? `<p class="profile-bio">${esc(p.bio)}</p>` : ''}${c.design.socialLinks.length ? `<nav aria-label="个人社交链接">${c.design.socialLinks.map((l) => link(l.href, l.label)).join('')}</nav>` : ''}</div></div>`;
+  return `${p.cover ? `<img class="profile-cover" src="${esc(p.cover)}" alt="">` : ''}<div class="identity">${p.avatar ? `<img class="avatar" src="${esc(p.avatar)}" alt="${esc(p.name || c.settings.author)}的头像">` : ''}<div><p class="eyebrow">${esc(p.tagline || c.settings.description)}</p><h1>${esc(p.name || c.settings.author || c.settings.title)}</h1>${p.bio ? `<p class="profile-bio">${esc(p.bio)}</p>` : ''}${c.design.socialLinks.length ? `<nav aria-label="个人社交链接">${c.design.socialLinks.map((l) => link(l.href, l.label)).join('')}</nav>` : ''}<div class="intro-actions">${link('/blog/-/articles', '浏览文章 →', ' class="text-link"')}</div></div></div>`;
 }
 export function collectionCards(
   context: RenderContext,
@@ -117,6 +122,7 @@ export function homeHtml(context: RenderContext, source: PublicPageSource): stri
               .posts.filter((p) => p.pinned)
               .slice(0, m.limit),
             '暂无精选文章。可先浏览最近文章。',
+            true,
           )}</div>`;
           break;
         case 'latest':
@@ -124,7 +130,7 @@ export function homeHtml(context: RenderContext, source: PublicPageSource): stri
             allSummaries(source)
               .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt) || b.id.localeCompare(a.id))
               .slice(0, m.limit),
-          )}</div><p>${link('/blog/-/articles', '查看全部文章 →')}</p>`;
+          )}</div><p class="module-footer">${link('/blog/-/articles', '查看全部文章 →', ' class="text-link"')}</p>`;
           break;
         case 'collections':
           body = `<div class="collection-grid">${collectionCards(context, source, m.limit)}</div>`;
@@ -151,14 +157,14 @@ export function homeHtml(context: RenderContext, source: PublicPageSource): stri
       }
       return {
         kind: m.kind,
-        html: `<section class="home-module module-${m.kind}" data-module="${m.kind}"><h2 class="module-title">${esc(m.title)}</h2>${body}</section>`,
+        html: `<section class="home-module module-${m.kind}" data-module="${m.kind}"><div class="module-heading"><h2 class="module-title">${esc(m.title)}</h2></div>${body}</section>`,
       };
     });
   // Each preset owns its layout. Module DOM order always follows the author's ordering.
   if (d.template === 'magazine')
     return `<div class="home-magazine"><div class="magazine-masthead"><p class="eyebrow">${esc(d.profile.tagline || '记录 · 发现 · 分享')}</p><p class="display-title">${esc(context.settings.title)}</p></div><div class="magazine-layout">${modules.map((m) => m.html).join('')}</div></div>`;
   if (d.template === 'profile')
-    return `<div class="home-profile"><div class="profile-layout">${modules.map((m) => (m.kind === 'intro' ? `<div class="profile-sidebar">${m.html}</div>` : `<div class="profile-section">${m.html}</div>`)).join('')}</div></div>`;
+    return `<div class="home-profile${modules.some((m) => m.kind === 'intro') ? '' : ' no-intro'}"><div class="profile-layout">${modules.map((m) => (m.kind === 'intro' ? `<div class="profile-sidebar">${m.html}</div>` : `<div class="profile-section">${m.html}</div>`)).join('')}</div></div>`;
   return `<div class="home-journal"><div class="journal-stream">${modules.map((m) => m.html).join('')}</div></div>`;
 }
 export function articleListHtml(
@@ -217,7 +223,7 @@ export function readerHtml(
     Math.ceil((words.match(/[\u3400-\u9fff]|[a-z0-9]+/gi)?.length || 0) / 250),
   );
   const toc = p.headings.length
-    ? `<aside class="toc" aria-label="目录"><details open><summary>文章目录</summary>${p.headings.map((h) => `<a href="#${esc(h.id)}">${esc(h.text)}</a>`).join('')}</details></aside>`
+    ? `<aside class="toc" aria-label="目录"><details><summary>文章目录</summary><nav class="toc-links" aria-label="文章章节">${p.headings.map((h) => `<a href="#${esc(h.id)}">${esc(h.text)}</a>`).join('')}</nav></details></aside>`
     : '';
   const collections = context.design.collections
     .filter((c) => c.postIds.includes(p.id))
@@ -245,7 +251,8 @@ export function readerHtml(
   })
     .posts.filter((item) => item.id !== p.id)
     .slice(0, 3);
-  return `<article class="reader-article"><p class="muted article-meta"><time datetime="${esc(p.publishedAt)}">${esc(p.publishedAt.slice(0, 10))}</time> · ${minutes} 分钟阅读${p.category ? ` · ${link('/blog?category=' + encodeURIComponent(p.category), p.category)}` : ''}</p><h1>${esc(p.title)}</h1>${p.summary ? `<p class="summary">${esc(p.summary)}</p>` : ''}${p.tags.length ? `<div class="taxonomy" aria-label="文章标签">${p.tags.map((t) => `<a class="chip" href="/blog?tag=${encodeURIComponent(t)}">#${esc(t)}</a>`).join('')}</div>` : ''}${p.cover ? `<img class="cover" src="${esc(p.cover)}" alt="">` : ''}<div class="reader-layout">${toc}<div class="article-body">${p.html}</div></div><div class="reader-actions" aria-label="文章分享"><button type="button" data-copy-link>复制链接</button><button type="button" data-share>分享文章</button><span role="status" aria-live="polite" data-reader-status></span></div>${collections}${adjacent}${related.length ? `<section class="related-posts"><h2>继续阅读</h2>${postCards(related)}</section>` : ''}</article>`;
+  const author = context.design.profile.name || context.settings.author || context.settings.title;
+  return `<article class="reader-article" id="article-top"><nav class="reader-breadcrumb" aria-label="面包屑"><a href="/blog">首页</a><span aria-hidden="true">/</span><a href="/blog/-/articles">文章</a><span aria-hidden="true">/</span><span aria-current="page">正文</span></nav><header class="reader-header"><p class="muted article-meta"><span class="reader-author">${esc(author)}</span><span aria-hidden="true"> · </span><time datetime="${esc(p.publishedAt)}">${esc(p.publishedAt.slice(0, 10))}</time><span aria-hidden="true"> · </span><span>${minutes} 分钟阅读</span>${p.category ? `<span aria-hidden="true"> · </span>${link('/blog?category=' + encodeURIComponent(p.category), p.category)}` : ''}</p><h1>${esc(p.title)}</h1>${p.summary ? `<p class="summary reader-deck">${esc(p.summary)}</p>` : ''}${p.tags.length ? `<div class="taxonomy" aria-label="文章标签">${p.tags.map((t) => `<a class="chip" href="/blog?tag=${encodeURIComponent(t)}">#${esc(t)}</a>`).join('')}</div>` : ''}</header><progress class="reading-progress" data-reading-progress hidden max="100" value="0" aria-label="阅读进度"></progress>${p.cover ? `<img class="cover reader-cover" src="${esc(p.cover)}" alt="" decoding="async">` : ''}<div class="reader-layout${p.headings.length ? '' : ' no-toc'}">${toc}<div class="article-body">${p.html}</div></div><div class="reader-actions" aria-label="文章分享"><button type="button" data-copy-link hidden>复制链接</button><button type="button" data-share hidden>分享文章</button><a class="back-to-top" href="#article-top">返回顶部 ↑</a><span role="status" aria-live="polite" data-reader-status></span></div>${collections}${adjacent}${related.length ? `<section class="related-posts"><h2>继续阅读</h2>${postCards(related)}</section>` : ''}</article>`;
 }
 export function orderedCollectionPosts(
   source: PublicPageSource,

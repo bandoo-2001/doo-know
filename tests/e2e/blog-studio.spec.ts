@@ -109,8 +109,15 @@ test('homepage studio previews privately, publishes all configured content and r
         avatar.locator('.blog-crop-window img').evaluate((e: HTMLImageElement) => e.naturalWidth),
       )
       .toBeGreaterThan(0);
+    const upload = page.waitForResponse(
+      (response) =>
+        new URL(response.url()).pathname === '/api/blog/design/media' &&
+        response.request().method() === 'POST',
+    );
     await avatar.getByRole('button', { name: '裁切并上传', exact: true }).click();
-    await expect(page.getByAltText('当前头像')).toBeVisible();
+    const uploaded = await (await upload).json();
+    // A previously published avatar can already be visible while this upload finishes.
+    await expect(page.getByAltText('当前头像')).toHaveAttribute('src', uploaded.previewUrl);
     const privateImage = (await page.getByAltText('当前头像').getAttribute('src'))!;
     const publicImage = privateImage.replace('/api/blog/design/media/', '/blog/media/');
     expect((await guest.request.get(publicImage)).status()).toBe(404);
