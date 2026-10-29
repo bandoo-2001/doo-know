@@ -12,13 +12,23 @@ import type { BlogService } from '../../../packages/core/blog/service.js';
 import { webPrincipal } from '../../../packages/core/knowledge/core.js';
 import { HttpError } from '../../../packages/core/errors.js';
 import { KnowledgeError } from '../../../packages/core/knowledge/errors.js';
-import { publicBlogStyles } from './styles.js';
-
-const esc = (s: unknown) =>
-  String(s ?? '').replace(
-    /[&<>"']/g,
-    (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!,
-  );
+import type { BlogDesign, BlogPublicQuery } from '../../../shared/blog-design.js';
+import { registerBlogStudioRoutes } from './studio-routes.js';
+import {
+  aboutHtml,
+  articleListHtml,
+  collectionCards,
+  documentHtml,
+  esc,
+  homeHtml,
+  orderedCollectionPosts,
+  postCards,
+  publicBlogCsp,
+  readerHtml,
+  type RenderContext,
+  type PublicPageSource,
+} from './render.js';
+import { blogReaderScript } from './reader-script.js';
 
 export function registerBlogRoutes(
   app: FastifyInstance,
@@ -87,112 +97,239 @@ export function registerBlogRoutes(
       throw new HttpError(404, '博客页面不存在');
     }
   }
-  function page(
+  registerBlogStudioRoutes(app, getBlog);
+  function context(preview = false, design?: BlogDesign): RenderContext {
+    const blog = preview ? getBlog() : publicService();
+    const settings = blog.settings();
+    if (!preview && !settings.enabled) throw new HttpError(404, '博客页面不存在');
+    return { settings, design: design || blog.publicDesign(), origin: config.origin, preview };
+  }
+  function sendPage(
     reply: FastifyReply,
+    ctx: RenderContext,
     title: string,
     body: string,
-    options: { url?: string; description?: string; post?: boolean } = {},
+    path = '/blog',
+    post?: Parameters<typeof documentHtml>[4],
   ) {
-    const blog = publicService(),
-      s = blog.settings();
-    if (!s.enabled) throw new HttpError(404, '博客页面不存在');
-    const base = s.baseUrl || config.origin,
-      canonical = base + (options.url || '/blog');
-    const navigation = (href: string, label: string) => {
-      const current = (options.url || '/blog') === href;
-      const section = options.post && href === '/blog';
-      return `<a href="${href}"${current ? ' aria-current="page"' : section ? ' aria-current="location"' : ''}>${label}</a>`;
-    };
-    reply
+    return reply
       .header('Cache-Control', 'no-store')
+      .header('X-Content-Type-Options', 'nosniff')
       .header(
         'Content-Security-Policy',
-        "default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
-      );
-    return reply
+        ctx.preview
+          ? publicBlogCsp.replace("frame-ancestors 'none'", "frame-ancestors 'self'")
+          : publicBlogCsp,
+      )
       .type('text/html; charset=utf-8')
-      .send(
-        `<!doctype html><html lang="zh-CN" data-theme="${esc(s.theme)}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)} · ${esc(s.title)}</title><meta name="description" content="${esc(options.description || s.description)}"><link rel="canonical" href="${esc(canonical)}"><link rel="alternate" type="application/rss+xml" title="RSS" href="${esc(base)}/blog/rss.xml"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(options.description || s.description)}"><meta property="og:url" content="${esc(canonical)}"><meta property="og:type" content="${options.post ? 'article' : 'website'}"><style>${publicBlogStyles}</style></head><body><a class="skip-link" href="#blog-content">跳到正文</a><header><a class="brand" href="/blog">${esc(s.title)}</a><nav aria-label="博客导航">${navigation('/blog', '文章')}${navigation('/blog/archive', '归档')}${navigation('/blog/about', '关于')}${navigation('/blog/rss.xml', 'RSS')}</nav></header><main id="blog-content" tabindex="-1">${body}</main><footer>${esc(s.author || s.title)} · <a href="/blog/rss.xml">RSS</a></footer></body></html>`,
+      .send(documentHtml(ctx, title, body, path, post));
+  }
+  const source: PublicPageSource = (query) => publicService().publicPostPage(query);
+  function allPosts() {
+    const first = source({ pageSize: 100 }),
+      posts = [...first.posts];
+    for (let page = 2; page <= first.totalPages; page++)
+      posts.push(...source({ page, pageSize: 100 }).posts);
+    return posts;
+  }
+  function articleQuery(req: FastifyRequest): BlogPublicQuery {
+    const q = req.query as Record<string, unknown>;
+    if (
+      ['q', 'query', 'category', 'tag', 'page', 'pageSize'].some(
+        (key) => q[key] !== undefined && typeof q[key] !== 'string',
+      )
+    )
+      throw new HttpError(400, '文章查询格式不正确');
+    return {
+      query: (q.q ?? q.query) as string | undefined,
+      category: q.category as string | undefined,
+      tag: q.tag as string | undefined,
+      page: q.page === undefined ? 1 : Number(q.page),
+      pageSize: q.pageSize === undefined ? 12 : Number(q.pageSize),
+    };
+  }
+  app.get('/api/blog/design/preview', (req, reply) => {
+    const p = principal(req),
+      blog = getBlog();
+    const design = previewMedia(blog.previewDesign(p));
+    const ctx = context(true, design);
+    return sendPage(reply, ctx, ctx.settings.title, homeHtml(ctx, previewSource(blog, p)));
+  });
+  app.post('/api/blog/design/preview', (req, reply) => {
+    const body = req.body as { design?: BlogDesign } | null;
+    if (!body || !body.design) throw new HttpError(400, '需要装修配置');
+    const p = principal(req),
+      blog = getBlog(),
+      design = previewMedia(blog.previewDesign(p, body.design));
+    const ctx = context(true, design);
+    return reply.header('Cache-Control', 'no-store').send({
+      html: documentHtml(ctx, ctx.settings.title, homeHtml(ctx, previewSource(blog, p))),
+    });
+  });
+  function previewSource(blog: BlogService, p: Principal): PublicPageSource {
+    return (query) => {
+      const page = blog.previewPostPage(p, query);
+      return {
+        ...page,
+        posts: page.posts.map((post) => ({
+          ...post,
+          cover:
+            post.cover?.replace(
+              /^\/blog\/assets\/([^/]+)\/([^/]+)\/([a-f0-9]{64})$/,
+              '/api/blog/posts/$1/versions/$2/assets/$3',
+            ) || null,
+        })),
+      };
+    };
+  }
+  function previewMedia(design: BlogDesign): BlogDesign {
+    // Draft-only media never becomes public merely by being previewed.
+    const copy = structuredClone(design);
+    for (const key of ['avatar', 'cover'] as const)
+      copy.profile[key] = copy.profile[key].replace(
+        /^\/blog\/media\/([a-f0-9]{64})$/,
+        '/api/blog/design/media/$1',
       );
+    return copy;
   }
   app.get('/blog', (req, reply) => {
-    const blog = publicService(),
-      query = req.query as { category?: string; tag?: string },
-      posts = blog.publicPosts(query),
-      s = blog.settings();
-    const all = blog.publicPosts(),
-      categories = [...new Set(all.map((p) => p.category).filter(Boolean))],
-      tags = [...new Set(all.flatMap((p) => p.tags))];
-    const filtered = !!(query.category || query.tag);
-    const chips =
-      `<a class="chip" href="/blog"${!filtered ? ' aria-current="true"' : ''}>全部文章</a>` +
-      categories
-        .map(
-          (c) =>
-            `<a class="chip" href="/blog?category=${encodeURIComponent(c)}"${query.category === c ? ' aria-current="true"' : ''}>${esc(c)}</a>`,
-        )
-        .join('') +
-      tags
-        .map(
-          (t) =>
-            `<a class="chip" href="/blog?tag=${encodeURIComponent(t)}"${query.tag === t ? ' aria-current="true"' : ''}>#${esc(t)}</a>`,
-        )
-        .join('');
-    const empty = filtered
-      ? '<section class="empty-state" aria-label="筛选结果"><h2>没有匹配的文章</h2><p>试试其他分类或标签，或查看全部文章。</p><a href="/blog">查看全部文章</a></section>'
-      : '<section class="empty-state" aria-label="文章列表"><h2>暂无文章</h2><p>新的文章发布后会显示在这里。</p><a href="/blog/rss.xml">订阅 RSS</a></section>';
-    const status = filtered
-      ? `<p class="filter-status">${query.category ? '当前分类：' + esc(query.category) : ''}${query.category && query.tag ? ' · ' : ''}${query.tag ? '当前标签：#' + esc(query.tag) : ''} · ${posts.length} 篇文章</p>`
-      : '';
-    return page(
-      reply,
-      s.title,
-      `<h1>${esc(query.category || query.tag || s.title)}</h1>${s.description ? `<p class="summary">${esc(s.description)}</p>` : ''}<div class="taxonomy" aria-label="文章筛选">${chips}</div>${status}${posts.map((p) => `<article class="post-card">${p.pinned ? '<span class="pinned">置顶</span>' : ''}<time datetime="${esc(p.publishedAt)}">${esc(p.publishedAt.slice(0, 10))}</time><h2><a href="${esc(p.url)}">${esc(p.title)}</a></h2>${p.summary ? `<p class="summary">${esc(p.summary)}</p>` : ''}${p.cover ? `<a href="${esc(p.url)}"><img class="cover" src="${esc(p.cover)}" alt=""></a>` : ''}</article>`).join('') || empty}`,
-    );
+    const ctx = context(),
+      query = articleQuery(req);
+    if (query.category || query.tag || query.query || (req.query as any).page)
+      return sendPage(
+        reply,
+        ctx,
+        '文章',
+        articleListHtml(source(query), query, publicService().publicTaxonomy(), '/blog'),
+      );
+    return sendPage(reply, ctx, ctx.settings.title, homeHtml(ctx, source));
   });
   app.get('/blog/', (_req, reply) => {
-    if (!publicService().settings().enabled) throw new HttpError(404, '博客页面不存在');
+    context();
     return reply.redirect('/blog');
   });
-  app.get('/blog/about', (_req, reply) => {
-    const s = publicService().settings();
-    return page(
+  function legacyArticle(slug: string, reply: FastifyReply, ctx: RenderContext) {
+    let post: ReturnType<BlogService['publicPost']>;
+    try {
+      post = publicService().publicPost(slug);
+    } catch (error) {
+      if (error instanceof HttpError && error.statusCode === 404) return undefined;
+      throw error;
+    }
+    return sendPage(reply, ctx, post.title, readerHtml(ctx, post, source), post.url, post);
+  }
+  function articleIndex(req: FastifyRequest, reply: FastifyReply) {
+    const ctx = context(),
+      query = articleQuery(req);
+    return sendPage(
       reply,
+      ctx,
+      '全部文章',
+      articleListHtml(source(query), query, publicService().publicTaxonomy()),
+      '/blog/-/articles',
+    );
+  }
+  app.get('/blog/-/articles', articleIndex);
+  app.get(
+    '/blog/articles',
+    (req, reply) => legacyArticle('articles', reply, context()) || articleIndex(req, reply),
+  );
+  app.get('/blog/about', (_req, reply) => {
+    const ctx = context();
+    return sendPage(
+      reply,
+      ctx,
       '关于',
-      `<h1>关于</h1><div class="about">${esc(s.about || s.description)}</div>`,
-      { url: '/blog/about' },
+      aboutHtml(ctx.settings.about || ctx.design.profile.bio || ctx.settings.description),
+      '/blog/about',
     );
   });
-  app.get('/blog/archive', (_req, reply) => {
-    const posts = publicService().publicPosts();
-    return page(
+  function collectionIndex(_req: FastifyRequest, reply: FastifyReply) {
+    const ctx = context();
+    return sendPage(
       reply,
+      ctx,
+      '专题合集',
+      `<h1>专题合集</h1><div class="collection-grid">${collectionCards(ctx, source)}</div>`,
+      '/blog/-/collections',
+    );
+  }
+  app.get('/blog/-/collections', collectionIndex);
+  app.get(
+    '/blog/collections',
+    (req, reply) => legacyArticle('collections', reply, context()) || collectionIndex(req, reply),
+  );
+  function collectionDetail(
+    req: FastifyRequest<{ Params: { slug: string } }>,
+    reply: FastifyReply,
+  ) {
+    const ctx = context(),
+      collection = ctx.design.collections.find((c) => c.slug === req.params.slug);
+    if (!collection) throw new HttpError(404, '专题不存在');
+    const posts = orderedCollectionPosts(source, collection.postIds);
+    return sendPage(
+      reply,
+      ctx,
+      collection.title,
+      `<p class="eyebrow"><a href="/blog/-/collections">全部专题</a> / ${posts.length} 篇文章</p><h1>${esc(collection.title)}</h1><p class="summary">${esc(collection.description)}</p><div class="collection-articles">${postCards(posts, '此专题暂无已发布文章。')}</div>`,
+      '/blog/-/collections/' + encodeURIComponent(collection.slug),
+    );
+  }
+  app.get<{ Params: { slug: string } }>('/blog/-/collections/:slug', collectionDetail);
+  app.get<{ Params: { slug: string } }>('/blog/collections/:slug', collectionDetail);
+  app.get('/blog/archive', (_req, reply) => {
+    const ctx = context(),
+      posts = allPosts().sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+    return sendPage(
+      reply,
+      ctx,
       '归档',
       `<h1>文章归档</h1>${posts.length ? `<ol class="archive-list">${posts.map((p) => `<li><time datetime="${esc(p.publishedAt)}">${esc(p.publishedAt.slice(0, 10))}</time><a href="${esc(p.url)}">${esc(p.title)}</a></li>`).join('')}</ol>` : '<div class="empty-state"><p>暂无已发布文章。</p><a href="/blog">返回文章列表</a></div>'}`,
-      { url: '/blog/archive' },
+      '/blog/archive',
     );
   });
   app.get('/blog/rss.xml', (_req, reply) => {
-    const blog = publicService(),
-      posts = blog.publicPosts(),
-      s = blog.settings(),
-      base = s.baseUrl || config.origin;
+    const ctx = context(),
+      posts = allPosts(),
+      s = ctx.settings,
+      base = (s.baseUrl || config.origin).replace(/\/$/, '');
     return reply
+      .header('Cache-Control', 'no-store')
       .type('application/rss+xml; charset=utf-8')
       .send(
         `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>${esc(s.title)}</title><link>${esc(base)}/blog</link><description>${esc(s.description)}</description>${posts.map((p) => `<item><title>${esc(p.title)}</title><link>${esc(base + p.url)}</link><guid isPermaLink="true">${esc(base + p.url)}</guid><pubDate>${esc(new Date(p.publishedAt).toUTCString())}</pubDate><description>${esc(p.summary)}</description>${p.category ? `<category>${esc(p.category)}</category>` : ''}</item>`).join('')}</channel></rss>`,
       );
   });
   app.get('/blog/sitemap.xml', (_req, reply) => {
-    const blog = publicService(),
-      posts = blog.publicPosts(),
-      base = blog.settings().baseUrl || config.origin;
+    const ctx = context(),
+      posts = allPosts(),
+      base = (ctx.settings.baseUrl || config.origin).replace(/\/$/, '');
+    const paths = [
+      '/blog',
+      '/blog/-/articles',
+      '/blog/-/collections',
+      '/blog/about',
+      '/blog/archive',
+      ...ctx.design.collections.map((c) => '/blog/-/collections/' + encodeURIComponent(c.slug)),
+    ];
     return reply
+      .header('Cache-Control', 'no-store')
       .type('application/xml; charset=utf-8')
       .send(
-        `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>${esc(base)}/blog</loc></url><url><loc>${esc(base)}/blog/about</loc></url><url><loc>${esc(base)}/blog/archive</loc></url>${posts.map((p) => `<url><loc>${esc(base + p.url)}</loc><lastmod>${esc(p.updatedAt)}</lastmod></url>`).join('')}</urlset>`,
+        `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${paths.map((path) => `<url><loc>${esc(base + path)}</loc></url>`).join('')}${posts.map((p) => `<url><loc>${esc(base + p.url)}</loc><lastmod>${esc(p.updatedAt)}</lastmod></url>`).join('')}</urlset>`,
       );
   });
+  app.get('/blog/reader.js', (_req, reply) => {
+    context();
+    return reply
+      .header('Cache-Control', 'no-store')
+      .header('X-Content-Type-Options', 'nosniff')
+      .type('application/javascript; charset=utf-8')
+      .send(blogReaderScript);
+  });
+  app.get<{ Params: { hash: string } }>('/blog/media/:hash', (req, reply) =>
+    sendResource(reply, publicService().publicDesignMedia(req.params.hash)),
+  );
   app.get<{ Params: { post: string; version: string; hash: string } }>(
     '/blog/assets/:post/:version/:hash',
     (req, reply) =>
@@ -202,16 +339,8 @@ export function registerBlogRoutes(
       ),
   );
   app.get<{ Params: { slug: string } }>('/blog/:slug', (req, reply) => {
-    const p = publicService().publicPost(req.params.slug),
-      toc =
-        p.headings.length > 2
-          ? `<aside class="toc" aria-label="目录"><h2>文章目录</h2>${p.headings.map((h) => `<a href="#${esc(h.id)}">${esc(h.text)}</a>`).join('')}</aside>`
-          : '';
-    return page(
-      reply,
-      p.title,
-      `<article><p class="muted article-meta"><time datetime="${esc(p.publishedAt)}">${esc(p.publishedAt.slice(0, 10))}</time>${p.category ? ` · <a href="/blog?category=${encodeURIComponent(p.category)}">${esc(p.category)}</a>` : ''}</p><h1>${esc(p.title)}</h1>${p.summary ? `<p class="summary">${esc(p.summary)}</p>` : ''}${p.tags.length ? `<div class="taxonomy" aria-label="文章标签">${p.tags.map((t) => `<a class="chip" href="/blog?tag=${encodeURIComponent(t)}">#${esc(t)}</a>`).join('')}</div>` : ''}${p.cover ? `<img class="cover" src="${esc(p.cover)}" alt="">` : ''}${toc}<div class="article-body">${p.html}</div></article>`,
-      { url: p.url, description: p.summary, post: true },
-    );
+    const ctx = context(),
+      post = publicService().publicPost(req.params.slug);
+    return sendPage(reply, ctx, post.title, readerHtml(ctx, post, source), post.url, post);
   });
 }

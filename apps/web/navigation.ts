@@ -2,7 +2,7 @@ export const toDooSections = ['overview', 'tasks', 'board', 'calendar', 'timelin
 export type ToDooAppSection = (typeof toDooSections)[number];
 export type WorkspaceRoute = {
   app?: 'blog' | 'to-doo';
-  appSection?: 'overview' | 'articles' | 'taxonomy' | 'settings' | ToDooAppSection;
+  appSection?: 'overview' | 'articles' | 'taxonomy' | 'settings' | 'design' | ToDooAppSection;
   task?: string;
   list?: string;
   date?: string;
@@ -44,7 +44,7 @@ export function readWorkspaceRoute(href = window.location.href): WorkspaceRoute 
     ...(query.get('view') === 'apps' && query.get('app') === 'blog'
       ? {
           app: 'blog' as const,
-          ...(['overview', 'articles', 'taxonomy', 'settings'].includes(
+          ...(['overview', 'articles', 'taxonomy', 'settings', 'design'].includes(
             query.get('appSection') || '',
           )
             ? { appSection: query.get('appSection') as WorkspaceRoute['appSection'] }

@@ -1,5 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
+import type { BlogDesignState } from '../../../shared/blog-design.js';
+import { authorizeStudio } from '../../../packages/core/blog/studio.js';
 import type { BlogMetadata, BlogPost, BlogSettings } from '../../../shared/blog-contracts.js';
 import type { McpManagedDomainPort, McpTransferBinding, McpTransferInfo } from '../../../shared/mcp-domain-tools.js';
 import type { ServiceCallOptions } from '../../../packages/plugin-sdk/index.js';
@@ -36,6 +38,12 @@ function settingsPage(value: BlogSettings, offset = 0, maxBytes = 4096) {
   const page = byteSlice(about, offset, maxBytes);
   return { ...settings, about: page.text, aboutBytes: page.total, aboutHash: blogHash(about), aboutRange: { startByte: offset, endByte: page.end, nextByte: page.end < page.total ? page.end : null } };
 }
+function designSummary(value: BlogDesignState) {
+  const draft = JSON.stringify(value.draft), published = JSON.stringify(value.published);
+  return { version: value.version, publishedRevision: value.publishedRevision, publishedAt: value.publishedAt,
+    hasUnpublishedChanges: value.hasUnpublishedChanges, draftBytes: Buffer.byteLength(draft), draftHash: blogHash(draft),
+    publishedBytes: Buffer.byteLength(published), publishedHash: blogHash(published), history: value.history.slice(0, 10) };
+}
 const transferResult = (value: McpTransferInfo) => value;
 export function createBlogToolPort(context: McpDomainContext): McpManagedDomainPort {
   const { runtime, transfers } = context;
@@ -46,7 +54,15 @@ export function createBlogToolPort(context: McpDomainContext): McpManagedDomainP
     return { domain: 'blog', kind, id, revision: `${post.version}:${post.sourceHash}`, ...(metadata ? { metadata } : {}) };
   };
   const siteBinding = (p: Principal, kind: string): McpTransferBinding => ({ domain: 'blog', kind, id: currentBlogInstanceId(context.db), revision: String(blog.settings(p).version) });
+  const designBinding = (p: Principal, kind: string): McpTransferBinding => ({ domain: 'blog', kind, id: currentBlogInstanceId(context.db), revision: String(blog.designState(p).version) });
   function authorizeTransfer(binding: McpTransferBinding, write: boolean, options?: ServiceCallOptions, state?: McpTransferInfo['state']) {
+    if (binding.domain === 'blog' && ['design-json-upload','design-media-upload'].includes(binding.kind)) {
+      const p = auth(['blog:manage'], options);
+      authorizeStudio(p, 'manage');
+      const current = designBinding(p, binding.kind);
+      if (current.id !== binding.id || (state !== 'completed' && current.revision !== binding.revision)) throw new BlogError(409, '装修上传关联版本已变化');
+      return p;
+    }
     if (binding.domain !== 'blog' || !['about-upload','about-download','resource-download','content-download','diagram-png'].includes(binding.kind)) throw new BlogError(403, '传输不属于博客');
     const site = binding.kind === 'about-upload' || binding.kind === 'about-download';
     const scopes = write ? [binding.kind === 'about-upload' ? 'blog:manage' : 'blog:publish'] : [];
@@ -80,6 +96,87 @@ export function createBlogToolPort(context: McpDomainContext): McpManagedDomainP
       const p = auth(definition.scope === 'blog:read' ? [] : [definition.scope], options);
       let result: unknown;
       switch (name) {
+        case 'get_blog_design': {
+          const value = blog.designState(p), json = JSON.stringify(value[a.kind as 'draft' | 'published']);
+          const page = byteSlice(json, a.offset, a.maxBytes);
+          result = { ...designSummary(value), kind: a.kind, json: page.text, byteLength: page.total, sha256: blogHash(json), startByte: a.offset, endByte: page.end, nextByte: page.end < page.total ? page.end : null };
+          break;
+        }
+        case 'update_blog_design': {
+          authorizeStudio(p, 'manage');
+          if ((a.designJson === undefined) === (a.designTransferId === undefined)) throw new BlogError(400, '装修 JSON 和上传只能选择一种');
+          if (a.designJson !== undefined && Buffer.byteLength(a.designJson) > 24000) throw new BlogError(413, '内联装修 JSON 不能超过24000字节');
+          const replay = blog.replayAction(p, 'design.save', a);
+          if (replay) { result = designSummary(replay.result); break; }
+          let json = a.designJson;
+          if (a.designTransferId) {
+            const transfer = transfers.info(p, a.designTransferId);
+            if (transfer.direction !== 'upload' || transfer.binding.kind !== 'design-json-upload') throw new BlogError(400, '需要装修 JSON 上传');
+            authorizeTransfer(transfer.binding, true, options);
+            if (transfer.binding.revision !== String(a.expectedVersion)) throw new BlogError(409, '装修上传关联版本不匹配');
+            const upload = transfers.readUpload(p, a.designTransferId, transfer.binding, a.requestId);
+            if (upload.mime !== 'application/json' || upload.bytes.length > 16 * 1024 ** 2) throw new BlogError(400, '装修上传格式不正确');
+            try { json = new TextDecoder('utf-8', { fatal: true }).decode(upload.bytes); }
+            catch { throw new BlogError(400, '装修 JSON 需要有效 UTF-8'); }
+          }
+          let design: unknown;
+          try { design = JSON.parse(json); } catch { throw new BlogError(400, '装修 JSON 格式不正确'); }
+          const fresh = auth(['blog:manage'], options); authorizeStudio(fresh, 'manage');
+          if (fresh.id !== p.id || fresh.clientId !== p.clientId) throw new BlogError(403, '装修授权主体已变化');
+          const value = blog.saveDesign(fresh, { design: design as BlogDesignState['draft'], expectedVersion: a.expectedVersion, requestId: a.requestId }, a);
+          result = designSummary(value);
+          if (a.designTransferId) transfers.complete(fresh, a.designTransferId, a.requestId, result as Record<string, unknown>);
+          break;
+        }
+        case 'publish_blog_design': {
+          const fresh = auth(['blog:publish'], options); authorizeStudio(fresh, 'publish');
+          result = designSummary(blog.publishDesign(fresh, a)); break;
+        }
+        case 'restore_blog_design': {
+          const fresh = auth(['blog:manage'], options); authorizeStudio(fresh, 'manage');
+          result = designSummary(blog.restoreDesign(fresh, a)); break;
+        }
+        case 'begin_blog_design_upload': {
+          authorizeStudio(p, 'manage');
+          if ((a.kind === 'design' && a.mime !== 'application/json') || (a.kind === 'media' && (!['image/png','image/jpeg','image/webp'].includes(a.mime) || a.byteLength > 5 * 1024 ** 2))) throw new BlogError(400, '装修上传格式或大小不正确');
+          const binding = designBinding(p, a.kind === 'design' ? 'design-json-upload' : 'design-media-upload');
+          if (binding.revision !== String(a.expectedVersion)) throw new BlogError(409, '装修上传关联版本已变化');
+          const fresh = authorizeTransfer(binding, true, options);
+          result = transferResult(transfers.beginUpload(fresh, { requestId: a.requestId, binding, name: a.name, mime: a.mime, totalBytes: a.byteLength, sha256: a.sha256 }));
+          break;
+        }
+        case 'commit_blog_design_media': {
+          authorizeStudio(p, 'manage');
+          const replay = blog.replayAction(p, 'design.media', a);
+          if (replay) { result = replay.result; break; }
+          const transfer = transfers.info(p, a.transferId);
+          if (transfer.direction !== 'upload' || transfer.binding.kind !== 'design-media-upload') throw new BlogError(400, '需要装修图片上传');
+          const fresh = authorizeTransfer(transfer.binding, true, options);
+          if (transfer.binding.revision !== String(a.expectedVersion)) throw new BlogError(409, '装修上传关联版本不匹配');
+          const upload = transfers.readUpload(fresh, a.transferId, transfer.binding, a.requestId);
+          if (!['image/png','image/jpeg','image/webp'].includes(upload.mime) || upload.bytes.length > 5 * 1024 ** 2) throw new BlogError(400, '装修图片格式或大小不正确');
+          const manager = auth(['blog:manage'], options); authorizeStudio(manager, 'manage');
+          if (manager.id !== p.id || manager.clientId !== p.clientId) throw new BlogError(403, '装修授权主体已变化');
+          result = blog.uploadDesignMedia(manager, { name: upload.name, mime: upload.mime, base64: upload.bytes.toString('base64'), requestId: a.requestId }, a, a.expectedVersion);
+          transfers.complete(manager, a.transferId, a.requestId, result as Record<string, unknown>);
+          break;
+        }
+        case 'get_blog_publication_review': {
+          const value = blog.publicationReview(p, a.postId);
+          const info = (html: string) => ({ byteLength: Buffer.byteLength(html), sha256: blogHash(html) });
+          const warnings = value.warnings.slice(a.warningOffset, a.warningOffset + a.limit).map(item => {
+            const target = byteSlice(item.target, 0, 256).text, message = byteSlice(item.message, 0, 256).text;
+            return { ...item, target, message, truncated: target !== item.target || message !== item.message };
+          });
+          const affectedPosts = value.affectedPosts.slice(a.affectedOffset, a.affectedOffset + a.limit).map(item => {
+            const title = byteSlice(item.title, 0, 128).text, url = byteSlice(item.url, 0, 256).text;
+            return { ...item, title, url, truncated: title !== item.title || url !== item.url };
+          });
+          result = { warnings, warningTotal: value.warnings.length, nextWarningOffset: a.warningOffset + a.limit < value.warnings.length ? a.warningOffset + a.limit : null,
+            affectedPosts, affectedTotal: value.affectedPosts.length, nextAffectedOffset: a.affectedOffset + a.limit < value.affectedPosts.length ? a.affectedOffset + a.limit : null,
+            comparison: { draft: info(value.draftHtml), published: value.publishedHtml === null ? null : info(value.publishedHtml), changed: value.draftHtml !== value.publishedHtml } };
+          break;
+        }
         case 'list_blog_taxonomy': result = blog.listTaxonomy(p, a); break;
         case 'list_blog_posts': result = blog.listPosts(p, a); break;
         case 'get_blog_post': result = boundedPost(blog.postMetadata(p, a.postId)); break;

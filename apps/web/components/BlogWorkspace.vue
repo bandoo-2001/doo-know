@@ -2,9 +2,12 @@
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import DOMPurify from 'dompurify';
 import Icon from './Icon.vue';
+import BlogDesignStudio from './blog/BlogDesignStudio.vue';
+import BlogArticleCover from './blog/BlogArticleCover.vue';
+import BlogPublicationReview from './blog/BlogPublicationReview.vue';
 import type { TreeEntry } from '../../../shared/contracts';
 import type { BlogPost } from '../../../shared/blog-contracts';
-import type { BlogSection, BlogWorkbench } from '../blog-workbench';
+import { blogNotePicker, type BlogSection, type BlogWorkbench } from '../blog-workbench';
 const props = defineProps<{ section: BlogSection; tree: TreeEntry[]; model: BlogWorkbench }>();
 const emit = defineEmits<{
   section: [section: BlogSection];
@@ -15,6 +18,7 @@ const state = props.model.state;
 const tabs: [BlogSection, string, string][] = [
   ['overview', '概览', 'apps'],
   ['articles', '文章', 'file'],
+  ['design', '装修主页', 'monitor'],
   ['taxonomy', '分类与标签', 'list'],
   ['settings', '站点设置', 'settings'],
 ];
@@ -90,19 +94,8 @@ const taxonomy = computed(() => {
     tags: [...tags].sort((a, b) => b[1] - a[1]),
   };
 });
-const notes = computed(() => {
-  const walk = (items: TreeEntry[]): TreeEntry[] =>
-    items.flatMap((item) =>
-      item.type === 'folder'
-        ? walk(item.children || [])
-        : item.documentType !== 'whiteboard' && item.id
-          ? [item]
-          : [],
-    );
-  return walk(props.tree).filter((note) =>
-    note.path.toLowerCase().includes(noteQuery.value.toLowerCase()),
-  );
-});
+const notePicker = computed(() => blogNotePicker(props.tree, noteQuery.value));
+const notes = computed(() => notePicker.value.notes);
 const safePreview = computed(() =>
   DOMPurify.sanitize(selected.value?.previewHtml || '', {
     FORBID_TAGS: ['script', 'iframe', 'object', 'embed', 'form'],
@@ -563,6 +556,15 @@ onMounted(() => {
                       @input="form.cover = ($event.target as HTMLInputElement).value || null"
                     /><small>发布时会固定图片副本，请使用你有权公开的图片。</small></label
                   >
+                  <BlogArticleCover
+                    :key="selected.post.sourceNoteId"
+                    :model="model"
+                    :post-id="selected.post.id"
+                    :note-id="selected.post.sourceNoteId"
+                    :note-path="notePicker.sourcePath(selected.post.sourceNoteId)"
+                    :value="form.cover"
+                    @change="model.setCover"
+                  />
                   <label class="blog-checkbox"
                     ><input v-model="form.pinned" type="checkbox" />置顶文章</label
                   >
@@ -570,7 +572,12 @@ onMounted(() => {
                     >固定链接
                     <div class="blog-url">
                       <span>/blog/</span
-                      ><input :value="form.slug" readonly aria-label="文章固定链接" /><button
+                      ><input
+                        v-model="form.slug"
+                        :readonly="selected.post.publishedAt !== null"
+                        pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
+                        aria-label="文章固定链接"
+                      /><button
                         type="button"
                         class="blog-icon-button"
                         :disabled="!selected.post.url"
@@ -580,7 +587,11 @@ onMounted(() => {
                         <Icon name="copy" :size="16" />
                       </button>
                     </div>
-                    <small>首次选稿后保持固定，修改标题不会改变文章地址。</small></label
+                    <small>{{
+                      selected.post.publishedAt
+                        ? '首次公开后固定，修改标题不会改变文章地址。'
+                        : '首次发布前可编辑，使用小写英文、数字与连字符。'
+                    }}</small></label
                   >
                 </div>
               </details>
@@ -606,7 +617,15 @@ onMounted(() => {
               </p>
               <h1>{{ previewTitle }}</h1>
               <p class="blog-preview-summary">{{ form.summary }}</p>
-              <div class="markdown" v-html="safePreview"></div>
+              <BlogPublicationReview
+                :model="model"
+                :id="state.selectedId"
+                @open-note="emit('open-note', $event)"
+              />
+              <details class="blog-reviewed-body">
+                <summary>原稿预览</summary>
+                <div class="markdown" v-html="safePreview"></div>
+              </details>
             </article>
             <div class="blog-danger-zone">
               <button
@@ -678,6 +697,7 @@ onMounted(() => {
           </div>
         </div>
       </div>
+      <BlogDesignStudio v-else-if="section === 'design'" :model="model" />
       <div v-else-if="section === 'taxonomy'" class="blog-taxonomy">
         <div class="blog-section-title">
           <div>

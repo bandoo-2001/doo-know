@@ -3,6 +3,8 @@ import { execFile, spawn } from 'node:child_process';
 import { closeSync, constants, existsSync, openSync } from 'node:fs';
 import { mkdtemp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
+import { randomUUID } from 'node:crypto';
+import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { promisify } from 'node:util';
@@ -13,6 +15,7 @@ const require = createRequire(import.meta.url);
 const quote = (value: string) => "'" + value.replaceAll("'", "'\\''") + "'";
 
 function startActualFixture(cwd: string, temporary: string) {
+  const token = randomUUID();
   const child = spawn(
     process.execPath,
     ['--import', require.resolve('tsx'), resolve('tests/support/e2e-server.ts')],
@@ -25,8 +28,10 @@ function startActualFixture(cwd: string, temporary: string) {
         DOOKNOW_E2E_PRODUCTION: '0',
         DOOKNOW_E2E_SEARCH_RUNTIME: '0',
         DOOKNOW_E2E_GIT_ONBOARDING: '0',
+        DOOKNOW_E2E_PORT: '0',
+        DOOKNOW_E2E_READY_TOKEN: token,
       },
-      stdio: ['pipe', 'ignore', 'pipe'],
+      stdio: ['pipe', 'ignore', 'pipe', 'ipc'],
     },
   );
   let stderr = '';
@@ -39,7 +44,19 @@ function startActualFixture(cwd: string, temporary: string) {
       child.once('exit', (code, signal) => resolve({ code, signal }));
     },
   );
-  return { child, exit, stderr: () => stderr };
+  let ready: { port: number } | undefined;
+  child.on('message', (message: any) => {
+    if (
+      message?.type === 'dooknow-e2e-ready' &&
+      message.token === token &&
+      message.pid === child.pid &&
+      Number.isInteger(message.port) &&
+      message.port > 0 &&
+      message.port <= 65535
+    )
+      ready = { port: message.port };
+  });
+  return { child, exit, stderr: () => stderr, ready: () => ready };
 }
 
 async function waitForFixture(
@@ -63,7 +80,7 @@ async function waitForFixtureExit(fixture: ReturnType<typeof startActualFixture>
       fixture.exit,
       new Promise<never>((_resolve, reject) => {
         timer = setTimeout(
-          () => reject(Error('Actual fixture did not exit within 5 seconds')),
+          () => reject(Error('Actual fixture did not exit within 5 seconds: ' + fixture.stderr())),
           5000,
         );
       }),
@@ -135,7 +152,16 @@ it.skipIf(process.platform === 'win32')(
     const root = await mkdtemp(join(tmpdir(), 'dooknow-actual-vite-'));
     const temporary = join(root, 'temporary');
     let fixture: ReturnType<typeof startActualFixture> | undefined;
+    const unrelated = createServer((_request, response) => {
+      response.setHeader('content-type', 'application/json');
+      response.end('null');
+    });
     try {
+      await new Promise<void>((resolve) => unrelated.listen(0, '127.0.0.1', resolve));
+      const unrelatedPort = (unrelated.address() as { port: number }).port;
+      const unrelatedResponse = await fetch(`http://127.0.0.1:${unrelatedPort}/api/auth/get-session`);
+      expect(unrelatedResponse.ok).toBe(true);
+      expect(await unrelatedResponse.json()).toBe(null);
       await mkdir(temporary);
       await writeFile(join(temporary, 'keep.txt'), 'keep sibling\n');
       await writeFile(
@@ -143,17 +169,19 @@ it.skipIf(process.platform === 'win32')(
         'export { default } from ' + JSON.stringify(resolve('vite.config.ts')) + ';\n',
       );
       fixture = startActualFixture(root, temporary);
-      await waitForFixture(fixture, async () => {
-        try {
-          const response = await fetch('http://127.0.0.1:4179/api/auth/get-session', {
-            signal: AbortSignal.timeout(500),
-          });
-          const body = await response.json();
-          return response.ok && body === null;
-        } catch {
-          return false;
-        }
+      // An unrelated 200/null responder cannot establish readiness of this child.
+      await waitForFixture(fixture, async () => fixture!.ready() !== undefined);
+      const { port } = fixture.ready()!;
+      expect(port).not.toBe(unrelatedPort);
+      const response = await fetch(`http://127.0.0.1:${port}/api/auth/get-session`, {
+        signal: AbortSignal.timeout(1000),
       });
+      expect(response.ok).toBe(true);
+      expect(await response.json()).toBe(null);
+      expect(
+        (await readdir(temporary)).some((name) => name.startsWith('dooknow-browser-')),
+        'the owned child must initialize browser data before shutdown',
+      ).toBe(true);
       fixture.child.kill('SIGTERM');
       const result = await waitForFixtureExit(fixture);
       expect(
@@ -162,8 +190,18 @@ it.skipIf(process.platform === 'win32')(
       ).toEqual(['keep.txt']);
       expect(result).toEqual({ code: 0, signal: null });
       expect(await readFile(join(temporary, 'keep.txt'), 'utf8')).toBe('keep sibling\n');
+      await expect(
+        fetch(`http://127.0.0.1:${port}/api/auth/get-session`, {
+          signal: AbortSignal.timeout(1000),
+        }),
+      ).rejects.toThrow();
+      expect((await fetch(`http://127.0.0.1:${unrelatedPort}/api/auth/get-session`)).ok).toBe(true);
     } finally {
       if (fixture) await stopOwnedFixture(fixture);
+      unrelated.closeAllConnections();
+      await new Promise<void>((resolve, reject) =>
+        unrelated.close((error) => (error ? reject(error) : resolve())),
+      );
       await rm(root, { recursive: true, force: true });
     }
   },

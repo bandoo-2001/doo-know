@@ -178,7 +178,7 @@ test('public reading contains long content and provides keyboard and filter exit
     );
     await expect(reader.locator('.post-card')).toHaveCount(1);
     await filters.getByRole('link', { name: '全部文章', exact: true }).click();
-    await expect(reader).toHaveURL('http://127.0.0.1:4179/blog');
+    await expect(reader).toHaveURL('http://127.0.0.1:4179/blog/-/articles');
     await expect(filters.getByRole('link', { name: '全部文章', exact: true })).toHaveAttribute(
       'aria-current',
       'true',

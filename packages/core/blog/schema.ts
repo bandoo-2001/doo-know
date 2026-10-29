@@ -1,7 +1,11 @@
 import type { AppDatabase } from '../db.js';
+import { defaultBlogDesign } from '../../../shared/blog-design.js';
 
 export function migrateBlog(db: AppDatabase) {
   db.exec(`
+    CREATE TABLE IF NOT EXISTS blog_design_state(id INTEGER PRIMARY KEY CHECK(id=1),version INTEGER NOT NULL,draft_json TEXT NOT NULL,published_json TEXT NOT NULL,published_revision INTEGER NOT NULL,published_at TEXT);
+    CREATE TABLE IF NOT EXISTS blog_design_history(revision INTEGER PRIMARY KEY,design_json TEXT NOT NULL,published_at TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS blog_design_media(hash TEXT PRIMARY KEY,mime TEXT NOT NULL,bytes BLOB NOT NULL);
     CREATE TABLE IF NOT EXISTS blog_settings(id INTEGER PRIMARY KEY CHECK(id=1), settings_json TEXT NOT NULL);
     INSERT OR IGNORE INTO blog_settings VALUES(1,'{"version":1,"enabled":false,"title":"我的博客","description":"","author":"","baseUrl":"","about":"","theme":"light"}');
     CREATE TABLE IF NOT EXISTS blog_posts(
@@ -29,6 +33,8 @@ export function migrateBlog(db: AppDatabase) {
         WHERE source_note_id=NEW.id AND state='published';
     END;
   `);
+  const design = JSON.stringify(defaultBlogDesign());
+  db.prepare('INSERT OR IGNORE INTO blog_design_state VALUES(1,1,?,?,0,NULL)').run(design, design);
   const columns = db.prepare('PRAGMA table_info(blog_receipts)').all() as { name: string }[];
   if (!columns.some((c) => c.name === 'operation_id'))
     db.exec('ALTER TABLE blog_receipts ADD COLUMN operation_id TEXT');
