@@ -29,7 +29,7 @@ export async function api<T = any>(
   url: string,
   method = 'GET',
   body?: unknown,
-  options: { notifySessionExpired?: boolean; uploadRequestId?: string } = {},
+  options: { notifySessionExpired?: boolean; uploadRequestId?: string; timeoutMs?: number } = {},
 ): Promise<T> {
   const headers: Record<string, string> = {};
   if (options.uploadRequestId) headers['x-dooknow-upload-id'] = options.uploadRequestId;
@@ -44,7 +44,7 @@ export async function api<T = any>(
     method,
     headers,
     cache: 'no-store',
-    signal: AbortSignal.timeout(15000),
+    signal: AbortSignal.timeout(Number.isFinite(options.timeoutMs) && options.timeoutMs! > 0 ? Math.min(options.timeoutMs!, 180000) : 15000),
     ...(body !== undefined ? { body: body instanceof FormData ? body : JSON.stringify(body) } : {}),
   });
   const data = await r.json().catch(() => {

@@ -17,6 +17,8 @@ import { createToDooInterop } from '../../../packages/core/to-doo/interop.js';
 import { createToDooNotifications } from '../../../packages/core/to-doo/notifications.js';
 import { getToDooInstallationId } from '../to-doo/installation.js';
 import { createGraphService } from '../../../packages/core/graph/service.js';
+import { createGraphModel } from '../../../packages/core/graph/model.js';
+import { createKnowledgeGraph } from '../../../packages/core/graph/knowledge-service.js';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -45,6 +47,18 @@ async function createRuntime(config: AppConfig, db: AppDatabase) {
     notifications: ReturnType<typeof createToDooNotifications>;
   } | undefined;
   let graph: ReturnType<typeof createGraphService> | undefined;
+  let graphBundle: { model: ReturnType<typeof createGraphModel>; knowledge: ReturnType<typeof createKnowledgeGraph> } | undefined;
+  function fullGraph() {
+    if (graphBundle) return graphBundle;
+    const model = createGraphModel(config, db);
+    const service = createKnowledgeGraph(config, db, notes, model);
+    service.start();
+    graphBundle = { model, knowledge: service };
+    return graphBundle;
+  }
+  // Analysis starts with the library, without requiring the graph application to be opened.
+  // A damaged optional graph domain remains isolated from normal note operations.
+  try { fullGraph(); } catch { /* Its endpoints retain the recovery error; never replace user decisions. */ }
   function toDoo() {
     if (toDooBundle) return toDooBundle;
     const service = createToDooService(config, db, notes);
@@ -76,7 +90,12 @@ async function createRuntime(config: AppConfig, db: AppDatabase) {
     knowledge,
     collections,
     get graph() { return graph ??= createGraphService(config, db, notes); },
-    closeGraph: async () => { await graph?.close(); graph = undefined; },
+    get graphModel() { return fullGraph().model; },
+    get knowledgeGraph() { return fullGraph().knowledge; },
+    closeGraph: async () => {
+      await graphBundle?.knowledge.close(); graphBundle = undefined;
+      await graph?.close(); graph = undefined;
+    },
     blog: blogService(config, db, notes),
     get toDoo() { return toDoo().service; },
     get toDooInterop() { return toDoo().interop; },

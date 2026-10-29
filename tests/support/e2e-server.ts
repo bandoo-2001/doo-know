@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { createServer } from 'vite';
 import { createApp } from '../../apps/server/app.js';
+import { graphModelFixture } from './graph-model-fixture.js';
 import { initializeOwner } from '../../apps/server/auth.js';
 import { testPassword } from './credentials.js';
 import { pathToFileURL } from 'node:url';
@@ -23,6 +24,7 @@ let shutdownRequested = false;
 let initializationFinished = false;
 let app: Awaited<ReturnType<typeof createApp>> | undefined;
 let vite: Awaited<ReturnType<typeof createServer>> | undefined;
+let graphModel: Awaited<ReturnType<typeof graphModelFixture>> | undefined;
 let teardownPromise: Promise<void> | undefined;
 function teardown() {
   return (teardownPromise ??= (async () => {
@@ -39,6 +41,7 @@ function teardown() {
       }),
       vite?.close(),
       app?.close(),
+      graphModel?.close(),
     ]);
     await rm(root, { recursive: true, force: true });
     const errors = results
@@ -67,6 +70,7 @@ async function initialize() {
   const webPort = Number(process.env.DOOKNOW_E2E_WEB_PORT || 4179);
   const apiPort = Number(process.env.DOOKNOW_E2E_API_PORT || 4180);
   const origin = `http://127.0.0.1:${webPort}`;
+  if (process.env.DOOKNOW_E2E_GRAPH_MODEL === '1') graphModel = await graphModelFixture();
   const gitOnboarding = process.env.DOOKNOW_E2E_GIT_ONBOARDING === '1';
   const gitImportParent = join(root, 'imported-libraries');
   const gitImportContent = '# 从隔离远端克隆的原文\n\n这份资料只存在于浏览器测试夹具中。\n';
@@ -102,6 +106,7 @@ async function initialize() {
     '.local/e2e-config.json',
     JSON.stringify({
       origin,
+      graphModelURL: graphModel?.url,
       knowledgeRoot,
       dataRoot,
       gitRemoteURL,

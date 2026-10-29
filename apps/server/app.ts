@@ -38,6 +38,7 @@ import { assetService } from '../../packages/core/assets.js';
 import { diagramArtifactService, DIAGRAM_SOURCE_MIMES } from '../../packages/core/knowledge/diagram-artifacts.js';
 import { backlinkService } from '../../packages/core/knowledge/backlinks.js';
 import { registerGraphRoutes } from './graph/routes.js';
+import { registerSemanticGraphRoutes } from './graph/semantic-routes.js';
 import { registerAgentRoutes } from './agent/routes.js';
 import { registerWebKnowledgeRoutes } from './knowledge/web-routes.js';
 import { webPrincipal } from '../../packages/core/knowledge/core.js';
@@ -218,6 +219,7 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
   app.get('/api/collections', async (req) =>
     platform.get().collections.page((req as any).ownerId, req.query as any));
   registerGraphRoutes(app, () => platform.get().graph);
+  registerSemanticGraphRoutes(app, () => platform.get().knowledgeGraph, () => platform.get().graphModel);
   registerBlogRoutes(app, businessConfig, () => platform.get().blog);
   registerToDooRoutes(app, () => platform.get().toDoo, () => {
     const runtime = platform.get();

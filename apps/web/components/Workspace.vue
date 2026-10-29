@@ -239,12 +239,13 @@ async function saveCapturedTask() {
   } catch (cause) { toDooCaptureError.value = cause instanceof Error ? cause.message : '任务结果待核对，请保留输入后重试'; }
   finally { toDooCaptureBusy.value = false; }
 }
-async function openBlogNote(id: string) {
+async function openBlogNote(id: string, line?: number) {
   await run(async () => {
     if (note.value?.id === id) {
-      await applyRoute({ note: id });
-      if (panel.value === 'note') navigation.commit({ note: id });
-    } else await openNote(id);
+      const route = { note: id, ...(line ? { line } : {}) };
+      await applyRoute(route);
+      if (panel.value === 'note') navigation.commit(route);
+    } else await openNote(id, line);
   });
 }
 async function navigateApp(app: WorkspaceRoute['app'], section: BlogSection | ToDooAppSection = 'overview', selection: ToDooSelection = {}) {

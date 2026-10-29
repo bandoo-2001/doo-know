@@ -19,7 +19,7 @@ const props = defineProps<{
 }>();
 const emit = defineEmits<{
   navigate: [app: 'blog' | 'to-doo' | 'graph' | undefined, section?: BlogSection | ToDooAppSection, selection?: Selection];
-  'open-note': [id: string];
+  'open-note': [id: string, line?: number];
   'note-created': [id: string];
 }>();
 defineExpose({
@@ -59,7 +59,7 @@ watch(
     v-else-if="app === 'graph'"
     :tree="tree"
     @back="emit('navigate', undefined)"
-    @open-note="emit('open-note', $event)"
+    @open-note="(id, line) => emit('open-note', id, line)"
   />
   <section v-else class="apps-home" aria-labelledby="apps-title">
     <div class="apps-eyebrow">YOUR WORKSPACE, EXTENDED</div>
@@ -72,13 +72,13 @@ watch(
           <span class="app-native">原生应用</span>
         </div>
         <h2>知识图谱</h2>
-        <p>沿着笔记中的引用，发现知识之间的联系。</p>
+        <p>从原文发现概念与关系，沿着证据探索知识。</p>
         <div class="app-card-preview" aria-hidden="true">
           <span class="app-preview-dot"></span><span></span><span></span>
           <div></div><i></i><i></i><i></i>
         </div>
         <div class="app-card-bottom">
-          <span>笔记关联 · 局部探索 · 孤立笔记</span><Icon name="forward" :size="18" />
+          <span>自动分析 · 关系证据 · 局部探索</span><Icon name="forward" :size="18" />
         </div>
       </button>
       <button class="app-card" type="button" @click="emit('navigate', 'blog', 'overview')">
