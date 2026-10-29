@@ -16,6 +16,8 @@ const toDooRef = ref<{
   requestLeave(): Promise<boolean>;
   requestSectionLeave?(section: ToDooAppSection): Promise<boolean>;
 }>();
+const graphRef = ref<InstanceType<typeof GraphWorkspace>>();
+const currentApp = computed(() => props.app === 'to-doo' ? toDooRef.value : props.app === 'graph' ? graphRef.value : undefined);
 const props = defineProps<{
   app?: 'blog' | 'to-doo' | 'graph';
   section: BlogSection | ToDooAppSection;
@@ -33,11 +35,11 @@ const emit = defineEmits<{
   'open-note': [id: string, line?: number];
   'note-created': [id: string];
   'toggle-pin': [app: WorkspaceAppId];
+  'menu-select': [];
 }>();
 defineExpose({
-  hasUnsavedChanges: () => props.app === 'to-doo' && !!toDooRef.value?.hasUnsavedChanges(),
-  requestLeave: async () =>
-    props.app !== 'to-doo' || !toDooRef.value || (await toDooRef.value.requestLeave()),
+  hasUnsavedChanges: () => !!currentApp.value?.hasUnsavedChanges(),
+  requestLeave: async () => !currentApp.value || (await currentApp.value.requestLeave()),
   requestSectionLeave: async (section: ToDooAppSection) =>
     props.app !== 'to-doo' ||
     !toDooRef.value?.requestSectionLeave ||
@@ -129,7 +131,9 @@ watch(
   />
   <GraphWorkspace
     v-else-if="app === 'graph'"
+    ref="graphRef"
     :tree="tree"
+    @menu-select="emit('menu-select')"
     @back="emit('navigate', undefined)"
     @open-note="(id, line) => emit('open-note', id, line)"
   />

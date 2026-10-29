@@ -25,6 +25,13 @@ const props = withDefaults(
 const emit = defineEmits<{ 'update:show': [value: boolean]; 'after-leave': [] }>();
 const surface = ref<HTMLElement>();
 const discardOpen = ref(false);
+let closeResolver: ((answer: boolean) => void) | undefined;
+function finishClose(answer: boolean) {
+  const resolve = closeResolver;
+  closeResolver = undefined;
+  discardOpen.value = false;
+  resolve?.(answer);
+}
 const { token } = theme.useToken();
 const overlayZIndex = computed(() => token.value.zIndexPopupBase + 10);
 let returnFocus: HTMLElement | null = null;
@@ -36,7 +43,7 @@ const width = computed(() => {
 watch(
   () => props.show,
   (show) => {
-    discardOpen.value = false;
+    finishClose(false);
     if (show && typeof document !== 'undefined') {
       returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     }
@@ -46,13 +53,13 @@ watch(
 watch(
   () => props.dirty,
   (dirty) => {
-    if (!dirty) discardOpen.value = false;
+    if (!dirty) finishClose(false);
   },
 );
 watch(
   () => props.title,
   () => {
-    discardOpen.value = false;
+    finishClose(false);
   },
 );
 function close() {
@@ -61,11 +68,22 @@ function close() {
     discardOpen.value = true;
     return;
   }
+  finishClose(true);
   emit('update:show', false);
+}
+function requestClose(): Promise<boolean> {
+  if (props.busy || closeResolver || discardOpen.value) return Promise.resolve(false);
+  if (!props.show) return Promise.resolve(true);
+  if (!props.dirty) {
+    close();
+    return Promise.resolve(true);
+  }
+  discardOpen.value = true;
+  return new Promise(resolve => { closeResolver = resolve; });
 }
 function discard() {
   if (props.busy) return;
-  discardOpen.value = false;
+  finishClose(true);
   emit('update:show', false);
 }
 function left() {
@@ -118,7 +136,10 @@ function afterOpenChange(open: boolean) {
   }
 }
 onMounted(() => document.addEventListener('keydown', trapDrawerTab, true));
-onUnmounted(() => document.removeEventListener('keydown', trapDrawerTab, true));
+onUnmounted(() => {
+  finishClose(false);
+  document.removeEventListener('keydown', trapDrawerTab, true);
+});
 function popupContainer(trigger?: HTMLElement): HTMLElement {
   return (
     trigger?.closest<HTMLElement>('.ant-modal-content, .ant-drawer-content') ??
@@ -126,7 +147,7 @@ function popupContainer(trigger?: HTMLElement): HTMLElement {
     document.body
   );
 }
-defineExpose({ close });
+defineExpose({ close, requestClose });
 </script>
 
 <template>
@@ -190,7 +211,7 @@ defineExpose({ close });
           description="关闭后将放弃本次输入。"
         />
         <div class="graph-overlay-discard-actions">
-          <AButton :disabled="busy" @click="discardOpen = false">继续编辑</AButton>
+          <AButton :disabled="busy" @click="finishClose(false)">继续编辑</AButton>
           <AButton danger :disabled="busy" @click="discard">放弃更改</AButton>
         </div>
       </div>

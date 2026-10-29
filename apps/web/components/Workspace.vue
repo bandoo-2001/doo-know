@@ -2516,7 +2516,7 @@ function shortcut(e: KeyboardEvent) {
   handleSaveShortcut(e, () => { if (panel.value === 'note') void save(); });
 }
 function unload(e: BeforeUnloadEvent) {
-  if (dirty.value) {
+  if (dirty.value || appsRef.value?.hasUnsavedChanges()) {
     e.preventDefault();
     e.returnValue = '';
   }
@@ -3396,6 +3396,7 @@ onBeforeUnmount(() => {
         :model="blogModel"
         :selection="toDooSelection"
         @navigate="navigateApp"
+        @menu-select="drawer = false"
         @open-note="openBlogNote"
         @note-created="run(refresh)"
       />
