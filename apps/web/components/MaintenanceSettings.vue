@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue';
 import { NModal } from 'naive-ui';
 import { Alert as AAlert, Button as AButton } from 'ant-design-vue';
 import { api, ApiError } from '../api';
+import OrganizationRetentionSettings from './OrganizationRetentionSettings.vue';
 import type {
   WriteConflict,
   WriteConflictList,
@@ -118,6 +119,7 @@ onMounted(() => void load());
       message="Git 工作区需要人工核对"
       :description="'请保留整个工作区和冲突材料，再按 Git 同步恢复流程处理。操作编号：' + item.id"
     />
+    <OrganizationRetentionSettings />
     <NModal
       :show="!!selected"
       preset="card"
