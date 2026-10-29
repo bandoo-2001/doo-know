@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { createFixture, loginFixtureOwner } from './support/fixture.js';
 import { openDatabase } from '../packages/core/db.js';
 import { renameRootInPlace } from '../apps/server/platform/root-migration.js';
+import { libraryIdentity, syncDirectoryCatalog } from '../packages/core/organization/catalog.js';
 it('renames the same inode and compares the exact identity while preserving IDs, history and shares', async () => {
   const f = await createFixture();
   try {
@@ -31,6 +32,7 @@ it('renames the same inode and compares the exact identity while preserving IDs,
     await f.app.close();
     const db = openDatabase(f.dataRoot);
     try {
+      const previousLibrary = libraryIdentity(db)!;
       const raw = (
           db.prepare("SELECT value FROM index_meta WHERE key='root_identity'").get() as any
         ).value,
@@ -50,6 +52,11 @@ it('renames the same inode and compares the exact identity while preserving IDs,
         (db.prepare('SELECT enabled FROM shares WHERE note_id=?').get(note.id) as any).enabled,
       ).toBe(1);
       expect(db.pragma('foreign_key_check')).toEqual([]);
+      expect(() => syncDirectoryCatalog({ ...f.config, knowledgeRoot: target }, db)).not.toThrow();
+      expect(libraryIdentity(db)).toMatchObject({
+        libraryId: previousLibrary.libraryId,
+        bindingVersion: previousLibrary.bindingVersion + 1,
+      });
     } finally {
       db.close();
     }
@@ -96,6 +103,48 @@ it('rejects a stale identity before moving and reverses the same directory if po
     expect(
       (db.prepare("SELECT value FROM index_meta WHERE key='root_identity'").get() as any).value,
     ).toBe(raw);
+  } finally {
+    db.close();
+    await f.close();
+  }
+});
+
+it('refuses offline root migration while a durable organization task remains queued', async () => {
+  const f = await createFixture();
+  await f.app.close();
+  const db = openDatabase(f.dataRoot);
+  try {
+    const id = '11111111-1111-4111-8111-111111111111',
+      now = Date.now();
+    db.prepare(
+      "INSERT INTO operations(id,principal,client_id,kind,request_id,params_hash,status,created_at,updated_at) VALUES(?,?,?,?,?,?,'queued',?,?)",
+    ).run(
+      id,
+      'web-owner',
+      'browser',
+      'organization.organize',
+      'pending-root-migration',
+      'fixture',
+      now,
+      now,
+    );
+    db.prepare(
+      "INSERT INTO organization_jobs(id,status,payload,created_at) VALUES(?,'queued','{}',?)",
+    ).run(id, now);
+    const previous = (
+      db.prepare("SELECT value FROM index_meta WHERE key='root_identity'").get() as any
+    ).value;
+    const target = join(f.root, 'blocked-root');
+    expect(() =>
+      renameRootInPlace(db, {
+        oldRoot: f.knowledgeRoot,
+        newRoot: target,
+        expectedIdentity: previous,
+      }),
+    ).toThrow(/未完成/);
+    expect(existsSync(f.knowledgeRoot)).toBe(true);
+    expect(existsSync(target)).toBe(false);
+    expect(libraryIdentity(db)?.bindingVersion).toBe(1);
   } finally {
     db.close();
     await f.close();

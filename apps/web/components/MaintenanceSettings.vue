@@ -98,7 +98,7 @@ onMounted(() => void load());
     <AAlert v-if="error" type="error" :message="error" role="alert" />
     <p v-if="loading && !state.items.length" role="status">正在读取恢复状态…</p>
     <p
-      v-else-if="!state.items.length && !state.syncConflicts.length && !error"
+      v-else-if="!state.items.length && !state.syncConflicts.length && !state.organizationConflicts?.length && !error"
       class="muted"
       role="status"
     >
@@ -120,6 +120,13 @@ onMounted(() => void load());
       :description="'请保留整个工作区和冲突材料，再按 Git 同步恢复流程处理。操作编号：' + item.id"
     />
     <OrganizationRetentionSettings />
+    <AAlert
+      v-for="item in state.organizationConflicts"
+      :key="item.operationId"
+      type="warning"
+      :message="item.status === 'needs_reconciliation' ? '目录整理需要人工核对' : '目录整理尚未完成'"
+      :description="'请保留知识库和恢复材料，重新检查恢复状态。操作编号：' + item.operationId"
+    />
     <NModal
       :show="!!selected"
       preset="card"

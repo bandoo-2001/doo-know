@@ -21,7 +21,7 @@ import { findOperation } from '../../../packages/core/knowledge/operations.js';
 import { snapshotService } from '../../../packages/core/knowledge/snapshots.js';
 import { fileJobService } from '../../../packages/core/knowledge/file-jobs.js';
 import { currentAgentConfig, projectMachinePrincipal } from '../../../packages/core/agent/config.js';
-import { reconcileService } from '../../../packages/core/indexing/reconcile.js';
+import { reconcileService, assertRoot } from '../../../packages/core/indexing/reconcile.js';
 import { startWatcher } from '../../../packages/core/indexing/watcher.js';
 import { syncService } from '../../../packages/core/indexing/sync.js';
 import { indexWorker } from '../../../packages/core/indexing/worker.js';
@@ -197,19 +197,21 @@ export async function registerAgentRoutes(
         route.bodyLimit = 128 * 1024;
       });
       api.addHook('onRequest', async (req) => {
+        let authenticated: Principal;
         try {
-          const authenticated = authorizeAgent(
+          authenticated = authorizeAgent(
             req,
             currentAgentConfig(config),
             authorizationCutoff(db),
           );
-          if (!organizationPending(db)) syncDirectoryCatalog(config, db);
-          const projected = projectMachinePrincipal(config, db, authenticated);
-          if (!projected) fail(401, 'UNAUTHORIZED');
-          (req as any).principal = projected;
         } catch {
           fail(401, 'UNAUTHORIZED');
         }
+        assertRoot(config, db);
+        if (!organizationPending(db)) syncDirectoryCatalog(config, db);
+        const projected = projectMachinePrincipal(config, db, authenticated);
+        if (!projected) fail(401, 'UNAUTHORIZED');
+        (req as any).principal = projected;
         if (req.headers['content-encoding']) fail(415, 'COMPRESSED_REQUEST_NOT_ALLOWED');
       });
       api.setErrorHandler((error, _req, reply) => {

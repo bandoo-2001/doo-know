@@ -153,6 +153,7 @@ export type WriteConflict = {
 export type WriteConflictList = {
   items: WriteConflict[];
   syncConflicts: { id: string; status: string; resolvable: false; reason: string }[];
+  organizationConflicts?: { operationId: string; status: 'committing' | 'needs_reconciliation'; code: string }[];
 };
 export type ResolveConflictInput = {
   strategy: 'keep_disk';

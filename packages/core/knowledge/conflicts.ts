@@ -132,7 +132,33 @@ export function conflictService(config: AppConfig, db: AppDatabase) {
           : null,
       };
     });
-    return { items, syncConflicts };
+    const hasOrganization = db
+      .prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='organization_jobs'")
+      .get();
+    const organizationConflicts = hasOrganization
+      ? (
+          db
+            .prepare(
+              "SELECT id AS operationId,status,error AS code FROM organization_jobs WHERE status IN ('committing','needs_reconciliation') ORDER BY created_at DESC,id LIMIT 50",
+            )
+            .all() as {
+            operationId: string;
+            status: 'committing' | 'needs_reconciliation';
+            code: string | null;
+          }[]
+        ).map((row) => ({
+          ...row,
+          code:
+            typeof row.code === 'string' && /^[A-Z][A-Z0-9_]{0,63}$/.test(row.code)
+              ? row.code
+              : 'ORGANIZATION_RECOVERY_REQUIRED',
+        }))
+      : [];
+    return {
+      items,
+      syncConflicts,
+      ...(organizationConflicts.length ? { organizationConflicts } : {}),
+    };
   }
   function ensureDirectory(path: string) {
     mkdirSync(path, { recursive: true, mode: 0o700 });
