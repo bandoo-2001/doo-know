@@ -320,7 +320,6 @@ it('publishes through a real v2 host grant with source read permission and no so
     expectedModifiedAt: note.modifiedAt,
     expectedContentHash: note.contentHash,
     expectedPublicationVersion: 0,
-    confirmPublic: true,
     requestId: 'source-reader-publish',
   });
   expect(published.state).toBe('published');
