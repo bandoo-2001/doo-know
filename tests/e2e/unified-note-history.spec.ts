@@ -2,7 +2,8 @@ import { execFileSync } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { BrowserContext, Page } from '@playwright/test';
-import { configurePlugin } from '../support/settings-navigation';
+import { configurePlugin, showSidebar } from '../support/settings-navigation';
+import { expandFolderPath } from '../support/notebook-tree';
 import { clickNoteAction, selectGitHistoryVersion } from '../support/note-actions';
 import { test, expect } from '../support/browser-test';
 
@@ -200,4 +201,82 @@ test('停用 Git 后保存记录仍可使用，且不会调用 Git 历史接口'
   await expect(dialog.locator('.git-diff-insert')).toContainText(['当前未提交的正文']);
   expect(gitReads).toBe(0);
   expect(await readFile(fixture.file, 'utf8')).toBe(fixture.current);
+});
+
+test('Git 恢复期间与结果待核对时阻止外层导航，核对后才允许后退', async ({ page, context }) => {
+  test.setTimeout(90000);
+  const fixture = await setupHistory(page, context);
+  // Build a real same-document history entry whose preceding route clears note.
+  await page.goto('/');
+  await showSidebar(page);
+  await expandFolderPath(page, '00-Inbox');
+  await page.locator('.tree-select').and(page.getByTitle(fixture.note.relativePath, { exact: true })).click();
+  await expect(page.locator('.cm-content')).toBeVisible();
+  const originalURL = page.url();
+  await clickNoteAction(page, '历史版本');
+  const dialog = page.locator('.note-history-dialog');
+  await dialog.getByRole('tab', { name: 'Git 提交', exact: true }).click();
+  await selectGitHistoryVersion(page, -1);
+  await expect(dialog.locator('.note-history-git-commit')).toContainText(fixture.first.slice(0, 12));
+  const requests: unknown[] = [];
+  let release!: () => void;
+  const gate = new Promise<void>((resolve) => { release = resolve; });
+  await page.route('**/api/plugins/git/call', async (route) => {
+    const data = route.request().postDataJSON();
+    if (data.id !== 'git.restore') return route.continue();
+    requests.push(data.input);
+    if (requests.length === 1) {
+      await gate;
+      await route.fetch();
+      return route.abort('failed');
+    }
+    return route.continue();
+  });
+  const protectedUnload = () => page.evaluate(() => {
+    const event = new Event('beforeunload', { cancelable: true });
+    window.dispatchEvent(event);
+    return event.defaultPrevented;
+  });
+  try {
+    await dialog.getByRole('button', { name: '恢复此版本', exact: true }).click();
+    await dialog.getByRole('button', { name: '确认恢复笔记', exact: true }).click();
+    await expect.poll(() => requests.length).toBe(1);
+    await page.goBack();
+    await expect(page).toHaveURL(originalURL);
+    await expect(dialog).toBeVisible();
+    expect(await protectedUnload()).toBe(true);
+    release();
+    await expect(dialog.getByRole('button', { name: '核对恢复结果', exact: true })).toBeVisible();
+    await page.goBack();
+    await expect(page).toHaveURL(originalURL);
+    await expect(dialog).toBeVisible();
+    expect(await protectedUnload()).toBe(true);
+    const warning = page.waitForEvent('dialog');
+    const reload = page.evaluate(() => location.reload());
+    const unloadDialog = await warning;
+    expect(unloadDialog.type()).toBe('beforeunload');
+    await unloadDialog.dismiss();
+    await reload;
+    await expect(page).toHaveURL(originalURL);
+    await expect(dialog.getByRole('button', { name: '核对恢复结果', exact: true })).toBeVisible();
+    // Exercise an outer application action independently of the modal's pointer mask.
+    await page.locator('.workspace-footer button[title="应用"]').evaluate((button: HTMLButtonElement) => button.click());
+    await expect(page).toHaveURL(originalURL);
+    await expect(dialog.getByRole('button', { name: '核对恢复结果', exact: true })).toBeVisible();
+    await dialog.getByRole('button', { name: '核对恢复结果', exact: true }).click();
+    await expect.poll(() => requests.length).toBe(2);
+    expect(requests[1]).toEqual(requests[0]);
+    await expect(dialog.getByRole('button', { name: '核对恢复结果', exact: true })).toBeHidden();
+    await expect(page.locator('.cm-content')).toContainText('最初提交的正文');
+    expect(await protectedUnload()).toBe(false);
+    await dialog.getByRole('button', { name: '关闭', exact: true }).click();
+    await page.goBack();
+    await expect(page).toHaveURL('http://127.0.0.1:4179/');
+    await expect(dialog).toBeHidden();
+    await expect(page.locator('.cm-content')).toBeHidden();
+    expect(await readFile(fixture.file, 'utf8')).toBe(fixture.original);
+  } finally {
+    release();
+    await page.unrouteAll({ behavior: 'ignoreErrors' });
+  }
 });

@@ -3,6 +3,7 @@ import { mkdtemp, mkdir, writeFile, readFile, rm, rename, lstat } from 'node:fs/
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { openDatabase } from '../packages/core/db.js';
 import { createAuth } from '../apps/server/auth.js';
 import { platformRuntime } from '../apps/server/platform/runtime.js';
@@ -308,6 +309,17 @@ for (const interruption of ['before-merge', 'after-merge'] as const) {
       const pending = await h.run({ kind: 'pull' });
       expect(pending.status).toBe('needs_reconciliation');
       expect(pending.result).toMatchObject({ target });
+      const expectedContent = interruption === 'after-merge'
+        ? '# Local edit after the completed merge\n' : '# Recorded target\n';
+      if (interruption === 'after-merge') {
+        // Collection readers can discover the merged files while the durable pull
+        // still awaits reconciliation. Register them deterministically before retry.
+        h.platform.get().notes.scan();
+        expect(git(h.local, 'status', '--porcelain=v1')).toContain('_data/library/state.json');
+        expect(await readFile(join(h.local, '00-Inbox/added.md'), 'utf8')).toBe('# Recorded target\n');
+        await writeFile(join(h.local, '00-Inbox/added.md'), expectedContent);
+        git(h.local, 'add', '--', '00-Inbox/added.md');
+      }
       h.setBefore(undefined);
       h.setAfter(undefined);
       await writeFile(join(h.seed, 'newer.md'), '# Requires a new pull\n');
@@ -315,23 +327,32 @@ for (const interruption of ['before-merge', 'after-merge'] as const) {
       git(h.seed, 'commit', '-m', 'Newer');
       git(h.seed, 'push', 'origin', 'main');
       await h.restart();
-      let fetched = false;
+      let fetched = false, merged = false;
       h.setBefore(async (args) => {
         if (args.includes('fetch') || args.includes('ls-remote')) fetched = true;
+        if (args.includes('merge')) merged = true;
       });
       h.service.retry('owner', pending.id);
       await expect
         .poll(() => h.service.job('owner', pending.id).status, { timeout: 20000 })
         .not.toMatch(/queued|running/);
-      expect(h.service.job('owner', pending.id)).toMatchObject({
+      const recovered = h.service.job('owner', pending.id);
+      expect(recovered, JSON.stringify(recovered)).toMatchObject({
         status: 'succeeded',
         result: { commit: target, refreshRequired: true },
       });
       expect(fetched).toBe(false);
+      expect(merged).toBe(interruption === 'before-merge');
       expect(git(h.local, 'rev-parse', 'HEAD')).toBe(target);
-      expect(await readFile(join(h.local, '00-Inbox/added.md'), 'utf8')).toBe(
-        '# Recorded target\n',
-      );
+      expect(await readFile(join(h.local, '00-Inbox/added.md'), 'utf8')).toBe(expectedContent);
+      if (interruption === 'after-merge')
+        expect(git(h.local, 'diff', '--cached', '--name-only')).toBe('00-Inbox/added.md');
+      expect(h.db.prepare(`
+        SELECT d.active,d.content_hash FROM document_state d
+        JOIN notes n ON n.id=d.note_id WHERE n.path='00-Inbox/added.md'
+      `).get()).toMatchObject({
+        active: 1, content_hash: createHash('sha256').update(expectedContent).digest('hex'),
+      });
       expect(await lstat(join(h.local, 'newer.md')).catch(() => null)).toBeNull();
       expect(h.db.prepare('SELECT path FROM notes WHERE active=1 ORDER BY path').all()).toEqual([
         { path: '00-Inbox/added.md' },
@@ -602,6 +623,16 @@ it('refuses recorded pull recovery after branch or HEAD changes without fetching
       .not.toMatch(/queued|running/);
     expect(h.service.job('owner', pending.id).error).toBe('GIT_BRANCH_CHANGED');
     git(h.local, 'switch', 'main');
+    await writeFile(join(h.local, 'note.md'), '# Local pending merge\n');
+    h.service.retry('owner', pending.id);
+    await expect
+      .poll(() => h.service.job('owner', pending.id).status, { timeout: 20000 })
+      .not.toMatch(/queued|running/);
+    expect(h.service.job('owner', pending.id)).toMatchObject({
+      status: 'failed', error: 'GIT_LOCAL_CHANGES', result: pending.result,
+    });
+    expect(await readFile(join(h.local, 'note.md'), 'utf8')).toBe('# Local pending merge\n');
+    await writeFile(join(h.local, 'note.md'), '# Base\n');
     await writeFile(join(h.local, 'local.md'), '# Local work\n');
     git(h.local, 'add', '.');
     git(h.local, 'commit', '-m', 'Local work');

@@ -51,6 +51,7 @@ const original = {
 };
 const meta = { ...original, editorMode: 'full', sizeBytes: 5 };
 let state: any;
+let navigationOptions: Parameters<typeof navigation.createWorkspaceNavigation>[0];
 let realDraftLifecycle = false;
 let flush: ReturnType<typeof vi.fn>, clearSaved: ReturnType<typeof vi.fn>;
 const descriptor = parse(
@@ -88,7 +89,13 @@ async function mount(waitForNote = true) {
       if (id === '../editor/view-transitions') return viewTransitions;
       if (id === '../editor/toolbar-state') return format;
       if (id === '../api') return { api: mockApi, ApiError, resetCsrf: vi.fn() };
-      if (id === '../navigation') return navigation;
+      if (id === '../navigation') return {
+        ...navigation,
+        createWorkspaceNavigation(options: typeof navigationOptions) {
+          navigationOptions = options;
+          return navigation.createWorkspaceNavigation(options);
+        },
+      };
       if (id === '../markdown-links') return markdownLinks;
       if (id === '../image-requests') return imageRequests;
       if (id === '../preferences') return preferences;
@@ -218,6 +225,47 @@ function holdIdentity() {
   mockApi.mockImplementation((...args) => args[0] === '/api/auth/get-session' ? pending : request(...args));
   return () => resolve({ user: { id: 'owner' } });
 }
+
+it('cancels a root navigation waiting for draft flush when a history restore starts', async () => {
+  await mount();
+  state.draft.value = original.content;
+  const restoring = Vue.ref(false);
+  state.noteHistoryRef.value = { hasPendingRestore: () => restoring.value };
+  let release!: () => void;
+  flush.mockImplementationOnce(() => new Promise<string>((resolve) => {
+    release = () => resolve('retained-local-version');
+  }));
+  const browsing = state.browseRoot();
+  await vi.waitFor(() => expect(release).toEqual(expect.any(Function)));
+  restoring.value = true;
+  await Vue.nextTick();
+  release();
+  await browsing;
+  expect(state.note.value?.id).toBe(original.id);
+  expect(state.panel.value).toBe('note');
+  expect(state.navigation.currentRoute()).toMatchObject({ note: original.id });
+});
+
+it('rejects an in-flight browser route when history restore invalidates its navigation intent', async () => {
+  await mount();
+  state.draft.value = original.content;
+  const restoring = Vue.ref(false);
+  state.noteHistoryRef.value = { hasPendingRestore: () => restoring.value };
+  let release!: () => void;
+  flush.mockImplementationOnce(() => new Promise<string>((resolve) => {
+    release = () => resolve('retained-local-version');
+  }));
+  const applying = navigationOptions.apply({});
+  await vi.waitFor(() => expect(release).toEqual(expect.any(Function)));
+  restoring.value = true;
+  await Vue.nextTick();
+  release();
+  // Returning false tells the browser adapter to restore its actual history pointer.
+  expect(await applying).toBe(false);
+  expect(state.note.value?.id).toBe(original.id);
+  expect(state.navigation.currentRoute()).toMatchObject({ note: original.id });
+});
+
 it('coalesces manual saves waiting for the same editor composition flush', async () => {
   await mount();
   const request = mockApi.getMockImplementation()!;

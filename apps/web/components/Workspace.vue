@@ -204,6 +204,8 @@ async function exportReading(print=false){
 }
 const LargeFileWorkspace=defineAsyncComponent(()=>import('./LargeFileWorkspace.vue'));
 const NoteHistoryDialog=defineAsyncComponent(()=>import('./NoteHistoryDialog.vue'));
+const noteHistoryRef = ref<InstanceType<typeof NoteHistoryDialog>>();
+const historyWriteLocked = computed(() => !!noteHistoryRef.value?.hasPendingRestore());
 const noteInfo = ref<NoteInfo>(),
   largeRef = ref<InstanceType<typeof LargeFileWorkspace>>(),
   largeDirty = ref(false);
@@ -278,6 +280,7 @@ async function openBlogNote(id: string, line?: number) {
   });
 }
 async function navigateApp(app: WorkspaceRoute['app'], section: BlogSection | ToDooAppSection = app === 'to-doo' ? 'tasks' : 'overview', selection: ToDooSelection = {}) {
+  if (historyWriteLocked.value) return;
   const intent = ++navigationIntent;
   drawer.value = false;
   if (app && panel.value === 'apps' && !appsApp.value) {
@@ -560,6 +563,10 @@ const query = ref(''),
 let viewEpoch = 0;
 let alive = true, navigationIntent = 0;
 const currentIntent = (intent: number) => alive && intent === navigationIntent;
+watch(historyWriteLocked, (locked) => {
+  // A navigation may already be awaiting an editor/draft flush when restore starts.
+  if (locked) navigationIntent++;
+}, { flush: 'sync' });
 const draftIdentityReady = ref(false);
 let draftIdentityGeneration = 0, signingOut = false;
 let draftIdentityRequest: Promise<boolean> | undefined;
@@ -633,12 +640,17 @@ async function browseRoot() {
   );
 }
 const navigation = createWorkspaceNavigation({
-  dirty: () => dirty.value || !!embeddedBoardId.value || !!appsRef.value?.hasUnsavedChanges(),
-  canPreserveDraft: (route) => !embeddedBoardId.value && (
+  dirty: () => historyWriteLocked.value || dirty.value || !!embeddedBoardId.value || !!appsRef.value?.hasUnsavedChanges(),
+  canPreserveDraft: (route) => !historyWriteLocked.value && !embeddedBoardId.value && (
     (route.view === 'apps' && route.app === 'to-doo' && panel.value === 'apps' && appsApp.value === 'to-doo') ||
     (!appsRef.value?.hasUnsavedChanges() && (!!route.view || (!!route.note && note.value?.id === route.note)))),
   guard,
-  apply: applyRoute,
+  apply: async (route) => {
+    const intent = ++navigationIntent;
+    const applied = await applyRoute(route, intent);
+    // An invalidated route must restore the browser pointer as well as retain the view.
+    return currentIntent(intent) ? applied : false;
+  },
   error: showError,
   onState: (state) => {
     navigationState.value = state;
@@ -688,6 +700,7 @@ function initializeDrafts(force = false): Promise<boolean> {
   return draftIdentityRequest;
 }
 async function applyRoute(route: WorkspaceRoute, intent = ++navigationIntent) {
+  if (historyWriteLocked.value) return false;
   if (!currentIntent(intent)) return false;
   if (panel.value === 'apps' && !(route.view === 'apps' && route.app === appsApp.value) && !await confirmAppLeave(intent)) return false;
   const nextAppSection = route.appSection || (route.app === 'to-doo' ? 'tasks' : 'overview');
@@ -1159,6 +1172,7 @@ async function select(entry: TreeEntry, syncUrl = true, intent = ++navigationInt
 const leaveOpen = ref(false);
 let pendingNavigation: (() => Promise<void>) | undefined;
 async function guard(fn: () => Promise<void>, intent = navigationIntent) {
+  if (historyWriteLocked.value) return;
   if (panel.value === 'apps' && !await confirmAppLeave(intent)) return;
   if(embeddedBoardId.value){await embeddedBoardRef.value?.requestClose();return;}
   if(noteInfo.value?.editorMode === 'full') {try {await editorRef.value?.flush();}catch(cause){showError(cause);if(!dirty.value)return;}}
@@ -1791,6 +1805,7 @@ async function openTrash(syncUrl = true, intent = ++navigationIntent) {
   });
 }
 async function retainNoteContext(intent = navigationIntent) {
+  if (historyWriteLocked.value) return false;
   if (panel.value === 'apps' && !await confirmAppLeave(intent)) return false;
   if(noteInfo.value?.editorMode === 'full') await editorRef.value?.flush();
   await localDrafts.flush();
@@ -1906,6 +1921,7 @@ async function settings(section?: string, syncUrl = true, intent = ++navigationI
   });
 }
 async function backFromSettings(intent = ++navigationIntent, destination: WorkspaceRoute = returnRoute) {
+  if (historyWriteLocked.value) return;
   if (panel.value === 'apps' && !await confirmAppLeave(intent)) return;
   if (!currentIntent(intent)) return;
   if (destination.note && note.value?.id === destination.note) {
@@ -2516,7 +2532,7 @@ function shortcut(e: KeyboardEvent) {
   handleSaveShortcut(e, () => { if (panel.value === 'note') void save(); });
 }
 function unload(e: BeforeUnloadEvent) {
-  if (dirty.value || appsRef.value?.hasUnsavedChanges()) {
+  if (historyWriteLocked.value || dirty.value || appsRef.value?.hasUnsavedChanges()) {
     e.preventDefault();
     e.returnValue = '';
   }
@@ -3685,7 +3701,7 @@ onBeforeUnmount(() => {
         ><AButton v-else danger type="primary" @click="removeNote">移入回收站</AButton>
       </div></NModal
     >
-    <NoteHistoryDialog v-if="revisionsOpen && note" v-model:show="revisionsOpen"
+    <NoteHistoryDialog v-if="revisionsOpen && note" ref="noteHistoryRef" v-model:show="revisionsOpen"
       :note-id="note.id" :title="note.title" :current-modified-at="note.modifiedAt"
       :current-content="noteInfo?.editorMode === 'full' && !isWhiteboard(note.relativePath) ? savedContent : undefined"
       :dirty="dirty" :busy="busy || leaveOpen" :error="dialogError"

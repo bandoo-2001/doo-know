@@ -78,6 +78,9 @@ const git = reactive(
 const historyBusy = computed(() => props.busy || git.busy);
 const unresolved = computed(() => !!props.savePending || !!git.pendingRestore);
 const historyLocked = computed(() => historyBusy.value || unresolved.value);
+// The workspace must retain this component while a Git write is in flight or
+// still needs reconciliation, including browser navigation outside the modal.
+defineExpose({ hasPendingRestore: () => git.busy || !!git.pendingRestore });
 const selectedGit = computed(() => git.rows.find((row) => row.commit === git.selected));
 const gitSelectedId = computed({
   get: () => git.selected || '',
