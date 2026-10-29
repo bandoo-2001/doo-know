@@ -25,6 +25,7 @@ import {
   libraryIdentity,
 } from './catalog.js';
 import { rewriteLibraryReferences } from './references.js';
+import { assertOrganizationReceiptFits } from './response-budget.js';
 export const organizationLimits = {
   actions: 50,
   files: 1000,
@@ -396,8 +397,6 @@ export function prepareOrganization(
   checkPermissions(p, permissions);
   const graphRevision = sha256(JSON.stringify(coverage.map((c) => [c.id, c.path, c.hash]))),
     snapshot = inventory(config);
-  if (Buffer.byteLength(JSON.stringify([...creates, ...moves])) > 24576)
-    fail(413, 'RESPONSE_TOO_LARGE');
   const manifest: OrganizationManifest = {
     version: 1,
     operationId,
@@ -419,6 +418,7 @@ export function prepareOrganization(
       })),
     ],
   };
+  assertOrganizationReceiptFits(manifest, input.requestId);
   revalidateManifest(config, db, p, manifest);
   return manifest;
 }

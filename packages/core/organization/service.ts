@@ -49,6 +49,7 @@ import {
   type Change,
 } from './plan.js';
 import { rewriteLibraryReferences } from './references.js';
+import { organizationResponseFits, assertOrganizationReceiptFits } from './response-budget.js';
 import {
   stageOrganization,
   commitOrganization,
@@ -198,7 +199,11 @@ export function organizationService(config: AppConfig, db: AppDatabase, notes: N
           }
         : {}),
     });
-    while (items.length && Buffer.byteLength(JSON.stringify(output())) > 28672) items.pop();
+    while (
+      items.length &&
+      (Buffer.byteLength(JSON.stringify(output())) > 28672 || !organizationResponseFits(output()))
+    )
+      items.pop();
     if (!items.length && offset < rows.length) fail(413, 'RESPONSE_TOO_LARGE');
     return output();
   }
@@ -283,18 +288,7 @@ export function organizationService(config: AppConfig, db: AppDatabase, notes: N
       .all(p.id, p.clientId, limit + 1, offset) as any[];
     const items: OrganizationOperation[] = [];
     let consumed = 0;
-    for (const row of rows.slice(0, limit)) {
-      try {
-        const item = operation(p, { operationId: row.id });
-        if (Buffer.byteLength(JSON.stringify({ items: [...items, item] })) > 27648) break;
-        items.push(item);
-      } catch (e) {
-        if (!(e instanceof KnowledgeError && e.statusCode === 403)) throw e;
-      }
-      consumed++;
-    }
-    if (!consumed && rows.length) fail(413, 'RESPONSE_TOO_LARGE');
-    return {
+    const output = (): HistoryPage => ({
       items,
       ...(consumed < rows.length
         ? {
@@ -305,7 +299,29 @@ export function organizationService(config: AppConfig, db: AppDatabase, notes: N
             }),
           }
         : {}),
-    };
+    });
+    for (const row of rows.slice(0, limit)) {
+      let item: OrganizationOperation;
+      try {
+        item = operation(p, { operationId: row.id });
+      } catch (e) {
+        if (!(e instanceof KnowledgeError && e.statusCode === 403)) throw e;
+        consumed++;
+        continue;
+      }
+      items.push(item);
+      consumed++;
+      if (
+        Buffer.byteLength(JSON.stringify({ items })) > 27648 ||
+        !organizationResponseFits(output())
+      ) {
+        items.pop();
+        consumed--;
+        break;
+      }
+    }
+    if (!consumed && rows.length) fail(413, 'RESPONSE_TOO_LARGE');
+    return output();
   }
   function setFailure(id: string, error: unknown) {
     const status = (db.prepare('SELECT status FROM organization_jobs WHERE id=?').get(id) as any)
@@ -456,6 +472,11 @@ export function organizationService(config: AppConfig, db: AppDatabase, notes: N
         to: c.from || c.to,
       })),
     };
+    const receipt = db.prepare('SELECT request_id,kind FROM operations WHERE id=?').get(id) as {
+      request_id: string;
+      kind: string;
+    };
+    assertOrganizationReceiptFits(m, receipt.request_id, receipt.kind);
     return m;
   }
   async function run(id: string) {

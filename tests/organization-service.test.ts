@@ -479,3 +479,113 @@ it('does not expand a queued principal when its current policy is broadened late
   });
   expect(existsSync(join(f.config.knowledgeRoot, '00-Inbox/a.md'))).toBe(true);
 });
+it('rejects escaped long-path receipts using the complete duplicated MCP envelope before moving any source', async () => {
+  const f = fixture(),
+    parent = Array.from({ length: 5 }, (_, i) => '"'.repeat(179) + i).join('/'),
+    destination = 'New/' + parent;
+  mkdirSync(join(f.config.knowledgeRoot, parent), { recursive: true });
+  mkdirSync(join(f.config.knowledgeRoot, destination), { recursive: true });
+  const sources = Array.from({ length: 6 }, (_, i) => {
+    const path = `${parent}/${i}.md`;
+    return { path, ...f.create(path, `# source ${i}`) };
+  });
+  const context = f.s.context(f.p),
+    target = f.directory(destination),
+    requestId = '"'.repeat(128),
+    actions = sources.map((source, i) => ({
+      type: 'move_note' as const,
+      noteId: source.noteId,
+      expectedModifiedAt: source.expectedModifiedAt,
+      expectedContentHash: source.expectedContentHash,
+      toDirectoryId: target.id,
+      fileName: `${i}.md`,
+    }));
+  const accepted = await f.s.submit(f.p, {
+    libraryId: context.libraryId,
+    expectedStructureRevision: context.structureRevision,
+    requestId,
+    actions,
+  });
+  const { messageSize } = await import('../packages/core/knowledge/limits.js');
+  const hypothetical = {
+    operationId: accepted.operation.operationId,
+    requestId,
+    kind: 'organization.organize',
+    status: 'succeeded',
+    result: {
+      operationId: accepted.operation.operationId,
+      libraryId: context.libraryId,
+      structureRevision: context.structureRevision,
+      changes: sources.map((source, i) => ({
+        type: 'move_note',
+        id: source.noteId,
+        from: source.path,
+        to: `${destination}/${i}.md`,
+      })),
+      indexState: 'pending',
+      undoAvailable: true,
+    },
+  };
+  expect(messageSize(hypothetical)).toBeGreaterThan(65536);
+  await f.s.drain();
+  expect(f.s.operation(f.p, { operationId: accepted.operation.operationId })).toMatchObject({
+    status: 'failed',
+    error: { code: 'RESPONSE_TOO_LARGE' },
+  });
+  for (const [i, source] of sources.entries()) {
+    expect(readFileSync(join(f.config.knowledgeRoot, source.path), 'utf8')).toBe(`# source ${i}`);
+    expect(existsSync(join(f.config.knowledgeRoot, destination, `${i}.md`))).toBe(false);
+    expect(f.notes.row(source.noteId).path).toBe(source.path);
+  }
+});
+it('paginates escaped directory paths against the complete MCP response frame', async () => {
+  const f = fixture(),
+    parent = Array.from({ length: 5 }, (_, i) => '"'.repeat(179) + i).join('/');
+  mkdirSync(join(f.config.knowledgeRoot, parent), { recursive: true });
+  for (let i = 0; i < 16; i++)
+    mkdirSync(join(f.config.knowledgeRoot, parent, '"'.repeat(178) + String(i).padStart(2, '0')));
+  f.s.context(f.p);
+  const parentId = f.directory(parent).id,
+    { messageSize } = await import('../packages/core/knowledge/limits.js'),
+    seen = new Set<string>();
+  let cursor: string | undefined;
+  do {
+    const page = f.s.list(f.p, { parentId, limit: 50, cursor });
+    expect(messageSize(page) + 640).toBeLessThanOrEqual(65536);
+    expect(page.items.length).toBeGreaterThan(0);
+    for (const item of page.items) seen.add(item.id);
+    cursor = page.nextCursor;
+  } while (cursor);
+  expect(seen.size).toBe(16);
+});
+it('paginates escaped organization history against the complete MCP response frame', async () => {
+  const f = fixture(),
+    parent = Array.from({ length: 5 }, (_, i) => '"'.repeat(179) + i).join('/');
+  mkdirSync(join(f.config.knowledgeRoot, parent), { recursive: true });
+  f.s.context(f.p);
+  for (let i = 0; i < 13; i++) {
+    const op = await execute(
+      f,
+      [
+        {
+          type: 'create_directory',
+          parentId: f.directory(parent).id,
+          name: '"'.repeat(178) + String(i).padStart(2, '0'),
+        },
+      ],
+      `history-${i}`,
+    );
+    expect(op.status).toBe('succeeded');
+  }
+  const { messageSize } = await import('../packages/core/knowledge/limits.js'),
+    seen = new Set<string>();
+  let cursor: string | undefined;
+  do {
+    const page = f.s.history(f.p, { limit: 50, cursor });
+    expect(messageSize(page) + 640).toBeLessThanOrEqual(65536);
+    expect(page.items.length).toBeGreaterThan(0);
+    for (const item of page.items) seen.add(item.operationId);
+    cursor = page.nextCursor;
+  } while (cursor);
+  expect(seen.size).toBe(13);
+});
