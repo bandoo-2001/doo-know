@@ -125,3 +125,36 @@ it('expires filename-v2 cursors after note-diverse ranking changes even when sou
     await f.close();
   }
 });
+
+it('expires search cursors on an empty-directory change without requiring an index publication', async () => {
+  const f = await createFixture({ agent: agentConfig, indexing: { enabled: true, watch: false } });
+  const db = openDatabase(f.dataRoot);
+  try {
+    for (let i = 0; i < 3; i++)
+      await writeFile(join(f.knowledgeRoot, `00-Inbox/tree-${i}.md`), '# Search\nstructurecursor');
+    const query = { query: 'structurecursor', mode: 'text', limit: 1 };
+    const request = (payload: Record<string, unknown>) =>
+      f.app.inject({
+        method: 'POST',
+        url: '/api/agent/v1/search',
+        headers: agentHeaders(),
+        payload,
+      });
+    expect((await request({ ...query, freshness: 'strict' })).statusCode).toBe(200);
+    const first = await request(query);
+    expect(first.statusCode, first.body).toBe(200);
+    expect(first.json().data.nextCursor).toBeTruthy();
+    const before = (db.prepare("SELECT value FROM index_meta WHERE key='index_epoch'").get() as any)
+      .value;
+    await mkdir(join(f.knowledgeRoot, '00-Inbox/New-Empty'));
+    const next = await request({ ...query, cursor: first.json().data.nextCursor });
+    expect(next.statusCode, next.body).toBe(410);
+    expect(next.json().error.code).toBe('CURSOR_EXPIRED');
+    expect(
+      (db.prepare("SELECT value FROM index_meta WHERE key='index_epoch'").get() as any).value,
+    ).toBe(before);
+  } finally {
+    db.close();
+    await f.close();
+  }
+});

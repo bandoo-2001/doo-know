@@ -913,3 +913,55 @@ it('the legacy Agent HTTP boundary binds configured directory identity before li
     await f.close();
   }
 });
+
+it('a read-only legacy grant under a v2 ceiling can search without manual index permission', async () => {
+  const { pluginRuntimeFixture } = await import('./support/plugin-runtime.js');
+  const { syncDirectoryCatalog } = await import('../packages/core/organization/catalog.js');
+  const f = await pluginRuntimeFixture();
+  pluginHost(f.config, f.db);
+  try {
+    const owner = f.principal.id,
+      k = f.platform.get().knowledge,
+      { libraryId } = syncDirectoryCatalog(f.config, f.db);
+    const source = k.core.create(
+      f.principal,
+      '00-Inbox',
+      'read-only-search.md',
+      '# Read only\nreadscopeindex',
+      'readscope-create',
+    );
+    const ceiling = policy(['read'], { mode: 'all' }, libraryId);
+    ceiling.domains.knowledge.ownerId = owner;
+    f.db
+      .prepare(
+        "INSERT INTO platform_plugins(id,installed_version,installed,manifest_json,files_json,state,config_json) VALUES('mcp','1.2.0',1,'{}','{}','enabled',?)",
+      )
+      .run(JSON.stringify({ permissionPolicy: ceiling }));
+    const g = oauthGrantStore(f.db).approve(
+      owner,
+      'legacy-read-search',
+      ['knowledge:read'],
+      ['00-Inbox'],
+    );
+    const p = platformPolicy(f.db, {
+      id: owner,
+      clientId: g.clientId,
+      scopes: g.scopes,
+      allowedPrefixes: g.allowedPrefixes,
+      grantId: g.id,
+      grantVersion: g.version,
+      tokenIssuedAt: g.notBefore,
+      pluginId: 'mcp',
+    })!;
+    expect(() => requireScope(p, 'knowledge:index')).toThrow();
+    const result = await k.search.search(p, {
+      query: 'readscopeindex',
+      mode: 'text',
+      freshness: 'strict',
+    });
+    expect(result.results.map((x) => x.noteId)).toEqual([source.id]);
+    expect(() => requireScope(p, 'knowledge:index')).toThrow();
+  } finally {
+    await f.close();
+  }
+});
