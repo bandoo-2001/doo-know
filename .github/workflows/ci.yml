@@ -13,6 +13,18 @@ jobs:
         with:
           node-version: 22.22.1
           cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Prepare pinned local tokenizer
+        run: |
+          python -m venv runtime/vector-service/.venv
+          runtime/vector-service/.venv/bin/python -m pip install jieba==0.42.1 tokenizers==0.23.3
+          mkdir -p .local/models/bge-small-zh-v1.5
+          curl --fail --location --retry 2 --max-time 120 \
+            https://huggingface.co/BAAI/bge-small-zh-v1.5/resolve/7999e1d3359715c523056ef9478215996d62a620/tokenizer.json \
+            --output .local/models/bge-small-zh-v1.5/tokenizer.json
+          echo '48cea5d44424912a6fd1ea647bf4fe50b55ab8b1e5879c3275f80e339e8fae26  .local/models/bge-small-zh-v1.5/tokenizer.json' | sha256sum --check -
       - run: npm ci
       - run: npm run typecheck
       - run: npx vitest run tests/git-remote-safety.test.ts tests/organization-read-barrier.test.ts
