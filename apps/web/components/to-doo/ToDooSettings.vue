@@ -1,4 +1,24 @@
 <script setup lang="ts">
+import ToDooDisclosure from './ToDooDisclosure.vue';
+import {
+  Alert as AAlert,
+  Button as AButton,
+  Checkbox as ACheckbox,
+  Empty as AEmpty,
+  Input as AInput,
+  InputNumber as AInputNumber,
+  Progress as AProgress,
+  Textarea as ATextarea,
+} from 'ant-design-vue';
+import ToDooSelect from './ToDooSelect.vue';
+import ToDooDateField from './ToDooDateField.vue';
+import { useToDooConfirm } from '../../to-doo-controls';
+import {
+  enableCurrentToDooPushDevice,
+  loadToDooPushStatus,
+  type ToDooCurrentPushDevice,
+  type ToDooPushHost,
+} from '../../to-doo-push';
 import { computed, onMounted, onActivated, onUnmounted, reactive, ref, watch } from 'vue';
 import type {
   ToDooEntityKind,
@@ -8,15 +28,17 @@ import type {
 import type { ToDooWorkbench } from '../../to-doo-workbench';
 const props = defineProps<{ model: ToDooWorkbench }>();
 const emit = defineEmits<{
-  'resume-outcome':[operation:ToDooEntityMap['operation']];
-  'open-note':[id:string];
+  'resume-outcome': [operation: ToDooEntityMap['operation']];
+  'open-note': [id: string];
   edit: [kind: ToDooEntityKind, entity?: Record<string, any>, seed?: Record<string, any>];
 }>();
+const confirmAction = useToDooConfirm();
 const state = props.model.state,
   settings = ref<ToDooSettings>(),
   settingsBaseline = ref(''),
   busy = ref(false),
-  push = ref<any>(null),
+  push = ref<ToDooPushHost | null>(null),
+  currentPushDevice = ref<ToDooCurrentPushDevice | null>(null),
   connections = ref<any[]>([]),
   feed = ref(''),
   feeds = ref<ToDooEntityMap['calendarFeed'][]>([]),
@@ -148,22 +170,36 @@ watch(
   },
   { immediate: true },
 );
-const capability = computed(
-  () =>
-    typeof window !== 'undefined' &&
-    'serviceWorker' in navigator &&
-    'PushManager' in window &&
-    'Notification' in window &&
-    window.isSecureContext,
-);
+const capability = computed(() => currentPushDevice.value?.capability === 'supported');
 const pushReasons: Record<string, string> = {
-  https_required: '需要使用安全的站点地址',
-  host_inactive: '此主机尚未启用推送',
-  server_keys_missing: '服务尚未准备好推送密钥',
-  device_subscription_required: '请先订阅当前设备',
-  ready: '服务已就绪，设备已订阅',
+  https_required: '主机需要配置安全的站点地址',
+  host_inactive: '此主机尚未启用桌面提醒',
+  server_keys_missing: '此主机尚未准备好推送密钥',
+  device_subscription_required: '主机已启用，等待设备登记',
+  ready: '主机已启用，可向已登记设备发送提醒',
 };
-const pushReason = computed(() => pushReasons[push.value?.reason] || '正在检查服务状态');
+const pushReason = computed(() => pushReasons[push.value?.reason || ''] || '正在检查服务状态');
+const pushPermission = computed(() => {
+  if (!currentPushDevice.value) return '正在检查';
+  return {
+    granted: '已允许',
+    denied: '已阻止，请在浏览器的站点设置中允许通知',
+    default: '尚未允许，点击下方按钮后可授权',
+    unsupported: '当前浏览器不支持',
+  }[currentPushDevice.value.permission];
+});
+const currentPushReason = computed(() => {
+  const device = currentPushDevice.value;
+  if (!device) return '正在检查当前设备';
+  if (device.capability === 'insecure') return '当前设备需要通过 HTTPS 或本机安全地址打开本站';
+  if (device.capability === 'unsupported') return '当前浏览器不支持桌面提醒，站内通知中心仍可使用';
+  if (device.permission !== 'granted') return '当前设备尚未启用桌面提醒';
+  if (device.ready) return '当前设备桌面提醒已启用';
+  if (device.subscription === 'expired') return '当前设备订阅已过期，请重新启用';
+  if (device.subscription === 'unregistered') return '当前设备尚未登记到此主机，请重新启用';
+  if (device.subscription === 'missing') return '当前设备尚未启用桌面提醒';
+  return '当前设备已登记，等待主机准备就绪';
+});
 async function work(action: () => Promise<void>) {
   if (busy.value) return;
   busy.value = true;
@@ -178,17 +214,19 @@ async function work(action: () => Promise<void>) {
   }
 }
 async function refreshConnections() {
+  currentPushDevice.value = null;
   const results = await Promise.all([
-    props.model.request('/api/to-doo/push'),
+    loadToDooPushStatus(props.model.request),
     props.model.request('/api/to-doo/calendars/feeds'),
     props.model.request('/api/to-doo/calendars/connections'),
   ]);
-  push.value = results[0];
+  push.value = results[0].host;
+  currentPushDevice.value = results[0].currentDevice;
   feeds.value = results[1];
   connections.value = results[2];
 }
 onMounted(() => void work(refreshConnections));
-onActivated(()=>void props.model.loadPendingOperations());
+onActivated(() => void props.model.loadPendingOperations());
 async function save() {
   if (!settings.value) return;
   const result = await props.model.saveEntity(
@@ -201,6 +239,17 @@ async function save() {
     settings.value = JSON.parse(JSON.stringify(state.snapshot!.settings));
     settingsBaseline.value = JSON.stringify(settings.value);
   }
+}
+type NumericSetting =
+  | 'defaultDurationMinutes'
+  | 'urgentHours'
+  | 'maxDepth'
+  | 'focusMinutes'
+  | 'shortBreakMinutes'
+  | 'longBreakMinutes'
+  | 'longBreakAfter';
+function setSettingNumber(key: NumericSetting, value: number | string | null) {
+  if (settings.value) settings.value[key] = (value ?? '') as number;
 }
 function quiet(enabled: boolean) {
   if (!settings.value) return;
@@ -297,31 +346,16 @@ async function configurePush(enabled: boolean) {
       enabled,
       showContent: !!push.value?.showContent,
     });
-    state.notice = enabled ? '此主机推送已启用' : '此主机推送已停用';
+    await refreshConnections();
+    state.notice = enabled ? '此主机桌面提醒已启用' : '此主机桌面提醒已停用';
   });
 }
 async function subscribe() {
   await work(async () => {
-    if (!capability.value) throw Error('当前浏览器或站点地址不支持 Web Push');
-    if (!push.value?.publicKey) throw Error('请先启用此主机推送');
-    const permission = await Notification.requestPermission();
-    if (permission !== 'granted') throw Error('尚未获得通知权限，可以在浏览器中调整后重试');
-    const registration = await navigator.serviceWorker.register('/to-doo-sw.js');
-    const publicKey = String(push.value.publicKey).replace(/-/g, '+').replace(/_/g, '/');
-    const raw = atob(publicKey.padEnd(Math.ceil(publicKey.length / 4) * 4, '='));
-    const key = Uint8Array.from(raw, (c) => c.charCodeAt(0));
-    const subscription =
-      (await registration.pushManager.getSubscription()) ||
-      (await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: key.buffer,
-      }));
-    await props.model.request('/api/to-doo/push/subscribe', 'POST', {
-      subscription: subscription.toJSON(),
-      deviceName: navigator.platform || '当前浏览器',
-    });
+    if (!push.value) throw Error('请等待服务状态读取完成');
+    await enableCurrentToDooPushDevice(props.model.request, push.value);
     await refreshConnections();
-    state.notice = '当前设备已订阅；可发送测试通知确认实际送达';
+    state.notice = '当前设备已登记；请发送测试通知确认桌面提醒实际送达';
   });
 }
 async function testDevice(id: string) {
@@ -352,7 +386,7 @@ async function createFeed() {
   });
 }
 async function revokeFeed(id: string) {
-  if (!confirm('撤销此日历订阅链接？原链接将立即失效。')) return;
+  if (!(await confirmAction('撤销此日历订阅链接？原链接将立即失效。', { danger: true }))) return;
   await work(async () => {
     await props.model.request('/api/to-doo/calendars/feeds/' + id, 'DELETE');
     feed.value = '';
@@ -392,7 +426,83 @@ async function disconnect(id: string) {
 defineExpose({ hasUnsavedChanges: () => dirty.value || !!content.value || !!connection.url });
 </script>
 <template>
-  <div class="todo-settings"><section class="todo-panel"><div class="todo-panel-header"><h2>待继续的成果笔记</h2><button type="button" class="todo-link" :disabled="state.operationLoading" @click="model.loadPendingOperations()">刷新</button></div><p class="todo-pad todo-muted todo-small">已经保存的正文与操作进度会保留，可核对当前任务版本后继续关联。</p><div v-for="operation in state.pendingOperations" :key="operation.id" class="todo-setting-row"><div><h3>{{ operation.title }}</h3><p>{{ {prepared:'准备保存笔记',note_saved:'笔记已保存，等待关联',needs_reconciliation:'需要核对任务版本',completed:'已完成'}[operation.state] }} · {{ new Date(operation.updatedAt).toLocaleString() }}</p></div><div class="todo-actions"><button v-if="operation.noteId" type="button" class="todo-link" @click="emit('open-note',operation.noteId)">打开已保存笔记</button><button type="button" class="todo-button todo-primary" @click="emit('resume-outcome',operation)">核对并继续</button></div></div><p v-if="state.operationLoading" class="todo-pad todo-muted">正在读取成果进度…</p><p v-if="state.operationError" class="todo-pad todo-error" role="alert">{{ state.operationError }}</p><p v-if="!state.operationLoading&&!state.pendingOperations.length" class="todo-pad todo-muted">当前已读取的记录没有待继续项。</p><div v-if="state.operationPage?.nextCursor" class="todo-panel-footer"><span>历史记录按批读取</span><button type="button" class="todo-button" :disabled="state.operationLoading" @click="model.loadPendingOperations(true)">继续检查历史成果进度</button></div></section>
+  <div class="todo-settings">
+    <section class="todo-panel">
+      <div class="todo-panel-header">
+        <h2>待继续的成果笔记</h2>
+        <AButton
+          html-type="button"
+          class="todo-link"
+          :disabled="state.operationLoading"
+          @click="model.loadPendingOperations()"
+          type="link"
+          >刷新</AButton
+        >
+      </div>
+      <p class="todo-pad todo-muted todo-small">
+        已经保存的正文与操作进度会保留，可核对当前任务版本后继续关联。
+      </p>
+      <div
+        v-for="operation in state.pendingOperations"
+        :key="operation.id"
+        class="todo-setting-row"
+      >
+        <div>
+          <h3>{{ operation.title }}</h3>
+          <p>
+            {{
+              {
+                prepared: '准备保存笔记',
+                note_saved: '笔记已保存，等待关联',
+                needs_reconciliation: '需要核对任务版本',
+                completed: '已完成',
+              }[operation.state]
+            }}
+            · {{ new Date(operation.updatedAt).toLocaleString() }}
+          </p>
+        </div>
+        <div class="todo-actions">
+          <AButton
+            v-if="operation.noteId"
+            html-type="button"
+            class="todo-link"
+            @click="emit('open-note', operation.noteId)"
+            type="link"
+            >打开已保存笔记</AButton
+          ><AButton
+            html-type="button"
+            class="todo-button todo-primary"
+            @click="emit('resume-outcome', operation)"
+            type="primary"
+            >核对并继续</AButton
+          >
+        </div>
+      </div>
+      <p v-if="state.operationLoading" class="todo-pad todo-muted">正在读取成果进度…</p>
+      <AAlert
+        v-if="state.operationError"
+        class="todo-pad"
+        type="error"
+        :message="state.operationError"
+        show-icon
+      /><AEmpty
+        v-if="!state.operationLoading && !state.pendingOperations.length"
+        class="todo-pad"
+        description="当前已读取的记录没有待继续项。"
+        :image="AEmpty.PRESENTED_IMAGE_SIMPLE"
+      />
+      <div v-if="state.operationPage?.nextCursor" class="todo-panel-footer">
+        <span>历史记录按批读取</span
+        ><AButton
+          html-type="button"
+          class="todo-button"
+          :disabled="state.operationLoading"
+          @click="model.loadPendingOperations(true)"
+          type="default"
+          >继续检查历史成果进度</AButton
+        >
+      </div>
+    </section>
     <section v-if="settings" class="todo-panel">
       <div class="todo-panel-header">
         <h2>偏好与提醒</h2>
@@ -401,12 +511,12 @@ defineExpose({ hasUnsavedChanges: () => dirty.value || !!content.value || !!conn
       <form class="todo-form todo-pad" @submit.prevent="save">
         <div class="todo-form-grid">
           <label
-            >显示时区<input
-              v-model="settings.timeZone"
+            >显示时区<AInput
+              v-model:value="settings.timeZone"
               required
               placeholder="Asia/Shanghai" /></label
           ><label
-            >一周开始于<select v-model.number="settings.weekStartsOn">
+            >一周开始于<ToDooSelect v-model="settings.weekStartsOn">
               <option
                 v-for="(n, i) in [
                   '星期日',
@@ -422,9 +532,9 @@ defineExpose({ hasUnsavedChanges: () => dirty.value || !!content.value || !!conn
               >
                 {{ n }}
               </option>
-            </select></label
+            </ToDooSelect></label
           ><label
-            >默认视图<select v-model="settings.defaultView">
+            >默认视图<ToDooSelect v-model="settings.defaultView">
               <option
                 v-for="(n, k) in {
                   overview: '目标总览',
@@ -438,61 +548,76 @@ defineExpose({ hasUnsavedChanges: () => dirty.value || !!content.value || !!conn
               >
                 {{ n }}
               </option>
-            </select></label
+            </ToDooSelect></label
           ><label
-            >默认安排分钟<input
-              v-model.number="settings.defaultDurationMinutes"
-              type="number"
-              min="1"
-              max="1440" /></label
+            >默认安排分钟<AInputNumber
+              aria-label="默认安排分钟"
+              :value="settings.defaultDurationMinutes"
+              @update:value="setSettingNumber('defaultDurationMinutes', $event)"
+              :min="1"
+              :max="1440" /></label
           ><label
-            >紧急阈值（小时）<input
-              v-model.number="settings.urgentHours"
-              type="number"
-              min="1" /></label
+            >紧急阈值（小时）<AInputNumber
+              aria-label="紧急阈值（小时）"
+              :value="settings.urgentHours"
+              @update:value="setSettingNumber('urgentHours', $event)"
+              :min="1" /></label
           ><label
-            >任务层级上限<input
-              v-model.number="settings.maxDepth"
-              type="number"
-              min="1"
-              max="32" /></label
+            >任务层级上限<AInputNumber
+              aria-label="任务层级上限"
+              :value="settings.maxDepth"
+              @update:value="setSettingNumber('maxDepth', $event)"
+              :min="1"
+              :max="32" /></label
           ><label
-            >专注分钟<input
-              v-model.number="settings.focusMinutes"
-              type="number"
-              min="1"
-              max="1440" /></label
+            >专注分钟<AInputNumber
+              aria-label="专注分钟"
+              :value="settings.focusMinutes"
+              @update:value="setSettingNumber('focusMinutes', $event)"
+              :min="1"
+              :max="1440" /></label
           ><label
-            >短休息分钟<input
-              v-model.number="settings.shortBreakMinutes"
-              type="number"
-              min="0"
-              max="1440" /></label
+            >短休息分钟<AInputNumber
+              aria-label="短休息分钟"
+              :value="settings.shortBreakMinutes"
+              @update:value="setSettingNumber('shortBreakMinutes', $event)"
+              :min="0"
+              :max="1440" /></label
           ><label
-            >长休息分钟<input
-              v-model.number="settings.longBreakMinutes"
-              type="number"
-              min="0"
-              max="1440" /></label
+            >长休息分钟<AInputNumber
+              aria-label="长休息分钟"
+              :value="settings.longBreakMinutes"
+              @update:value="setSettingNumber('longBreakMinutes', $event)"
+              :min="0"
+              :max="1440" /></label
           ><label
-            >长休息间隔（次）<input v-model.number="settings.longBreakAfter" type="number" min="1"
+            >长休息间隔（次）<AInputNumber
+              aria-label="长休息间隔（次）"
+              :value="settings.longBreakAfter"
+              @update:value="setSettingNumber('longBreakAfter', $event)"
+              :min="1"
           /></label>
         </div>
-        <label class="todo-checkbox"
-          ><input
-            type="checkbox"
-            :checked="settings.quietHours?.enabled"
-            @change="quiet(($event.target as HTMLInputElement).checked)"
-          />开启免打扰时段</label
+        <ACheckbox
+          :checked="settings.quietHours?.enabled"
+          @change="quiet(($event.target as HTMLInputElement).checked)"
+          class="todo-checkbox"
+          >开启免打扰时段</ACheckbox
         >
         <div v-if="settings.quietHours?.enabled" class="todo-form-grid">
-          <label>开始<input v-model="settings.quietHours.start" type="time" /></label
-          ><label>结束<input v-model="settings.quietHours.end" type="time" /></label>
+          <label>开始<ToDooDateField v-model="settings.quietHours.start" type="time" /></label
+          ><label>结束<ToDooDateField v-model="settings.quietHours.end" type="time" /></label>
         </div>
         <div>
-          <button type="submit" class="todo-button todo-primary" :disabled="state.busy || !dirty">
+          <AButton
+            html-type="submit"
+            class="todo-button todo-primary"
+            :disabled="state.busy || !dirty"
+            :loading="state.busy"
+            type="primary"
+          >
             保存偏好
-          </button>
+          </AButton>
         </div>
       </form>
     </section>
@@ -503,9 +628,15 @@ defineExpose({ hasUnsavedChanges: () => dirty.value || !!content.value || !!conn
           <h3>完整导出</h3>
           <p>JSON 包含目标、任务、习惯、成果与复盘；可用于迁移与恢复。</p>
         </div>
-        <button class="todo-button" type="button" :disabled="busy" @click="exportFile('json')">
+        <AButton
+          class="todo-button"
+          html-type="button"
+          :disabled="busy"
+          @click="exportFile('json')"
+          type="default"
+        >
           导出 JSON
-        </button>
+        </AButton>
       </div>
       <div class="todo-setting-row">
         <div>
@@ -513,12 +644,18 @@ defineExpose({ hasUnsavedChanges: () => dirty.value || !!content.value || !!conn
           <p>把计划或任务导入其他日历。</p>
         </div>
         <div class="todo-actions">
-          <select v-model="exportMode" aria-label="日历导出方式">
+          <ToDooSelect v-model="exportMode" aria-label="日历导出方式">
             <option value="events">时间事件</option>
-            <option value="todos">待办任务</option></select
-          ><button class="todo-button" type="button" :disabled="busy" @click="exportFile('ics')">
+            <option value="todos">待办任务</option></ToDooSelect
+          ><AButton
+            class="todo-button"
+            html-type="button"
+            :disabled="busy"
+            @click="exportFile('ics')"
+            type="default"
+          >
             导出 ICS
-          </button>
+          </AButton>
         </div>
       </div>
       <div class="todo-pad todo-form">
@@ -531,31 +668,31 @@ defineExpose({ hasUnsavedChanges: () => dirty.value || !!content.value || !!conn
         />
         <div class="todo-form-grid">
           <label
-            >文件编码<select v-model="encoding" @change="decodeFile">
+            >文件编码<ToDooSelect v-model="encoding" @change="decodeFile">
               <option value="utf-8">UTF-8</option>
               <option value="gb18030">GB18030 / GBK</option>
               <option value="utf-16le">UTF-16 LE</option>
-            </select></label
+            </ToDooSelect></label
           ><label
-            >格式<select v-model="format">
+            >格式<ToDooSelect v-model="format">
               <option value="json">To Doo JSON</option>
               <option value="csv">滴答 CSV</option>
               <option value="ics">iCalendar ICS</option>
-            </select></label
+            </ToDooSelect></label
           ><label
-            >重复处理<select v-model="mergeMode">
+            >重复处理<ToDooSelect v-model="mergeMode">
               <option value="skip">跳过重复，保留已有内容</option>
               <option value="copy">保留独立副本</option>
               <option value="update">按原始身份明确更新</option>
-            </select></label
-          ><label>导入时区<input v-model="importZone" required /></label
+            </ToDooSelect></label
+          ><label>导入时区<AInput v-model:value="importZone" required /></label
           ><label
-            >内容用途<select v-model="target">
+            >内容用途<ToDooSelect v-model="target">
               <option value="tasks">转为任务</option>
               <option value="calendar">作为日历事件</option>
-            </select></label
+            </ToDooSelect></label
           ><label
-            >目标清单<select v-model="importList">
+            >目标清单<ToDooSelect v-model="importList">
               <option :value="null">使用原清单 / 收集箱</option>
               <option
                 v-for="l in state.snapshot?.lists.filter((l) => !l.deletedAt)"
@@ -564,11 +701,11 @@ defineExpose({ hasUnsavedChanges: () => dirty.value || !!content.value || !!conn
               >
                 {{ l.name }}
               </option>
-            </select></label
+            </ToDooSelect></label
           >
         </div>
-        <details v-if="format === 'csv'">
-          <summary>CSV 列映射（留空自动识别）</summary>
+        <ToDooDisclosure v-if="format === 'csv'">
+          <template #header><span>CSV 列映射（留空自动识别）</span></template>
           <div class="todo-form-grid">
             <label
               v-for="(label, key) in {
@@ -584,24 +721,26 @@ defineExpose({ hasUnsavedChanges: () => dirty.value || !!content.value || !!conn
                 repeat: '重复列',
               }"
               :key="key"
-              >{{ label }}<input v-model="mapping[key]" placeholder="填写原文件表头名称"
+              >{{ label }}<AInput v-model:value="mapping[key]" placeholder="填写原文件表头名称"
             /></label>
           </div>
-        </details>
+        </ToDooDisclosure>
         <label v-if="!file"
-          >或粘贴文件内容<textarea
-            v-model="content"
-            rows="4"
+          >或粘贴文件内容<ATextarea
+            v-model:value="content"
+            :rows="4"
             placeholder="粘贴 JSON、CSV 或 ICS 内容"
-          ></textarea></label
-        ><button
-          type="button"
+          ></ATextarea></label
+        ><AButton
+          html-type="button"
           class="todo-button"
           :disabled="busy || !content"
+          :loading="busy"
           @click="previewImport"
+          type="default"
         >
           预览导入
-        </button>
+        </AButton>
         <div v-if="preview" class="todo-import-preview">
           <h3>{{ preview.items.length }} 项待导入 · {{ preview.duplicates }} 项重复</h3>
           <p v-if="preview.batchCount > 1">
@@ -609,8 +748,10 @@ defineExpose({ hasUnsavedChanges: () => dirty.value || !!content.value || !!conn
             {{ preview.batchSize }} 项；停止后会保留已完成批次。
           </p>
           <p v-for="w in preview.warnings" :key="w" class="todo-warning">{{ w }}</p>
-          <details v-if="preview.changes?.length">
-            <summary>核对 {{ preview.changes.length }} 项更新差异</summary>
+          <ToDooDisclosure v-if="preview.changes?.length">
+            <template #header
+              ><span>核对 {{ preview.changes.length }} 项更新差异</span></template
+            >
             <article v-for="(change, i) in preview.changes" :key="i" class="todo-import-change">
               <h3>
                 {{ change.after.title || change.after.name || change.after.summary || '记录' }}
@@ -624,7 +765,7 @@ defineExpose({ hasUnsavedChanges: () => dirty.value || !!content.value || !!conn
                 >
               </div>
             </article>
-          </details>
+          </ToDooDisclosure>
           <ul>
             <li v-for="(item, i) in preview.items.slice(0, 20)" :key="i">
               {{ item.entity.title || item.entity.name || item.entity.summary || item.kind }}
@@ -633,14 +774,18 @@ defineExpose({ hasUnsavedChanges: () => dirty.value || !!content.value || !!conn
           <p v-if="preview.items.length > 20" class="todo-muted">
             还有 {{ preview.items.length - 20 }} 项
           </p>
-          <button
-            type="button"
+          <AButton
+            html-type="button"
             class="todo-button todo-primary"
             :disabled="busy || !preview.items.length"
+            :loading="busy"
             @click="applyImport"
+            type="primary"
           >
-            确认导入 {{ preview.items.length }} 项</button
-          ><button type="button" class="todo-button" @click="preview = null">取消预览</button>
+            确认导入 {{ preview.items.length }} 项</AButton
+          ><AButton html-type="button" class="todo-button" @click="preview = null" type="default"
+            >取消预览</AButton
+          >
         </div>
       </div>
     </section>
@@ -653,69 +798,97 @@ defineExpose({ hasUnsavedChanges: () => dirty.value || !!content.value || !!conn
         <p>
           {{ importJob.completed || 0 }} / {{ importJob.total || 0 }} 项已完成。已提交的批次会保留。
         </p>
-        <progress :value="importJob.completed || 0" :max="importJob.total || 1"></progress>
-        <p v-if="importJob.error" class="todo-error">{{ importJob.error }}</p>
+        <AProgress
+          :percent="Math.round(((importJob.completed || 0) / (importJob.total || 1)) * 100)"
+          :status="
+            importJob.status === 'failed'
+              ? 'exception'
+              : importJob.status === 'completed'
+                ? 'success'
+                : 'active'
+          "
+        />
+        <AAlert v-if="importJob.error" type="error" :message="importJob.error" show-icon />
         <div class="todo-actions todo-top-gap">
-          <button
+          <AButton
             v-if="['queued', 'running'].includes(importJob.status)"
             class="todo-button"
-            type="button"
+            html-type="button"
             :disabled="busy"
             @click="controlJob('cancel')"
+            type="default"
           >
-            停止后续批次</button
-          ><button
+            停止后续批次</AButton
+          ><AButton
             v-if="['cancelled', 'failed'].includes(importJob.status)"
             class="todo-button todo-primary"
-            type="button"
+            html-type="button"
             :disabled="busy"
             @click="controlJob('resume')"
+            type="primary"
           >
-            继续剩余批次</button
-          ><button class="todo-button" type="button" @click="pollJob">刷新进度</button>
+            继续剩余批次</AButton
+          ><AButton class="todo-button" html-type="button" @click="pollJob" type="default"
+            >刷新进度</AButton
+          >
         </div>
       </div>
     </section>
     <section class="todo-panel">
       <div class="todo-panel-header">
-        <h2>设备通知</h2>
-        <button class="todo-link" type="button" :disabled="busy" @click="work(refreshConnections)">
+        <h2>桌面提醒</h2>
+        <AButton
+          class="todo-link"
+          html-type="button"
+          :disabled="busy"
+          @click="work(refreshConnections)"
+          type="link"
+        >
           刷新状态
-        </button>
+        </AButton>
       </div>
       <div class="todo-pad todo-form">
-        <p>{{ pushReason }}</p>
-        <p v-if="!capability" class="todo-muted todo-small">
-          当前浏览器或站点地址不支持设备推送，站内通知中心仍可使用。
+        <p>启用后，关闭网页仍可收到桌面提醒；网页打开时也会显示可操作的提醒卡片。</p>
+        <p>
+          <strong>{{ currentPushReason }}</strong>
         </p>
-        <p v-if="push?.lastError" class="todo-error">{{ push.lastError }}</p>
+        <p>当前浏览器通知权限：{{ pushPermission }}</p>
+        <p class="todo-muted todo-small">{{ pushReason }}</p>
+        <p class="todo-muted todo-small">
+          需要允许本站通知和浏览器后台运行。浏览器被系统彻底终止、系统通知关闭或设备关机时，提醒可能延迟或无法送达。通知外观由操作系统决定。
+        </p>
+        <AAlert v-if="push?.lastError" type="error" :message="push.lastError" show-icon />
         <div class="todo-actions">
-          <button
-            type="button"
+          <AButton
+            html-type="button"
             class="todo-button"
             :disabled="busy"
             @click="configurePush(!push?.enabled)"
+            type="default"
           >
-            {{ push?.enabled ? '停用此主机推送' : '启用此主机推送' }}</button
-          ><button
-            type="button"
+            {{ push?.enabled ? '停用此主机桌面提醒' : '启用此主机桌面提醒' }}</AButton
+          ><AButton
+            html-type="button"
             class="todo-button todo-primary"
-            :disabled="busy || !capability || !push?.publicKey"
+            :disabled="busy || !capability || !push || currentPushDevice?.permission === 'denied'"
             @click="subscribe"
+            type="primary"
           >
-            订阅当前设备
-          </button>
+            {{ currentPushDevice?.ready ? '更新当前设备订阅' : '启用当前设备桌面提醒' }}
+          </AButton>
         </div>
         <label v-if="push" class="todo-checkbox"
-          ><input
-            v-model="push.showContent"
-            type="checkbox"
+          ><ACheckbox
+            v-model:checked="push.showContent"
             @change="configurePush(push.enabled)"
-          />在设备通知中显示任务内容</label
+          />在桌面提醒中显示任务内容</label
         >
         <div v-for="device in push?.devices" :key="device.id" class="todo-setting-row">
           <div>
-            <h3>{{ device.deviceName }}</h3>
+            <h3>
+              {{ device.deviceName
+              }}{{ device.id === currentPushDevice?.deviceId ? '（当前设备）' : '' }}
+            </h3>
             <p>
               {{ device.status === 'expired' ? '订阅已过期' : '订阅有效' }} ·
               {{
@@ -726,21 +899,23 @@ defineExpose({ hasUnsavedChanges: () => dirty.value || !!content.value || !!conn
             </p>
           </div>
           <div class="todo-actions">
-            <button
+            <AButton
               class="todo-button"
-              type="button"
+              html-type="button"
               :disabled="busy || device.status === 'expired'"
               @click="testDevice(device.id)"
+              type="default"
             >
-              发送测试</button
-            ><button
+              发送测试</AButton
+            ><AButton
               class="todo-link todo-danger"
-              type="button"
+              html-type="button"
               :disabled="busy"
               @click="revokeDevice(device.id)"
+              type="link"
             >
               撤销
-            </button>
+            </AButton>
           </div>
         </div>
       </div>
@@ -749,16 +924,20 @@ defineExpose({ hasUnsavedChanges: () => dirty.value || !!content.value || !!conn
       <div class="todo-panel-header"><h2>日历连接与订阅</h2></div>
       <form class="todo-form todo-pad" @submit.prevent="connect">
         <h3>连接外部只读日历</h3>
-        <label>来源名称<input v-model="connection.name" required maxlength="256" /></label
+        <label>来源名称<AInput v-model:value="connection.name" required :maxlength="256" /></label
         ><label
-          >HTTPS 日历地址<input
-            v-model="connection.url"
+          >HTTPS 日历地址<AInput
+            v-model:value="connection.url"
             type="url"
             required
             placeholder="https://…/calendar.ics"
             autocomplete="off"
         /></label>
-        <div><button class="todo-button" type="submit" :disabled="busy">连接日历</button></div>
+        <div>
+          <AButton class="todo-button" html-type="submit" :disabled="busy" type="default"
+            >连接日历</AButton
+          >
+        </div>
       </form>
       <div v-for="c in connections" :key="c.sourceId" class="todo-setting-row">
         <div>
@@ -773,30 +952,38 @@ defineExpose({ hasUnsavedChanges: () => dirty.value || !!content.value || !!conn
           </p>
         </div>
         <div class="todo-actions">
-          <button
+          <AButton
             class="todo-button"
-            type="button"
+            html-type="button"
             :disabled="busy"
             @click="refreshSource(c.sourceId)"
+            type="default"
           >
-            刷新</button
-          ><button
+            刷新</AButton
+          ><AButton
             class="todo-button"
-            type="button"
+            html-type="button"
             :disabled="busy"
             @click="pauseSource(c.sourceId, c.status !== 'paused')"
+            type="default"
           >
-            {{ c.status === 'paused' ? '恢复刷新' : '暂停刷新' }}</button
-          ><button class="todo-link" type="button" :disabled="busy" @click="disconnect(c.sourceId)">
+            {{ c.status === 'paused' ? '恢复刷新' : '暂停刷新' }}</AButton
+          ><AButton
+            class="todo-link"
+            html-type="button"
+            :disabled="busy"
+            @click="disconnect(c.sourceId)"
+            type="link"
+          >
             断开
-          </button>
+          </AButton>
         </div>
       </div>
       <form class="todo-form todo-pad todo-divider" @submit.prevent="createFeed">
         <h3>创建 To Doo 只读订阅链接</h3>
-        <label>订阅名称<input v-model="feedName" required /></label
+        <label>订阅名称<AInput v-model:value="feedName" required /></label
         ><label
-          >包含的清单（不选表示全部）<select v-model="feedLists" multiple>
+          >包含的清单（不选表示全部）<ToDooSelect v-model="feedLists" multiple>
             <option
               v-for="l in state.snapshot?.lists.filter((l) => !l.deletedAt)"
               :key="l.id"
@@ -804,13 +991,15 @@ defineExpose({ hasUnsavedChanges: () => dirty.value || !!content.value || !!conn
             >
               {{ l.name }}
             </option>
-          </select></label
-        ><label class="todo-checkbox"
-          ><input v-model="feedDescription" type="checkbox" />包含任务说明</label
-        >
-        <div><button class="todo-button" type="submit" :disabled="busy">创建订阅链接</button></div>
+          </ToDooSelect></label
+        ><ACheckbox v-model:checked="feedDescription" class="todo-checkbox">包含任务说明</ACheckbox>
+        <div>
+          <AButton class="todo-button" html-type="submit" :disabled="busy" type="default"
+            >创建订阅链接</AButton
+          >
+        </div>
         <label v-if="feed"
-          >新建链接（仅本次显示）<input
+          >新建链接（仅本次显示）<AInput
             :value="feed"
             readonly
             @focus="($event.target as HTMLInputElement).select()"
@@ -819,14 +1008,15 @@ defineExpose({ hasUnsavedChanges: () => dirty.value || !!content.value || !!conn
       </form>
       <div v-for="f in feeds.filter((f) => !f.deletedAt)" :key="f.id" class="todo-setting-row">
         <span>{{ f.name }}</span
-        ><button
+        ><AButton
           class="todo-link todo-danger"
-          type="button"
+          html-type="button"
           :disabled="busy"
           @click="revokeFeed(f.id)"
+          type="link"
         >
           撤销订阅链接
-        </button>
+        </AButton>
       </div>
     </section>
     <section class="todo-panel">
@@ -834,11 +1024,26 @@ defineExpose({ hasUnsavedChanges: () => dirty.value || !!content.value || !!conn
       <div class="todo-setting-row">
         <span>新建与管理</span>
         <div class="todo-actions">
-          <button class="todo-button" type="button" @click="emit('edit', 'list')">目标与清单</button
-          ><button class="todo-button" type="button" @click="emit('edit', 'tag')">标签</button
-          ><button class="todo-button" type="button" @click="emit('edit', 'template')">
+          <AButton
+            class="todo-button"
+            html-type="button"
+            @click="emit('edit', 'list')"
+            type="default"
+            >目标与清单</AButton
+          ><AButton
+            class="todo-button"
+            html-type="button"
+            @click="emit('edit', 'tag')"
+            type="default"
+            >标签</AButton
+          ><AButton
+            class="todo-button"
+            html-type="button"
+            @click="emit('edit', 'template')"
+            type="default"
+          >
             任务模板
-          </button>
+          </AButton>
         </div>
       </div>
       <div
@@ -847,7 +1052,9 @@ defineExpose({ hasUnsavedChanges: () => dirty.value || !!content.value || !!conn
         class="todo-setting-row"
       >
         <span>{{ l.name }}</span
-        ><button class="todo-link" type="button" @click="emit('edit', 'list', l)">编辑清单</button>
+        ><AButton class="todo-link" html-type="button" @click="emit('edit', 'list', l)" type="link"
+          >编辑清单</AButton
+        >
       </div>
       <div
         v-for="t in state.snapshot?.tags.filter((t) => !t.deletedAt)"
@@ -855,7 +1062,9 @@ defineExpose({ hasUnsavedChanges: () => dirty.value || !!content.value || !!conn
         class="todo-setting-row"
       >
         <span># {{ t.name }}</span
-        ><button class="todo-link" type="button" @click="emit('edit', 'tag', t)">编辑标签</button>
+        ><AButton class="todo-link" html-type="button" @click="emit('edit', 'tag', t)" type="link"
+          >编辑标签</AButton
+        >
       </div>
       <div
         v-for="s in state.snapshot?.sections.filter((s) => !s.deletedAt)"
@@ -863,9 +1072,14 @@ defineExpose({ hasUnsavedChanges: () => dirty.value || !!content.value || !!conn
         class="todo-setting-row"
       >
         <span>{{ s.name }}</span
-        ><button class="todo-link" type="button" @click="emit('edit', 'section', s)">
+        ><AButton
+          class="todo-link"
+          html-type="button"
+          @click="emit('edit', 'section', s)"
+          type="link"
+        >
           编辑章节
-        </button>
+        </AButton>
       </div>
     </section>
   </div>

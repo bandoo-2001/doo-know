@@ -46,6 +46,10 @@ export interface KnowledgeOrganizationPort {
   cancel(input: {operationId: string}, options?: ServiceCallOptions): Promise<import('../../shared/organization-contracts.js').OrganizationOperation>;
 }
 export interface PluginServices {
+  knowledgeTools?: import('../../shared/mcp-domain-tools.js').McpDomainToolPort;
+  blogTools?: import('../../shared/mcp-domain-tools.js').McpDomainToolPort;
+  toDooTools?: import('../../shared/mcp-domain-tools.js').McpDomainToolPort;
+  transfers?: import('../../shared/mcp-domain-tools.js').McpDomainToolPort;
   permissions?: { context(options?: ServiceCallOptions): Promise<McpPermissionContext> };
   knowledgeOrganization?: KnowledgeOrganizationPort;
   knowledge: KnowledgePort;

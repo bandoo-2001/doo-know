@@ -111,10 +111,15 @@ export function registerMcpPermissionRoutes(
     }[];
     return {
       policy,
+      bindings: {
+        knowledge: { ownerId, instanceId: identity.libraryId },
+        blog: { ownerId, instanceId: blogInstance },
+        'to-doo': { ownerId, instanceId: taskInstance },
+      },
       resources: {
         knowledge: [
-          ...directories.map((d) => ({ kind: 'directory', id: d.id, label: d.path })),
-          ...notes.map((n) => ({ kind: 'note', id: n.id, label: n.path })),
+          ...directories.map((d) => ({ kind: 'directory', id: d.id, label: d.path, path: d.path })),
+          ...notes.map((n) => ({ kind: 'note', id: n.id, label: n.path, path: n.path })),
         ],
         'to-doo': [
           { kind: 'list', id: 'inbox', label: '收集箱' },

@@ -50,11 +50,15 @@ import { emptyToolbarState, type MarkdownAction } from '../editor/toolbar-state'
 import DocumentOutline from './DocumentOutline.vue';
 import { outlineFromTokens, type OutlineHeading } from '../document-outline';
 import WorkspaceFooter from './WorkspaceFooter.vue';
+import { provideWorkspaceMainMenu, createAppNavigationMemory } from '../workspace-main-menu';
 import SettingsWorkspace from './settings/SettingsWorkspace.vue';
 import SettingsOverlay from './settings/SettingsOverlay.vue';
 import TransferPanel from './settings/TransferPanel.vue';
 import TrashWorkspace from './TrashWorkspace.vue';
 import AppsWorkspace from './AppsWorkspace.vue';
+import ToDooReminderCards from './to-doo/ToDooReminderCards.vue';
+import type { ToDooReminderCard } from '../../../shared/to-doo-reminders';
+import { pinnedApps, setAppPinned, type WorkspaceAppId } from '../app-shortcuts';
 import { createBlogWorkbench, type BlogSection } from '../blog-workbench';
 import { prepareBlogDiagrams } from '../blog-diagrams';
 import { toDooCaptureFromNote } from '../to-doo-capture';
@@ -201,15 +205,44 @@ async function exportReading(print=false){
   }catch(cause){printWindow?.close();showError(cause);}finally{readingExportBusy.value=false;}
 }
 const LargeFileWorkspace=defineAsyncComponent(()=>import('./LargeFileWorkspace.vue'));
+const NoteHistoryDialog=defineAsyncComponent(()=>import('./NoteHistoryDialog.vue'));
+const noteHistoryRef = ref<InstanceType<typeof NoteHistoryDialog>>();
+const historyWriteLocked = computed(() => !!noteHistoryRef.value?.hasPendingRestore());
 const noteInfo = ref<NoteInfo>(),
   largeRef = ref<InstanceType<typeof LargeFileWorkspace>>(),
   largeDirty = ref(false);
 const blogModel = createBlogWorkbench(api, prepareBlogDiagrams);
-const appsApp = ref<'blog' | 'to-doo' | undefined>(readWorkspaceRoute().app);
-const appsSection = ref<BlogSection | ToDooAppSection>(readWorkspaceRoute().appSection || 'overview');
-type ToDooSelection = Pick<WorkspaceRoute, 'task' | 'list' | 'date' | 'calendarView'>;
-const toDooSelection = ref<ToDooSelection>({ task: readWorkspaceRoute().task, list: readWorkspaceRoute().list, date: readWorkspaceRoute().date, calendarView: readWorkspaceRoute().calendarView });
+const appsApp = ref<WorkspaceRoute['app']>(readWorkspaceRoute().app);
+const appsSection = ref<BlogSection | ToDooAppSection>(readWorkspaceRoute().appSection || (appsApp.value === 'to-doo' ? 'tasks' : 'overview'));
+type ToDooSelection = Pick<WorkspaceRoute, 'task' | 'occurrence' | 'list' | 'date' | 'calendarView' | 'taskFilter'>;
+const toDooSelection = ref<ToDooSelection>({ task: readWorkspaceRoute().task, occurrence: readWorkspaceRoute().occurrence, list: readWorkspaceRoute().list, date: readWorkspaceRoute().date, calendarView: readWorkspaceRoute().calendarView, taskFilter: readWorkspaceRoute().taskFilter });
 const appsRef = ref<InstanceType<typeof AppsWorkspace>>();
+const workspaceMenuHost = provideWorkspaceMainMenu();
+const activeAppMenu = computed(() => panel.value === 'apps' ? workspaceMenuHost.current.value : undefined);
+const appNavigationMemory = createAppNavigationMemory();
+appNavigationMemory.remember(readWorkspaceRoute());
+let confirmedAppLeaveIntent = -1;
+let appReturnRoute: WorkspaceRoute | undefined;
+function rememberAppReturnRoute() {
+  const route = navigation.currentRoute();
+  if (panel.value !== 'apps' && route.view !== 'apps') appReturnRoute = { ...route };
+}
+async function confirmAppLeave(intent: number): Promise<boolean> {
+  if (confirmedAppLeaveIntent === intent || panel.value !== 'apps') return currentIntent(intent);
+  if ((await appsRef.value?.requestLeave()) === false || !currentIntent(intent)) return false;
+  confirmedAppLeaveIntent = intent;
+  return true;
+}
+async function returnFromApp() {
+  const intent = ++navigationIntent;
+  drawer.value = false;
+  await run(async () => {
+    if (!await confirmAppLeave(intent)) return;
+    appNavigationMemory.remember(navigation.currentRoute());
+    await backFromSettings(intent, appReturnRoute || returnRoute);
+  });
+}
+
 type CapturedTask = Extract<ToDooCommand, { action: 'create_task' }>['payload'];
 const toDooCaptureOpen = ref(false), toDooCaptureBusy = ref(false), toDooCaptureError = ref('');
 const capturedTask = ref<CapturedTask>(), capturedList = ref('inbox');
@@ -239,19 +272,37 @@ async function saveCapturedTask() {
   } catch (cause) { toDooCaptureError.value = cause instanceof Error ? cause.message : '任务结果待核对，请保留输入后重试'; }
   finally { toDooCaptureBusy.value = false; }
 }
-async function openBlogNote(id: string) {
+async function openBlogNote(id: string, line?: number) {
   await run(async () => {
     if (note.value?.id === id) {
-      await applyRoute({ note: id });
-      if (panel.value === 'note') navigation.commit({ note: id });
-    } else await openNote(id);
+      const route = { note: id, ...(line ? { line } : {}) };
+      await applyRoute(route);
+      if (panel.value === 'note') navigation.commit(route);
+    } else await openNote(id, line);
   });
 }
-async function navigateApp(app: 'blog' | 'to-doo' | undefined, section: BlogSection | ToDooAppSection = 'overview', selection: ToDooSelection = {}) {
-  if (appsApp.value === 'to-doo' && app !== 'to-doo' && (await appsRef.value?.requestLeave()) === false) return;
+async function navigateApp(app: WorkspaceRoute['app'], section: BlogSection | ToDooAppSection = app === 'to-doo' ? 'tasks' : 'overview', selection: ToDooSelection = {}) {
+  if (historyWriteLocked.value) return;
+  const intent = ++navigationIntent;
+  drawer.value = false;
+  if (app && panel.value === 'apps' && !appsApp.value) {
+    const remembered = appNavigationMemory.recall(app);
+    if (remembered) {
+      section = remembered.appSection || section;
+      selection = { task: remembered.task, occurrence: remembered.occurrence, list: remembered.list, date: remembered.date, calendarView: remembered.calendarView, taskFilter: remembered.taskFilter };
+    }
+  }
+  if (panel.value === 'apps' && appsApp.value !== app && !await confirmAppLeave(intent)) return;
+  if (panel.value === 'apps' && appsApp.value === 'to-doo' && app === 'to-doo' && section !== appsSection.value &&
+      (await appsRef.value?.requestSectionLeave(section as ToDooAppSection)) === false) return;
+  if (!currentIntent(intent)) return;
+  appNavigationMemory.remember(navigation.currentRoute());
   appsApp.value = app; appsSection.value = section;
   toDooSelection.value = selection;
-  navigation.commit({view:'apps', ...(app ? {app, appSection:section, ...(app === 'to-doo' ? selection : {})} : {})});
+  drawer.value = false;
+  const route: WorkspaceRoute = { view: 'apps', ...(app ? {app, appSection:section, ...(app === 'to-doo' ? selection : {})} : {}) };
+  navigation.commit(route);
+  appNavigationMemory.remember(route);
 }
 const initialNoteId = new URLSearchParams(window.location.search).get('note');
 const noteLine = ref<number | undefined>();
@@ -350,6 +401,7 @@ const tree = ref<TreeEntry[]>([]),
   error = ref(''),
   notice = ref('');
 const treeMenu = ref<InstanceType<typeof TreeContextMenu>>();
+const staleHistoryBase = ref<{ noteId: string; modifiedAt: string }>();
 const treeMenuPath = ref('');
 let treeRefreshEpoch = 0;
 let treeRefreshRequest: Promise<void> | undefined;
@@ -513,6 +565,10 @@ const query = ref(''),
 let viewEpoch = 0;
 let alive = true, navigationIntent = 0;
 const currentIntent = (intent: number) => alive && intent === navigationIntent;
+watch(historyWriteLocked, (locked) => {
+  // A navigation may already be awaiting an editor/draft flush when restore starts.
+  if (locked) navigationIntent++;
+}, { flush: 'sync' });
 const draftIdentityReady = ref(false);
 let draftIdentityGeneration = 0, signingOut = false;
 let draftIdentityRequest: Promise<boolean> | undefined;
@@ -586,12 +642,17 @@ async function browseRoot() {
   );
 }
 const navigation = createWorkspaceNavigation({
-  dirty: () => dirty.value || !!embeddedBoardId.value || !!appsRef.value?.hasUnsavedChanges(),
-  canPreserveDraft: (route) => !embeddedBoardId.value && (
+  dirty: () => historyWriteLocked.value || dirty.value || !!embeddedBoardId.value || !!appsRef.value?.hasUnsavedChanges(),
+  canPreserveDraft: (route) => !historyWriteLocked.value && !embeddedBoardId.value && (
     (route.view === 'apps' && route.app === 'to-doo' && panel.value === 'apps' && appsApp.value === 'to-doo') ||
     (!appsRef.value?.hasUnsavedChanges() && (!!route.view || (!!route.note && note.value?.id === route.note)))),
   guard,
-  apply: applyRoute,
+  apply: async (route) => {
+    const intent = ++navigationIntent;
+    const applied = await applyRoute(route, intent);
+    // An invalidated route must restore the browser pointer as well as retain the view.
+    return currentIntent(intent) ? applied : false;
+  },
   error: showError,
   onState: (state) => {
     navigationState.value = state;
@@ -641,8 +702,13 @@ function initializeDrafts(force = false): Promise<boolean> {
   return draftIdentityRequest;
 }
 async function applyRoute(route: WorkspaceRoute, intent = ++navigationIntent) {
-  if (!currentIntent(intent)) return;
-  if (panel.value === 'apps' && appsApp.value === 'to-doo' && !(route.view === 'apps' && route.app === 'to-doo') && (await appsRef.value?.requestLeave()) === false) return;
+  if (historyWriteLocked.value) return false;
+  if (!currentIntent(intent)) return false;
+  if (panel.value === 'apps' && !(route.view === 'apps' && route.app === appsApp.value) && !await confirmAppLeave(intent)) return false;
+  const nextAppSection = route.appSection || (route.app === 'to-doo' ? 'tasks' : 'overview');
+  if (panel.value === 'apps' && appsApp.value === 'to-doo' && route.view === 'apps' && route.app === 'to-doo' && nextAppSection !== appsSection.value &&
+      (await appsRef.value?.requestSectionLeave(nextAppSection as ToDooAppSection)) === false) return false;
+  if (!currentIntent(intent)) return false;
   if (route.note && ['settings', 'trash', 'apps', 'collection'].includes(panel.value) && note.value?.id === route.note) {
     if (!await initializeDrafts() || !currentIntent(intent)) return;
     panel.value = 'note';
@@ -665,8 +731,9 @@ async function applyRoute(route: WorkspaceRoute, intent = ++navigationIntent) {
   }
   if (route.view === 'recent' || route.view === 'favorites') return showCollection(route.view, false, intent);
   if (route.view === 'apps') {
-    appsApp.value = route.app; appsSection.value = route.appSection || 'overview';
-    toDooSelection.value = { task: route.task, list: route.list, date: route.date, calendarView: route.calendarView };
+    appNavigationMemory.remember(route);
+    appsApp.value = route.app; appsSection.value = route.appSection || (route.app === 'to-doo' ? 'tasks' : 'overview');
+    toDooSelection.value = { task: route.task, occurrence: route.occurrence, list: route.list, date: route.date, calendarView: route.calendarView, taskFilter: route.taskFilter };
     return openApps(false, intent);
   }
   if (route.view === 'trash') return openTrash(false, intent);
@@ -706,7 +773,10 @@ function workspaceChanged(event: Event) {
   void run(async () => {
     await refresh();
     if (id && note.value?.id === id) {
-      if (dirty.value) tell('原文已更新，当前未保存草稿会保留，请重新核对版本');
+      if (dirty.value) {
+        staleHistoryBase.value = { noteId: id, modifiedAt: note.value.modifiedAt };
+        tell('原文已更新，当前未保存草稿会保留，请重新核对版本');
+      }
       else await openNote(id, noteLine.value, false, true);
     }
   });
@@ -1036,6 +1106,7 @@ async function openNote(id: string, location?: number | { line: number; query: s
         preserveDraft &&
         (dirty.value || draft.value !== originalDraft || savedContent.value !== originalSaved)
       ) {
+        if (note.value?.id === id) staleHistoryBase.value = { noteId: id, modifiedAt: note.value.modifiedAt };
         tell('原文已更新，当前未保存草稿会保留，请重新核对版本');
         return;
       }
@@ -1043,6 +1114,7 @@ async function openNote(id: string, location?: number | { line: number; query: s
       // Keep the current editor and its undo history while a different note is loading.
       editorGeneration.value = epoch;
       note.value = n;
+      if (staleHistoryBase.value?.noteId === id) staleHistoryBase.value = undefined;
       noteInfo.value = meta;
       largeDirty.value = false;
       boardDirty.value = false;
@@ -1102,7 +1174,8 @@ async function select(entry: TreeEntry, syncUrl = true, intent = ++navigationInt
 const leaveOpen = ref(false);
 let pendingNavigation: (() => Promise<void>) | undefined;
 async function guard(fn: () => Promise<void>, intent = navigationIntent) {
-  if (panel.value === 'apps' && appsApp.value === 'to-doo' && (await appsRef.value?.requestLeave()) === false) return;
+  if (historyWriteLocked.value) return;
+  if (panel.value === 'apps' && !await confirmAppLeave(intent)) return;
   if(embeddedBoardId.value){await embeddedBoardRef.value?.requestClose();return;}
   if(noteInfo.value?.editorMode === 'full') {try {await editorRef.value?.flush();}catch(cause){showError(cause);if(!dirty.value)return;}}
   if (!currentIntent(intent)) return;
@@ -1609,8 +1682,6 @@ async function submitCreate() {
 }
 const panel = ref<'empty' | 'folder' | 'note' | 'trash' | 'settings' | 'apps' | 'collection'>('empty'),
   revisionsOpen = ref(false),
-  revisions = ref<any[]>([]),
-  revisionCursor = ref<string>(),
   deleteOpen = ref(false);
 const deleteTarget = ref<NoteDocument>();
 const folderDeleteTarget = ref<{ path: string; requestId: string }>();
@@ -1665,52 +1736,87 @@ function confirmDelete() {
   dialogError.value = '';
   deleteOpen.value = true;
 }
-async function history(more = false) {
-  const id = note.value!.id,
-    epoch = viewEpoch;
-  await run(async () => {
-    const response = await api(
-      `/api/notes/${id}/revisions` +
-        (more && revisionCursor.value ? `?cursor=${encodeURIComponent(revisionCursor.value)}` : ''),
-    );
-    if (!currentView(id, epoch)) return;
-    revisions.value = more ? [...revisions.value, ...response.items] : response.items;
-    revisionCursor.value = response.nextCursor;
-    revisionsOpen.value = true;
-  });
+function history() {
+  if (!note.value) return;
+  dialogError.value = '';
+  revisionsOpen.value = true;
 }
-async function restoreRevision(r: any) {
+async function restoreRevision(r: { id: string }) {
+  if (!note.value) return;
+  const id = note.value.id, epoch = viewEpoch;
   await guard(async () => {
-    await save(note.value!.modifiedAt, r.content, r.id);
+    if (!currentView(id, epoch)) return;
+    await save(note.value!.modifiedAt, undefined, r.id);
     if (!conflict.value && !dialogError.value && !error.value) revisionsOpen.value = false;
   });
-}
-async function readRevision(r: any) {
-  let reply = await api<FileReply<import('../../../shared/knowledge-contracts').ReadPage>>(
-    `/api/notes/${note.value!.id}/revisions/${r.id}/read`,
-    'POST',
-    r.cursor ? { cursor: r.cursor } : {},
-  );
-  if (reply.kind === 'accepted') {
-    let op = reply.operation;
-    while (['queued', 'running'].includes(op.status)) {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      op = await api(`/api/operations/${op.operationId}`);
-    }
-    reply = await api(`/api/notes/${note.value!.id}/revisions/${r.id}/read`, 'POST', {});
-  }
-  if (reply.kind === 'ready') {
-    r.content = reply.data.content;
-    r.cursor = reply.data.nextCursor;
-  }
 }
 async function openApps(syncUrl = true, intent = ++navigationIntent) {
   await run(async () => {
     if (panel.value !== 'apps' && await retainNoteContext(intent) === false) return;
     if (!currentIntent(intent)) return;
+    rememberAppReturnRoute();
     panel.value = 'apps';
     drawer.value = false;
     if (syncUrl) navigation.commit({ view: 'apps', ...(appsApp.value ? { app: appsApp.value, appSection: appsSection.value, ...(appsApp.value === 'to-doo' ? toDooSelection.value : {}) } : {}) });
+  });
+}
+async function openAppsHome() {
+  const intent = ++navigationIntent;
+  drawer.value = false;
+  await run(async () => {
+    if (await retainNoteContext(intent) === false || !currentIntent(intent)) return;
+    rememberAppReturnRoute();
+    appNavigationMemory.remember(navigation.currentRoute());
+    appsApp.value = undefined;
+    appsSection.value = 'overview';
+    toDooSelection.value = {};
+    panel.value = 'apps';
+    drawer.value = false;
+    navigation.commit({ view: 'apps' });
+  });
+}
+async function openReminderTarget(card?: ToDooReminderCard) {
+  const intent = ++navigationIntent;
+  await run(async () => {
+    if (await retainNoteContext(intent) === false || !currentIntent(intent)) return;
+    rememberAppReturnRoute();
+    const selection: ToDooSelection = card
+      ? { task: card.taskId, occurrence: card.occurrenceId, date: card.date }
+      : {};
+    appsApp.value = 'to-doo';
+    appsSection.value = card?.section || 'notifications';
+    toDooSelection.value = selection;
+    panel.value = 'apps';
+    drawer.value = false;
+    navigation.commit({ view: 'apps', app: 'to-doo', appSection: appsSection.value, ...selection });
+  });
+}
+function consumeReminderLink() {
+  const route = navigation.currentRoute();
+  if (!route.reminder) return;
+  delete route.reminder;
+  navigation.commit(route, true);
+}
+function toggleAppPin(id: WorkspaceAppId) {
+  const pinned = !pinnedApps.value.includes(id);
+  const persisted = setAppPinned(id, pinned);
+  tell((pinned ? '已加入左侧菜单' : '已从左侧菜单移除') + (persisted ? '' : '；当前浏览器无法保存，刷新后可能丢失'));
+}
+async function openAppShortcut(id: WorkspaceAppId) {
+  const intent = ++navigationIntent;
+  drawer.value = false;
+  await run(async () => {
+    if (await retainNoteContext(intent) === false || !currentIntent(intent)) return;
+    rememberAppReturnRoute();
+    appNavigationMemory.remember(navigation.currentRoute());
+    const destination = appNavigationMemory.recall(id) || { view: 'apps' as const, app: id, appSection: id === 'to-doo' ? 'tasks' as const : 'overview' as const };
+    appsApp.value = id;
+    appsSection.value = destination.appSection || (id === 'to-doo' ? 'tasks' : 'overview');
+    toDooSelection.value = { task: destination.task, occurrence: destination.occurrence, list: destination.list, date: destination.date, calendarView: destination.calendarView, taskFilter: destination.taskFilter };
+    panel.value = 'apps';
+    drawer.value = false;
+    navigation.commit(destination);
+    appNavigationMemory.remember(destination);
   });
 }
 async function openTrash(syncUrl = true, intent = ++navigationIntent) {
@@ -1723,7 +1829,8 @@ async function openTrash(syncUrl = true, intent = ++navigationIntent) {
   });
 }
 async function retainNoteContext(intent = navigationIntent) {
-  if (panel.value === 'apps' && appsApp.value === 'to-doo' && (await appsRef.value?.requestLeave()) === false) return false;
+  if (historyWriteLocked.value) return false;
+  if (panel.value === 'apps' && !await confirmAppLeave(intent)) return false;
   if(noteInfo.value?.editorMode === 'full') await editorRef.value?.flush();
   await localDrafts.flush();
   if (!currentIntent(intent)) return;
@@ -1837,16 +1944,19 @@ async function settings(section?: string, syncUrl = true, intent = ++navigationI
     if (syncUrl) navigation.commit({ view: 'settings', section: target });
   });
 }
-async function backFromSettings(intent = ++navigationIntent) {
-  if (returnRoute.note && note.value?.id === returnRoute.note) {
+async function backFromSettings(intent = ++navigationIntent, destination: WorkspaceRoute = returnRoute) {
+  if (historyWriteLocked.value) return;
+  if (panel.value === 'apps' && !await confirmAppLeave(intent)) return;
+  if (!currentIntent(intent)) return;
+  if (destination.note && note.value?.id === destination.note) {
     if (!await initializeDrafts() || !currentIntent(intent)) return;
     panel.value = 'note';
     drawer.value = false;
-    navigation.commit(returnRoute);
+    navigation.commit(destination);
     return;
   }
-  await applyRoute(returnRoute, intent);
-  if (currentIntent(intent)) navigation.commit(returnRoute);
+  const applied = await applyRoute(destination, intent);
+  if (applied !== false && currentIntent(intent)) navigation.commit(destination);
 }
 async function openNotes(intent = ++navigationIntent) {
   collection.value = 'notes';
@@ -2446,7 +2556,7 @@ function shortcut(e: KeyboardEvent) {
   handleSaveShortcut(e, () => { if (panel.value === 'note') void save(); });
 }
 function unload(e: BeforeUnloadEvent) {
-  if (dirty.value) {
+  if (historyWriteLocked.value || dirty.value || appsRef.value?.hasUnsavedChanges()) {
     e.preventDefault();
     e.returnValue = '';
   }
@@ -2543,7 +2653,7 @@ onBeforeUnmount(() => {
     </Transition>
     <aside id="notebook-navigation" :class="['sidebar', { open: drawer }]" aria-label="笔记导航">
       <div class="brand">
-        <Icon name="book" :size="31" /><strong>DooKnow</strong
+        <Icon :name="activeAppMenu?.icon || 'book'" :size="31" /><strong>{{ activeAppMenu?.label || 'DooKnow' }}</strong
         ><button class="mobile-only icon-button" aria-label="关闭侧栏" @click="drawer = false">
           <Icon name="close" />
         </button>
@@ -2653,10 +2763,12 @@ onBeforeUnmount(() => {
             ]"
           />
           <label class="sr-only" for="workspace-search-directory">搜索目录</label>
-          <ASelect
+          <DirectoryTreeSelect
             id="workspace-search-directory"
             v-model:value="searchDirectory"
-            :options="[{ label: '所有目录', value: '' }, ...folders.filter((item) => item.value)]"
+            :folders="folders"
+            label="搜索目录"
+            root-label="所有目录"
           />
         </div>
         <div class="tree-scroll" :aria-busy="query ? searchBusy || searchWaiting : treeRefreshing">
@@ -2771,18 +2883,22 @@ onBeforeUnmount(() => {
           <PluginSlot slot-name="libraryAction" :context="pluginContext" sidebar />
         </div>
       </div>
-      <WorkspaceFooter
-        :username="props.username"
-        :active="panel"
-        :collection="collection"
-        @collection="showCollection"
-        @settings="settings"
-        @trash="openTrash()"
-        @logout="logout"
-        @notes="openNotes"
-        @apps="openApps()"
-      />
     </aside>
+    <WorkspaceFooter
+      :username="props.username"
+      :active="panel"
+      :collection="collection"
+      :pinned-apps="pinnedApps"
+      :active-app="appsApp"
+      @collection="showCollection"
+      @settings="settings"
+      @trash="openTrash()"
+      @logout="logout"
+      @notes="openNotes"
+      @apps="openAppsHome"
+      @open-app="openAppShortcut"
+      @return-app="returnFromApp"
+    />
     <SettingsOverlay
       ref="gitSyncOverlay"
       v-model:show="gitSyncOpen"
@@ -2819,9 +2935,10 @@ onBeforeUnmount(() => {
       :tabindex="['settings', 'trash', 'apps'].includes(panel) ? 0 : undefined"
     >
       <div class="mobile-bar">
-        <button class="icon-button" aria-label="打开侧栏" @click="drawer = true">
+        <button v-if="activeAppMenu" type="button" class="icon-button mobile-app-return" aria-label="返回 DooKnow" @click="returnFromApp"><Icon name="back" /></button>
+        <button v-if="!activeAppMenu" class="icon-button" aria-label="打开侧栏" @click="drawer = true">
           <Icon name="menu" /></button
-        ><b>DooKnow</b><span>{{ dirty ? '未保存' : '私人笔记' }}</span>
+        ><b>{{ activeAppMenu?.label || 'DooKnow' }}</b><span>{{ activeAppMenu ? '应用工作空间' : dirty ? '未保存' : '私人笔记' }}</span>
       </div>
       <div v-if="noteOpening || (!treeLoaded && treeRefreshing)" class="workspace-load-progress">
         <LoadingState variant="inline" :label="noteOpening ? '正在打开笔记…' : '正在读取目录…'" />
@@ -3311,12 +3428,15 @@ onBeforeUnmount(() => {
       <AppsWorkspace
         v-else-if="panel === 'apps'"
         ref="appsRef"
+        :pinned-apps="pinnedApps"
+        @toggle-pin="toggleAppPin"
         :app="appsApp"
         :section="appsSection"
         :tree="tree"
         :model="blogModel"
         :selection="toDooSelection"
         @navigate="navigateApp"
+        @menu-select="drawer = false"
         @open-note="openBlogNote"
         @note-created="run(refresh)"
       />
@@ -3409,6 +3529,7 @@ onBeforeUnmount(() => {
       </div>
     </NModal>
     <PluginPanel />
+    <ToDooReminderCards @open="openReminderTarget" @consume-link="consumeReminderLink" />
     <Transition name="toast">
       <div v-if="notice" class="toast" role="status">
         <Icon name="check" :size="18" />{{ notice }}
@@ -3605,28 +3726,13 @@ onBeforeUnmount(() => {
         ><AButton v-else danger type="primary" @click="removeNote">移入回收站</AButton>
       </div></NModal
     >
-    <NModal v-model:show="revisionsOpen" preset="card" class="dialog-card" title="历史版本"
-      ><AAlert v-if="dialogError" type="error" :message="dialogError" role="alert" />
-      <p class="muted">恢复前会保留当前原文，并检查版本是否变化。</p>
-      <div v-for="r in revisions" :key="r.id" class="revision-item">
-        <div class="utility-row">
-          <span>{{
-            new Date(r.createdAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })
-          }}</span
-          ><AButton @click="restoreRevision(r)">恢复此版本</AButton>
-        </div>
-        <details>
-          <summary>查看原文</summary>
-          <AButton @click="run(() => readRevision(r))">{{
-            r.cursor ? '下一片段' : '加载片段'
-          }}</AButton>
-          <pre>{{ r.content }}</pre>
-        </details>
-      </div>
-      <AButton v-if="revisionCursor" :loading="busy" @click="history(true)">加载更早版本</AButton>
-      <p v-if="revisions.length" class="muted">已显示 {{ revisions.length }} 个版本</p>
-      <p v-if="!revisions.length">尚无历史版本</p></NModal
-    >
+    <NoteHistoryDialog v-if="revisionsOpen && note" ref="noteHistoryRef" v-model:show="revisionsOpen"
+      :note-id="note.id" :title="note.title" :current-modified-at="note.modifiedAt"
+      :current-content="noteInfo?.editorMode === 'full' && !isWhiteboard(note.relativePath) ? savedContent : undefined"
+      :dirty="dirty" :busy="busy || leaveOpen" :error="dialogError"
+      :save-pending="!!pendingSave" :save-pending-restore="!!pendingSave?.revisionId"
+      :baseline-stale="staleHistoryBase?.noteId === note.id && staleHistoryBase?.modifiedAt === note.modifiedAt"
+      @check-save="run(async () => { await checkSave(); })" @restore="restoreRevision" />
     <WhiteboardWorkspace ref="embeddedBoardRef" v-if="embeddedBoardId" :key="'embedded-'+embeddedBoardId" :board-id="embeddedBoardId" embedded :draft-scope="draftScope" @close="embeddedBoardId=undefined"/>
     <SettingsOverlay v-model:show="boardPickerOpen" title="插入白板" description="引用已有白板，或创建一块新的画布。" icon="whiteboard" :busy="boardCreating" :width="560">
       <div class="whiteboard-picker"><button v-for="board in flat.filter(item=>isWhiteboard(item.path))" :key="board.id" type="button" @click="insertBoard(board.id!)"><Icon name="whiteboard" :size="18"/><span>{{board.name}}<small>{{board.path}}</small></span><Icon name="chevron" :size="15"/></button><p v-if="!flat.some(item=>isWhiteboard(item.path))" class="muted">还没有白板，可以先创建一个。</p></div>

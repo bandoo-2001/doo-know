@@ -359,6 +359,31 @@ function compileFilterLeaf(
     sql = 'NOT (' + sql + ')';
   return { sql, params };
 }
+function taskSearch(
+  kind: 'task' | 'occurrence' | 'timeBlock',
+  query: string,
+): { sql: string; params: unknown[] } {
+  const taskId =
+    kind === 'task'
+      ? 'e.id'
+      : kind === 'occurrence'
+        ? "json_extract(e.data,'$.taskId')"
+        : "(SELECT json_extract(o.data,'$.taskId') FROM todo_entities o WHERE o.kind='occurrence' AND o.id=json_extract(e.data,'$.occurrenceId'))";
+  const pattern = '%' + query.toLowerCase().replace(/[\\%_]/g, '\\$&') + '%';
+  // Search the task once for every collection, so execution context does not
+  // disappear merely because its own JSON does not repeat the task's text.
+  let sql =
+    taskId +
+    " IN (SELECT t.id FROM todo_entities t WHERE t.kind='task' AND (" +
+    "LOWER(COALESCE(json_extract(t.data,'$.title'),'')||' '||COALESCE(json_extract(t.data,'$.description'),'')||' '||COALESCE(json_extract(t.data,'$.criteria'),'')) LIKE ? ESCAPE '\\'" +
+    " OR EXISTS(SELECT 1 FROM todo_entities o WHERE o.kind='occurrence' AND json_extract(o.data,'$.taskId')=t.id AND json_extract(o.data,'$.deletedAt') IS NULL AND LOWER(json_extract(o.data,'$.titleOverride')) LIKE ? ESCAPE '\\')))";
+  const params = [pattern, pattern];
+  if (kind === 'timeBlock') {
+    sql = '(' + sql + " OR LOWER(json_extract(e.data,'$.title')) LIKE ? ESCAPE '\\')";
+    params.push(pattern);
+  }
+  return { sql, params };
+}
 function where(
   kind: ToDooEntityKind,
   q: ToDooQuery,
@@ -411,9 +436,21 @@ function where(
     params.push(...group.params);
   }
   if (q.listIds ?? f.listIds) inside(listIdentitySql(kind), q.listIds ?? f.listIds!);
-  if (f.query) {
-    clauses.push("LOWER(e.data) LIKE ? ESCAPE '\\'");
-    params.push('%' + f.query.toLowerCase().replace(/[\\%_]/g, '\\$&') + '%');
+  if (f.query && !['list', 'section', 'tag', 'view'].includes(kind)) {
+    if (kind === 'task' || kind === 'occurrence' || kind === 'timeBlock') {
+      const search = taskSearch(kind, f.query);
+      clauses.push(search.sql);
+      params.push(...search.params);
+    } else {
+      const text =
+        kind === 'record'
+          ? "json_extract(e.data,'$.content')"
+          : kind === 'outcome'
+            ? "json_extract(e.data,'$.summary')"
+            : 'e.data';
+      clauses.push('LOWER(' + text + ") LIKE ? ESCAPE '\\'");
+      params.push('%' + f.query.toLowerCase().replace(/[\\%_]/g, '\\$&') + '%');
+    }
   }
   if (!f.includeDeleted && !q.all) clauses.push("json_extract(e.data,'$.deletedAt') IS NULL");
   if (!f.includeArchived && !f.includeDeleted && !q.all)

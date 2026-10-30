@@ -39,6 +39,13 @@ import {
 } from '../../../packages/core/organization/catalog.js';
 import { organizationPending } from '../../../packages/core/organization/schema.js';
 import { createToDooAgentPort } from '../to-doo/agent-port.js';
+import { createKnowledgeToolPort } from './knowledge-tools.js';
+import { createBlogToolPort } from '../blog/mcp-tools.js';
+import { createToDooToolPort } from '../to-doo/mcp-tools.js';
+import { createMcpTransferStore } from './mcp-transfers.js';
+import type { McpDomainContext } from './mcp-domain-context.js';
+import type { McpManagedDomainPort } from '../../../shared/mcp-domain-tools.js';
+import { transferToolDefinitions } from '../../../shared/mcp-transfer-tools.js';
 import { mcpPolicy } from '../platform/oauth.js';
 import { v2ToolRequirements } from '../../../shared/permissions.js';
 
@@ -62,10 +69,16 @@ export function pluginServices(
       ...webPrincipal.scopes,
       'knowledge:organize',
       'knowledge:archive',
+      'knowledge:share',
+      'knowledge:manage',
       'blog:read',
+      'blog:write',
+      'blog:manage',
       'blog:publish',
       'to-doo:read',
       'to-doo:write',
+      'to-doo:share',
+      'to-doo:integrations',
     ].filter((scope) => capabilities.includes(scope)),
   };
   let finishingCommit = false;
@@ -159,8 +172,7 @@ export function pluginServices(
     if (!row || !row.kind.startsWith(`plugin.${id}.`)) fail(404, 'OPERATION_NOT_FOUND');
     return row;
   }
-  function taskPort(options?: ServiceCallOptions) {
-    function taskAuthorized(write: boolean) {
+  function taskAuthorized(write: boolean, options?: ServiceCallOptions) {
       let p = authorized('to-doo:read', options);
       if (write) p = authorized('to-doo:write', options);
       if (id === 'mcp') {
@@ -177,21 +189,19 @@ export function pluginServices(
           fail(403, 'FORBIDDEN');
       }
       return p;
-    }
+  }
+  function taskAccess(options?: ServiceCallOptions) {
+    const p = taskAuthorized(false, options);
+    const grant = (p.policyVersion === 2 ? p.permissionPolicy : p.permissionCeiling)?.domains['to-doo'];
+    const config = id === 'mcp' ? mcpPolicy(db) : undefined;
+    return { listIds: config?.toDooListIds ?? [],
+      domains: config?.toDooDomains ?? ['tasks','records','focus','habits','anniversaries','calendar','statistics','settings'],
+      ...(grant?.resources.mode === 'selected' ? { resourceListIds: grant.resources.resources.filter(ref => ref.kind === 'list').map(ref => ref.id) } : {}) };
+  }
+  function taskPort(options?: ServiceCallOptions) {
     return createToDooAgentPort(runtime.toDoo, {
-      authorize: taskAuthorized,
-      access() {
-        const p = taskAuthorized(false);
-        const grant = (p.policyVersion === 2 ? p.permissionPolicy : p.permissionCeiling)?.domains['to-doo'];
-        const config = id === 'mcp' ? mcpPolicy(db) : undefined;
-        return {
-          listIds: config?.toDooListIds ?? [],
-          domains: config?.toDooDomains ?? ['tasks','records','focus','habits','anniversaries','calendar','statistics','settings'],
-          ...(grant?.resources.mode === 'selected'
-            ? { resourceListIds: grant.resources.resources.filter(ref => ref.kind === 'list').map(ref => ref.id) }
-            : {}),
-        };
-      },
+      authorize: write => taskAuthorized(write, options),
+      access: () => taskAccess(options),
       canReadNote: async (_p, noteId) => {
         try { await k.info(authorized('knowledge:read', options), noteId); return true; } catch { return false; }
       },
@@ -200,7 +210,44 @@ export function pluginServices(
   db.exec(
     'CREATE TABLE IF NOT EXISTS plugin_operation_intents(operation_id TEXT PRIMARY KEY REFERENCES operations(id),plugin_id TEXT NOT NULL,details TEXT NOT NULL)',
   );
+  let knowledgeTools: McpManagedDomainPort | undefined, blogTools: McpManagedDomainPort | undefined, toDooTools: McpManagedDomainPort | undefined;
+  let transferStore: ReturnType<typeof createMcpTransferStore> | undefined;
+  const fullContext: McpDomainContext = {
+    config: runtime.config, db, runtime,
+    authorize(scopes, options) {
+      const p = authorized(undefined, options);
+      for (const scope of scopes) {
+        if (!capabilities.includes(scope)) fail(403, 'PLUGIN_CAPABILITY_REQUIRED');
+        requireScope(p, scope);
+      }
+      return p;
+    },
+    toDooAccess: taskAccess,
+    get transfers() { return transferStore ??= createMcpTransferStore(runtime.config, db); },
+  };
+  function domainPort(domain: 'knowledge' | 'blog' | 'to-doo') {
+    if (domain === 'knowledge') return knowledgeTools ??= createKnowledgeToolPort(fullContext);
+    if (domain === 'blog') return blogTools ??= createBlogToolPort(fullContext);
+    return toDooTools ??= createToDooToolPort(fullContext);
+  }
   return {
+    get knowledgeTools() { return knowledgeTools ??= createKnowledgeToolPort(fullContext); },
+    get blogTools() { return blogTools ??= createBlogToolPort(fullContext); },
+    get toDooTools() { return toDooTools ??= createToDooToolPort(fullContext); },
+    transfers: {
+      async call(tool, input, options) {
+        const definition = transferToolDefinitions.find(item => item.name === tool);
+        if (!definition) fail(404, 'UNKNOWN_TOOL');
+        const args = definition.input.parse(input) as { transferId: string; offset?: number; maxBytes?: number; base64?: string };
+        const p = fullContext.authorize([], options), store = fullContext.transfers;
+        const info = store.info(p, args.transferId);
+        domainPort(info.binding.domain).authorizeTransfer(info.binding, info.direction === 'upload', options, info.state);
+        if (tool === 'append_mcp_upload') return store.append(p, { transferId: args.transferId, offset: args.offset!, base64: args.base64! });
+        if (tool === 'read_mcp_transfer') return store.read(p, { transferId: args.transferId, offset: args.offset!, maxBytes: args.maxBytes });
+        if (tool === 'cancel_mcp_transfer') return store.cancel(p, args.transferId);
+        return { ...info, ...(info.direction === 'download' && info.state === 'ready' ? { downloadUrl: runtime.config.origin + '/api/mcp/transfers/' + info.transferId + '/download' } : {}) };
+      },
+    },
     toDoo: {
       query: (input, options) => taskPort(options).query(input, options),
       context: (input, options) => taskPort(options).context(input, options),
@@ -322,7 +369,7 @@ export function pluginServices(
         const p = authorized('knowledge:read', options),
           op = findOperation(db, p, { id: b.operationId, requestId: b.requestId });
         if (op.kind.startsWith('organization.')) return k.organization.operation(p, b);
-        if (op.kind === 'blog.publish' || op.kind === 'blog.unpublish')
+        if (op.kind.startsWith('blog.'))
           return runtime.blog.operationStatus(p, b);
         if (db.prepare('SELECT 1 FROM file_operations WHERE id=?').get(op.operationId))
           return k.files.operation(p, op.operationId);

@@ -29,10 +29,16 @@ const labels: Record<string, string> = {
   'knowledge:index': '检查和刷新检索索引',
   'knowledge:organize': '创建目录、移动和重命名资料',
   'knowledge:archive': '归档资料',
+  'knowledge:share': '创建、轮换和撤销所选资料的分享',
+  'knowledge:manage': '管理获准范围的回收站和资料维护设置',
   'blog:read': '查看博客发布状态',
+  'blog:write': '创建和编辑博客草稿，不自动发布',
+  'blog:manage': '管理博客站点设置及删除获准文章',
   'blog:publish': '将所选资料公开发布为博客，或撤下已发布文章',
   'to-doo:read': '读取设置范围内的 To Doo 任务与目标；不自动开放笔记原文',
   'to-doo:write': '创建和修改设置范围内的 To Doo 任务、安排与记录',
+  'to-doo:share': '导出设置范围内的 To Doo 数据及管理私有订阅',
+  'to-doo:integrations': '管理导入、外部日历和提醒设备',
   offline_access: '保持连接，允许刷新访问令牌',
 };
 const needsNoteDirectories = computed(() => scopes.value.some(scope => scope.startsWith('knowledge:') || scope === 'blog:publish'));

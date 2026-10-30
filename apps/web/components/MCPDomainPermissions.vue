@@ -4,6 +4,7 @@ import { Alert as AAlert, Button as AButton, Checkbox as ACheckbox, Select as AS
 import type { PermissionPolicy } from '../../../shared/permissions';
 import { api } from '../api';
 import { selectableDomains, domainPreset, domainResourceMode, type PermissionEditorState } from '../mcp-permissions';
+import KnowledgeResourceTreeSelect from './KnowledgeResourceTreeSelect.vue';
 const props=defineProps<{modelValue?:PermissionPolicy;initialPolicy?:PermissionPolicy;ceiling?:PermissionPolicy;disabled?:boolean;consent?:boolean}>();
 const componentId=useId();
 const emit=defineEmits<{ 'update:modelValue':[value:PermissionPolicy] }>();
@@ -22,6 +23,13 @@ const policy=computed(()=>{
 const domains=computed(()=>selectableDomains.filter(domain=>policy.value?.domains[domain.id] && (!props.ceiling || props.ceiling.domains[domain.id])));
 async function load(){try{state.value=await api<PermissionEditorState>('/api/platform/mcp/permissions');error.value='';}catch{error.value='暂时无法读取资源范围，请重试。';}}
 onMounted(load);
+function bindingChanged(domain:string){const binding=state.value?.bindings?.[domain],grant=policy.value?.domains[domain];return !!binding && !!grant && (binding.ownerId!==grant.ownerId || binding.instanceId!==grant.instanceId);}
+function rebind(domain:string){
+  if(!policy.value || props.disabled || props.consent || props.ceiling || !bindingChanged(domain))return;
+  const binding=state.value!.bindings![domain],next=JSON.parse(JSON.stringify(policy.value)) as PermissionPolicy;
+  next.domains[domain]={...binding,enabled:false,actions:[],resources:{mode:'selected',resources:[]}};
+  emit('update:modelValue',next);
+}
 function update(domain:string,change:(grant:PermissionPolicy['domains'][string])=>void){if(!policy.value || props.disabled)return;const next=JSON.parse(JSON.stringify(policy.value)) as PermissionPolicy;change(next.domains[domain]);emit('update:modelValue',next);}
 function preset(value:string){if(!policy.value || props.disabled)return;const next=domainPreset(policy.value,value);const allowed=props.ceiling?.domains.knowledge?.actions;if(allowed)next.domains.knowledge.actions=next.domains.knowledge.actions.filter(a=>allowed.includes(a));emit('update:modelValue',next);}
 function selectedPreset(){const actions=policy.value?.domains.knowledge?.actions||[];return actions.includes('organize')?'organize':actions.includes('write')?'edit':'read';}
@@ -42,6 +50,9 @@ function toggleAction(domain:string,action:string,checked:boolean){update(domain
     <p v-if="!policy && !error">正在读取业务权限…</p>
     <article v-for="domain in domains" :key="domain.id" class="domain-card" :aria-label="domain.title+'权限'">
       <header><h3>{{domain.title}}</h3><ASwitch :checked="policy!.domains[domain.id].enabled" :disabled="disabled" :aria-label="'启用'+domain.title+'权限'" @update:checked="value=>update(domain.id,grant=>{grant.enabled=!!value})" /></header>
+      <AAlert v-if="!consent && !ceiling && bindingChanged(domain.id)" type="warning" message="此权限绑定旧数据，请重新选择当前业务范围。">
+        <template #action><AButton :disabled="disabled" @click="rebind(domain.id)">使用当前数据</AButton></template>
+      </AAlert>
       <template v-if="policy!.domains[domain.id].enabled">
         <div v-if="domain.id==='knowledge'" class="domain-field"><label :for="componentId+'-preset'">知识库能力预设</label>
           <ASelect :id="componentId+'-preset'" :value="selectedPreset()" :disabled="disabled" aria-label="知识库能力预设" @update:value="value=>preset(String(value))">
@@ -57,7 +68,10 @@ function toggleAction(domain:string,action:string,checked:boolean){update(domain
           </ASelect>
         </div>
         <label v-if="policy!.domains[domain.id].resources.mode==='selected'" :for="componentId+'-resources-'+domain.id">选择{{domain.title}}资源</label>
-        <ASelect :id="componentId+'-resources-'+domain.id" v-if="policy!.domains[domain.id].resources.mode==='selected'" mode="multiple" :value="(policy!.domains[domain.id].resources as any).resources.map(key)" :options="options(domain.id)" :disabled="disabled" :aria-label="'选择'+domain.title+'资源'" @update:value="values=>select(domain.id,values as string[])" />
+        <template v-if="policy!.domains[domain.id].resources.mode==='selected'">
+          <KnowledgeResourceTreeSelect v-if="domain.id==='knowledge'" :id="componentId+'-resources-'+domain.id" :value="(policy!.domains[domain.id].resources as any).resources" :resources="bindingChanged(domain.id)?[]:state?.resources.knowledge || []" :ceiling="ceiling?.domains.knowledge?.resources" :disabled="disabled" @update:value="values=>update(domain.id,grant=>{grant.resources={mode:'selected',resources:values}})" />
+          <ASelect v-else :id="componentId+'-resources-'+domain.id" mode="multiple" :value="(policy!.domains[domain.id].resources as any).resources.map(key)" :options="options(domain.id)" :disabled="disabled" :aria-label="'选择'+domain.title+'资源'" @update:value="values=>select(domain.id,values as string[])" />
+        </template>
         <p v-if="domain.id==='knowledge'">目录授权跟随身份并覆盖后代；自主整理允许直接创建、移动和改名。归档和维护索引独立设置。</p>
         <p v-else-if="domain.id==='to-doo'">清单范围与允许的内容类别同时生效；任务授权不会开放笔记原文。读取和编辑分别授权。</p>
         <p v-else>公开发布需要读取原文和附件；不会要求知识库写入。修改私有笔记不会自动更新公开文章。</p>

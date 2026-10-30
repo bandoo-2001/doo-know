@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { parse, compileScript, compileTemplate } from '@vue/compiler-sfc';
 import ts from 'typescript';
 import * as Vue from 'vue';
+import * as AppShortcuts from '../apps/web/app-shortcuts';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 
 const mockApi = vi.fn(),
@@ -80,6 +81,7 @@ async function mount(authenticated = true) {
       if (id === './plugin-drafts')
         return { clearPluginDrafts: clearDrafts, hasUnsavedPluginDrafts: () => false };
       if (id === './plugins') return { disposePluginUIs: disposePlugins };
+      if (id === './app-shortcuts') return AppShortcuts;
       if (id === './preferences')
         return { initializeEditorPreferences: vi.fn(), resolvedTheme: Vue.ref('light') };
       if (id.endsWith('/Workspace.vue')) return { __esModule: true, default: workspace };

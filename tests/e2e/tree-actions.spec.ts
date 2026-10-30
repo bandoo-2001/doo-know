@@ -2,6 +2,7 @@ import { test, expect } from '../support/browser-test';
 import { readFile, writeFile, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { expandFolderPath } from '../support/notebook-tree';
+import { showMainMenu, showSidebar } from '../support/settings-navigation';
 
 test.use({ sourceEditorPreference: true });
 
@@ -280,11 +281,10 @@ test('Open from a retained note menu returns from trash without losing its draft
   const originalUrl = page.url();
   await page.locator('.cm-content').click();
   await page.keyboard.insertText('返回时保留草稿');
-  const sidebar = page.getByRole('button', { name: '打开侧栏', exact: true });
-  if (await sidebar.isVisible()) await sidebar.click();
+  await showMainMenu(page);
   await page.locator('.footer-tools').getByRole('button', { name: '回收站', exact: true }).click();
   await expect(page.locator('.trash-workspace')).toBeVisible();
-  if (await sidebar.isVisible()) await sidebar.click();
+  await showSidebar(page);
   await page.getByRole('button', { name: '入门指南.md 的更多操作', exact: true }).click();
   await page.getByRole('menuitem', { name: '打开', exact: true }).click();
   await expect(page.locator('.cm-content')).toBeVisible();

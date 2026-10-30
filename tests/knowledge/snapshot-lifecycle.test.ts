@@ -193,7 +193,7 @@ it('does not return a snapshot deleted by an index worker between candidate sele
     expect(built.status).toBe('succeeded');
     f.db.prepare = ((sql: string) => {
       const statement = prepare(sql);
-      if (sql.startsWith('SELECT * FROM read_snapshots WHERE note_id=? AND source_key=?')) {
+      if (sql.startsWith('SELECT s.* FROM read_snapshots s LEFT JOIN file_operations f')) {
         const get = statement.get.bind(statement);
         statement.get = ((...values: any[]) => {
           const row = get(...values) as any;

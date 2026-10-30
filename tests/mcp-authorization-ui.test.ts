@@ -45,7 +45,7 @@ async function mount(file: string, props = {}) {
       if (id === '../mcp-permissions') return permissionHelpers;
       if (id === './MCPDomainPermissions.vue' || id === './MCPClientPermissions.vue') return { default: {render:()=>null} };
       if (id === '../plugins') return { pluginRegistry: registry };
-      if (id === './Icon.vue') return { default: { render: () => null } };
+      if (id === './Icon.vue' || id === './KnowledgeResourceTreeSelect.vue') return { default: { render: () => null } };
       if (id === '../../../shared/authorization-scopes') return { isResourceScope };
       throw Error('Unexpected component dependency: ' + id);
     },
@@ -232,4 +232,17 @@ it.each(['consent', 'narrow'])('keeps newly inventoried task domains outside an 
   const view = await mount('MCPDomainPermissions.vue', { modelValue, ceiling: modelValue, consent: mode === 'consent' });
   expect(view.domains.map((domain: any) => domain.id)).toEqual(['knowledge']);
   expect(view.policy.domains).not.toHaveProperty('to-doo');
+});
+
+it('requires an explicit disabled rebind after the task dataset changes without reusing old grants', async () => {
+  const old = { enabled: true, ownerId: 'owner', instanceId: 'old-dataset', actions: ['read', 'write', 'share'], resources: { mode: 'all' } };
+  const modelValue = { version: 2, domains: { 'to-doo': old } };
+  api.mockResolvedValueOnce({ policy: modelValue, resources: {}, bindings: { 'to-doo': { ownerId: 'owner', instanceId: 'new-dataset' } } });
+  const updates: any[] = [];
+  const view = await mount('MCPDomainPermissions.vue', { modelValue, 'onUpdate:modelValue': (value: unknown) => updates.push(value) });
+  expect(updates).toEqual([]);
+  expect(view.bindingChanged('to-doo')).toBe(true);
+  view.rebind('to-doo');
+  expect(updates[0].domains['to-doo']).toEqual({ enabled: false, ownerId: 'owner', instanceId: 'new-dataset', actions: [], resources: { mode: 'selected', resources: [] } });
+  expect(modelValue.domains['to-doo']).toEqual(old);
 });

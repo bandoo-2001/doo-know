@@ -1,7 +1,7 @@
 import { test, expect } from '../support/browser-test';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { showSidebar, closeSidebar } from '../support/settings-navigation';
+import { showMainMenu, showSidebar, closeSidebar } from '../support/settings-navigation';
 import { expandFolderPath } from '../support/notebook-tree';
 
 test.use({ sourceEditorPreference: true });
@@ -24,8 +24,8 @@ test('recent edits update from external writes and favorite controls stay in syn
   expect(response.status()).toBe(201);
   const n = await response.json();
   await page.reload();
-  await showSidebar(page);
-  await page.getByRole('button', { name: '最近', exact: true }).click();
+  await showMainMenu(page);
+  await page.locator('.sidebar-footer').getByRole('button', { name: '最近', exact: true }).click();
   await showSidebar(page);
   const list = page.getByRole('list', { name: '最近编辑的笔记' });
   await expect(list.locator('.collection-open').first()).toHaveAttribute('title', n.relativePath);
@@ -35,11 +35,12 @@ test('recent edits update from external writes and favorite controls stay in syn
   await expect(
     page.locator('.note-header').getByRole('button', { name: '取消收藏', exact: true }),
   ).toHaveAttribute('aria-pressed', 'true');
-  await showSidebar(page);
+  await showMainMenu(page);
   await page
     .getByRole('navigation', { name: '工作区', exact: true })
     .getByRole('button', { name: '收藏', exact: true })
     .click();
+  await showSidebar(page);
   await expect(
     page.getByRole('list', { name: '收藏的笔记' }).getByRole('button', { name, exact: true }),
   ).toBeVisible();
@@ -53,11 +54,12 @@ test('recent edits update from external writes and favorite controls stay in syn
   await expect(
     page.locator('.note-header').getByRole('button', { name: '取消收藏', exact: true }),
   ).toBeVisible();
-  await showSidebar(page);
+  await showMainMenu(page);
   await page
     .getByRole('navigation', { name: '工作区', exact: true })
     .getByRole('button', { name: '笔记', exact: true })
     .click();
+  await showSidebar(page);
   await expandFolderPath(page, '00-Inbox');
   const row = page
     .locator('.tree-row')
@@ -68,8 +70,8 @@ test('recent edits update from external writes and favorite controls stay in syn
   await expect(
     page.locator('.note-header').getByRole('button', { name: '收藏', exact: true }),
   ).toHaveAttribute('aria-pressed', 'false');
-  await showSidebar(page);
-  await page.getByRole('button', { name: '最近', exact: true }).click();
+  await showMainMenu(page);
+  await page.locator('.sidebar-footer').getByRole('button', { name: '最近', exact: true }).click();
   await showSidebar(page);
   const config = JSON.parse(await readFile('.local/e2e-config.json', 'utf8'));
   const external = `external-${crypto.randomUUID()}.md`;

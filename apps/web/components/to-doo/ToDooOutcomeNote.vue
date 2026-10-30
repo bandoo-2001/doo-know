@@ -1,4 +1,12 @@
 <script setup lang="ts">
+import {
+  Button as AButton,
+  Checkbox as ACheckbox,
+  Input as AInput,
+  Modal as AModal,
+  Textarea as ATextarea,
+} from 'ant-design-vue';
+import ToDooSelect from './ToDooSelect.vue';
 import { computed, reactive, ref } from 'vue';
 import type { TreeEntry } from '../../../../shared/contracts';
 import type {
@@ -7,7 +15,10 @@ import type {
   ToDooEntityMap,
 } from '../../../../shared/to-doo-contracts';
 import { toDooOutcomeResumeInput, type ToDooWorkbench } from '../../to-doo-workbench';
+import DirectoryTreeSelect from '../DirectoryTreeSelect.vue';
+import { useToDooConfirm } from '../../to-doo-controls';
 const props = defineProps<{
+  open?: boolean;
   model: ToDooWorkbench;
   task: ToDooTask;
   occurrence: ToDooOccurrence;
@@ -15,6 +26,7 @@ const props = defineProps<{
   operation?: ToDooEntityMap['operation'];
 }>();
 const emit = defineEmits<{ close: []; saved: [id: string]; 'open-note': [id: string] }>();
+const confirm = useToDooConfirm();
 const form = reactive({
   title: props.operation?.title || props.task.title + ' · 成果',
   folderPath: props.operation?.folderPath || '',
@@ -36,7 +48,7 @@ const baseline = JSON.stringify(form),
 const folders = computed(() => {
   const walk = (items: TreeEntry[]): TreeEntry[] =>
     items.flatMap((n) => (n.type === 'folder' ? [n, ...walk(n.children || [])] : []));
-  return walk(props.tree);
+  return walk(props.tree).map((folder) => ({ label: folder.path, value: folder.path }));
 });
 const dirty = computed(() => JSON.stringify(form) !== baseline || !!submitted.value);
 async function save() {
@@ -96,9 +108,9 @@ async function reconcile() {
     return;
   }
   if (
-    !confirm(
+    !(await confirm(
       '已重新载入任务状态。使用当前版本继续这次成果操作？标题、正文与目录保持原内容；如果笔记已保存，会继续关联同一篇。',
-    )
+    ))
   )
     return;
   expectedRevision.value = current.revision;
@@ -112,85 +124,115 @@ async function reconcile() {
 defineExpose({ hasUnsavedChanges: () => dirty.value || busy.value });
 </script>
 <template>
-  <div class="todo-modal-backdrop">
-    <section class="todo-modal" role="dialog" aria-modal="true" aria-label="创建成果笔记">
-      <header class="todo-between">
-        <h2>创建成果笔记</h2>
-        <button
-          class="todo-icon-button"
-          type="button"
-          aria-label="收起成果笔记表单并保留输入"
-          :disabled="busy"
-          @click="emit('close')"
+  <AModal
+    :open="props.open !== false"
+    :footer="null"
+    :mask-closable="false"
+    :closable="false"
+    :keyboard="!busy"
+    wrap-class-name="todo-ant-modal"
+    title="创建成果笔记"
+    @cancel="!busy && emit('close')"
+  >
+    <AButton
+      class="ant-modal-close"
+      type="text"
+      html-type="button"
+      aria-label="收起成果笔记表单并保留输入"
+      @click="emit('close')"
+      :disabled="busy"
+      >×</AButton
+    >
+    <p class="todo-muted todo-small">
+      正文保存在知识库，并作为这次行动的成果证据。收起窗口会保留本次输入。
+    </p>
+
+    <form class="todo-form" @submit.prevent="save">
+      <fieldset class="todo-create-fields" :disabled="busy || !!submitted">
+        <label>笔记标题<AInput v-model:value="form.title" required :maxlength="256" /></label>
+        <div class="todo-outcome-directory">
+          <label for="to-doo-outcome-directory">保存目录</label>
+          <DirectoryTreeSelect
+            id="to-doo-outcome-directory"
+            v-model:value="form.folderPath"
+            :folders="folders"
+            label="保存目录"
+            root-label="默认目录"
+            :disabled="busy || !!submitted"
+          />
+        </div>
+        <label
+          >成果正文（Markdown）<ATextarea
+            v-model:value="form.content"
+            :rows="10"
+            required
+          ></ATextarea></label
+        ><label
+          >验证方式<ToDooSelect v-model="form.verification" :disabled="busy || !!submitted">
+            <option value="self_assessed">自评</option>
+            <option value="practice">练习验证</option>
+            <option value="reviewed">经过评审</option>
+            <option value="delivered">已交付</option>
+          </ToDooSelect></label
+        ><ACheckbox
+          class="todo-checkbox"
+          v-model:checked="form.complete"
+          :disabled="busy || !!submitted"
+          >同时完成这次行动</ACheckbox
         >
-          ×
-        </button>
-      </header>
-      <p class="todo-muted todo-small">
-        正文保存在知识库，并作为这次行动的成果证据。收起窗口会保留本次输入。
-      </p>
-      <form class="todo-form" @submit.prevent="save">
-        <fieldset class="todo-create-fields" :disabled="busy || !!submitted">
-          <label>笔记标题<input v-model="form.title" required maxlength="256" /></label
-          ><label
-            >保存目录<select v-model="form.folderPath">
-              <option value="">默认目录</option>
-              <option v-for="folder in folders" :key="folder.path" :value="folder.path">
-                {{ folder.path }}
-              </option>
-            </select></label
-          ><label
-            >成果正文（Markdown）<textarea
-              v-model="form.content"
-              rows="10"
-              required
-            ></textarea></label
-          ><label
-            >验证方式<select v-model="form.verification">
-              <option value="self_assessed">自评</option>
-              <option value="practice">练习验证</option>
-              <option value="reviewed">经过评审</option>
-              <option value="delivered">已交付</option>
-            </select></label
-          ><label class="todo-checkbox"
-            ><input v-model="form.complete" type="checkbox" />同时完成这次行动</label
-          >
-          <p v-if="form.complete" class="todo-muted todo-small">
-            父项仍有未完成子项时，请先处理子项，或取消同时完成。
-          </p>
-        </fieldset>
-        <p v-if="error" class="todo-error" role="alert">{{ error }}</p>
-        <button
-          v-if="(operationId || canReconcile) && !savedNoteId"
-          type="button"
+        <p v-if="form.complete" class="todo-muted todo-small">
+          父项仍有未完成子项时，请先处理子项，或取消同时完成。
+        </p>
+      </fieldset>
+      <p v-if="error" class="todo-error" role="alert">{{ error }}</p>
+      <AButton
+        v-if="(operationId || canReconcile) && !savedNoteId"
+        html-type="button"
+        class="todo-button"
+        :disabled="busy"
+        @click="reconcile"
+      >
+        核对当前任务版本后继续
+      </AButton>
+      <div v-if="savedNoteId" class="todo-import-preview">
+        <p>成果笔记已经保存，关联步骤仍需核对。重试会继续原操作，保留同一篇笔记。</p>
+        <AButton
+          html-type="button"
+          class="todo-link"
+          @click="emit('open-note', savedNoteId)"
+          type="link"
+        >
+          打开已保存的笔记 ↗</AButton
+        ><AButton
+          v-if="operationId"
+          html-type="button"
           class="todo-button"
           :disabled="busy"
           @click="reconcile"
         >
-          核对当前任务版本后继续
-        </button>
-        <div v-if="savedNoteId" class="todo-import-preview">
-          <p>成果笔记已经保存，关联步骤仍需核对。重试会继续原操作，保留同一篇笔记。</p>
-          <button type="button" class="todo-link" @click="emit('open-note', savedNoteId)">
-            打开已保存的笔记 ↗</button
-          ><button
-            v-if="operationId"
-            type="button"
-            class="todo-button"
-            :disabled="busy"
-            @click="reconcile"
-          >
-            核对当前任务版本后继续关联
-          </button>
-        </div>
-        <div class="todo-actions">
-          <button class="todo-button" type="button" :disabled="busy" @click="emit('close')">
-            收起并保留输入</button
-          ><button class="todo-button todo-primary" type="submit" :disabled="busy">
-            {{ busy ? '正在保存…' : submitted ? '重试原操作' : '创建并关联成果笔记' }}
-          </button>
-        </div>
-      </form>
-    </section>
-  </div>
+          核对当前任务版本后继续关联
+        </AButton>
+      </div>
+      <div class="todo-actions">
+        <AButton class="todo-button" html-type="button" :disabled="busy" @click="emit('close')">
+          收起并保留输入</AButton
+        ><AButton
+          class="todo-button todo-primary"
+          html-type="submit"
+          :disabled="busy"
+          type="primary"
+        >
+          {{ busy ? '正在保存…' : submitted ? '重试原操作' : '创建并关联成果笔记' }}
+        </AButton>
+      </div>
+    </form>
+  </AModal>
 </template>
+<style scoped>
+.todo-outcome-directory {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+</style>

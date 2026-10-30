@@ -2,10 +2,19 @@
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import DOMPurify from 'dompurify';
 import Icon from './Icon.vue';
+import BlogDesignStudio from './blog/BlogDesignStudio.vue';
+import BlogArticleCover from './blog/BlogArticleCover.vue';
+import BlogPublicationReview from './blog/BlogPublicationReview.vue';
 import type { TreeEntry } from '../../../shared/contracts';
 import type { BlogPost } from '../../../shared/blog-contracts';
-import type { BlogSection, BlogWorkbench } from '../blog-workbench';
-const props = defineProps<{ section: BlogSection; tree: TreeEntry[]; model: BlogWorkbench }>();
+import '../blog-admin.css';
+import { blogNotePicker, type BlogSection, type BlogWorkbench } from '../blog-workbench';
+const props = defineProps<{
+  section: BlogSection;
+  tree: TreeEntry[];
+  model: BlogWorkbench;
+  hostedNavigation?: boolean;
+}>();
 const emit = defineEmits<{
   section: [section: BlogSection];
   back: [];
@@ -15,9 +24,11 @@ const state = props.model.state;
 const tabs: [BlogSection, string, string][] = [
   ['overview', '概览', 'apps'],
   ['articles', '文章', 'file'],
+  ['design', '装修主页', 'monitor'],
   ['taxonomy', '分类与标签', 'list'],
   ['settings', '站点设置', 'settings'],
 ];
+const taxonomyQuery = ref('');
 const query = ref(''),
   filter = ref('all'),
   categoryFilter = ref(''),
@@ -90,19 +101,32 @@ const taxonomy = computed(() => {
     tags: [...tags].sort((a, b) => b[1] - a[1]),
   };
 });
-const notes = computed(() => {
-  const walk = (items: TreeEntry[]): TreeEntry[] =>
-    items.flatMap((item) =>
-      item.type === 'folder'
-        ? walk(item.children || [])
-        : item.documentType !== 'whiteboard' && item.id
-          ? [item]
-          : [],
-    );
-  return walk(props.tree).filter((note) =>
-    note.path.toLowerCase().includes(noteQuery.value.toLowerCase()),
+const visibleTaxonomy = computed(() => {
+  const search = taxonomyQuery.value.trim().toLocaleLowerCase();
+  return {
+    categories: taxonomy.value.categories.filter(([name]) =>
+      name.toLocaleLowerCase().includes(search),
+    ),
+    tags: taxonomy.value.tags.filter(([name]) => name.toLocaleLowerCase().includes(search)),
+  };
+});
+const recentPosts = computed(() =>
+  [...posts.value].sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt)).slice(0, 4),
+);
+const settingsDirty = computed(() => {
+  const local = state.settings,
+    saved = state.dashboard?.settings;
+  return (
+    !!local &&
+    !!saved &&
+    Object.keys(local).some((key) => {
+      const field = key as keyof typeof local;
+      return field !== 'version' && local[field] !== saved[field];
+    })
   );
 });
+const notePicker = computed(() => blogNotePicker(props.tree, noteQuery.value));
+const notes = computed(() => notePicker.value.notes);
 const safePreview = computed(() =>
   DOMPurify.sanitize(selected.value?.previewHtml || '', {
     FORBID_TAGS: ['script', 'iframe', 'object', 'embed', 'form'],
@@ -129,6 +153,7 @@ watch(tagsText, (text) => {
     ];
 });
 const published = computed(() => posts.value.filter((post) => post.state === 'published').length);
+const drafts = computed(() => posts.value.filter((post) => post.state === 'draft').length);
 const changes = computed(
   () =>
     posts.value.filter((post) => post.state === 'published' && post.hasUnpublishedChanges).length,
@@ -178,6 +203,12 @@ function useTaxonomy(kind: 'category' | 'tag', name: string) {
   categoryFilter.value = kind === 'category' ? name : '';
   tagFilter.value = kind === 'tag' ? name : '';
   filter.value = 'all';
+  query.value = '';
+  emit('section', 'articles');
+}
+function showArticles(nextFilter = 'all') {
+  clearFilters();
+  filter.value = nextFilter;
   emit('section', 'articles');
 }
 function clearFilters() {
@@ -254,18 +285,32 @@ onMounted(() => {
 });
 </script>
 <template>
-  <section class="blog-workspace" aria-labelledby="blog-title">
+  <section class="blog-workspace blog-admin" aria-labelledby="blog-title">
     <header class="blog-header">
       <div class="blog-heading">
-        <button type="button" class="blog-icon-button" aria-label="返回应用" @click="emit('back')">
+        <button
+          v-if="!hostedNavigation"
+          type="button"
+          class="blog-icon-button"
+          aria-label="返回应用"
+          @click="emit('back')"
+        >
           <Icon name="back" /></button
         ><span class="blog-app-icon small"><Icon name="book" :size="23" /></span>
-        <div>
+        <div class="blog-admin-heading-copy">
           <h1 id="blog-title">博客</h1>
-          <p>从笔记，到被看见的文字。</p>
+          <p>从笔记选稿，整理文章与自己的站点。</p>
         </div>
       </div>
       <div class="blog-header-actions">
+        <span
+          v-if="state.dashboard"
+          class="blog-badge blog-admin-site-state"
+          :class="state.dashboard.settings.enabled ? 'published' : 'draft'"
+        >
+          <Icon :name="state.dashboard.settings.enabled ? 'check' : 'lock'" :size="14" />
+          {{ state.dashboard.settings.enabled ? '站点已公开' : '站点未开启' }}
+        </span>
         <a
           v-if="state.dashboard?.settings.enabled"
           class="blog-button subtle"
@@ -278,7 +323,7 @@ onMounted(() => {
         </button>
       </div>
     </header>
-    <nav class="blog-tabs" aria-label="博客工作台">
+    <nav v-if="!hostedNavigation" class="blog-tabs" aria-label="博客工作台">
       <button
         v-for="[id, label, icon] in tabs"
         :key="id"
@@ -307,50 +352,53 @@ onMounted(() => {
         </button>
       </div>
       <div v-if="section === 'overview'" class="blog-overview">
-        <div class="blog-welcome">
+        <div class="blog-section-title blog-admin-page-heading">
           <div>
-            <span class="blog-eyebrow">A SPACE FOR YOUR IDEAS</span>
-            <h2>写下的思考，<br />值得被更多人读到。</h2>
-            <p>挑选一篇笔记，整理好标题与摘要。<br />每一次公开，都由你亲自决定。</p>
-            <button type="button" class="blog-button primary" @click="picker = true">
-              开始选稿 <Icon name="forward" :size="16" />
-            </button>
-          </div>
-          <div class="blog-paper-art" aria-hidden="true">
-            <span>MY JOURNAL</span><i></i><strong>思想的形状</strong><b></b><b></b><b></b
-            ><em>Notes, made public.</em>
+            <h2>概览</h2>
+            <p>查看文章进度，继续最近的整理。</p>
           </div>
         </div>
-        <div class="blog-stats">
-          <button
-            @click="
-              filter = 'all';
-              emit('section', 'articles');
-            "
-          >
+        <div class="blog-welcome blog-admin-overview-intro">
+          <div>
+            <span class="blog-eyebrow">从笔记开始</span>
+            <h2>
+              {{ posts.length ? '继续整理，让思考被看见。' : '从第一篇笔记，开始你的博客。' }}
+            </h2>
+            <p>选稿后完善标题、摘要与分类，每次发布都由你亲自决定。</p>
+            <div class="blog-admin-quick-actions">
+              <button type="button" class="blog-button primary" @click="picker = true">
+                开始选稿 <Icon name="forward" :size="16" />
+              </button>
+              <button type="button" class="blog-button" @click="emit('section', 'design')">
+                设计主页布局
+              </button>
+              <button type="button" class="blog-text-button" @click="emit('section', 'settings')">
+                管理站点设置 →
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="blog-stats blog-admin-stats" aria-label="文章统计">
+          <button type="button" class="blog-admin-stat" @click="showArticles()">
             <span>全部文章</span><strong>{{ posts.length }}</strong
-            ><Icon name="file" /></button
-          ><button
-            @click="
-              filter = 'published';
-              emit('section', 'articles');
-            "
-          >
+            ><Icon name="file" />
+          </button>
+          <button type="button" class="blog-admin-stat" @click="showArticles('published')">
             <span>已发布</span><strong>{{ published }}</strong
-            ><Icon name="check" /></button
-          ><button
-            @click="
-              filter = 'changes';
-              emit('section', 'articles');
-            "
-          >
+            ><Icon name="check" />
+          </button>
+          <button type="button" class="blog-admin-stat" @click="showArticles('draft')">
+            <span>草稿</span><strong>{{ drafts }}</strong
+            ><Icon name="file" />
+          </button>
+          <button type="button" class="blog-admin-stat" @click="showArticles('changes')">
             <span>待发布更新</span><strong>{{ changes }}</strong
             ><Icon name="refresh" />
           </button>
         </div>
-        <div class="blog-section-title">
+        <div class="blog-section-title blog-admin-page-heading">
           <h2>最近整理</h2>
-          <button class="blog-text-button" @click="emit('section', 'articles')">查看全部 →</button>
+          <button class="blog-text-button" @click="showArticles()">查看全部 →</button>
         </div>
         <div v-if="!posts.length" class="blog-empty compact">
           <Icon name="file" :size="30" />
@@ -358,26 +406,27 @@ onMounted(() => {
           <p>从已有笔记中选稿，原文无需搬家。</p>
           <button class="blog-button" @click="picker = true">选择一篇笔记</button>
         </div>
-        <button
-          v-for="post in posts.slice(0, 4)"
-          v-else
-          :key="post.id"
-          class="blog-recent-row"
-          @click="choosePost(post.id)"
-        >
-          <span class="blog-post-glyph"><Icon name="file" /></span
-          ><span
-            ><strong>{{ post.title }}</strong
-            ><small>{{ post.category || '未分类' }} · {{ date(post.updatedAt) }}</small></span
-          ><span
-            class="blog-badge"
-            :class="[post.state, { changes: post.hasUnpublishedChanges }]"
-            >{{ status(post) }}</span
-          ><Icon name="chevron" :size="16" />
-        </button>
+        <div v-else class="blog-admin-recent">
+          <button
+            v-for="post in recentPosts"
+            :key="post.id"
+            class="blog-recent-row"
+            @click="choosePost(post.id)"
+          >
+            <span class="blog-post-glyph"><Icon name="file" /></span
+            ><span
+              ><strong>{{ post.title }}</strong
+              ><small>{{ post.category || '未分类' }} · {{ date(post.updatedAt) }}</small></span
+            ><span
+              class="blog-badge"
+              :class="[post.state, { changes: post.hasUnpublishedChanges }]"
+              >{{ status(post) }}</span
+            ><Icon name="chevron" :size="16" />
+          </button>
+        </div>
       </div>
       <div v-else-if="section === 'articles'" class="blog-articles">
-        <div class="blog-section-title">
+        <div class="blog-section-title blog-admin-page-heading">
           <div>
             <h2>文章</h2>
             <p>公开的是发布时的快照。编辑原稿后，手动发布更新。</p>
@@ -396,19 +445,26 @@ onMounted(() => {
         </div>
         <div class="blog-article-layout" :class="{ 'has-selection': !!state.selectedId }">
           <aside class="blog-article-list" aria-label="博客文章列表">
-            <label class="blog-search"
-              ><Icon name="search" :size="16" /><input
-                v-model="query"
-                aria-label="搜索博客文章"
-                placeholder="搜索文章…"
-            /></label>
-            <select v-model="filter" class="blog-state-filter" aria-label="文章状态">
-              <option value="all">全部状态</option>
-              <option value="draft">草稿</option>
-              <option value="published">已发布</option>
-              <option value="changes">待发布更新</option>
-              <option value="withdrawn">已下架</option>
-            </select>
+            <div class="blog-admin-toolbar">
+              <label class="blog-search"
+                ><Icon name="search" :size="16" /><input
+                  v-model="query"
+                  aria-label="搜索博客文章"
+                  placeholder="搜索文章…"
+              /></label>
+              <select v-model="filter" class="blog-state-filter" aria-label="文章状态">
+                <option value="all">全部状态</option>
+                <option value="draft">草稿</option>
+                <option value="published">已发布</option>
+                <option value="changes">待发布更新</option>
+                <option value="withdrawn">已下架</option>
+              </select>
+              <p class="blog-admin-list-count" role="status">
+                {{ visiblePosts.length }} 篇文章<span v-if="visiblePosts.length !== posts.length"
+                  >，共 {{ posts.length }} 篇</span
+                >
+              </p>
+            </div>
             <div v-if="categoryFilter || tagFilter" class="blog-filter-chip">
               {{ categoryFilter || '#' + tagFilter
               }}<button aria-label="清除分类标签过滤" @click="clearFilters">×</button>
@@ -441,6 +497,11 @@ onMounted(() => {
                   :class="[post.state, { changes: post.hasUnpublishedChanges }]"
                   >{{ status(post) }}</span
                 ><small>{{ date(post.updatedAt) }}</small></span
+              ><small class="blog-admin-post-taxonomy"
+                >{{ post.category || '未分类'
+                }}<template v-if="post.tags.length">
+                  · {{ post.tags.map((tag) => '#' + tag).join(' ') }}</template
+                ></small
               ><small v-if="model.dirty(post.id)" class="blog-unsaved">文章信息未保存</small>
             </button>
           </aside>
@@ -525,33 +586,40 @@ onMounted(() => {
               </div>
             </div>
             <form id="blog-article-form" class="blog-form" @submit.prevent="model.save()">
-              <label
-                >文章标题<input v-model="form.title" maxlength="200" required name="blog-title"
-              /></label>
-              <label
-                >摘要<textarea
-                  v-model="form.summary"
-                  rows="3"
-                  maxlength="1000"
-                  placeholder="用一两句话，介绍这篇文章…"
-                />
-              </label>
-              <div class="blog-form-row">
+              <fieldset class="blog-admin-form-group">
+                <legend>标题与摘要</legend>
                 <label
-                  >分类<input
-                    v-model="form.category"
-                    list="blog-categories"
-                    placeholder="例如：生活与思考"
-                    maxlength="80" /><datalist id="blog-categories">
-                    <option
-                      v-for="[name] in taxonomy.categories"
-                      :key="name"
-                      :value="name"
-                    /></datalist></label
-                ><label
-                  >标签<input v-model="tagsText" placeholder="用逗号分隔" maxlength="600"
+                  >文章标题<input v-model="form.title" maxlength="200" required name="blog-title"
                 /></label>
-              </div>
+                <label
+                  >摘要<textarea
+                    v-model="form.summary"
+                    rows="3"
+                    maxlength="1000"
+                    placeholder="用一两句话，介绍这篇文章…"
+                  />
+                </label>
+              </fieldset>
+              <fieldset class="blog-admin-form-group">
+                <legend>分类与标签</legend>
+                <p class="blog-muted">分类用于主题归档；多个标签用逗号分隔。</p>
+                <div class="blog-form-row">
+                  <label
+                    >分类<input
+                      v-model="form.category"
+                      list="blog-categories"
+                      placeholder="例如：生活与思考"
+                      maxlength="80" /><datalist id="blog-categories">
+                      <option
+                        v-for="[name] in taxonomy.categories"
+                        :key="name"
+                        :value="name"
+                      /></datalist></label
+                  ><label
+                    >标签<input v-model="tagsText" placeholder="用逗号分隔" maxlength="600"
+                  /></label>
+                </div>
+              </fieldset>
               <details class="blog-secondary-fields">
                 <summary>封面、置顶与固定链接 <Icon name="chevron" :size="16" /></summary>
                 <div class="blog-secondary-body">
@@ -563,6 +631,15 @@ onMounted(() => {
                       @input="form.cover = ($event.target as HTMLInputElement).value || null"
                     /><small>发布时会固定图片副本，请使用你有权公开的图片。</small></label
                   >
+                  <BlogArticleCover
+                    :key="selected.post.sourceNoteId"
+                    :model="model"
+                    :post-id="selected.post.id"
+                    :note-id="selected.post.sourceNoteId"
+                    :note-path="notePicker.sourcePath(selected.post.sourceNoteId)"
+                    :value="form.cover"
+                    @change="model.setCover"
+                  />
                   <label class="blog-checkbox"
                     ><input v-model="form.pinned" type="checkbox" />置顶文章</label
                   >
@@ -570,7 +647,12 @@ onMounted(() => {
                     >固定链接
                     <div class="blog-url">
                       <span>/blog/</span
-                      ><input :value="form.slug" readonly aria-label="文章固定链接" /><button
+                      ><input
+                        v-model="form.slug"
+                        :readonly="selected.post.publishedAt !== null"
+                        pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
+                        aria-label="文章固定链接"
+                      /><button
                         type="button"
                         class="blog-icon-button"
                         :disabled="!selected.post.url"
@@ -580,7 +662,11 @@ onMounted(() => {
                         <Icon name="copy" :size="16" />
                       </button>
                     </div>
-                    <small>首次选稿后保持固定，修改标题不会改变文章地址。</small></label
+                    <small>{{
+                      selected.post.publishedAt
+                        ? '首次公开后固定，修改标题不会改变文章地址。'
+                        : '首次发布前可编辑，使用小写英文、数字与连字符。'
+                    }}</small></label
                   >
                 </div>
               </details>
@@ -606,7 +692,15 @@ onMounted(() => {
               </p>
               <h1>{{ previewTitle }}</h1>
               <p class="blog-preview-summary">{{ form.summary }}</p>
-              <div class="markdown" v-html="safePreview"></div>
+              <BlogPublicationReview
+                :model="model"
+                :id="state.selectedId"
+                @open-note="emit('open-note', $event)"
+              />
+              <details class="blog-reviewed-body">
+                <summary>原稿预览</summary>
+                <div class="markdown" v-html="safePreview"></div>
+              </details>
             </article>
             <div class="blog-danger-zone">
               <button
@@ -678,24 +772,74 @@ onMounted(() => {
           </div>
         </div>
       </div>
+      <BlogDesignStudio v-else-if="section === 'design'" :model="model" />
       <div v-else-if="section === 'taxonomy'" class="blog-taxonomy">
-        <div class="blog-section-title">
+        <div class="blog-section-title blog-admin-page-heading">
           <div>
             <h2>分类与标签</h2>
             <p>用主题串起文章，让读者顺着兴趣探索。</p>
           </div>
         </div>
-        <div class="blog-taxonomy-grid">
-          <section class="blog-panel">
-            <h3>
+        <div
+          v-if="taxonomy.categories.length || taxonomy.tags.length"
+          class="blog-admin-toolbar blog-admin-taxonomy-toolbar"
+        >
+          <label class="blog-search"
+            ><Icon name="search" :size="17" /><input
+              v-model="taxonomyQuery"
+              aria-label="搜索分类与标签"
+              placeholder="搜索分类或标签…"
+          /></label>
+          <button
+            v-if="taxonomyQuery"
+            type="button"
+            class="blog-text-button"
+            @click="taxonomyQuery = ''"
+          >
+            清除分类标签搜索
+          </button>
+          <p class="blog-admin-list-count" role="status">
+            {{ visibleTaxonomy.categories.length }} 个分类 ·
+            {{ visibleTaxonomy.tags.length }} 个标签
+          </p>
+        </div>
+        <div class="blog-taxonomy-grid blog-admin-taxonomy-grid">
+          <section class="blog-panel" aria-labelledby="blog-categories-title">
+            <h3 id="blog-categories-title">
               <Icon name="folder" :size="19" />分类 <span>{{ taxonomy.categories.length }}</span>
             </h3>
-            <p v-if="!taxonomy.categories.length" class="blog-muted">
-              在文章信息中添加第一个分类。
+            <p v-if="taxonomy.categories.length" class="blog-muted">
+              每篇文章可归入一个主题，点击分类查看文章。
             </p>
+            <div v-if="!taxonomy.categories.length" class="blog-admin-taxonomy-empty">
+              <Icon name="folder" :size="28" />
+              <h4>还没有分类</h4>
+              <p>在文章信息中填写分类后，这里会自动归档。</p>
+              <div class="blog-admin-empty-actions">
+                <button
+                  v-if="posts.length"
+                  type="button"
+                  class="blog-button"
+                  @click="showArticles()"
+                >
+                  整理文章分类</button
+                ><button v-else type="button" class="blog-button" @click="picker = true">
+                  从笔记中选稿
+                </button>
+              </div>
+            </div>
+            <div v-else-if="!visibleTaxonomy.categories.length" class="blog-admin-taxonomy-empty">
+              <Icon name="search" :size="25" />
+              <h4>没有匹配的分类</h4>
+              <p>试试其他关键词，或清除搜索查看全部分类。</p>
+              <button type="button" class="blog-text-button" @click="taxonomyQuery = ''">
+                查看全部分类
+              </button>
+            </div>
             <button
-              v-for="[name, count] in taxonomy.categories"
+              v-for="[name, count] in visibleTaxonomy.categories"
               :key="name"
+              type="button"
               class="blog-category"
               @click="useTaxonomy('category', name)"
             >
@@ -703,15 +847,43 @@ onMounted(() => {
               ><small>{{ count }} 篇 <span aria-hidden="true">→</span></small>
             </button>
           </section>
-          <section class="blog-panel">
-            <h3>
+          <section class="blog-panel" aria-labelledby="blog-tags-title">
+            <h3 id="blog-tags-title">
               <Icon name="list" :size="19" />标签 <span>{{ taxonomy.tags.length }}</span>
             </h3>
-            <p v-if="!taxonomy.tags.length" class="blog-muted">为文章添加标签，建立更多连接。</p>
-            <div class="blog-tags">
+            <p v-if="taxonomy.tags.length" class="blog-muted">
+              为文章添加多个关键词，连接相关内容。
+            </p>
+            <div v-if="!taxonomy.tags.length" class="blog-admin-taxonomy-empty">
+              <Icon name="list" :size="28" />
+              <h4>还没有标签</h4>
+              <p>给文章添加标签，便于按主题查找。</p>
+              <div class="blog-admin-empty-actions">
+                <button
+                  v-if="posts.length"
+                  type="button"
+                  class="blog-button"
+                  @click="showArticles()"
+                >
+                  整理文章标签</button
+                ><button v-else type="button" class="blog-button" @click="picker = true">
+                  选择一篇笔记
+                </button>
+              </div>
+            </div>
+            <div v-else-if="!visibleTaxonomy.tags.length" class="blog-admin-taxonomy-empty">
+              <Icon name="search" :size="25" />
+              <h4>没有匹配的标签</h4>
+              <p>试试其他关键词，或清除搜索查看全部标签。</p>
+              <button type="button" class="blog-text-button" @click="taxonomyQuery = ''">
+                查看全部标签
+              </button>
+            </div>
+            <div v-else class="blog-tags">
               <button
-                v-for="[name, count] in taxonomy.tags"
+                v-for="[name, count] in visibleTaxonomy.tags"
                 :key="name"
+                type="button"
                 @click="useTaxonomy('tag', name)"
               >
                 <span aria-hidden="true">#</span><span class="blog-tag-name">{{ name }}</span
@@ -723,23 +895,35 @@ onMounted(() => {
         <p class="blog-muted">在文章中编辑分类与标签。保存后，手动发布更新才会同步至公开站点。</p>
       </div>
       <div v-else-if="section === 'settings' && state.settings" class="blog-settings">
-        <div class="blog-section-title">
+        <div class="blog-section-title blog-admin-page-heading">
           <div>
             <h2>站点设置</h2>
             <p>给你的文字，一个自己的家。</p>
           </div>
         </div>
         <form class="blog-form" @submit.prevent="model.saveSettings()">
-          <section class="blog-visibility">
+          <section class="blog-visibility" aria-labelledby="blog-visibility-title">
             <div>
-              <h3>公开访问</h3>
+              <h3 id="blog-visibility-title">
+                公开访问
+                <span
+                  class="blog-badge"
+                  :class="state.dashboard.settings.enabled ? 'published' : 'draft'"
+                  >{{ state.dashboard.settings.enabled ? '站点已公开' : '站点未开启' }}</span
+                >
+              </h3>
               <p>
                 {{
                   state.settings.enabled
-                    ? '已发布文章将在 /blog 对所有人可见。'
-                    : '站点当前关闭，访客无法访问博客。'
+                    ? '保存后，已发布文章将在 /blog 对所有人可见。'
+                    : '保存后将关闭站点，访客无法访问博客。'
                 }}
               </p>
+              <small
+                v-if="state.settings.enabled !== state.dashboard.settings.enabled"
+                class="blog-unsaved"
+                >公开状态有未保存修改</small
+              >
             </div>
             <label class="blog-toggle"
               ><input
@@ -749,8 +933,8 @@ onMounted(() => {
             ></label>
           </section>
           <div v-if="state.settingsError" class="blog-alert error" role="alert">
-            {{ state.settingsError }}
-            <button
+            {{ state.settingsError
+            }}<button
               type="button"
               class="blog-text-button"
               :disabled="state.settingsBusy"
@@ -762,50 +946,92 @@ onMounted(() => {
           <div v-if="state.settingsNotice" class="blog-alert success" role="status">
             {{ state.settingsNotice }}
           </div>
-          <label
-            >站点名称<input
-              v-model="state.settings.title"
-              required
-              maxlength="120"
-              placeholder="我的数字花园" /></label
-          ><label
-            >站点简介<textarea
-              v-model="state.settings.description"
-              rows="2"
-              maxlength="500"
-              placeholder="这里记录了什么？"
-            />
-          </label>
-          <div class="blog-form-row">
-            <label
-              >作者<input
-                v-model="state.settings.author"
-                maxlength="120"
-                placeholder="你的名字" /></label
-            ><label
-              >外观<select v-model="state.settings.theme">
-                <option value="system">跟随系统</option>
-                <option value="light">浅色</option>
-              </select></label
+          <div class="blog-admin-settings-grid">
+            <section
+              class="blog-panel blog-admin-settings-section"
+              aria-labelledby="blog-settings-basic"
             >
+              <header class="blog-admin-section-heading">
+                <h3 id="blog-settings-basic">基本信息</h3>
+                <p>告诉读者这个站点是谁在写、记录什么。</p>
+              </header>
+              <label
+                >站点名称<input
+                  v-model="state.settings.title"
+                  required
+                  maxlength="120"
+                  placeholder="我的数字花园"
+              /></label>
+              <label
+                >站点简介<textarea
+                  v-model="state.settings.description"
+                  rows="3"
+                  maxlength="500"
+                  placeholder="这里记录了什么？"
+                />
+              </label>
+              <label
+                >作者<input v-model="state.settings.author" maxlength="120" placeholder="你的名字"
+              /></label>
+            </section>
+            <section
+              class="blog-panel blog-admin-settings-section"
+              aria-labelledby="blog-settings-access"
+            >
+              <header class="blog-admin-section-heading">
+                <h3 id="blog-settings-access">访问与外观</h3>
+                <p>设置公开链接与阅读时的外观偏好。</p>
+              </header>
+              <label
+                >公开站点地址<input
+                  v-model="state.settings.baseUrl"
+                  type="url"
+                  placeholder="https://example.com"
+                /><small>用于订阅与站点地图中的绝对链接。</small></label
+              >
+              <label
+                >外观<select v-model="state.settings.theme">
+                  <option value="system">跟随系统</option>
+                  <option value="light">浅色</option>
+                </select></label
+              >
+              <p class="blog-muted">主页布局、导航与展示模块可在「装修主页」中调整。</p>
+              <button type="button" class="blog-text-button" @click="emit('section', 'design')">
+                前往装修主页 →
+              </button>
+            </section>
+            <section
+              class="blog-panel blog-admin-settings-section blog-admin-settings-about"
+              aria-labelledby="blog-settings-about"
+            >
+              <header class="blog-admin-section-heading">
+                <h3 id="blog-settings-about">关于站点</h3>
+                <p>向读者介绍你自己，以及这个博客的故事。</p>
+              </header>
+              <label
+                >关于<textarea
+                  v-model="state.settings.about"
+                  rows="6"
+                  maxlength="10000"
+                  placeholder="向读者介绍你自己和这个博客…"
+                />
+              </label>
+            </section>
           </div>
-          <label
-            >公开站点地址<input
-              v-model="state.settings.baseUrl"
-              type="url"
-              placeholder="https://example.com"
-            /><small>用于订阅与站点地图中的绝对链接。</small></label
-          ><label
-            >关于<textarea
-              v-model="state.settings.about"
-              rows="6"
-              maxlength="10000"
-              placeholder="向读者介绍你自己和这个博客…"
-            />
-          </label>
-          <div class="blog-settings-footer">
-            <span><Icon name="lock" :size="15" />更改将在保存后生效</span
-            ><button class="blog-button primary" type="submit" :disabled="state.settingsBusy">
+          <div class="blog-settings-footer blog-admin-settings-savebar">
+            <span
+              class="blog-admin-settings-state"
+              :class="{ 'blog-unsaved': settingsDirty }"
+              role="status"
+              ><Icon :name="settingsDirty ? 'save' : 'check'" :size="16" />{{
+                state.settingsBusy
+                  ? '正在保存站点设置…'
+                  : settingsDirty
+                    ? '有未保存修改，保存后生效'
+                    : '站点设置已保存'
+              }}</span
+            >
+            <button class="blog-button primary" type="submit" :disabled="state.settingsBusy">
               {{ state.settingsBusy ? '保存中…' : '保存站点设置' }}
             </button>
           </div>

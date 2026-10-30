@@ -15,8 +15,10 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run typecheck
+      - run: npx vitest run tests/git-remote-safety.test.ts tests/organization-read-barrier.test.ts
       - run: npx vitest run tests/mcp-agent-errors.test.ts tests/mcp-agent-protocol.test.ts tests/mcp-agent-workflows.test.ts tests/indexing/chunks.test.ts tests/collection-observation-permissions.test.ts tests/collection-hash-observation.test.ts tests/collection-lifecycle.test.ts tests/note-collections.test.ts tests/collection-api.test.ts tests/blog-core.test.ts tests/blog.test.ts tests/blog-security.test.ts tests/blog-workbench.test.ts tests/mcp-blog-tools.test.ts tests/mcp-blog-authorization.test.ts tests/mcp-blog-integration.test.ts tests/mcp-blog-packaged.test.ts tests/mcp-maintenance.test.ts tests/mcp-transport.test.ts tests/mcp-authorization-ui.test.ts tests/oauth-provider.test.ts
       - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e -- tests/e2e/unified-note-history.spec.ts tests/e2e/graph-hosted-navigation.spec.ts
       - run: npm run test:e2e -- tests/e2e/git.spec.ts --grep "installs Git interactions" --project desktop
       - run: npm run test:e2e -- tests/e2e/document-editor-selection-race.spec.ts tests/e2e/document-editor-content.spec.ts tests/e2e/editor-mode-switch.spec.ts tests/e2e/session-bootstrap-retry.spec.ts tests/e2e/startup-latency.spec.ts tests/e2e/startup-draft-identity.spec.ts tests/e2e/image-surfaces.spec.ts
         env:

@@ -86,7 +86,7 @@ test('reports share errors inside the dialog and locks the submitted action', as
     await held;
     await route.fulfill({ status: 503, json: { message: '分享暂时不可用' } });
   });
-  const create = page.getByRole('button', { name: '生成分享链接', exact: true });
+  const create = page.locator('.share-dialog').getByRole('button', { name: /生成分享链接$/ });
   try {
     await create.click();
     await expect(create).toBeDisabled();
@@ -111,9 +111,8 @@ test('keeps a revision read error visible in the history dialog', async ({ page 
   await page.getByRole('button', { name: '更多操作', exact: true }).click();
   await page.getByRole('button', { name: '历史版本', exact: true }).click();
   const dialog = page.locator('.n-modal').filter({ hasText: '恢复前会保留当前原文' });
-  await dialog.getByText('查看原文', { exact: true }).click();
-  await dialog.getByRole('button', { name: '加载片段', exact: true }).click();
   await expect(dialog.getByRole('alert')).toBeVisible();
+  await expect(dialog.getByRole('button', { name: '重试读取', exact: true })).toBeVisible();
 });
 
 test('explains a failed save in the leave dialog while preserving the draft', async ({

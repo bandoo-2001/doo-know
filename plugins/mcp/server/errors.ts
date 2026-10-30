@@ -15,9 +15,20 @@ export class BridgeError extends Error {
   }
 }
 
-const tools = ['search', 'fetch', 'search_notes', 'get_note_info', 'get_note_outline', 'read_note', 'list_notes', 'create_note', 'update_note', 'patch_note', 'archive_note', 'refresh_index', 'index_status', 'get_blog_status', 'publish_blog_post', 'unpublish_blog_post', 'operation_status', 'cancel_operation', 'get_mcp_context', 'list_directories', 'organize_library', 'list_organization_history', 'undo_organization', 'query_to_doos', 'get_to_doo_context', 'create_to_doo_task', 'update_to_doo_task', 'set_to_doo_status', 'batch_to_doos', 'preview_to_doo_plan', 'apply_to_doo_plan', 'manage_to_doo'] as const;
-const scopes = ['knowledge:read', 'knowledge:write', 'knowledge:index', 'knowledge:organize', 'knowledge:archive', 'blog:read', 'blog:publish', 'to-doo:read', 'to-doo:write'] as const;
-const fields = ['query', 'mode', 'freshness', 'filters', 'directory', 'category', 'tags', 'updatedAfter', 'limit', 'cursor', 'id', 'noteId', 'snapshotId', 'maxBytes', 'range', 'startLine', 'endLine', 'lineByteOffset', 'fileName', 'content', 'requestId', 'expectedModifiedAt', 'expectedContentHash', 'edits', 'type', 'before', 'after', 'startByte', 'endByte', 'expectedRangeHash', 'insert', 'scope', 'jobId', 'expectedPublicationVersion', 'metadata', 'slug', 'title', 'summary', 'pinned', 'cover', 'operationId', 'libraryId', 'directoryId', 'parentId', 'toDirectoryId', 'name', 'expectedStructureRevision', 'expectedSubtreeRevision', 'actions'] as const;
+const tools = [...new Set(['search', 'fetch', 'search_notes', 'get_note_info', 'get_note_outline', 'read_note', 'list_notes', 'create_note', 'update_note', 'patch_note', 'archive_note', 'refresh_index', 'index_status', 'get_blog_status', 'publish_blog_post', 'unpublish_blog_post', 'operation_status', 'cancel_operation', 'get_mcp_context', 'list_directories', 'organize_library', 'list_organization_history', 'undo_organization', 'query_to_doos', 'get_to_doo_context', 'create_to_doo_task', 'update_to_doo_task', 'set_to_doo_status', 'batch_to_doos', 'preview_to_doo_plan', 'apply_to_doo_plan', 'manage_to_doo', ...knowledgeToolDefinitions.map(d => d.name), ...blogToolDefinitions.map(d => d.name), ...Object.keys(toDooFullToolSchemas), ...transferToolDefinitions.map(d => d.name)])];
+const scopes = implementedResourceScopes;
+const publicFields = new Set(['query', 'mode', 'freshness', 'filters', 'directory', 'category', 'tags', 'updatedAfter', 'limit', 'cursor', 'id', 'noteId', 'snapshotId', 'maxBytes', 'range', 'startLine', 'endLine', 'lineByteOffset', 'fileName', 'content', 'requestId', 'expectedModifiedAt', 'expectedContentHash', 'edits', 'type', 'before', 'after', 'startByte', 'endByte', 'expectedRangeHash', 'insert', 'scope', 'jobId', 'expectedPublicationVersion', 'metadata', 'slug', 'title', 'summary', 'pinned', 'cover', 'operationId', 'libraryId', 'directoryId', 'parentId', 'toDirectoryId', 'name', 'expectedStructureRevision', 'expectedSubtreeRevision', 'actions']);
+function addSchemaFields(value: unknown) {
+  if (!value || typeof value !== 'object') return;
+  if (Array.isArray(value)) { for (const child of value) addSchemaFields(child); return; }
+  const schema = value as Record<string, unknown>;
+  if (schema.properties && typeof schema.properties === 'object')
+    for (const name of Object.keys(schema.properties)) if (/^[A-Za-z][A-Za-z0-9_]{0,79}$/.test(name)) publicFields.add(name);
+  for (const child of Object.values(schema)) if (child && typeof child === 'object') addSchemaFields(child);
+}
+for (const schema of [...knowledgeToolDefinitions.map(d => d.input), ...blogToolDefinitions.map(d => d.input), ...Object.values(toDooFullToolSchemas), ...transferToolDefinitions.map(d => d.input), toDooCommandSchema, ...Object.values(toDooEntitySchemas)])
+  addSchemaFields(z.toJSONSchema(schema, { io: 'input', unrepresentable: 'any' }));
+const fields = [...publicFields];
 const issueMessages = {
   invalid_type: '字段缺失或类型不正确',
   too_big: '超过字段允许的上限',
@@ -47,6 +58,17 @@ function safeIssues(issues: readonly Issue[]): SafeIssue[] {
   });
 }
 function recoveryFor(code: string, tool?: typeof tools[number]): Recovery | undefined {
+  const taskTool = !!tool && (tool.includes('to_doo') || tool === 'manage_to_doo');
+  if (taskTool && code === 'OPERATION_OUTCOME_UNKNOWN') return {
+    action: 'check_operation', tool: tool === 'create_to_doo_outcome_note' ? 'get_to_doo_outcome_operation' : Object.hasOwn(toDooFullToolSchemas, tool!) ? 'get_to_doo_operation' : 'query_to_doos', requestIdPolicy: 'preserve',
+    message: '保留原 requestId 核对任务回执；query_to_doos 使用 receiptRequestId，不能改用知识库操作查询或新建 ID 重复写入。',
+  };
+  if (taskTool && ['TO_DOO_CONFLICT', 'VERSION_CONFLICT', 'IDEMPOTENCY_CONFLICT'].includes(code)) return {
+    action: 'read_and_merge', tool: 'query_to_doos', requestIdPolicy: 'new_after_review', message: '重新查询任务、实例及相关实体版本，保留原意图并复核冲突；先核对旧请求回执，不得只替换版本或扩大执行范围。',
+  };
+  if (code === 'OPERATION_OUTCOME_UNKNOWN' && knowledgeToolDefinitions.some(d => d.name === tool)) return { action: 'check_operation', tool: 'get_knowledge_operation', requestIdPolicy: 'preserve', message: '使用原 requestId 查询知识库业务回执；保留原传输和参数，不新建请求重复导入、分享或恢复。' };
+  if (code === 'OPERATION_OUTCOME_UNKNOWN' && transferToolDefinitions.some(d => d.name === tool)) return { action: 'check_operation', tool: 'get_mcp_transfer', requestIdPolicy: 'preserve', message: '保留原 transferId 和字节偏移核对传输进度；重复追加必须使用同一偏移和相同字节。' };
+  if (code === 'VERSION_CONFLICT' && blogToolDefinitions.some(d => d.name === tool)) return { action: 'review_publication', tool: tool?.includes('blog_design') ? 'get_blog_design' : tool === 'update_blog_settings' ? 'get_blog_settings' : 'get_blog_post', requestIdPolicy: 'new_after_review', message: '读取最新站点或文章版本并复核原编辑意图；保留草稿，确认后才使用新的请求标识，不盲换版本。' };
   if (code === 'INVALID_INPUT') return { action: 'fix_input', ...(tool ? { tool } : {}), requestIdPolicy: 'not_applicable', message: '根据字段问题核对工具契约后修正参数，不要改变原业务意图。' };
   if (code === 'INSUFFICIENT_SCOPE' || code === 'FORBIDDEN') return { action: 'request_authorization', requestIdPolicy: 'not_applicable', message: '核对当前客户端权限和允许访问的目录；工具可见不代表有权调用。' };
   if (code === 'OPERATION_OUTCOME_UNKNOWN') return { action: 'check_operation', tool: 'operation_status', requestIdPolicy: 'preserve', message: '使用原 requestId 查询 operation_status；仅可重试完全相同的原请求，不得生成新 ID。' };
@@ -111,6 +133,16 @@ export const bridgeErrorSchema = {
 };
 
 const messages: Record<string, string> = {
+  TO_DOO_CONFLICT: '任务或关联记录已变化，请核对原请求和最新版本',
+  TO_DOO_INVALID: '任务字段或命令不符合契约',
+  TO_DOO_NOT_FOUND: '任务或关联记录不存在或不在授权范围内',
+  MCP_TRANSFER_NOT_FOUND: '传输不存在、已过期或不属于当前连接',
+  MCP_TRANSFER_BINDING_CHANGED: '传输所属知识库已变化，请重新建立传输',
+  MCP_TRANSFER_CONFLICT: '传输偏移、内容或提交身份与原请求冲突',
+  MCP_TRANSFER_HASH_MISMATCH: '传输内容与声明的哈希不一致',
+  MCP_TRANSFER_INCOMPLETE: '传输尚未完成或已取消',
+  MCP_TRANSFER_INVALID: '传输字段、大小或字节编码不符合契约',
+  MCP_TRANSFER_QUOTA: '临时传输配额已用完，请完成或取消已有传输',
   UNAUTHORIZED: "需要有效且未撤销的访问令牌",
   INSUFFICIENT_SCOPE: "调用身份缺少所需权限",
   FORBIDDEN: "无权访问此资源",
@@ -156,3 +188,10 @@ export function errorBody(error: unknown) {
     },
   };
 }
+import { z } from 'zod';
+import { implementedResourceScopes } from '../../../shared/permissions.js';
+import { knowledgeToolDefinitions } from '../../../shared/mcp-knowledge-tools.js';
+import { blogToolDefinitions } from '../../../shared/mcp-blog-tools.js';
+import { toDooFullToolSchemas } from '../../../shared/mcp-to-doo-tools.js';
+import { transferToolDefinitions } from '../../../shared/mcp-transfer-tools.js';
+import { toDooCommandSchema, toDooEntitySchemas } from '../../../shared/to-doo-contracts.js';

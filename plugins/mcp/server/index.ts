@@ -2,6 +2,7 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 import { randomUUID } from 'node:crypto';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+import { CancelledNotificationSchema } from '@modelcontextprotocol/sdk/types.js';
 import type { PluginContext, PluginServices, ProtocolCall } from '../../../packages/plugin-sdk/index.js';
 import { createOperations, registerOperations } from './operations.js';
 import { hostClient } from './service.js';
@@ -12,6 +13,9 @@ import { makeAgentInstructions, toDooAgentGuidance } from './agent-guidance.js';
 import { permissionPolicy } from './contracts.js';
 import { permissionDomains } from '../../../shared/permissions.js';
 export function activate(ctx: PluginContext) {
+  const activeRequests = new Map<string, AbortController>();
+  const requestKey = (p: NonNullable<ProtocolCall['call']['principal']>, id: string | number) => JSON.stringify([p.ownerId || p.id, p.id, p.clientId, id]);
+  ctx.onDispose(() => { for (const controller of activeRequests.values()) controller.abort(); activeRequests.clear(); });
   const calls = new AsyncLocalStorage<PluginServices>();
   const client = hostClient(() => { const value = calls.getStore(); if (!value) throw new BridgeError('FORBIDDEN',403); return value; }, ctx.config, ctx.track);
   const registry = createOperations({ objectIdSecret: ctx.secrets.getOrCreate('objects') }, client);
@@ -23,7 +27,7 @@ export function activate(ctx: PluginContext) {
     finally {
       const rows = ctx.storage.get<any[]>('calls') || [];
       rows.unshift({ id: correlationId, at: new Date(started).toISOString(), principal: principal.id,
-        client: principal.clientId, tool: /^[a-z_]{1,64}$/.test(tool) ? tool : 'unknown', elapsedMs: Date.now()-started, code });
+        client: principal.clientId, tool: registry.operations.some(operation => operation.name === tool) ? tool : 'unknown', elapsedMs: Date.now()-started, code });
       ctx.storage.set('calls', rows.slice(0,500));
     }
   };
@@ -57,6 +61,7 @@ export function activate(ctx: PluginContext) {
     const principal = call.principal!;
     assertRequest(body);
     const controller = new AbortController(), deadline = Date.now()+budgets.call;
+    let activeKey: string | undefined;
     const timer = setTimeout(() => controller.abort(),budgets.call); timer.unref();
     const abort = () => controller.abort(); request.once('aborted',abort); response.once('close',abort);
     try {
@@ -66,7 +71,19 @@ export function activate(ctx: PluginContext) {
       }
       const b = body as any;
       if (!b || typeof b !== 'object' || Array.isArray(b) || (b.id != null && !(typeof b.id === 'number' && Number.isFinite(b.id)) && !(typeof b.id === 'string' && Buffer.byteLength(b.id)<=128))) throw new BridgeError('INVALID_INPUT');
-      const server = new McpServer({ name: 'doo-know', version: '1.2.0' }, { instructions: makeAgentInstructions(ctx.config()) + '\n' + toDooAgentGuidance });
+      if (b.method === 'notifications/cancelled') {
+        const cancelled = CancelledNotificationSchema.safeParse(b);
+        if (b.jsonrpc !== '2.0' || Object.hasOwn(b, 'id') || !cancelled.success) throw new BridgeError('INVALID_INPUT');
+        if (cancelled.data.params.requestId != null) activeRequests.get(requestKey(principal, cancelled.data.params.requestId))?.abort();
+        response.statusCode = 202; response.end(); return;
+      }
+      if (b.method === 'tools/call' && b.id != null) {
+        const key = requestKey(principal, b.id);
+        if (activeRequests.has(key)) throw new BridgeError('DUPLICATE_REQUEST_ID', 409);
+        if (activeRequests.size >= 128) throw new BridgeError('CALL_CONCURRENCY_LIMIT', 429, true);
+        activeKey = key; activeRequests.set(key, controller);
+      }
+      const server = new McpServer({ name: 'doo-know', version: '1.3.0' }, { instructions: makeAgentInstructions(ctx.config()) + '\n' + toDooAgentGuidance });
       const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined, enableJsonResponse: true, maxRequestBodySize: budgets.request });
       const send = transport.send.bind(transport);
       transport.send = async (message, options) => {
@@ -81,7 +98,7 @@ export function activate(ctx: PluginContext) {
       await server.connect(transport);
       try { await transport.handleRequest(request,response,body); }
       finally { await server.close(); }
-    } finally { clearTimeout(timer); request.off('aborted',abort); response.off('close',abort); }
+    } finally { if (activeKey && activeRequests.get(activeKey) === controller) activeRequests.delete(activeKey); clearTimeout(timer); request.off('aborted',abort); response.off('close',abort); }
   });
   ctx.registerProtocol('mcp.oauth',protocol); ctx.registerProtocol('mcp.compat',protocol);
 }

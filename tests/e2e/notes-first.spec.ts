@@ -1,4 +1,4 @@
-import { configurePlugin } from '../support/settings-navigation';
+import { configurePlugin, showMainMenu } from '../support/settings-navigation';
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
 
@@ -51,8 +51,7 @@ test('keeps note identity, secondary actions and editor preferences usable witho
   );
   await page.keyboard.press('ControlOrMeta+s');
   await expect(page.locator('.save-state')).toContainText('已保存');
-  if (test.info().project.name === 'mobile')
-    await page.getByRole('button', { name: '打开侧栏' }).click();
+  await showMainMenu(page);
   let signOuts = 0;
   page.on('request', (r) => {
     if (r.url().includes('/api/auth/sign-out')) signOuts++;
@@ -131,7 +130,7 @@ test('explains invalid plugin input and confirms a successful save without sendi
   });
   await input.fill(invalid);
   await page.getByRole('button', { name: '保存插件配置', exact: true }).click();
-  await expect(page.locator('.plugin-feedback')).toContainText('允许访问的目录格式不正确');
+  await expect(page.locator('.plugin-feedback.ant-alert-error')).toContainText('允许访问的目录格式不正确');
   expect(saves).toBe(0);
   await expect(input).toHaveValue(invalid);
   await input.fill(original);

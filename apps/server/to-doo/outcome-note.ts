@@ -11,6 +11,8 @@ import { safePath, validateRelative } from '../../../packages/core/files.js';
 import { HttpError } from '../../../packages/core/errors.js';
 import { workspaceWriteSync } from '../../../packages/core/workspace/gate.js';
 import { KnowledgeError } from '../../../packages/core/knowledge/errors.js';
+import type { Principal } from '../../../shared/knowledge-contracts.js';
+import { authorizePath, requireScope } from '../../../packages/core/agent/auth.js';
 
 export const outcomeNoteInput = z
   .object({
@@ -41,20 +43,52 @@ export function createOutcomeNoteService(
   db: AppDatabase,
   notes: NoteService,
   todo: ToDooService,
+  caller?: {
+    authorize(occurrenceId: string, relativePath?: string, noteId?: string | null): Principal;
+  },
 ) {
   function create(raw: z.input<typeof outcomeNoteInput>) {
     const input = outcomeNoteInput.parse(raw);
-    const operationId = input.operationId ?? 'out_' + hash(input.requestId).slice(0, 40);
+    const admitted = caller?.authorize(input.occurrenceId);
+    const callerIdentity = admitted ? JSON.stringify([admitted.id, admitted.clientId]) : '';
+    const operationId =
+      input.operationId ??
+      'out_' +
+        hash(
+          admitted
+            ? JSON.stringify([admitted.id, admitted.clientId, input.requestId])
+            : input.requestId,
+        ).slice(0, 40);
     const finishRequest = 'finish_' + hash(operationId).slice(0, 40);
     return workspaceWriteSync(db, { kind: 'to-doo.outcome-note' }, () => {
       let operation = todo.getEntity('operation', operationId) as
         | ToDooEntityMap['operation']
         | undefined;
       let noteId = operation?.noteId ?? null;
+      if (caller && operation && operation.callerIdentity !== hash(callerIdentity))
+        throw new HttpError(403, '成果操作不属于当前调用者');
       let folderPath = input.folderPath ?? operation?.folderPath;
       if (folderPath === undefined)
         folderPath = existsSync(config.knowledgeRoot + '/00-Inbox') ? '00-Inbox' : '';
       if (folderPath) validateRelative(folderPath, 'folder');
+      function authorized(relativePath?: string) {
+        const principal =
+          caller?.authorize(input.occurrenceId, relativePath, noteId) ?? webPrincipal;
+        if (caller) {
+          requireScope(principal, 'knowledge:read');
+          requireScope(principal, 'knowledge:write');
+          if (relativePath) {
+            authorizePath(principal, relativePath, 'knowledge:read');
+            authorizePath(principal, relativePath, 'knowledge:write');
+          }
+        }
+        return principal;
+      }
+      authorized(
+        operation
+          ? (operation.folderPath ? operation.folderPath + '/' : '') + operation.fileName
+          : undefined,
+      );
       const fingerprint = hash(
         JSON.stringify({
           version: 1,
@@ -136,6 +170,7 @@ export function createOutcomeNoteService(
               .slice(0, 40)
               .join('') || '成果';
           const fileName = stem + '-' + hash(operationId).slice(0, 24) + '.md';
+          authorized(folderPath ? folderPath + '/' + fileName : fileName);
           todo.command({
             requestId: 'prepare_' + hash(operationId).slice(0, 40),
             action: 'save_entity',
@@ -144,6 +179,7 @@ export function createOutcomeNoteService(
               entity: {
                 id: operationId,
                 kind: 'outcome_note',
+                ...(caller ? { callerIdentity: hash(callerIdentity) } : {}),
                 requestId: input.requestId,
                 fingerprint,
                 occurrenceId: input.occurrenceId,
@@ -178,6 +214,7 @@ export function createOutcomeNoteService(
           const relativePath = operation.folderPath
             ? operation.folderPath + '/' + operation.fileName
             : operation.fileName;
+          authorized(relativePath);
           const file = safePath(config.knowledgeRoot, relativePath, 'note', true);
           if (existsSync(file)) {
             if (hash(readFileSync(file, 'utf8')) !== hash(operation.content))
@@ -204,7 +241,9 @@ export function createOutcomeNoteService(
             if (previous)
               throw new HttpError(409, '成果笔记已被移动或删除，请核对原笔记，不会重新创建');
             const result = mutationCore(config, db).create(
-              { ...webPrincipal, allowedPrefixes: [relativePath] },
+              caller
+                ? authorized(relativePath)
+                : { ...webPrincipal, allowedPrefixes: [relativePath] },
               operation.folderPath,
               operation.fileName,
               operation.content,
@@ -212,6 +251,7 @@ export function createOutcomeNoteService(
             );
             noteId = result.id;
           }
+          authorized(relativePath);
           todo.command({
             requestId: 'link_' + hash(operationId).slice(0, 40),
             action: 'save_entity',
@@ -225,9 +265,11 @@ export function createOutcomeNoteService(
         }
         // Preserve later edits to an already saved note; never overwrite them to finish a task.
         if (!noteId) throw new HttpError(409, '成果笔记身份尚待核对');
+        authorized((operation.folderPath ? operation.folderPath + '/' : '') + operation.fileName);
         const note = notes.getNote(noteId);
         if (hash(note.content) !== hash(input.content))
           throw new HttpError(409, '成果笔记已发生后续修改，请打开核对后再关联');
+        authorized(note.relativePath);
         const result = todo.command({
           requestId: finishRequest,
           action: 'save_outcome',

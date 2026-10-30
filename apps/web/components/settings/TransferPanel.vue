@@ -45,7 +45,7 @@ const importOpen = ref(false),
   exportFolder = ref(''),
   exportBusy = ref(false),
   exportError = ref(''),
-  exportFolders = ref<{ label: string; value: string }[]>([]),
+  availableFolders = ref<{ label: string; value: string }[]>([]),
   foldersLoading = ref(false),
   foldersError = ref('');
 const tasks = ref<InstanceType<typeof TransferTasks>>();
@@ -196,10 +196,14 @@ let exportRequest = crypto.randomUUID();
 watch([exportFolder, exportScope], () => {
   exportRequest = crypto.randomUUID();
 });
-watch(exportOpen, (value) => {
-  if (value) void loadExportFolders();
-});
-async function loadExportFolders() {
+watch(
+  [importOpen, exportOpen, () => props.inline],
+  ([importing, exporting, inline]) => {
+    if (importing || exporting || inline) void loadFolders();
+  },
+  { immediate: true },
+);
+async function loadFolders() {
   if (foldersLoading.value) return;
   foldersLoading.value = true;
   foldersError.value = '';
@@ -211,7 +215,7 @@ async function loadExportFolders() {
           ? [{ label: item.path, value: item.path }, ...collect(item.children || [])]
           : [],
       );
-    exportFolders.value = collect(tree);
+    availableFolders.value = collect(tree);
   } catch (e) {
     foldersError.value = (e as Error).message;
   } finally {
@@ -336,6 +340,24 @@ const ImportContainer = defineComponent({
                 />
               </div>
               <div class="settings-field">
+                <label>选择已有目录（可选）</label>
+                <DirectoryTreeSelect
+                  v-model:value="folder"
+                  :folders="availableFolders"
+                  label="选择已有目录（可选）"
+                  root-label="保留完整分类路径"
+                  :disabled="busy || foldersLoading"
+                />
+                <span v-if="foldersLoading" class="settings-muted">正在读取目录…</span>
+                <AAlert v-if="foldersError" type="error" :message="foldersError" show-icon>
+                  <template #action>
+                    <AButton size="small" :loading="foldersLoading" @click="loadFolders"
+                      >重新读取目录</AButton
+                    >
+                  </template>
+                </AAlert>
+              </div>
+              <div class="settings-field">
                 <label for="import-destination">导入到知识库目录</label>
                 <AInput
                   id="import-destination"
@@ -344,7 +366,7 @@ const ImportContainer = defineComponent({
                   :disabled="busy"
                 />
                 <span class="settings-muted"
-                  >使用知识库内的相对目录。留空适用于从完整导出恢复目录结构。</span
+                  >可选择已有目录，也可填写新的相对目录。留空适用于从完整导出恢复目录结构。</span
                 >
               </div>
               <div class="settings-field">
@@ -511,7 +533,7 @@ const ImportContainer = defineComponent({
             <DirectoryTreeSelect
               v-model:value="exportFolder"
               label="仅导出指定目录"
-              :folders="exportFolders"
+              :folders="availableFolders"
               :disabled="exportBusy || foldersLoading"
             />
             <span v-if="foldersLoading" class="settings-muted" role="status">正在读取目录…</span>
@@ -525,7 +547,7 @@ const ImportContainer = defineComponent({
           show-icon
         >
           <template #action
-            ><AButton size="small" :loading="foldersLoading" @click="loadExportFolders"
+            ><AButton size="small" :loading="foldersLoading" @click="loadFolders"
               ><template #icon
                 ><Icon class="settings-button-icon" name="refresh" :size="15" /></template
               >重新读取目录</AButton

@@ -16,6 +16,10 @@ import {
 } from "./budgets.js";
 import { BridgeError, errorBody, invalidInput, annotateError, bridgeErrorSchema } from "./errors.js";
 import { createToDooOperations } from './to-doo-operations.js';
+import { createKnowledgeToolOperations } from './knowledge-tools.js';
+import { createBlogToolOperations } from './blog-tools.js';
+import { createToDooFullToolOperations } from './to-doo-tools.js';
+import { createTransferToolOperations } from './transfer-tools.js';
 export type Operation = {
   name: string;
   description: string;
@@ -491,7 +495,7 @@ export function createOperations(
       output: dataSchema(c.mcpFileOperation),
       run: async (p, a, o) => {
         const operation = await client.operation(p, a, o);
-        return ['blog.publish', 'blog.unpublish'].includes(operation.kind) && operation.result
+        return operation.kind.startsWith('blog.') && operation.result && typeof operation.result.sourceNoteId === 'string'
           ? { ...operation, result: publicationReceipt(operation.result) } : operation;
       },
     },
@@ -507,6 +511,8 @@ export function createOperations(
     },
   ];
   operations.push(...createToDooOperations(client));
+  operations.push(...createKnowledgeToolOperations(client), ...createBlogToolOperations(client), ...createToDooFullToolOperations(client));
+  operations.push(...createTransferToolOperations(client));
   const execute = async (
     name: string,
     p: Principal,
@@ -545,7 +551,7 @@ export function registerOperations(
   server: McpServer,
   registry: ReturnType<typeof createOperations>,
   p: Principal,
-  options: CallOptions,
+  options: CallOptions = {},
 ) {
   const annotations = (op: Operation) => ({
     readOnlyHint: op.readOnly,

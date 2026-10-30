@@ -30,8 +30,14 @@ import {
 } from './operations.js';
 import { fail } from './errors.js';
 import { limits } from './limits.js';
+import type { Principal } from '../../../shared/knowledge-contracts.js';
 
-export function conflictService(config: AppConfig, db: AppDatabase) {
+export function conflictService(
+  config: AppConfig,
+  db: AppDatabase,
+  principal: Principal = webPrincipal,
+  revalidate?: () => Principal,
+) {
   function inspect(path: string) {
     const file = safePath(config.knowledgeRoot, path, 'note'),
       before = lstatSync(file, { bigint: true });
@@ -105,8 +111,10 @@ export function conflictService(config: AppConfig, db: AppDatabase) {
     return syncConflicts;
   }
   async function list() {
+    revalidate?.();
     assertRoot(config, db);
     const syncConflicts = await syncStatus();
+    revalidate?.();
     const items = rows().map((intent) => {
       let disk: ReturnType<typeof inspect> | undefined,
         reason = eligibility(intent, syncConflicts.length > 0);
@@ -154,6 +162,7 @@ export function conflictService(config: AppConfig, db: AppDatabase) {
               : 'ORGANIZATION_RECOVERY_REQUIRED',
         }))
       : [];
+    revalidate?.();
     return {
       items,
       syncConflicts,
@@ -196,6 +205,7 @@ export function conflictService(config: AppConfig, db: AppDatabase) {
     return { name: basename(dest), contentHash: hash, sizeBytes: Number(after.size) };
   }
   async function resolve(id: string, input: any) {
+    revalidate?.();
     if (input?.strategy !== 'keep_disk') fail(400, 'INVALID_RESOLUTION');
     if (
       typeof input.expectedModifiedAt !== 'string' ||
@@ -207,7 +217,7 @@ export function conflictService(config: AppConfig, db: AppDatabase) {
     return workspaceWrite(db, { kind: 'conflict.resolve' }, async () => {
       assertRoot(config, db);
       const op = workspaceBegin(db, () =>
-        beginOperation(db, webPrincipal, 'resolve_conflict', input.requestId, {
+        beginOperation(db, principal, 'resolve_conflict', input.requestId, {
           id,
           strategy: input.strategy,
           expectedModifiedAt: input.expectedModifiedAt,
@@ -217,7 +227,9 @@ export function conflictService(config: AppConfig, db: AppDatabase) {
       if (!op.fresh && op.operation.status !== 'prepared') return existingResult(op.operation);
       const intent = rows().find((row) => row.id === id);
       if (!intent) fail(404, 'CONFLICT_NOT_FOUND');
-      const reason = eligibility(intent, (await syncStatus()).length > 0);
+      const syncBlocked = (await syncStatus()).length > 0;
+      revalidate?.();
+      const reason = eligibility(intent, syncBlocked);
       if (reason) fail(409, reason);
       const disk = inspect(intent.path);
       if (
@@ -292,6 +304,7 @@ export function conflictService(config: AppConfig, db: AppDatabase) {
           )
             fail(409, 'VERSION_CONFLICT');
           if (eligibility(currentIntent, false)) fail(409, 'OPERATION_IN_PROGRESS');
+          revalidate?.();
           db.prepare('UPDATE notes SET active=1 WHERE id=?').run(intent.note_id);
           enqueueSource(
             db,

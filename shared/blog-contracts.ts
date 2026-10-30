@@ -67,7 +67,7 @@ export type BlogCreateInput = {
   requestId: string;
 };
 export type BlogUpdateInput = {
-  metadata: BlogMetadata;
+  metadata: Partial<BlogMetadata>;
   expectedVersion: number;
   requestId: string;
 };

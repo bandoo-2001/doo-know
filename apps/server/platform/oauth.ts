@@ -8,7 +8,7 @@ import { oauthGrantStore } from './oauth-grants.js';
 import { fail } from '../../../packages/core/knowledge/errors.js';
 import { checkTokenCutoff, underPrefix } from '../../../packages/core/agent/auth.js';
 import { webPrincipal } from '../../../packages/core/knowledge/core.js';
-import { isResourceScope, oauthScopes } from '../../../shared/authorization-scopes.js';
+import { isResourceScope, isLegacyResourceScope, oauthScopes } from '../../../shared/authorization-scopes.js';
 import { normalizePermissionPolicy, intersectPermissionPolicies, policyScopes, resourceContains } from '../../../packages/core/auth/permissions.js';
 import { platformPolicy } from '../../../packages/core/auth/grants.js';
 
@@ -54,7 +54,7 @@ export async function oauthConsentRequest(auth: OwnerAuth, config: HostConfig, d
   }
   return { ownerId: session.user.id, clientId, clientName: String(client.name || client.clientName || clientId),
     requestedScopes, resource: config.origin + '/mcp', allowedPrefixes: policy.allowedPrefixes, allowedPolicy,
-    allowedScopes: allowedPolicy ? requestedScopes.filter(scope => scope === 'offline_access' || policyScopes(allowedPolicy).includes(scope)) : requestedScopes.filter(s => s !== 'knowledge:write' || !policy.readOnly).filter(s => s !== 'knowledge:index' || policy.allowIndex).filter(s => s !== 'blog:publish' || (policy.allowPublish && !policy.readOnly)).filter(s => s !== 'to-doo:read' || policy.allowToDoo).filter(s => s !== 'to-doo:write' || (policy.allowToDoo && policy.allowToDooWrite && !policy.readOnly)) };
+    allowedScopes: allowedPolicy ? requestedScopes.filter(scope => scope === 'offline_access' || policyScopes(allowedPolicy).includes(scope)) : requestedScopes.filter(scope => scope === 'offline_access' || isLegacyResourceScope(scope)).filter(s => s !== 'knowledge:write' || !policy.readOnly).filter(s => s !== 'knowledge:index' || policy.allowIndex).filter(s => s !== 'blog:publish' || (policy.allowPublish && !policy.readOnly)).filter(s => s !== 'to-doo:read' || policy.allowToDoo).filter(s => s !== 'to-doo:write' || (policy.allowToDoo && policy.allowToDooWrite && !policy.readOnly)) };
 }
 export async function approveOAuthConsent(auth: OwnerAuth, config: HostConfig, db: AppDatabase, headers: Headers, input: any) {
   return serializeOAuth(db, async () => {

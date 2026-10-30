@@ -1,4 +1,4 @@
-import { returnToNotes } from '../support/settings-navigation';
+import { returnToNotes, showMainMenu } from '../support/settings-navigation';
 import { expandFolderPath } from '../support/notebook-tree';
 import { test, expect } from '../support/browser-test';
 import type { Page } from '@playwright/test';
@@ -123,7 +123,7 @@ test('a refused account logout keeps the owner signed in and local drafts writab
   await page.goto('/?note=' + note.id);
   await expect(page.locator('.cm-content')).toContainText('Source after refused logout');
   await expect(page.locator('.cm-content')).toBeEditable();
-  await showSidebar(page);
+  await showMainMenu(page);
   const accountSettings = page.getByRole('button', { name: '账户设置', exact: true });
   if (!(await accountSettings.isVisible()))
     await page.getByRole('button', { name: '个人账户', exact: true }).click();

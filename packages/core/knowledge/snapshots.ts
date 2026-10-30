@@ -82,12 +82,17 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
     }
     return { n, file: safePath(config.knowledgeRoot, n.path, 'note'), historical: false };
   };
-  async function check(p: Principal, id: string, snapshotId: string) {
+  function assertSnapshotNamespace(p:Principal,snapshotId:string,exportJobId?:string){
+    const source=db.prepare("SELECT json_extract(f.payload,'$.exportJobId') AS job,o.principal,o.client_id FROM file_operations f JOIN operations o ON o.id=f.id WHERE f.snapshot_id=? AND f.kind='prepare_snapshot'").get(snapshotId) as {job:string|null;principal:string;client_id:string}|undefined;
+    if(source?.job&&(source.job!==exportJobId||source.principal!==p.id||source.client_id!==p.clientId))fail(404,'SNAPSHOT_NOT_FOUND');
+  }
+  async function check(p: Principal, id: string, snapshotId: string,exportJobId?:string) {
     const { file, n, historical } = authorizedFile(p, id);
     const row = db
       .prepare('SELECT * FROM read_snapshots WHERE id=? AND note_id=? AND source_key=?')
       .get(snapshotId, n.id, id) as SnapshotRow | undefined;
     if (!row) fail(404, 'SNAPSHOT_NOT_FOUND');
+    assertSnapshotNamespace(p,snapshotId,exportJobId);
     if (row.expires_at <= Date.now() && !row.refs) fail(410, 'CURSOR_EXPIRED');
     const s = await stableStat(file),
       state = db
@@ -299,7 +304,8 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
       await unlink(destination).catch(() => {});
     }
   }
-  async function prepare(p: Principal, id: string, requestId: string) {
+  async function prepare(p: Principal, id: string, requestId: string,exportJobId?:string) {
+    if(exportJobId&&!/^[a-f0-9-]{36}$/.test(exportJobId))fail(400,'INVALID_INPUT');
     const { file, n } = authorizedFile(p, id),
       s = await stableStat(file),
       modifiedAt = s.mtimeNs.toString();
@@ -307,11 +313,11 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
       .transaction(() => {
         const pending = db
           .prepare(
-            "SELECT f.id FROM file_operations f JOIN operations o ON o.id=f.id WHERE f.kind='prepare_snapshot' AND f.status IN ('queued','running') AND o.principal=? AND o.client_id=? AND json_extract(f.payload,'$.sourceKey')=? AND json_extract(f.payload,'$.modifiedAt')=? LIMIT 1",
+            "SELECT f.id FROM file_operations f JOIN operations o ON o.id=f.id WHERE f.kind='prepare_snapshot' AND f.status IN ('queued','running') AND o.principal=? AND o.client_id=? AND json_extract(f.payload,'$.sourceKey')=? AND json_extract(f.payload,'$.modifiedAt')=? AND json_extract(f.payload,'$.exportJobId') IS ? LIMIT 1",
           )
-          .get(p.id, p.clientId, id, modifiedAt) as { id: string } | undefined;
+          .get(p.id, p.clientId, id, modifiedAt,exportJobId||null) as { id: string } | undefined;
         if (pending) return { id: pending.id, fresh: false };
-        const op = beginOperation(db, p, 'prepare_snapshot', requestId, { noteId: id, modifiedAt });
+        const op = beginOperation(db, p, 'prepare_snapshot', requestId, { noteId: id, modifiedAt,...(exportJobId?{exportJobId}:{}) });
         if (
           !op.fresh &&
           db.prepare('SELECT 1 FROM file_operations WHERE id=?').get(op.operation.id)
@@ -342,7 +348,7 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
           n.id,
           'prepare_snapshot',
           'queued',
-          JSON.stringify({ sizeBytes: Number(s.size), sourceKey: id, modifiedAt, principal: p }),
+          JSON.stringify({ sizeBytes: Number(s.size), sourceKey: id, modifiedAt, principal: p,...(exportJobId?{exportJobId}:{}) }),
           Date.now(),
           Date.now() + 300000,
         );
@@ -354,8 +360,9 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
       tail = tail.then(() => build(p, id, accepted.id));
     return operation(accepted.id);
   }
-  async function available(p: Principal, id: string, input: ReadInput) {
-    if (input.snapshotId) return check(p, id, input.snapshotId);
+  async function available(p: Principal, id: string, input: ReadInput, exportJobId?: string) {
+    if (exportJobId && !/^[a-f0-9-]{36}$/.test(exportJobId)) fail(400, 'INVALID_INPUT');
+    if (input.snapshotId) return check(p, id, input.snapshotId,exportJobId);
     const { file, n, historical } = authorizedFile(p, id),
       s = await stableStat(file),
       state = historical
@@ -366,9 +373,9 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
     const ready = db.transaction(() => {
       const row = db
         .prepare(
-          'SELECT * FROM read_snapshots WHERE note_id=? AND source_key=? AND modified_at=? AND size_bytes=? AND source_hash<>? AND expires_at>? ORDER BY created_at DESC LIMIT 1',
+          "SELECT s.* FROM read_snapshots s LEFT JOIN file_operations f ON f.snapshot_id=s.id AND f.kind='prepare_snapshot' LEFT JOIN operations o ON o.id=f.id WHERE s.note_id=? AND s.source_key=? AND s.modified_at=? AND s.size_bytes=? AND s.source_hash<>? AND s.expires_at>? AND (json_extract(f.payload,'$.exportJobId') IS NULL OR (json_extract(f.payload,'$.exportJobId')=? AND o.principal=? AND o.client_id=?)) ORDER BY CASE WHEN json_extract(f.payload,'$.exportJobId')=? THEN 0 ELSE 1 END,s.created_at DESC LIMIT 1",
         )
-        .get(n.id, id, s.mtimeNs.toString(), Number(s.size), 'preparing', Date.now()) as
+        .get(n.id, id, s.mtimeNs.toString(), Number(s.size), 'preparing', Date.now(),exportJobId||null,p.id,p.clientId,exportJobId||null) as
         | SnapshotRow
         | undefined;
       if (
@@ -383,7 +390,10 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
       operation: await prepare(
         p,
         id,
-        `snapshot:${sha256(JSON.stringify([id, s.mtimeNs.toString(), state?.content_hash || '']))}:${randomUUID()}`,
+        exportJobId
+          ? `mcp-export-${exportJobId}:${randomUUID()}`
+          : `snapshot:${sha256(JSON.stringify([id, s.mtimeNs.toString(), state?.content_hash || '']))}:${randomUUID()}`,
+        exportJobId,
       ),
     };
   }
@@ -444,6 +454,33 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
         .run(id, id, Date.now(), id);
       return deleted.changes ? row : undefined;
     }).immediate();
+    if (removed) await unlink(removed.path).catch(() => {});
+  }
+  /** A sequential source export may release only its own unused staging
+   * snapshots. Ordinary reader snapshots, sessions, quotas and identities stay intact. */
+  async function releaseExport(p: Principal, noteId: string, id: string, jobId: string) {
+    if (!/^[a-f0-9-]{36}$/.test(jobId)) fail(400, 'INVALID_INPUT');
+    authorizedFile(p, noteId);
+    const removed = db
+      .transaction(() => {
+        const row = db
+          .prepare(
+            `SELECT s.* FROM read_snapshots s WHERE s.id=? AND s.note_id=? AND s.source_key=? AND s.principal=? AND s.refs=0
+        AND EXISTS(SELECT 1 FROM file_operations f JOIN operations o ON o.id=f.id WHERE f.snapshot_id=s.id AND o.principal=? AND o.client_id=? AND o.request_id LIKE ? AND json_extract(f.payload,'$.exportJobId')=? AND f.status='succeeded')
+        AND NOT EXISTS(SELECT 1 FROM read_sessions WHERE snapshot_id=s.id AND expires_at>?)
+        AND NOT EXISTS(SELECT 1 FROM file_operations WHERE snapshot_id=s.id AND status IN ('queued','running','committing','needs_reconciliation'))`,
+          )
+          .get(id, noteId, noteId, p.id, p.id, p.clientId, `mcp-export-${jobId}:%`,jobId, Date.now()) as
+          | SnapshotRow
+          | undefined;
+        if (!row) return;
+        if (row.path !== join(config.dataRoot, 'read-snapshots', id + '.md'))
+          fail(500, 'INVALID_SNAPSHOT_PATH');
+        return db.prepare('DELETE FROM read_snapshots WHERE id=?').run(id).changes
+          ? row
+          : undefined;
+      })
+      .immediate();
     if (removed) await unlink(removed.path).catch(() => {});
   }
   async function read(
@@ -595,31 +632,33 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
         if (n <= 4) fail(413, 'RESPONSE_TOO_LARGE');
         n = Math.floor(n / 2);
       }
-      const page = db.transaction(() => {
-        const duplicate = db
-          .prepare('SELECT result FROM read_pages WHERE session_id=? AND page_key=?')
-          .get(session.id, pageKey) as any;
-        if (duplicate) {
-          const old = JSON.parse(duplicate.result);
-          chargeRate(db, p, channel, old.bytesReturned);
-          return old;
-        }
-        const fresh = db.prepare('SELECT * FROM read_sessions WHERE id=?').get(session.id) as any;
-        if (fresh.pages >= policy.pages || fresh.bytes + data.bytesReturned > policy.bytes)
-          fail(429, 'READ_BUDGET_EXCEEDED');
-        chargeRate(db, p, channel, data.bytesReturned);
-        data.budgetRemainingBytes = policy.bytes - fresh.bytes - data.bytesReturned;
-        db.prepare('UPDATE read_sessions SET pages=pages+1,bytes=bytes+? WHERE id=?').run(
-          data.bytesReturned,
-          session.id,
-        );
-        db.prepare('INSERT INTO read_pages VALUES(?,?,?)').run(
-          session.id,
-          pageKey,
-          JSON.stringify(data),
-        );
-        return data;
-      }).immediate();
+      const page = db
+        .transaction(() => {
+          const duplicate = db
+            .prepare('SELECT result FROM read_pages WHERE session_id=? AND page_key=?')
+            .get(session.id, pageKey) as any;
+          if (duplicate) {
+            const old = JSON.parse(duplicate.result);
+            chargeRate(db, p, channel, old.bytesReturned);
+            return old;
+          }
+          const fresh = db.prepare('SELECT * FROM read_sessions WHERE id=?').get(session.id) as any;
+          if (fresh.pages >= policy.pages || fresh.bytes + data.bytesReturned > policy.bytes)
+            fail(429, 'READ_BUDGET_EXCEEDED');
+          chargeRate(db, p, channel, data.bytesReturned);
+          data.budgetRemainingBytes = policy.bytes - fresh.bytes - data.bytesReturned;
+          db.prepare('UPDATE read_sessions SET pages=pages+1,bytes=bytes+? WHERE id=?').run(
+            data.bytesReturned,
+            session.id,
+          );
+          db.prepare('INSERT INTO read_pages VALUES(?,?,?)').run(
+            session.id,
+            pageKey,
+            JSON.stringify(data),
+          );
+          return data;
+        })
+        .immediate();
       authorizedFile(p, id);
       return { kind: 'ready', data: page };
     } finally {
@@ -685,34 +724,36 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
       .prepare('SELECT * FROM read_snapshots WHERE expires_at<=? AND refs=0')
       .all(Date.now()) as SnapshotRow[];
     for (const r of rows) {
-      const removed = db.transaction(() => {
-        const current = db
-          .prepare('SELECT * FROM read_snapshots WHERE id=? AND expires_at<=? AND refs=0')
-          .get(r.id, Date.now()) as SnapshotRow | undefined;
-        if (!current) return;
-        if (
-          db
-            .prepare('SELECT 1 FROM read_sessions WHERE snapshot_id=? AND expires_at>?')
-            .get(current.id, Date.now()) ||
-          db
-            .prepare(
-              "SELECT 1 FROM file_operations WHERE snapshot_id=? AND status IN ('queued','running','committing','needs_reconciliation')",
-            )
-            .get(current.id)
-        )
-          return;
-        if (
-          !/^[0-9a-f-]{36}$/.test(current.id) ||
-          current.path !== join(config.dataRoot, 'read-snapshots', `${current.id}.md`)
-        )
-          fail(500, 'INVALID_SNAPSHOT_PATH');
-        const deleted = db
-          .prepare(
-            "DELETE FROM read_snapshots WHERE id=? AND expires_at<=? AND refs=0 AND NOT EXISTS(SELECT 1 FROM read_sessions WHERE snapshot_id=? AND expires_at>?) AND NOT EXISTS(SELECT 1 FROM file_operations WHERE snapshot_id=? AND status IN ('queued','running','committing','needs_reconciliation'))",
+      const removed = db
+        .transaction(() => {
+          const current = db
+            .prepare('SELECT * FROM read_snapshots WHERE id=? AND expires_at<=? AND refs=0')
+            .get(r.id, Date.now()) as SnapshotRow | undefined;
+          if (!current) return;
+          if (
+            db
+              .prepare('SELECT 1 FROM read_sessions WHERE snapshot_id=? AND expires_at>?')
+              .get(current.id, Date.now()) ||
+            db
+              .prepare(
+                "SELECT 1 FROM file_operations WHERE snapshot_id=? AND status IN ('queued','running','committing','needs_reconciliation')",
+              )
+              .get(current.id)
           )
-          .run(current.id, Date.now(), current.id, Date.now(), current.id);
-        return deleted.changes ? current : undefined;
-      }).immediate();
+            return;
+          if (
+            !/^[0-9a-f-]{36}$/.test(current.id) ||
+            current.path !== join(config.dataRoot, 'read-snapshots', `${current.id}.md`)
+          )
+            fail(500, 'INVALID_SNAPSHOT_PATH');
+          const deleted = db
+            .prepare(
+              "DELETE FROM read_snapshots WHERE id=? AND expires_at<=? AND refs=0 AND NOT EXISTS(SELECT 1 FROM read_sessions WHERE snapshot_id=? AND expires_at>?) AND NOT EXISTS(SELECT 1 FROM file_operations WHERE snapshot_id=? AND status IN ('queued','running','committing','needs_reconciliation'))",
+            )
+            .run(current.id, Date.now(), current.id, Date.now(), current.id);
+          return deleted.changes ? current : undefined;
+        })
+        .immediate();
       if (removed) await unlink(removed.path).catch(() => {});
     }
   }
@@ -771,6 +812,7 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
     recover,
     drain,
     releaseInternal,
+    releaseExport,
   };
 }
 export type SnapshotService = ReturnType<typeof snapshotService>;

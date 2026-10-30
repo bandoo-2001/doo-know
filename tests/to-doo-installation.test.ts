@@ -19,6 +19,8 @@ it('preserves identity on restart but resets external activation on a restored c
       'to_doo_push_devices',
       'to_doo_push_outbox',
       'to_doo_push_seen',
+      'to_doo_reminder_actions',
+      'to_doo_reminder_event_actions',
       'to_doo_feed_tokens',
       'to_doo_calendar_connections',
       'to_doo_import_previews',
@@ -31,6 +33,10 @@ it('preserves identity on restart but resets external activation on a restored c
     resetToDooLocalConnections(db);
     expect(getToDooInstallationId(db)).not.toBe(before);
     expect((db.prepare('SELECT COUNT(*) n FROM to_doo_push_devices').get() as any).n).toBe(0);
+    expect((db.prepare('SELECT COUNT(*) n FROM to_doo_reminder_actions').get() as any).n).toBe(0);
+    expect(
+      (db.prepare('SELECT COUNT(*) n FROM to_doo_reminder_event_actions').get() as any).n,
+    ).toBe(0);
     expect((db.prepare('SELECT COUNT(*) n FROM to_doo_feed_tokens').get() as any).n).toBe(0);
     expect((db.prepare('SELECT COUNT(*) n FROM to_doo_calendar_connections').get() as any).n).toBe(
       0,

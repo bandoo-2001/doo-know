@@ -2,7 +2,7 @@ import { test, expect } from '../support/browser-test';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { BrowserContext, Page } from '@playwright/test';
-import { showSidebar } from '../support/settings-navigation';
+import { showMainMenu } from '../support/settings-navigation';
 
 const original = '# 启动完整性\r\n\r\n原文与草稿归属必须保留。\r\n\r\n<!-- 不改写 -->\r\n';
 
@@ -104,7 +104,7 @@ test('等待小笔记准备期间进入设置，迟到的任务完成不会重�
   try {
     await page.goto('/?note=' + id);
     await expect.poll(preparation.pending).toBe(true);
-    await showSidebar(page);
+    await showMainMenu(page);
     await page.getByRole('button', { name: '设置', exact: true }).click();
     await expect(page.getByRole('heading', { name: '编辑器与外观', exact: true })).toBeVisible();
   } finally { preparation.release(); }

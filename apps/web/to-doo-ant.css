@@ -1,0 +1,231 @@
+/* Ant controls retain the To Doo domain layout; reset only rules aimed at plain inputs. */
+.to-doo-workspace .ant-input,
+.to-doo-workspace .ant-input-affix-wrapper,
+.to-doo-workspace .ant-input-number,
+.to-doo-workspace .ant-picker,
+.to-doo-workspace .ant-select-selector {
+  color: var(--todo-ink);
+  background: var(--todo-paper);
+  border-color: var(--todo-line);
+  font: inherit;
+}
+.to-doo-workspace .ant-picker input,
+.to-doo-workspace .ant-select-selection-search-input,
+.to-doo-workspace .ant-input-number-input,
+.to-doo-workspace .ant-input-affix-wrapper > input.ant-input {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  min-width: 0;
+  border-radius: 0;
+}
+.to-doo-workspace .ant-picker input,
+.to-doo-workspace .ant-select-selection-search-input {
+  padding: 0;
+}
+.to-doo-workspace .ant-input-number-input {
+  padding: 0 11px;
+  height: 32px;
+}
+.to-doo-workspace .todo-ant-select,
+.to-doo-workspace .todo-ant-date,
+.todo-ant-modal .todo-ant-select,
+.todo-ant-modal .todo-ant-date,
+.todo-ant-modal .ant-input-number {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+.to-doo-workspace .todo-form-grid .ant-input-number,
+.to-doo-workspace .todo-form label > .ant-input-number {
+  width: 100%;
+}
+.to-doo-workspace .todo-calendar-toolbar .todo-ant-date {
+  width: 150px;
+}
+.to-doo-workspace .todo-composer-date {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+.to-doo-workspace .todo-composer-date > .todo-ant-date {
+  width: 150px;
+  flex: 0 0 auto;
+  height: 36px;
+}
+.to-doo-workspace .todo-composer-date .ant-picker input {
+  width: 100%;
+  min-height: 0;
+}
+.to-doo-workspace .ant-btn:disabled {
+  opacity: 1;
+}
+.to-doo-workspace fieldset:disabled :is(.ant-select, .ant-picker, .ant-input-number),
+.todo-ant-modal fieldset:disabled :is(.ant-select, .ant-picker, .ant-input-number) {
+  pointer-events: none;
+  opacity: 0.6;
+}
+.to-doo-workspace .todo-task-body.ant-btn,
+.to-doo-workspace .todo-saved-row.ant-btn,
+.to-doo-workspace .todo-board-title.ant-btn {
+  height: auto;
+  white-space: normal;
+  min-height: 0;
+  text-align: left;
+  justify-content: flex-start;
+}
+.to-doo-workspace .todo-task-body.ant-btn {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 0;
+  border: 0;
+}
+.to-doo-workspace .todo-task-body.ant-btn:hover,
+.to-doo-workspace .todo-saved-row.ant-btn:hover {
+  background: transparent;
+}
+.to-doo-workspace .todo-saved-row.ant-btn {
+  display: flex;
+  width: 100%;
+  padding: 14px 16px;
+  gap: 12px;
+  justify-content: space-between;
+  border-radius: 0;
+}
+.to-doo-workspace .todo-saved-row.ant-btn > span {
+  min-width: 0;
+  white-space: normal;
+}
+.to-doo-workspace .todo-icon-button.ant-btn,
+.to-doo-workspace .todo-row-add.ant-btn {
+  width: 29px;
+  min-width: 29px;
+  height: 29px;
+  min-height: 29px;
+  padding: 4px;
+}
+.to-doo-workspace .todo-check.ant-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 19px;
+  min-width: 19px;
+  height: 19px;
+  min-height: 19px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--todo-priority-color, var(--todo-line));
+}
+.to-doo-workspace .todo-check.ant-btn.is-checked {
+  background: var(--todo-green);
+  border-color: var(--todo-green);
+  color: white;
+}
+.to-doo-workspace .todo-ant-collapse.ant-collapse {
+  background: transparent;
+  color: var(--todo-ink);
+  border-radius: 7px;
+}
+.to-doo-workspace .todo-ant-collapse .ant-collapse-header {
+  color: var(--todo-ink);
+  font-size: 12px;
+  padding: 10px 8px;
+}
+.to-doo-workspace .todo-ant-collapse .ant-collapse-content,
+.to-doo-workspace .todo-ant-collapse .ant-collapse-content-box {
+  color: var(--todo-ink);
+  background: transparent;
+}
+.to-doo-workspace .todo-ant-collapse .ant-collapse-content-box {
+  padding: 0 8px 10px;
+}
+.to-doo-workspace .todo-stats .ant-statistic-title,
+.to-doo-workspace .ant-empty-description {
+  color: var(--todo-muted);
+}
+.to-doo-workspace .todo-stats .ant-statistic-content {
+  color: var(--todo-ink);
+  font-size: 28px;
+  line-height: 1.4;
+}
+.to-doo-workspace .todo-stats .ant-statistic-content-suffix {
+  margin-left: 5px;
+  font-size: 12px;
+}
+.todo-ant-density {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12px;
+}
+.todo-ant-modal {
+  --todo-paper: var(--panel, #fff);
+  --todo-soft: var(--surface-soft, #f7f8fa);
+  --todo-ink: var(--text, #272b3a);
+  --todo-muted: var(--muted, #657084);
+  --todo-line: var(--border, #e6e9f1);
+  --todo-accent: var(--blue, #4566c6);
+}
+.todo-ant-modal .ant-modal-body {
+  max-height: calc(100dvh - 210px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.todo-ant-modal .ant-modal-content,
+.todo-ant-modal .ant-modal-header {
+  color: var(--todo-ink);
+  background: var(--todo-paper);
+}
+.todo-ant-modal .todo-form label {
+  min-width: 0;
+}
+.todo-ant-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+[data-theme='dark'] .todo-ant-modal {
+  --todo-paper: #1b1e29;
+  --todo-ink: #e5e8f0;
+  --todo-muted: #a1a9bb;
+  --todo-line: #323746;
+}
+[data-theme='dark'] .todo-ant-popup,
+[data-theme='dark'] .todo-ant-popup .ant-picker-panel-container,
+[data-theme='dark'] .todo-ant-popup .ant-picker-panel {
+  background: #1b1e29;
+  color: #e5e8f0;
+}
+[data-theme='dark'] .todo-ant-popup .ant-select-item,
+[data-theme='dark'] .todo-ant-popup .ant-picker-content th,
+[data-theme='dark'] .todo-ant-popup .ant-picker-header button,
+[data-theme='dark'] .todo-ant-modal .ant-modal-title,
+[data-theme='dark'] .todo-ant-modal .ant-modal-close {
+  color: #e5e8f0;
+}
+[data-theme='dark'] .todo-ant-popup .ant-select-item-option-active,
+[data-theme='dark'] .todo-ant-popup .ant-select-item-option-selected {
+  background: #322f4d;
+}
+@media (max-width: 600px) {
+  .todo-ant-modal .ant-modal {
+    top: 16px;
+    max-width: calc(100vw - 24px);
+  }
+  .todo-ant-modal .ant-modal-body {
+    max-height: calc(100dvh - 140px);
+  }
+  .to-doo-workspace .todo-calendar-toolbar .todo-ant-date {
+    width: 135px;
+  }
+  .todo-ant-popup {
+    max-width: calc(100vw - 16px);
+  }
+  .todo-ant-popup .ant-picker-panel-container {
+    max-width: calc(100vw - 16px);
+    overflow-x: auto;
+  }
+}

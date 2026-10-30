@@ -1,7 +1,7 @@
 import { showRead, showSplit } from '../support/editor-navigation';
 import { expandFolderPath } from '../support/notebook-tree';
 import { clickNoteAction } from '../support/note-actions';
-import { showSidebar } from '../support/settings-navigation';
+import { showMainMenu, showSidebar } from '../support/settings-navigation';
 import { test, expect } from '../support/browser-test';
 import { testPassword } from '../support/credentials.js';
 
@@ -298,7 +298,11 @@ test.describe('authenticated feature acceptance', () => {
     if (info.project.name === 'desktop') expect(box!.x).toBe(sidebar!.x + sidebar!.width);
     else expect(box!.x).toBe(0);
     expect(box!.x + box!.width).toBe(page.viewportSize()!.width);
-    expect(box!.y + box!.height).toBeCloseTo(page.viewportSize()!.height, 0);
+    const tabbar = page.locator('.workspace-tabbar');
+    const contentBottom = await tabbar.isVisible()
+      ? (await tabbar.boundingBox())!.y
+      : page.viewportSize()!.height;
+    expect(box!.y + box!.height).toBeCloseTo(contentBottom, 0);
     if (info.project.name === 'mobile')
       await page.getByRole('button', { name: '打开侧栏' }).click();
     await page.getByPlaceholder('搜索笔记与目录').fill('组织与恢复-' + info.project.name);
@@ -307,7 +311,7 @@ test.describe('authenticated feature acceptance', () => {
     await matchingNote.click();
     await clickNoteAction(page, '删除笔记');
     await page.getByRole('button', { name: '移入回收站', exact: true }).click();
-    await showSidebar(page);
+    await showMainMenu(page);
     await page
       .getByRole('navigation', { name: '常用工具', exact: true })
       .getByRole('button', { name: '回收站', exact: true })

@@ -361,6 +361,8 @@ it('retries only failed import items and marks interrupted persisted jobs on sta
     expect(task.items.map((i: any) => i.state)).toEqual(['succeeded', 'failed']);
     const succeededId = task.items[0].noteId;
     await rm(join(f.config.knowledgeRoot, '00-Inbox/retry.md'));
+    // Watchers are disabled; reconcile the externally removed competing note before retry.
+    f.platform.get().notes.scan();
     await f.post('/api/manage/tasks/' + task.id + '/retry', {});
     task = await f.settle(task.id);
     expect(task.state).toBe('succeeded');
@@ -611,6 +613,7 @@ it('retains only unfinished import bodies on failure and cancellation while allo
     const payload=JSON.parse((f.db.prepare('SELECT payload FROM managed_transfer_jobs WHERE id=?').get(task.id) as any).payload);
     expect(payload.entries[0].content).toBe('');expect(payload.entries[1].content).toBe(request.entries[1].content);
     await rm(join(f.config.knowledgeRoot,'00-Inbox/remaining.md'));
+    f.platform.get().notes.scan();
     await f.post('/api/manage/tasks/'+task.id+'/retry',{});task=await f.settle(task.id);expect(task.state).toBe('succeeded');
     expect(await readFile(join(f.config.knowledgeRoot,'00-Inbox/remaining.md'),'utf8')).toBe(request.entries[1].content);
     const cancelledRequest=body(Array.from({length:50},(_,n)=>note('cancel-'+n+'.md','cancel-body'.repeat(100))));
@@ -668,6 +671,7 @@ it('keeps minimal original whiteboard identities for failed note retries after d
     expect(JSON.parse(stored.entries[0].content)).toEqual({dooknow:{id:originalId}});
     const boardId=task.items[0].noteId;expect(boardId).not.toBe(originalId);
     await rm(join(f.config.knowledgeRoot,'00-Inbox/ref.md'));
+    f.platform.get().notes.scan();
     await f.post('/api/manage/tasks/'+task.id+'/retry',{});task=await f.settle(task.id);expect(task.state).toBe('succeeded');
     expect(await readFile(join(f.config.knowledgeRoot,'00-Inbox/ref.md'),'utf8')).toBe('```excalidraw\n'+boardId+'\n```\n');
   }finally{await f.close();}

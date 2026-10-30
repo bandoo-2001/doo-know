@@ -23,8 +23,14 @@
 }
 .rail-notes-navigation {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
   margin-bottom: 10px;
+}
+@media (max-width: 720px) {
+  .rail-notes-navigation button {
+    flex-basis: 52px;
+  }
 }
 .rail-notes-navigation button {
   display: flex;
@@ -201,7 +207,7 @@
 .tree-row.selected.is-note {
   background: var(--blue-soft);
   color: var(--blue);
-  box-shadow: inset 2px 0 var(--blue);
+  box-shadow: none;
 }
 .tree-row.selected .tree-select span {
   font-weight: 500;

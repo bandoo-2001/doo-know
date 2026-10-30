@@ -19,6 +19,8 @@ export function resetToDooLocalConnections(db: AppDatabase) {
     'to_doo_push_devices',
     'to_doo_push_outbox',
     'to_doo_push_seen',
+    'to_doo_reminder_actions',
+    'to_doo_reminder_event_actions',
     'to_doo_feed_tokens',
     'to_doo_calendar_connections',
     'to_doo_import_previews',

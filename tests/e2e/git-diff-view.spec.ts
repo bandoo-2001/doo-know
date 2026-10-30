@@ -3,7 +3,7 @@ import { execFileSync } from 'node:child_process';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { configurePlugin } from '../support/settings-navigation';
-import { clickNoteAction } from '../support/note-actions';
+import { clickNoteAction, selectGitHistoryVersion } from '../support/note-actions';
 import { test, expect } from '../support/browser-test';
 
 test.use({ actionTimeout: 10000 });
@@ -94,8 +94,9 @@ test('只读差异安全显示中文、长行及行号，布局自适应且恢�
     }
   });
   await page.goto('/?note=' + note.id);
-  await clickNoteAction(page, 'Git 版本');
-  await page.getByRole('button', { name: '查看差异', exact: true }).first().click();
+  await clickNoteAction(page, '历史版本');
+  const history = page.locator('.note-history-dialog');
+  await history.getByRole('tab', { name: 'Git 提交', exact: true }).click();
   const view = page.locator('.git-diff-view');
   await expect(view.locator('[data-line-type="delete"][data-old-line="2"]')).toContainText(
     '删除这一行',
@@ -131,8 +132,8 @@ test('只读差异安全显示中文、长行及行号，布局自适应且恢�
   await view.getByText('原始差异', { exact: true }).click();
   await expect(view.locator('pre')).toContainText('删除这一行');
   await expect(view.locator('pre')).toBeVisible();
-  await page.getByRole('button', { name: '查看差异', exact: true }).nth(1).click();
-  await expect(page.locator('.git-diff-label')).toContainText(first.slice(0, 12));
+  await selectGitHistoryVersion(page, 1);
+  await expect(history.locator('.note-history-git-commit')).toContainText(first.slice(0, 12));
   await expect(view.locator('[data-diff-layout]')).toBeVisible();
   await page.getByRole('button', { name: '恢复此版本', exact: true }).click();
   expect(restores).toBe(0);
@@ -141,7 +142,7 @@ test('只读差异安全显示中文、长行及行号，布局自适应且恢�
   await expect.poll(() => readFile(file, 'utf8')).toBe(original);
   expect(restores).toBe(1);
   expect(restoredCommit).toBe(first);
-  await page.getByRole('button', { name: '关闭插件面板', exact: true }).click();
+  await history.getByRole('button', { name: '关闭', exact: true }).click();
 });
 
 test('真实超限差异保持 256 KiB 截断提示，不重读大 patch 或禁用原本可恢复的版本', async ({
@@ -167,14 +168,15 @@ test('真实超限差异保持 256 KiB 截断提示，不重读大 patch 或禁�
       diffRequests++;
   });
   await page.goto('/?note=' + note.id);
-  await clickNoteAction(page, 'Git 版本');
-  await page.getByRole('button', { name: '查看差异', exact: true }).first().click();
+  await clickNoteAction(page, '历史版本');
+  const history = page.locator('.note-history-dialog');
+  await history.getByRole('tab', { name: 'Git 提交', exact: true }).click();
   await expect(page.locator('.git-diff-view')).toContainText('差异超过 256 KiB');
   await expect(page.locator('.git-diff-view table')).toHaveCount(0);
   await expect(page.getByRole('button', { name: '恢复此版本', exact: true })).toBeEnabled();
   expect(diffRequests).toBe(1);
   expect(await readFile(file, 'utf8')).toBe(content);
-  await page.getByRole('button', { name: '关闭插件面板', exact: true }).click();
+  await history.getByRole('button', { name: '关闭', exact: true }).click();
 });
 
 test('按需加载解析器失败时仍可阅读原始 patch', async ({ page, context }) => {
@@ -182,14 +184,15 @@ test('按需加载解析器失败时仍可阅读原始 patch', async ({ page, co
   const note = await create('保留的原始差异\n');
   commit(note.relativePath, 'Diff parser fallback');
   let parserRequests = 0;
-  await page.route(/\/diff2html-[^/]+\.js(?:\?.*)?$/, (route) => {
+  await page.route(/\/diff2html(?:-[^/]+)?\.js(?:\?.*)?$/, (route) => {
     parserRequests++;
     return route.abort('failed');
   });
   await page.goto('/?note=' + note.id);
-  await clickNoteAction(page, 'Git 版本');
+  await clickNoteAction(page, '历史版本');
   expect(parserRequests).toBe(0);
-  await page.getByRole('button', { name: '查看差异', exact: true }).first().click();
+  const history = page.locator('.note-history-dialog');
+  await history.getByRole('tab', { name: 'Git 提交', exact: true }).click();
   const view = page.locator('.git-diff-view');
   await expect(view.getByText('差异对照暂不可用，已保留原始差异。', { exact: true })).toBeVisible();
   expect(parserRequests).toBe(1);
@@ -198,5 +201,5 @@ test('按需加载解析器失败时仍可阅读原始 patch', async ({ page, co
   expect(await readFile(join(fixture.knowledgeRoot, note.relativePath), 'utf8')).toBe(
     '保留的原始差异\n',
   );
-  await page.getByRole('button', { name: '关闭插件面板', exact: true }).click();
+  await history.getByRole('button', { name: '关闭', exact: true }).click();
 });

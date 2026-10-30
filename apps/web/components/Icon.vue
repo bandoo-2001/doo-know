@@ -1,6 +1,13 @@
 <script setup lang="ts">
 defineProps<{ name: string; size?: number }>();
 const paths: Record<string, string> = {
+  calendar: 'M8 3v4M16 3v4M4 10h16M5 5h14a1 1 0 0 1 1 1v14H4V6a1 1 0 0 1 1-1',
+  matrix: 'M4 4h16v16H4ZM12 4v16M4 12h16',
+  focus: 'M12 7v5l3 2M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18',
+  habits: 'M20 7v5h-5M4 17v-5h5M5 8a8 8 0 0 1 13-3l2 2M4 17l2 2a8 8 0 0 0 13-3',
+  anniversaries: 'M12 20 3 11l9-9 9 9Z',
+  stats: 'M5 19V9M12 19V4M19 19v-6',
+  notifications: 'M5 17h14l-2-3V9a5 5 0 0 0-10 0v5ZM10 21h4',
   apps: 'M3 3h7v7H3ZM14 3h7v7h-7ZM3 14h7v7H3ZM14 14h7v7h-7Z',
   commit: 'M3 12h5m8 0h5M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0',
   sidebar: 'M4 3h16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1ZM8 3v18',

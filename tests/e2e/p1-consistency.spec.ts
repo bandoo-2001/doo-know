@@ -1,6 +1,6 @@
 import { expandFolderPath } from '../support/notebook-tree';
 import { clickNoteAction } from '../support/note-actions';
-import { showSidebar } from '../support/settings-navigation';
+import { showMainMenu } from '../support/settings-navigation';
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
 
@@ -138,7 +138,7 @@ test('W02 stale deletion preserves share then checks a lost delete receipt', asy
     await page.request.get('/api/operations?requestId=' + request.requestId)
   ).json();
   expect(op.status).toBe('succeeded');
-  await showSidebar(page);
+  await showMainMenu(page);
   await page
     .getByRole('navigation', { name: '常用工具', exact: true })
     .getByRole('button', { name: '回收站', exact: true })

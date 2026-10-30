@@ -4,6 +4,7 @@ import * as Vue from 'vue';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { gitDecoration } from '../plugins/git/web/decoration';
 import { ApiError } from '../apps/web/api';
+import { createGitHistoryModel, gitRestoreMessages } from '../packages/plugin-ui/git-history';
 
 const pending: (() => void)[] = [];
 const call = vi.fn();
@@ -33,6 +34,8 @@ function sourceModule() {
       if (id === '@dooknow/plugin-ui')
         return { NButton: 'button', NInput: 'input', NAlert: 'aside' };
       if (id === './decoration') return { gitDecoration };
+      if (id === '../../../packages/plugin-ui/git-history')
+        return { createGitHistoryModel, gitRestoreMessages };
       throw Error('Unexpected plugin dependency: ' + id);
     },
     output,

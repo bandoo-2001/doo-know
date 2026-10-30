@@ -58,6 +58,6 @@ it('lets the host resolve selected directory identities before checking a legacy
 it('refuses plugin policies that request unimplemented domains',async()=>{
   const {activate}=await import('../plugins/mcp/server/index.js');
   const config={allowedPrefixes:['00-Inbox'],permissionPolicy:{version:2,domains:{todo:{enabled:true,ownerId:'owner',instanceId:'tasks',actions:['write'],resources:{mode:'all'}}}}};
-  const context={config:()=>config,secrets:{getOrCreate:()=> 'test-secret'},storage:{get:()=>undefined,set:()=>{}},registerProvider:()=>{},registerCommand:()=>{},registerProtocol:()=>{},onConfigure:()=>{}} as any;
+  const context={config:()=>config,secrets:{getOrCreate:()=> 'test-secret'},storage:{get:()=>undefined,set:()=>{}},registerProvider:()=>{},registerCommand:()=>{},registerProtocol:()=>{},onConfigure:()=>{},onDispose:()=>{}} as any;
   expect(()=>activate(context)).toThrowError(expect.objectContaining({code:'INVALID_CONFIGURATION'}));
 });

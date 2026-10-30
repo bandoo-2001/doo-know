@@ -5,6 +5,8 @@ import * as Vue from 'vue';
 import MarkdownIt from 'markdown-it';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { ApiError } from '../apps/web/api';
+import * as appShortcuts from '../apps/web/app-shortcuts';
+import * as workspaceMainMenu from '../apps/web/workspace-main-menu';
 import * as navigation from '../apps/web/navigation';
 import * as markdownLinks from '../apps/web/markdown-links';
 import * as imageRequests from '../apps/web/image-requests';
@@ -49,6 +51,7 @@ const original = {
 };
 const meta = { ...original, editorMode: 'full', sizeBytes: 5 };
 let state: any;
+let navigationOptions: Parameters<typeof navigation.createWorkspaceNavigation>[0];
 let realDraftLifecycle = false;
 let flush: ReturnType<typeof vi.fn>, clearSaved: ReturnType<typeof vi.fn>;
 const descriptor = parse(
@@ -86,7 +89,13 @@ async function mount(waitForNote = true) {
       if (id === '../editor/view-transitions') return viewTransitions;
       if (id === '../editor/toolbar-state') return format;
       if (id === '../api') return { api: mockApi, ApiError, resetCsrf: vi.fn() };
-      if (id === '../navigation') return navigation;
+      if (id === '../navigation') return {
+        ...navigation,
+        createWorkspaceNavigation(options: typeof navigationOptions) {
+          navigationOptions = options;
+          return navigation.createWorkspaceNavigation(options);
+        },
+      };
       if (id === '../markdown-links') return markdownLinks;
       if (id === '../image-requests') return imageRequests;
       if (id === '../preferences') return preferences;
@@ -108,6 +117,8 @@ async function mount(waitForNote = true) {
           pluginRegistry: Vue.ref([]),
         };
       if (id === '../git-sync') return { gitUnsaved: Vue.ref(false) };
+      if (id === '../app-shortcuts') return appShortcuts;
+      if (id === '../workspace-main-menu') return workspaceMainMenu;
       if (id === '../plugin-drafts') return { clearPluginDrafts: vi.fn() };
       if (id === '../useNoteDraft')
         return {
@@ -214,6 +225,47 @@ function holdIdentity() {
   mockApi.mockImplementation((...args) => args[0] === '/api/auth/get-session' ? pending : request(...args));
   return () => resolve({ user: { id: 'owner' } });
 }
+
+it('cancels a root navigation waiting for draft flush when a history restore starts', async () => {
+  await mount();
+  state.draft.value = original.content;
+  const restoring = Vue.ref(false);
+  state.noteHistoryRef.value = { hasPendingRestore: () => restoring.value };
+  let release!: () => void;
+  flush.mockImplementationOnce(() => new Promise<string>((resolve) => {
+    release = () => resolve('retained-local-version');
+  }));
+  const browsing = state.browseRoot();
+  await vi.waitFor(() => expect(release).toEqual(expect.any(Function)));
+  restoring.value = true;
+  await Vue.nextTick();
+  release();
+  await browsing;
+  expect(state.note.value?.id).toBe(original.id);
+  expect(state.panel.value).toBe('note');
+  expect(state.navigation.currentRoute()).toMatchObject({ note: original.id });
+});
+
+it('rejects an in-flight browser route when history restore invalidates its navigation intent', async () => {
+  await mount();
+  state.draft.value = original.content;
+  const restoring = Vue.ref(false);
+  state.noteHistoryRef.value = { hasPendingRestore: () => restoring.value };
+  let release!: () => void;
+  flush.mockImplementationOnce(() => new Promise<string>((resolve) => {
+    release = () => resolve('retained-local-version');
+  }));
+  const applying = navigationOptions.apply({});
+  await vi.waitFor(() => expect(release).toEqual(expect.any(Function)));
+  restoring.value = true;
+  await Vue.nextTick();
+  release();
+  // Returning false tells the browser adapter to restore its actual history pointer.
+  expect(await applying).toBe(false);
+  expect(state.note.value?.id).toBe(original.id);
+  expect(state.navigation.currentRoute()).toMatchObject({ note: original.id });
+});
+
 it('coalesces manual saves waiting for the same editor composition flush', async () => {
   await mount();
   const request = mockApi.getMockImplementation()!;
@@ -744,6 +796,7 @@ it('preserves a note draft typed while the post-pull tree refresh is pending', a
   expect(state.note.value.content).toBe(original.content);
   expect(state.notice.value).toContain('草稿会保留');
   expect(state.leaveOpen.value).toBe(false);
+  expect(state.staleHistoryBase.value).toEqual({ noteId: original.id, modifiedAt: original.modifiedAt });
 });
 
 it('preserves a draft typed while the clean selected note is being reloaded', async () => {

@@ -1,4 +1,5 @@
 import { reactive, watch } from 'vue';
+import type { ToDooTaskFilter } from './navigation';
 import {
   TO_DOO_COLLECTIONS,
   toDooCommandSchema,
@@ -19,9 +20,11 @@ import {
 export type ToDooRequest = (url: string, method?: string, body?: unknown) => Promise<any>;
 export type ToDooSelection = {
   task?: string;
+  occurrence?: string;
   list?: string;
   date?: string;
   calendarView?: 'week' | 'month';
+  taskFilter?: ToDooTaskFilter;
 };
 export type ToDooInput = ToDooCommand extends infer C
   ? C extends { requestId: string }
@@ -42,6 +45,7 @@ export type ToDooNewTaskDraft = {
   dueDate: string;
   dueTime: string;
   planDate: string;
+  planDateCleared?: boolean;
   planTime: string;
   estimate: number | '';
   tagIds: string[];

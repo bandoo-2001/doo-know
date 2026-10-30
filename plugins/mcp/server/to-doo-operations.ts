@@ -122,7 +122,7 @@ export function createToDooOperations(client: KnowledgeClient): Operation[] {
     {
       name: 'manage_to_doo',
       description:
-        '管理已授权领域的清单、资料成果、重复、专注、习惯、纪念日、模板或记录。command 使用 To Doo 判别命令，后端严格校验字段/版本/范围；不能传文件路径、SQL或权限。',
+        '管理已授权领域的清单、资料成果、重复、专注、习惯、纪念日、模板或记录。先用 describe_to_doo_schema(category=command,name=action) 读取精确字段；save_entity 还应查询 entity/patch 字段。后端严格校验版本和范围。',
       scope: 'to-doo:write',
       additionalScopes: ['to-doo:read'],
       readOnly: false,

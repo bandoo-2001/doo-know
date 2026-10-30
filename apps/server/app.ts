@@ -20,6 +20,7 @@ import { oauthGrantStore } from './platform/oauth-grants.js';
 import { invalidateRemoteAuth } from '../../packages/core/auth/remote-auth.js';
 import { pluginServices } from './plugins/services.js';
 import { registerPluginRoutes } from './plugins/routes.js';
+import { registerMcpTransferRoutes } from './plugins/mcp-transfer-routes.js';
 import { registerMcpManagementRoutes } from './platform/mcp-management.js';
 import { registerMcpPermissionRoutes } from './platform/mcp-permissions.js';
 import { registerMcpClientPermissionRoutes } from './platform/mcp-client-permissions.js';
@@ -36,6 +37,8 @@ import { recoveryService } from '../../packages/core/recovery.js';
 import { assetService } from '../../packages/core/assets.js';
 import { diagramArtifactService, DIAGRAM_SOURCE_MIMES } from '../../packages/core/knowledge/diagram-artifacts.js';
 import { backlinkService } from '../../packages/core/knowledge/backlinks.js';
+import { registerGraphRoutes } from './graph/routes.js';
+import { registerSemanticGraphRoutes } from './graph/semantic-routes.js';
 import { registerAgentRoutes } from './agent/routes.js';
 import { registerWebKnowledgeRoutes } from './knowledge/web-routes.js';
 import { webPrincipal } from '../../packages/core/knowledge/core.js';
@@ -215,13 +218,15 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     platform.get().collections.status((req as any).ownerId, (req.query as any).kind));
   app.get('/api/collections', async (req) =>
     platform.get().collections.page((req as any).ownerId, req.query as any));
+  registerGraphRoutes(app, () => platform.get().graph);
+  registerSemanticGraphRoutes(app, () => platform.get().knowledgeGraph, () => platform.get().graphModel);
   registerBlogRoutes(app, businessConfig, () => platform.get().blog);
   registerToDooRoutes(app, () => platform.get().toDoo, () => {
     const runtime = platform.get();
     return createOutcomeNoteService(runtime.config, db, runtime.notes, runtime.toDoo);
   });
   registerToDooInteropRoutes(app, () => platform.get().toDooInterop);
-  registerToDooPushRoutes(app, () => platform.get().toDooNotifications);
+  registerToDooPushRoutes(app, () => platform.get().toDooNotifications, () => platform.get().toDoo, { db });
   registerToDooAssetRoutes(app, () => {
     const runtime = platform.get();
     return createToDooAssets(runtime.toDoo, { knowledgeRoot: runtime.config.knowledgeRoot, db });
@@ -250,6 +255,7 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     async (req) => searchRuntime.cancel((req as any).ownerId, req.params.id),
   );
   registerPluginRoutes(app, plugins, gitRemote.assertPluginIdle);
+  registerMcpTransferRoutes(app, config, db);
   registerGitRemoteRoutes(app, gitRemote);
   registerPluginInstallRoutes(app, pluginInstallations);
   registerMcpManagementRoutes(app, config, db, plugins, transports, auth);

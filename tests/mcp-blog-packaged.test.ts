@@ -13,23 +13,23 @@ import { createAuth } from '../apps/server/auth.js';
 import { openDatabase } from '../packages/core/db.js';
 import { oauthGrantStore } from '../apps/server/platform/oauth-grants.js';
 
-it('runs the packaged MCP 1.2.0 agent and blog contracts over HTTP with explicit grants, fixed receipts and disposal', async () => {
+it('runs the packaged MCP 1.3.0 agent and blog contracts over HTTP with explicit grants, fixed receipts and disposal', async () => {
   const artifacts = await mkdtemp(join(tmpdir(), 'dooknow-mcp-blog-package-'));
   let f: Fixture | undefined;
   let db: ReturnType<typeof openDatabase> | undefined;
   try {
     const catalog = await buildPlugins({ output: artifacts, ids: ['mcp'], baseURL: pathToFileURL(artifacts + '/').href });
-    expect(catalog[0]).toMatchObject({ version: '1.2.0', apiVersion: '^1.2.0' });
-    expect(catalog[0].artifact.url).toMatch(/dooknow-plugin-mcp-1\.2\.0\.tar\.gz$/);
+    expect(catalog[0]).toMatchObject({ version: '1.3.0', apiVersion: '^1.3.0' });
+    expect(catalog[0].artifact.url).toMatch(/dooknow-plugin-mcp-1\.3\.0\.tar\.gz$/);
     const fixture = f = await createFixture({ pluginCatalog: catalog });
     const ownerHeaders = await loginFixtureOwner(fixture);
     const admin = (url: string, payload: Record<string, unknown> = {}) => fixture.app.inject({ method: 'POST', url, headers: ownerHeaders, payload });
     const installed = await admin('/api/platform/plugins/mcp/install');
     expect(installed.statusCode, installed.body).toBe(200);
-    expect(installed.json()).toMatchObject({ installedVersion: '1.2.0', config: { readOnly: true, allowPublish: false } });
+    expect(installed.json()).toMatchObject({ installedVersion: '1.3.0', config: { readOnly: true, allowPublish: false } });
     const enabled = await admin('/api/platform/plugins/mcp/enable');
     expect(enabled.statusCode, enabled.body).toBe(200);
-    expect(enabled.json()).toMatchObject({ state: 'enabled', activeVersion: '1.2.0' });
+    expect(enabled.json()).toMatchObject({ state: 'enabled', activeVersion: '1.3.0' });
     const address = await fixture.app.listen({ host: '127.0.0.1', port: 0 });
     db = openDatabase(fixture.dataRoot);
     const database = db;
@@ -67,7 +67,7 @@ it('runs the packaged MCP 1.2.0 agent and blog contracts over HTTP with explicit
     };
     const initialized = await rpc('initialize', { protocolVersion: '2025-06-18', capabilities: {}, clientInfo: { name: 'packaged-agent-fixture', version: '1.0.0' } });
     expect(initialized.status, initialized.text).toBe(200);
-    expect(initialized.body.result.serverInfo.version).toBe('1.2.0');
+    expect(initialized.body.result.serverInfo.version).toBe('1.3.0');
     expect(initialized.body.result.instructions).toContain('requestId');
     const listed = await rpc('tools/list', {});
     expect(listed.status, listed.text).toBe(200);

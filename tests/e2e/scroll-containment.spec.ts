@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { test, expect } from '../support/browser-test';
-import { showSidebar } from '../support/settings-navigation';
+import { showMainMenu, showSidebar } from '../support/settings-navigation';
 
 const names = Array.from(
   { length: 90 },
@@ -73,12 +73,19 @@ for (const compact of [false, true]) {
     await expect(
       page.getByRole('button', { name: '新建笔记', exact: true }).first(),
     ).toBeInViewport();
-    await expect(
-      page.locator('.sidebar-footer').getByRole('button', { name: '设置', exact: true }),
-    ).toBeInViewport();
-    await expect(
-      page.locator('.sidebar-footer').getByRole('button', { name: '个人账户', exact: true }),
-    ).toBeInViewport();
+    if (await page.locator('.workspace-tabbar').isVisible()) {
+      await expect(page.locator('.workspace-tabbar')).toBeInViewport();
+      await expect(
+        page.locator('.workspace-tabbar').getByRole('button', { name: '更多导航', exact: true }),
+      ).toBeInViewport();
+    } else {
+      await expect(
+        page.locator('.sidebar-footer').getByRole('button', { name: '设置', exact: true }),
+      ).toBeInViewport();
+      await expect(
+        page.locator('.sidebar-footer').getByRole('button', { name: '个人账户', exact: true }),
+      ).toBeInViewport();
+    }
     expect(await tree.evaluate((el) => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(1);
     expect(
       await page.evaluate(() => document.documentElement.scrollHeight - innerHeight),
@@ -131,6 +138,7 @@ test('native scrollbars share the active appearance while directory and settings
       el.scrollTop = el.scrollHeight;
     });
     expect(await folder.evaluate((el) => el.scrollTop)).toBe(before);
+    await showMainMenu(page);
     await page
       .locator('.sidebar-footer')
       .getByRole('button', { name: '设置', exact: true })

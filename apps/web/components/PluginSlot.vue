@@ -8,7 +8,11 @@ import { api } from '../api';
 import PluginBoundary from './PluginBoundary.vue';
 import Icon from './Icon.vue';
 const props = withDefaults(defineProps<{ slotName: ContributionSlot; context?: Record<string, any>; sidebar?: boolean }>(), { context: () => ({}) });
-const items = computed(() => pluginRegistry.value.contributions.filter(c => c.slot === props.slotName && contributionVisible(c, props.context)));
+const items = computed(() => pluginRegistry.value.contributions.filter(c =>
+  c.slot === props.slotName &&
+  !(props.slotName === 'noteAction' && c.pluginId === 'git' && c.id === 'git.historyAction') &&
+  contributionVisible(c, props.context),
+));
 async function invoke(item: typeof items.value[number]) {
   if (item.component) pluginPanel.value = { id: item.id, context: props.context };
   else if (item.command) await api(`/api/plugins/${item.pluginId}/call`, 'POST', { kind: 'command', id: item.command, input: props.context, requestId: crypto.randomUUID() });

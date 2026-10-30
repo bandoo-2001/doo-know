@@ -212,8 +212,17 @@ export function createToDooStore(config: { knowledgeRoot: string }, db: AppDatab
   const manifestPath = rootPath + '/manifest.json';
   let manifestBytes = readKnowledgeDataFile(config.knowledgeRoot, manifestPath);
   if (!manifestBytes) {
+    // Permission selection can precede the lazy optional store. Preserve that
+    // host-issued identity so the first authorized write does not revoke its grant.
+    const selected = (
+      db.prepare("SELECT value FROM index_meta WHERE key='to_doo_instance_id'").get() as
+        | { value: string }
+        | undefined
+    )?.value;
+    const initialDatasetId =
+      selected && /^[A-Za-z0-9_-]{1,128}$/.test(selected) ? selected : randomUUID();
     manifestBytes = Buffer.from(
-      encode({ format: 1, appId: 'to-doo', datasetId: randomUUID(), schemaVersion: 1 }),
+      encode({ format: 1, appId: 'to-doo', datasetId: initialDatasetId, schemaVersion: 1 }),
     );
     writeKnowledgeDataFile(config.knowledgeRoot, manifestPath, manifestBytes, null);
   }

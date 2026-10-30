@@ -158,7 +158,7 @@ onBeforeUnmount(() => {
 .index-status {
   position: fixed;
   right: max(20px, env(safe-area-inset-right));
-  bottom: max(20px, env(safe-area-inset-bottom));
+  bottom: calc(max(20px, env(safe-area-inset-bottom)) + var(--workspace-bottom-inset, 0px));
   z-index: 15;
   display: flex;
   align-items: center;
