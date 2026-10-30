@@ -1,14 +1,21 @@
 <script setup lang="ts">
 import { computed, onMounted, onBeforeUnmount, ref, watch, useId } from 'vue';
 import { TreeSelect as ATreeSelect } from 'ant-design-vue';
-const props = defineProps<{
-  value: string;
-  folders: { label: string; value: string }[];
-  label: string;
-  disabled?: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    value: string;
+    folders: { label: string; value: string }[];
+    label: string;
+    rootLabel?: string;
+    // An explicit ID connects the caller's own visible label.
+    id?: string;
+    disabled?: boolean;
+  }>(),
+  { rootLabel: '知识库根目录' },
+);
 const emit = defineEmits<{ 'update:value': [value: string] }>();
-const id = useId();
+const generatedId = useId();
+const id = computed(() => props.id || generatedId);
 interface DirectoryNode {
   key: string;
   value: string;
@@ -20,8 +27,8 @@ const tree = computed(() => {
   const root: DirectoryNode = {
     key: '',
     value: '',
-    title: '知识库根目录',
-    label: '知识库根目录',
+    title: props.rootLabel,
+    label: props.rootLabel,
     children: [],
   };
   const nodes = new Map<string, DirectoryNode>([['', root]]);
@@ -101,7 +108,7 @@ onBeforeUnmount(() => {
 </script>
 <template>
   <div ref="control" class="directory-select" @keydown.esc.capture="escape">
-    <label class="sr-only" :for="id">{{ label }}</label>
+    <label v-if="!props.id" class="sr-only" :for="id">{{ label }}</label>
     <ATreeSelect
       :id="id"
       :value="value"

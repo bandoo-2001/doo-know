@@ -2,7 +2,7 @@ import { test, expect } from '../support/browser-test';
 import { readFile, writeFile, mkdir, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { expandFolderPath } from '../support/notebook-tree';
-import { showSidebar } from '../support/settings-navigation';
+import { showMainMenu, showSidebar } from '../support/settings-navigation';
 
 test('folder menus confirm deletion and restore the whole folder after a name conflict', async ({
   page,
@@ -56,6 +56,7 @@ test('folder menus confirm deletion and restore the whole folder after a name co
   await expect(page.locator('.cm-content')).toHaveCount(0);
   await showSidebar(page);
   await expect(page.getByTitle(path, { exact: true })).toHaveCount(0);
+  await showMainMenu(page);
   await page.locator('.footer-tools').getByRole('button', { name: '回收站', exact: true }).click();
   const item = page
     .locator('.trash-item')

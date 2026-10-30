@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { parse, compileScript } from '@vue/compiler-sfc';
 import ts from 'typescript';
 import * as Vue from 'vue';
+import * as AppShortcuts from '../apps/web/app-shortcuts';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { ApiError, api as requestAPI } from '../apps/web/api';
 import type { PlatformStatus } from '../shared/platform-contracts';
@@ -30,6 +31,7 @@ async function mount(waitUntilReady = true) {
     if (id === 'vue') return Vue;
     if (id === './api') return { api, ApiError, refreshCsrf: csrf, resetCsrf() {} };
     if (id === './preferences') return { resolvedTheme: Vue.ref('light'), initializeEditorPreferences() {} };
+    if (id === './app-shortcuts') return AppShortcuts;
     if (id === './plugin-drafts') return { clearPluginDrafts() {}, hasUnsavedPluginDrafts: () => false };
     if (id === './plugins') return { disposePluginUIs: async () => {} };
     if (id === './ant-design') return { antTheme: {} };

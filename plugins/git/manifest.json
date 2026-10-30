@@ -1,6 +1,6 @@
 {
   "id": "git",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "apiVersion": "^1.0.0",
   "title": "Git 版本管理",
   "description": "查看知识库文件版本、恢复单篇笔记，并预览、提交及手动同步 GitHub／Gitee 仓库。",
@@ -43,12 +43,6 @@
       "slot": "fileDecoration",
       "title": "Git 状态",
       "component": "git.decoration"
-    },
-    {
-      "id": "git.historyAction",
-      "slot": "noteAction",
-      "title": "Git 版本",
-      "component": "git.historyAction"
     },
     {
       "id": "git.history",

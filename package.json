@@ -103,6 +103,7 @@
     "codemirror": "^6.0.2",
     "commonmark": "0.31.2",
     "cytoscape": "3.34.4",
+    "diff": "8.0.4",
     "diff2html": "3.4.56",
     "dompurify": "^3.4.17",
     "mermaid": "12.2.0",

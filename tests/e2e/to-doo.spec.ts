@@ -1,5 +1,19 @@
 import { readFile, mkdir } from 'node:fs/promises';
+import type { Locator } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
+import { goToToDooSection } from '../support/to-doo-navigation';
+import {
+  confirmToDooAction,
+  expandToDooGroup,
+  expectToDooSelection,
+  fillToDooDate,
+  selectToDooOption,
+} from '../support/to-doo-ant-controls';
+
+async function showCompletedTasks(app: Locator) {
+  const show = app.getByRole('button', { name: '显示已完成任务', exact: true });
+  if (await show.isVisible()) await show.click();
+}
 
 test('To Doo creates a real goal and task, preserves edits, completes and survives refresh', async ({
   page,
@@ -14,13 +28,15 @@ test('To Doo creates a real goal and task, preserves edits, completes and surviv
   const name = '浏览器目标 ' + info.project.name + '-' + Date.now();
   await editor.getByLabel('名称', { exact: true }).fill(name);
   await editor.getByRole('button', { name: '保存', exact: true }).click();
-  await expect(app.getByText(name, { exact: true }).first()).toBeVisible();
+  await expect(app.locator('.todo-goals').getByRole('button', { name, exact: true })).toBeVisible();
   await app.getByRole('button', { name: '新建任务', exact: true }).first().click();
   await app.getByLabel('任务标题', { exact: true }).fill('验证真实任务持久保存 ' + name);
-  await app
-    .getByRole('combobox', { name: '目标或清单', exact: true })
-    .selectOption({ label: name });
-  await app.getByLabel('计划日期', { exact: true }).fill(new Date().toISOString().slice(0, 10));
+  await selectToDooOption(app, '目标或清单', name);
+  await fillToDooDate(
+    app.getByLabel('计划日期', { exact: true }),
+    new Date().toISOString().slice(0, 10),
+  );
+  await expandToDooGroup(app.getByRole('complementary', { name: '任务详情' }), '更多选项');
   await app.getByLabel('完成标准', { exact: true }).fill('确认真实持久化与资料关联');
   await app.getByRole('button', { name: '创建任务', exact: true }).click();
   const detail = app.getByRole('complementary', { name: '任务详情' });
@@ -28,6 +44,7 @@ test('To Doo creates a real goal and task, preserves edits, completes and surviv
   await detail.getByLabel('任务说明', { exact: true }).fill('刷新后应该仍能读到这段记录');
   await detail.getByRole('button', { name: '保存任务', exact: true }).click();
   await expect(app.getByRole('status')).toContainText('任务已保存');
+  await expandToDooGroup(detail, '任务附件');
   await detail.getByLabel('上传任务附件', { exact: true }).setInputFiles({
     name: 'task-evidence.txt',
     mimeType: 'text/plain',
@@ -39,7 +56,7 @@ test('To Doo creates a real goal and task, preserves edits, completes and surviv
   await detail.getByRole('link', { name: '下载', exact: true }).click();
   expect((await attachmentDownload).suggestedFilename()).toBe('task-evidence.txt');
   await detail.getByRole('button', { name: '标记完成', exact: true }).click();
-  await expect(detail.getByRole('combobox', { name: '状态', exact: true })).toHaveValue('done');
+  await expectToDooSelection(detail, '状态', '已完成');
   const taskId = new URL(page.url()).searchParams.get('task');
   await detail.getByRole('button', { name: '关闭任务详情', exact: true }).click();
   for (const [section, label] of [
@@ -48,15 +65,10 @@ test('To Doo creates a real goal and task, preserves edits, completes and surviv
     ['matrix', '四象限'],
     ['overview', '目标总览'],
   ]) {
-    if (await page.locator('.todo-mobile-nav').isVisible())
-      await page.locator('.todo-mobile-nav').selectOption(section!);
-    else
-      await page
-        .locator('.todo-sidebar nav')
-        .getByRole('button', { name: label!, exact: true })
-        .click();
+    await goToToDooSection(page, section!);
     await expect(app.getByRole('heading', { name: label!, exact: true })).toBeVisible();
     await expect(page.getByText('正在载入…', { exact: true })).not.toBeVisible();
+    await showCompletedTasks(app);
     const current = await (await page.request.get('/api/to-doo/state?taskIds=' + taskId)).json();
     expect(current.occurrences.find((o: any) => o.taskId === taskId)?.status).toBe('done');
     if (section === 'board')
@@ -114,13 +126,7 @@ test('all To Doo sections are reachable on narrow and dark workspaces without ov
     '设置',
   ];
   for (const [index, section] of sections.entries()) {
-    if (await page.locator('.todo-mobile-nav').isVisible())
-      await page.locator('.todo-mobile-nav').selectOption(section);
-    else
-      await page
-        .locator('.todo-sidebar nav')
-        .getByRole('button', { name: labels[index], exact: true })
-        .click();
+    await goToToDooSection(page, section);
     await expect(page.getByRole('region', { name: 'To Doo 行动工作空间' })).toBeVisible();
     await expect(page.locator('.todo-page h1')).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
@@ -143,7 +149,7 @@ test('all To Doo sections are reachable on narrow and dark workspaces without ov
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await page.setViewportSize({ width: 320, height: 844 });
   for (const [index, section] of sections.entries()) {
-    await page.locator('.todo-mobile-nav').selectOption(section);
+    await goToToDooSection(page, section);
     await expect(page.locator('.todo-page h1')).toHaveText(labels[index]!);
     await expect(page.getByText('正在载入…', { exact: true })).not.toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
@@ -172,13 +178,7 @@ test('focus, habit check-ins, anniversary and real CSV import/export use durable
   await app.getByRole('button', { name: '结束并保存', exact: true }).click();
   await expect(app.getByText('本次专注已保存', { exact: true })).toBeVisible();
   const go = async (section: string, label: string) => {
-    if (await page.locator('.todo-mobile-nav').isVisible())
-      await page.locator('.todo-mobile-nav').selectOption(section);
-    else
-      await page
-        .locator('.todo-sidebar nav')
-        .getByRole('button', { name: label, exact: true })
-        .click();
+    await goToToDooSection(page, section);
     await expect(page.locator('.todo-page h1')).toHaveText(label);
     await expect(page.getByText('正在载入…', { exact: true })).not.toBeVisible();
   };
@@ -193,19 +193,27 @@ test('focus, habit check-ins, anniversary and real CSV import/export use durable
   await page.getByRole('dialog').getByRole('button', { name: '保存', exact: true }).click();
   await expect(app.getByRole('button', { name, exact: true })).toBeVisible();
   const today = new Date().toISOString().slice(0, 10);
-  page.once('dialog', (dialog) => dialog.accept('2'));
   await app
     .getByRole('button', { name: name + ' ' + today + ' 打卡，当前 0 页', exact: true })
     .click();
+  const habitCount = page.getByRole('dialog', { name: '记录习惯数量', exact: true });
+  await habitCount.getByRole('spinbutton', { name: '习惯数量', exact: true }).fill('2');
+  await habitCount.getByRole('button', { name: '保存', exact: true }).click();
+  await expect(habitCount).not.toBeVisible();
   await expect(
     app.getByRole('button', { name: name + ' ' + today + ' 打卡，当前 2 页', exact: true }),
   ).toHaveText('✓');
   await app.getByRole('button', { name, exact: true }).click();
-  await page.getByRole('dialog').getByLabel('目标数量', { exact: true }).fill('3');
+  const habitEditor = page.getByRole('dialog', { name: '编辑习惯', exact: true });
+  await expect(habitEditor).toBeVisible();
   await page
     .getByRole('dialog')
-    .getByLabel('规则生效日期', { exact: true })
-    .fill(new Date(Date.now() + 86400000).toISOString().slice(0, 10));
+    .getByRole('spinbutton', { name: '目标数量', exact: true })
+    .fill('3');
+  await fillToDooDate(
+    page.getByRole('dialog').getByLabel('规则生效日期', { exact: true }),
+    new Date(Date.now() + 86400000).toISOString().slice(0, 10),
+  );
   await page.getByRole('dialog').getByRole('button', { name: '保存', exact: true }).click();
   await expect(
     app.getByRole('button', { name: name + ' ' + today + ' 打卡，当前 2 页', exact: true }),
@@ -225,7 +233,7 @@ test('focus, habit check-ins, anniversary and real CSV import/export use durable
   const download = page.waitForEvent('download');
   await app.getByRole('button', { name: '导出 JSON', exact: true }).click();
   expect((await download).suggestedFilename()).toBe('to-doo.json');
-  await app.getByRole('combobox', { name: '格式', exact: true }).selectOption('csv');
+  await selectToDooOption(app, '格式', '滴答 CSV');
   await app
     .getByLabel('或粘贴文件内容', { exact: true })
     .fill('Title,Status\nImported ' + name + ',todo\n');
@@ -283,6 +291,7 @@ test.describe('To Doo source and evidence', () => {
     expect(task.source.noteId).toBe(note.id);
     expect(task.source.draft).toBe(true);
     expect(task.source.quote).toContain('草稿中的跟进行动');
+    await expandToDooGroup(detail, '完成标准与成果');
     await detail.getByRole('button', { name: '创建成果笔记并关联', exact: true }).click();
     const outcome = page.getByRole('dialog', { name: '创建成果笔记', exact: true });
     await outcome.getByLabel('笔记标题', { exact: true }).fill('已验证成果 ' + taskTitle);
@@ -306,8 +315,8 @@ test.describe('To Doo source and evidence', () => {
     expect(changed.ok()).toBe(true);
     await outcome.getByRole('button', { name: '创建并关联成果笔记', exact: true }).click();
     await expect(outcome.getByRole('alert')).toContainText('版本');
-    page.once('dialog', (dialog) => dialog.accept());
     await outcome.getByRole('button', { name: '核对当前任务版本后继续', exact: true }).click();
+    await confirmToDooAction(page);
 
     await expect(app.getByText('成果笔记已创建并关联', { exact: true })).toBeVisible();
     const after = await (
@@ -380,8 +389,8 @@ test.describe('To Doo source and evidence', () => {
     await expect(outcome.getByLabel('成果正文（Markdown）', { exact: true })).toHaveValue(
       '# 原正文保持不变\n\n准备状态也能恢复。',
     );
-    page.once('dialog', (dialog) => dialog.accept());
     await outcome.getByRole('button', { name: '核对当前任务版本后继续', exact: true }).click();
+    await confirmToDooAction(page);
     await expect(app.getByText('成果笔记已创建并关联', { exact: true })).toBeVisible();
     const recovered = await (
       await page.request.get('/api/to-doo/state?kind=operation&limit=50')
@@ -422,17 +431,18 @@ test('bulk and cascade completion freeze execution membership and persist their 
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间' }),
     detail = app.getByRole('complementary', { name: '任务详情' });
   await expect(detail.getByLabel('任务标题', { exact: true })).toHaveValue(parent.title);
-  page.once('dialog', (dialog) => dialog.accept());
   const cascadeRequest = page.waitForRequest(
     (r) => r.method() === 'POST' && r.url().endsWith('/api/to-doo/commands'),
   );
   await detail.getByRole('button', { name: '标记完成', exact: true }).click();
+  await confirmToDooAction(page);
   const cascadeBody = (await cascadeRequest).postDataJSON();
   expect(cascadeBody.payload.expectedOccurrenceIds).toHaveLength(2);
   expect(Object.keys(cascadeBody.payload.expectedRevisions)).toHaveLength(4);
-  await expect(detail.getByRole('combobox', { name: '状态', exact: true })).toHaveValue('done');
+  await expectToDooSelection(detail, '状态', '已完成');
   await detail.getByRole('button', { name: '关闭任务详情', exact: true }).click();
-  await app.getByRole('button', { name: '多选', exact: true }).click();
+  await app.getByRole('button', { name: '任务管理', exact: true }).click();
+  await page.getByRole('menuitem', { name: '多选', exact: true }).click();
   await app.getByRole('checkbox', { name: '选择 ' + batchParent.title, exact: true }).check();
   const batchRequest = page.waitForRequest(
     (r) => r.method() === 'POST' && r.url().endsWith('/api/to-doo/commands'),
@@ -442,6 +452,7 @@ test('bulk and cascade completion freeze execution membership and persist their 
   expect(batchBody.payload.occurrenceIds).toHaveLength(2);
   expect(Object.keys(batchBody.payload.expectedRevisions)).toHaveLength(4);
   await expect(app.getByRole('status')).toContainText('批量操作已保存');
+  await showCompletedTasks(app);
   await app.getByRole('checkbox', { name: '选择 ' + batchParent.title, exact: true }).uncheck();
   await app.getByRole('checkbox', { name: '选择 ' + cancelled.title, exact: true }).check();
   const cancelledResponse = page.waitForResponse(
@@ -450,6 +461,7 @@ test('bulk and cascade completion freeze execution membership and persist their 
       response.url().endsWith('/api/to-doo/commands') &&
       response.request().postDataJSON()?.payload?.operation === 'cancel',
   );
+  await expandToDooGroup(app, '更多批量操作');
   await app.getByRole('button', { name: '取消', exact: true }).click();
   expect((await cancelledResponse).ok()).toBe(true);
   await expect(app.getByRole('status')).toContainText('批量操作已保存');

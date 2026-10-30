@@ -1,3 +1,4 @@
+import './browser-crypto';
 import { createApp } from 'vue';
 import App from './App.vue';
 import { installAntDesign } from './ant-design';
@@ -11,6 +12,7 @@ import './management.css';
 import './workbench.css';
 import './motion.css';
 import './scrollbars.css';
+import './workspace-tabbar.css';
 const app = createApp(App);
 installAntDesign(app);
 app.mount('#app');

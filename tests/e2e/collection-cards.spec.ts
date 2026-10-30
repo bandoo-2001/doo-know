@@ -1,7 +1,7 @@
 import { test, expect } from '../support/browser-test';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { showSidebar } from '../support/settings-navigation';
+import { showMainMenu } from '../support/settings-navigation';
 
 test('browser Back from an overview returns to the retained unsaved note', async ({
   page,
@@ -24,7 +24,7 @@ test('browser Back from an overview returns to the retained unsaved note', async
   await page.getByRole('button', { name: 'Markdown 源码', exact: true }).click();
   await page.locator('.cm-content').click();
   await page.keyboard.insertText('尚未保存的输入');
-  await showSidebar(page);
+  await showMainMenu(page);
   await page
     .getByRole('navigation', { name: '工作区', exact: true })
     .getByRole('button', { name: '最近', exact: true })
@@ -119,7 +119,7 @@ test('recent and favorites share summary cards and favorite removal updates the 
     'aria-pressed',
     'true',
   );
-  await showSidebar(page);
+  await showMainMenu(page);
   await page
     .getByRole('navigation', { name: '工作区', exact: true })
     .getByRole('button', { name: '收藏', exact: true })

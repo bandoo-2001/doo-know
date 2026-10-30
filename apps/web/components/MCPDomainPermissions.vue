@@ -4,6 +4,7 @@ import { Alert as AAlert, Button as AButton, Checkbox as ACheckbox, Select as AS
 import type { PermissionPolicy } from '../../../shared/permissions';
 import { api } from '../api';
 import { selectableDomains, domainPreset, domainResourceMode, type PermissionEditorState } from '../mcp-permissions';
+import KnowledgeResourceTreeSelect from './KnowledgeResourceTreeSelect.vue';
 const props=defineProps<{modelValue?:PermissionPolicy;initialPolicy?:PermissionPolicy;ceiling?:PermissionPolicy;disabled?:boolean;consent?:boolean}>();
 const componentId=useId();
 const emit=defineEmits<{ 'update:modelValue':[value:PermissionPolicy] }>();
@@ -67,7 +68,10 @@ function toggleAction(domain:string,action:string,checked:boolean){update(domain
           </ASelect>
         </div>
         <label v-if="policy!.domains[domain.id].resources.mode==='selected'" :for="componentId+'-resources-'+domain.id">选择{{domain.title}}资源</label>
-        <ASelect :id="componentId+'-resources-'+domain.id" v-if="policy!.domains[domain.id].resources.mode==='selected'" mode="multiple" :value="(policy!.domains[domain.id].resources as any).resources.map(key)" :options="options(domain.id)" :disabled="disabled" :aria-label="'选择'+domain.title+'资源'" @update:value="values=>select(domain.id,values as string[])" />
+        <template v-if="policy!.domains[domain.id].resources.mode==='selected'">
+          <KnowledgeResourceTreeSelect v-if="domain.id==='knowledge'" :id="componentId+'-resources-'+domain.id" :value="(policy!.domains[domain.id].resources as any).resources" :resources="bindingChanged(domain.id)?[]:state?.resources.knowledge || []" :ceiling="ceiling?.domains.knowledge?.resources" :disabled="disabled" @update:value="values=>update(domain.id,grant=>{grant.resources={mode:'selected',resources:values}})" />
+          <ASelect v-else :id="componentId+'-resources-'+domain.id" mode="multiple" :value="(policy!.domains[domain.id].resources as any).resources.map(key)" :options="options(domain.id)" :disabled="disabled" :aria-label="'选择'+domain.title+'资源'" @update:value="values=>select(domain.id,values as string[])" />
+        </template>
         <p v-if="domain.id==='knowledge'">目录授权跟随身份并覆盖后代；自主整理允许直接创建、移动和改名。归档和维护索引独立设置。</p>
         <p v-else-if="domain.id==='to-doo'">清单范围与允许的内容类别同时生效；任务授权不会开放笔记原文。读取和编辑分别授权。</p>
         <p v-else>公开发布需要读取原文和附件；不会要求知识库写入。修改私有笔记不会自动更新公开文章。</p>

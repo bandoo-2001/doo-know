@@ -1,5 +1,6 @@
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
+import { showMainMenu, showSidebar } from '../support/settings-navigation';
 
 test.use({ sourceEditorPreference: true });
 
@@ -10,9 +11,9 @@ test('settings pages isolate content, show persistent tools, and restore the not
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   await page.goto('/?view=settings&section=search');
   await expect(page.locator('.settings-workspace h1')).toHaveText('搜索');
-  if (info.project.name === 'mobile')
-    await page.getByRole('button', { name: '打开侧栏', exact: true }).click();
+  await showSidebar(page);
   await expect(page.getByRole('navigation', { name: '设置分类', exact: true })).toBeVisible();
+  await showMainMenu(page);
   await expect(page.getByRole('navigation', { name: '常用工具', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: '个人账户', exact: true })).toHaveAttribute(
     'aria-expanded',
@@ -20,6 +21,7 @@ test('settings pages isolate content, show persistent tools, and restore the not
   );
   await expect(page.getByLabel('当前密码', { exact: true })).toHaveCount(0);
   await expect(page.locator('.settings-workspace h1')).toHaveText('搜索');
+  await showSidebar(page);
   const editorSettings = page
     .getByRole('navigation', { name: '设置分类', exact: true })
     .getByRole('button', { name: '通用与编辑', exact: true });
@@ -27,8 +29,7 @@ test('settings pages isolate content, show persistent tools, and restore the not
   await expect(page.locator('.settings-workspace h1')).toHaveText('编辑器与外观');
   await expect(page.getByLabel('当前密码', { exact: true })).toHaveCount(0);
   await expect(page.locator('.search-runtime-settings')).toHaveCount(0);
-  if (info.project.name === 'mobile')
-    await page.getByRole('button', { name: '打开侧栏', exact: true }).click();
+  await showSidebar(page);
   await page
     .getByRole('navigation', { name: '设置分类', exact: true })
     .getByRole('button', { name: '账号与安全', exact: true })
@@ -65,8 +66,7 @@ test('settings pages isolate content, show persistent tools, and restore the not
   await page.keyboard.type(' draft kept');
   await page.keyboard.press('Home');
   await page.keyboard.press('Shift+End');
-  if (info.project.name === 'mobile')
-    await page.getByRole('button', { name: '打开侧栏', exact: true }).click();
+  await showMainMenu(page);
   await page
     .getByRole('navigation', { name: '常用工具', exact: true })
     .getByRole('button', { name: '设置', exact: true })
@@ -88,8 +88,7 @@ test('settings pages isolate content, show persistent tools, and restore the not
   expect((await (await page.request.get('/api/notes/' + note.id)).json()).content).toBe(
     '# Keep context\n\nselected words',
   );
-  if (info.project.name === 'mobile')
-    await page.getByRole('button', { name: '打开侧栏', exact: true }).click();
+  await showMainMenu(page);
   await page
     .getByRole('navigation', { name: '常用工具', exact: true })
     .getByRole('button', { name: '回收站', exact: true })

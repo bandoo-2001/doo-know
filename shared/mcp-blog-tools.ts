@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { blogDesignToolDefinitions } from './mcp-blog-design-tools.js';
 import { mcpTransferInfoSchema } from './mcp-transfer-tools.js';
 
 const id = z.string().min(1).max(256);
@@ -44,6 +45,7 @@ export const blogToolVersionMetadata = blogToolMetadata.extend({ coverResource: 
 // Transfer metadata is intentionally independent of host paths and filesystem names.
 export const blogToolTransfer = mcpTransferInfoSchema;
 export const blogToolDefinitions = [
+  ...blogDesignToolDefinitions,
   { name: 'list_blog_taxonomy', description: '分页列出当前获准文章使用的分类或标签及计数；不会暴露其他文章的分类。', scope: 'blog:read', readOnly: true,
     input: z.object({ kind: z.enum(['categories','tags']), limit: z.number().int().min(1).max(50).default(20), offset: z.number().int().min(0).max(100000).default(0) }).strict(), output: z.object({ entries: z.array(z.object({ name: text(80), count: z.number().int().positive() }).strict()).max(50), total: z.number().int().nonnegative(), nextOffset: z.number().int().nullable() }).strict() },
   { name: 'list_blog_posts', description: '分页查询获准文章，可按标题摘要、发布状态、分类或标签筛选；返回管理摘要，原文通过知识读取工具获取。', scope: 'blog:read', readOnly: true,

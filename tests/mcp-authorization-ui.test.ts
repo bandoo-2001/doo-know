@@ -45,7 +45,7 @@ async function mount(file: string, props = {}) {
       if (id === '../mcp-permissions') return permissionHelpers;
       if (id === './MCPDomainPermissions.vue' || id === './MCPClientPermissions.vue') return { default: {render:()=>null} };
       if (id === '../plugins') return { pluginRegistry: registry };
-      if (id === './Icon.vue') return { default: { render: () => null } };
+      if (id === './Icon.vue' || id === './KnowledgeResourceTreeSelect.vue') return { default: { render: () => null } };
       if (id === '../../../shared/authorization-scopes') return { isResourceScope };
       throw Error('Unexpected component dependency: ' + id);
     },

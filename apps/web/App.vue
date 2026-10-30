@@ -9,6 +9,7 @@ import { api, ApiError, refreshCsrf, resetCsrf } from './api';
 import { clearPluginDrafts, hasUnsavedPluginDrafts } from './plugin-drafts';
 import { disposePluginUIs } from './plugins';
 import { initializeEditorPreferences, resolvedTheme } from './preferences';
+import { initializeAppShortcuts } from './app-shortcuts';
 import LoadingState from './components/LoadingState.vue';
 const PageLoading = defineComponent({
   inheritAttrs: false,
@@ -252,6 +253,7 @@ async function acceptSession(
   username.value =
     session.user.displayUsername || session.user.username || session.user.name || '当前账户';
   initializeEditorPreferences(ownerId.value);
+  initializeAppShortcuts(ownerId.value);
   loggedIn.value = true;
   expired.value = false;
   await completePlatformRead(preparedPlatform);

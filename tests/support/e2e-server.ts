@@ -26,6 +26,15 @@ let app: Awaited<ReturnType<typeof createApp>> | undefined;
 let vite: Awaited<ReturnType<typeof createServer>> | undefined;
 let graphModel: Awaited<ReturnType<typeof graphModelFixture>> | undefined;
 let teardownPromise: Promise<void> | undefined;
+async function listenFrontend(port: number) {
+  await new Promise<void>((resolve, reject) => {
+    frontend!.once('error', reject);
+    frontend!.listen(port, '127.0.0.1', () => {
+      frontend!.off('error', reject);
+      resolve();
+    });
+  });
+}
 function teardown() {
   return (teardownPromise ??= (async () => {
     searchSource?.closeAllConnections();
@@ -69,7 +78,6 @@ for (const signal of ['SIGINT', 'SIGTERM'])
 async function initialize() {
   const webPort = Number(process.env.DOOKNOW_E2E_WEB_PORT || 4179);
   const apiPort = Number(process.env.DOOKNOW_E2E_API_PORT || 4180);
-  const origin = `http://127.0.0.1:${webPort}`;
   if (process.env.DOOKNOW_E2E_GRAPH_MODEL === '1') graphModel = await graphModelFixture();
   const gitOnboarding = process.env.DOOKNOW_E2E_GIT_ONBOARDING === '1';
   const gitImportParent = join(root, 'imported-libraries');
@@ -102,21 +110,7 @@ async function initialize() {
     git('-C', seed, 'commit', '-m', 'Seed isolated onboarding repository');
     git('-C', seed, 'push', '--', gitRemoteRoot, 'main');
   }
-  await writeFile(
-    '.local/e2e-config.json',
-    JSON.stringify({
-      origin,
-      graphModelURL: graphModel?.url,
-      knowledgeRoot,
-      dataRoot,
-      gitRemoteURL,
-      gitRemoteRoot,
-      gitExternalRoot,
-      gitOnboarding,
-      gitImportParent,
-      gitImportContent,
-    }),
-  );
+
   if (shutdownRequested) return;
   let searchDistribution: any;
   if (process.env.DOOKNOW_E2E_SEARCH_RUNTIME === '1') {
@@ -137,6 +131,33 @@ async function initialize() {
       sha256: createHash('sha256').update(bytes).digest('hex'),
     };
   }
+  // Lifecycle tests own both listeners. Keep the Playwright defaults unchanged,
+  // while port 0 reserves a frontend socket before constructing the auth origin.
+  const isolatedPort = process.env.DOOKNOW_E2E_PORT;
+  let frontendPort = webPort;
+  if (isolatedPort !== undefined && process.env.DOOKNOW_E2E_PRODUCTION !== '1') {
+    const requestedPort = Number(isolatedPort);
+    if (!Number.isInteger(requestedPort) || requestedPort < 0 || requestedPort > 65535)
+      throw new Error('DOOKNOW_E2E_PORT must be an integer between 0 and 65535');
+    frontend = createHTTPServer();
+    await listenFrontend(requestedPort);
+    frontendPort = (frontend.address() as { port: number }).port;
+  }
+  await writeFile(
+    '.local/e2e-config.json',
+    JSON.stringify({
+      origin: 'http://127.0.0.1:' + frontendPort,
+      graphModelURL: graphModel?.url,
+      knowledgeRoot,
+      dataRoot,
+      gitRemoteURL,
+      gitRemoteRoot,
+      gitExternalRoot,
+      gitOnboarding,
+      gitImportParent,
+      gitImportContent,
+    }),
+  );
   const config = {
     ...(gitOnboarding ? { allowedKnowledgeBases: [gitImportParent] } : { knowledgeRoot }),
     dataRoot,
@@ -149,7 +170,7 @@ async function initialize() {
         }
       : {}),
     secret: 'e2e-only-at-least-thirty-two-character-secret',
-    origin,
+    origin: 'http://127.0.0.1:' + frontendPort,
     pluginCatalog: [
       await pluginFixture(root),
       ...(await buildPlugins({
@@ -194,7 +215,7 @@ async function initialize() {
   }
   await app.listen({
     host: '127.0.0.1',
-    port: process.env.DOOKNOW_E2E_PRODUCTION === '1' ? webPort : apiPort,
+    port: process.env.DOOKNOW_E2E_PRODUCTION === '1' ? webPort : isolatedPort !== undefined ? 0 : apiPort,
   });
   if (shutdownRequested) return;
   const login = await app.inject({
@@ -228,27 +249,22 @@ async function initialize() {
     { mode: 0o600 },
   );
   if (shutdownRequested || process.env.DOOKNOW_E2E_PRODUCTION === '1') return;
-  frontend = createHTTPServer();
+  const backendOrigin = 'http://127.0.0.1:' + (app.server.address() as { port: number }).port;
+  frontend ??= createHTTPServer();
   vite = await createServer({
     configFile: 'vite.config.ts',
     cacheDir: join(root, 'vite-cache'),
     server: {
       middlewareMode: { server: frontend },
-      port: webPort,
+      port: frontendPort,
       host: '127.0.0.1',
       ws: { server: frontend },
-      proxy: { '/api/': `http://127.0.0.1:${apiPort}`, '/plugins/': `http://127.0.0.1:${apiPort}`, '^/blog(?:/|\\?|$)': `http://127.0.0.1:${apiPort}` },
+      proxy: { '/api/': backendOrigin, '/plugins/': backendOrigin, '^/blog(?:/|\\?|$)': backendOrigin },
     },
   });
   if (shutdownRequested) return;
   frontend.on('request', vite.middlewares);
-  await new Promise<void>((resolve, reject) => {
-    frontend!.once('error', reject);
-    frontend!.listen(webPort, '127.0.0.1', () => {
-      frontend!.off('error', reject);
-      resolve();
-    });
-  });
+  if (!frontend.listening) await listenFrontend(frontendPort);
 }
 try {
   await initialize();
@@ -263,3 +279,12 @@ try {
   initializationFinished = true;
 }
 if (shutdownRequested) await shutdown();
+else if (process.env.DOOKNOW_E2E_READY_TOKEN && process.send) {
+  const server = frontend ?? app!.server;
+  process.send({
+    type: 'dooknow-e2e-ready',
+    token: process.env.DOOKNOW_E2E_READY_TOKEN,
+    pid: process.pid,
+    port: (server.address() as { port: number }).port,
+  });
+}

@@ -226,7 +226,7 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     return createOutcomeNoteService(runtime.config, db, runtime.notes, runtime.toDoo);
   });
   registerToDooInteropRoutes(app, () => platform.get().toDooInterop);
-  registerToDooPushRoutes(app, () => platform.get().toDooNotifications);
+  registerToDooPushRoutes(app, () => platform.get().toDooNotifications, () => platform.get().toDoo, { db });
   registerToDooAssetRoutes(app, () => {
     const runtime = platform.get();
     return createToDooAssets(runtime.toDoo, { knowledgeRoot: runtime.config.knowledgeRoot, db });

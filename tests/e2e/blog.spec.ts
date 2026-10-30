@@ -1,6 +1,14 @@
 import { readFile } from 'node:fs/promises';
 import { test, expect } from '../support/browser-test';
-import { showSidebar } from '../support/settings-navigation';
+import { showMainMenu, closeSidebar } from '../support/settings-navigation';
+
+async function selectBlogSection(page: import('@playwright/test').Page, label: string) {
+  await showMainMenu(page);
+  await page
+    .locator('.workspace-footer')
+    .getByRole('button', { name: label, exact: true })
+    .click();
+}
 
 test.use({ sourceEditorPreference: true });
 test('blog manual publication keeps the original and public snapshots independent', async ({
@@ -85,7 +93,7 @@ test('blog manual publication keeps the original and public snapshots independen
   expect(post).toBeTruthy();
   const unchanged = await (await page.request.get('/api/notes/' + note.id)).json();
   expect(unchanged.content).toBe(original);
-  await page.getByRole('button', { name: '站点设置', exact: true }).click();
+  await selectBlogSection(page, '站点设置');
   await page.getByRole('checkbox', { name: '开启博客站点' }).check();
   await page.getByRole('button', { name: '保存站点设置', exact: true }).click();
   await expect(page.getByText('站点已开启，已发布文章可公开访问。')).toBeVisible();
@@ -103,28 +111,34 @@ test('blog manual publication keeps the original and public snapshots independen
     fullPage: true,
     animations: 'disabled',
   });
-  await page.getByRole('button', { name: '文章', exact: true }).click();
+  await selectBlogSection(page, '文章');
   await page.getByRole('button', { name: '编辑原稿', exact: true }).click();
   await expect(page.locator('.cm-content')).toBeVisible();
   await page
     .locator('.cm-content')
     .fill('# Private edited title\n\nSecond source body, explicitly updated.');
-  await showSidebar(page);
+  await showMainMenu(page);
   await page
     .locator('.workspace-footer')
     .getByRole('button', { name: '应用', exact: true })
     .click();
+  await expect(page.getByRole('heading', { name: '应用', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: /博客.*把值得分享/ }).click();
+  await selectBlogSection(page, '文章');
   await expect(page.locator('.blog-article-detail')).toBeVisible();
   await page.getByRole('button', { name: '编辑原稿', exact: true }).click();
   await expect(page.locator('.cm-content')).toContainText('Second source body');
   await expect(page.locator('.save-state')).toContainText('未保存');
   await page.keyboard.press('ControlOrMeta+s');
   await expect(page.locator('.save-state')).toContainText('已保存');
-  await showSidebar(page);
+  await showMainMenu(page);
   await page
     .locator('.workspace-footer')
     .getByRole('button', { name: '应用', exact: true })
     .click();
+  await expect(page.getByRole('heading', { name: '应用', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: /博客.*把值得分享/ }).click();
+  await selectBlogSection(page, '文章');
   await expect(page.locator('.blog-article-detail .blog-badge')).toHaveText('有更新待发布');
   await visitor.reload();
   await expect(visitor.locator('body')).toContainText('First published body.');
@@ -133,7 +147,7 @@ test('blog manual publication keeps the original and public snapshots independen
   await expect(page.locator('.blog-article-detail .blog-badge')).toHaveText('已发布');
   await visitor.reload();
   await expect(visitor.locator('body')).toContainText('Second source body');
-  await page.getByRole('button', { name: '分类与标签', exact: true }).click();
+  await selectBlogSection(page, '分类与标签');
   await expect(page.locator('.blog-taxonomy')).toContainText('生活与思考');
   await page
     .locator('.blog-category')
@@ -166,12 +180,12 @@ test('blog manual publication keeps the original and public snapshots independen
   await page.getByRole('button', { name: '确认下架', exact: true }).click();
   await expect(page.locator('.blog-article-detail .blog-badge')).toHaveText('已下架');
   expect((await visitor.goto(publicUrl))?.status()).toBe(404);
-  await page.getByRole('button', { name: '站点设置', exact: true }).click();
+  await selectBlogSection(page, '站点设置');
   await page.getByRole('checkbox', { name: '开启博客站点' }).uncheck();
   await page.getByRole('button', { name: '保存站点设置', exact: true }).click();
   await expect(page.getByText('站点已关闭，公开页面不可访问。')).toBeVisible();
   expect((await visitor.goto('/blog'))?.status()).toBe(404);
-  await page.getByRole('button', { name: '文章', exact: true }).click();
+  await selectBlogSection(page, '文章');
   await page.getByRole('button', { name: '移除选稿', exact: true }).click();
   await page.getByRole('button', { name: '确认移除', exact: true }).click();
   await expect(page.locator('.blog-article-detail')).toHaveCount(0);
@@ -221,12 +235,13 @@ test('blog preserves per-article edits through delayed reads and real version co
   await expect(page.getByLabel('摘要', { exact: true })).toHaveValue(
     'Keep my unsaved article summary',
   );
-  await page.getByRole('button', { name: '分类与标签', exact: true }).click();
+  await selectBlogSection(page, '分类与标签');
   await page.goBack();
-  await expect(page.getByRole('button', { name: '文章', exact: true })).toHaveAttribute(
-    'aria-current',
-    'page',
-  );
+  await showMainMenu(page);
+  await expect(
+    page.locator('.workspace-footer').getByRole('button', { name: '文章', exact: true }),
+  ).toHaveAttribute('aria-current', 'page');
+  await closeSidebar(page);
   await expect(page.getByLabel('摘要', { exact: true })).toHaveValue(
     'Keep my unsaved article summary',
   );
@@ -282,7 +297,7 @@ test('blog preserves per-article edits through delayed reads and real version co
   await response;
   await expect(page.getByLabel('文章标题', { exact: true })).toHaveValue(b.post.title);
   await page.unroute('**/api/blog/posts/' + a.post.id);
-  await page.getByRole('button', { name: '站点设置', exact: true }).click();
+  await selectBlogSection(page, '站点设置');
   await page.getByLabel('站点名称', { exact: true }).fill('My pending site title');
   const current = await (await page.request.get('/api/blog/settings')).json();
   expect(

@@ -1,4 +1,5 @@
 import { reactive } from 'vue';
+import type { TreeEntry } from '../../shared/contracts';
 import type {
   BlogDashboard,
   BlogMetadata,
@@ -7,8 +8,43 @@ import type {
   BlogSettings,
   BlogDiagramPreview,
 } from '../../shared/blog-contracts';
+import type {
+  BlogDesign,
+  BlogDesignState,
+  BlogDesignMedia,
+  BlogPublicationReview,
+} from '../../shared/blog-design';
 export type BlogRequest = (url: string, method?: string, body?: any) => Promise<any>;
-export type BlogSection = 'overview' | 'articles' | 'taxonomy' | 'settings';
+export type BlogSection = 'overview' | 'articles' | 'taxonomy' | 'settings' | 'design';
+export function blogNotePicker(tree: TreeEntry[], query: string) {
+  const walk = (items: TreeEntry[]): TreeEntry[] =>
+    items.flatMap((item) =>
+      item.type === 'folder'
+        ? walk(item.children || [])
+        : item.documentType !== 'whiteboard' && item.id
+          ? [item]
+          : [],
+    );
+  const allNotes = walk(tree);
+  const notes = allNotes.filter((note) => note.path.toLowerCase().includes(query.toLowerCase()));
+  return { notes, sourcePath: (id: string) => allNotes.find((note) => note.id === id)?.path };
+}
+export function blogAttachmentPath(notePath: string, assetPath: string) {
+  const folder = notePath.split('/').slice(0, -1),
+    target = assetPath.split('/');
+  while (folder.length && target.length && folder[0] === target[0]) {
+    folder.shift();
+    target.shift();
+  }
+  return '../'.repeat(folder.length) + target.join('/');
+}
+const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value));
+function mergeDesign(local: BlogDesign, baseline: BlogDesign, remote: BlogDesign): BlogDesign {
+  return {
+    ...mergeDraft(local, baseline, remote),
+    profile: mergeDraft(local.profile, baseline.profile, remote.profile),
+  };
+}
 function metadata(post: BlogMetadata): BlogMetadata {
   return {
     slug: post.slug,
@@ -40,6 +76,18 @@ export function createBlogWorkbench(
   prepareDiagrams?: (detail: BlogPostDetail) => Promise<BlogDiagramPreview[]>,
 ) {
   const state = reactive({
+    design: undefined as BlogDesign | undefined,
+    designState: undefined as BlogDesignState | undefined,
+    designLoading: false,
+    designBusy: false,
+    designError: '',
+    designNotice: '',
+    designPreviewHtml: '',
+    designPreviewBusy: false,
+    designPreviewError: '',
+    reviews: {} as Record<string, BlogPublicationReview>,
+    reviewLoading: {} as Record<string, boolean>,
+    reviewErrors: {} as Record<string, string>,
     selectedId: '',
     forms: {} as Record<string, BlogMetadata>,
     details: {} as Record<string, BlogPostDetail>,
@@ -56,6 +104,10 @@ export function createBlogWorkbench(
     settingsError: '',
     settingsNotice: '',
   });
+  let designGeneration = 0,
+    previewGeneration = 0;
+  let savedDesign: BlogDesign | undefined;
+  const reviewGeneration: Record<string, number> = {};
   const saved: Record<string, string> = {};
   const removed = new Set<string>();
   const detailGeneration: Record<string, number> = {};
@@ -314,8 +366,168 @@ export function createBlogWorkbench(
       state.settingsBusy = false;
     }
   }
+  function designDirty() {
+    return !!state.design && fingerprint(state.design) !== fingerprint(savedDesign);
+  }
+  function adoptDesign(remote: BlogDesignState, baseline?: BlogDesign) {
+    state.design =
+      state.design && baseline
+        ? mergeDesign(state.design, baseline, remote.draft)
+        : clone(remote.draft);
+    savedDesign = clone(remote.draft);
+    state.designState = remote;
+  }
+  async function loadDesign() {
+    if (state.designBusy) return;
+    const generation = ++designGeneration;
+    state.designLoading = true;
+    state.designError = '';
+    try {
+      const remote = (await request('/api/blog/design')) as BlogDesignState;
+      if (generation === designGeneration) adoptDesign(remote, savedDesign);
+    } catch (cause) {
+      if (generation === designGeneration) state.designError = errorMessage(cause);
+    } finally {
+      if (generation === designGeneration) state.designLoading = false;
+    }
+  }
+  async function designAction(work: () => Promise<void>) {
+    if (state.designBusy || !state.designState || !state.design) return;
+    ++designGeneration;
+    state.designLoading = false;
+    state.designBusy = true;
+    state.designError = '';
+    state.designNotice = '';
+    try {
+      await work();
+    } catch (cause) {
+      state.designError = errorMessage(cause);
+    } finally {
+      state.designBusy = false;
+    }
+  }
+  async function saveDesign() {
+    if (!state.design || !state.designState) return;
+    const snapshot = clone(state.design),
+      version = state.designState.version;
+    await designAction(async () => {
+      const remote = (await request('/api/blog/design', 'PATCH', {
+        design: snapshot,
+        expectedVersion: version,
+        requestId: crypto.randomUUID(),
+      })) as BlogDesignState;
+      adoptDesign(remote, snapshot);
+      state.designNotice = '装修草稿已保存，发布后才会更新公开主页。';
+    });
+  }
+  async function publishDesign() {
+    if (designDirty()) {
+      state.designError = '请先保存装修草稿，再确认发布。';
+      return;
+    }
+    const baseline = state.design && clone(state.design);
+    await designAction(async () => {
+      const remote = (await request('/api/blog/design/publish', 'POST', {
+        expectedVersion: state.designState!.version,
+        requestId: crypto.randomUUID(),
+      })) as BlogDesignState;
+      adoptDesign(remote, baseline);
+      state.designNotice = '主页装修已发布。';
+    });
+  }
+  async function restoreDesign(revision: number) {
+    if (designDirty()) {
+      state.designError = '请先保存当前装修草稿，再恢复历史版本。';
+      return;
+    }
+    const baseline = state.design && clone(state.design);
+    await designAction(async () => {
+      const remote = (await request('/api/blog/design/restore', 'POST', {
+        revision,
+        expectedVersion: state.designState!.version,
+        requestId: crypto.randomUUID(),
+      })) as BlogDesignState;
+      adoptDesign(remote, baseline);
+      state.designNotice = '历史版本已恢复到草稿，预览并发布后生效。';
+    });
+  }
+  async function previewDesign() {
+    if (!state.design) return;
+    const generation = ++previewGeneration,
+      design = clone(state.design);
+    state.designPreviewBusy = true;
+    state.designPreviewError = '';
+    try {
+      const result = await request('/api/blog/design/preview', 'POST', { design });
+      if (generation === previewGeneration) state.designPreviewHtml = result.html;
+    } catch (cause) {
+      if (generation === previewGeneration) state.designPreviewError = errorMessage(cause);
+    } finally {
+      if (generation === previewGeneration) state.designPreviewBusy = false;
+    }
+  }
+  async function uploadDesignMedia(file: File): Promise<BlogDesignMedia> {
+    if (file.size > 5 * 1024 ** 2) throw Error('图片不能超过 5 MiB');
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    let binary = '';
+    // Bounded chunks avoid overflowing the browser argument stack on large images.
+    for (let offset = 0; offset < bytes.length; offset += 32 * 1024)
+      binary += String.fromCharCode(...bytes.subarray(offset, offset + 32 * 1024));
+    return request('/api/blog/design/media', 'POST', {
+      name: file.name,
+      mime: file.type,
+      base64: btoa(binary),
+      requestId: crypto.randomUUID(),
+    });
+  }
+  async function noteAssets(noteId: string) {
+    return request('/api/notes/' + encodeURIComponent(noteId) + '/assets') as Promise<
+      { id: string; relativePath: string; mime: string; markdownPath?: string }[]
+    >;
+  }
+  function setCover(id: string, cover: string | null) {
+    const form = state.forms[id];
+    if (form) form.cover = cover;
+  }
+  async function uploadCover(noteId: string, file: File) {
+    const body = new FormData();
+    body.append('file', file);
+    return request(
+      '/api/notes/' + encodeURIComponent(noteId) + '/assets',
+      'POST',
+      body,
+    ) as Promise<{ markdownPath: string }>;
+  }
+  async function review(id = state.selectedId) {
+    if (!id) return;
+    const generation = (reviewGeneration[id] || 0) + 1;
+    reviewGeneration[id] = generation;
+    state.reviewLoading[id] = true;
+    state.reviewErrors[id] = '';
+    try {
+      const result = (await request(
+        '/api/blog/posts/' + encodeURIComponent(id) + '/review',
+      )) as BlogPublicationReview;
+      if (generation === reviewGeneration[id]) state.reviews[id] = result;
+    } catch (cause) {
+      if (generation === reviewGeneration[id]) state.reviewErrors[id] = errorMessage(cause);
+    } finally {
+      if (generation === reviewGeneration[id]) state.reviewLoading[id] = false;
+    }
+  }
   return {
     state,
+    loadDesign,
+    saveDesign,
+    publishDesign,
+    restoreDesign,
+    previewDesign,
+    designDirty,
+    uploadDesignMedia,
+    noteAssets,
+    uploadCover,
+    setCover,
+    review,
     load,
     select,
     create,

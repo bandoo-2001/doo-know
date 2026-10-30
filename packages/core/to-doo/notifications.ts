@@ -7,6 +7,7 @@ import type {
   ToDooService,
   ToDooSnapshot,
 } from '../../../shared/to-doo-contracts.js';
+import { toDooDate } from '../../../shared/to-doo-contracts.js';
 import { createToDooNetwork, type ToDooNetwork } from './network.js';
 import { addDays, dateTimeInstant, localDate, nextAnniversary } from './recurrence.js';
 import {
@@ -146,6 +147,7 @@ export function createToDooNotifications(
     CREATE TABLE IF NOT EXISTS to_doo_push_devices(id TEXT PRIMARY KEY,endpoint_hash TEXT NOT NULL UNIQUE,device_name TEXT NOT NULL,subscription TEXT NOT NULL,created_at TEXT NOT NULL,last_success_at TEXT,status TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS to_doo_push_outbox(id TEXT PRIMARY KEY,event_id TEXT NOT NULL,generation INTEGER NOT NULL,device_id TEXT NOT NULL,state TEXT NOT NULL,attempts INTEGER NOT NULL DEFAULT 0,next_at INTEGER NOT NULL,lease_until INTEGER NOT NULL DEFAULT 0,payload TEXT);
     CREATE INDEX IF NOT EXISTS to_doo_push_due ON to_doo_push_outbox(state,next_at);
+    CREATE TABLE IF NOT EXISTS to_doo_reminder_event_actions(request_id TEXT PRIMARY KEY,fingerprint TEXT NOT NULL,entity TEXT NOT NULL,expected_revision TEXT NOT NULL,response TEXT);
     CREATE TABLE IF NOT EXISTS to_doo_push_seen(event_id TEXT NOT NULL,generation INTEGER NOT NULL,PRIMARY KEY(event_id,generation));`);
   const stored = db.prepare('SELECT content FROM to_doo_push_config WHERE id=1').get() as
     | { content: string }
@@ -223,6 +225,17 @@ export function createToDooNotifications(
       outbox: counts,
       lastError,
     };
+  }
+  function deviceStatus(endpoint: string): {
+    deviceId: string | null;
+    status: 'active' | 'expired' | 'unregistered';
+  } {
+    const device = db
+      .prepare('SELECT id,status FROM to_doo_push_devices WHERE endpoint_hash=?')
+      .get(digest(endpoint)) as Pick<Device, 'id' | 'status'> | undefined;
+    return device
+      ? { deviceId: device.id, status: device.status }
+      : { deviceId: null, status: 'unregistered' };
   }
   async function configure(input: { enabled: boolean; showContent?: boolean }) {
     if (typeof input.enabled !== 'boolean')
@@ -363,6 +376,33 @@ export function createToDooNotifications(
       expectedRevision: string;
     },
   ) {
+    const datasetId =
+      'snapshot' in serviceOrPort ? serviceOrPort.snapshot().datasetId : options.installationId;
+    const requestKey = 'rem_event_' + digest([datasetId, input.requestId]).slice(0, 40);
+    const fingerprint = digest([id, input.action, input.until ?? null, input.expectedRevision]);
+    const previous = db
+      .prepare(
+        'SELECT fingerprint,entity,expected_revision,response FROM to_doo_reminder_event_actions WHERE request_id=?',
+      )
+      .get(requestKey) as
+      | {
+          fingerprint: string;
+          entity: string;
+          expected_revision: string;
+          response: string | null;
+        }
+      | undefined;
+    if (previous) {
+      if (previous.fingerprint !== fingerprint)
+        throw new ToDooNotificationError('相同请求标识携带不同内容，请刷新后重试', 409);
+      if (previous.response) return JSON.parse(previous.response) as ReminderEvent;
+      const saved = port.save(JSON.parse(previous.entity), requestKey, previous.expected_revision);
+      db.prepare('UPDATE to_doo_reminder_event_actions SET response=? WHERE request_id=?').run(
+        JSON.stringify(saved),
+        requestKey,
+      );
+      return saved;
+    }
     const event = port.events().find((e) => e.id === id);
     if (!event) throw new ToDooNotificationError('Reminder not found', 404);
     if (!['read', 'acknowledge', 'dismiss', 'snooze'].includes(input.action))
@@ -383,17 +423,22 @@ export function createToDooNotifications(
           : input.action === 'snooze'
             ? 'snoozed'
             : 'read';
-    return port.save(
-      {
-        ...event,
-        userState,
-        snoozedUntil: input.action === 'snooze' ? input.until : null,
-        deliveryGeneration:
-          input.action === 'snooze' ? event.deliveryGeneration + 1 : event.deliveryGeneration,
-      },
-      input.requestId,
-      input.expectedRevision,
+    const entity = {
+      ...event,
+      userState,
+      snoozedUntil: input.action === 'snooze' ? input.until : null,
+      deliveryGeneration:
+        input.action === 'snooze' ? event.deliveryGeneration + 1 : event.deliveryGeneration,
+    };
+    db.prepare(
+      'INSERT INTO to_doo_reminder_event_actions(request_id,fingerprint,entity,expected_revision) VALUES(?,?,?,?)',
+    ).run(requestKey, fingerprint, JSON.stringify(entity), input.expectedRevision);
+    const saved = port.save(entity, requestKey, input.expectedRevision);
+    db.prepare('UPDATE to_doo_reminder_event_actions SET response=? WHERE request_id=?').run(
+      JSON.stringify(saved),
+      requestKey,
     );
+    return saved;
   }
   async function run() {
     if (closed) return;
@@ -609,7 +654,18 @@ export function createToDooNotifications(
     timer = null;
     return processing?.catch(() => {}) ?? Promise.resolve();
   }
-  return { status, configure, subscribe, revoke, test, action, process, start, close };
+  return {
+    status,
+    deviceStatus,
+    configure,
+    subscribe,
+    revoke,
+    test,
+    action,
+    process,
+    start,
+    close,
+  };
 }
 
 const atZone = (value: ToDooDateTime, allDayTime = '09:00') => dateTimeInstant(value, allDayTime);
@@ -659,6 +715,86 @@ const isHabitHistory = (event: ReminderEvent) =>
   event.sourceType === 'habit' &&
   event.ruleId.startsWith('history_') &&
   event.occurrenceKey.startsWith('history:');
+
+/** Check the original period and schedule, optionally retaining already achieved sources for a safe no-op completion. */
+export function reminderSourceValid(
+  state: ToDooSnapshot,
+  event: ReminderEvent,
+  at: Date,
+  allowCompleted = false,
+): boolean {
+  if (event.deletedAt || reminderEventId(event) !== event.id) return false;
+  if (event.sourceType === 'habit') {
+    const habit = state.habits.find((h) => h.id === event.sourceId && !h.deletedAt);
+    if (isHabitHistory(event)) return !!habit;
+    if (!habit || !toDooDate.safeParse(event.occurrenceKey).success) return false;
+    const period = summarizeHabitPeriod(habit, state.habitEntries, event.occurrenceKey);
+    const rule = habit.reminders.find((r) => r.id === event.ruleId);
+    if (!rule) return false;
+    const anchor =
+      rule.anchor === 'absolute' && rule.at
+        ? new Date(rule.at)
+        : atZone(
+            { date: event.occurrenceKey, time: null, timeZone: period.rule.timeZone },
+            rule.allDayTime,
+          );
+    return (
+      Number.isFinite(anchor.getTime()) &&
+      (rule.anchor !== 'absolute' ||
+        localDate(anchor, period.rule.timeZone) === event.occurrenceKey) &&
+      new Date(anchor.getTime() + rule.offsetMinutes * 60000).toISOString() === event.scheduledAt &&
+      habitSchedule(habit, event.occurrenceKey) === event.scheduleRevision &&
+      (period.status === 'pending' || (allowCompleted && period.status === 'achieved')) &&
+      period.scheduledDates.includes(event.occurrenceKey) &&
+      !state.habitEntries.some(
+        (entry) =>
+          entry.habitId === habit.id &&
+          entry.localDate === event.occurrenceKey &&
+          entry.skipped &&
+          !entry.deletedAt,
+      )
+    );
+  }
+  if (event.sourceType === 'anniversary') {
+    const anniversary = state.anniversaries.find((a) => a.id === event.sourceId && !a.deletedAt);
+    if (!anniversary || !toDooDate.safeParse(event.occurrenceKey).success) return false;
+    const rule = anniversary.reminders.find((r) => r.id === event.ruleId);
+    if (
+      !rule ||
+      anniversarySchedule(anniversary, state.settings.timeZone) !== event.scheduleRevision
+    )
+      return false;
+    try {
+      if (nextAnniversary(anniversary, event.occurrenceKey).date !== event.occurrenceKey)
+        return false;
+      const anchor =
+        rule.anchor === 'absolute' && rule.at
+          ? new Date(rule.at)
+          : atZone(
+              { date: event.occurrenceKey, time: null, timeZone: state.settings.timeZone },
+              rule.allDayTime,
+            );
+      return (
+        new Date(anchor.getTime() + rule.offsetMinutes * 60000).toISOString() === event.scheduledAt
+      );
+    } catch {
+      return false;
+    }
+  }
+  const source = allowCompleted
+    ? {
+        ...state,
+        occurrences: state.occurrences.map((o) =>
+          o.taskId === event.sourceId && o.cycleKey === event.occurrenceKey && o.status === 'done'
+            ? { ...o, status: 'todo' as const }
+            : o,
+        ),
+      }
+    : state;
+  return notificationPlans(source, at).some(
+    (plan) => reminderEventId(plan) === event.id && plan.scheduledAt === event.scheduledAt,
+  );
+}
 export function backfillHabitReminders(
   service: ToDooService,
   at: Date,
@@ -968,39 +1104,7 @@ export function notificationDomainPort(
     due: (at) => notificationPlans(snapshot(), at),
     events: () => snapshot().reminderEvents,
     quietHours: () => snapshot().settings.quietHours,
-    valid: (event) => {
-      const state = snapshot();
-      if (event.sourceType === 'habit') {
-        const habit = state.habits.find((h) => h.id === event.sourceId && !h.deletedAt);
-        if (isHabitHistory(event)) return !!habit;
-        const period = habit
-          ? summarizeHabitPeriod(habit, state.habitEntries, event.occurrenceKey)
-          : null;
-        return (
-          !!habit &&
-          habitSchedule(habit, event.occurrenceKey) === event.scheduleRevision &&
-          period?.status === 'pending' &&
-          period.scheduledDates.includes(event.occurrenceKey) &&
-          !state.habitEntries.some(
-            (entry) =>
-              entry.habitId === habit.id &&
-              entry.localDate === event.occurrenceKey &&
-              entry.skipped &&
-              !entry.deletedAt,
-          )
-        );
-      }
-      if (event.sourceType === 'anniversary') {
-        const anniversary = state.anniversaries.find(
-          (a) => a.id === event.sourceId && !a.deletedAt,
-        );
-        return (
-          !!anniversary &&
-          anniversarySchedule(anniversary, state.settings.timeZone) === event.scheduleRevision
-        );
-      }
-      return notificationPlans(state, clock()).some((plan) => reminderEventId(plan) === event.id);
-    },
+    valid: (event) => reminderSourceValid(snapshot(), event, clock()),
     save: (entity, requestId, expectedRevision) => {
       service.command({
         requestId,

@@ -46,9 +46,10 @@ import Icon from './Icon.vue';
 import { graphLabels as labels, graphTaskErrorLabel } from './graph/labels';
 import { graphApi } from '../graph-request';
 import { createGraphWorkbench } from '../graph-workbench';
+import { useWorkspaceMainMenu } from '../workspace-main-menu';
 import '../graph.css';
 const props = defineProps<{ tree: TreeEntry[] }>();
-const emit = defineEmits<{ back: []; 'open-note': [id: string, line?: number] }>();
+const emit = defineEmits<{ back: []; 'open-note': [id: string, line?: number]; 'menu-select': [] }>();
 const model = createGraphWorkbench(graphApi),
   { state } = model;
 const canvas = ref<HTMLElement>();
@@ -58,6 +59,7 @@ const panel = ref('');
 const mobile = ref(false);
 const graphError = ref('');
 const draft = ref<GraphModelUpdate>();
+const overlayRef = ref<InstanceType<typeof GraphOverlay>>();
 // Ant form slots can finish their closing render after the draft is cleared.
 const modelDraft = computed<GraphModelUpdate>(
   () =>
@@ -109,6 +111,39 @@ const dirty = computed(
     !!draft.value &&
     (!!secret.value || clearKey.value || JSON.stringify(draft.value) !== baseline.value),
 );
+function hasUnsavedChanges() {
+  return state.busy || dirty.value;
+}
+async function requestLeave(): Promise<boolean> {
+  if (state.busy) return false;
+  if (!dirty.value) return true;
+  return (await overlayRef.value?.requestClose()) ?? false;
+}
+async function selectHostedMenu(id: string) {
+  if (id === 'knowledge' || id === 'notes') {
+    if (!await requestLeave() || disposed) return;
+    panel.value = '';
+    changeGraphView(id);
+  } else if (!await openPanel(id)) return;
+  emit('menu-select');
+}
+const hostedNavigation = useWorkspaceMainMenu(computed(() => ({
+  id: 'graph',
+  label: '知识图谱',
+  icon: 'share',
+  activeId: panel.value || state.query.view || 'knowledge',
+  items: [
+    { id: 'knowledge', label: '知识图谱', icon: 'share', disabled: state.busy },
+    { id: 'notes', label: '笔记图谱', icon: 'file', disabled: state.busy },
+    { id: 'review', label: '关系审核', icon: 'check', badge: state.status?.suggested, disabled: state.busy },
+    { id: 'tasks', label: '后台分析', icon: 'task', badge: state.status?.pending, disabled: state.busy },
+    { id: 'ask', label: '图谱问答', icon: 'help', disabled: state.busy },
+    { id: 'views', label: '视图与导出', icon: 'star', disabled: state.busy },
+  ],
+  utilities: [{ id: 'model', label: '模型设置', icon: 'settings', disabled: state.busy }],
+  onSelect: selectHostedMenu,
+})));
+defineExpose({ hasUnsavedChanges, requestLeave });
 const title = computed(
   () =>
     ({
@@ -246,7 +281,9 @@ function search() {
   clearTimeout(timer);
   timer = setTimeout(refresh, 300);
 }
-function openPanel(name: string) {
+async function openPanel(name: string): Promise<boolean> {
+  if (name === panel.value) return true;
+  if (!await requestLeave() || disposed) return false;
   panel.value = name;
   if (name === 'model') {
     draft.value = undefined;
@@ -256,6 +293,7 @@ function openPanel(name: string) {
     void model
       .review(reviewStatus.value, reviewSearch.value)
       .catch((e) => (state.error = String(e)));
+  return true;
 }
 function initializeDraft() {
   if (!state.settings) return;
@@ -598,12 +636,12 @@ onBeforeUnmount(() => {
         aria-label="显示方式"
         @change="changeDisplayView"
       />
-      <AButton v-if="!mobile" @click="openPanel('review')"
+      <AButton v-if="!hostedNavigation && !mobile" @click="openPanel('review')"
         >审核<ATag v-if="state.status?.suggested" :bordered="false" color="blue">{{
           state.status.suggested
         }}</ATag></AButton
       >
-      <ADropdown :trigger="['click']" placement="bottomRight">
+      <ADropdown v-if="!hostedNavigation" :trigger="['click']" placement="bottomRight">
         <AButton class="graph-more-trigger" aria-label="更多图谱操作"
           ><Icon name="more" :size="18" /><span class="graph-action-label">更多</span></AButton
         >
@@ -786,6 +824,7 @@ onBeforeUnmount(() => {
       </aside>
     </div>
     <GraphOverlay
+      ref="overlayRef"
       :show="!!panel"
       :title="title"
       :description="panelDescription"

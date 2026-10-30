@@ -1,6 +1,6 @@
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
-import { showSidebar } from '../support/settings-navigation';
+import { showMainMenu, showSidebar } from '../support/settings-navigation';
 
 test.beforeEach(async ({ context }) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
@@ -14,7 +14,7 @@ for (const entry of ['sidebar', 'page'] as const) {
       if (reload) {
         await page.goto('/?folder=30-Knowledge');
         await expect(page.locator('.folder-header')).toBeVisible();
-        await showSidebar(page);
+        await showMainMenu(page);
         await page
           .locator('.workspace-footer')
           .getByRole('button', { name: '设置', exact: true })

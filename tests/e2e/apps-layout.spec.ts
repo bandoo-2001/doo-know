@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { test, expect } from '../support/browser-test';
-import { showSidebar, closeSidebar } from '../support/settings-navigation';
+import { showMainMenu, showSidebar, closeSidebar } from '../support/settings-navigation';
 import { expandFolderPath } from '../support/notebook-tree';
 import { openDocumentNote } from '../support/document-editor';
 import type { Page } from '@playwright/test';
@@ -11,19 +11,26 @@ test.beforeEach(async ({ context }) => {
 });
 
 async function expectApplicationLayout(page: Page, mobile: boolean) {
-  if (mobile) await showSidebar(page);
+  await showMainMenu(page);
   await expect(page.locator('.notebook-sidebar-content')).toBeHidden();
   await expect(page.getByRole('separator', { name: '调整侧栏宽度', exact: true })).toBeHidden();
-  await expect(
-    page.locator('.sidebar-footer').getByRole('button', { name: '应用', exact: true }),
-  ).toHaveAttribute('aria-current', 'page');
-  await expect(
-    page.locator('.sidebar-footer').getByRole('button', { name: '笔记', exact: true }),
-  ).toBeInViewport();
-  await expect(
-    page.locator('.sidebar-footer').getByRole('button', { name: '设置', exact: true }),
-  ).toBeInViewport();
-  if (mobile) await closeSidebar(page);
+  const menu = page.locator('.workspace-footer');
+  if (new URL(page.url()).searchParams.get('app') === 'blog') {
+    const section = new URL(page.url()).searchParams.get('appSection') || 'overview';
+    await expect(
+      menu.getByRole('button', { name: section === 'articles' ? '文章' : '概览', exact: true }),
+    ).toHaveAttribute('aria-current', 'page');
+    await expect(menu.getByRole('button', { name: '返回 DooKnow', exact: true })).toBeInViewport();
+    await expect(menu.getByRole('button', { name: '站点设置', exact: true })).toBeInViewport();
+  } else {
+    await expect(menu.getByRole('button', { name: '应用', exact: true })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+    await expect(menu.getByRole('button', { name: '笔记', exact: true })).toBeInViewport();
+    await expect(menu.getByRole('button', { name: '设置', exact: true })).toBeInViewport();
+  }
+  await closeSidebar(page);
   await expect
     .poll(async () => (await page.locator('.main-content').boundingBox())!.x)
     .toBeCloseTo(mobile ? 0 : 60, 0);
@@ -70,13 +77,17 @@ test('application navigation retains the mounted note, expanded directories and 
   const handle = await editor.elementHandle();
   await showSidebar(page);
   await expandFolderPath(page, '00-Inbox');
+  await showMainMenu(page);
   await page.locator('.sidebar-footer').getByRole('button', { name: '应用', exact: true }).click();
   await expect(page.locator('.apps-home')).toBeVisible();
   await page.getByRole('button', { name: /博客.*把值得分享/ }).click();
   await expect(page.locator('.blog-workspace')).toBeVisible();
   await expectApplicationLayout(page, info.project.name === 'mobile');
-  await showSidebar(page);
-  await page.locator('.sidebar-footer').getByRole('button', { name: '笔记', exact: true }).click();
+  await showMainMenu(page);
+  await page
+    .locator('.sidebar-footer')
+    .getByRole('button', { name: '返回 DooKnow', exact: true })
+    .click();
   await expect(editor).toContainText('未保存的编辑仍应保留');
   expect(await handle!.evaluate((node) => node.isConnected)).toBe(true);
   await showSidebar(page);
@@ -86,11 +97,17 @@ test('application navigation retains the mounted note, expanded directories and 
   );
   const search = page.getByPlaceholder('搜索笔记与目录');
   await search.fill('保留搜索条件');
+  await showMainMenu(page);
   await page.locator('.sidebar-footer').getByRole('button', { name: '应用', exact: true }).click();
+  await expect(page.locator('.apps-home')).toBeVisible();
+  await page.getByRole('button', { name: /博客.*把值得分享/ }).click();
   await expect(page.locator('.blog-workspace')).toBeVisible();
   await expectApplicationLayout(page, info.project.name === 'mobile');
-  await showSidebar(page);
-  await page.locator('.sidebar-footer').getByRole('button', { name: '笔记', exact: true }).click();
+  await showMainMenu(page);
+  await page
+    .locator('.sidebar-footer')
+    .getByRole('button', { name: '返回 DooKnow', exact: true })
+    .click();
   await expect(editor).toContainText('未保存的编辑仍应保留');
   await showSidebar(page);
   await expect(search).toHaveValue('保留搜索条件');

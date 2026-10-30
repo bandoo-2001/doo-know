@@ -1,6 +1,6 @@
 import { permissionDomains, type PermissionPolicy, type ResourceRef } from '../../shared/permissions';
 export const selectableDomains = permissionDomains.filter(domain => domain.implemented);
-export type PermissionResourceOption = ResourceRef & { label: string };
+export type PermissionResourceOption = ResourceRef & { label: string; path?: string };
 export type PermissionEditorState = { policy: PermissionPolicy; resources: Record<string, PermissionResourceOption[]>; bindings?: Record<string, { ownerId: string; instanceId: string }> };
 export function domainPreset(policy: PermissionPolicy, preset: string): PermissionPolicy {
   const next = JSON.parse(JSON.stringify(policy)) as PermissionPolicy, knowledge = next.domains.knowledge;

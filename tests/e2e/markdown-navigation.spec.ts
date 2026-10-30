@@ -1,7 +1,7 @@
 import { test, expect } from '../support/browser-test';
 import { openDocumentNote } from '../support/document-editor';
 import type { Page } from '@playwright/test';
-import { showSidebar } from '../support/settings-navigation';
+import { showMainMenu } from '../support/settings-navigation';
 
 const origin = 'http://127.0.0.1:4179';
 const fragment = '#%E7%AB%A0%E8%8A%82';
@@ -249,7 +249,7 @@ test('纯章节链接保留刷新历史，设置返回未保存草稿仍定位�
   await article.getByRole('link', { name: '当前章节', exact: true }).click();
   await expect(page).toHaveURL(origin + '/?note=' + note.id + fragment);
   await expect(page.getByRole('dialog', { name: '当前笔记尚未保存', exact: true })).toBeHidden();
-  await showSidebar(page);
+  await showMainMenu(page);
   await page.locator('.sidebar-footer').getByRole('button', { name: '设置', exact: true }).click();
   await expect(page.locator('.settings-workspace')).toBeVisible();
   await page.goBack();

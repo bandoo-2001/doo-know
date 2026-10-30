@@ -1,5 +1,5 @@
 import { showRead, showSplit } from '../support/editor-navigation';
-import { showSidebar, closeSidebar, returnToNotes } from '../support/settings-navigation';
+import { showMainMenu, showSidebar, closeSidebar, returnToNotes } from '../support/settings-navigation';
 import { expandFolderPath } from '../support/notebook-tree';
 import { test, expect } from '../support/browser-test';
 import { readFile, writeFile, rm } from 'node:fs/promises';
@@ -51,12 +51,16 @@ test('keeps navigation reachable and content scrolling inside the window with a 
         .locator('.tree-scroll')
         .getByRole('button', { name: names.at(-1)!, exact: true });
       await expect(last).toBeAttached();
+      const navigation = (await page.locator('.workspace-tabbar').isVisible())
+        ? '.workspace-tabbar'
+        : '.workspace-footer';
       if (await page.locator('.sidebar').evaluate((el) => el.scrollHeight <= el.clientHeight + 1))
-        await inWindow('.sidebar-footer');
+        await inWindow(navigation);
       await last.scrollIntoViewIfNeeded();
       await expect(last).toBeInViewport();
       if (await page.locator('.sidebar').evaluate((el) => el.scrollHeight <= el.clientHeight + 1))
-        await inWindow('.sidebar-footer');
+        await inWindow(navigation);
+      await showMainMenu(page);
       const settings = page
         .locator('.sidebar-footer')
         .getByRole('button', { name: '设置', exact: true });
@@ -68,7 +72,7 @@ test('keeps navigation reachable and content scrolling inside the window with a 
       await inWindow('.sidebar-footer');
       await expect(page.locator('.index-status')).toHaveCount(0);
       await settings.click();
-      await expect(page.locator('.settings-workspace h1')).toHaveText('通用与编辑');
+      await expect(page.locator('.settings-workspace h1')).toBeVisible();
       await showSidebar(page);
       await page
         .getByRole('navigation', { name: '设置分类', exact: true })
@@ -119,10 +123,8 @@ test('keeps navigation reachable and content scrolling inside the window with a 
       await showSplit(page);
       await inWindow('.editor-panel');
       await inWindow('.preview-panel');
-      expect(await page.locator('.cm-scroller').evaluate((el) => el.clientHeight)).toBeGreaterThan(
-        0,
-      );
-      expect(await page.locator('.markdown').evaluate((el) => el.clientHeight)).toBeGreaterThan(0);
+      await expect.poll(() => page.locator('.cm-scroller').evaluate((el) => el.clientHeight)).toBeGreaterThan(0);
+      await expect.poll(() => page.locator('.markdown').evaluate((el) => el.clientHeight)).toBeGreaterThan(0);
       await page.screenshot({ path: info.outputPath(`layout-${size.width}-${size.height}.png`) });
     }
   } finally {

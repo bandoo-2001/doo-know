@@ -411,7 +411,9 @@ export function gitRemoteService(
     pendingLocalGit(r);
     const local = await repo(r.root!, signal);
     if (!local || local.branch !== branch) fail(409, 'GIT_BRANCH_CHANGED');
-    if (local.changes) fail(409, 'GIT_LOCAL_CHANGES');
+    // Once the recorded fast-forward completed, recovery only refreshes the index.
+    // Readers may already have registered merged notes in portable metadata.
+    if (local.changes && local.head !== target) fail(409, 'GIT_LOCAL_CHANGES');
     if (local.head !== before && local.head !== target) fail(409, 'GIT_RECONCILIATION_REQUIRED');
     if (local.head !== target) {
       if (
@@ -478,13 +480,13 @@ export function gitRemoteService(
     }
     if (input.kind === 'pull') {
       pendingLocalGit(r);
-      if (local.changes) fail(409, 'GIT_LOCAL_CHANGES');
       const saved = r.result ? JSON.parse(r.result) : undefined;
       if (saved && Object.hasOwn(saved, 'target')) {
         if (!oid(saved.target) || !(saved.before === null || oid(saved.before)))
           fail(409, 'GIT_RECONCILIATION_REQUIRED');
         return applyPull(r, c.branch, saved.before, saved.target, signal);
       }
+      if (local.changes) fail(409, 'GIT_LOCAL_CHANGES');
     }
     const previous = local.head;
     phase(r.id, 'checking_remote');

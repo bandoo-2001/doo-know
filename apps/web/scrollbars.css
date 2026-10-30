@@ -96,7 +96,7 @@ html[data-theme='dark'] {
   }
 }
 /* A short phone window still needs room for its directory, not an outer scroller. */
-@media (max-width: 720px) and (max-height: 520px) {
+@media (max-width: 720px) and (max-height: 520px), (max-width: 960px) and (max-height: 500px) {
   .sidebar {
     padding-top: 8px;
   }

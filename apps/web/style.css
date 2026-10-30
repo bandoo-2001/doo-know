@@ -862,7 +862,7 @@ h3 {
 .toast {
   position: fixed;
   left: 50%;
-  bottom: 25px;
+  bottom: calc(25px + var(--workspace-bottom-inset, 0px));
   transform: translateX(-50%);
   z-index: 9999;
   background: #173b5b;

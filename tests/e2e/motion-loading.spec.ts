@@ -2,7 +2,7 @@ import type { Page } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import { test, expect } from '../support/browser-test';
 import { expandFolderPath } from '../support/notebook-tree';
-import { closeSidebar, showSidebar } from '../support/settings-navigation';
+import { closeSidebar, showMainMenu, showSidebar } from '../support/settings-navigation';
 
 test.use({ sourceEditorPreference: true });
 
@@ -243,7 +243,7 @@ test('returning to the retained note from a collection cancels a pending destina
   const editor = page.locator('.cm-content');
   await expect(editor).toContainText('集合保留正文');
   const originalEditor = await editor.elementHandle();
-  await showSidebar(page);
+  await showMainMenu(page);
   await page.locator('.sidebar-footer').getByRole('button', { name: '最近', exact: true }).click();
   await expect(page.locator('.collection-workspace')).toBeVisible();
   await showSidebar(page);

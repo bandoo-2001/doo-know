@@ -1,4 +1,5 @@
 import { test, expect } from '../support/browser-test';
+import { showMainMenu } from '../support/settings-navigation';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { BrowserContext, Page } from '@playwright/test';
@@ -143,7 +144,7 @@ test('归属核对期间仍能进入设置，迟到的启动跳转不会覆盖�
   try {
     await page.goto('/?note=' + note.id);
     await expect.poll(() => held).toBe(true);
-    await sidebar(page);
+    await showMainMenu(page);
     await page.getByRole('button', { name: '设置', exact: true }).click();
     await expect(page.getByRole('heading', { name: '编辑器与外观', exact: true })).toBeVisible();
   } finally { identity.release(); }
@@ -159,7 +160,7 @@ test('侧栏返回笔记保留当前原文和编辑状态', async ({ page, conte
   await page.goto('/?note=' + note.id);
   const editor = page.getByRole('textbox', { name: '文档正文', exact: true });
   await expect(editor).toBeEditable();
-  await sidebar(page);
+  await showMainMenu(page);
   await page.getByRole('button', { name: '设置', exact: true }).click();
   await sidebar(page);
   await page.locator('aside').getByRole('button', { name: '返回笔记', exact: true }).click();

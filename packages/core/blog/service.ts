@@ -27,7 +27,16 @@ import { beginOperation, completeOperation, findOperation } from '../knowledge/o
 import { authorizeBlogPath, blogHash } from './resources.js';
 import { capturePublication } from './publication.js';
 import { portableBlog } from './portable.js';
+import { portableBlogStudio } from './studio-portable.js';
 import { portableLibrary } from '../portable-library.js';
+import { studioService, authorizeStudio } from './studio.js';
+import { reviewBlogPublication } from './review.js';
+import type {
+  BlogPublicQuery,
+  BlogPublicPage,
+  BlogPublicPostSummary,
+  BlogPublicTaxonomy,
+} from '../../../shared/blog-design.js';
 
 type PostRow = {
   id: string;
@@ -52,7 +61,19 @@ type VersionRow = {
   created_at: string;
 };
 const metadataKeys = ['slug', 'title', 'summary', 'category', 'tags', 'pinned', 'cover'];
-const reserved = new Set(['about', 'archive', 'rss.xml', 'sitemap.xml', 'assets', 'api', 'feed']);
+const reserved = new Set([
+  'about',
+  'archive',
+  'rss.xml',
+  'sitemap.xml',
+  'assets',
+  'api',
+  'feed',
+  'articles',
+  'collections',
+  'media',
+  'reader.js',
+]);
 const shortTitle = (value: string) => [...value].slice(0, 256).join('');
 function canonicalInput(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(canonicalInput);
@@ -77,13 +98,13 @@ function bounded(value: unknown, max: number, label: string): string {
     throw new BlogError(400, label + '格式不正确');
   return value;
 }
-function metadata(input: unknown, previous: BlogMetadata): BlogMetadata {
+function metadata(input: unknown, previous: BlogMetadata, existingSlug?: string): BlogMetadata {
   object(input);
   if (Object.keys(input).some((key) => !metadataKeys.includes(key)))
     throw new BlogError(400, '博客元数据包含不支持字段');
   const v = { ...previous, ...input };
   const slug = bounded(v.slug, 100, '文章地址');
-  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) || reserved.has(slug))
+  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) || (reserved.has(slug) && slug !== existingSlug))
     throw new BlogError(400, '文章地址需要小写英文、数字或连字符');
   if (
     !Array.isArray(v.tags) ||
@@ -128,6 +149,7 @@ export function blogService(config: AppConfig, db: AppDatabase, notes: NoteServi
   const library = portableLibrary(config, db);
   library.refresh();
   const portable = portableBlog(config, db);
+  const studioPortable = portableBlogStudio(config, db);
   const rowByNote = (id: string) =>
     db.prepare('SELECT * FROM blog_posts WHERE source_note_id=?').get(id) as PostRow | undefined;
   const rowByIdOptional = (id: string) =>
@@ -262,17 +284,25 @@ export function blogService(config: AppConfig, db: AppDatabase, notes: NoteServi
     if (previous) {
       if (previous.kind !== kind || previous.input_hash !== digest)
         throw new BlogError(409, '同一请求标识的参数已变化', { code: 'IDEMPOTENCY_CONFLICT' });
-      if (previous.source_note_id) authorizeBlogPath(p, notes.row(previous.source_note_id, true).path);
+      if (previous.source_note_id)
+        authorizeBlogPath(p, notes.row(previous.source_note_id, true).path);
       return JSON.parse(previous.result_json);
     }
     const existingPostId = kind.includes(':') ? kind.slice(kind.indexOf(':') + 1) : undefined;
-    const previousSourceId = existingPostId ? rowByIdOptional(existingPostId)?.source_note_id : undefined;
+    const previousSourceId = existingPostId
+      ? rowByIdOptional(existingPostId)?.source_note_id
+      : undefined;
     const operation = beginOperation(db, p, 'blog.' + kind, requestId, input).operation;
     const result = work();
     completeOperation(db, operation.id, result);
-    const resultPost = result && typeof result === 'object' ? result as Record<string, unknown> : undefined;
+    const resultPost =
+      result && typeof result === 'object' ? (result as Record<string, unknown>) : undefined;
     const postId = kind.includes(':') ? kind.slice(kind.indexOf(':') + 1) : resultPost?.id;
-    const sourceNoteId = input.noteId || input.sourceNoteId || previousSourceId || (typeof postId === 'string' ? rowByIdOptional(postId)?.source_note_id : undefined);
+    const sourceNoteId =
+      input.noteId ||
+      input.sourceNoteId ||
+      previousSourceId ||
+      (typeof postId === 'string' ? rowByIdOptional(postId)?.source_note_id : undefined);
     db.prepare(
       'INSERT INTO blog_receipts(actor,client_id,request_id,kind,input_hash,result_json,operation_id,source_note_id) VALUES(?,?,?,?,?,?,?,?)',
     ).run(
@@ -288,17 +318,45 @@ export function blogService(config: AppConfig, db: AppDatabase, notes: NoteServi
     return result;
   }
   /** Transfer-backed adapters bind retries to the caller's stable input before re-reading staged bytes. */
-  function replayAction(p: Principal, kind: 'publish' | 'settings', input: Record<string, unknown>) {
-    actor(p, kind === 'publish' ? 'publish' : 'manage');
-    authorizeDomainResource(p, 'blog', kind === 'publish' ? 'publish' : 'manage', kind === 'publish' && typeof input.noteId === 'string' ? rowByNote(input.noteId)?.id : undefined);
+  function replayAction(
+    p: Principal,
+    kind: 'publish' | 'settings' | 'design.save' | 'design.publish' | 'design.restore' | 'design.media',
+    input: Record<string, unknown>,
+  ) {
+    if (kind.startsWith('design.')) authorizeStudio(p, kind === 'design.publish' ? 'publish' : 'manage');
+    else {
+      actor(p, kind === 'publish' ? 'publish' : 'manage');
+      authorizeDomainResource(
+        p,
+        'blog',
+        kind === 'publish' ? 'publish' : 'manage',
+        kind === 'publish' && typeof input.noteId === 'string'
+          ? rowByNote(input.noteId)?.id
+          : undefined,
+      );
+    }
     const requestId = bounded(input.requestId, 128, '请求标识');
-    const previous = db.prepare('SELECT * FROM blog_receipts WHERE actor=? AND client_id=? AND request_id=?').get(p.id, p.clientId, requestId) as { kind: string; input_hash: string; result_json: string; source_note_id: string | null } | undefined;
+    const previous = db
+      .prepare('SELECT * FROM blog_receipts WHERE actor=? AND client_id=? AND request_id=?')
+      .get(p.id, p.clientId, requestId) as
+      | { kind: string; input_hash: string; result_json: string; source_note_id: string | null }
+      | undefined;
     if (!previous) return null;
-    if (previous.kind !== kind || previous.input_hash !== blogHash(JSON.stringify(canonicalInput(input)))) throw new BlogError(409, '同一请求标识的参数已变化', { code: 'IDEMPOTENCY_CONFLICT' });
-    if (previous.source_note_id) authorizeBlogPath(p, notes.row(previous.source_note_id, true).path);
+    if (
+      previous.kind !== kind ||
+      previous.input_hash !== blogHash(JSON.stringify(canonicalInput(input)))
+    )
+      throw new BlogError(409, '同一请求标识的参数已变化', { code: 'IDEMPOTENCY_CONFLICT' });
+    if (previous.source_note_id)
+      authorizeBlogPath(p, notes.row(previous.source_note_id, true).path);
     const result = JSON.parse(previous.result_json);
-    if (kind === 'settings' && result.enabled && (p.policyVersion === 2 || p.permissionCeiling || p.pluginId === 'mcp')) {
-      actor(p, 'publish'); authorizeDomainResource(p, 'blog', 'publish');
+    if (
+      kind === 'settings' &&
+      result.enabled &&
+      (p.policyVersion === 2 || p.permissionCeiling || p.pluginId === 'mcp')
+    ) {
+      actor(p, 'publish');
+      authorizeDomainResource(p, 'blog', 'publish');
     }
     return { result };
   }
@@ -344,7 +402,7 @@ export function blogService(config: AppConfig, db: AppDatabase, notes: NoteServi
       return receipt(p, 'update:' + id, input, () => {
         if (old.version !== input.expectedVersion)
           throw new BlogError(409, '博客记录已变化，请刷新后重试');
-        const m = metadata(input.metadata, JSON.parse(old.metadata_json));
+        const m = metadata(input.metadata, JSON.parse(old.metadata_json), old.slug);
         if (
           old.current_version_id &&
           m.slug !==
@@ -390,7 +448,7 @@ export function blogService(config: AppConfig, db: AppDatabase, notes: NoteServi
               metadata: input.metadata,
               requestId: input.requestId,
             });
-          const m = metadata(input.metadata || {}, JSON.parse(r.metadata_json));
+          const m = metadata(input.metadata || {}, JSON.parse(r.metadata_json), old?.slug);
           if (
             r.current_version_id &&
             m.slug !==
@@ -523,12 +581,19 @@ export function blogService(config: AppConfig, db: AppDatabase, notes: NoteServi
       };
     }
   }
-  function updateSettings(p: Principal, input: { settings: BlogSettings; requestId: string }, receiptIdentity?: Record<string, unknown>) {
+  function updateSettings(
+    p: Principal,
+    input: { settings: BlogSettings; requestId: string },
+    receiptIdentity?: Record<string, unknown>,
+  ) {
     actor(p, 'manage');
     authorizeDomainResource(p, 'blog', 'manage');
     object(input);
     object(input.settings);
-    if (input.settings.enabled && (p.policyVersion === 2 || p.permissionCeiling || p.pluginId === 'mcp')) {
+    if (
+      input.settings.enabled &&
+      (p.policyVersion === 2 || p.permissionCeiling || p.pluginId === 'mcp')
+    ) {
       actor(p, 'publish');
       authorizeDomainResource(p, 'blog', 'publish');
     }
@@ -658,87 +723,241 @@ export function blogService(config: AppConfig, db: AppDatabase, notes: NoteServi
     }
     return describe(row(id), p);
   }
-  function listPosts(p: Principal, query: { limit?: number; query?: string; cursor?: string; state?: BlogPost['state']; category?: string; tag?: string } = {}) {
+  function listPosts(
+    p: Principal,
+    query: {
+      limit?: number;
+      query?: string;
+      cursor?: string;
+      state?: BlogPost['state'];
+      category?: string;
+      tag?: string;
+    } = {},
+  ) {
     const { state, category, tag } = query;
     const limit = query.limit ?? 10;
-    if (!Number.isInteger(limit) || limit < 1 || limit > 20) throw new BlogError(400, '分页大小不正确');
-    const key = blogHash(JSON.stringify([p.id, p.clientId, p.scopes, p.allowedPrefixes, p.permissionPolicy, p.permissionCeiling, query.query || '', state || '', category || '', tag || '']));
+    if (!Number.isInteger(limit) || limit < 1 || limit > 20)
+      throw new BlogError(400, '分页大小不正确');
+    const key = blogHash(
+      JSON.stringify([
+        p.id,
+        p.clientId,
+        p.scopes,
+        p.allowedPrefixes,
+        p.permissionPolicy,
+        p.permissionCeiling,
+        query.query || '',
+        state || '',
+        category || '',
+        tag || '',
+      ]),
+    );
     let offset = 0;
     if (query.cursor) {
       try {
         const cursor = JSON.parse(Buffer.from(query.cursor, 'base64url').toString());
-        if (cursor.key !== key || !Number.isSafeInteger(cursor.offset) || cursor.offset < 0) throw Error();
+        if (cursor.key !== key || !Number.isSafeInteger(cursor.offset) || cursor.offset < 0)
+          throw Error();
         offset = cursor.offset;
-      } catch { throw new BlogError(400, '分页游标不正确'); }
+      } catch {
+        throw new BlogError(400, '分页游标不正确');
+      }
     }
     requireScope(p, 'knowledge:read');
-    if (p.policyVersion === 2 || p.permissionCeiling || p.pluginId === 'mcp') requireScope(p, 'blog:read');
+    if (p.policyVersion === 2 || p.permissionCeiling || p.pluginId === 'mcp')
+      requireScope(p, 'blog:read');
     const search = (query.query || '').toLowerCase();
-    const all = (db.prepare('SELECT p.* FROM blog_posts p JOIN notes n ON n.id=p.source_note_id ORDER BY p.updated_at DESC,p.id').all() as PostRow[]).flatMap(r => {
+    const all = (
+      db
+        .prepare(
+          'SELECT p.* FROM blog_posts p JOIN notes n ON n.id=p.source_note_id ORDER BY p.updated_at DESC,p.id',
+        )
+        .all() as PostRow[]
+    ).flatMap((r) => {
       try {
         authorizeDomainResource(p, 'blog', 'read', r.id);
         const value = describe(r, p);
-        return !search || [value.title, value.summary, value.category, ...value.tags].join(' ').toLowerCase().includes(search) ? [value] : [];
+        return !search ||
+          [value.title, value.summary, value.category, ...value.tags]
+            .join(' ')
+            .toLowerCase()
+            .includes(search)
+          ? [value]
+          : [];
       } catch (error) {
-        if (error instanceof HttpError && [403,404].includes(error.statusCode)) return [];
+        if (error instanceof HttpError && [403, 404].includes(error.statusCode)) return [];
         throw error;
       }
     });
-    const filtered = all.filter(post => (!state || post.state === state) && (!category || post.category === category) && (!tag || post.tags.includes(tag)));
-    const candidates = filtered.slice(offset, offset + limit).map(post => {
-      const { id, sourceNoteId, slug, title, category, tags, state, version, publishedVersionId, publishedAt, updatedAt, hasUnpublishedChanges } = post;
-      return { id, sourceNoteId, slug, title, category, tags, state, version, publishedVersionId, publishedAt, updatedAt, hasUnpublishedChanges };
+    const filtered = all.filter(
+      (post) =>
+        (!state || post.state === state) &&
+        (!category || post.category === category) &&
+        (!tag || post.tags.includes(tag)),
+    );
+    const candidates = filtered.slice(offset, offset + limit).map((post) => {
+      const {
+        id,
+        sourceNoteId,
+        slug,
+        title,
+        category,
+        tags,
+        state,
+        version,
+        publishedVersionId,
+        publishedAt,
+        updatedAt,
+        hasUnpublishedChanges,
+      } = post;
+      return {
+        id,
+        sourceNoteId,
+        slug,
+        title,
+        category,
+        tags,
+        state,
+        version,
+        publishedVersionId,
+        publishedAt,
+        updatedAt,
+        hasUnpublishedChanges,
+      };
     });
     const posts: typeof candidates = [];
     for (const candidate of candidates) {
       if (posts.length && Buffer.byteLength(JSON.stringify([...posts, candidate])) > 14000) break;
       posts.push(candidate);
     }
-    return { posts, total: filtered.length, nextCursor: offset + posts.length < filtered.length ? Buffer.from(JSON.stringify({ key, offset: offset + posts.length })).toString('base64url') : null };
+    return {
+      posts,
+      total: filtered.length,
+      nextCursor:
+        offset + posts.length < filtered.length
+          ? Buffer.from(JSON.stringify({ key, offset: offset + posts.length })).toString(
+              'base64url',
+            )
+          : null,
+    };
   }
-  function listTaxonomy(p: Principal, query: { kind: 'categories' | 'tags'; limit: number; offset: number }) {
+  function listTaxonomy(
+    p: Principal,
+    query: { kind: 'categories' | 'tags'; limit: number; offset: number },
+  ) {
     const values = dashboard(p, { limit: 1 }).taxonomy[query.kind];
-    return { entries: values.slice(query.offset, query.offset + query.limit), total: values.length, nextOffset: query.offset + query.limit < values.length ? query.offset + query.limit : null };
+    return {
+      entries: values.slice(query.offset, query.offset + query.limit),
+      total: values.length,
+      nextOffset: query.offset + query.limit < values.length ? query.offset + query.limit : null,
+    };
   }
   function listVersions(p: Principal, id: string, query: { limit?: number; cursor?: string } = {}) {
     postMetadata(p, id);
     const limit = query.limit ?? 10;
-    if (!Number.isInteger(limit) || limit < 1 || limit > 20) throw new BlogError(400, '分页大小不正确');
+    if (!Number.isInteger(limit) || limit < 1 || limit > 20)
+      throw new BlogError(400, '分页大小不正确');
     let offset = 0;
     if (query.cursor) {
       try {
         const cursor = JSON.parse(Buffer.from(query.cursor, 'base64url').toString());
-        if (cursor.id !== id || !Number.isSafeInteger(cursor.offset) || cursor.offset < 0) throw Error();
+        if (cursor.id !== id || !Number.isSafeInteger(cursor.offset) || cursor.offset < 0)
+          throw Error();
         offset = cursor.offset;
-      } catch { throw new BlogError(400, '分页游标不正确'); }
+      } catch {
+        throw new BlogError(400, '分页游标不正确');
+      }
     }
-    const values = db.prepare('SELECT id,source_modified_at,source_hash,created_at FROM blog_versions WHERE post_id=? ORDER BY created_at DESC,id LIMIT ? OFFSET ?').all(id, limit + 1, offset) as Pick<VersionRow, 'id' | 'source_modified_at' | 'source_hash' | 'created_at'>[];
-    return { versions: values.slice(0, limit).map(v => ({ id: v.id, postId: id, sourceModifiedAt: v.source_modified_at, sourceHash: v.source_hash, createdAt: v.created_at, current: row(id).current_version_id === v.id })), nextCursor: values.length > limit ? Buffer.from(JSON.stringify({ id, offset: offset + limit })).toString('base64url') : null };
+    const values = db
+      .prepare(
+        'SELECT id,source_modified_at,source_hash,created_at FROM blog_versions WHERE post_id=? ORDER BY created_at DESC,id LIMIT ? OFFSET ?',
+      )
+      .all(id, limit + 1, offset) as Pick<
+      VersionRow,
+      'id' | 'source_modified_at' | 'source_hash' | 'created_at'
+    >[];
+    return {
+      versions: values.slice(0, limit).map((v) => ({
+        id: v.id,
+        postId: id,
+        sourceModifiedAt: v.source_modified_at,
+        sourceHash: v.source_hash,
+        createdAt: v.created_at,
+        current: row(id).current_version_id === v.id,
+      })),
+      nextCursor:
+        values.length > limit
+          ? Buffer.from(JSON.stringify({ id, offset: offset + limit })).toString('base64url')
+          : null,
+    };
   }
   function managedVersion(p: Principal, id: string, versionId: string) {
-    const post = postMetadata(p, id), v = version(versionId);
+    const post = postMetadata(p, id),
+      v = version(versionId);
     if (!v || v.post_id !== id) throw new BlogError(404, '文章版本不存在');
-    const cover = v.cover_hash ? db.prepare('SELECT b.mime,length(b.bytes) AS sizeBytes FROM blog_blobs b JOIN blog_version_resources r ON r.hash=b.hash WHERE r.version_id=? AND r.hash=?').get(v.id, v.cover_hash) as { mime: string; sizeBytes: number } | undefined : undefined;
+    const cover = v.cover_hash
+      ? (db
+          .prepare(
+            'SELECT b.mime,length(b.bytes) AS sizeBytes FROM blog_blobs b JOIN blog_version_resources r ON r.hash=b.hash WHERE r.version_id=? AND r.hash=?',
+          )
+          .get(v.id, v.cover_hash) as { mime: string; sizeBytes: number } | undefined)
+      : undefined;
     if (v.cover_hash && !cover) throw new BlogError(404, '发布版本封面资源不存在');
-    const coverResource = cover ? { postId: id, versionId: v.id, hash: v.cover_hash!, ...cover } : null;
-    return { post, versionId: v.id, sourceModifiedAt: v.source_modified_at, sourceHash: v.source_hash, metadata: JSON.parse(v.metadata_json) as BlogMetadata, coverResource, html: v.html, headings: JSON.parse(v.headings_json) as { id: string; text: string }[], createdAt: v.created_at };
+    const coverResource = cover
+      ? { postId: id, versionId: v.id, hash: v.cover_hash!, ...cover }
+      : null;
+    return {
+      post,
+      versionId: v.id,
+      sourceModifiedAt: v.source_modified_at,
+      sourceHash: v.source_hash,
+      metadata: JSON.parse(v.metadata_json) as BlogMetadata,
+      coverResource,
+      html: v.html,
+      headings: JSON.parse(v.headings_json) as { id: string; text: string }[],
+      createdAt: v.created_at,
+    };
   }
   function previewSnapshot(p: Principal, id: string) {
     postMetadata(p, id);
-    const r = row(id), { n } = source(p, r.source_note_id);
-    return capturePublication(config, db, notes, p, n, JSON.parse(r.metadata_json), hash => '/api/blog/posts/' + id + '/assets/' + hash, [], true);
+    const r = row(id),
+      { n } = source(p, r.source_note_id);
+    return capturePublication(
+      config,
+      db,
+      notes,
+      p,
+      n,
+      JSON.parse(r.metadata_json),
+      (hash) => '/api/blog/posts/' + id + '/assets/' + hash,
+      [],
+      true,
+    );
   }
   function listResources(p: Principal, id: string, versionId?: string) {
     postMetadata(p, id);
-    if (!versionId) return previewSnapshot(p, id).resources.map(r => ({ hash: r.hash, mime: r.mime, sizeBytes: r.bytes.length }));
+    if (!versionId)
+      return previewSnapshot(p, id).resources.map((r) => ({
+        hash: r.hash,
+        mime: r.mime,
+        sizeBytes: r.bytes.length,
+      }));
     managedVersion(p, id, versionId);
-    return (db.prepare('SELECT b.hash,b.mime,length(b.bytes) AS sizeBytes FROM blog_blobs b JOIN blog_version_resources r ON r.hash=b.hash WHERE r.version_id=? ORDER BY b.hash').all(versionId) as { hash: string; mime: string; sizeBytes: number }[]);
+    return db
+      .prepare(
+        'SELECT b.hash,b.mime,length(b.bytes) AS sizeBytes FROM blog_blobs b JOIN blog_version_resources r ON r.hash=b.hash WHERE r.version_id=? ORDER BY b.hash',
+      )
+      .all(versionId) as { hash: string; mime: string; sizeBytes: number }[];
   }
   function managedResource(p: Principal, id: string, hash: string, versionId?: string) {
     postMetadata(p, id);
     if (!versionId) return previewResource(p, id, hash);
     managedVersion(p, id, versionId);
-    const result = db.prepare('SELECT b.mime,b.bytes FROM blog_blobs b JOIN blog_version_resources r ON r.hash=b.hash WHERE r.version_id=? AND r.hash=?').get(versionId, hash) as { mime: string; bytes: Buffer } | undefined;
+    const result = db
+      .prepare(
+        'SELECT b.mime,b.bytes FROM blog_blobs b JOIN blog_version_resources r ON r.hash=b.hash WHERE r.version_id=? AND r.hash=?',
+      )
+      .get(versionId, hash) as { mime: string; bytes: Buffer } | undefined;
     if (!result) throw new BlogError(404, '资源不存在');
     return result;
   }
@@ -764,8 +983,8 @@ export function blogService(config: AppConfig, db: AppDatabase, notes: NoteServi
       }),
     );
   }
-  function checkPublic(r: PostRow) {
-    if (!settings().enabled || r.state !== 'published' || !r.current_version_id)
+  function checkPublic(r: PostRow, allowDisabled = false) {
+    if ((!allowDisabled && !settings().enabled) || r.state !== 'published' || !r.current_version_id)
       throw new BlogError(404, '博客页面不存在');
     const unavailable = (): never => {
       throw new BlogError(503, '博客暂时不可用');
@@ -847,6 +1066,7 @@ export function blogService(config: AppConfig, db: AppDatabase, notes: NoteServi
   function project(r: PostRow, v: VersionRow) {
     const m = JSON.parse(v.metadata_json) as BlogMetadata;
     return {
+      id: r.id,
       slug: m.slug,
       title: m.title,
       summary: m.summary,
@@ -884,6 +1104,129 @@ export function blogService(config: AppConfig, db: AppDatabase, notes: NoteServi
       .sort(
         (a, b) => Number(b.pinned) - Number(a.pinned) || b.publishedAt.localeCompare(a.publishedAt),
       );
+  }
+  function metadataPostPage(query: BlogPublicQuery = {}, principal?: Principal): BlogPublicPage {
+    if (principal) authorizeStudio(principal, 'read');
+    else if (!settings().enabled) throw new BlogError(404, '博客页面不存在');
+    object(query);
+    if (
+      Object.keys(query).some(
+        (k) => !['query', 'category', 'tag', 'page', 'pageSize', 'postIds'].includes(k),
+      )
+    )
+      throw new BlogError(400, '文章查询格式不正确');
+    const page = query.page ?? 1,
+      pageSize = query.pageSize ?? 20;
+    if (
+      !Number.isInteger(page) ||
+      page < 1 ||
+      page > 1000000 ||
+      !Number.isInteger(pageSize) ||
+      pageSize < 1 ||
+      pageSize > 100
+    )
+      throw new BlogError(400, '分页格式不正确');
+    for (const k of ['query', 'category', 'tag'] as const)
+      if (query[k] !== undefined) bounded(query[k], k === 'query' ? 500 : 80, '文章筛选');
+    if (
+      query.postIds !== undefined &&
+      (!Array.isArray(query.postIds) ||
+        query.postIds.length > 500 ||
+        query.postIds.some((id) => typeof id !== 'string' || id.length > 100))
+    )
+      throw new BlogError(400, '文章选择格式不正确');
+    // Deliberately exclude HTML/headings and source paths: summaries read only the immutable publication metadata.
+    const rows = db
+      .prepare(
+        "SELECT p.*,v.metadata_json AS public_metadata_json,v.cover_hash AS public_cover_hash,v.created_at AS public_created_at FROM blog_posts p JOIN blog_versions v ON v.id=p.current_version_id WHERE p.state='published' ORDER BY p.published_at DESC,p.id",
+      )
+      .all() as (PostRow & {
+      public_metadata_json: string;
+      public_cover_hash: string | null;
+      public_created_at: string;
+    })[];
+    const needle = query.query?.trim().toLowerCase();
+    const posts: BlogPublicPostSummary[] = [];
+    for (const r of rows) {
+      const m = JSON.parse(r.public_metadata_json) as BlogMetadata;
+      if (
+        (query.postIds && !query.postIds.includes(r.id)) ||
+        (query.category && m.category !== query.category) ||
+        (query.tag && !m.tags.includes(query.tag)) ||
+        (needle &&
+          ![m.title, m.summary, m.category, ...m.tags].some((v) =>
+            v.toLowerCase().includes(needle),
+          ))
+      )
+        continue;
+      try {
+        if (principal) {
+          authorizeDomainResource(principal, 'blog', 'read', r.id);
+          authorizeBlogPath(principal, notes.row(r.source_note_id, true).path);
+        }
+        checkPublic(r, !!principal);
+      } catch (error) {
+        if (
+          error instanceof HttpError &&
+          (error.statusCode === 404 || (principal && error.statusCode === 403))
+        )
+          continue;
+        throw error;
+      }
+      posts.push({
+        ...m,
+        id: r.id,
+        cover: r.public_cover_hash
+          ? `/blog/assets/${r.id}/${r.current_version_id}/${r.public_cover_hash}`
+          : null,
+        publishedAt: r.published_at!,
+        updatedAt: r.public_created_at,
+        url: '/blog/' + m.slug,
+      });
+    }
+    if (query.postIds)
+      posts.sort((a, b) => query.postIds!.indexOf(a.id) - query.postIds!.indexOf(b.id));
+    else
+      posts.sort(
+        (a, b) =>
+          Number(b.pinned) - Number(a.pinned) ||
+          b.publishedAt.localeCompare(a.publishedAt) ||
+          a.id.localeCompare(b.id),
+      );
+    return {
+      posts: posts.slice((page - 1) * pageSize, page * pageSize),
+      total: posts.length,
+      page,
+      pageSize,
+      totalPages: Math.ceil(posts.length / pageSize),
+    };
+  }
+  function publicPostPage(query: BlogPublicQuery = {}) {
+    return metadataPostPage(query);
+  }
+  function previewPostPage(p: Principal, query: BlogPublicQuery = {}) {
+    return metadataPostPage(query, p);
+  }
+  function publicTaxonomy(): BlogPublicTaxonomy {
+    const categories = new Map<string, number>(),
+      tags = new Map<string, number>();
+    // Page through the same metadata-only projection, retaining source withdrawal checks.
+    let page = 1;
+    for (;;) {
+      const batch = metadataPostPage({ page, pageSize: 100 });
+      for (const post of batch.posts) {
+        if (post.category) categories.set(post.category, (categories.get(post.category) || 0) + 1);
+        for (const tag of post.tags) tags.set(tag, (tags.get(tag) || 0) + 1);
+      }
+      if (page >= batch.totalPages) break;
+      page++;
+    }
+    const list = (map: Map<string, number>) =>
+      [...map].sort(([a], [b]) => a.localeCompare(b)).map(([name, count]) => ({ name, count }));
+    return { categories: list(categories), tags: list(tags) };
+  }
+  function publicationReview(p: Principal, id: string) {
+    return reviewBlogPublication(config, db, notes, p, id, { postMetadata, previewSnapshot });
   }
   function publicResource(postId: string, versionId: string, hash: string) {
     const r = row(postId);
@@ -934,16 +1277,42 @@ export function blogService(config: AppConfig, db: AppDatabase, notes: NoteServi
     if (!receipt || !op.kind.startsWith('blog.')) throw new BlogError(404, '博客操作不存在');
     if (receipt.source_note_id) {
       authorizeBlogPath(p, notes.row(receipt.source_note_id, true).path);
-      const id = op.kind.includes(':') ? op.kind.slice(op.kind.indexOf(':') + 1) : rowByNote(receipt.source_note_id)?.id;
+      const id = op.kind.includes(':')
+        ? op.kind.slice(op.kind.indexOf(':') + 1)
+        : rowByNote(receipt.source_note_id)?.id;
       authorizeDomainResource(p, 'blog', 'read', id);
     } else authorizeDomainResource(p, 'blog', 'read');
+    if (['blog.design.save', 'blog.design.publish', 'blog.design.restore'].includes(op.kind) && op.result) {
+      const value = op.result as import('../../../shared/blog-design.js').BlogDesignState;
+      const draft = JSON.stringify(value.draft), published = JSON.stringify(value.published);
+      return { ...op, result: { version: value.version, publishedRevision: value.publishedRevision,
+        publishedAt: value.publishedAt, hasUnpublishedChanges: value.hasUnpublishedChanges,
+        draftBytes: Buffer.byteLength(draft), draftHash: blogHash(draft),
+        publishedBytes: Buffer.byteLength(published), publishedHash: blogHash(published), history: value.history.slice(0, 10) } };
+    }
     if (op.kind === 'blog.settings' && op.result) {
       const value = op.result as BlogSettings;
-      return { ...op, result: { version: value.version, enabled: value.enabled, title: value.title, aboutBytes: Buffer.byteLength(value.about), aboutHash: blogHash(value.about), omittedFields: ['description', 'author', 'baseUrl', 'about', 'theme'] } };
+      return {
+        ...op,
+        result: {
+          version: value.version,
+          enabled: value.enabled,
+          title: value.title,
+          aboutBytes: Buffer.byteLength(value.about),
+          aboutHash: blogHash(value.about),
+          omittedFields: ['description', 'author', 'baseUrl', 'about', 'theme'],
+        },
+      };
     }
     return op;
   }
+  const studio = studioService(db, { enabled: () => settings().enabled, mutate, receipt });
   const api = {
+    ...studio,
+    publicPostPage,
+    previewPostPage,
+    publicTaxonomy,
+    publicationReview,
     noteStatus,
     publishNote,
     unpublishNote,
@@ -973,11 +1342,13 @@ export function blogService(config: AppConfig, db: AppDatabase, notes: NoteServi
     ((...args: Parameters<T>) => {
       library.refresh();
       portable.refresh();
+      studioPortable.refresh();
       try {
         return method(...args);
       } finally {
         // Source checks can withdraw a publication even during an ordinary read.
         portable.flush();
+        studioPortable.flush();
       }
     }) as T;
   return Object.fromEntries(

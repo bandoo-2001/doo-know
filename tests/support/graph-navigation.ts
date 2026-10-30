@@ -1,5 +1,6 @@
 import { expect, type Page } from '@playwright/test';
 import { mkdir } from 'node:fs/promises';
+import { showMainMenu } from './settings-navigation';
 
 export const graphArtifactRoot =
   process.env.DOOKNOW_E2E_GRAPH_ARTIFACTS || '.local/semantic-graph-artifacts';
@@ -27,6 +28,13 @@ export async function chooseGraphOption(page: Page, label: string, choice: strin
 }
 
 export async function openGraphPanel(page: Page, label: '模型' | '视图' | '问答' | '审核') {
+  const title = { 模型: '模型设置', 视图: '视图与导出', 问答: '图谱问答', 审核: '关系审核' }[label];
+  if (await page.locator('.workspace-main-menu[data-menu-id="graph"]').count()) {
+    await showMainMenu(page);
+    const menu = page.getByRole('navigation', { name: label === '模型' ? '知识图谱 工具' : '知识图谱 主菜单', exact: true });
+    await menu.getByRole('button', { name: title, exact: true }).click();
+    return;
+  }
   if (label === '审核') {
     const direct = page.getByRole('button', { name: /^审核/ });
     if (await direct.isVisible()) {
@@ -35,6 +43,5 @@ export async function openGraphPanel(page: Page, label: '模型' | '视图' | '�
     }
   }
   await page.getByRole('button', { name: '更多图谱操作', exact: true }).click();
-  const title = { 模型: '模型设置', 视图: '视图与导出', 问答: '图谱问答', 审核: '关系审核' }[label];
   await page.getByRole('menuitem', { name: title, exact: true }).click();
 }
