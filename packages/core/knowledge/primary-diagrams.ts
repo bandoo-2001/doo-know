@@ -298,6 +298,18 @@ export function primaryDiagramService(
       if (row.principal !== principal.id || row.client_id !== principal.clientId)
         fail(403, 'FORBIDDEN');
       const prepared = JSON.parse(row.result) as PreparedDiagramPrimary;
+      const prior = db.prepare("SELECT * FROM operations WHERE principal=? AND client_id=? AND kind='diagram-primary.commit' AND request_id=?").get(principal.id,principal.clientId,value.requestId) as OperationRow|undefined;
+      if(prior?.status==='succeeded') {
+        // Validate the original request before exposing the current identity. A consumed
+        // receipt never rewrites the file or returns stale Markdown in a new path context.
+        beginOperation(db,principal,'diagram-primary.commit',value.requestId,{preparedId:value.preparedId,markdown:value.markdown});
+        const recorded=existingResult(prior),current=notes.row(recorded.id);
+        authorizePath(principal,current.path,'knowledge:write');
+        authorizePath(principal,current.path,'knowledge:read');
+        const result=notes.getNote(current.id);
+        if(!Object.hasOwn(recorded,'shared'))delete result.shared;
+        return result;
+      }
       if (prepared.creationIntentId) creations.get(prepared.creationIntentId);
       else authorizePath(principal, notes.row(prepared.noteId).path, 'knowledge:write');
       const { operation } = db

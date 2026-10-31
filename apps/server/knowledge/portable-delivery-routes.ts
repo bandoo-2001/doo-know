@@ -4,6 +4,8 @@ import { join } from 'node:path';
 import { Transform } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { z } from 'zod';
+import { portableOwnerJobs } from './portable-owner-jobs.js';
+import { stagePortableDirectory } from './portable-directory-upload.js';
 import type { AppConfig } from '../../../shared/contracts.js';
 import { portableResourceLimits as limits } from '../../../shared/portable-resource-limits.js';
 import type { AppDatabase } from '../../../packages/core/db.js';
@@ -36,6 +38,7 @@ export function registerPortableDeliveryRoutes(
   runtime: () => { config: AppConfig; notes: NoteService },
   checkOwner?: (req: FastifyRequest) => void,
 ) {
+  const jobs = portableOwnerJobs(db);
   const service = () => {
     const current = runtime();
     return portableDeliveryService(current.config, db, current.notes);
@@ -52,14 +55,25 @@ export function registerPortableDeliveryRoutes(
     };
     reply.raw.once('close', cancel);
     try {
+      const p = principal(req),
+        input = requestSchema.parse(req.body);
       return reply.code(201).send(
-        await service().create(principal(req), requestSchema.parse(req.body), {
-          signal: controller.signal,
-          check: () => {
-            checkOwner?.(req);
-            return principal(req);
-          },
-        }),
+        await jobs.run(
+          p.id,
+          input.requestId,
+          'export',
+          input,
+          async (signal, checkJob) =>
+            service().create(p, input, {
+              signal,
+              check: () => {
+                checkJob();
+                checkOwner?.(req);
+                return principal(req);
+              },
+            }),
+          controller.signal,
+        ),
       );
     } finally {
       reply.raw.removeListener('close', cancel);
@@ -95,6 +109,16 @@ export function registerPortableDeliveryRoutes(
       const p = principal(req),
         current = runtime(),
         stage = await portableStaging(current.config, db);
+      const controller = new AbortController();
+      const cancel = () => {
+        if (!reply.raw.writableEnded) controller.abort(Error('PORTABLE_CANCELLED'));
+      };
+      reply.raw.once('close', cancel);
+      const check = () => {
+        if (controller.signal.aborted) fail(409, 'PORTABLE_CANCELLED');
+        checkOwner?.(req);
+        if (principal(req).id !== p.id) fail(403, 'FORBIDDEN');
+      };
       let archivePath: string | undefined;
       const fields: Record<string, string> = {};
       try {
@@ -110,6 +134,7 @@ export function registerPortableDeliveryRoutes(
               new Transform({
                 transform(chunk, _encoding, callback) {
                   try {
+                    check();
                     bytes += chunk.length;
                     stage.resize(bytes);
                     callback(null, chunk);
@@ -133,24 +158,111 @@ export function registerPortableDeliveryRoutes(
           }
         }
         if (!archivePath || !fields.requestId) fail(400, 'INVALID_PORTABLE_UPLOAD');
-        const result = await service().importArchive(
-          p,
-          {
-            archivePath,
-            folderPath: fields.folderPath ?? '00-Inbox',
-            requestId: fields.requestId,
-          },
-          {
-            check: () => {
-              checkOwner?.(req);
-              return principal(req);
-            },
-          },
+        const result = await jobs.run(
+          p.id,
+          fields.requestId,
+          'import-archive',
+          { folderPath: fields.folderPath ?? '00-Inbox' },
+          async (_signal, checkJob) =>
+            service().importArchive(
+              p,
+              {
+                archivePath: archivePath!,
+                folderPath: fields.folderPath ?? '00-Inbox',
+                requestId: fields.requestId,
+              },
+              {
+                check: () => {
+                  checkJob();
+                  check();
+                  checkOwner?.(req);
+                  return principal(req);
+                },
+              },
+            ),
+          controller.signal,
         );
         return reply.code(201).send(result);
       } finally {
+        reply.raw.removeListener('close', cancel);
         await stage.release();
       }
     },
   );
+  app.post(
+    '/api/portable-deliveries/import-directory',
+    { bodyLimit: limits.packageBytes + 4 * 1024 * 1024 },
+    async (req, reply) => {
+      const p = principal(req),
+        stage = await portableStaging(runtime().config, db);
+      const controller = new AbortController();
+      const cancel = () => {
+        if (!reply.raw.writableEnded) controller.abort(Error('PORTABLE_CANCELLED'));
+      };
+      reply.raw.once('close', cancel);
+      const check = () => {
+        if (controller.signal.aborted) fail(409, 'PORTABLE_CANCELLED');
+        checkOwner?.(req);
+        const next = principal(req);
+        if (next.id !== p.id) fail(403, 'FORBIDDEN');
+      };
+      try {
+        const input = await stagePortableDirectory(req, stage.directory, stage.resize, check);
+        const result = await jobs.run(
+          p.id,
+          input.requestId,
+          'import-directory',
+          { folderPath: input.folderPath },
+          async (_signal, checkJob) =>
+            service().importDirectory(
+              p,
+              { ...input, directoryPath: stage.directory },
+              {
+                check: () => {
+                  checkJob();
+                  check();
+                  return principal(req);
+                },
+              },
+            ),
+          controller.signal,
+        );
+        return reply.code(201).send(result);
+      } finally {
+        reply.raw.removeListener('close', cancel);
+        await stage.release();
+      }
+    },
+  );
+  app.get('/api/portable-jobs', async (req) => {
+    checkOwner?.(req);
+    return jobs.list(principal(req).id);
+  });
+  app.get<{ Params: { id: string } }>('/api/portable-jobs/:id', async (req) => {
+    checkOwner?.(req);
+    return jobs.read(principal(req).id, req.params.id);
+  });
+  app.post<{ Params: { id: string } }>('/api/portable-jobs/:id/cancel', async (req) => {
+    checkOwner?.(req);
+    return jobs.cancel(principal(req).id, req.params.id);
+  });
+  app.post<{ Params: { id: string } }>('/api/portable-jobs/:id/retry', async (req, reply) => {
+    checkOwner?.(req);
+    const p = principal(req),
+      job = jobs.read(p.id, req.params.id);
+    if (job.kind !== 'export')
+      fail(409, 'PORTABLE_SOURCE_REQUIRED', '请重新选择原始整包或目录，并使用同一请求标识继续。');
+    const input = requestSchema.parse(jobs.input(p.id, job.id));
+    const result = await jobs.run(p.id, job.requestId, 'export', input, async (signal, checkJob) =>
+      service().create(p, input, {
+        signal,
+        check: () => {
+          checkJob();
+          checkOwner?.(req);
+          return principal(req);
+        },
+      }),
+    );
+    return reply.code(201).send(result);
+  });
 }

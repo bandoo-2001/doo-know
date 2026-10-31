@@ -4,6 +4,7 @@ import { cp, mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { join, posix } from 'node:path';
 import { createApp } from '../apps/server/app';
 import { openDatabase } from '../packages/core/db';
+import { serializeDiagramBinding } from '../shared/diagram-binding';
 import { emptyWhiteboard } from '../shared/whiteboard';
 import { createFixture, loginFixtureOwner, type Fixture } from './support/fixture';
 
@@ -158,6 +159,52 @@ describe('immutable diagram source and PNG groups', () => {
       expect((await app.inject({ url: `/api/public/shares/${token}/assets/${asset.id}` })).statusCode).toBe(200);
   });
 
+  it('replays a consumed receipt using current asset identities after a renamed folder restore', async () => {
+    const n = await note(),
+      input = body(),
+      first = await post(n.id, input),
+      original = first.json();
+    const folder = posix.dirname(n.relativePath),
+      group = `![SVG 预览](${original.preview.markdownPath})\n\n[图形源文件](${original.source.markdownPath})\n\n${serializeDiagramBinding({ kind: 'svg', codeHash: hash(svg.replace(/\r\n?/g, '\n').replace(/\n+$/, '')), sourceHash: hash(svg) })}\n\n\`\`\`svg\n${svg}\n\`\`\`\n`;
+    const saved = await app.inject({
+      method: 'PUT',
+      url: '/api/notes/' + n.id,
+      headers,
+      payload: { content: group, expectedModifiedAt: n.modifiedAt, requestId: randomUUID() },
+    });
+    expect(saved.statusCode, saved.body).toBe(200);
+    const removed = await app.inject({
+      method: 'DELETE',
+      url: '/api/folders',
+      headers,
+      payload: { path: folder, requestId: randomUUID() },
+    });
+    expect(removed.statusCode, removed.body).toBe(200);
+    const id = removed.json().id,
+      name = 'restored-consumed-' + ++serial;
+    const restored = await app.inject({
+      method: 'POST',
+      url: '/api/manage/trash/restore',
+      headers,
+      payload: { ids: [id], requestId: randomUUID(), fileNames: { [id]: name } },
+    });
+    expect(restored.json().results).toEqual([{ id, ok: true, relativePath: '00-Inbox/' + name }]);
+    const replay = await post(n.id, input);
+    expect(replay.statusCode, replay.body).toBe(201);
+    for (const role of ['source', 'preview']) {
+      expect(replay.json()[role].id).toBe(original[role].id);
+      expect(replay.json()[role].relativePath).toBe(
+        original[role].relativePath.replace(folder, '00-Inbox/' + name),
+      );
+    }
+    const delivery = await app.inject({
+      method: 'POST',
+      url: '/api/portable-deliveries',
+      headers,
+      payload: { selection: { kind: 'single', noteId: n.id }, requestId: randomUUID() },
+    });
+    expect(delivery.statusCode, delivery.body).toBe(201);
+  });
   it.each([
     ['unbound hash', () => ({ ...body(), sourceHash: '0'.repeat(64) }), 400],
     ['script SVG', () => body('svg', '<svg xmlns="http://www.w3.org/2000/svg"><script/></svg>'), 400],

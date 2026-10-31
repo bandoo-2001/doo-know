@@ -18,3 +18,14 @@ export type PortableImportResult = {
   notes: { sourcePath: string; relativePath: string; noteId: string }[];
   assets: number;
 };
+export type PortableOwnerJob = {
+  id: string;
+  requestId: string;
+  kind: 'export' | 'import-archive' | 'import-directory';
+  state: 'running' | 'completed' | 'failed' | 'cancelled' | 'interrupted';
+  updatedAt: number;
+  needsSource: boolean;
+  folderPath?: string;
+  result?: PortableDelivery | PortableImportResult;
+  error?: string;
+};

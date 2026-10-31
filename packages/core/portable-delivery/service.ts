@@ -1,3 +1,4 @@
+import { boundWhiteboardLines, portableBoundWhiteboards } from './embedded.js';
 import { hasDiagramBindingProof } from '../knowledge/diagram-publications.js';
 import { assertRoot } from '../indexing/reconcile.js';
 import { mediaMime } from '../../../shared/media.js';
@@ -467,23 +468,38 @@ export function portableDeliveryService(
           for (const group of boundDiagramSources(content)) {
             // Canonical whiteboards are refreshed below through their independent
             // semantic resource. Inline SVG/Mermaid must prove the original PNG pair.
-            if (group.kind === 'excalidraw') continue;
             try {
               const native = localReference(row.path, group.sourcePath),
                 preview = localReference(row.path, group.previewPath);
               if (
                 !native ||
                 !preview ||
+                group.binding.kind !== group.kind ||
                 group.binding.codeHash !== sha256(normalizeDiagramCode(group.code))
               )
                 throw Error();
               const sourceAsset = assets.file(native),
                 png = assets.file(preview).bytes;
+              if (group.kind === 'excalidraw') {
+                const ref = group.code.trim();
+                if (localReference(row.path, ref) !== native) {
+                  const linked = active.find((note) =>
+                    whiteboardId(ref)
+                      ? note.id === ref
+                      : note.path === localReference(row.path, ref),
+                  );
+                  if (!linked) throw Error();
+                  authorizePath(p, linked.path);
+                  const state = resolvePrimaryDiagram(config, db, notes, p, linked.id);
+                  if (state.source.hash !== group.binding.sourceHash) throw Error();
+                }
+              }
+
               if (sha256(sourceAsset.sourceBytes || sourceAsset.bytes) !== group.binding.sourceHash)
                 throw Error();
               const receipts = db
                 .prepare(
-                  "SELECT kind,params_hash FROM operations WHERE kind LIKE 'diagram-artifacts:%' AND status='succeeded' AND json_extract(result,'$.source.relativePath')=? AND json_extract(result,'$.preview.relativePath')=? AND json_extract(result,'$.sourceHash')=?",
+                  "SELECT o.kind,o.params_hash FROM operations o JOIN assets s ON s.id=json_extract(o.result,'$.source.id') JOIN assets p ON p.id=json_extract(o.result,'$.preview.id') WHERE o.kind LIKE 'diagram-artifacts:%' AND o.status='succeeded' AND s.path=? AND p.path=? AND json_extract(o.result,'$.sourceHash')=?",
                 )
                 .all(native, preview, group.binding.sourceHash) as {
                 kind: string;
@@ -596,8 +612,13 @@ export function portableDeliveryService(
               if (!queue.includes(linked.id)) queue.push(linked.id);
             } else addAsset(local, row.path, ref.url);
           }
+          const snapshotLines = boundWhiteboardLines(content);
           for (const token of markdown.parse(content, {}))
-            if (token.type === 'fence' && token.info.trim() === 'excalidraw') {
+            if (
+              token.type === 'fence' &&
+              token.info.trim() === 'excalidraw' &&
+              !snapshotLines.has(token.map?.[0] ?? -1)
+            ) {
               const ref = token.content.trim(),
                 linked = active.find((note) =>
                   whiteboardId(ref) ? note.id === ref : note.path === localReference(row.path, ref),
@@ -616,9 +637,15 @@ export function portableDeliveryService(
         // Convert legacy embeds while the semantic resources and note identities are fixed.
         for (const [path, doc] of docs) {
           let content = readFileSync(doc.snapshot, 'utf8');
-          const lines = content.split('\n');
+          const lines = content.split('\n'),
+            snapshotLines = boundWhiteboardLines(content);
           for (const token of markdown.parse(content, {}).reverse())
-            if (token.type === 'fence' && token.info.trim() === 'excalidraw' && token.map) {
+            if (
+              token.type === 'fence' &&
+              token.info.trim() === 'excalidraw' &&
+              token.map &&
+              !snapshotLines.has(token.map[0])
+            ) {
               const ref = token.content.trim(),
                 linked = active.find((note) =>
                   whiteboardId(ref) ? note.id === ref : note.path === localReference(path, ref),
@@ -773,7 +800,12 @@ export function portableDeliveryService(
       }
       for (const [path, doc] of plan.docs) {
         const content = rewriteDestinations(
-          await readFile(doc.snapshot, 'utf8'),
+          portableBoundWhiteboards(
+            await readFile(doc.snapshot, 'utf8'),
+            path,
+            doc.target,
+            plan.mapping,
+          ),
           path,
           doc.target,
           plan.mapping,

@@ -1,4 +1,5 @@
 import { createWriteStream, linkSync, unlinkSync } from 'node:fs';
+import { setImmediate as yieldToRequests } from 'node:timers/promises';
 import { pipeline } from 'node:stream/promises';
 import { hashAssetSync, assetStamp } from '../asset-stream.js';
 import { createReadStream } from 'node:fs';
@@ -11,6 +12,7 @@ import type { AppConfig } from '../../../shared/contracts.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
 import type { PortableImportResult } from '../../../shared/portable-delivery-contracts.js';
 import { portableResourceLimits as limits } from '../../../shared/portable-resource-limits.js';
+import { boundDiagramSources, normalizeDiagramCode } from '../../../shared/diagram-portability.js';
 import { parseDiagramDocument } from '../../../shared/diagram-document.js';
 import { isDocument, isWhiteboard } from '../../../shared/whiteboard.js';
 import { primaryRenderDescriptor } from '../../../shared/diagram-primary.js';
@@ -24,7 +26,11 @@ import { localReference } from '../render.js';
 import { mutationCore } from '../knowledge/core.js';
 import { primaryDiagramService } from '../knowledge/primary-diagrams.js';
 import { diagramCreationService } from '../knowledge/diagram-creation.js';
-import { validateDiagramSource, validatePng } from '../knowledge/diagram-artifacts.js';
+import {
+  diagramArtifactService,
+  validateDiagramSource,
+  validatePng,
+} from '../knowledge/diagram-artifacts.js';
 import { sha256 } from '../knowledge/operations.js';
 import { fail } from '../knowledge/errors.js';
 import { workspaceWriteSync } from '../workspace/gate.js';
@@ -170,7 +176,9 @@ export async function importPortableDirectory(
     const completed: PortableImportResult = JSON.parse(previous.result);
     for (const note of completed.notes) {
       refresh();
-      authorizePath(p, notes.row(note.noteId).path, 'knowledge:write');
+      const current = notes.row(note.noteId);
+      authorizePath(p, current.path, 'knowledge:write');
+      note.relativePath = current.path;
     }
     return completed;
   }
@@ -182,7 +190,8 @@ export async function importPortableDirectory(
       manifest.files.map((file) => [file.path, posix.join(input.folderPath, file.path)]),
     ),
     validatedAssets = assetService({ ...config, knowledgeRoot: input.directoryPath }, db, notes);
-  const documents = new Set<string>();
+  const documents = new Set<string>(),
+    embeddedGroups = new Map<string, ReturnType<typeof boundDiagramSources>>();
   // A mutation can have committed just before progress persistence was interrupted.
   // Recover its own durable receipt rather than treating the new identity as a collision.
   if (previous)
@@ -257,6 +266,33 @@ export async function importPortableDirectory(
         fail(400, 'PORTABLE_DEPENDENCY_UNAVAILABLE', undefined, false, {
           diagnostics: [{ document: file.path, resource: ref.url }],
         });
+    }
+    const groups = boundDiagramSources(content);
+    embeddedGroups.set(file.path, groups);
+    for (const group of groups) {
+      const sourcePath = localReference(file.path, group.sourcePath),
+        previewPath = localReference(file.path, group.previewPath);
+      if (
+        !sourcePath ||
+        !previewPath ||
+        fileMap.get(sourcePath)?.kind !== 'asset' ||
+        fileMap.get(previewPath)?.kind !== 'asset'
+      )
+        fail(400, 'INVALID_PORTABLE_MANIFEST');
+      const sourceBytes = await readFile(join(input.directoryPath, sourcePath)),
+        previewBytes = await readFile(join(input.directoryPath, previewPath));
+      const source = validateDiagramSource(group.kind, sourceBytes);
+      validatePng(previewBytes);
+      if (
+        group.binding.kind !== group.kind ||
+        sha256(sourceBytes) !== group.binding.sourceHash ||
+        sha256(normalizeDiagramCode(group.code)) !== group.binding.codeHash ||
+        (group.kind === 'excalidraw'
+          ? localReference(file.path, group.code.trim()) !== sourcePath
+          : normalizeDiagramCode(source) !== normalizeDiagramCode(group.code))
+      )
+        fail(409, 'DIAGRAM_PREVIEW_REQUIRED');
+      if (group.kind === 'excalidraw') checkNativeLinks(source, sourcePath, config.origin);
     }
     if (parsed.status === 'diagram') {
       const source =
@@ -372,6 +408,8 @@ export async function importPortableDirectory(
   result.assets = manifest.files.filter((file) => file.kind === 'asset').length;
   persist();
   for (const path of documents) {
+    // Each committed document releases its gate and yields to owner cancellation/session changes.
+    await yieldToRequests();
     refresh();
     if (result.notes.some((note) => note.sourcePath === path)) continue;
     const target = mapping.get(path)!,
@@ -448,6 +486,25 @@ export async function importPortableDirectory(
       );
     result.notes.push({ sourcePath: path, relativePath: target, noteId: note.id });
     persist();
+  }
+  // This also repairs the durable preparation after a crash immediately after create.
+  // Register the verified imported files themselves, preserving document spelling and paths.
+  for (const item of result.notes) {
+    refresh();
+    for (const group of embeddedGroups.get(item.sourcePath) ?? []) {
+      const sourcePath = mapping.get(localReference(item.sourcePath, group.sourcePath) ?? ''),
+        previewPath = mapping.get(localReference(item.sourcePath, group.previewPath) ?? '');
+      if (!sourcePath || !previewPath) fail(400, 'INVALID_PORTABLE_PATH');
+      diagramArtifactService(db, notes, assets, p).prepareImportedPair(item.noteId, {
+        kind: group.kind,
+        sourcePath,
+        previewPath,
+        sourceHash: group.binding.sourceHash,
+        previewHash: fileMap.get(localReference(item.sourcePath, group.previewPath)!)!.sha256,
+        requestId:
+          'portable-inline-' + id + '-' + sha256(sourcePath + '\0' + previewPath).slice(0, 16),
+      });
+    }
   }
   refresh();
   for (const note of result.notes) authorizePath(p, note.relativePath, 'knowledge:write');

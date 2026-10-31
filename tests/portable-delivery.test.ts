@@ -692,7 +692,7 @@ it('refuses an externally replaced inline diagram PNG instead of blessing its cu
       selection: { kind: 'single', noteId: imported.notes[0].noteId },
       requestId: randomUUID(),
     }),
-  ).rejects.toMatchObject({ code: 'DIAGRAM_PREVIEW_REQUIRED' });
+  ).resolves.toMatchObject({ kind: 'archive' });
   await writeFile(
     join(f.config.knowledgeRoot, prepared.preview.relativePath),
     Buffer.concat([png, Buffer.from('modified')]),
@@ -1256,3 +1256,75 @@ it('review regression: exact 128 MiB incompressible PCM roundtrips while its exp
   expect(peak).toBeLessThanOrEqual(512 * 1024 * 1024);
   expect(f.db.prepare('SELECT count(*) n FROM portable_staging_runs').get()).toEqual({ n: 0 });
 }, 60000);
+it.each(['svg', 'mermaid', 'excalidraw'] as const)(
+  'roundtrips a bound v1 %s source/PNG pair without redraw or application note identities',
+  async (kind) => {
+    const f = await fixture(),
+      note = f.create('bound-' + kind + '.md', '# Parent\n');
+    let source =
+        kind === 'svg'
+          ? '<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"><rect width="1" height="1"/></svg>'
+          : 'flowchart LR\n A-->B\n',
+      code = source;
+    if (kind === 'excalidraw') {
+      const board = f.create('bound-board.excalidraw', JSON.stringify(emptyWhiteboard()));
+      source = f.notes.getNote(board.id).content;
+      code = board.id;
+    }
+    const prepared = diagramArtifactService(
+      f.db,
+      f.notes,
+      assetService(f.config, f.db, f.notes),
+      webPrincipal,
+    ).prepare(note.id, {
+      kind,
+      source,
+      sourceHash: sha256(source),
+      pngBase64: png.toString('base64'),
+      requestId: randomUUID(),
+    });
+    const group = `![${kind.toUpperCase()} 预览](${prepared.preview.markdownPath})\n\n[图形源文件](${prepared.source.markdownPath})\n\n${serializeDiagramBinding({ kind, codeHash: sha256(code.trimEnd()), sourceHash: sha256(source) })}\n\n\`\`\`${kind}\n${code}\n\`\`\`\n`;
+    mutationCore(f.config, f.db).update(
+      webPrincipal,
+      note.id,
+      group,
+      note.modifiedAt,
+      randomUUID(),
+    );
+    const delivery = await f.service.create(webPrincipal, {
+        selection: { kind: 'single', noteId: note.id },
+        requestId: randomUUID(),
+      }),
+      archive = join(f.root, 'bound.tgz');
+    await writeFile(archive, await deliveryBytes(f, delivery.id));
+    const target = await fixture(),
+      request = { archivePath: archive, folderPath: '00-Inbox/whole', requestId: randomUUID() },
+      imported = await target.service.importArchive(webPrincipal, request);
+    expect(imported.notes).toHaveLength(1);
+    const copy = target.notes.getNote(imported.notes[0].noteId);
+    const { boundDiagramSources } = await import('../shared/diagram-portability');
+    const groups = boundDiagramSources(copy.content);
+    expect(groups).toHaveLength(1);
+    expect(groups[0].kind).toBe(kind);
+    expect(copy.content).not.toContain('/api/');
+    if (kind === 'excalidraw') expect(groups[0].code.trim()).not.toMatch(/^[a-f0-9-]{36}$/);
+    await expect(
+      target.service.create(webPrincipal, {
+        selection: { kind: 'single', noteId: copy.id },
+        requestId: randomUUID(),
+      }),
+    ).resolves.toMatchObject({ kind: 'archive' });
+    const moved = mutationCore(target.config, target.db).move(
+      webPrincipal,
+      copy.id,
+      '00-Inbox',
+      'moved-' + kind + '.md',
+      copy.modifiedAt,
+      randomUUID(),
+    );
+    expect((await target.service.importArchive(webPrincipal, request)).notes[0]).toMatchObject({
+      noteId: copy.id,
+      relativePath: moved.relativePath,
+    });
+  },
+);

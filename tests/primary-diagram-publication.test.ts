@@ -441,3 +441,30 @@ it.each(['whiteboard','mindmap','flowchart'] as const)('publishes a prepared %s 
  expect(saved.content).toContain('"future":{"keep":42}');expect(saved.content).toContain('"future":{"keep":true}');
  expect(s.notes.getNote(saved.id).content).toBe(updated);
 });
+it('replays a consumed primary commit using current authorized identity and current content without rewriting', () => {
+  const { prepared, markdown } = prepare(),
+    s = services(),
+    request = { preparedId: prepared.id, markdown, requestId: randomUUID() },
+    saved = s.primary.commit(request);
+  const current = markdown + '\nLater owner prose\n';
+  s.core.update(principal, saved.id, current, saved.modifiedAt, randomUUID());
+  const moved = s.core.move(
+    principal,
+    saved.id,
+    '00-Inbox',
+    'renamed.md',
+    s.notes.getNote(saved.id).modifiedAt,
+    randomUUID(),
+  );
+  const before = s.notes.getNote(saved.id),
+    count = (db.prepare('SELECT count(*) n FROM write_intents').get() as { n: number }).n;
+  const replay = s.primary.commit(request);
+  expect(replay.relativePath).toBe(moved.relativePath);
+  expect(replay.content).toBe(before.content);
+  expect(replay.modifiedAt).toBe(before.modifiedAt);
+  expect(replay.content).toContain('Later owner prose');
+  expect((db.prepare('SELECT count(*) n FROM write_intents').get() as { n: number }).n).toBe(count);
+  expect(() =>
+    services({ ...principal, allowedPrefixes: ['00-Inbox/图形.md'] }).primary.commit(request),
+  ).toThrow();
+});
