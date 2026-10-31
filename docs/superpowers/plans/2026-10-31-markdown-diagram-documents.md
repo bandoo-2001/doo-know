@@ -1,6 +1,6 @@
 # Markdown 图形文档统一改造 Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** 白板、脑图、流程图以 Markdown 为主文件，保留稳定身份、完整图形版本和可离线阅读、整体回导的资源包。
 
@@ -55,29 +55,29 @@
 **Files:** 新建 `shared/diagram-document.ts`、`shared/diagram-document-binding.ts`、`tests/diagram-document.test.ts`、`tests/diagram-document-binding.test.ts`、`docs/diagrams/format-v1.md`、`tests/fixtures/diagram-documents/{whiteboard,mindmap,flowchart}.md`。
 **Interfaces:** `parseDiagramDocument(markdown:string): DiagramDocumentParse` 返回 ordinary/invalid/diagram 的可辨识联合、原始元数据和字符范围；`replaceDiagramPrimary(markdown:string,body:string):string` 仅改受管区；`hashDiagramBytes(string|Uint8Array):Promise<string>` 精确字节摘要；`diagramRenderFingerprint(input:DiagramRenderInput):Promise<string>` 不依赖派生路径。
 
-- [ ] 编写标记识别、BOM/frontmatter、CRLF、未知字段/版本、重复/缺失区、嵌套/代码伪标记及说明保留测试；运行 `npm test -- tests/diagram-document.test.ts tests/diagram-document-binding.test.ts`，确认 RED。
-- [ ] 实现共享 schema/解析/替换/绑定与三份完整样例，未知输入不自动重写。
-- [ ] 同命令 GREEN；以标准 markdown-it 渲染样例确认正文与普通图片/链接可读。
-- [ ] 审阅范围定位和摘要不自引用；显式暂存本任务文件并提交。
+- [x] 编写标记识别、BOM/frontmatter、CRLF、未知字段/版本、重复/缺失区、嵌套/代码伪标记及说明保留测试；运行 `npm test -- tests/diagram-document.test.ts tests/diagram-document-binding.test.ts`，确认 RED。
+- [x] 实现共享 schema/解析/替换/绑定与三份完整样例，未知输入不自动重写。
+- [x] 同命令 GREEN；以标准 markdown-it 渲染样例确认正文与普通图片/链接可读。
+- [x] 审阅范围定位和摘要不自引用；显式暂存本任务文件并提交。
 
 ## Task 2: 脑图受限大纲适配和 PNG 验证（阶段 1）
 
 **Files:** 新建 `shared/mindmap-outline.ts`、`apps/web/diagrams/mindmap.ts`、`tests/mindmap-outline.test.ts`、`tests/e2e/mindmap-adapter.spec.ts`、适配测试页面；修改 `package.json`、`package-lock.json`。
 **Interfaces:** `parseMindmapOutline(source:string):MindmapNode`、`serializeMindmapOutline(root:MindmapNode):string`；节点 `{id,topic,children}`，ID 会话生成，不成为正文权威。`renderMindmapPng(root:MindmapNode):Promise<Blob>` 用临时展开实例。
 
-- [ ] RED：同名节点、中文、Markdown 转义、重排、500 节点/深树、拒绝富文本/多行结构的往返测试。
-- [ ] 核对官方 API，锁定确切依赖和许可证；实现适配器和不改变用户折叠/视口的整图捕获。
-- [ ] GREEN：单元测试及隔离浏览器中文输入、快捷键、撤销、离屏节点、整图 PNG 和 500 节点耗时记录；禁止外链字体/图片请求。
-- [ ] 运行 typecheck/build，记录验证与限制；审阅并提交。
+- [x] RED：同名节点、中文、Markdown 转义、重排、500 节点/深树、拒绝富文本/多行结构的往返测试。
+- [x] 核对官方 API，锁定确切依赖和许可证；实现适配器和不改变用户折叠/视口的整图捕获。
+- [x] GREEN：单元测试及隔离浏览器中文输入、快捷键、撤销、离屏节点、整图 PNG 和 500 节点耗时记录；禁止外链字体/图片请求。
+- [x] 运行 typecheck/build，记录验证与限制；审阅并提交。
 
 ## Task 3: 共享资源契约与文档类型（阶段 1）
 
 **Files:** 修改 `shared/{contracts,knowledge-contracts,whiteboard}.ts`、MCP schema/SDK；新建 `shared/diagram-resource.ts`、`shared/portable-resource-limits.ts`、对应测试。
 **Interfaces:** `DocumentType=markdown|whiteboard|mindmap|flowchart`；`DiagramResource` 与 `DiagramPreviewRequired` 公共类型；类型识别接收完整正文，旧后缀识别保持独立。
 
-- [ ] RED：旧 JSON/普通 Markdown 类型兼容、角色不等于类型、结构化待预览及预算边界。
-- [ ] 实现共享类型、预算和协议版本，更新消费者以通过类型检查；不提前激活新编辑器。
-- [ ] 跑对应测试、`npm run typecheck`；审阅并提交。阶段 1 所有门槛通过才开始阶段 2。
+- [x] RED：旧 JSON/普通 Markdown 类型兼容、角色不等于类型、结构化待预览及预算边界。
+- [x] 实现共享类型、预算和协议版本，更新消费者以通过类型检查；不提前激活新编辑器。
+- [x] 跑对应测试、`npm run typecheck`；审阅并提交。阶段 1 所有门槛通过才开始阶段 2。
 
 ## Task 4: 预留身份、统一资源读取和完整提交（阶段 2）
 
@@ -182,3 +182,10 @@
 ## 进度与验证记录
 
 2026-10-31：完整读取设计；核对原目录及共享入口；原生工作树隔离完成，用户改动副本成为单独兼容基线 `5cd82ce`，原目录未修改。基线 typecheck 和全量 Vitest 已启动，结果待收集。Task 1 尚未开始。下一步：完成基线结果归档，先执行格式测试 RED→GREEN。
+
+
+2026-10-31 阶段 1（Tasks 1–3）：格式解析/受管范围、精确字节摘要与无自引用指纹、受限大纲、Mind Elixir/SnapDOM 临时整图、公开能力资源契约和统一预算均已实现。纯文本适配器同时被格式解析使用，因而 Tasks 1–3 作为同一阶段提交，避免中间提交依赖缺失。完整样例为结构验证样例，不宣称已具备可发布附件。
+
+验证：相关 Vitest 103/103；独立适配 Playwright 6/6；typecheck 通过；build 通过；新增两库许可证被现有发布 notices 脚本收录。独立阶段审阅发现 1 个 P1、2 个 P2，均以真实失败用例修复；额外补测 PNG 固定快照、根节点和公开资源能力。详见 `docs/diagrams/stage-1-validation.md`。
+
+全量 `npm test` 仍在运行，已观察到的 chunks-large/tokenizer 和 search-cli/model-local 两项环境失败均定位并单测重跑通过；最终结果需继续收集，不能声称全量已通过。隔离依赖就绪后的源码 SHA-256 核对：原目录 427 份兼容文件均保持一致。下一步：收集全量结果并推进 Task 4 的预留身份、资源准备和统一完整提交；不得提前启用新编辑器或迁移真实知识库。

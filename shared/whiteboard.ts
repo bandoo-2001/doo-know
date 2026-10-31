@@ -1,9 +1,17 @@
+import { parseDiagramDocument } from './diagram-document.js';
+import type { DocumentType } from './diagram-resource.js';
 export const MAX_WHITEBOARD_BYTES = 8 * 1024 * 1024;
 export const MAX_WHITEBOARD_ELEMENTS = 10_000;
 export const isWhiteboard = (path: string) => /\.excalidraw$/i.test(path);
 export const isDocument = (path: string) => /\.(?:md|excalidraw)$/i.test(path);
-export const documentType = (path: string): 'markdown' | 'whiteboard' =>
-  isWhiteboard(path) ? 'whiteboard' : 'markdown';
+export function documentType(path: string, content?: string): DocumentType {
+  if (isWhiteboard(path)) return 'whiteboard';
+  if (content !== undefined) {
+    const parsed = parseDiagramDocument(content);
+    if (parsed.status === 'diagram') return parsed.type;
+  }
+  return 'markdown';
+}
 export function documentTitle(path: string, content = '') {
   return (
     (isWhiteboard(path) ? '' : content.match(/^#\s+(.+)$/m)?.[1]) ||

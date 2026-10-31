@@ -1,3 +1,4 @@
+import type { DocumentType } from './diagram-resource.js';
 export interface AppConfig {
   knowledgeRoot: string;
   dataRoot: string;
@@ -19,7 +20,7 @@ export interface AppConfig {
   gitSyncEnabled?: boolean;
 }
 export interface NoteDocument {
-  documentType?: 'markdown' | 'whiteboard';
+  documentType?: DocumentType;
   id: string;
   title: string;
   relativePath: string;
@@ -30,7 +31,7 @@ export interface NoteDocument {
   html?: string;
 }
 export interface TreeEntry {
-  documentType?: 'markdown' | 'whiteboard';
+  documentType?: DocumentType;
   id?: string;
   name: string;
   path: string;
