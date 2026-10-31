@@ -1,3 +1,4 @@
+import type { DocumentType } from '../../shared/diagram-resource.js';
 import {documentTitle,documentType,isWhiteboard,parseWhiteboard,MAX_WHITEBOARD_BYTES,withWhiteboardId,whiteboardId} from '../../shared/whiteboard.js';
 import { hasActiveShare } from './share-policy.js';
 import { assertOrganizationReadable, workspaceWriteSync } from './workspace/gate.js';
@@ -96,7 +97,7 @@ export function noteService(config: AppConfig, db: AppDatabase) {
       return {
         id,
         title: documentTitle(n.path, doc.content),
-        documentType: documentType(n.path),
+        documentType: documentType(n.path,doc.content),
         relativePath: n.path,
         ...doc,
         shared: hasActiveShare(db, id),
@@ -160,13 +161,13 @@ export function noteService(config: AppConfig, db: AppDatabase) {
       children: [],
       updatedAt: modificationTime(path, 'folder'),
     }));
-    for (const n of db.prepare('SELECT * FROM notes WHERE active=1').all() as NoteRow[])
+    for (const n of db.prepare('SELECT n.*,s.document_type FROM notes n LEFT JOIN document_state s ON s.note_id=n.id WHERE n.active=1').all() as (NoteRow & {document_type?:DocumentType})[])
       all.push({
         id: n.id,
         path: n.path,
         name: basename(n.path),
         type: 'note',
-        ...(isWhiteboard(n.path) ? {documentType: 'whiteboard' as const} : {}),
+        ...(isWhiteboard(n.path) ? {documentType: 'whiteboard' as const} : n.document_type && n.document_type!=='markdown' ? {documentType:n.document_type} : {}),
         updatedAt: modificationTime(n.path, 'note'),
         ...(ownerId ? { favorite: favorites.has(n.id) } : {}),
       });
@@ -215,7 +216,7 @@ export function noteService(config: AppConfig, db: AppDatabase) {
         relativePath: receipt.relativePath,
         content,
         title: documentTitle(receipt.relativePath, content),
-        documentType: documentType(receipt.relativePath),
+        documentType: documentType(receipt.relativePath,content),
         modifiedAt: receipt.modifiedAt,
         updatedAt: new Date(Number(BigInt(receipt.modifiedAt) / 1000000n)).toISOString(),
         receipt,

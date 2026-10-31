@@ -31,11 +31,12 @@ export type DiagramPrimary = {
     | { format: 'excalidraw'; path: string }
     | { format: 'markdown-outline' | 'mermaid'; content: string };
   previewPath: string;
+  summary?: string;
   binding: PrimaryBinding;
 };
 export type DiagramDocumentParse =
   | { status: 'ordinary' }
-  | { status: 'invalid'; reason: string }
+  | { status: 'invalid'; reason: string; unsupported?: true }
   | {
       status: 'diagram';
       type: DiagramDocumentType;
@@ -76,8 +77,10 @@ function lineStarts(source: string) {
 /** Parse actual top-level tokens and retain ranges into the original, unnormalized string. */
 export function parseDiagramDocument(markdown: string): DiagramDocumentParse {
   const base = frontmatterRange(markdown)?.end ?? (markdown.startsWith('\uFEFF') ? 1 : 0);
-  const source = markdown.slice(base),
-    starts = lineStarts(source);
+  const source = markdown.slice(base);
+  // Ordinary notes need no full Markdown tokenization merely to discover their type.
+  if (!/^[ \t\r\n]*<!-- dooknow:document\b/.test(source)) return { status: 'ordinary' };
+  const starts = lineStarts(source);
   const tokens = parser.parse(source, {});
   const topComments = tokens.filter((token) => token.type === 'html_block' && token.level === 0);
   const first = tokens[0];
@@ -96,9 +99,19 @@ export function parseDiagramDocument(markdown: string): DiagramDocumentParse {
   const match = /^<!-- dooknow:document (\{[^\r\n]*\}) -->$/.exec(first.content.trim());
   if (!match) return invalid('文档类型标记格式不正确');
   let metadata: DiagramDocumentMetadata;
+  let rawMetadata: Record<string, unknown> | undefined;
   try {
-    metadata = diagramDocumentMetadataSchema.parse(JSON.parse(match[1]));
+    const value = JSON.parse(match[1]);
+    if (value && typeof value === 'object' && !Array.isArray(value)) rawMetadata = value;
+    metadata = diagramDocumentMetadataSchema.parse(value);
   } catch {
+    if (
+      rawMetadata &&
+      (rawMetadata.version !== 1 ||
+        !['whiteboard', 'mindmap', 'flowchart'].includes(String(rawMetadata.type)) ||
+        !['excalidraw', 'mind-elixir', 'mermaid'].includes(String(rawMetadata.engine)))
+    )
+      return { status: 'invalid', reason: '文档类型、引擎或版本不受支持', unsupported: true };
     return invalid('文档类型、引擎或版本不受支持');
   }
   const range = (token: (typeof tokens)[number]): SourceRange => ({
@@ -174,6 +187,7 @@ export function parseDiagramDocument(markdown: string): DiagramDocumentParse {
     return invalid('主图包含未受管的正文');
   const fences = within.filter((token) => token.type === 'fence' && token.level === 0);
   let primarySource: DiagramPrimary['source'];
+  let summary: string | undefined;
   if (metadata.type === 'whiteboard') {
     const links = paragraphs.flatMap((token) => {
       const c = token.children;
@@ -185,13 +199,22 @@ export function parseDiagramDocument(markdown: string): DiagramDocumentParse {
         : [];
     });
     if (
-      fences.length ||
+      fences.length > 1 ||
+      (fences.length === 1 && fences[0].info.trim() !== 'text') ||
       links.length !== 1 ||
       !isDiagramRelativePath(links[0]) ||
       !/\.excalidraw$/i.test(links[0])
     )
       return invalid('白板需要一个相对路径场景附件');
     primarySource = { format: 'excalidraw', path: links[0] };
+    if (fences.length) {
+      const fence = fences[0],
+        [from, to] = fence.map!;
+      const closingLine = source.slice(starts[to - 1], starts[to] ?? source.length).trim();
+      if (!new RegExp('^' + fence.markup[0] + '{' + fence.markup.length + ',}$').test(closingLine))
+        return invalid('白板摘要代码块未闭合');
+      summary = source.slice(starts[from + 1], starts[to - 1]);
+    }
   } else if (metadata.type === 'flowchart') {
     if (fences.length !== 1 || fences[0].info.trim() !== 'mermaid')
       return invalid('流程图需要一个 Mermaid 源码块');
@@ -240,6 +263,7 @@ export function parseDiagramDocument(markdown: string): DiagramDocumentParse {
       contentRange,
       range: { from: opening.from, to: closing.to },
       source: primarySource,
+      ...(summary !== undefined ? { summary } : {}),
       previewPath,
       binding,
     },

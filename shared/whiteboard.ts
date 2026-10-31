@@ -13,6 +13,7 @@ export function documentType(path: string, content?: string): DocumentType {
   return 'markdown';
 }
 export function documentTitle(path: string, content = '') {
+  if(!isWhiteboard(path) && content) { const parsed=parseDiagramDocument(content); if(parsed.status==='diagram') return parsed.title; }
   return (
     (isWhiteboard(path) ? '' : content.match(/^#\s+(.+)$/m)?.[1]) ||
     path

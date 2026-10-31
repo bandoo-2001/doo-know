@@ -1,4 +1,7 @@
-import {isWhiteboard,isDocument,parseWhiteboard,MAX_WHITEBOARD_BYTES,documentTitle,whiteboardText,withWhiteboardId} from '../../../shared/whiteboard.js';
+import { assertDiagramPublication } from './diagram-publication-policy.js';
+import { recordDiagramPublication } from './diagram-publications.js';
+import { diagramCreationService } from './diagram-creation.js';
+import {isWhiteboard,isDocument,parseWhiteboard,MAX_WHITEBOARD_BYTES,documentTitle,documentType,whiteboardText,withWhiteboardId} from '../../../shared/whiteboard.js';
 import {
   workspaceWrite,
   workspaceWriteSync,
@@ -301,12 +304,14 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
         const title = [...documentTitle(intent.path,content)]
           .slice(0, 256)
           .join('');
-        db.prepare('UPDATE document_state SET longest_line_bytes=?,title=? WHERE note_id=?').run(
+        db.prepare('UPDATE document_state SET longest_line_bytes=?,title=?,document_type=? WHERE note_id=?').run(
           longest,
           title,
+          documentType(intent.path,content),
           intent.note_id,
         );
       }
+      recordDiagramPublication(db,intent.id);
       const result = {
         id: intent.note_id,
         relativePath: intent.path,
@@ -329,6 +334,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     fileName: string,
     content: string,
     requestId: string,
+    creationIntentId?: string,
   ) {
     if (typeof directory !== 'string') fail(400, 'INVALID_DIRECTORY');
     if (typeof content !== 'string' || Buffer.byteLength(content) > (isWhiteboard(fileName) ? MAX_WHITEBOARD_BYTES : 1024 * 1024))
@@ -341,15 +347,18 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     library.refresh();
     assertWritable(db);
     const op = workspaceBegin(db, () =>
-      beginOperation(db, p, 'create', requestId, { directory, fileName, content }),
+      beginOperation(db, p, 'create', requestId, { directory, fileName, content, ...(creationIntentId?{creationIntentId}:{}) }),
     );
     if (!op.fresh) return existingResult(op.operation);
     return runOperation(op.operation, (commit, stage) => {
       if (directory !== '') safePath(config.knowledgeRoot, directory, 'folder');
       const file = safePath(config.knowledgeRoot, path, 'note', true);
       if (existsSync(file)) fail(409, 'NAME_CONFLICT');
-      const noteId = randomUUID(),
+      const creation=creationIntentId?diagramCreationService(config,db,p).get(creationIntentId):undefined;
+      if(!creation && db.prepare("SELECT 1 FROM diagram_creation_intents WHERE path=? AND status IN ('reserved','prepared') AND expires_at>?").get(path,Date.now())) fail(409,'NAME_CONFLICT');
+      const noteId = creation?.noteId || randomUUID(),
         temp = join(dirname(file), `.doo-${op.operation.id}.tmp`);
+      assertDiagramPublication(config,db,p,{operationId:op.operation.id,noteId,path,markdown:content,creationIntentId});
       stage(temp);
       if(isWhiteboard(path)){content=withWhiteboardId(content,noteId);if(Buffer.byteLength(content)>MAX_WHITEBOARD_BYTES)fail(413,'REQUEST_TOO_LARGE','白板不能超过 8 MiB');}
       durableFile(temp, content);
@@ -360,6 +369,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
         ).run(op.operation.id, noteId, path, 'create', sha256(content), temp);
       })();
       try {
+        assertDiagramPublication(config,db,p,{operationId:op.operation.id,noteId,path,markdown:content,creationIntentId});
         commit();
         linkSync(temp, file);
         unlinkSync(temp);
@@ -408,6 +418,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
       if (!isWhiteboard(n.path) && current.content.split('\n').some((line) => Buffer.byteLength(line) > 32768))
         fail(409, 'LARGE_FILE_MODE_REQUIRED');
       if (isSharePrincipal(p)) assertShareResources(n.path, current.content, content);
+      assertDiagramPublication(config,db,p,{operationId:op.operation.id,noteId:id,path:n.path,markdown:content,currentMarkdown:current.content});
       const temp = join(dirname(file), `.doo-${op.operation.id}.tmp`),
         historyFile = `${op.operation.id}.md`;
       mkdirSync(join(config.dataRoot, 'history'), { recursive: true, mode: 0o700 });
@@ -438,6 +449,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
           currentModifiedAt: latest.modifiedAt,
         });
       assertSharePrincipal(db, p, id, n.path, 'edit');
+      assertDiagramPublication(config,db,p,{operationId:op.operation.id,noteId:id,path:n.path,markdown:content,currentMarkdown:current.content});
       commit();
       renameSync(temp, file);
       fsyncDirectory(dirname(file));
@@ -919,8 +931,13 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
   const moves = moveService(config, db, record);
   return {
     move: moves.move,
-    create: (...args: Parameters<typeof create>) =>
-      workspaceWriteSync(db, { kind: 'core.create' }, () => create(...args)),
+    create: (p:Principal,directory:string,fileName:string,content:string,requestId:string) =>
+      workspaceWriteSync(db, { kind: 'core.create' }, () => create(p,directory,fileName,content,requestId)),
+    createDiagram: (p:Principal,creationIntentId:string,content:string,requestId:string) =>
+      workspaceWriteSync(db,{kind:'core.create-diagram'},()=>{
+        const intent=diagramCreationService(config,db,p).get(creationIntentId),folder=dirname(intent.relativePath);
+        return create(p,folder==='.'?'':folder,basename(intent.relativePath),content,requestId,creationIntentId);
+      }),
     update: (...args: Parameters<typeof update>) =>
       workspaceWriteSync(db, { kind: 'core.update' }, () => update(...args)),
     archive: (...args: Parameters<typeof archive>) =>

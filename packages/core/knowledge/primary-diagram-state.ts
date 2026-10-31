@@ -1,3 +1,6 @@
+import { hasDiagramResourceProof } from './diagram-publications.js';
+import type { AppDatabase } from '../db.js';
+import { sha256 as sourceDigest } from './operations.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
 import { parseDiagramDocument } from '../../../shared/diagram-document.js';
 import type { NoteService } from '../notes.js';
@@ -11,6 +14,7 @@ import { fail } from './errors.js';
 
 /** Every consumer gets original source bytes; Markdown note.content never masquerades as JSON. */
 export function readPrimaryDiagramState(
+  db: AppDatabase,
   notes: NoteService,
   assets: ReturnType<typeof assetService>,
   principal: Principal,
@@ -29,9 +33,18 @@ export function readPrimaryDiagramState(
     sourcePath = localReference(note.relativePath, source.path);
     if (!sourcePath) fail(400, 'INVALID_DIAGRAM_SOURCE');
     validateRelative(sourcePath, 'asset');
-    if (!canAccessPath(principal, sourcePath)) fail(403, 'FORBIDDEN');
+    if (
+      !canAccessPath(principal, sourcePath) &&
+      !hasDiagramResourceProof(db, noteId, sourcePath, parsed.primary.binding.sourceHash, 'source')
+    )
+      fail(403, 'FORBIDDEN');
     try {
       sourceContent = assets.file(sourcePath).bytes.toString('utf8');
+      if (
+        !canAccessPath(principal, sourcePath) &&
+        sourceDigest(sourceContent) !== parsed.primary.binding.sourceHash
+      )
+        fail(409, 'DIAGRAM_ARTIFACT_CONFLICT');
     } catch {
       return fail(409, 'DIAGRAM_SOURCE_UNAVAILABLE', '图形编辑数据不可用，请核对原始附件');
     }

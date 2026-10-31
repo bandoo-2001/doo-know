@@ -1,8 +1,13 @@
+import { mutationCore } from './core.js';
+import { parseDiagramDocument } from '../../../shared/diagram-document.js';
+import type { NoteDocument } from '../../../shared/contracts.js';
+import type { OperationRow } from './operations.js';
 import { z } from 'zod';
 import type { AppConfig } from '../../../shared/contracts.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
 import {
   diagramRendererVersions,
+  renderPreparedDiagramDocument,
   diagramPlainTitle,
   type PreparedDiagramPrimary,
 } from '../../../shared/diagram-primary.js';
@@ -81,7 +86,7 @@ export function primaryDiagramService(
     }
     const row = notes.row(input.target.noteId);
     authorizePath(principal, row.path, 'knowledge:write');
-    const state = readPrimaryDiagramState(notes, assets, principal, row.id);
+    const state = readPrimaryDiagramState(db, notes, assets, principal, row.id);
     if (state.documentHash !== input.target.expectedDocumentHash) fail(409, 'VERSION_CONFLICT');
     if (state.sourceHash !== input.target.expectedSourceHash) fail(409, 'DIAGRAM_SOURCE_CONFLICT');
     if (state.parsed.type !== input.type) fail(400, 'DIAGRAM_TYPE_MISMATCH');
@@ -113,7 +118,7 @@ export function primaryDiagramService(
     if (!parsed.success) fail(400, 'INVALID_INPUT', '主图准备请求格式不正确');
     const input = parsed.data;
     // Authorize before decoding large payloads; repeat the fixed baseline check under the short lock.
-    target(input);
+    const initialTarget = target(input);
     if (input.renderer !== diagramRendererVersions[input.type])
       fail(400, 'UNSUPPORTED_DIAGRAM_RENDERER');
     if (sha256(input.source) !== input.sourceHash) fail(400, 'DIAGRAM_SOURCE_HASH_MISMATCH');
@@ -149,6 +154,48 @@ export function primaryDiagramService(
       return fail(400, 'INVALID_DIAGRAM_RENDER_CONFIG');
     }
     const previewHash = sha256(png);
+    // Validate the exact main-file source range before writing any immutable resource.
+    // Placeholder destinations affect neither source bytes nor the render fingerprint.
+    const probe = {
+      id: 'preflight',
+      relativePath: 'assets/preview.png',
+      markdownPath: 'assets/preview.png',
+      mime: 'image/png',
+    };
+    try {
+      renderPreparedDiagramDocument({
+        prepared: {
+          id: 'preflight',
+          noteId: initialTarget.noteId,
+          type: input.type,
+          documentHash: initialTarget.documentHash,
+          baselineSourceHash: initialTarget.baselineSourceHash,
+          sourceHash: input.sourceHash,
+          renderHash,
+          previewHash,
+          title: input.title,
+          renderer: input.renderer,
+          config: input.config,
+          preview: probe,
+          ...(input.type === 'whiteboard'
+            ? {
+                source: {
+                  ...probe,
+                  relativePath: 'assets/source.excalidraw',
+                  markdownPath: 'assets/source.excalidraw',
+                  mime: DIAGRAM_SOURCE_MIMES['.excalidraw'],
+                },
+              }
+            : {}),
+          expiresAt: 0,
+        },
+        title: input.title,
+        source: input.source,
+      });
+    } catch (error) {
+      fail(400, 'DIAGRAM_SOURCE_NOT_CANONICAL', (error as Error).message);
+    }
+
     return workspaceWriteSync(db, { kind: 'diagram-primary.prepare' }, () => {
       const destination = target(input);
       assertWritable(db, destination.creationIntentId ? undefined : destination.noteId);
@@ -248,5 +295,83 @@ export function primaryDiagramService(
       return result;
     });
   }
-  return { prepare };
+  function commit(value: {
+    preparedId: string;
+    markdown: string;
+    requestId: string;
+  }): NoteDocument {
+    if (isSharePrincipal(principal)) fail(403, 'SHARE_EDIT_UNSUPPORTED');
+    if (
+      !value ||
+      typeof value.preparedId !== 'string' ||
+      typeof value.markdown !== 'string' ||
+      typeof value.requestId !== 'string'
+    )
+      fail(400, 'INVALID_INPUT');
+    return workspaceWriteSync(db, { kind: 'diagram-primary.commit' }, () => {
+      const row = db
+        .prepare('SELECT result,expires_at FROM diagram_prepared_primaries WHERE id=?')
+        .get(value.preparedId) as { result: string; expires_at: number } | undefined;
+      if (!row) fail(404, 'NOT_FOUND');
+      const prepared = JSON.parse(row.result) as PreparedDiagramPrimary;
+      if (prepared.creationIntentId) creations.get(prepared.creationIntentId);
+      else authorizePath(principal, notes.row(prepared.noteId).path, 'knowledge:write');
+      const { operation } = db
+        .transaction(() =>
+          beginOperation(db, principal, 'diagram-primary.commit', value.requestId, {
+            preparedId: value.preparedId,
+            markdown: value.markdown,
+          }),
+        )
+        .immediate();
+      if (operation.status !== 'prepared') return existingResult(operation) as NoteDocument;
+      const innerRequestId = 'primary-' + operation.id,
+        kind = prepared.creationIntentId ? 'create' : 'update';
+      const inner = db
+        .prepare(
+          'SELECT * FROM operations WHERE principal=? AND client_id=? AND kind=? AND request_id=?',
+        )
+        .get(principal.id, principal.clientId, kind, innerRequestId) as OperationRow | undefined;
+      let receipt: any;
+      if (inner?.status === 'succeeded') receipt = existingResult(inner);
+      else {
+        if (row.expires_at <= Date.now()) fail(409, 'DIAGRAM_PREPARATION_EXPIRED');
+        const core = mutationCore(config, db);
+        if (prepared.creationIntentId)
+          receipt = core.createDiagram(
+            principal,
+            prepared.creationIntentId,
+            value.markdown,
+            innerRequestId,
+          );
+        else {
+          const current = readPrimaryDiagramState(db, notes, assets, principal, prepared.noteId);
+          if (current.documentHash !== prepared.documentHash) fail(409, 'VERSION_CONFLICT');
+          if (current.sourceHash !== prepared.baselineSourceHash)
+            fail(409, 'DIAGRAM_SOURCE_CONFLICT');
+          receipt = core.update(
+            principal,
+            prepared.noteId,
+            value.markdown,
+            current.note.modifiedAt,
+            innerRequestId,
+          );
+        }
+      }
+      const parsed = parseDiagramDocument(value.markdown);
+      if (parsed.status !== 'diagram') fail(400, 'INVALID_DIAGRAM_DOCUMENT');
+      const result: NoteDocument = {
+        id: receipt.id,
+        relativePath: receipt.relativePath,
+        documentType: parsed.type,
+        title: parsed.title,
+        content: value.markdown,
+        modifiedAt: receipt.modifiedAt,
+        updatedAt: new Date(Number(BigInt(receipt.modifiedAt) / 1000000n)).toISOString(),
+      };
+      completeOperation(db, operation.id, result);
+      return result;
+    });
+  }
+  return { prepare, commit };
 }

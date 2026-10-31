@@ -6,7 +6,11 @@
 
 [图形源文件](assets/diagram-source.excalidraw)
 
-白板文字摘要：系统与知识库。
+白板文字摘要：
+
+```text
+系统与知识库。
+```
 
 ![系统架构预览](assets/diagram-preview.png)
 

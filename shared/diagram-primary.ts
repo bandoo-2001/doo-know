@@ -59,10 +59,18 @@ export function renderPreparedDiagramDocument(input: {
   let body: string;
   if (p.type === 'whiteboard') {
     if (!p.source) throw Error('白板源附件缺失');
-    const summary = whiteboardText(source)
-      .split(/\r?\n/)
-      .map((line) => line.replace(/[!"#$%&'()*+,\-./:;<=>?@[\]\\^_`{|}~]/g, '\\$&'))
-      .join('  \n');
+    const summary = whiteboardText(source);
+    const longest = (char: string) => {
+      let maximum = 0;
+      for (const match of summary.matchAll(new RegExp(char + '+', 'g')))
+        maximum = Math.max(maximum, match[0].length);
+      return maximum;
+    };
+    const backticks = longest('`'),
+      tildes = longest('~');
+    const fence = (backticks <= tildes ? '`' : '~').repeat(
+      Math.max(3, Math.min(backticks, tildes) + 1),
+    );
     body =
       renderPortableFigure({
         alt: title + ' 预览',
@@ -72,7 +80,15 @@ export function renderPreparedDiagramDocument(input: {
       '\n' +
       binding +
       '\n' +
-      (summary ? '\n白板文字摘要：' + summary + '\n' : '');
+      (summary
+        ? '\n白板文字摘要：\n\n' +
+          fence +
+          'text\n' +
+          summary +
+          (summary.endsWith('\n') ? '' : '\n') +
+          fence +
+          '\n'
+        : '');
   } else if (p.type === 'flowchart') {
     if (!source.endsWith('\n')) throw Error('流程图权威源必须包含结束换行');
     body =
@@ -109,6 +125,9 @@ export function renderPreparedDiagramDocument(input: {
     body +
     '\n<!-- dooknow:primary:end -->\n' +
     (input.description ? '\n' + input.description : '');
-  if (parseDiagramDocument(result).status !== 'diagram') throw Error('图形文档内容无法安全序列化');
+  const parsed = parseDiagramDocument(result);
+  if (parsed.status !== 'diagram') throw Error('图形文档内容无法安全序列化');
+  if (parsed.primary.source.format !== 'excalidraw' && parsed.primary.source.content !== source)
+    throw Error('图形权威源的字节范围无法原样保存，请移除受管大纲首尾的分隔空行');
   return result;
 }

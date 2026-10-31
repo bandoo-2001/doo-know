@@ -247,3 +247,50 @@ it('resumes partial uploads after failed registration without activating a parti
   expect(db.prepare('SELECT count(*) AS count FROM assets').get()).toEqual({ count: 2 });
   expect(services().primary.prepare(request)).toEqual(completed);
 });
+
+it.each(['\n- 子节点\n', '\n', ' \n- 子节点\n'])(
+  'rejects inline source whose exact byte range cannot survive serialization (%j)',
+  (source) => {
+    const intent = reserve('mindmap');
+    expect(() => services().primary.prepare(input(intent.id, 'mindmap', source))).toThrow();
+    expect(existsSync(join(config.knowledgeRoot, '00-Inbox/assets'))).toBe(false);
+  },
+);
+
+it.each([
+  'hello\n\n    code',
+  'hello\n\n\tcode',
+  '文字\n```text\n<!-- dooknow:primary:end -->\n```',
+])(
+  'prepares and serializes arbitrary whiteboard text without creating unintended blocks (%j)',
+  (text) => {
+    const intent = reserve(),
+      source = JSON.stringify({
+        ...emptyWhiteboard(),
+        elements: [{ id: 'label', type: 'text', text }],
+      }),
+      request = input(intent.id, 'whiteboard', source);
+    const prepared = services().primary.prepare(request);
+    const markdown = renderPreparedDiagramDocument({ prepared, title: request.title, source });
+    const parsed = parseDiagramDocument(markdown);
+    expect(parsed.status).toBe('diagram');
+    if (parsed.status !== 'diagram') throw Error('expected diagram');
+    expect(parsed.primary.summary).toBe(text + '\n');
+  },
+);
+
+it('serializes a bounded whiteboard label containing many fence runs without argument-stack overflow', () => {
+  const text = '`a'.repeat(140_000),
+    intent = reserve(),
+    source = JSON.stringify({
+      ...emptyWhiteboard(),
+      elements: [{ id: 'label', type: 'text', text }],
+    }),
+    request = input(intent.id, 'whiteboard', source);
+  const prepared = services().primary.prepare(request);
+  const markdown = renderPreparedDiagramDocument({ prepared, title: request.title, source });
+  const parsed = parseDiagramDocument(markdown);
+  expect(parsed.status).toBe('diagram');
+  if (parsed.status !== 'diagram') throw Error('expected diagram');
+  expect(parsed.primary.summary).toBe(text + '\n');
+});

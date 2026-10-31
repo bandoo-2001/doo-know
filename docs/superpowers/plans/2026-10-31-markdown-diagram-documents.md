@@ -205,3 +205,9 @@ Files: `packages/core/knowledge/{diagram-creation,diagram-document-schema}.ts`�
 2026-10-31 Task 4B（准备部分）：新增 `shared/diagram-primary.ts`（渲染器/适配器版本、准备回执和完整主文件序列化）、`knowledge/primary-diagrams.ts`（主图 prepare）、`primary-diagram-state.ts`（主文件与源的独立版本读取）。新增 `diagram_prepared_primaries`，绑定当前主体/客户端、预留身份或活动文档的完整摘要及源基线、源/渲染/PNG 摘要和租约。白板上传源+PNG；脑图/流程图只上传 PNG。普通上传仍拒绝未发布 UUID，专用上传在锁内复核创建意图；无主文件提前激活。幂等、重启、部分上传失败续跑、过期、篡改、并发源/主文档变化均有测试。相关回归 84/84、typecheck 通过。未开放新路由，完整提交闸门仍待实现。
 
 协议细化：metadata 可显式记录 `render:{renderer,config}`；渲染器指纹包含 DooKnow 适配器版本 `+dooknow@1`，与库版本共同绑定。大纲源的字节范围截止最后节点行的换行，不把图片前分隔空行计入源摘要；内联权威源需结束换行。格式解析和新序列化实际往返测试固定该规则。
+
+2026-10-31 Task 4B 准备复审：独立 reviewer 报告两个 P2，分别为脑图前导空行使 sourceHash 与最终范围不符、白板文字空行加缩进形成意外块。已用真实失败用例修复：准备阶段在写资产前执行实际主文件序列化/解析，要求 inline 源逐字节一致；白板派生文字摘要采用动态围栏的标准 `text` 代码块，保留空行、缩进、类似机器标记的文字。额外补测 28 万字符、14 万围栏片段避免参数展开栈溢出。准备模块 16 项测试；含回归 91 项通过，适配浏览器 6/6 通过，typecheck 通过。
+
+2026-10-31 Task 4C（发布基础）：新增 `diagram-publication-policy.ts` 与 `diagram-publications.ts`，通过待发布日志和固定版本资源清单，联动 mutation core 的新建/普通更新及恢复 record。`createDiagram` 只接受已授权创建意图并从服务端取预留 UUID，普通 create 不能冒充完整主图；完整提交固定源码/PNG/标题/renderer/config，普通源写入不能移除主图或绕过预览，说明区变化可复用已发布资源。`primary.commit` 支持已知/不明结果重试、跨文件系统写入后数据库记录失败的恢复，回执返回 Markdown；类型缓存和文件树/原文类型响应同步更新。单篇授权用固定 noteId/role/path/hash 证明读取其源附件，不扩大目录权限。未知格式版本保留普通 Markdown 源码恢复能力；已知主图不能借此移除类型。
+
+验证：9 个发布集成测试通过，连同准备/格式/旧白板/传输/恢复共 113/113 通过；typecheck 通过。Task 4 整项仍未完成，接续事项：patch/file-jobs、上传提交和小/大历史恢复接入同一策略；补齐预留创建到资源读取的 Web/MCP 接口。尚未开放新建 UI/路由，不宣称公开投影、大文件、移动、历史资源保留已完成；这些必须在阶段 2 验收前解决。
