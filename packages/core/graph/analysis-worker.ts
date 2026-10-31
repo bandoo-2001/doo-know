@@ -88,11 +88,11 @@ export function analysisWorker(
     if (
       nextFingerprint !== fingerprint ||
       getMeta('config') !== nextFingerprint ||
-      getMeta('projection') !== 'diagram-spans-v1'
+      getMeta('projection') !== 'diagram-spans-v2'
     ) {
       fingerprint = nextFingerprint;
       setMeta('config', fingerprint);
-      setMeta('projection', 'diagram-spans-v1');
+      setMeta('projection', 'diagram-spans-v2');
       db.exec(
         "DELETE FROM graph_analysis_sources; UPDATE graph_analysis_jobs SET state='queued',epoch=epoch+1,attempts=0,next_run=0,error=NULL,checkpoint=0",
       );

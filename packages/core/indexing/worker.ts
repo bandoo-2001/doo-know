@@ -48,7 +48,7 @@ export function indexWorker(
       ? new FlatFileStore(db, join(config.dataRoot, 'indexes'), client, config.embeddingSpaceId!)
       : null,
     rule =
-      'semantic-spans-v1:bge-320-48-v1:' + (config.embeddingSpaceId || 'jieba-0.42.1-local-bge');
+      'semantic-spans-v2:bge-320-48-v1:' + (config.embeddingSpaceId || 'jieba-0.42.1-local-bge');
   let lastMaintenance = 0;
   let current: Promise<void> | undefined,
     closing = false;

@@ -31,13 +31,13 @@ export function upgradeDiagramTextIndexes(db: AppDatabase, spaceId?: string) {
     const version = db
       .prepare("SELECT value FROM index_meta WHERE key='chunker_projection'")
       .get() as { value: string } | undefined;
-    if (version?.value !== 'semantic-spans-v1') {
+    if (version?.value !== 'semantic-spans-v2') {
       // A checkpoint is meaningful only within the chunker version that created it.
       db.prepare(
         "UPDATE index_jobs SET checkpoint=0,status='pending',attempts=0,next_run_at=0,lease_until=NULL,worker_id=NULL,lease_epoch=lease_epoch+1 WHERE status IN ('pending','retry_wait','leased')",
       ).run();
       db.prepare(
-        "INSERT OR REPLACE INTO index_meta VALUES('chunker_projection','semantic-spans-v1')",
+        "INSERT OR REPLACE INTO index_meta VALUES('chunker_projection','semantic-spans-v2')",
       ).run();
     }
     const legacy = db
@@ -45,8 +45,8 @@ export function upgradeDiagramTextIndexes(db: AppDatabase, spaceId?: string) {
         `SELECT DISTINCT d.note_id,d.content_hash,d.source_revision
       FROM document_state d JOIN chunks c ON c.note_id=d.note_id
       WHERE d.active=1 AND d.content_hash IS NOT NULL AND c.active=1
-      AND c.source_hash=d.content_hash AND c.source_revision=d.source_revision AND c.chunker_id NOT LIKE 'semantic-spans-v1:%'
-      AND (c.path LIKE '%.excalidraw' OR c.content LIKE '%<!-- dooknow:document %')`,
+      AND c.source_hash=d.content_hash AND c.source_revision=d.source_revision AND c.chunker_id NOT LIKE 'semantic-spans-v2:%'
+      AND (c.path LIKE '%.excalidraw' OR c.content LIKE '%<!-- dooknow:document %' OR c.chunker_id LIKE 'semantic-spans-v1:%')`,
       )
       .all() as { note_id: string; content_hash: string; source_revision: number }[];
     for (const note of legacy) {

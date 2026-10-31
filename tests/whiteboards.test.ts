@@ -48,6 +48,14 @@ it('indexes only board labels rather than serialized scene coordinates and image
     ))
       chunks.push(chunk);
     expect(chunks.map((c) => c.content).join('')).toBe('应当检索的架构标签');
+    for (const chunk of chunks)
+      expect(chunk.content).toBe(
+        Buffer.from(n.content).subarray(chunk.startByte, chunk.endByte).toString(),
+      );
+    expect(chunks.map((c) => c.embeddingInput).join('\n')).toContain('应当检索的架构标签');
+    expect(chunks.map((c) => c.embeddingInput).join('\n')).not.toMatch(
+      /"(?:x|y|files|appState)"|data:image/,
+    );
     expect(chunks.every((c) => c.embeddingTokenCount <= 512)).toBe(true);
   } finally {
     db?.close();

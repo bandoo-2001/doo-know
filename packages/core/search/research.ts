@@ -90,7 +90,7 @@ export function researchService(config: AppConfig, db: AppDatabase, notes: NoteS
       }
       if (
         isWhiteboard(note.path) &&
-        (!chunk || !String(chunk.chunker_id).startsWith('semantic-spans-v1:'))
+        (!chunk || !/^semantic-spans-v[12]:/.test(String(chunk.chunker_id)))
       )
         text = chunk ? chunk.content : whiteboardText(text);
       const title = [...(state.title || basename(note.path, '.md'))].slice(0, 256).join('');

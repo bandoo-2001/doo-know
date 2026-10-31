@@ -409,7 +409,7 @@ it('sends only primary diagram semantics to the model and rebuilds old projectio
   f.db.prepare('UPDATE graph_knowledge_user SET data=? WHERE id=1').run(preserved);
   f.db
     .prepare(
-      "INSERT OR REPLACE INTO graph_analysis_meta VALUES('projection','pre-diagram-semantics')",
+      "INSERT OR REPLACE INTO graph_analysis_meta VALUES('projection','diagram-spans-v1')",
     )
     .run();
   const before = (f.model.extract as any).mock.calls.length;
