@@ -23,6 +23,14 @@ export type WhiteboardMigration = WhiteboardMigrationPreflight & {
   id: string;
   status: string;
   backupPath: string;
+  nativePreviewNeeds?: {
+    noteId: string;
+    role: 'primary' | 'embedded';
+    documentHash: string;
+    sourceHash: string;
+    renderHash: string;
+    snapshotId: string;
+  }[];
   prepared?: PreparedDiagramPrimary;
   markdown?: string;
   references?: { noteId: string; status: string; code?: string }[];

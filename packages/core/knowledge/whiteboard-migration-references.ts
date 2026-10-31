@@ -1,3 +1,7 @@
+import {
+  recordMigrationNativeProof,
+  type MigrationNativeRewrite,
+} from './whiteboard-migration-native.js';
 import { encodePortablePathSegment, renderPortableImage } from '../../../shared/portable-figure.js';
 import { posix } from 'node:path';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
@@ -26,8 +30,11 @@ export function rewriteMigrationInbound(
   p: Principal,
   r: MigrationRow,
   update: (id: string, content: string, version: string, requestId: string) => unknown,
+  stageOnly = false,
 ) {
-  const fixed = JSON.parse(r.plan) as WhiteboardMigrationPreflight,
+  const fixed = JSON.parse(r.plan) as WhiteboardMigrationPreflight & {
+      nativeRewrites?: MigrationNativeRewrite[];
+    },
     prepared = JSON.parse(r.prepared!);
   const records = JSON.parse(r.references_json) as ReferenceRecord[];
   function persist(value: ReferenceRecord) {
@@ -56,6 +63,7 @@ export function rewriteMigrationInbound(
         const receipt = JSON.parse(operation.result!);
         if (receipt.id !== entry.noteId || receipt.contentHash !== prior.afterHash)
           fail(409, 'REFERENCE_CONFLICT');
+        recordMigrationNativeProof(db, fixed, entry.noteId, 'after');
         persist({ ...prior, status: 'rewritten', code: undefined });
         continue;
       }
@@ -65,10 +73,12 @@ export function rewriteMigrationInbound(
         doc.modifiedAt !== entry.modifiedAt
       )
         fail(409, 'VERSION_CONFLICT');
-      if (entry.native) fail(409, 'DIAGRAM_PREVIEW_REQUIRED');
+      const native = fixed.nativeRewrites?.find((x) => x.noteId === entry.noteId);
+      if (entry.native && !native) fail(409, 'DIAGRAM_PREVIEW_REQUIRED');
       if (!value.after) {
+        const base = native?.content ?? doc.content;
         const replacements: { start: number; end: number; text: string }[] = [];
-        for (const span of markdownDestinationSpans(doc.content))
+        for (const span of markdownDestinationSpans(base))
           if (localReference(entry.path, span.url) === r.old_path) {
             const url =
               posix
@@ -85,9 +95,8 @@ export function rewriteMigrationInbound(
             });
           }
         const starts = [0];
-        for (let i = 0; i < doc.content.length; i++)
-          if (doc.content[i] === '\n') starts.push(i + 1);
-        for (const token of markdown.parse(doc.content, {}))
+        for (let i = 0; i < base.length; i++) if (base[i] === '\n') starts.push(i + 1);
+        for (const token of markdown.parse(base, {}))
           if (token.type === 'fence' && token.info.trim() === 'excalidraw' && token.map) {
             const ref = whiteboardReference(token.content);
             if (ref === r.note_id || (ref && localReference(entry.path, ref) === r.old_path)) {
@@ -99,12 +108,12 @@ export function rewriteMigrationInbound(
                 preview = posix.relative(posix.dirname(entry.path), prepared.preview.relativePath);
               replacements.push({
                 start: starts[token.map[0]],
-                end: starts[token.map[1]] ?? doc.content.length,
+                end: starts[token.map[1]] ?? base.length,
                 text: renderPortableImage('白板预览', preview) + '\n\n[白板文档](' + target + ')\n',
               });
             }
           }
-        let after = doc.content;
+        let after = base;
         for (const span of replacements.sort((a, b) => b.start - a.start))
           after = after.slice(0, span.start) + span.text + after.slice(span.end);
         value = {
@@ -116,12 +125,24 @@ export function rewriteMigrationInbound(
         };
         persist(value);
       }
+      if (stageOnly) continue;
       update(entry.noteId, value.after!, entry.modifiedAt, requestId);
+      recordMigrationNativeProof(db, fixed, entry.noteId, 'after');
       value = { ...value, status: 'rewritten', code: undefined };
     } catch (e) {
       value = { ...value, status: 'pending', code: (e as any).code || 'REFERENCE_CONFLICT' };
     }
     persist(value);
+  }
+  if (stageOnly) {
+    if (
+      fixed.inbound.some(
+        (entry) =>
+          entry.native && records.find((x) => x.noteId === entry.noteId)?.status === 'pending',
+      )
+    )
+      fail(409, 'MIGRATION_PREFLIGHT_FAILED');
+    return;
   }
   db.prepare('UPDATE whiteboard_migrations SET status=? WHERE id=?').run(
     records.some((x) => x.status !== 'rewritten') ? 'references_pending' : 'committed',

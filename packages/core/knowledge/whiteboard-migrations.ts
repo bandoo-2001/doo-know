@@ -1,3 +1,9 @@
+import {
+  refreshMigrationNative,
+  verifyNativeMigrationResources,
+  recordMigrationNativeProof,
+  retainMigrationNativePreparations,
+} from './whiteboard-migration-native.js';
 import { rewriteMigrationInbound } from './whiteboard-migration-references.js';
 import { migrationAliasState } from './migration-alias-state.js';
 import { posix, join } from 'node:path';
@@ -65,8 +71,13 @@ export function whiteboardMigrationService(
   }
   function get(id: string): WhiteboardMigration {
     const r = row(id);
+    const {
+      nativeRewrites: _rewrites,
+      originalLegacyPreviews: _legacy,
+      ...fixed
+    } = JSON.parse(r.plan);
     return {
-      ...JSON.parse(r.plan),
+      ...fixed,
       id: r.id,
       status: r.status,
       backupPath: r.backup_path,
@@ -132,6 +143,7 @@ export function whiteboardMigrationService(
         join(config.dataRoot, backupPath),
         notes.getNoteSnapshot(input.noteId).note.content,
       );
+      refreshMigrationNative(config, db, notes, p, row(id));
       return get(id);
     });
   }
@@ -148,11 +160,6 @@ export function whiteboardMigrationService(
       issues = fresh.issues.filter((x) => !['OPERATION_IN_PROGRESS'].includes(x.code));
     if (issues.length)
       fail(409, 'MIGRATION_PREFLIGHT_FAILED', '迁移依赖已变化，请重新核对', false, { issues });
-    const native = fresh.inbound.filter((x) => x.native);
-    if (native.length)
-      fail(409, 'DIAGRAM_PREVIEW_REQUIRED', '关联原生白板需要按最终链接重新生成预览', false, {
-        documents: native,
-      });
     const added = fresh.inbound.filter(
       (x) => !fixed.inbound.some((before: any) => before.noteId === x.noteId),
     );
@@ -194,11 +201,8 @@ export function whiteboardMigrationService(
         verifyMigrationArtifacts(config, r);
         return get(r.id);
       }
-      if (r.status === 'awaiting-native-previews')
-        fail(409, 'DIAGRAM_PREVIEW_REQUIRED', '入站原生白板链接仍需按迁移计划生成预览', false, {
-          documents: fixed.inbound.filter((x: any) => x.native),
-        });
       baseline(r);
+      if (!refreshMigrationNative(config, db, notes, p, row(r.id)).ready) return get(r.id);
       assertWritable(db, r.note_id);
       const source = assets.upload(
         r.note_id,
@@ -286,13 +290,25 @@ export function whiteboardMigrationService(
         completeOperation(db, op.operation.id, result);
         return result;
       }
-      if (r.status !== 'prepared' && r.status !== 'committing')
+      if (
+        r.status !== 'prepared' &&
+        r.status !== 'committing' &&
+        !(r.status === 'awaiting-native-previews' && r.prepared)
+      )
         fail(409, 'MIGRATION_PREVIEW_REQUIRED');
+      if (!r.commit_operation_id) {
+        baseline(r);
+        if (!refreshMigrationNative(config, db, notes, p, r).ready) return get(r.id);
+        r = row(r.id);
+        verifyNativeMigrationResources(config, db, p, JSON.parse(r.plan), 'before');
+        verifyNativeMigrationResources(config, db, p, JSON.parse(r.plan), 'after');
+      }
       acquireNoteWrite(db, r.note_id, op.operation.id, r.commit_operation_id || undefined);
       try {
         if (!r.commit_operation_id) {
-          const fixed = baseline(r),
+          const fixed = JSON.parse(r.plan),
             prepared = verifyMigrationArtifacts(config, r);
+          rewriteMigrationInbound(db, notes, p, r, () => undefined, true);
           immutableMigrationFile(
             join(config.dataRoot, r.backup_path),
             readDocument(config.knowledgeRoot, r.old_path).content,
@@ -354,6 +370,7 @@ export function whiteboardMigrationService(
     });
   }
   function rewriteInbound(id: string) {
+    retainMigrationNativePreparations(config, db, p, JSON.parse(row(id).plan));
     rewriteMigrationInbound(db, notes, p, row(id), (id, content, version, requestId) =>
       core.update(p, id, content, version, requestId),
     );
@@ -361,6 +378,14 @@ export function whiteboardMigrationService(
   function resume(id: string) {
     return workspaceWriteSync(db, { kind: 'whiteboard-migration.resume' }, () => {
       const r = row(id);
+      if (
+        !r.commit_operation_id &&
+        ['planned', 'prepared', 'awaiting-native-previews'].includes(r.status)
+      ) {
+        baseline(r);
+        refreshMigrationNative(config, db, notes, p, r);
+        return get(id);
+      }
       if (r.status === 'rolling_back') {
         acquireNoteWrite(db, r.note_id, r.rollback_operation_id!, r.rollback_operation_id!);
         try {
@@ -405,6 +430,8 @@ export function whiteboardMigrationService(
       if (doc.relativePath !== r.new_path || sha256(doc.content) !== sha256(r.markdown!))
         fail(409, 'MIGRATION_ROLLBACK_CONFLICT', '迁移后的文档已有修改，原件与新文档均已保留');
       verifyMigrationArtifacts(config, r);
+      verifyNativeMigrationResources(config, db, p, JSON.parse(r.plan), 'before');
+      verifyNativeMigrationResources(config, db, p, JSON.parse(r.plan), 'after');
       const old = safePath(config.knowledgeRoot, r.old_path, 'note', true);
       if (existsSync(old)) fail(409, 'NAME_CONFLICT');
       const original = readFileSync(join(config.dataRoot, r.backup_path), 'utf8');
@@ -462,6 +489,8 @@ export function whiteboardMigrationService(
             'migration-rollback-ref-' + r.id + '-' + ref.noteId,
           );
       }
+      for (const ref of refs.filter((x) => x.status === 'rewritten'))
+        recordMigrationNativeProof(db, JSON.parse(r.plan), ref.noteId, 'before');
       acquireNoteWrite(db, r.note_id, op.operation.id);
       try {
         immutableMigrationFile(

@@ -289,14 +289,14 @@ it('keeps an affected native inbound document explicitly pending before cutover'
   );
   const plan = f.service.plan({ noteId: f.old.id, requestId: randomUUID() });
   expect(plan.status).toBe('awaiting-native-previews');
-  expect(() =>
+  expect(
     f.service.prepare({
       migrationId: plan.id,
       sourceHash: plan.sourceHash,
       pngBase64,
       requestId: randomUUID(),
     }),
-  ).toThrowError(expect.objectContaining({ code: 'DIAGRAM_PREVIEW_REQUIRED' }));
+  ).toMatchObject({ status: 'awaiting-native-previews' });
   expect(f.notes.getNote(f.old.id).relativePath).toBe(f.old.relativePath);
 });
 it('checks current rights when resolving an old alias instead of reusing the old path grant', () => {
@@ -585,9 +585,9 @@ it('rechecks newly added native inbound links before cutover instead of publishi
       elements: [{ id: 'late', type: 'text', link: 'drawing.excalidraw' }],
     }),
   );
-  expect(() => f.service.commit({ migrationId: p.id, requestId: randomUUID() })).toThrowError(
-    expect.objectContaining({ code: 'DIAGRAM_PREVIEW_REQUIRED' }),
-  );
+  expect(f.service.commit({ migrationId: p.id, requestId: randomUUID() })).toMatchObject({
+    status: 'awaiting-native-previews',
+  });
   expect(f.notes.getNote(f.old.id).relativePath).toBe(f.old.relativePath);
 });
 it('records migration and rollback history under the original UUID with their actual format and logical resource context', () => {

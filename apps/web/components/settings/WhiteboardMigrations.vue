@@ -19,7 +19,7 @@ const labels: Record<string, string> = {
   committing: '切换中，可续跑',
   committed: '迁移完成',
   references_pending: '主文档已迁移，引用待核对',
-  'awaiting-native-previews': '关联白板等待更新预览',
+  'awaiting-native-previews': '等待生成关联白板预览',
   rolling_back: '回滚中',
   rolled_back: '已回滚',
 };
@@ -113,6 +113,9 @@ onMounted(() => void run(load));
     <ul v-if="jobs.length">
       <li v-for="job in jobs" :key="job.id">
         <code>{{ job.oldPath }}</code> · {{ labels[job.status] || job.status }}
+        <span v-if="job.nativePreviewNeeds?.length"
+          >（还有 {{ job.nativePreviewNeeds.length }} 份场景预览）</span
+        >
         <AButton
           v-if="!['rolled_back', 'committed'].includes(job.status)"
           size="small"
