@@ -26,7 +26,7 @@ import { portableResourceLimits as limits } from '../../../shared/portable-resou
 import { parseDiagramDocument } from '../../../shared/diagram-document.js';
 import { isWhiteboard, whiteboardId } from '../../../shared/whiteboard.js';
 import { renderPreparedDiagramDocument } from '../../../shared/diagram-primary.js';
-import { renderPortableImage } from '../../../shared/portable-figure.js';
+import { renderPortableImage, encodePortablePathSegment } from '../../../shared/portable-figure.js';
 import { boundDiagramSources, normalizeDiagramCode } from '../../../shared/diagram-portability.js';
 import type { AppDatabase } from '../db.js';
 import type { NoteService } from '../notes.js';
@@ -515,7 +515,7 @@ export function portableDeliveryService(config: AppConfig, db: AppDatabase, note
                 token.map[1] - token.map[0],
                 renderPortableImage(resource.title || '白板', image) +
                   '\n\n[白板文档](' +
-                  noteLink.split('/').map(encodeURIComponent).join('/') +
+                  noteLink.split('/').map(encodePortablePathSegment).join('/') +
                   ')',
               );
             }

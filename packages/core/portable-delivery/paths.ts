@@ -4,6 +4,7 @@ import { markdownDestinationSpans } from '../../../shared/markdown-destinations.
 import { localReference } from '../render.js';
 import { fail } from '../knowledge/errors.js';
 import { knowledgeMarkdown } from '../../../shared/knowledge-markdown.js';
+import { encodePortablePathSegment } from '../../../shared/portable-figure.js';
 
 const parser = new MarkdownIt({ html: true }).use(knowledgeMarkdown);
 // Discovery is not rendering. Recognize unsupported schemes so they produce an
@@ -47,7 +48,7 @@ export function rewriteDestinations(
         posix
           .relative(posix.dirname(targetPath), mapped)
           .split('/')
-          .map(encodeURIComponent)
+          .map(encodePortablePathSegment)
           .join('/') + suffix;
       if (span.wiki) {
         const label = span.wiki.label.replace(/[\\\[\]*_`]/g, '\\$&');

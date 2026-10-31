@@ -338,9 +338,10 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     content: string,
     requestId: string,
     creationIntentId?: string,
+    ordinaryByteLimit = limits.ordinary,
   ) {
     if (typeof directory !== 'string') fail(400, 'INVALID_DIRECTORY');
-    if (typeof content !== 'string' || Buffer.byteLength(content) > (isWhiteboard(fileName) ? MAX_WHITEBOARD_BYTES : parseDiagramDocument(content).status==='diagram'?limits.file:1024*1024))
+    if (typeof content !== 'string' || Buffer.byteLength(content) > (isWhiteboard(fileName) ? MAX_WHITEBOARD_BYTES : parseDiagramDocument(content).status==='diagram'?limits.file:ordinaryByteLimit))
       fail(413, 'REQUEST_TOO_LARGE');
     if (isWhiteboard(fileName)) { try { parseWhiteboard(content); } catch(e) { fail(400, 'INVALID_WHITEBOARD', (e as Error).message); } }
     if (!validName(fileName) || !isDocument(fileName)) fail(400, 'INVALID_INPUT');
@@ -948,6 +949,13 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     move: moves.move,
     create: (p:Principal,directory:string,fileName:string,content:string,requestId:string) =>
       workspaceWriteSync(db, { kind: 'core.create' }, () => create(p,directory,fileName,content,requestId)),
+    /** Internal manifest-import capability; ordinary public create retains its 1 MiB limit. */
+    createPortableMarkdown: (p:Principal,directory:string,fileName:string,content:string,requestId:string) =>
+      workspaceWriteSync(db, { kind: 'core.create-portable-markdown' }, () => {
+        if (typeof content !== 'string' || isWhiteboard(fileName) || parseDiagramDocument(content).status !== 'ordinary')
+          fail(400, 'INVALID_PORTABLE_DOCUMENT');
+        return create(p,directory,fileName,content,requestId,undefined,limits.file);
+      }),
     createDiagram: (p:Principal,creationIntentId:string,content:string,requestId:string) =>
       workspaceWriteSync(db,{kind:'core.create-diagram'},()=>{
         const intent=diagramCreationService(config,db,p).get(creationIntentId),folder=dirname(intent.relativePath);

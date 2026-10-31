@@ -16,6 +16,7 @@ import { serializeDiagramBinding } from '../shared/diagram-binding';
 import { renderPreparedDiagramDocument, diagramRendererVersions } from '../shared/diagram-primary';
 import { emptyWhiteboard } from '../shared/whiteboard';
 import { sha256 } from '../packages/core/knowledge/operations';
+import { reconcileService } from '../packages/core/indexing/reconcile';
 import { extractArchive } from '../apps/server/platform/archive';
 import { create as createTar } from 'tar';
 import { portableDeliveryService } from '../packages/core/portable-delivery/service';
@@ -472,7 +473,7 @@ it('terminates later download chunks after the current document grant is revoked
 
 it('exports a prepared legacy UUID embed as ordinary PNG plus a linked Markdown diagram document', async () => {
   const f = await fixture(),
-    board = f.create('legacy.excalidraw', JSON.stringify(emptyWhiteboard()));
+    board = f.create('legacy).excalidraw', JSON.stringify(emptyWhiteboard()));
   const source = f.primary.resolve(board.id),
     legacy = legacyDiagramPreviewService(
       f.config,
@@ -504,14 +505,14 @@ it('exports a prepared legacy UUID embed as ordinary PNG plus a linked Markdown 
   expect(body).not.toContain('```excalidraw');
   const html = new MarkdownIt().render(body);
   expect(html).toContain('<img');
-  expect(html).toContain('href="legacy.md"');
+  expect(html).toContain('href="legacy%29.md"');
   const target = await fixture(),
     imported = await target.service.importArchive(webPrincipal, {
       archivePath: archive,
       folderPath: '00-Inbox/reimport',
       requestId: randomUUID(),
     });
-  const copied = imported.notes.find((note) => note.sourcePath === '00-Inbox/legacy.md')!;
+  const copied = imported.notes.find((note) => note.sourcePath === '00-Inbox/legacy).md')!;
   expect(target.primary.resolve(copied.noteId).preview?.state).toBe('ready');
 });
 
@@ -698,4 +699,67 @@ it('refuses an externally replaced inline diagram PNG instead of blessing its cu
       requestId: randomUUID(),
     }),
   ).rejects.toMatchObject({ code: 'DIAGRAM_PREVIEW_REQUIRED' });
+});
+
+it('roundtrips scanned ordinary Markdown above the public create size limit through the trusted portable path', async () => {
+  const f = await fixture(),
+    source = '# Large\n' + 'x'.repeat(1_120_000 - 8),
+    path = '00-Inbox/large-text.md';
+  await writeFile(join(f.config.knowledgeRoot, path), source);
+  await reconcileService(f.config, f.db).reconcile(undefined, true);
+  const scanned = f.db.prepare('SELECT id FROM notes WHERE path=? AND active=1').get(path) as {
+    id: string;
+  };
+  const out = await f.service.create(webPrincipal, {
+      selection: { kind: 'multiple', noteIds: [scanned.id] },
+      requestId: randomUUID(),
+    }),
+    archive = join(f.root, 'large-text.tar.gz');
+  await writeFile(archive, await deliveryBytes(f, out.id));
+  const target = await fixture(),
+    imported = await target.service.importArchive(webPrincipal, {
+      archivePath: archive,
+      folderPath: '00-Inbox/imported',
+      requestId: randomUUID(),
+    });
+  expect(imported.notes).toHaveLength(1);
+  expect(imported.notes[0].noteId).not.toBe(scanned.id);
+  expect(
+    await readFile(join(target.config.knowledgeRoot, imported.notes[0].relativePath), 'utf8'),
+  ).toBe(source);
+  expect(() => target.create('public-limit.md', source)).toThrowError(
+    expect.objectContaining({ code: 'REQUEST_TOO_LARGE' }),
+  );
+});
+
+it('preserves unbalanced parentheses in inline and reference document paths across export and complete import', async () => {
+  const f = await fixture();
+  f.create('a)b.md', '# closing');
+  f.create('a(b.md', '# opening');
+  f.create('a%29b.md', '# literal percent');
+  const parent = f.create(
+    'parentheses.md',
+    '[inline](a%29b.md)\n\n[reference][child]\n\n[child]: a%28b.md\n\n[percent](a%2529b.md)\n',
+  );
+  const out = await f.service.create(webPrincipal, {
+      selection: { kind: 'single', noteId: parent.id },
+      requestId: randomUUID(),
+    }),
+    archive = join(f.root, 'parens.tar.gz'),
+    directory = join(f.root, 'parens-offline');
+  await writeFile(archive, await deliveryBytes(f, out.id));
+  await mkdir(directory);
+  await extractArchive(archive, directory);
+  const markdown = await readFile(join(directory, '00-Inbox/parentheses.md'), 'utf8'),
+    html = new MarkdownIt().render(markdown);
+  expect(html).toContain('href="a%29b.md"');
+  expect(html).toContain('href="a%28b.md"');
+  expect(html).toContain('href="a%2529b.md"');
+  const target = await fixture(),
+    imported = await target.service.importArchive(webPrincipal, {
+      archivePath: archive,
+      folderPath: '00-Inbox/imported',
+      requestId: randomUUID(),
+    });
+  expect(imported.notes).toHaveLength(4);
 });

@@ -196,8 +196,6 @@ export async function importPortableDirectory(
     }
     const parsed = parseDiagramDocument(content);
     if (parsed.status === 'invalid') fail(400, 'INVALID_DIAGRAM_DOCUMENT');
-    if (parsed.status !== 'diagram' && documentBytes.length > 1024 ** 2)
-      fail(413, 'PORTABLE_DOCUMENT_TOO_LARGE');
     for (const ref of destinations(content)) {
       if (!ref.url || ref.url.startsWith('#')) continue;
       const local = localReference(file.path, ref.url);
@@ -353,7 +351,7 @@ export async function importPortableDirectory(
         requestId: 'portable-commit-' + id + '-' + sha256(path).slice(0, 16),
       });
     } else
-      note = core.create(
+      note = core.createPortableMarkdown(
         p,
         directory,
         posix.basename(target),
