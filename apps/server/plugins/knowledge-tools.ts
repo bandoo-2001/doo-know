@@ -268,6 +268,18 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
       }
       if (!upload && binding.kind === 'asset-download' && binding.metadata?.assetStamp) {
         if (typeof binding.metadata.assetId !== 'string') fail(403, 'FORBIDDEN');
+        const access = assetAccess(p, n.id, binding.metadata.assetId);
+        if (!access.allowed) {
+          // A former bucket grant is not a saved reference. Only a parser-proven
+          // reference in this exact current note version can replace that grant.
+          const version = runtime.notes.readableVersion(n.id);
+          if (
+            typeof binding.metadata.savedReferenceHash !== 'string' ||
+            binding.metadata.savedReferenceHash !== version.contentHash ||
+            binding.metadata.savedReferencePathHash !== sha256(n.path)
+          )
+            fail(403, 'FORBIDDEN');
+        }
         const descriptor = runtime.assets.inspectById(binding.metadata.assetId);
         if (
           descriptor.stamp !== binding.metadata.assetStamp ||
@@ -284,7 +296,7 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
     }
     return p;
   }
-  async function permittedAsset(p: Principal, noteId: string, assetId: string, streaming = false) {
+  function assetAccess(p: Principal, noteId: string, assetId: string) {
     const n = note(p, noteId),
       row = db.prepare('SELECT path FROM assets WHERE id=?').get(assetId) as
         | { path: string }
@@ -302,7 +314,11 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
         "SELECT 1 FROM operations o JOIN mcp_knowledge_operation_bindings b ON b.operation_id=o.id WHERE o.principal=? AND o.client_id=? AND o.kind='knowledge.diagram' AND o.status='succeeded' AND json_extract(b.binding,'$.noteId')=? AND (json_extract(o.result,'$.source.id')=? OR json_extract(o.result,'$.preview.id')=?)",
       )
       .get(p.id, p.clientId, noteId, assetId, assetId);
-    if (!canAccessPath(p, row.path) && !uploaded && !prepared)
+    return { n, allowed: !!(canAccessPath(p, row.path) || uploaded || prepared) };
+  }
+  async function permittedAsset(p: Principal, noteId: string, assetId: string, streaming = false) {
+    const { n, allowed } = assetAccess(p, noteId, assetId);
+    if (!allowed)
       return streaming
         ? runtime.assets.publicInspect(n.id, { id: assetId })
         : runtime.assets.publicAsset(n.id, assetId);
@@ -561,9 +577,27 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
       const info = await k.info(p, a.noteId);
       const descriptor = runtime.assets.inspectById(a.assetId);
       const media = /^(?:audio|video)\//.test(descriptor.mime);
-      const asset = media
-        ? await permittedAsset(revalidate(), a.noteId, a.assetId, true)
-        : await permittedAsset(revalidate(), a.noteId, a.assetId);
+      let savedReferenceHash: string | undefined, savedReferencePathHash: string | undefined;
+      if (media) {
+        const before = runtime.notes.readableVersion(a.noteId),
+          access = assetAccess(revalidate(), a.noteId, a.assetId);
+        try {
+          // Prove the saved reference even when the initial bucket grant is broader.
+          // This proof is never inferred from that grant or from another note.
+          await runtime.assets.publicInspect(a.noteId, { id: a.assetId });
+          savedReferenceHash = before.contentHash;
+          savedReferencePathHash = sha256(access.n.path);
+        } catch (error) {
+          if (!access.allowed) throw error;
+        }
+        const after = runtime.notes.readableVersion(a.noteId);
+        if (before.contentHash !== after.contentHash || before.modifiedAt !== after.modifiedAt)
+          fail(409, 'STALE_CURSOR');
+        const current = assetAccess(revalidate(), a.noteId, a.assetId);
+        if (current.n.path !== access.n.path) fail(409, 'STALE_CURSOR');
+        if (!current.allowed && !savedReferenceHash) fail(403, 'FORBIDDEN');
+      }
+      const asset = media ? descriptor : await permittedAsset(revalidate(), a.noteId, a.assetId);
       note(revalidate(), a.noteId);
       if (
         lstatSync(safePath(config.knowledgeRoot, info.relativePath, 'note'), {
@@ -578,7 +612,15 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
         revision: info.modifiedAt,
         metadata: {
           assetId: a.assetId,
-          ...(media ? { assetStamp: descriptor.stamp, assetPath: descriptor.path } : {}),
+          ...(media
+            ? {
+                assetStamp: descriptor.stamp,
+                assetPath: descriptor.path,
+                ...(savedReferenceHash
+                  ? { savedReferenceHash, savedReferencePathHash: savedReferencePathHash! }
+                  : {}),
+              }
+            : {}),
         },
       };
       if (media) {

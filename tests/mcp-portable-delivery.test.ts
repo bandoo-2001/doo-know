@@ -416,11 +416,154 @@ it('stops subsequent import publications after revocation and resumes the origin
 });
 
 it('accepts the full 128-character import request ID without overflowing the private completion claim', async () => {
-  const f = await fixture(), note = f.create('long-request.md', '# Full request length');
-  const exported = await f.call('export_portable_documents', { selection: { kind: 'multiple', noteIds: [note.id] }, requestId: 'long-request-export' });
+  const f = await fixture(),
+    note = f.create('long-request.md', '# Full request length');
+  const exported = await f.call('export_portable_documents', {
+    selection: { kind: 'multiple', noteIds: [note.id] },
+    requestId: 'long-request-export',
+  });
   const bytes = Buffer.from(f.read(exported.download.transferId).base64, 'base64');
-  const upload = await f.call('begin_portable_import_upload', { folderPath: '00-Inbox/long-request', name: exported.fileName, mime: exported.mime, totalBytes: bytes.length, sha256: sha256(bytes), requestId: 'long-request-upload' });
+  const upload = await f.call('begin_portable_import_upload', {
+    folderPath: '00-Inbox/long-request',
+    name: exported.fileName,
+    mime: exported.mime,
+    totalBytes: bytes.length,
+    sha256: sha256(bytes),
+    requestId: 'long-request-upload',
+  });
   f.upload(upload, bytes);
-  const result = await f.call('import_portable_archive', { transferId: upload.transferId, folderPath: '00-Inbox/long-request', requestId: 'x'.repeat(128) });
+  const result = await f.call('import_portable_archive', {
+    transferId: upload.transferId,
+    folderPath: '00-Inbox/long-request',
+    requestId: 'x'.repeat(128),
+  });
   expect(result.notesImported).toBe(1);
+});
+it('rechecks current asset entitlement after a directory grant becomes a selected-note grant', async () => {
+  const f = await fixture(),
+    note = f.create('unrelated-media.md', '# Unrelated');
+  const wav = Buffer.alloc(20044);
+  wav.write('RIFF');
+  wav.writeUInt32LE(wav.length - 8, 4);
+  wav.write('WAVEfmt ', 8);
+  wav.writeUInt32LE(16, 16);
+  wav.writeUInt16LE(1, 20);
+  wav.writeUInt16LE(1, 22);
+  wav.writeUInt32LE(8000, 24);
+  wav.writeUInt32LE(16000, 28);
+  wav.writeUInt16LE(2, 32);
+  wav.writeUInt16LE(16, 34);
+  wav.write('data', 36);
+  wav.writeUInt32LE(wav.length - 44, 40);
+  async function* source() {
+    yield wav;
+  }
+  // A runtime upload deliberately has no MCP actor-bound upload receipt and no saved reference.
+  const asset = await f.runtime.assets.uploadStream(
+    note.id,
+    'private.wav',
+    'audio/wav',
+    source(),
+    'private-runtime-upload',
+  );
+  const initial = await f.call('download_note_asset', {
+    noteId: note.id,
+    assetId: asset.id,
+    requestId: 'directory-entitlement',
+  });
+  expect(f.read(initial.transferId).nextOffset).toBe(8192);
+  f.setCaller({
+    ...f.principal,
+    allowedPrefixes: [],
+    knowledgeResourcePaths: [{ kind: 'note', id: note.id, path: '00-Inbox/unrelated-media.md' }],
+  });
+  await expect(
+    f.call('download_note_asset', {
+      noteId: note.id,
+      assetId: asset.id,
+      requestId: 'selected-entitlement',
+    }),
+  ).rejects.toThrow();
+  expect(() => f.read(initial.transferId, 8192)).toThrow();
+  f.setCaller(f.principal);
+  f.onAuthorize(() => {
+    if (
+      f.db
+        .prepare(
+          "SELECT 1 FROM mcp_transfers WHERE request_id='during-tighten' AND state='uploading'",
+        )
+        .get()
+    )
+      f.setCaller({
+        ...f.principal,
+        allowedPrefixes: [],
+        knowledgeResourcePaths: [
+          { kind: 'note', id: note.id, path: '00-Inbox/unrelated-media.md' },
+        ],
+      });
+  });
+  await expect(
+    f.call('download_note_asset', {
+      noteId: note.id,
+      assetId: asset.id,
+      requestId: 'during-tighten',
+    }),
+  ).rejects.toThrow();
+  expect(
+    f.db.prepare("SELECT 1 FROM mcp_transfers WHERE request_id='during-tighten'").get(),
+  ).toBeUndefined();
+});
+it('keeps parser-proven media readable after tightening to the same selected note and invalidates changed references', async () => {
+  const f = await fixture(),
+    note = f.create('referenced-media.md', '# Audio');
+  const wav = Buffer.alloc(20044);
+  wav.write('RIFF');
+  wav.writeUInt32LE(wav.length - 8, 4);
+  wav.write('WAVEfmt ', 8);
+  wav.writeUInt32LE(16, 16);
+  wav.writeUInt16LE(1, 20);
+  wav.writeUInt16LE(1, 22);
+  wav.writeUInt32LE(8000, 24);
+  wav.writeUInt32LE(16000, 28);
+  wav.writeUInt16LE(2, 32);
+  wav.writeUInt16LE(16, 34);
+  wav.write('data', 36);
+  wav.writeUInt32LE(wav.length - 44, 40);
+  async function* source() {
+    yield wav;
+  }
+  const asset = await f.runtime.assets.uploadStream(
+    note.id,
+    'referenced.wav',
+    'audio/wav',
+    source(),
+    'referenced-runtime-upload',
+  );
+  const updated = f.runtime.knowledge.core.update(
+    f.principal,
+    note.id,
+    '[Listen](' + asset.markdownPath + ')',
+    note.modifiedAt,
+    'reference-media',
+  );
+  const initial = await f.call('download_note_asset', {
+    noteId: note.id,
+    assetId: asset.id,
+    requestId: 'referenced-directory',
+  });
+  expect(initial.binding.metadata.savedReferenceHash).toBeTruthy();
+  f.setCaller({
+    ...f.principal,
+    allowedPrefixes: [],
+    knowledgeResourcePaths: [{ kind: 'note', id: note.id, path: '00-Inbox/referenced-media.md' }],
+  });
+  expect(f.read(initial.transferId, 8192).nextOffset).toBe(16384);
+  f.runtime.knowledge.core.update(
+    f.principal,
+    note.id,
+    '# Reference removed',
+    updated.modifiedAt,
+    'remove-media-reference',
+  );
+  expect(() => f.read(initial.transferId, 16384)).toThrow();
 });
