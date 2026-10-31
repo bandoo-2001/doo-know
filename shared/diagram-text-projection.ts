@@ -10,15 +10,96 @@ export type DiagramTextSpan = SourceRange & {
 };
 const parser = new MarkdownIt({ html: true, maxNesting: 512 });
 const encoder = new TextEncoder();
-/** Classification is bounded; ordinary long notes never enter the Markdown tokenizer. */
-export function diagramHeaderCandidate(prefix: string) {
-  const base = frontmatterRange(prefix)?.end ?? (prefix.startsWith('\ufeff') ? 1 : 0);
-  return /^[ \t\r\n]*<!-- dooknow:document\b/.test(prefix.slice(base));
+/** Constant-memory classification, even when YAML or leading blank lines span many reads. */
+export function diagramHeaderProbe() {
+  const marker = '<!-- dooknow:document';
+  let phase: 'start' | 'opening' | 'yaml' | 'body' | 'marker' = 'start',
+    first = true,
+    position = 0,
+    delimiter = '',
+    count = 0,
+    invalid = false,
+    carriageReturn = false,
+    result: boolean | undefined;
+  const resetLine = () => {
+    delimiter = '';
+    count = 0;
+    invalid = false;
+    carriageReturn = false;
+  };
+  const delimiterCharacter = (char: string) => {
+    if (invalid) return;
+    if (carriageReturn) {
+      invalid = true;
+      return;
+    }
+    if (!count) {
+      if (char !== '-' && (phase !== 'yaml' || char !== '.')) {
+        invalid = true;
+        return;
+      }
+      delimiter = char;
+      count = 1;
+    } else if (count < 3) {
+      if (char === delimiter) count++;
+      else invalid = true;
+    } else if (char === '\r') carriageReturn = true;
+    else if (char !== ' ' && char !== '\t') invalid = true;
+  };
+  return {
+    push(text: string): boolean | undefined {
+      for (const char of text) {
+        if (result !== undefined) break;
+        if (first) {
+          first = false;
+          if (char === '\ufeff') continue;
+        }
+        if (phase === 'start') {
+          phase = char === '-' ? 'opening' : 'body';
+        }
+        // Its multiline anchors also recognize lone CR and Unicode line separators.
+        if (phase === 'yaml' && /[\r\u2028\u2029]/.test(char)) {
+          if (!invalid && count === 3) phase = 'body';
+          else {
+            resetLine();
+            continue;
+          }
+        }
+        if (phase === 'opening' || phase === 'yaml') {
+          if (char === '\n') {
+            if (!invalid && count === 3) phase = phase === 'opening' ? 'yaml' : 'body';
+            else if (phase === 'opening') result = false;
+            resetLine();
+          } else {
+            delimiterCharacter(char);
+            if (phase === 'opening' && invalid) result = false;
+          }
+          continue;
+        }
+        if (phase === 'body') {
+          if (/[ \t\r\n]/.test(char)) continue;
+          phase = 'marker';
+        }
+        if (position < marker.length) {
+          if (char !== marker[position++]) result = false;
+        } else result = !/\w/.test(char);
+      }
+      return result;
+    },
+    finish() {
+      return result ?? (phase === 'marker' && position === marker.length);
+    },
+  };
+}
+/** Ordinary notes never enter the Markdown tokenizer merely for classification. */
+export function diagramHeaderCandidate(markdown: string) {
+  const probe = diagramHeaderProbe();
+  return probe.push(markdown) ?? probe.finish();
 }
 
 /** Searchable text remains a collection of slices of the authoritative Markdown. */
 export function diagramTextSpans(markdown: string): DiagramTextSpan[] | undefined {
-  if (!diagramHeaderCandidate(markdown.slice(0, 16384))) return;
+  if (!diagramHeaderCandidate(markdown)) return;
   const parsed = parseDiagramDocument(markdown);
   if (parsed.status !== 'diagram') return;
   const ranges: SourceRange[] = [];

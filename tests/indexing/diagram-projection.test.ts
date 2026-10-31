@@ -12,6 +12,13 @@ import { analyzer, chunks as graphChunks } from '../../packages/core/graph/analy
 import type { TokenizerClient } from '../../packages/core/indexing/tokenizer-client.js';
 import type { AppConfig } from '../../shared/contracts.js';
 import type { NoteService } from '../../packages/core/notes.js';
+import {
+  diagramAnalysisText,
+  diagramHeaderCandidate,
+  diagramHeaderProbe,
+  diagramTextSpans,
+} from '../../shared/diagram-text-projection.js';
+import { parseDiagramDocument } from '../../shared/diagram-document.js';
 const cleanup: (() => Promise<void>)[] = [];
 afterEach(async () => {
   for (const fn of cleanup.splice(0).reverse()) await fn();
@@ -154,6 +161,55 @@ it.each(['whiteboard', 'mindmap', 'flowchart'] as const)(
         })
       ).text,
     ).toBe(result.text);
+  },
+);
+it.each(['long-yaml', 'multibyte-yaml', 'long-blank-lines'])(
+  'keeps semantic exclusion after a %s header exceeds the initial read budget',
+  async (kind) => {
+    const original = document('flowchart'),
+      body =
+        kind === 'long-blank-lines'
+          ? original.replace(
+              '<!-- dooknow:document',
+              '\r\n'.repeat(35000) + '<!-- dooknow:document',
+            )
+          : original.replace(
+              'private: FRONTMATTER_SENTINEL',
+              'private: FRONTMATTER_SENTINEL' +
+                (kind === 'multibyte-yaml' ? '中'.repeat(24000) : 'x'.repeat(70000)),
+            );
+    expect(parseDiagramDocument(body).status).toBe('diagram');
+    expect(diagramTextSpans(body)).toBeDefined();
+    expect(diagramAnalysisText(body)).not.toMatch(/SENTINEL|dooknow:|assets\//);
+    const f = await fixture(body),
+      list = [];
+    for await (const c of f.chunks.chunkDocument('snapshot', 'semantic-spans-v1:test'))
+      list.push(c);
+    expect(list.map((c) => c.content).join('')).not.toMatch(/SENTINEL|dooknow:|assets\//);
+    expect(list.some((c) => c.content.includes('知识图谱😀'))).toBe(true);
+    for (const c of list)
+      expect(c.content).toBe(Buffer.from(body).subarray(c.startByte, c.endByte).toString());
+    await f.text.stage(f.version, '实际标题', 'diagram.md', list);
+    expect(f.text.publish(f.version, 'semantic-spans-v1:test')).toBe('published');
+  },
+);
+it.each([
+  ['\ufeff--- \t\r\nkey: value\r\n...\t\r\n\n<!-- dooknow:document {} -->', true],
+  ['---\nkey: value\r---\n<!-- dooknow:document {} -->', true],
+  ['---\nkey: value\u2028---\n<!-- dooknow:document {} -->', true],
+  ['---\nkey: value\r---\rtext\n<!-- dooknow:document {} -->', false],
+  ['---\nunterminated ' + 'x'.repeat(70000), false],
+  ['---x\n<!-- dooknow:document {} -->', false],
+  ['<!-- dooknow:documents {} -->', false],
+  ['<!-- dooknow:document', true],
+  ['\ufeffordinary ' + 'x'.repeat(70000), false],
+] as const)(
+  'classifies headers identically across one-character input boundaries (%#)',
+  (source, expected) => {
+    const probe = diagramHeaderProbe();
+    for (const char of source) probe.push(char);
+    expect(probe.finish()).toBe(expected);
+    expect(diagramHeaderCandidate(source)).toBe(expected);
   },
 );
 it('requires every semantic chunk as well as a complete byte scan before publishing', async () => {

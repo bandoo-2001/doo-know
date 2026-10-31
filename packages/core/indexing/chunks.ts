@@ -7,10 +7,7 @@ import { utf8Prefix } from '../knowledge/limits.js';
 import { sha256 } from '../knowledge/operations.js';
 import { fail } from '../knowledge/errors.js';
 import { createHash } from 'node:crypto';
-import {
-  diagramHeaderCandidate,
-  diagramTextSpans,
-} from '../../../shared/diagram-text-projection.js';
+import { diagramHeaderProbe, diagramTextSpans } from '../../../shared/diagram-text-projection.js';
 import { chunkInventory } from './scan-proof.js';
 export type IndexedChunk = Chunk & {
   startByte: number;
@@ -51,9 +48,15 @@ export function chunkService(config: AppConfig, db: AppDatabase, tokenizer: Toke
         proof.digest,
       );
     };
-    const prefix: Buffer[] = [];
-    for await (const bytes of readBlocks(snapshot.path, 0, 16384)) prefix.push(bytes);
-    if (diagramHeaderCandidate(Buffer.concat(prefix).toString('utf8'))) {
+    const probe = diagramHeaderProbe(),
+      decoder = new TextDecoder('utf-8', { ignoreBOM: true });
+    let candidate: boolean | undefined;
+    for await (const bytes of readBlocks(snapshot.path)) {
+      candidate = probe.push(decoder.decode(bytes, { stream: true }));
+      if (candidate !== undefined) break;
+    }
+    candidate ??= probe.push(decoder.decode()) ?? probe.finish();
+    if (candidate) {
       if (snapshot.size_bytes > 20 * 1024 * 1024) fail(413, 'FILE_TOO_LARGE');
       const parts: Buffer[] = [];
       for await (const bytes of readBlocks(snapshot.path)) {
