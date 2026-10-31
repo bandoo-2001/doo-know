@@ -192,19 +192,19 @@ export function recordDiagramRelocations(db: AppDatabase, plans: DiagramRelocati
   }
 }
 
-/** Simple rename does not rewrite dependent native assets; refuse before its journal starts. */
+/** Target moves can affect native assets outside every moved resource directory. */
 export function assertNativeDiagramReferencesUnchanged(
   config: AppConfig,
   db: AppDatabase,
   principal: Principal,
   moves: Move[],
-  excludeNoteId: string,
+  excludeNoteId = '',
 ) {
   for (const row of db
     .prepare(
-      "SELECT result FROM operations WHERE kind LIKE 'diagram-artifacts:%' AND status='succeeded' AND result IS NOT NULL",
+      "SELECT kind,result FROM operations WHERE kind LIKE 'diagram-artifacts:%' AND status='succeeded' AND result IS NOT NULL",
     )
-    .all() as { result: string }[]) {
+    .all() as { kind: string; result: string }[]) {
     const p = JSON.parse(row.result) as DiagramArtifacts;
     const asset = db.prepare('SELECT path FROM assets WHERE id=?').get(p.source.id) as
       | { path: string }
@@ -213,6 +213,12 @@ export function assertNativeDiagramReferencesUnchanged(
     try {
       assertLegacyNativeLinks(config, asset.path, p.sourceHash, moves);
     } catch (error) {
+      if ((error as { code?: string }).code === 'DIAGRAM_PREVIEW_REQUIRED') {
+        const owner = db
+          .prepare('SELECT path FROM notes WHERE id=?')
+          .get(row.kind.slice('diagram-artifacts:'.length)) as { path: string } | undefined;
+        if (!owner || !canAccessPath(principal, owner.path)) fail(403, 'DEPENDENCY_FORBIDDEN');
+      }
       if (!isMissingSource(error)) throw error;
     }
   }

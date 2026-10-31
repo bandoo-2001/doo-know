@@ -49,7 +49,7 @@ import {
   type Change,
 } from './plan.js';
 import { rewriteLibraryReferences } from './references.js';
-import { planDiagramRelocation, type DiagramRelocation } from '../knowledge/diagram-relocation.js';
+import { assertNativeDiagramReferencesUnchanged, planDiagramRelocation, type DiagramRelocation } from '../knowledge/diagram-relocation.js';
 import { organizationResponseFits, assertOrganizationReceiptFits } from './response-budget.js';
 import {
   stageOrganization,
@@ -469,6 +469,7 @@ export function organizationService(config: AppConfig, db: AppDatabase, notes: N
     const inverseMoves = old.changes
       .filter((c) => c.from && c.type.startsWith('move_'))
       .map((c) => ({ from: c.to, to: c.from! }));
+    assertNativeDiagramReferencesUnchanged(config, db, p, inverseMoves);
     let readBytes = 0;
     const diagrams: DiagramRelocation[] = [];
     const coverage = (

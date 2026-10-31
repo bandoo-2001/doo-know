@@ -26,7 +26,7 @@ import {
 } from './catalog.js';
 import { rewriteLibraryReferences } from './references.js';
 import { assertOrganizationReceiptFits } from './response-budget.js';
-import { assertFolderDiagramResourcesUnshared, planDiagramRelocation, verifyDiagramRelocations, type DiagramRelocation } from '../knowledge/diagram-relocation.js';
+import { assertNativeDiagramReferencesUnchanged, assertFolderDiagramResourcesUnshared, planDiagramRelocation, verifyDiagramRelocations, type DiagramRelocation } from '../knowledge/diagram-relocation.js';
 export const organizationLimits = {
   actions: 50,
   files: 1000,
@@ -293,6 +293,7 @@ export function prepareOrganization(
     to: c.to,
     business: true,
   }));
+  if (moves.length) assertNativeDiagramReferencesUnchanged(config, db, p, moves);
   for (const move of moves) if (move.directory) assertFolderDiagramResourcesUnshared(config, db, move.from, false, moves);
   const diagrams: DiagramRelocation[] = [];
   const assetRows = db.prepare('SELECT id,path FROM assets').all() as Array<{
@@ -441,6 +442,9 @@ export function revalidateManifest(
   m: OrganizationManifest,
 ) {
   checkPermissions(p, m.permissions);
+  const moves = m.changes.filter((change) => change.from && /^(?:undo_)?move_/.test(change.type))
+    .map((change) => ({ from: change.from!, to: change.to }));
+  if (moves.length) assertNativeDiagramReferencesUnchanged(config, db, p, moves);
   verifyDiagramRelocations(config, m.diagrams || [], true);
   const binding = libraryIdentity(db);
   if (!binding || binding.libraryId !== m.libraryId || binding.bindingVersion !== m.bindingVersion)

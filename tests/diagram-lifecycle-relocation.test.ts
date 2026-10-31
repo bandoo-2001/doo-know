@@ -18,6 +18,7 @@ import { migrateDiagramDocuments } from '../packages/core/knowledge/diagram-docu
 import { diagramArtifactService } from '../packages/core/knowledge/diagram-artifacts';
 import { serializeDiagramBinding } from '../shared/diagram-binding';
 import { normalizeDiagramCode } from '../shared/diagram-portability';
+import type { OrganizeInput } from '../shared/organization-contracts';
 
 const cleanups: (() => Promise<void>)[] = [];
 afterEach(async () => {
@@ -93,6 +94,156 @@ function fixture(link?: string, type: 'whiteboard' | 'mindmap' | 'flowchart' = '
     );
   return { ...f, org, primary, prepared, note, markdown, source, move, archive, restore };
 }
+
+async function organize(f: ReturnType<typeof fixture>, actions: OrganizeInput['actions']) {
+  const c = f.org.context(f.p),
+    requestId = randomUUID();
+  await f.org.submit(f.p, {
+    libraryId: c.libraryId,
+    expectedStructureRevision: c.structureRevision,
+    requestId,
+    actions,
+  });
+  await f.org.drain();
+  return f.org.operation(f.p, { requestId });
+}
+function legacyDependency(targetPath = 'Topic/target.md', linkPath = targetPath) {
+  const f = fixture();
+  mkdirSync(join(f.config.knowledgeRoot, targetPath.slice(0, targetPath.lastIndexOf('/'))), {
+    recursive: true,
+  });
+  const target = f.create(targetPath, '# Target');
+  const source = JSON.stringify({
+    ...emptyWhiteboard(),
+    elements: [{ id: 'a', type: 'rectangle', link: '../../' + linkPath }],
+  });
+  const prepared = diagramArtifactService(
+    f.db,
+    f.notes,
+    assetService(f.config, f.db, f.notes),
+    f.p,
+  ).prepare(f.note.id, {
+    kind: 'excalidraw',
+    source,
+    sourceHash: sha256(source),
+    pngBase64: png,
+    requestId: randomUUID(),
+  });
+  f.notes.saveNote(
+    f.note.id,
+    f.markdown +
+      `\n![preview](${prepared.preview.markdownPath})\n\n[source](${prepared.source.markdownPath})\n`,
+    f.note.modifiedAt,
+    randomUUID(),
+  );
+  return { f, target, prepared, source };
+}
+
+it('rejects a target-only folder move referenced by a consumed native attachment outside the moved root', async () => {
+  const { f, prepared, source } = legacyDependency(),
+    d = f.directory('Topic');
+  const result = await organize(f, [
+    {
+      type: 'move_directory',
+      directoryId: d.id,
+      toDirectoryId: f.directory('00-Inbox').id,
+      name: 'Moved',
+      expectedSubtreeRevision: d.subtreeRevision,
+    },
+  ]);
+  expect(result).toMatchObject({ status: 'failed', error: { code: 'DIAGRAM_PREVIEW_REQUIRED' } });
+  expect(existsSync(join(f.config.knowledgeRoot, 'Topic/target.md'))).toBe(true);
+  expect(existsSync(join(f.config.knowledgeRoot, '00-Inbox/Moved'))).toBe(false);
+  expect(readFileSync(join(f.config.knowledgeRoot, prepared.source.relativePath), 'utf8')).toBe(
+    source,
+  );
+});
+
+it('rejects an organization target-only note rename referenced by an outside consumed native attachment', async () => {
+  const { f, target } = legacyDependency();
+  const result = await organize(f, [
+    {
+      type: 'move_note',
+      ...target,
+      toDirectoryId: f.directory('Topic').id,
+      fileName: 'renamed.md',
+    },
+  ]);
+  expect(result).toMatchObject({ status: 'failed', error: { code: 'DIAGRAM_PREVIEW_REQUIRED' } });
+  expect(existsSync(join(f.config.knowledgeRoot, 'Topic/target.md'))).toBe(true);
+  expect(existsSync(join(f.config.knowledgeRoot, 'Topic/renamed.md'))).toBe(false);
+});
+
+it.each(['simple', 'organization'] as const)(
+  'returns opaque403 for an outside-owner native dependency during %s target rename',
+  async (kind) => {
+    const { f, target } = legacyDependency();
+    f.p.knowledgeAll = false;
+    f.p.allowedPrefixes = ['Topic'];
+    if (kind === 'simple') {
+      let error: unknown;
+      try {
+        mutationCore(f.config, f.db).move(
+          f.p,
+          target.noteId,
+          'Topic',
+          'renamed.md',
+          target.expectedModifiedAt,
+          randomUUID(),
+        );
+      } catch (cause) {
+        error = cause;
+      }
+      expect(error).toMatchObject({ code: 'DEPENDENCY_FORBIDDEN', statusCode: 403 });
+      expect(JSON.stringify(error)).not.toContain('00-Inbox');
+    } else {
+      const result = await organize(f, [
+        {
+          type: 'move_note',
+          ...target,
+          toDirectoryId: f.directory('Topic').id,
+          fileName: 'renamed.md',
+        },
+      ]);
+      expect(result).toMatchObject({ status: 'failed', error: { code: 'DEPENDENCY_FORBIDDEN' } });
+      expect(JSON.stringify(result)).not.toContain('00-Inbox');
+    }
+    expect(existsSync(join(f.config.knowledgeRoot, 'Topic/target.md'))).toBe(true);
+    expect(existsSync(join(f.config.knowledgeRoot, 'Topic/renamed.md'))).toBe(false);
+  },
+);
+
+it.each([false, true])(
+  'checks outside native dependencies before undoing a target-only folder move (restricted=%s)',
+  async (restricted) => {
+    const { f } = legacyDependency('Topic/Targets/target.md', 'Topic/Moved/target.md');
+    const d = f.directory('Topic/Targets');
+    const moved = await organize(f, [
+      {
+        type: 'move_directory',
+        directoryId: d.id,
+        toDirectoryId: f.directory('Topic').id,
+        name: 'Moved',
+        expectedSubtreeRevision: d.subtreeRevision,
+      },
+    ]);
+    expect(moved.status).toBe('succeeded');
+    if (restricted) {
+      f.p.knowledgeAll = false;
+      f.p.allowedPrefixes = ['Topic'];
+    }
+    const undo = await f.org.undo(f.p, { operationId: moved.operationId, requestId: randomUUID() });
+    await f.org.drain();
+    const result = f.org.operation(f.p, { operationId: undo.operation.operationId });
+    expect(result).toMatchObject({
+      status: 'failed',
+      error: { code: restricted ? 'DEPENDENCY_FORBIDDEN' : 'DIAGRAM_PREVIEW_REQUIRED' },
+    });
+    expect(JSON.stringify(result)).not.toContain('00-Inbox');
+    expect(existsSync(join(f.config.knowledgeRoot, 'Topic/Moved/target.md'))).toBe(true);
+    expect(existsSync(join(f.config.knowledgeRoot, 'Topic/Targets'))).toBe(false);
+  },
+);
 
 it.each(['whiteboard', 'mindmap', 'flowchart'] as const)(
   'keeps selected-note source access and owner saves for %s after folder relocation while retaining the original context',
