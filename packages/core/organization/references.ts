@@ -1,3 +1,4 @@
+import { whiteboardReference, whiteboardId } from '../../../shared/whiteboard.js';
 import { posix } from 'node:path';
 import { markdown } from '../render.js';
 import { frontmatterRange } from '../../../shared/frontmatter-range.js';
@@ -173,6 +174,19 @@ export function rewriteLibraryReferences(
     const urls = new Set<string>();
     const visit = (list: typeof tokens) => {
       for (const token of list) {
+        if (token.type === 'fence' && token.info.trim() === 'excalidraw' && token.map) {
+          const ref = whiteboardReference(token.content);
+          if (ref && !whiteboardId(ref)) {
+            const next = rewrite(ref),
+              from = lineStarts[token.map[0] + 1],
+              to = lineStarts[token.map[1] - 1] ?? content.length;
+            const raw = content.slice(from, to),
+              offset = raw.indexOf(ref);
+            if (next !== ref && offset >= 0)
+              edits.push({ start: from + offset, end: from + offset + ref.length, text: next });
+          }
+        }
+
         if (
           ['fence', 'code_block', 'math_block', 'math_block_eqno'].includes(token.type) &&
           token.map

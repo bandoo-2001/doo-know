@@ -1,4 +1,11 @@
-import {isDocument,isWhiteboard} from '../../../shared/whiteboard.js';
+import { diagramOperationPreviewNeeds } from './diagram-operation-preview-pages.js';
+import { diagramOperationPreviewRegistry } from './diagram-operation-previews.js';
+import { inventory } from '../organization/plan.js';
+import { readBody } from '../organization/plan.js';
+import { planNativeLinkChanges } from './native-link-plans.js';
+import { journalDocumentMove, recoverJournalDocumentMove } from './document-move-journal.js';
+import { rewriteLibraryReferences } from '../organization/references.js';
+import { isDocument, isWhiteboard } from '../../../shared/whiteboard.js';
 import {
   constants,
   copyFileSync,
@@ -25,7 +32,12 @@ import { acquireNoteWrite, releaseNoteWrite } from './write-lease.js';
 import { beginOperation, existingResult, sha256 } from './operations.js';
 import { fail, KnowledgeError } from './errors.js';
 import { hasDiagramDeclarationSync } from './diagram-declaration.js';
-import { assertNativeDiagramReferencesUnchanged, planDiagramRelocation, recordDiagramRelocations, verifyDiagramRelocations, type DiagramRelocation } from './diagram-relocation.js';
+import {
+  planDiagramRelocation,
+  recordDiagramRelocations,
+  verifyDiagramRelocations,
+  type DiagramRelocation,
+} from './diagram-relocation.js';
 
 export function moveService(config: AppConfig, db: AppDatabase, record: (intent: any) => any) {
   const stageFor = (intent: any) =>
@@ -215,9 +227,100 @@ export function moveService(config: AppConfig, db: AppDatabase, record: (intent:
     const path = folderPath === '' ? fileName : `${folderPath}/${fileName}`,
       note = db.prepare('SELECT * FROM notes WHERE id=?').get(id) as any;
     if (!note) fail(404, 'NOT_FOUND');
-    if (isWhiteboard(note.path) !== isWhiteboard(fileName)) fail(400, 'INVALID_INPUT', '改名时请保留原文件类型');
+    if (isWhiteboard(note.path) !== isWhiteboard(fileName))
+      fail(400, 'INVALID_INPUT', '改名时请保留原文件类型');
     authorizePath(p, note.path, 'knowledge:write');
     authorizePath(p, path, 'knowledge:write');
+    const prior = db
+      .prepare(
+        "SELECT * FROM operations WHERE principal=? AND client_id=? AND kind='move' AND request_id=?",
+      )
+      .get(p.id, p.clientId, requestId) as any;
+    if (prior) {
+      beginOperation(db, p, 'move', requestId, { id, folderPath, fileName, expectedModifiedAt });
+      if (prior.status === 'succeeded') return existingResult(prior);
+      const recovered = recoverJournalDocumentMove(config, db, p, prior);
+      if (recovered) return recovered;
+      if (prior.status === 'awaiting_preview') {
+        const details = JSON.parse(prior.error).details,
+          registry = diagramOperationPreviewRegistry(config, db, p);
+        for (const need of details.documents) {
+          const fixed = registry.get(need.snapshotId);
+          if ((fixed.input.context as any)?.inventory !== inventory(config))
+            fail(409, 'STRUCTURE_VERSION_CONFLICT');
+          if (!registry.prepared(need.snapshotId))
+            fail(409, 'DIAGRAM_PREVIEW_REQUIRED', undefined, false, details);
+        }
+      }
+    }
+    const currentSource = safePath(config.knowledgeRoot, note.path, 'note');
+    const currentStamp = lstatSync(currentSource, { bigint: true });
+    if (currentStamp.mtimeNs.toString() !== expectedModifiedAt) fail(409, 'VERSION_CONFLICT');
+    const currentContent = readBody(config, note.path).content;
+    const moves = [{ from: note.path, to: path }];
+    let native: ReturnType<typeof planNativeLinkChanges>;
+    try {
+      native = planNativeLinkChanges(config, db, p, moves);
+    } catch (error) {
+      if (
+        error instanceof KnowledgeError &&
+        error.code === 'DIAGRAM_PREVIEW_REQUIRED' &&
+        Array.isArray(error.details.documents)
+      ) {
+        const pending = beginOperation(db, p, 'move', requestId, {
+          id,
+          folderPath,
+          fileName,
+          expectedModifiedAt,
+        });
+        db.prepare(
+          "UPDATE operations SET status='awaiting_preview',error=?,updated_at=? WHERE id=?",
+        ).run(
+          JSON.stringify({ code: error.code, details: error.details }),
+          Date.now(),
+          pending.operation.id,
+        );
+      }
+      if (error instanceof KnowledgeError && error.code === 'DIAGRAM_PREVIEW_REQUIRED') {
+        const operation = db
+          .prepare(
+            "SELECT id FROM operations WHERE principal=? AND client_id=? AND kind='move' AND request_id=?",
+          )
+          .get(p.id, p.clientId, requestId) as any;
+        if (operation)
+          fail(
+            409,
+            error.code,
+            error.message,
+            false,
+            diagramOperationPreviewNeeds(config, db, p, { operationId: operation.id }),
+          );
+      }
+      throw error;
+    }
+    const rewrite = rewriteLibraryReferences(
+      currentContent,
+      note.path,
+      path,
+      moves,
+      isWhiteboard(note.path),
+    );
+    if (
+      native.size ||
+      rewrite.changed ||
+      (dirname(note.path) !== dirname(path) &&
+        references(currentContent).some((url) => localReference(note.path, url) !== undefined))
+    ) {
+      const result = journalDocumentMove(config, db, p, {
+        id,
+        folderPath,
+        fileName,
+        expectedModifiedAt,
+        requestId,
+        hash: sha256(currentContent),
+      });
+      return result;
+    }
     const op = workspaceBegin(db, () =>
       beginOperation(db, p, 'move', requestId, { id, folderPath, fileName, expectedModifiedAt }),
     );
@@ -236,12 +339,14 @@ export function moveService(config: AppConfig, db: AppDatabase, record: (intent:
       if (existsSync(dest) || db.prepare('SELECT 1 FROM notes WHERE path=? AND active=1').get(path))
         fail(409, 'NAME_CONFLICT');
       const hash = restoreHash(source);
-      assertNativeDiagramReferencesUnchanged(config, db, p, [{ from: note.path, to: path }], id);
+
       let diagram: DiagramRelocation | undefined;
       if (hasDiagramDeclarationSync(source)) {
         if (s.size > 20n * 1024n * 1024n) fail(413, 'FILE_TOO_LARGE');
         const content = readFileSync(source, 'utf8');
-        diagram = planDiagramRelocation(config, db, id, content, content, note.path, path, [{ from: note.path, to: path }]);
+        diagram = planDiagramRelocation(config, db, id, content, content, note.path, path, [
+          { from: note.path, to: path },
+        ]);
       }
       let referencesChecked: string | undefined;
       if (dirname(note.path) !== dirname(path)) {
@@ -263,7 +368,8 @@ export function moveService(config: AppConfig, db: AppDatabase, record: (intent:
         if (document.modifiedAt !== expectedModifiedAt || sha256(document.content) !== hash)
           fail(409, 'VERSION_CONFLICT');
         if (
-          (!isWhiteboard(note.path) && references(document.content).some((url) => localReference(note.path, url) !== undefined))
+          !isWhiteboard(note.path) &&
+          references(document.content).some((url) => localReference(note.path, url) !== undefined)
         )
           fail(
             409,

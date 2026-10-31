@@ -1,3 +1,4 @@
+import { registerOrganizationOperationRoutes } from './organization-operation-routes.js';
 import { Readable } from 'node:stream';
 import { isWhiteboard } from '../../../shared/whiteboard.js';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
@@ -31,6 +32,7 @@ export async function registerWebKnowledgeRoutes(
   publicProjection: ReturnType<typeof publicDiagramProjectionService>,
 ) {
   const conflicts = conflictService(config, db);
+  await registerOrganizationOperationRoutes(app,knowledge.organization);
   app.post<{ Params: { id: string } }>('/api/notes/:id/move', async (req) => {
     const b = req.body as any;
     return knowledge.core.move(

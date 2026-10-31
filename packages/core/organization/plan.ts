@@ -1,3 +1,4 @@
+import { planNativeLinkChanges } from '../knowledge/native-link-plans.js';
 import {
   lstatSync,
   openSync,
@@ -26,7 +27,12 @@ import {
 } from './catalog.js';
 import { rewriteLibraryReferences } from './references.js';
 import { assertOrganizationReceiptFits } from './response-budget.js';
-import { assertNativeDiagramReferencesUnchanged, assertFolderDiagramResourcesUnshared, planDiagramRelocation, verifyDiagramRelocations, type DiagramRelocation } from '../knowledge/diagram-relocation.js';
+import {
+  assertFolderDiagramResourcesUnshared,
+  planDiagramRelocation,
+  verifyDiagramRelocations,
+  type DiagramRelocation,
+} from '../knowledge/diagram-relocation.js';
 export const organizationLimits = {
   actions: 50,
   files: 1000,
@@ -92,6 +98,7 @@ export type OrganizationManifest = {
   outputCoverage?: Coverage[];
   outputContentInventory?: string;
   diagrams?: DiagramRelocation[];
+  legacyPreviews?: Array<{ noteId: string; manifest: unknown }>;
 };
 export function evidence(path: string, hash?: string): Evidence {
   const s = lstatSync(path, { bigint: true });
@@ -293,9 +300,11 @@ export function prepareOrganization(
     to: c.to,
     business: true,
   }));
-  if (moves.length) assertNativeDiagramReferencesUnchanged(config, db, p, moves);
-  for (const move of moves) if (move.directory) assertFolderDiagramResourcesUnshared(config, db, move.from, false, moves);
+  const native = planNativeLinkChanges(config, db, p, moves);
+  for (const move of moves)
+    if (move.directory) assertFolderDiagramResourcesUnshared(config, db, move.from, false, moves);
   const diagrams: DiagramRelocation[] = [];
+  const legacyPreviews: Array<{ noteId: string; manifest: unknown }> = [];
   const assetRows = db.prepare('SELECT id,path FROM assets').all() as Array<{
     id: string;
     path: string;
@@ -357,9 +366,27 @@ export function prepareOrganization(
     const body = readBody(config, n.path);
     coverage.push({ path: n.path, id: n.id, hash: body.hash, evidence: body.evidence });
     const target = map(n.path),
-      rewrite = rewriteLibraryReferences(body.content, n.path, target, moves, isWhiteboard(n.path));
+      rewrite = native.has(n.id)
+        ? {
+            content: native.get(n.id)!.content,
+            changed: native.get(n.id)!.content !== body.content,
+          }
+        : rewriteLibraryReferences(body.content, n.path, target, moves, isWhiteboard(n.path));
+    if (native.get(n.id)?.legacy)
+      legacyPreviews.push({ noteId: n.id, manifest: native.get(n.id)!.legacy });
     try {
-      const diagram = planDiagramRelocation(config, db, n.id, body.content, rewrite.content, n.path, target, moves);
+      const diagram = planDiagramRelocation(
+        config,
+        db,
+        n.id,
+        body.content,
+        rewrite.content,
+        n.path,
+        target,
+        moves,
+        undefined,
+        native.get(n.id)?.primary,
+      );
       if (diagram) diagrams.push(diagram);
     } catch (error) {
       if (!canAccessPath(p, n.path)) fail(403, 'DEPENDENCY_FORBIDDEN');
@@ -419,6 +446,7 @@ export function prepareOrganization(
     inventory: snapshot,
     coverage,
     diagrams,
+    legacyPreviews,
     objects,
     permissions,
     changes: [
@@ -442,9 +470,10 @@ export function revalidateManifest(
   m: OrganizationManifest,
 ) {
   checkPermissions(p, m.permissions);
-  const moves = m.changes.filter((change) => change.from && /^(?:undo_)?move_/.test(change.type))
+  const moves = m.changes
+    .filter((change) => change.from && /^(?:undo_)?move_/.test(change.type))
     .map((change) => ({ from: change.from!, to: change.to }));
-  if (moves.length) assertNativeDiagramReferencesUnchanged(config, db, p, moves);
+  planNativeLinkChanges(config, db, p, moves);
   verifyDiagramRelocations(config, m.diagrams || [], true);
   const binding = libraryIdentity(db);
   if (!binding || binding.libraryId !== m.libraryId || binding.bindingVersion !== m.bindingVersion)

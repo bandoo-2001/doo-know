@@ -45,6 +45,7 @@ export function planDiagramRelocation(
   to: string,
   moves: Move[],
   readAsset: typeof readBoundDiagramAsset = readBoundDiagramAsset,
+  prepared?: PreparedDiagramPrimary,
 ): DiagramRelocation | undefined {
   const original = parseDiagramDocument(before),
     parsed = parseDiagramDocument(after);
@@ -52,10 +53,18 @@ export function planDiagramRelocation(
   if (
     parsed.status !== 'diagram' ||
     parsed.type !== original.type ||
-    JSON.stringify(parsed.primary.binding) !== JSON.stringify(original.primary.binding)
+    (!prepared &&
+      JSON.stringify(parsed.primary.binding) !== JSON.stringify(original.primary.binding))
   )
     fail(409, 'DIAGRAM_PREVIEW_REQUIRED');
   const binding = original.primary.binding;
+  if (
+    prepared &&
+    (parsed.primary.binding.sourceHash !== prepared.sourceHash ||
+      parsed.primary.binding.renderHash !== prepared.renderHash ||
+      parsed.primary.binding.previewHash !== prepared.previewHash)
+  )
+    fail(409, 'DIAGRAM_PREPARATION_MISMATCH');
   const resources: DiagramVersionManifest['resources'] = [],
     oldResources: DiagramVersionManifest['resources'] = [];
   const resource = (
@@ -66,7 +75,7 @@ export function planDiagramRelocation(
   ) => {
     const oldPath = localReference(from, oldRelative),
       path = localReference(to, nextRelative);
-    if (!oldPath || !path || path !== relocatePath(oldPath, moves))
+    if (!oldPath || !path || (!prepared && path !== relocatePath(oldPath, moves)))
       fail(409, 'DIAGRAM_ARTIFACT_CONFLICT');
     let bytes: Buffer;
     try {
@@ -76,6 +85,7 @@ export function planDiagramRelocation(
     }
     if (sha256(bytes) !== hash) fail(409, 'DIAGRAM_ARTIFACT_CONFLICT');
     if (
+      !prepared &&
       role === 'source' &&
       rewriteLibraryReferences(bytes.toString('utf8'), oldPath, path, moves, true).changed
     )
@@ -96,7 +106,25 @@ export function planDiagramRelocation(
           ],
         },
       );
-    resources.push({ role, path, hash });
+    const nextHash = prepared
+      ? role === 'source'
+        ? prepared.sourceHash
+        : prepared.previewHash
+      : hash;
+    if (prepared) {
+      const asset = role === 'source' ? prepared.source : prepared.preview;
+      if (!asset || asset.relativePath !== path) fail(409, 'DIAGRAM_PREPARATION_MISMATCH');
+      const existingPath = moves.reduce(
+        (value, m) =>
+          value === m.to || value.startsWith(m.to + '/')
+            ? m.from + value.slice(m.to.length)
+            : value,
+        path,
+      );
+      if (sha256(readAsset(config, existingPath, role)) !== nextHash)
+        fail(409, 'DIAGRAM_ARTIFACT_CONFLICT');
+    }
+    resources.push({ role, path, hash: nextHash });
     oldResources.push({ role, path: oldPath, hash });
   };
   resource(
@@ -138,9 +166,9 @@ export function planDiagramRelocation(
     originalResources: oldResources,
     manifest: {
       type: parsed.type,
-      sourceHash: binding.sourceHash,
-      renderHash: binding.renderHash,
-      previewHash: binding.previewHash,
+      sourceHash: parsed.primary.binding.sourceHash,
+      renderHash: parsed.primary.binding.renderHash,
+      previewHash: parsed.primary.binding.previewHash,
       resources,
     },
   };
@@ -313,6 +341,30 @@ export function assertFolderDiagramResourcesUnshared(
     .all(Date.now()) as { result: string }[]) {
     const p = JSON.parse(row.result) as PreparedDiagramPrimary;
     if (![p.preview, p.source].some((r) => r && inside(path, r.relativePath))) continue;
+    if (
+      own.has(p.noteId) &&
+      moves.length &&
+      db.prepare("SELECT 1 FROM sqlite_master WHERE name='diagram_operation_previews'").get()
+    ) {
+      const lease = db
+        .prepare(
+          'SELECT snapshot FROM diagram_operation_previews WHERE prepared IS NOT NULL AND expires_at>?',
+        )
+        .all(Date.now()) as { snapshot: string }[];
+      const planned = lease.some((row) => {
+        const fixed = JSON.parse(
+          row.snapshot,
+        ) as import('./diagram-operation-previews.js').FixedDiagramSnapshot;
+        return (
+          fixed.input.noteId === p.noteId &&
+          JSON.stringify(fixed.input.moves) ===
+            JSON.stringify(moves.map(({ from, to }) => ({ from, to }))) &&
+          fixed.sourceHash === p.sourceHash &&
+          fixed.renderHash === p.renderHash
+        );
+      });
+      if (planned) continue;
+    }
     if (p.creationIntentId) {
       const creation = db
         .prepare('SELECT status FROM diagram_creation_intents WHERE id=?')
@@ -497,7 +549,8 @@ function assertLegacyArtifactPreparations(
     if (!consumed && (note.active || restoring.has(noteId)))
       fail(409, 'DIAGRAM_RESOURCES_RETAINED');
     try {
-      assertLegacyNativeLinks(config, currentSource, prepared.sourceHash, moves, readAsset);
+      if (sha256(readAsset(config, currentSource, 'source')) !== prepared.sourceHash)
+        fail(409, 'DIAGRAM_ARTIFACT_CONFLICT');
     } catch (error) {
       if (isMissingSource(error)) fail(409, 'DIAGRAM_ARTIFACT_CONFLICT');
       throw error;

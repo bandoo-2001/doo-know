@@ -129,3 +129,13 @@ describe('lossless organization references', () => {
     ).toBe('[x](New/a.md&#35;part) [y](New/a.md?x=1&amp;y=2)');
   });
 });
+it('rebases legacy Excalidraw path references while preserving ordinary fenced code and UUID references', () => {
+  const before =
+    '```excalidraw\n../Topic/board.excalidraw\n```\n\n```text\n../Topic/board.excalidraw\n```\n';
+  const after = rewriteLibraryReferences(before, '00-Inbox/note.md', 'Topic/note.md', [
+    { from: 'Topic/board.excalidraw', to: 'Topic/renamed.excalidraw' },
+  ]);
+  expect(after.content).toBe(
+    '```excalidraw\nrenamed.excalidraw\n```\n\n```text\n../Topic/board.excalidraw\n```\n',
+  );
+});

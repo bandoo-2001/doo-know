@@ -65,6 +65,20 @@ export type OrganizationOperation = {
   status: string;
   result?: OrganizationResult;
   error?: { code: string; retryable: boolean };
+  previewRequired?: {
+    planId: string;
+    operationId?: string;
+    totalCount?: number;
+    nextCursor?: string;
+    documents: Array<{
+      noteId: string;
+      role: 'primary' | 'embedded';
+      documentHash: string;
+      sourceHash: string;
+      renderHash: string;
+      snapshotId: string;
+    }>;
+  };
 };
 export type OrganizationReply = { kind: 'accepted'; operation: OrganizationOperation };
 export type HistoryInput = { cursor?: string; limit?: number };

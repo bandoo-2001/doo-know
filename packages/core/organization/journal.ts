@@ -27,7 +27,10 @@ import { sha256 } from '../knowledge/operations.js';
 import { restoreHash, fsyncDirectory, enqueueSource } from '../knowledge/core.js';
 import { syncDirectoryCatalog } from './catalog.js';
 import { readOrganizationSettings } from './settings.js';
-import { recordDiagramRelocations, verifyDiagramRelocations } from '../knowledge/diagram-relocation.js';
+import {
+  recordDiagramRelocations,
+  verifyDiagramRelocations,
+} from '../knowledge/diagram-relocation.js';
 import {
   evidence,
   sameIdentity,
@@ -345,6 +348,12 @@ export function commitOrganization(
           } else db.prepare('UPDATE assets SET path=? WHERE id=?').run(o.to, o.id);
         }
       recordDiagramRelocations(db, m.diagrams || []);
+      for (const entry of m.legacyPreviews || []) {
+        const v = entry.manifest as any;
+        db.prepare(
+          'INSERT OR REPLACE INTO legacy_diagram_previews(note_id,document_hash,render_hash,manifest,created_at) VALUES(?,?,?,?,?)',
+        ).run(entry.noteId, v.documentHash, v.renderHash, JSON.stringify(v), Date.now());
+      }
       const state = syncDirectoryCatalog(config, db, { recovering: true });
       m.resultRevision = state.structureRevision;
       m.outputInventory = outputInventory(config, m);
@@ -375,11 +384,16 @@ export function commitOrganization(
     })
     .immediate();
 }
-export function outputInventory(config: AppConfig, m: OrganizationManifest, contentOnly = false) {
+export function outputInventory(
+  config: AppConfig,
+  m: OrganizationManifest,
+  contentOnly = false,
+  excludedPaths = new Set<string>(),
+) {
   const result: unknown[] = [];
   const seen = new Set<string>();
   const visit = (path: string) => {
-    if (seen.has(path)) return;
+    if (seen.has(path) || excludedPaths.has(path)) return;
     seen.add(path);
     const file = join(config.knowledgeRoot, path);
     const s = lstatSync(file, { bigint: true });

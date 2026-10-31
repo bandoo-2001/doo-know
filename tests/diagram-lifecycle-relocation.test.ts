@@ -151,7 +151,10 @@ it('rejects a target-only folder move referenced by a consumed native attachment
       expectedSubtreeRevision: d.subtreeRevision,
     },
   ]);
-  expect(result).toMatchObject({ status: 'failed', error: { code: 'DIAGRAM_PREVIEW_REQUIRED' } });
+  expect(result).toMatchObject({
+    status: 'awaiting_preview',
+    error: { code: 'DIAGRAM_PREVIEW_REQUIRED' },
+  });
   expect(existsSync(join(f.config.knowledgeRoot, 'Topic/target.md'))).toBe(true);
   expect(existsSync(join(f.config.knowledgeRoot, '00-Inbox/Moved'))).toBe(false);
   expect(readFileSync(join(f.config.knowledgeRoot, prepared.source.relativePath), 'utf8')).toBe(
@@ -169,7 +172,10 @@ it('rejects an organization target-only note rename referenced by an outside con
       fileName: 'renamed.md',
     },
   ]);
-  expect(result).toMatchObject({ status: 'failed', error: { code: 'DIAGRAM_PREVIEW_REQUIRED' } });
+  expect(result).toMatchObject({
+    status: 'awaiting_preview',
+    error: { code: 'DIAGRAM_PREVIEW_REQUIRED' },
+  });
   expect(existsSync(join(f.config.knowledgeRoot, 'Topic/target.md'))).toBe(true);
   expect(existsSync(join(f.config.knowledgeRoot, 'Topic/renamed.md'))).toBe(false);
 });
@@ -236,7 +242,7 @@ it.each([false, true])(
     await f.org.drain();
     const result = f.org.operation(f.p, { operationId: undo.operation.operationId });
     expect(result).toMatchObject({
-      status: 'failed',
+      status: restricted ? 'failed' : 'awaiting_preview',
       error: { code: restricted ? 'DEPENDENCY_FORBIDDEN' : 'DIAGRAM_PREVIEW_REQUIRED' },
     });
     expect(JSON.stringify(result)).not.toContain('00-Inbox');
@@ -399,7 +405,10 @@ it('blocks a native source link rebase before an organization move exposes any d
   const f = fixture('../../Topic/target.md');
   f.create('Topic/target.md', '# Target');
   const result = await f.move();
-  expect(result).toMatchObject({ status: 'failed', error: { code: 'DIAGRAM_PREVIEW_REQUIRED' } });
+  expect(result).toMatchObject({
+    status: 'awaiting_preview',
+    error: { code: 'DIAGRAM_PREVIEW_REQUIRED' },
+  });
   expect(f.notes.row(f.note.id).path).toBe('00-Inbox/board.md');
   expect(existsSync(join(f.config.knowledgeRoot, 'Topic/Moved'))).toBe(false);
 });
@@ -570,7 +579,7 @@ it('blocks native link rebases in consumed legacy source attachments before movi
     randomUUID(),
   );
   expect(await f.move()).toMatchObject({
-    status: 'failed',
+    status: 'awaiting_preview',
     error: { code: 'DIAGRAM_PREVIEW_REQUIRED' },
   });
   expect(existsSync(join(f.config.knowledgeRoot, 'Topic/Moved'))).toBe(false);

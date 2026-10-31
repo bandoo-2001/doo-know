@@ -1,3 +1,5 @@
+import { registerDocumentOperationRoutes } from './document-operation-routes.js';
+import { registerDiagramOperationPreviewRoutes } from './diagram-operation-preview-routes.js';
 import { registerWhiteboardMigrationRoutes } from './whiteboard-migration-routes.js';
 import type { FastifyInstance } from 'fastify';
 import type { AppConfig } from '../../../shared/contracts.js';
@@ -19,6 +21,8 @@ export async function registerDiagramDocumentRoutes(
   runtime: () => { config: AppConfig; notes: NoteService; assets: ReturnType<typeof assetService> },
 ) {
   await registerWhiteboardMigrationRoutes(app,db,runtime);
+  await registerDiagramOperationPreviewRoutes(app,db,runtime);
+  await registerDocumentOperationRoutes(app,db,runtime);
   const services = () => {
     const { config, notes, assets } = runtime();
     return {
