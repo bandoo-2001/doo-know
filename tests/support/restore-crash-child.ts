@@ -7,6 +7,8 @@ const copy = fs.copyFileSync,
   link = fs.linkSync,
   unlink = fs.unlinkSync;
 fs.copyFileSync = ((a: any, b: any, ...args: any[]) => {
+  // The durable intent includes the final current-policy authorization marker.
+  if (stage === 'intent') exit();
   copy(a, b, ...args);
   if (stage === 'copy') exit();
 }) as any;
@@ -29,7 +31,6 @@ db.prepare = ((sql: string) => {
   const run = stmt.run.bind(stmt);
   stmt.run = ((...args: any[]) => {
     const result = run(...args);
-    if (stage === 'intent' && sql.includes('INSERT INTO write_intents')) exit();
     if (stage === 'db-update' && sql.includes('UPDATE notes SET') && sql.includes('active=1'))
       exit();
     if (stage === 'commit' && sql.includes("UPDATE write_intents SET status='recorded'")) {

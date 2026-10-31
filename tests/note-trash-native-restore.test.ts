@@ -19,7 +19,7 @@ afterEach(async () => {
 });
 const png =
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a7i8AAAAASUVORK5CYII=';
-async function archived(self = false) {
+async function archived(self = false, relocate = true) {
   const f = organizationFixture();
   const org = organizationService(f.config, f.db, f.notes);
   cleanup.push(async () => {
@@ -61,22 +61,24 @@ async function archived(self = false) {
   const file = join(f.config.knowledgeRoot, note.relativePath),
     original = readFileSync(file, 'utf8');
   core.archive(f.p, note.id, statSync(file, { bigint: true }).mtimeNs.toString(), randomUUID());
-  const context = org.context(f.p),
-    job = await org.submit(f.p, {
-      ...context,
-      requestId: randomUUID(),
-      expectedStructureRevision: context.structureRevision,
-      actions: [
-        {
-          type: 'move_note',
-          ...target,
-          toDirectoryId: f.directory('Topic').id,
-          fileName: 'renamed.md',
-        },
-      ],
-    });
-  await org.drain();
-  expect(org.operation(f.p, { operationId: job.operation.operationId }).status).toBe('succeeded');
+  if (relocate) {
+    const context = org.context(f.p),
+      job = await org.submit(f.p, {
+        ...context,
+        requestId: randomUUID(),
+        expectedStructureRevision: context.structureRevision,
+        actions: [
+          {
+            type: 'move_note',
+            ...target,
+            toDirectoryId: f.directory('Topic').id,
+            fileName: 'renamed.md',
+          },
+        ],
+      });
+    await org.drain();
+    expect(org.operation(f.p, { operationId: job.operation.operationId }).status).toBe('succeeded');
+  }
   return {
     ...f,
     org,
@@ -776,4 +778,152 @@ it('restores an archived note from a verified backup at new host paths using ret
   } finally {
     db.close();
   }
+});
+
+for (const primary of [true, false])
+  it(
+    'rechecks current policy after unchanged ' +
+      (primary ? 'primary' : 'ordinary') +
+      ' restore intent insertion',
+    async () => {
+      const f = primary
+        ? await archived(false, false)
+        : (() => {
+            const f = organizationFixture();
+            cleanup.push(async () => f.close());
+            const note = f.create('00-Inbox/plain.md', '# Plain'),
+              core = mutationCore(f.config, f.db);
+            core.archive(f.p, note.noteId, note.expectedModifiedAt, randomUUID());
+            return {
+              ...f,
+              core,
+              note: { id: note.noteId },
+              file: join(f.config.knowledgeRoot, '00-Inbox/plain.md'),
+            };
+          })();
+      const original = f.db.prepare.bind(f.db);
+      let revoked = false;
+      f.db.prepare = ((sql: string) => {
+        const statement = original(sql),
+          run = statement.run.bind(statement);
+        statement.run = ((...args: any[]) => {
+          const result = run(...args);
+          if (!revoked && sql.startsWith('INSERT INTO write_intents')) {
+            revoked = true;
+            f.config.agent!.policies = [{ ...f.p, scopes: ['knowledge:read'] }];
+          }
+          return result;
+        }) as any;
+        return statement;
+      }) as any;
+      try {
+        expect(() => f.core.restore(f.p, f.note.id, undefined, randomUUID())).toThrowError();
+      } finally {
+        f.db.prepare = original;
+      }
+      expect(revoked).toBe(true);
+      expect(existsSync(f.file)).toBe(false);
+      expect(f.db.prepare('SELECT active FROM notes WHERE id=?').get(f.note.id)).toEqual({
+        active: 0,
+      });
+    },
+  );
+for (const change of ['mode', 'inode'])
+  it(
+    'rejects a ' +
+      change +
+      ' change to an owned temporary asset after copy but before publication evidence',
+    async () => {
+      const f = await archived(),
+        requestId = randomUUID(),
+        [{ prepared }] = await prepare(f, requestId),
+        { spawnSync } = await import('node:child_process');
+      const child = spawnSync(
+        process.execPath,
+        [
+          '--import',
+          'tsx',
+          'tests/support/note-trash-restore-child.ts',
+          JSON.stringify(f.config),
+          f.note.id,
+          requestId,
+          'asset_copy',
+        ],
+        { encoding: 'utf8' },
+      );
+      expect(child.status, child.stderr).toBe(92);
+      const { readdirSync, chmodSync, writeFileSync, renameSync } = await import('node:fs'),
+        parent = join(f.config.knowledgeRoot, '00-Inbox/assets'),
+        temp = join(
+          parent,
+          readdirSync(parent).find((name) => name.startsWith('.doo-note-restore-'))!,
+        );
+      if (change === 'mode') chmodSync(temp, 0o644);
+      else {
+        const replacement = temp + '.replacement';
+        writeFileSync(replacement, readFileSync(temp), { mode: 0o600 });
+        renameSync(replacement, temp);
+      }
+      const report = await f.core.recover();
+      expect(report.conflicted).toBe(1);
+      expect(f.db.prepare('SELECT active FROM notes WHERE id=?').get(f.note.id)).toEqual({
+        active: 0,
+      });
+      expect(existsSync(join(f.config.knowledgeRoot, prepared.source!.relativePath))).toBe(false);
+      expect(
+        readFileSync(
+          join(f.config.knowledgeRoot, '90-Archive/.trash', f.note.id, 'board.md'),
+          'utf8',
+        ),
+      ).toBe(f.original);
+    },
+  );
+it('renames an unchanged archived reference-free ordinary file above 20MB without loading or rewriting its body', async () => {
+  const f = organizationFixture();
+  cleanup.push(async () => f.close());
+  const core = mutationCore(f.config, f.db),
+    content = '# Large\n' + 'x'.repeat(21 * 1024 * 1024),
+    note = f.create('00-Inbox/large.md', content);
+  core.archive(f.p, note.noteId, note.expectedModifiedAt, randomUUID());
+  const result = core.restore(f.p, note.noteId, 'renamed-large.md', randomUUID());
+  expect(result).toMatchObject({
+    id: note.noteId,
+    relativePath: '00-Inbox/renamed-large.md',
+    contentHash: sha256(content),
+  });
+  expect(existsSync(join(f.config.knowledgeRoot, '00-Inbox/large.md'))).toBe(false);
+});
+it('never activates an unchanged ordinary intent that crashed before the final authorization marker', async () => {
+  const f = organizationFixture();
+  cleanup.push(async () => f.close());
+  const core = mutationCore(f.config, f.db),
+    note = f.create('00-Inbox/plain.md', '# Plain'),
+    requestId = randomUUID();
+  core.archive(f.p, note.noteId, note.expectedModifiedAt, randomUUID());
+  const { spawnSync } = await import('node:child_process'),
+    child = spawnSync(
+      process.execPath,
+      [
+        '--import',
+        'tsx',
+        'tests/support/note-trash-restore-child.ts',
+        JSON.stringify(f.config),
+        note.noteId,
+        requestId,
+        'unauthorized_intent',
+      ],
+      { encoding: 'utf8' },
+    );
+  expect(child.status, child.stderr).toBe(92);
+  expect((await core.recover()).conflicted).toBe(1);
+  expect((await core.recover()).recovered).toBe(0);
+  expect(f.db.prepare('SELECT active FROM notes WHERE id=?').get(note.noteId)).toEqual({
+    active: 0,
+  });
+  expect(
+    readFileSync(
+      join(f.config.knowledgeRoot, '90-Archive/.trash', note.noteId, 'plain.md'),
+      'utf8',
+    ),
+  ).toBe('# Plain');
 });

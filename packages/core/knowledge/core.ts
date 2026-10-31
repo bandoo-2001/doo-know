@@ -3,7 +3,7 @@ import { finishWhiteboardMigration, finishWhiteboardRollback, type MigrationRow 
 import { recordRevisionContext } from './revision-context.js';
 import {
   captureNoteArchiveContext, prepareNoteTrashRestore, noteTrashRestorePlan,
-  commitNoteTrashRestore, publishNoteTrashRestoreAssets, verifyNoteTrashRestore,
+  commitNoteRestore, assertNoteRestoreCommitted, publishNoteTrashRestoreAssets, verifyNoteTrashRestore,
 } from './note-trash-native-restore.js';
 import {parseDiagramDocument} from '../../../shared/diagram-document.js';
 import { assertDiagramPublication } from './diagram-publication-policy.js';
@@ -568,6 +568,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
   }
   function finishRestore(intent: Intent) {
     assertRoot(config, db);
+    assertNoteRestoreCommitted(config, db, intent);
     const nativePlan = noteTrashRestorePlan(db, intent.id);
     if (nativePlan) publishNoteTrashRestoreAssets(config, db, nativePlan);
     verifyPendingDiagramPublication(config,db,intent.id);
@@ -771,6 +772,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
       if (!existsSync(source)) fail(404, 'NOT_FOUND');
       const st = lstatSync(source, { bigint: true });
       intent.target_hash = restoreHash(source);
+      const sourceHash = intent.target_hash;
       intent.original_mtime = st.mtimeNs.toString();
       const nativePlan = prepareNoteTrashRestore(config, db, p, {
         operationId: intent.id, noteId: id, from: n.path, to: path, source, trashFile: n.trash_path,
@@ -782,7 +784,10 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
       db.prepare(
         'INSERT INTO write_intents(id,note_id,path,kind,original_mtime,target_hash,temp_path) VALUES(?,?,?,?,?,?,?)',
       ).run(intent.id, id, path, 'restore', intent.original_mtime, intent.target_hash, source);
-      if (nativePlan) commitNoteTrashRestore(config, db, p, nativePlan);
+      commitNoteRestore(config, db, p, {
+        operationId: intent.id, noteId: id, from: n.path, path, source, sourceHash,
+        sourceStamp: fileVersionStamp(st), targetHash: intent.target_hash,
+      }, nativePlan);
       commit();
       return finishRestore(intent);
     }, id);

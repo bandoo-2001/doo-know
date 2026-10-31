@@ -8,11 +8,15 @@ import {
   openSync,
   closeSync,
   fsyncSync,
+  fstatSync,
+  readSync,
+  writeSync,
   writeFileSync,
   linkSync,
   unlinkSync,
 } from 'node:fs';
 import { join, dirname, basename } from 'node:path';
+import { createHash } from 'node:crypto';
 import type { AppConfig } from '../../../shared/contracts.js';
 import type { AppDatabase } from '../db.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
@@ -38,7 +42,7 @@ import {
 import { planDiagramRelocation, type DiagramRelocation } from './diagram-relocation.js';
 import { readBoundDiagramAsset } from './diagram-resource-files.js';
 import { safePath, validateRelative } from '../files.js';
-import { scanRevisionDestinations, revisionDestinationUrl } from './revision-relocation.js';
+import { scanRevisionDestinations } from './revision-relocation.js';
 import { limits } from './limits.js';
 import { sha256 } from './operations.js';
 import { fail } from './errors.js';
@@ -57,6 +61,7 @@ export type NoteTrashRestorePlan = {
     asset: PreparedDiagramAsset;
     stage: string;
     hash: string;
+    temporary?: { dev: string; ino: string; mode: string };
     published?: { dev: string; ino: string; mode: string; mtime: string; stamp?: string };
   }[];
   receipts: { id: string; hash: string; primary: boolean }[];
@@ -322,7 +327,18 @@ export function prepareNoteTrashRestore(
     ),
     committing: false,
   };
-  if (lstatSync(input.source).size > limits.file) fail(413, 'FILE_TOO_LARGE');
+  if (lstatSync(input.source).size > limits.file) {
+    const scanned = scanRevisionDestinations(input.source);
+    if (scanned.contentHash !== context.contentHash) fail(409, 'RESTORE_CONFLICT');
+    if (
+      context.documentType === 'markdown' &&
+      scanned.complete &&
+      !scanned.spans.length &&
+      !scanned.nativeGroups.length
+    )
+      return;
+    fail(413, 'FILE_TOO_LARGE');
+  }
   {
     const changes = collectNativeLinkChanges(config, db, p, moves, {
       notes: [{ id: input.noteId, path: input.from }],
@@ -448,35 +464,76 @@ export function verifyNoteTrashRestore(
     }
   }
 }
-export function commitNoteTrashRestore(
+export function commitNoteRestore(
   config: AppConfig,
   db: AppDatabase,
   p: Principal,
-  plan: NoteTrashRestorePlan,
+  input: {
+    operationId: string;
+    noteId: string;
+    from: string;
+    path: string;
+    source: string;
+    sourceHash: string;
+    sourceStamp: string;
+    targetHash: string;
+  },
+  plan?: NoteTrashRestorePlan,
 ) {
   db.transaction(() => {
-    verifyNoteTrashRestore(config, db, plan);
+    if (plan) verifyNoteTrashRestore(config, db, plan);
+    if (
+      fileVersionStamp(lstatSync(input.source, { bigint: true })) !== input.sourceStamp ||
+      revisionFileDigest(input.source) !== input.sourceHash
+    )
+      fail(409, 'RESTORE_CONFLICT');
     authorizeArchivedNoteOperation(
       config,
       db,
       p,
-      plan.noteId,
-      [plan.original.logicalPath, plan.path],
-      plan.targets.map((t) => t.path),
+      input.noteId,
+      [input.from, input.path],
+      plan?.targets.map((t) => t.path) ?? [],
       true,
     );
     // Root and persisted rights are checked in the same immediate transaction as the durable marker.
-    if (plan.workspace !== diagramOperationWorkspace(config, db))
-      fail(409, 'LIBRARY_BINDING_CHANGED');
-    plan.committing = true;
-    store(db, plan);
+    const workspace = diagramOperationWorkspace(config, db);
+    if (plan && plan.workspace !== workspace) fail(409, 'LIBRARY_BINDING_CHANGED');
+    if (plan) {
+      plan.committing = true;
+      store(db, plan);
+    }
+    db.exec(
+      'CREATE TABLE IF NOT EXISTS note_restore_commits(operation_id TEXT PRIMARY KEY,note_id TEXT NOT NULL,path TEXT NOT NULL,target_hash TEXT NOT NULL,workspace TEXT NOT NULL)',
+    );
+    db.prepare(
+      'INSERT INTO note_restore_commits(operation_id,note_id,path,target_hash,workspace) VALUES(?,?,?,?,?)',
+    ).run(input.operationId, input.noteId, input.path, input.targetHash, workspace);
     const changed = db
       .prepare(
         "UPDATE operations SET status='committing',error=NULL WHERE id=? AND status='prepared'",
       )
-      .run(plan.operationId).changes;
+      .run(input.operationId).changes;
     if (changed !== 1) fail(409, 'OPERATION_ALREADY_RESOLVED');
   }).immediate();
+}
+export function assertNoteRestoreCommitted(
+  config: AppConfig,
+  db: AppDatabase,
+  intent: { id: string; note_id: string; path: string; target_hash: string | null },
+) {
+  const exists = db.prepare("SELECT 1 FROM sqlite_master WHERE name='note_restore_commits'").get();
+  const marker = exists
+    ? (db.prepare('SELECT * FROM note_restore_commits WHERE operation_id=?').get(intent.id) as any)
+    : undefined;
+  if (
+    !marker ||
+    marker.note_id !== intent.note_id ||
+    marker.path !== intent.path ||
+    marker.target_hash !== intent.target_hash ||
+    marker.workspace !== diagramOperationWorkspace(config, db)
+  )
+    fail(409, 'RESTORE_CONFLICT', '恢复操作尚未通过最终授权核对');
 }
 export function noteTrashRestorePending(db: AppDatabase) {
   return (
@@ -487,6 +544,77 @@ export function noteTrashRestorePending(db: AppDatabase) {
       )
       .get()
   );
+}
+/** Own the inode and desired mode durably before copying bytes into the public parent. */
+function prepareOwnedAssetTemp(
+  config: AppConfig,
+  db: AppDatabase,
+  plan: NoteTrashRestorePlan,
+  entry: NoteTrashRestorePlan['assets'][number],
+  temp: string,
+) {
+  if (!existsSync(temp)) {
+    if (entry.temporary || entry.published) fail(409, 'DIAGRAM_ARTIFACT_CONFLICT');
+    const fd = openSync(
+      temp,
+      constants.O_CREAT | constants.O_EXCL | constants.O_WRONLY | constants.O_NOFOLLOW,
+      0o600,
+    );
+    try {
+      const owned = fstatSync(fd, { bigint: true });
+      if (!owned.isFile() || (owned.mode & 0o777n) !== 0o600n)
+        fail(409, 'DIAGRAM_ARTIFACT_CONFLICT');
+      entry.temporary = {
+        dev: String(owned.dev),
+        ino: String(owned.ino),
+        mode: String(owned.mode),
+      };
+      fsyncDirectory(dirname(temp));
+      store(db, plan);
+      const source = openSync(
+          join(config.dataRoot, entry.stage),
+          constants.O_RDONLY | constants.O_NOFOLLOW,
+        ),
+        buffer = Buffer.alloc(limits.io),
+        hash = createHash('sha256');
+      try {
+        const before = fstatSync(source, { bigint: true });
+        if (!before.isFile() || before.nlink !== 1n) fail(409, 'DIAGRAM_ARTIFACT_CONFLICT');
+        let count: number;
+        while ((count = readSync(source, buffer, 0, buffer.length, null)) > 0) {
+          hash.update(buffer.subarray(0, count));
+          let offset = 0;
+          while (offset < count) offset += writeSync(fd, buffer, offset, count - offset);
+        }
+        if (
+          hash.digest('hex') !== entry.hash ||
+          fileVersionStamp(before) !== fileVersionStamp(fstatSync(source, { bigint: true }))
+        )
+          fail(409, 'DIAGRAM_ARTIFACT_CONFLICT');
+        fsyncSync(fd);
+      } finally {
+        closeSync(source);
+      }
+    } finally {
+      closeSync(fd);
+    }
+    fsyncDirectory(dirname(temp));
+  }
+  const s = lstatSync(temp, { bigint: true }),
+    owned = entry.temporary;
+  if (
+    !owned ||
+    !s.isFile() ||
+    s.isSymbolicLink() ||
+    s.nlink !== 1n ||
+    (s.mode & 0o777n) !== 0o600n ||
+    String(s.dev) !== owned.dev ||
+    String(s.ino) !== owned.ino ||
+    String(s.mode) !== owned.mode ||
+    revisionFileDigest(temp) !== entry.hash
+  )
+    fail(409, 'DIAGRAM_ARTIFACT_CONFLICT');
+  return s;
 }
 export function publishNoteTrashRestoreAssets(
   config: AppConfig,
@@ -515,8 +643,7 @@ export function publishNoteTrashRestoreAssets(
       fsyncDirectory(dirname(parent));
     }
     if (!existsSync(path)) {
-      durableCopy(join(config.dataRoot, entry.stage), temp, entry.hash);
-      const s = lstatSync(temp, { bigint: true });
+      const s = prepareOwnedAssetTemp(config, db, plan, entry, temp);
       entry.published = {
         dev: String(s.dev),
         ino: String(s.ino),

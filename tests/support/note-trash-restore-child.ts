@@ -5,10 +5,19 @@ const [configuration, noteId, requestId, stage] = process.argv.slice(2),
 const exit = () => process.exit(92),
   copy = fs.copyFileSync,
   link = fs.linkSync,
-  unlink = fs.unlinkSync;
+  unlink = fs.unlinkSync,
+  fsync = fs.fsyncSync;
 fs.copyFileSync = ((a: any, b: any, ...args: any[]) => {
   (copy as any)(a, b, ...args);
-  if (stage === 'asset_copy' && String(b).includes('.doo-note-restore-')) exit();
+}) as any;
+fs.fsyncSync = ((fd: number) => {
+  fsync(fd);
+  if (
+    stage === 'asset_copy' &&
+    fs.fstatSync(fd).size > 0 &&
+    fs.readlinkSync('/proc/self/fd/' + fd).includes('.doo-note-restore-')
+  )
+    exit();
 }) as any;
 fs.linkSync = ((a: any, b: any, ...args: any[]) => {
   (link as any)(a, b, ...args);
