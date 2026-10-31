@@ -21,26 +21,26 @@ function pageInput(value: unknown) {
 }
 export async function registerOrganizationOperationRoutes(
   app: FastifyInstance,
-  service: ReturnType<typeof organizationService>,
+  service: () => ReturnType<typeof organizationService>,
 ) {
-  app.get('/api/organization/context', async () => service.context(owner));
+  app.get('/api/organization/context', async () => service().context(owner));
   app.get('/api/organization/directories', async (req) =>
-    service.list(owner, pageInput(req.query)),
+    service().list(owner, pageInput(req.query)),
   );
-  app.post('/api/organization/operations', async (req) => service.submit(owner, req.body as any));
+  app.post('/api/organization/operations', async (req) => service().submit(owner, req.body as any));
   app.get('/api/organization/operations', async (req) =>
-    service.history(owner, pageInput(req.query)),
+    service().history(owner, pageInput(req.query)),
   );
   app.get<{ Params: { id: string } }>('/api/organization/operations/:id', async (req) =>
-    service.operation(owner, { operationId: req.params.id }),
+    service().operation(owner, { operationId: req.params.id }),
   );
   app.post<{ Params: { id: string } }>('/api/organization/operations/:id/resume', async (req) =>
-    service.resume(owner, { operationId: req.params.id }),
+    service().resume(owner, { operationId: req.params.id }),
   );
   app.post<{ Params: { id: string } }>('/api/organization/operations/:id/undo', async (req) =>
-    service.undo(owner, { operationId: req.params.id, requestId: (req.body as any)?.requestId }),
+    service().undo(owner, { operationId: req.params.id, requestId: (req.body as any)?.requestId }),
   );
   app.post<{ Params: { id: string } }>('/api/organization/operations/:id/cancel', async (req) =>
-    service.cancel(owner, { operationId: req.params.id }),
+    service().cancel(owner, { operationId: req.params.id }),
   );
 }

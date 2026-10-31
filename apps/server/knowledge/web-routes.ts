@@ -32,7 +32,7 @@ export async function registerWebKnowledgeRoutes(
   publicProjection: ReturnType<typeof publicDiagramProjectionService>,
 ) {
   const conflicts = conflictService(config, db);
-  await registerOrganizationOperationRoutes(app,knowledge.organization);
+  await registerOrganizationOperationRoutes(app,()=>knowledge.organization);
   app.post<{ Params: { id: string } }>('/api/notes/:id/move', async (req) => {
     const b = req.body as any;
     return knowledge.core.move(
