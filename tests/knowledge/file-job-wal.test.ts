@@ -157,7 +157,11 @@ for (const window of [
         expect(
           other.prepare('SELECT * FROM note_write_leases WHERE note_id=?').all(note.id),
         ).toEqual([]);
-        expect(other.prepare('SELECT * FROM workspace_gate').all()).toEqual([]);
+        // This job releases its own workspace lease; background graph analysis may hold another.
+        expect(other.prepare("SELECT * FROM workspace_gate WHERE kind='file.patch'").all()).toEqual([]);
+        await expect.poll(() => other.prepare('SELECT * FROM workspace_gate').all(), {
+          timeout: 20000, interval: 50,
+        }).toEqual([]);
         expect(
           other
             .prepare(

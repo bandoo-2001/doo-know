@@ -172,6 +172,10 @@ it('rejects a background historical source whose preview no longer matches its t
   f.db
     .prepare('INSERT INTO revisions(id,note_id,file,created_at,modified_at) VALUES(?,?,?,?,?)')
     .run(revisionId, f.note.id, file, new Date().toISOString(), f.note.modifiedAt);
+  // Supply the historical path proof so this fixture reaches the preview gate.
+  // Unknown original paths have separate explicit-refusal coverage.
+  f.db.prepare("UPDATE revisions SET document_type='whiteboard',payload_format='markdown',logical_path=?,content_hash=? WHERE id=?")
+    .run(f.note.relativePath, sha(f.markdown.replace('# 原图标题', '# 未准备的历史标题')), revisionId);
   const accepted = await f.runtime.knowledge.files.restore(
     f.principal,
     f.note.id,
@@ -291,6 +295,10 @@ it('applies the same preview policy through the small revision recovery service'
   f.db
     .prepare('INSERT INTO revisions(id,note_id,file,created_at,modified_at) VALUES(?,?,?,?,?)')
     .run(revisionId, f.note.id, file, new Date().toISOString(), f.note.modifiedAt);
+  // Supply the historical path proof so this fixture reaches the preview gate.
+  // Unknown original paths have separate explicit-refusal coverage.
+  f.db.prepare("UPDATE revisions SET document_type='whiteboard',payload_format='markdown',logical_path=?,content_hash=? WHERE id=?")
+    .run(f.note.relativePath, sha(f.markdown.replace('# 原图标题', '# 无预览的小文件历史')), revisionId);
   expect(() =>
     f.runtime.recovery.restoreRevision(f.note.id, revisionId, f.note.modifiedAt, randomUUID()),
   ).toThrowError(expect.objectContaining({ code: 'DIAGRAM_PREVIEW_REQUIRED' }));
