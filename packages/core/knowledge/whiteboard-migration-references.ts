@@ -69,17 +69,21 @@ export function rewriteMigrationInbound(
       if (!value.after) {
         const replacements: { start: number; end: number; text: string }[] = [];
         for (const span of markdownDestinationSpans(doc.content))
-          if (localReference(entry.path, span.url) === r.old_path)
+          if (localReference(entry.path, span.url) === r.old_path) {
+            const url =
+              posix
+                .relative(posix.dirname(entry.path), r.new_path)
+                .split('/')
+                .map(encodePortablePathSegment)
+                .join('/') + (span.url.match(/[?#].*$/)?.[0] || '');
             replacements.push({
               start: span.start,
               end: span.end,
-              text:
-                posix
-                  .relative(posix.dirname(entry.path), r.new_path)
-                  .split('/')
-                  .map(encodePortablePathSegment)
-                  .join('/') + (span.url.match(/[?#].*$/)?.[0] || ''),
+              text: span.wiki
+                ? `[${span.wiki.label.replace(/[\\\[\]*_`]/g, '\\$&')}](<${url}>)`
+                : url,
             });
+          }
         const starts = [0];
         for (let i = 0; i < doc.content.length; i++)
           if (doc.content[i] === '\n') starts.push(i + 1);

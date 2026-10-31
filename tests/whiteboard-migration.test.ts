@@ -19,6 +19,7 @@ import { emptyWhiteboard } from '../shared/whiteboard';
 import { resolveWhiteboardResource } from '../packages/core/knowledge/diagram-resource-resolver';
 import { mutationCore, webPrincipal } from '../packages/core/knowledge/core';
 import { sha256 } from '../packages/core/knowledge/operations';
+import { markdown } from '../packages/core/render';
 import type { AppConfig } from '../shared/contracts';
 const pngBase64 =
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a7i8AAAAASUVORK5CYII=';
@@ -157,6 +158,19 @@ it('rewrites inbound standard links and upgrades private embeds to portable PNG 
   expect(content).toContain('[Board](drawing.md)');
   expect(content).toMatch(/!\[.*\]\(assets\/.*\.png\)/);
   expect(content).toContain('[白板文档](drawing.md)');
+});
+it('preserves the label and navigation of inbound wiki links during migration', () => {
+  const f = setup();
+  const inbound = f.notes.createNote(
+    '00-Inbox',
+    'inbound.md',
+    'See [[drawing.excalidraw#heading|Custom *Board* Label]]\n',
+  );
+  const p = prepare(f);
+  f.service.commit({ migrationId: p.id, requestId: randomUUID() });
+  expect(markdown.render(f.notes.getNote(inbound.id).content)).toContain(
+    '<a href="drawing.md#heading">Custom *Board* Label</a>',
+  );
 });
 it('refuses changed baselines and missing prepared PNG, then resumes without duplicate identities', async () => {
   const f = setup();
@@ -334,6 +348,72 @@ it('restores version-protected inbound Markdown when rolling back and refuses ch
   f.service.commit({ migrationId: p.id, requestId: randomUUID() });
   f.service.rollback({ migrationId: p.id, requestId: randomUUID() });
   expect(f.notes.getNote(inbound.id).content).toBe(inbound.content);
+});
+it.each(['writing', 'pending'])('reconciles a %s inbound receipt before rollback', (status) => {
+  const f = setup(),
+    inbound = f.notes.createNote('00-Inbox', 'inbound.md', '[Board](drawing.excalidraw)\n'),
+    p = prepare(f);
+  f.service.commit({ migrationId: p.id, requestId: randomUUID() });
+  // A crash can retain the previous journal marker after the versioned writer committed.
+  const refs = JSON.parse(
+    (db.prepare('SELECT references_json FROM whiteboard_migrations WHERE id=?').get(p.id) as any)
+      .references_json,
+  );
+  refs[0].status = status;
+  db.prepare(
+    "UPDATE whiteboard_migrations SET references_json=?,status='references_pending' WHERE id=?",
+  ).run(JSON.stringify(refs), p.id);
+  expect(f.service.rollback({ migrationId: p.id, requestId: randomUUID() }).status).toBe(
+    'rolled_back',
+  );
+  expect(f.notes.getNote(inbound.id).content).toBe('[Board](drawing.excalidraw)\n');
+  expect(existsSync(join(config.knowledgeRoot, '00-Inbox/drawing.md'))).toBe(false);
+});
+it.each(['writing', 'pending'])(
+  'protects later edits behind a %s inbound receipt during rollback',
+  (status) => {
+    const f = setup(),
+      inbound = f.notes.createNote('00-Inbox', 'inbound.md', '[Board](drawing.excalidraw)\n'),
+      p = prepare(f);
+    f.service.commit({ migrationId: p.id, requestId: randomUUID() });
+    const refs = JSON.parse(
+      (db.prepare('SELECT references_json FROM whiteboard_migrations WHERE id=?').get(p.id) as any)
+        .references_json,
+    );
+    refs[0].status = status;
+    db.prepare(
+      "UPDATE whiteboard_migrations SET references_json=?,status='references_pending' WHERE id=?",
+    ).run(JSON.stringify(refs), p.id);
+    const current = f.notes.getNote(inbound.id);
+    f.notes.saveNote(inbound.id, current.content + 'Later edit\n', current.modifiedAt);
+    expect(() => f.service.rollback({ migrationId: p.id, requestId: randomUUID() })).toThrowError(
+      expect.objectContaining({ code: 'MIGRATION_ROLLBACK_CONFLICT' }),
+    );
+    expect(f.notes.getNote(inbound.id).content).toContain('Later edit');
+    expect(existsSync(join(config.knowledgeRoot, '00-Inbox/drawing.md'))).toBe(true);
+  },
+);
+it('refuses rollback while an attempted inbound rewrite still has an unknown outcome', () => {
+  const f = setup(),
+    inbound = f.notes.createNote('00-Inbox', 'inbound.md', '[Board](drawing.excalidraw)\n'),
+    p = prepare(f);
+  f.service.commit({ migrationId: p.id, requestId: randomUUID() });
+  const refs = JSON.parse(
+    (db.prepare('SELECT references_json FROM whiteboard_migrations WHERE id=?').get(p.id) as any)
+      .references_json,
+  );
+  refs[0].status = 'writing';
+  db.prepare(
+    "UPDATE whiteboard_migrations SET references_json=?,status='references_pending' WHERE id=?",
+  ).run(JSON.stringify(refs), p.id);
+  db.prepare(
+    "UPDATE operations SET status='prepared',result=NULL WHERE kind='update' AND request_id=?",
+  ).run('migration-ref-' + p.id + '-' + inbound.id);
+  expect(() => f.service.rollback({ migrationId: p.id, requestId: randomUUID() })).toThrowError(
+    expect.objectContaining({ code: 'MIGRATION_ROLLBACK_CONFLICT' }),
+  );
+  expect(f.notes.getNote(inbound.id).content).toBe('[Board](drawing.md)\n');
+  expect(existsSync(join(config.knowledgeRoot, '00-Inbox/drawing.md'))).toBe(true);
 });
 it('backs up and restores the authoritative original, journal and stable alias', async () => {
   const f = setup(),

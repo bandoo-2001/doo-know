@@ -415,6 +415,31 @@ export function whiteboardMigrationService(
         before?: string;
         afterHash?: string;
       }[];
+      // The versioned writer may have committed before its reference journal marker did.
+      // Prove those writes before deciding which links rollback must restore or protect.
+      for (const ref of refs.filter((x) => x.status !== 'rewritten' && x.afterHash)) {
+        const operation = db
+          .prepare(
+            "SELECT * FROM operations WHERE principal=? AND client_id=? AND kind='update' AND request_id=?",
+          )
+          .get(p.id, p.clientId, 'migration-ref-' + r.id + '-' + ref.noteId) as
+          | OperationRow
+          | undefined;
+        if (operation?.status === 'succeeded') {
+          const receipt = existingResult(operation);
+          if (receipt.id !== ref.noteId || receipt.contentHash !== ref.afterHash)
+            fail(409, 'MIGRATION_ROLLBACK_CONFLICT');
+          ref.status = 'rewritten';
+        } else {
+          const current = notes.getNoteSnapshot(ref.noteId).note;
+          authorizePath(p, current.relativePath, 'knowledge:write');
+          if (
+            (operation && !['failed', 'cancelled'].includes(operation.status)) ||
+            current.content !== ref.before
+          )
+            fail(409, 'MIGRATION_ROLLBACK_CONFLICT', '关联引用的写入结果仍需核对，保留两版文档');
+        }
+      }
       // Check every affected document before changing any reference or active mapping.
       for (const ref of refs.filter((x) => x.status === 'rewritten')) {
         const current = notes.getNoteSnapshot(ref.noteId).note;
@@ -422,6 +447,10 @@ export function whiteboardMigrationService(
         if (sha256(current.content) !== ref.afterHash && current.content !== ref.before)
           fail(409, 'MIGRATION_ROLLBACK_CONFLICT', '迁移后的引用文档已有修改，保留原件与两版文档');
       }
+      db.prepare('UPDATE whiteboard_migrations SET references_json=? WHERE id=?').run(
+        JSON.stringify(refs),
+        r.id,
+      );
       for (const ref of refs.filter((x) => x.status === 'rewritten')) {
         const current = notes.getNoteSnapshot(ref.noteId).note;
         if (current.content !== ref.before)
