@@ -85,7 +85,7 @@
 **Interfaces:** `reserve(input:{requestId,path,type}):CreationIntent`；`resolve(noteId,role,principal):DiagramResource`；`commit(input:{intentId?,noteId,expectedDocumentHash,expectedSourceHash,markdown,requestId}):NoteDocument`；所有 mutation 调用同一个提交校验。
 
 - [ ] RED：首次 PNG 未完成不入扫描、提交失败旧版本可读、并发/不明结果幂等重试、过期源和源码绕过被拒绝、取消/续跑/过期意图。
-- [ ] 实现兼容数据库迁移、预留/激活状态、权限资源解析、源/PNG 摘要校验及写入恢复日志；长准备在锁外。
+- [x] 实现兼容数据库迁移、预留/激活状态、权限资源解析、源/PNG 摘要校验及写入恢复日志；长准备在锁外。
 - [ ] GREEN：Web/MCP/patch/上传同策略；恢复重启与授权隔离集成测试、typecheck；审阅并提交。
 
 ### Task 4A: 可恢复预留身份（Task 4 的首个可验证子项）
@@ -223,3 +223,9 @@ Files: `packages/core/knowledge/{diagram-creation,diagram-document-schema}.ts`�
 验证：声明/入口/旧 patch/中断恢复等 51 项通过；另组旧 MCP 全链路/恢复 30 项通过（两组重叠）；真实 20 MiB 分块及原有内存预算测试通过。typecheck/build 已通过，最终固定 snapshot 调用调整的补充回归亦通过。详见 `docs/diagrams/stage-2-write-entries.md`。
 
 下一步 Task 4E 仍需完成：资源解析与 Web/MCP 接口、>1 MiB 图形主文档及发布中读取一致性；尤其更新 rename 后 record 失败不能向读者冒充完整版本。通用 operation 状态不能承载大型全文；主图幂等原文返回与有界状态结果需要区分。随后 Task 5 公共投影与 UI、Task 6 生命周期/历史/原生链接，以及所有后续阶段继续执行，Task 4/阶段 2 仍未完成。
+
+2026-10-31 Task4E/4F 接续：私有 owner HTTP 与 MCP 图形资源/源码下载已接入，共用发布完成版本读取；有效图形主文件支持20MiB，普通大文件保留流式预算。完成真实源版本绑定的类型/标题缓存；乱码候选仅影响单文档，不阻断整个文件树。MCP 新增七个有界 opaque 写入工具，三类 source/PNG/main 上传固定角色和目标，原文下载仍是 Markdown，提交/状态收据不含大型正文，未知成功可在材料过期后用固定摘要证明恢复。
+
+验证：30个图形/旧白板/快照相关测试文件301/301通过，MCP专用与兼容四文件51/51通过（重叠）；typecheck/build通过。读取审阅两项P2已复现并修复；写入独立审阅一项P2为发布后跨权限目录移动的当前路径鉴权，正在修复并将复审，Task4 GREEN/完成状态仍保留未勾选。原工作目录427份保护基线文件摘要均未变化。
+
+Task5已细化为 `2026-10-31-markdown-diagram-public-projection.md` 与 `2026-10-31-markdown-diagram-editor-session.md`。公开投影/旧资源适配和前端会话分离实施，接口由两个子计划冻结；Task6历史/移动、后续迁移/检索/编辑器/便携交付仍持续推进，不代表完成。
