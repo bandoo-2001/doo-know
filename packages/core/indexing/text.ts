@@ -2,6 +2,7 @@ import type { AppDatabase } from '../db.js';
 import type { TokenizerClient } from './tokenizer-client.js';
 import type { SourceVersion, Principal, SearchInput } from '../../../shared/knowledge-contracts.js';
 import type { IndexedChunk } from './chunks.js';
+import { chunkInventory } from './scan-proof.js';
 import { requireScope } from '../agent/auth.js';
 import { fail } from '../knowledge/errors.js';
 import { recallFilter } from '../search/filters.js';
@@ -21,9 +22,13 @@ export function pathFilter(p: Principal, column = 'c.path') {
   const clauses: string[] = [],
     values: string[] = [];
   for (const prefix of p.allowedPrefixes) {
-    if (p.knowledgeResourcePaths?.some(ref => ref.kind === 'note' && ref.path === prefix)
-      && !p.knowledgeResourcePaths.some(ref => ref.kind === 'directory' && ref.path === prefix)) {
-      clauses.push(`${column}=?`); values.push(prefix); continue;
+    if (
+      p.knowledgeResourcePaths?.some((ref) => ref.kind === 'note' && ref.path === prefix) &&
+      !p.knowledgeResourcePaths.some((ref) => ref.kind === 'directory' && ref.path === prefix)
+    ) {
+      clauses.push(`${column}=?`);
+      values.push(prefix);
+      continue;
     }
     clauses.push(`(${column}=? OR ${column} LIKE ? ESCAPE '\\')`);
     values.push(prefix, prefix.replace(/[\\%_]/g, '\\$&') + '/%');
@@ -108,10 +113,17 @@ export function textIndexService(db: AppDatabase, tokenizer: TokenizerClient) {
           (db.prepare('SELECT active FROM maintenance WHERE id=1').get() as any).active
         )
           fail(503, 'SYNC_IN_PROGRESS');
-        let end = 0;
+        const proof = db
+          .prepare(
+            'SELECT * FROM index_scan_proofs WHERE note_id=? AND source_hash=? AND chunker_id=?',
+          )
+          .get(version.noteId, version.contentHash, chunkerId) as any;
+        if (!proof) fail(409, 'INDEX_INCOMPLETE');
+        const inventory = chunkInventory();
+        let ordinal = 0;
         for (const row of db
           .prepare(
-            'SELECT start_byte,end_byte FROM chunks WHERE note_id=? AND source_hash=? AND source_revision=? AND chunker_id=? ORDER BY ordinal',
+            'SELECT ordinal,start_byte,end_byte,start_line,end_line,content FROM chunks WHERE note_id=? AND source_hash=? AND source_revision=? AND chunker_id=? ORDER BY ordinal',
           )
           .iterate(
             version.noteId,
@@ -119,10 +131,29 @@ export function textIndexService(db: AppDatabase, tokenizer: TokenizerClient) {
             version.sourceRevision,
             chunkerId,
           ) as Iterable<any>) {
-          if (row.start_byte > end) fail(409, 'INDEX_INCOMPLETE');
-          end = Math.max(end, row.end_byte);
+          if (
+            row.ordinal !== ordinal++ ||
+            row.start_byte < 0 ||
+            row.end_byte > state.size_bytes ||
+            row.end_byte < row.start_byte
+          )
+            fail(409, 'INDEX_INCOMPLETE');
+          inventory.add({
+            ordinal: row.ordinal,
+            startByte: row.start_byte,
+            endByte: row.end_byte,
+            startLine: row.start_line,
+            endLine: row.end_line,
+            content: row.content,
+          });
         }
-        if (end !== state.size_bytes) fail(409, 'INDEX_INCOMPLETE');
+        const actual = inventory.finish();
+        if (
+          proof.size_bytes !== state.size_bytes ||
+          proof.chunk_count !== actual.count ||
+          proof.chunk_digest !== actual.digest
+        )
+          fail(409, 'INDEX_INCOMPLETE');
         db.prepare('UPDATE chunks SET active=0 WHERE note_id=?').run(version.noteId);
         db.prepare(
           'UPDATE chunks SET active=1 WHERE note_id=? AND source_hash=? AND source_revision=? AND chunker_id=?',
