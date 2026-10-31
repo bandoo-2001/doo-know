@@ -87,6 +87,7 @@ import { clearPluginDrafts } from '../plugin-drafts';
 import {
   createWorkspaceNavigation,
   readWorkspaceRoute,
+  toDooSections,
   type WorkspaceRoute,
   type WorkspaceNavigationState,
   type ToDooAppSection,
@@ -281,7 +282,17 @@ async function openBlogNote(id: string, line?: number) {
     } else await openNote(id, line);
   });
 }
-async function navigateApp(app: WorkspaceRoute['app'], section: BlogSection | ToDooAppSection = app === 'to-doo' ? 'tasks' : 'overview', selection: ToDooSelection = {}) {
+async function resolveAppSection(app: WorkspaceRoute['app'], section?: BlogSection | ToDooAppSection, selection: ToDooSelection = {}): Promise<BlogSection | ToDooAppSection> {
+  if (section) return section;
+  if (app !== 'to-doo') return 'overview';
+  if ((['task', 'occurrence', 'list', 'date', 'calendarView', 'taskFilter'] as const).some(key => selection[key] !== undefined)) return 'tasks';
+  try {
+    const preferences = await api<{ defaultView: string }>('/api/to-doo/settings');
+    if (toDooSections.includes(preferences.defaultView as ToDooAppSection)) return preferences.defaultView as ToDooAppSection;
+  } catch { /* Keep the app accessible if its preferences cannot be read. */ }
+  return 'tasks';
+}
+async function navigateApp(app: WorkspaceRoute['app'], section?: BlogSection | ToDooAppSection, selection: ToDooSelection = {}) {
   if (historyWriteLocked.value) return;
   const intent = ++navigationIntent;
   drawer.value = false;
@@ -292,15 +303,17 @@ async function navigateApp(app: WorkspaceRoute['app'], section: BlogSection | To
       selection = { task: remembered.task, occurrence: remembered.occurrence, list: remembered.list, date: remembered.date, calendarView: remembered.calendarView, taskFilter: remembered.taskFilter };
     }
   }
+  const nextSection = await resolveAppSection(app, section, selection);
+  if (!currentIntent(intent)) return;
   if (panel.value === 'apps' && appsApp.value !== app && !await confirmAppLeave(intent)) return;
-  if (panel.value === 'apps' && appsApp.value === 'to-doo' && app === 'to-doo' && section !== appsSection.value &&
-      (await appsRef.value?.requestSectionLeave(section as ToDooAppSection)) === false) return;
+  if (panel.value === 'apps' && appsApp.value === 'to-doo' && app === 'to-doo' && nextSection !== appsSection.value &&
+      (await appsRef.value?.requestSectionLeave(nextSection as ToDooAppSection)) === false) return;
   if (!currentIntent(intent)) return;
   appNavigationMemory.remember(navigation.currentRoute());
-  appsApp.value = app; appsSection.value = section;
+  appsApp.value = app; appsSection.value = nextSection;
   toDooSelection.value = selection;
   drawer.value = false;
-  const route: WorkspaceRoute = { view: 'apps', ...(app ? {app, appSection:section, ...(app === 'to-doo' ? selection : {})} : {}) };
+  const route: WorkspaceRoute = { view: 'apps', ...(app ? {app, appSection:nextSection, ...(app === 'to-doo' ? selection : {})} : {}) };
   navigation.commit(route);
   appNavigationMemory.remember(route);
 }
@@ -705,7 +718,8 @@ async function applyRoute(route: WorkspaceRoute, intent = ++navigationIntent) {
   if (historyWriteLocked.value) return false;
   if (!currentIntent(intent)) return false;
   if (panel.value === 'apps' && !(route.view === 'apps' && route.app === appsApp.value) && !await confirmAppLeave(intent)) return false;
-  const nextAppSection = route.appSection || (route.app === 'to-doo' ? 'tasks' : 'overview');
+  const nextAppSection = route.view === 'apps' ? await resolveAppSection(route.app, route.appSection, route) : 'overview';
+  if (!currentIntent(intent)) return false;
   if (panel.value === 'apps' && appsApp.value === 'to-doo' && route.view === 'apps' && route.app === 'to-doo' && nextAppSection !== appsSection.value &&
       (await appsRef.value?.requestSectionLeave(nextAppSection as ToDooAppSection)) === false) return false;
   if (!currentIntent(intent)) return false;
@@ -732,7 +746,7 @@ async function applyRoute(route: WorkspaceRoute, intent = ++navigationIntent) {
   if (route.view === 'recent' || route.view === 'favorites') return showCollection(route.view, false, intent);
   if (route.view === 'apps') {
     appNavigationMemory.remember(route);
-    appsApp.value = route.app; appsSection.value = route.appSection || (route.app === 'to-doo' ? 'tasks' : 'overview');
+    appsApp.value = route.app; appsSection.value = nextAppSection;
     toDooSelection.value = { task: route.task, occurrence: route.occurrence, list: route.list, date: route.date, calendarView: route.calendarView, taskFilter: route.taskFilter };
     return openApps(false, intent);
   }
@@ -1809,9 +1823,12 @@ async function openAppShortcut(id: WorkspaceAppId) {
     if (await retainNoteContext(intent) === false || !currentIntent(intent)) return;
     rememberAppReturnRoute();
     appNavigationMemory.remember(navigation.currentRoute());
-    const destination = appNavigationMemory.recall(id) || { view: 'apps' as const, app: id, appSection: id === 'to-doo' ? 'tasks' as const : 'overview' as const };
+    const destination = appNavigationMemory.recall(id) || { view: 'apps' as const, app: id };
+    const section = await resolveAppSection(id, destination.appSection, destination);
+    if (!currentIntent(intent)) return;
+    destination.appSection = section;
     appsApp.value = id;
-    appsSection.value = destination.appSection || (id === 'to-doo' ? 'tasks' : 'overview');
+    appsSection.value = section;
     toDooSelection.value = { task: destination.task, occurrence: destination.occurrence, list: destination.list, date: destination.date, calendarView: destination.calendarView, taskFilter: destination.taskFilter };
     panel.value = 'apps';
     drawer.value = false;
@@ -2934,7 +2951,7 @@ onBeforeUnmount(() => {
       :aria-busy="noteOpening || (!treeLoaded && treeRefreshing)"
       :tabindex="['settings', 'trash', 'apps'].includes(panel) ? 0 : undefined"
     >
-      <div class="mobile-bar">
+      <div v-if="activeAppMenu?.id !== 'to-doo'" class="mobile-bar">
         <button v-if="activeAppMenu" type="button" class="icon-button mobile-app-return" aria-label="返回 DooKnow" @click="returnFromApp"><Icon name="back" /></button>
         <button v-if="!activeAppMenu" class="icon-button" aria-label="打开侧栏" @click="drawer = true">
           <Icon name="menu" /></button
@@ -3529,7 +3546,11 @@ onBeforeUnmount(() => {
       </div>
     </NModal>
     <PluginPanel />
-    <ToDooReminderCards @open="openReminderTarget" @consume-link="consumeReminderLink" />
+    <ToDooReminderCards
+      :show-missed-summary="activeAppMenu?.id !== 'to-doo'"
+      @open="openReminderTarget"
+      @consume-link="consumeReminderLink"
+    />
     <Transition name="toast">
       <div v-if="notice" class="toast" role="status">
         <Icon name="check" :size="18" />{{ notice }}

@@ -3,7 +3,9 @@ import { expect } from '@playwright/test';
 import { showMainMenu, closeSidebar } from './settings-navigation';
 
 export async function openToDooDirectory(page: Page, name: '任务目录' | '日历目录' = '任务目录') {
-  await expect(page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true })).toBeVisible();
+  await expect(
+    page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true }),
+  ).toBeVisible();
   const trigger = page.getByRole('button', { name: '功能导航', exact: true });
   const dialog = page.getByRole('dialog', { name: '功能导航', exact: true });
   if ((await trigger.isVisible()) && (await trigger.getAttribute('aria-expanded')) !== 'true') {
@@ -27,6 +29,19 @@ export async function closeToDooDirectory(page: Page) {
       await dialog.getByRole('button', { name: '关闭功能导航', exact: true }).click();
     await expect(dialog).not.toBeVisible();
   }
+}
+
+export async function openToDooFocusHistory(page: Page) {
+  const app = page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
+  await expect(app.getByRole('region', { name: '专注计时器', exact: true })).toBeVisible();
+  const tabs = app.locator('.todo-focus-mobile-panes');
+  if (await tabs.isVisible()) {
+    await tabs.getByText('历史', { exact: true }).click();
+    await expect(app.getByRole('radio', { name: '历史', exact: true })).toBeChecked();
+  }
+  const history = app.getByRole('complementary', { name: '专注概览和历史', exact: true });
+  await expect(history).toBeVisible();
+  return history;
 }
 
 /** Follow the same primary menu, contextual directory and view controls available to the user. */

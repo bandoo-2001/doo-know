@@ -6,6 +6,7 @@ import {
   type ToDooService,
   type ToDooEntityKind,
   type ToDooEntity,
+  type ToDooCommandContext,
 } from '../../../shared/to-doo-contracts.js';
 import {
   toDooMcpQuery,
@@ -14,7 +15,6 @@ import {
 } from '../../../shared/to-doo-mcp-contracts.js';
 import { fail } from '../../../packages/core/knowledge/errors.js';
 import { requireScope } from '../../../packages/core/agent/auth.js';
-import { dateTimeInstant } from '../../../packages/core/to-doo/recurrence.js';
 import { createHash } from 'node:crypto';
 
 export type ToDooAgentAccess = { listIds: string[]; domains: string[]; resourceListIds?: string[] };
@@ -35,6 +35,7 @@ const domains: Record<ToDooEntityKind, string> = {
   outcome: 'records',
   record: 'records',
   activity: 'records',
+  focusTopic: 'focus',
   focusSession: 'focus',
   habit: 'habits',
   habitEntry: 'habits',
@@ -100,6 +101,10 @@ export function createToDooAgentPort(service: ToDooService, options: Options) {
           : value.sourceSessionId
             ? get('focusSession', value.sourceSessionId)
             : undefined;
+    if (!related && value.topicId) {
+      const topic = get('focusTopic', value.topicId);
+      if (topic) return topic.listId ?? undefined;
+    }
     if (related)
       return listOf(
         value.taskId
@@ -119,7 +124,7 @@ export function createToDooAgentPort(service: ToDooService, options: Options) {
     if (kind === 'reminderEvent') {
       const targetKind =
         value.sourceType === 'task'
-          ? 'occurrence'
+          ? 'task'
           : value.sourceType === 'habit'
             ? 'habit'
             : 'anniversary';
@@ -149,23 +154,35 @@ export function createToDooAgentPort(service: ToDooService, options: Options) {
       return entity.listIds?.length
         ? entity.listIds.every((id: string) => allowedList(id === 'inbox' ? null : id, access))
         : !access.listIds.length && access.resourceListIds === undefined;
-    if (access.resourceListIds !== undefined && !allowedList(listOf(kind, entity), access))
-      return false;
-    if (!access.listIds.length) return true;
-    if (['anniversaries', 'calendar', 'settings'].includes(domains[kind])) return true;
-    if (kind === 'plan')
+    const limited = access.listIds.length > 0 || access.resourceListIds !== undefined;
+    if (kind === 'plan' && limited)
       return (
         entity.changes?.length > 0 &&
         entity.changes.every((change: any) => {
           const occurrence = get('occurrence', change.occurrenceId);
-          return !!occurrence && allowedList(listOf('occurrence', occurrence), access);
+          const block = change.blockId ? get('timeBlock', change.blockId) : undefined;
+          return (
+            !!occurrence &&
+            allowedList(listOf('occurrence', occurrence), access) &&
+            (!change.blockId || (!!block && block.occurrenceId === occurrence.id))
+          );
+        }) &&
+        Object.keys(entity.expectedRevisions ?? {}).every((reference) => {
+          const [targetKind, targetId] = reference.split(':');
+          if (!['task', 'occurrence', 'timeBlock'].includes(targetKind)) return false;
+          const target = get(targetKind as ToDooEntityKind, targetId);
+          return !!target && allowedList(listOf(targetKind as ToDooEntityKind, target), access);
         })
       );
-    if (kind === 'view')
+    if (kind === 'view' && limited)
       return (
         entity.filter?.listIds?.length > 0 &&
         entity.filter.listIds.every((id: string) => allowedList(id, access))
       );
+    if (access.resourceListIds !== undefined && !allowedList(listOf(kind, entity), access))
+      return false;
+    if (!access.listIds.length) return true;
+    if (['anniversaries', 'calendar', 'settings'].includes(domains[kind])) return true;
     if (kind === 'tag' || kind === 'template') return false;
     const list = listOf(kind, entity);
     if (list === undefined && ['focus', 'habits'].includes(domains[kind])) return true;
@@ -296,105 +313,119 @@ export function createToDooAgentPort(service: ToDooService, options: Options) {
           : {}),
       };
     }
+    if (input.sourceContext) {
+      if (input.kind !== 'reminderEvent' || input.ids?.length !== 1 || input.cursor || input.field)
+        fail(400, 'INVALID_INPUT', '提醒来源需要一个提醒 ID');
+      const event = check('reminderEvent', input.ids[0], access);
+      const sourceKind =
+        event.sourceType === 'task'
+          ? 'task'
+          : event.sourceType === 'habit'
+            ? 'habit'
+            : 'anniversary';
+      check(sourceKind, event.sourceId, access);
+      if (input.expectedRevision && input.expectedRevision !== event.revision)
+        fail(409, 'VERSION_CONFLICT', '提醒已变化，请重新读取');
+      const sourceContext = service.reminderSource(event.id);
+      const item = await bounded('reminderEvent', { ...event, sourceContext } as any, principal);
+      recheck(false, admitted);
+      return { items: [item], total: 1, hasMore: false };
+    }
+    if (
+      input.kind === 'focusOverview' ||
+      (input.kind === 'focusSession' &&
+        !input.field &&
+        (input.sort === 'recent' || input.topicId || input.unassigned))
+    ) {
+      if (
+        !access.domains.includes('focus') ||
+        (input.kind === 'focusOverview' && !access.domains.includes('statistics'))
+      )
+        fail(403, 'FORBIDDEN');
+      if (input.listIds?.some((id) => !allowedList(id, access))) fail(403, 'FORBIDDEN');
+      if (input.topicId) check('focusTopic', input.topicId, access);
+      if (input.filter) fail(400, 'INVALID_INPUT', '专注历史请使用日期、项目和清单筛选');
+      const history = service.focusHistory(
+        {
+          ids: input.ids,
+          topicId: input.topicId,
+          unassigned: input.unassigned,
+          from: input.from,
+          to: input.to,
+          listIds: input.listIds,
+          cursor: input.kind === 'focusSession' ? input.cursor : undefined,
+          limit: Math.min(input.limit, 5),
+        },
+        { key: admitted, canRead: (kind, entity) => allowed(kind, entity, access) },
+      );
+      if (input.kind === 'focusOverview') {
+        const activeItem = history.active
+          ? await bounded('focusSession', history.active, principal)
+          : null;
+        const active = activeItem?.entity ?? null;
+        recheck(false, admitted);
+        return {
+          items: [
+            {
+              kind: 'focusOverview' as const,
+              ...(activeItem?.truncatedFields?.length
+                ? { truncatedFields: activeItem.truncatedFields.map((field) => 'active.' + field) }
+                : {}),
+              entity: {
+                id: 'focus-overview',
+                revision: history.revision,
+                asOf: history.now,
+                timeZone: history.timeZone,
+                today: history.overview.today,
+                lifetime: history.overview.lifetime,
+                filtered: history.overview.filtered,
+                nextBreak: history.overview.nextBreak,
+                active,
+              },
+            },
+          ],
+          total: 1,
+          hasMore: false,
+        };
+      }
+      const items = await Promise.all(
+        history.items.map((entity) => bounded('focusSession', entity, principal)),
+      );
+      recheck(false, admitted);
+      return {
+        items,
+        total: history.page.total,
+        hasMore: history.page.hasMore,
+        ...(history.page.nextCursor ? { nextCursor: history.page.nextCursor } : {}),
+      };
+    }
     if (input.kind === 'statistics') {
       if (!access.domains.includes('statistics')) fail(403, 'FORBIDDEN');
       if (input.listIds?.some((id) => !allowedList(id, access))) fail(403, 'FORBIDDEN');
-      const state = service.snapshot({ all: true });
       const scope = {
         ...access,
         listIds: input.listIds ?? access.listIds,
         domains: Object.values(domains),
       };
-      const taskIds = new Set(
-        state.tasks
-          .filter((task) => !task.deletedAt && !task.archivedAt && allowed('task', task, scope))
-          .map((task) => task.id),
+      const summary = service.statistics(
+        { from: input.from, to: input.to, ...(input.listIds ? { listIds: input.listIds } : {}) },
+        { canRead: (kind, entity) => allowed(kind, entity, scope) },
       );
-      const parentIds = new Set(
-        state.tasks
-          .filter((task) => taskIds.has(task.id))
-          .map((task) => task.parentTaskId)
-          .filter(Boolean),
-      );
-      const leafIds = new Set([...taskIds].filter((id) => !parentIds.has(id)));
-      const day = (at: string) =>
-        new Intl.DateTimeFormat('sv-SE', { timeZone: state.settings.timeZone }).format(
-          new Date(at),
-        );
-      const within = (value: string) =>
-        (!input.from || value >= input.from) && (!input.to || value <= input.to);
-      const occurrences = state.occurrences.filter(
-        (occurrence) => leafIds.has(occurrence.taskId) && !occurrence.deletedAt,
-      );
-      const active = occurrences.filter(
-        (occurrence) =>
-          !['done', 'cancelled', 'skipped'].includes(occurrence.status) &&
-          within(occurrence.scheduledDate ?? occurrence.due?.date ?? day(state.now)),
-      );
-      const completed = occurrences.filter(
-        (occurrence) =>
-          occurrence.status === 'done' &&
-          occurrence.completedAt &&
-          within(day(occurrence.completedAt)),
-      );
-      let focusMinutes = 0;
-      for (const session of state.focusSessions.filter(
-        (session) =>
-          !session.deletedAt &&
-          session.mode !== 'break' &&
-          !['cancelled', 'interrupted'].includes(session.status) &&
-          allowed('focusSession', session, scope),
-      )) {
-        const segments = session.segments.filter((segment) => within(day(segment.start)));
-        focusMinutes +=
-          session.correctedMinutes ??
-          segments.reduce(
-            (total, segment) =>
-              total +
-              Math.max(0, Date.parse(segment.end ?? state.now) - Date.parse(segment.start)) / 60000,
-            0,
-          );
-      }
-      const habits = new Set(
-        state.habits
-          .filter((habit) => !habit.deletedAt && allowed('habit', habit, scope))
-          .map((habit) => habit.id),
-      );
-      const habitAmount = state.habitEntries
-        .filter(
-          (entry) =>
-            !entry.deletedAt &&
-            !entry.skipped &&
-            habits.has(entry.habitId) &&
-            within(entry.localDate),
-        )
-        .reduce((total, entry) => total + entry.amount, 0);
-      const outcomes = state.outcomes.filter(
-        (outcome) =>
-          !outcome.deletedAt &&
-          allowed('outcome', outcome, scope) &&
-          within(day(outcome.updatedAt)),
-      ).length;
-      const overdue = active.filter(
-        (occurrence) =>
-          occurrence.due &&
-          dateTimeInstant(occurrence.due, occurrence.due.time ?? '23:59').getTime() <
-            Date.parse(state.now),
-      ).length;
       const entity = {
         id: 'statistics',
-        revision: state.version,
+        revision: summary.revision ?? 'empty',
         scope: 'authorized',
         from: input.from ?? null,
         to: input.to ?? null,
-        asOf: state.now,
-        timeZone: state.settings.timeZone,
-        completed: completed.length,
-        pending: active.length,
-        overdue,
-        focusMinutes: Math.round(focusMinutes * 100) / 100,
-        habitAmount,
-        outcomes,
+        asOf: summary.asOf,
+        timeZone: summary.timeZone,
+        completed: summary.completed,
+        pending: summary.pending,
+        overdue: summary.overdue,
+        focusMinutes: summary.focusMinutes,
+        habitAmount: summary.habitAmount,
+        outcomes: summary.outcomes,
+        unreadReminders: summary.unreadReminders,
       };
       recheck(false, admitted);
       return { items: [{ kind: 'statistics' as const, entity }], total: 1, hasMore: false };
@@ -521,6 +552,7 @@ export function createToDooAgentPort(service: ToDooService, options: Options) {
           target('task', p.parentTaskId);
           break;
         case 'save_entity': {
+          if (p.captureMetrics && !access.domains.includes('statistics')) fail(403, 'FORBIDDEN');
           if (['calendarFeed', 'calendarSource', 'import', 'operation'].includes(p.kind))
             fail(403, 'FORBIDDEN', '该实体需要专用的分享、集成或成果操作工具');
           const current = get(p.kind, p.entity.id);
@@ -528,6 +560,9 @@ export function createToDooAgentPort(service: ToDooService, options: Options) {
           prospective(p.kind, { ...current, ...p.entity });
           break;
         }
+        case 'read_reminders':
+          for (const id of p.ids) target('reminderEvent', id);
+          break;
         case 'delete_entity':
           if (['calendarFeed', 'calendarSource', 'import', 'operation'].includes(p.kind))
             fail(403, 'FORBIDDEN', '该实体需要专用管理工具');
@@ -538,6 +573,7 @@ export function createToDooAgentPort(service: ToDooService, options: Options) {
           target('task', p.taskId);
           break;
         case 'start_focus':
+          target('focusTopic', p.topicId);
           if (!access.domains.includes('focus')) fail(403, 'FORBIDDEN');
           if (access.resourceListIds !== undefined) prospective('focusSession', p);
           target('occurrence', p.occurrenceId);
@@ -572,6 +608,7 @@ export function createToDooAgentPort(service: ToDooService, options: Options) {
       parentOccurrenceId: 'occurrence',
       habitId: 'habit',
       sourceSessionId: 'focusSession',
+      topicId: 'focusTopic',
       sectionId: 'section',
       blockId: 'timeBlock',
     };
@@ -613,7 +650,7 @@ export function createToDooAgentPort(service: ToDooService, options: Options) {
         target(kind as ToDooEntityKind, id);
       }
     }
-    const trustedContext =
+    const trustedContext: ToDooCommandContext =
       ['preview_plan', 'apply_plan'].includes(cmd.action) &&
       (access.listIds.length || access.resourceListIds !== undefined)
         ? {
@@ -622,7 +659,14 @@ export function createToDooAgentPort(service: ToDooService, options: Options) {
               .tasks.filter((task) => !task.deletedAt && allowedList(task.listId, access))
               .map((task) => task.id),
           }
-        : undefined;
+        : {};
+    if (cmd.action === 'save_entity' && cmd.payload.captureMetrics) {
+      const statisticsScope = { ...access, domains: Object.values(domains) };
+      trustedContext.statisticsAuthorization = {
+        key: admitted,
+        canRead: (kind, entity) => allowed(kind, entity, statisticsScope),
+      };
+    }
     const result = service.command(cmd, trustedContext);
     if (result.preview && bytes(result.preview) > 22000)
       fail(413, 'REQUEST_TOO_LARGE', '计划预览超过单次连接预算，请分批预览或在应用中核对');
@@ -696,6 +740,7 @@ export function createToDooAgentPort(service: ToDooService, options: Options) {
         parentOccurrenceId: 'occurrence',
         habitId: 'habit',
         sourceSessionId: 'focusSession',
+        topicId: 'focusTopic',
         sectionId: 'section',
         blockId: 'timeBlock',
       };

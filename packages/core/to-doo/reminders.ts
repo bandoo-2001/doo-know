@@ -9,6 +9,7 @@ import type {
 import type { ToDooReminderCard, ToDooReminderFeed } from '../../../shared/to-doo-reminders.js';
 import { summarizeHabitPeriod } from '../../../shared/to-doo-habits.js';
 import { quietHoursEnd, reminderSourceValid, ToDooNotificationError } from './notifications.js';
+import { resolveToDooReminderSource } from './reminder-source.js';
 
 type Reminder = ToDooEntityMap['reminderEvent'];
 export type ToDooReminderOptions = { db: AppDatabase; now?: () => Date };
@@ -45,10 +46,9 @@ export function createToDooReminders(service: ToDooService, options: ToDooRemind
     if (!reminderSourceValid(state, event, now(), allowCompleted)) throw gone();
     if (history(event)) return { event, section: 'notifications', completion: 'open' };
     if (event.sourceType === 'task') {
-      const task = state.tasks.find((t) => t.id === event.sourceId)!;
-      const occurrence = state.occurrences.find(
-        (o) => o.taskId === task.id && o.cycleKey === event.occurrenceKey && !o.deletedAt,
-      )!;
+      const source = resolveToDooReminderSource(state, event.id);
+      const task = state.tasks.find((row) => row.id === source.taskId)!;
+      const occurrence = state.occurrences.find((row) => row.id === source.occurrenceId)!;
       const complex =
         !!task.criteria.trim() ||
         state.tasks.some((t) => !t.deletedAt && t.parentTaskId === task.id);

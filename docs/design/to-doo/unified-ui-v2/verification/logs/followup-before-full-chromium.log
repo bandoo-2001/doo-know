@@ -1,0 +1,139 @@
+
+> doo-know@1.0.0 test:e2e
+> tsx scripts/e2e.ts --config=.local/to-doo-followup/full-chromium.config.ts tests/e2e/to-doo tests/e2e/app-main-menu.spec.ts tests/e2e/app-shortcuts.spec.ts tests/e2e/responsive-tabbar.spec.ts tests/e2e/responsive-layout.spec.ts tests/e2e/notes-first.spec.ts tests/e2e/blog.spec.ts --grep-invert to-doo-(reminders|unified-shell|ux|push-worker)\.spec\.ts --project=desktop --max-failures=1 --output=.local/to-doo-followup/full-chromium
+
+[WebServer] (node:2655681) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2655701) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2655724) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2655724) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 96 tests using 1 worker
+
+(node:2655793) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/e2e/app-main-menu.spec.ts:11:1 › app rail owns main functions and settings while only contextual pages have a secondary directory (3.7s)
+  ✓   2 [desktop] › tests/e2e/app-main-menu.spec.ts:62:1 › returning to DooKnow preserves the mounted note draft and reentering an app restores its location (3.6s)
+  ✓   3 [desktop] › tests/e2e/app-main-menu.spec.ts:108:1 › cancelled app settings navigation and return retain both the route and the unsaved form (2.9s)
+  ✓   4 [desktop] › tests/e2e/app-main-menu.spec.ts:136:1 › cancelling browser back from unsaved app settings restores its URL and permits a later confirmed back (2.6s)
+  ✓   5 [desktop] › tests/e2e/app-main-menu.spec.ts:162:1 › the default app hub remains reachable and unpinned app cards restore the last app page (1.7s)
+  ✓   6 [desktop] › tests/e2e/app-main-menu.spec.ts:197:1 › app return restores a DooKnow collection instead of losing its last location (1.7s)
+  ✓   7 [desktop] › tests/e2e/app-shortcuts.spec.ts:7:1 › pins apps without opening them, retains shortcuts after reload and removes them (4.7s)
+  ✓   8 [desktop] › tests/e2e/app-shortcuts.spec.ts:37:1 › opening a pinned app retains the mounted unsaved note (3.2s)
+  ✓   9 [desktop] › tests/e2e/app-shortcuts.spec.ts:59:1 › returning to the default menu respects the unsaved To Doo confirmation before opening a pinned app (3.9s)
+  ✓  10 [desktop] › tests/e2e/blog.spec.ts:14:1 › blog manual publication keeps the original and public snapshots independent (5.2s)
+  ✓  11 [desktop] › tests/e2e/blog.spec.ts:196:1 › blog preserves per-article edits through delayed reads and real version conflicts (2.4s)
+  ✓  12 [desktop] › tests/e2e/blog.spec.ts:336:1 › a failed post-save preview refresh cannot publish an unreviewed source in the next click (1.8s)
+  ✓  13 [desktop] › tests/e2e/notes-first.spec.ts:7:1 › keeps note identity, secondary actions and editor preferences usable without losing the draft (4.4s)
+  ✓  14 [desktop] › tests/e2e/notes-first.spec.ts:83:1 › allows keyboard and pointer resizing of the desktop directory and remembers the width (2.5s)
+  ✓  15 [desktop] › tests/e2e/notes-first.spec.ts:117:1 › explains invalid plugin input and confirms a successful save without sending invalid data (2.8s)
+  ✓  16 [desktop] › tests/e2e/responsive-layout.spec.ts:10:1 › keeps navigation reachable and content scrolling inside the window with a long directory (12.3s)
+  ✓  17 [desktop] › tests/e2e/responsive-tabbar.spec.ts:37:1 › phone tabs switch pages directly and keep a selected overflow page identifiable (2.0s)
+  ✓  18 [desktop] › tests/e2e/responsive-tabbar.spec.ts:88:1 › tab navigation preserves the unsaved settings leave confirmation (2.3s)
+  ✓  19 [desktop] › tests/e2e/responsive-tabbar.spec.ts:115:1 › More and account menus keep keyboard focus inside and close one level at a time (2.1s)
+  ✓  20 [desktop] › tests/e2e/responsive-tabbar.spec.ts:158:1 › tablet rotation switches between bottom tabs and the left rail and closes overflow (1.9s)
+  ✓  21 [desktop] › tests/e2e/responsive-tabbar.spec.ts:197:1 › rotating with the account popup open closes both menus and restores a visible focus target (1.5s)
+  -  22 [desktop] › tests/e2e/responsive-tabbar.spec.ts:224:1 › large touch tablet portrait keeps bottom tabs
+  ✓  23 [desktop] › tests/e2e/responsive-tabbar.spec.ts:232:1 › blog labels fit the phone tabbar and site settings remain reachable (1.8s)
+  ✓  24 [desktop] › tests/e2e/responsive-tabbar.spec.ts:283:1 › short phone landscape keeps overflow controls above the bottom tabs (1.8s)
+  ✓  25 [desktop] › tests/e2e/responsive-tabbar.spec.ts:309:1 › desktop keeps the full left rail and its direct navigation (1.7s)
+  ✓  26 [desktop] › tests/e2e/to-doo-antdv-values.spec.ts:61:1 › real Ant Select saves null, false, two tag identifiers and numeric zero (4.1s)
+  ✓  27 [desktop] › tests/e2e/to-doo-antdv-values.spec.ts:121:1 › closing the portaled outcome Modal hides it and reopening preserves the unsaved draft (3.8s)
+  ✓  28 [desktop] › tests/e2e/to-doo-antdv.spec.ts:84:1 › period statistics and progress follow real seven-day, thirty-day and custom date requests (2.4s)
+  ✓  29 [desktop] › tests/e2e/to-doo-antdv.spec.ts:167:1 › Ant review modal preserves a canceled discard and saves a fresh local-date review once (5.1s)
+  ✓  30 [desktop] › tests/e2e/to-doo-antdv.spec.ts:232:1 › focus and habit quantity modals cancel without writes and persist explicit numeric receipts (6.4s)
+  ✓  31 [desktop] › tests/e2e/to-doo-antdv.spec.ts:334:1 › 320px dark Ant calendar popup and review modal keep their controls inside the viewport (4.3s)
+  ✓  32 [desktop] › tests/e2e/to-doo-calendar-range.spec.ts:9:1 › a month query includes the entire displayed grid rather than only the anchor week (1.5s)
+  ✓  33 [desktop] › tests/e2e/to-doo-calendar-range.spec.ts:43:1 › the initial review interval uses dataset time rather than a different browser day (1.7s)
+  ✓  34 [desktop] › tests/e2e/to-doo-capture-polish.spec.ts:5:1 › quick capture schedules explicitly after recognizing a date and retains the chosen plan (1.9s)
+  ✓  35 [desktop] › tests/e2e/to-doo-capture-polish.spec.ts:34:1 › Q focuses capture without stealing keys from text entry (1.7s)
+  ✓  36 [desktop] › tests/e2e/to-doo-capture-polish.spec.ts:50:1 › clearing the contextual plan in Today survives a browser reload (3.0s)
+  ✓  37 [desktop] › tests/e2e/to-doo-default-view.spec.ts:7:1 › saved default view applies to a fresh opening while explicit navigation and return memory win (6.0s)
+  ✓  38 [desktop] › tests/e2e/to-doo-detail-audit.spec.ts:20:1 › moving a task to another list clears its old section and saves successfully (2.6s)
+  ✓  39 [desktop] › tests/e2e/to-doo-detail-audit.spec.ts:55:1 › invalid typed deadline prevents saving an unrelated title change (2.1s)
+  ✓  40 [desktop] › tests/e2e/to-doo-detail-audit.spec.ts:82:1 › input composition does not submit a task through the save shortcut (1.9s)
+  ✓  41 [desktop] › tests/e2e/to-doo-detail-audit.spec.ts:110:1 › optional detail fields stay folded and remain editable when requested (3.1s)
+  ✓  42 [desktop] › tests/e2e/to-doo-detail-audit.spec.ts:145:1 › 320px dark detail keeps its fields and footer inside the screen (2.0s)
+  ✓  43 [desktop] › tests/e2e/to-doo-detail-audit.spec.ts:193:1 › narrow task detail contains keyboard focus and Escape keeps its draft (1.7s)
+  ✓  44 [desktop] › tests/e2e/to-doo-focus-history.spec.ts:6:1 › leaving focus stops polling and returning reloads the kept page (1.8s)
+  ✓  45 [desktop] › tests/e2e/to-doo-focus-history.spec.ts:32:1 › break defaults follow the configured rhythm and zero skips without creating a session (3.1s)
+  ✓  46 [desktop] › tests/e2e/to-doo-focus-history.spec.ts:108:1 › phone focus keeps one header and a compact timer with optional settings (2.8s)
+  ✓  47 [desktop] › tests/e2e/to-doo-focus-history.spec.ts:124:1 › a focus project saves records, survives refresh and archives without changing its linked task (6.9s)
+  ✓  48 [desktop] › tests/e2e/to-doo-focus-history.spec.ts:196:1 › 1205 older records do not hide the current timer and history filters use real paging (21.1s)
+  ✓  49 [desktop] › tests/e2e/to-doo-focus-history.spec.ts:269:1 › another window can finish the timer while a local note survives read and save failures (5.4s)
+  ✓  50 [desktop] › tests/e2e/to-doo-focus-history.spec.ts:314:1 › typing while finish is pending keeps the newer note after the receipt arrives (3.5s)
+  ✓  51 [desktop] › tests/e2e/to-doo-focus-history.spec.ts:359:1 › saving a retained note detects another window text and can preserve both versions (6.4s)
+  ✓  52 [desktop] › tests/e2e/to-doo-focus-history.spec.ts:404:1 › an interrupted session resumes from history and active note conflicts preserve both versions (4.3s)
+  ✓  53 [desktop] › tests/e2e/to-doo-forms.spec.ts:31:1 › a short habit form saves its optional settings and retains them when reopened (2.9s)
+  ✓  54 [desktop] › tests/e2e/to-doo-forms.spec.ts:78:1 › an entity form locks the submitted fields while saving and restores them after failure (2.2s)
+  ✓  55 [desktop] › tests/e2e/to-doo-forms.spec.ts:121:1 › a valid lunar day outside the Gregorian month can be saved and reopened as its original date (6.2s)
+  ✓  56 [desktop] › tests/e2e/to-doo-forms.spec.ts:164:1 › invalid Gregorian input stays visible and cannot silently save the previous date (2.4s)
+  ✓  57 [desktop] › tests/e2e/to-doo-forms.spec.ts:194:1 › all-day schedule hides irrelevant controls, restores the timed draft and persists a valid day (2.6s)
+  ✓  58 [desktop] › tests/e2e/to-doo-forms.spec.ts:234:1 › changing list type does not erase its hidden goal fields (2.9s)
+  ✓  59 [desktop] › tests/e2e/to-doo-forms.spec.ts:265:1 › invalid required settings inside a closed group are revealed on save (2.9s)
+  ✓  60 [desktop] › tests/e2e/to-doo-forms.spec.ts:281:1 › task settings shortcuts open the existing editors with one click (2.5s)
+  ✓  61 [desktop] › tests/e2e/to-doo-forms.spec.ts:295:1 › preference groups preserve folded values while saving a common setting (1.9s)
+  ✓  62 [desktop] › tests/e2e/to-doo-forms.spec.ts:317:1 › settings tabs preserve drafts and keep unrelated forms out of preferences (2.2s)
+  ✓  63 [desktop] › tests/e2e/to-doo-forms.spec.ts:342:1 › header save reveals a folded invalid preference and accepts a zero break (2.2s)
+  ✓  64 [desktop] › tests/e2e/to-doo-forms.spec.ts:369:3 › preferences typed while a save is pending remain as the next draft: new value (2.1s)
+  ✓  65 [desktop] › tests/e2e/to-doo-forms.spec.ts:369:3 › preferences typed while a save is pending remain as the next draft: return to original value (2.6s)
+  ✓  66 [desktop] › tests/e2e/to-doo-habit-cards.spec.ts:4:1 › a failed quantity write retains the input and retries the same request once (2.0s)
+  ✓  67 [desktop] › tests/e2e/to-doo-habit-cards.spec.ts:50:1 › habit cards distinguish today from weekly achievement and include all pages before recording, skipping and pausing (9.9s)
+[WebServer] 8:57:38 AM [vite] (client) [console.error] TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:4179/components/to-doo/ToDooSettings.vue
+  ✓  68 [desktop] › tests/e2e/to-doo-lazy-pages.spec.ts:5:1 › task entry skips other page modules and a failed page can retry without losing the task draft (1.9s)
+  ✓  69 [desktop] › tests/e2e/to-doo-lazy-pages.spec.ts:38:1 › page-header actions wait for a delayed review module (1.7s)
+  ✓  70 [desktop] › tests/e2e/to-doo-light-sidebar.spec.ts:39:1 › a clean narrow dark task shows its content and date summary without edit controls (2.1s)
+  ✓  71 [desktop] › tests/e2e/to-doo-light-sidebar.spec.ts:72:1 › explicit save preserves failed title and description edits and retries the same submission (4.2s)
+  ✓  72 [desktop] › tests/e2e/to-doo-light-sidebar.spec.ts:133:1 › deadline editing updates the summary and stays closed after reopening or changing tasks (3.5s)
+  ✓  73 [desktop] › tests/e2e/to-doo-light-sidebar.spec.ts:192:1 › title completion preserves an unsaved description and saving it keeps the task completed (3.2s)
+  ✓  74 [desktop] › tests/e2e/to-doo-loading.spec.ts:60:1 › an initial task request shows Ant skeletons until the usable task list arrives (1.7s)
+  ✓  75 [desktop] › tests/e2e/to-doo-loading.spec.ts:90:1 › a failed refresh retains the task DOM, search focus and content position (1.8s)
+  ✓  76 [desktop] › tests/e2e/to-doo-loading.spec.ts:143:1 › reduced motion keeps the loading placeholder static and an initial failure can retry (1.8s)
+  ✓  77 [desktop] › tests/e2e/to-doo-loading.spec.ts:179:1 › a cold To Doo component download has the same branded loading feedback (2.0s)
+  ✓  78 [desktop] › tests/e2e/to-doo-loading.spec.ts:208:1 › returning during a cold To Doo download is safe and its late completion preserves the destination (1.8s)
+  ✓  79 [desktop] › tests/e2e/to-doo-mcp-roundtrip.spec.ts:9:1 › browser writes and SDK writes share the actual dataset and live resource grants (5.4s)
+  ✓  80 [desktop] › tests/e2e/to-doo-mobile-lists.spec.ts:38:1 › mobile navigation opens personal lists and quick capture inherits the selected list (18.5s)
+  ✓  81 [desktop] › tests/e2e/to-doo-mobile-lists.spec.ts:100:1 › closing mobile new-list creation keeps the current list selected (4.4s)
+  ✓  82 [desktop] › tests/e2e/to-doo-notification-history.spec.ts:22:1 › recent notifications and mark-all include unread records beyond the first 200 (7.3s)
+  ✘  83 [desktop] › tests/e2e/to-doo-notification-history.spec.ts:97:1 › a recurring task notification opens its own execution rather than the first task execution (8.1s)
+Testing stopped early after 1 maximum allowed failures.
+
+
+  1) [desktop] › tests/e2e/to-doo-notification-history.spec.ts:97:1 › a recurring task notification opens its own execution rather than the first task execution 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "0d86d3b482e562a98f2ac35d5791bff4"
+    Received: null
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      142 |     .getByRole('button', { name: '查看任务', exact: true })
+      143 |     .click();
+    > 144 |   await expect.poll(() => new URL(page.url()).searchParams.get('occurrence')).toBe(target.id);
+          |                                                                               ^
+      145 |   await expect(
+      146 |     app
+      147 |       .getByRole('complementary', { name: '任务详情', exact: true })
+        at /home/bandoo/workspace/projects/doo-know/tests/e2e/to-doo-notification-history.spec.ts:144:79
+
+    Error Context: .local/to-doo-followup/full-chromium/to-doo-notification-histor-9d6ce-an-the-first-task-execution-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    .local/to-doo-followup/full-chromium/to-doo-notification-histor-9d6ce-an-the-first-task-execution-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace .local/to-doo-followup/full-chromium/to-doo-notification-histor-9d6ce-an-the-first-task-execution-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [desktop] › tests/e2e/to-doo-notification-history.spec.ts:97:1 › a recurring task notification opens its own execution rather than the first task execution 
+  1 skipped
+  13 did not run
+  81 passed (5.2m)
+  1 error was not a part of any test, see above for details

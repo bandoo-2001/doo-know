@@ -9,6 +9,8 @@ import {
   Segmented as ASegmented,
 } from 'ant-design-vue';
 import ToDooDateField from './ToDooDateField.vue';
+import { toDooCalendarRange } from '../../to-doo-presentation';
+import { toDooAnniversaryDate } from '../../../../shared/to-doo-anniversaries';
 import {
   shiftToDooDate,
   toDooLocalDate,
@@ -38,21 +40,12 @@ const state = props.model.state,
   includeDependents = ref(false);
 const today = computed(() => toDooLocalDate(new Date(), state.snapshot?.settings.timeZone));
 const anchor = computed(() => props.date || today.value),
-  weekStart = computed(() => {
-    const day = new Date(anchor.value + 'T12:00:00Z').getUTCDay();
-    return shiftToDooDate(
-      anchor.value,
-      -((day - (state.snapshot?.settings.weekStartsOn ?? 1) + 7) % 7),
-    );
-  });
-const monthStart = computed(() => anchor.value.slice(0, 7) + '-01');
-const start = computed(() => {
-  const day = new Date(monthStart.value + 'T12:00:00Z').getUTCDay();
-  return shiftToDooDate(
-    monthStart.value,
-    -((day - (state.snapshot?.settings.weekStartsOn ?? 1) + 7) % 7),
+  weekStart = computed(
+    () => toDooCalendarRange(anchor.value, 'week', state.snapshot?.settings.weekStartsOn ?? 1).from,
   );
-});
+const start = computed(
+  () => toDooCalendarRange(anchor.value, 'month', state.snapshot?.settings.weekStartsOn ?? 1).from,
+);
 const days = computed(() =>
   Array.from({ length: props.view === 'week' ? 7 : 42 }, (_, i) =>
     shiftToDooDate(props.view === 'week' ? weekStart.value : start.value, i),
@@ -123,21 +116,56 @@ function external(date: string) {
           !e.deletedAt &&
           !e.seriesMaster &&
           e.sourceStatus !== 'CANCELLED' &&
-          (e.allDay ? e.start : toDooDisplayTime(e.start, state.snapshot!.settings.timeZone))
-            .date === date,
+          !!externalSegment(e, date),
       ) || []
     : [];
 }
-function anniversaries(date: string) {
-  return showAnniversaries.value
-    ? state.snapshot?.anniversaries.filter(
-        (a) =>
-          !a.deletedAt &&
-          a.calendar === 'gregorian' &&
-          (a.repeatYearly ? a.date.slice(5) === date.slice(5) : a.date === date),
-      ) || []
-    : [];
+function externalSegment(event: ToDooEntityMap['calendarEvent'], date: string) {
+  const zone = state.snapshot!.settings.timeZone;
+  const start = event.allDay ? event.start : toDooDisplayTime(event.start, zone);
+  const end = event.end ? (event.allDay ? event.end : toDooDisplayTime(event.end, zone)) : null;
+  if (event.allDay || !start.time) {
+    const endDate = end?.date || shiftToDooDate(start.date, 1);
+    return start.date <= date && date < endDate ? { time: null, duration: 1440 } : null;
+  }
+  const instant = (value: ToDooEntityMap['calendarEvent']['start']) => {
+    const utc = toDooDisplayTime({ ...value, time: value.time || '00:00' }, 'UTC');
+    return Date.parse(utc.date + 'T' + utc.time + ':00Z');
+  };
+  const startsAt = instant(event.start);
+  const endsAt = event.end ? instant(event.end) : startsAt + 30 * 60000;
+  const dayStart = instant({ date, time: '00:00', timeZone: zone });
+  const dayEnd = instant({ date: shiftToDooDate(date, 1), time: '00:00', timeZone: zone });
+  const from = Math.max(startsAt, dayStart);
+  const to = Math.min(endsAt, dayEnd);
+  if (to <= from) return null;
+  return {
+    time: new Intl.DateTimeFormat('en-GB', {
+      timeZone: zone,
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23',
+    }).format(new Date(from)),
+    duration: (to - from) / 60000,
+  };
 }
+const anniversaryOccurrences = computed(() => {
+  const grouped = new Map<string, ToDooEntityMap['anniversary'][]>();
+  if (!showAnniversaries.value || props.timeline) return grouped;
+  const range = toDooCalendarRange(
+    anchor.value,
+    props.view || 'month',
+    state.snapshot?.settings.weekStartsOn ?? 1,
+  );
+  for (const anniversary of state.snapshot?.anniversaries ?? []) {
+    if (anniversary.deletedAt) continue;
+    const date = toDooAnniversaryDate(anniversary, range.from);
+    if (date && date >= range.from && date <= range.to)
+      grouped.set(date, [...(grouped.get(date) ?? []), anniversary]);
+  }
+  return grouped;
+});
+const anniversaries = (date: string) => anniversaryOccurrences.value.get(date) ?? [];
 function drag(event: DragEvent, id: string) {
   event.dataTransfer?.setData('application/x-to-doo-block', id);
 }
@@ -264,22 +292,13 @@ function weekEvents(day: string) {
     });
   }
   for (const event of external(day)) {
-    const start = toDooDisplayTime(event.start, state.snapshot!.settings.timeZone);
-    if (event.allDay || !start.time) continue;
-    const end = event.end ? toDooDisplayTime(event.end, state.snapshot!.settings.timeZone) : null;
-    const duration = end
-      ? Math.max(
-          15,
-          (Date.parse(end.date + 'T' + (end.time || '00:00') + ':00Z') -
-            Date.parse(start.date + 'T' + start.time + ':00Z')) /
-            60000,
-        )
-      : 30;
+    const segment = externalSegment(event, day);
+    if (!segment?.time) continue;
     entries.push({
       id: event.id,
       title: event.title,
-      time: start.time,
-      duration,
+      time: segment.time,
+      duration: segment.duration,
       event,
       lane: 0,
       lanes: 1,
@@ -384,9 +403,11 @@ function slotStyle(event: ReturnType<typeof weekEvents>[number]) {
   </div>
   <div class="todo-calendar-options">
     <span>显示时区：{{ state.snapshot?.settings.timeZone }}</span
-    ><ACheckbox v-model:checked="showExternal" class="todo-checkbox">外部日历</ACheckbox
+    ><ACheckbox v-if="!timeline" v-model:checked="showExternal" class="todo-checkbox"
+      >外部日历</ACheckbox
     ><ACheckbox v-model:checked="showHabits" class="todo-checkbox">习惯</ACheckbox
-    ><ACheckbox v-model:checked="showAnniversaries" class="todo-checkbox">纪念日</ACheckbox
+    ><ACheckbox v-if="!timeline" v-model:checked="showAnniversaries" class="todo-checkbox"
+      >纪念日</ACheckbox
     ><span class="todo-spacer"></span><span>计划与截止分别显示</span>
   </div>
   <div v-if="state.preview" class="todo-plan-preview todo-panel">
@@ -570,8 +591,14 @@ function slotStyle(event: ReturnType<typeof weekEvents>[number]) {
           class="todo-calendar-event external"
           @click="inspectExternal(e)"
         >
-          {{ e.start.time || '全天' }} {{ e.title }} · {{ e.readOnly ? '只读' : '外部' }}</button
-        ><span v-for="a in anniversaries(day)" :key="a.id" class="todo-calendar-event anniversary"
+          {{ externalSegment(e, day)?.time || '全天' }} {{ e.title }} ·
+          {{ e.readOnly ? '只读' : '外部' }}</button
+        ><span
+          v-for="a in anniversaries(day)"
+          :key="a.id"
+          class="todo-calendar-event anniversary"
+          :data-anniversary-id="a.id"
+          :data-date="day"
           >◇ {{ a.name }}</span
         >
       </div>
@@ -598,6 +625,14 @@ function slotStyle(event: ReturnType<typeof weekEvents>[number]) {
           >
             全天 · {{ event.title }}
           </button>
+          <span
+            v-for="a in anniversaries(day)"
+            :key="a.id"
+            class="todo-calendar-event anniversary"
+            :data-anniversary-id="a.id"
+            :data-date="day"
+            >◇ {{ a.name }}</span
+          >
           <div v-for="item in due(day)" :key="item.key">
             <button type="button" class="todo-calendar-event deadline" @click="emit('open', item)">
               ◆ {{ item.title }}
@@ -681,6 +716,16 @@ function slotStyle(event: ReturnType<typeof weekEvents>[number]) {
         >
           {{ e.title }} · {{ e.readOnly ? '只读事件' : '日历事件' }}
         </AButton>
+        <AButton
+          v-for="a in anniversaries(day)"
+          :key="a.id"
+          type="text"
+          class="todo-saved-row todo-text-button"
+          :data-anniversary-id="a.id"
+          :data-date="day"
+          @click="emit('edit', 'anniversary', a)"
+          >◇ {{ a.name }} · 纪念日</AButton
+        >
         <AButton
           html-type="button"
           class="todo-link todo-pad"

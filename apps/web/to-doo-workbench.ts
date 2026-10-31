@@ -377,7 +377,11 @@ export function deriveToDooItems(
         !dates.some((d) => (!filter.from || d >= filter.from) && (!filter.to || d <= filter.to))
       )
         return false;
-      if (filter.dueBefore && (!o?.due || o.due.date > filter.dueBefore)) return false;
+      if (
+        filter.dueBefore &&
+        (!o?.due || toDooDisplayTime(o.due, data.settings.timeZone).date > filter.dueBefore)
+      )
+        return false;
       if (
         filter.hasEvidence &&
         !data.outcomes.some(
@@ -480,52 +484,20 @@ export function focusElapsed(session: ToDooEntityMap['focusSession'], now = Date
   return session.correctedMinutes !== null
     ? session.correctedMinutes * 60
     : session.segments.reduce(
-        (n, s) => n + Math.max(0, ((s.end ? Date.parse(s.end) : now) - Date.parse(s.start)) / 1000),
+        (n, s) =>
+          n +
+          Math.max(
+            0,
+            ((s.end
+              ? Date.parse(s.end)
+              : session.status === 'running'
+                ? now
+                : Date.parse(s.start)) -
+              Date.parse(s.start)) /
+              1000,
+          ),
         0,
       );
-}
-export function nextToDooAnniversary(
-  a: ToDooEntityMap['anniversary'],
-  from: string,
-): string | null {
-  if (a.calendar === 'gregorian') {
-    if (!a.repeatYearly) return a.date;
-    for (let year = Number(from.slice(0, 4)); year < Number(from.slice(0, 4)) + 9; year++) {
-      const desired = year + a.date.slice(4),
-        rolled = new Date(desired + 'T12:00:00Z').toISOString().slice(0, 10);
-      let candidate = desired;
-      if (rolled !== desired) {
-        if (a.leapPolicy === 'skip') continue;
-        candidate = a.leapPolicy === 'previous_day' ? shiftToDooDate(rolled, -1) : rolled;
-      }
-      if (candidate >= from) return candidate;
-    }
-    return null;
-  }
-  const formatter = new Intl.DateTimeFormat('en-u-ca-chinese', {
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-    timeZone: 'UTC',
-  });
-  const month = Number(a.date.slice(5, 7)),
-    day = Number(a.date.slice(8)),
-    year = Number(a.date.slice(0, 4));
-  const first = a.repeatYearly ? from : shiftToDooDate(year + '-01-01', -40),
-    limit = a.repeatYearly ? 8000 : 440;
-  for (let i = 0; i < limit; i++) {
-    const candidate = shiftToDooDate(first, i),
-      parts = formatter.formatToParts(new Date(candidate + 'T12:00:00Z'));
-    const get = (key: string) => parts.find((p) => p.type === key)?.value || '';
-    if (
-      parseInt(get('month')) === month &&
-      Number(get('day')) === day &&
-      get('month').includes('bis') === a.lunarLeapMonth &&
-      (a.repeatYearly || Number(get('relatedYear')) === year)
-    )
-      return candidate;
-  }
-  return null;
 }
 export function createToDooWorkbench(request: ToDooRequest) {
   const state = reactive({
@@ -646,6 +618,48 @@ export function createToDooWorkbench(request: ToDooRequest) {
           ([k, v]) => v.task.id === id && saved.get(k) !== fingerprint(v),
         )
       : !!draft() && saved.get(key()) !== fingerprint(draft());
+  // Detail saves use several commands; retain every committed revision if a later step fails.
+  function checkpointSavedEntity(
+    draftKey: string,
+    submitted: object,
+    remote: ToDooEntity | undefined,
+    kind: 'task' | 'occurrence' | 'timeBlock',
+    baseline: ToDooTaskDraft,
+  ) {
+    const current = state.drafts[draftKey];
+    if (!remote || !current) return;
+    const target =
+      kind === 'timeBlock' ? current.blocks.find((b) => b.id === remote.id) : current[kind];
+    if (target) {
+      const input = submitted as unknown as Record<string, unknown>,
+        output = target as unknown as Record<string, unknown>;
+      for (const [field, value] of Object.entries(remote)) {
+        if (
+          ['id', 'revision', 'createdAt', 'updatedAt', 'deletedAt'].includes(field) ||
+          fingerprint(output[field]) === fingerprint(input[field])
+        )
+          output[field] = clone(value);
+      }
+    }
+    if (kind === 'task') baseline.task = clone(remote as ToDooTask);
+    else if (kind === 'occurrence') baseline.occurrence = clone(remote as ToDooOccurrence);
+    else {
+      const index = baseline.blocks.findIndex((b) => b.id === remote.id);
+      if (index < 0) baseline.blocks.push(clone(remote as ToDooEntityMap['timeBlock']));
+      else baseline.blocks[index] = clone(remote as ToDooEntityMap['timeBlock']);
+      const occurrenceId = (remote as ToDooEntityMap['timeBlock']).occurrenceId;
+      if (baseline.occurrence?.id === occurrenceId) {
+        checkpointSavedEntity(
+          draftKey,
+          clone(baseline.occurrence),
+          state.snapshot?.occurrences.find((o) => o.id === occurrenceId),
+          'occurrence',
+          baseline,
+        );
+      }
+    }
+    saved.set(draftKey, fingerprint(baseline));
+  }
   const hasUnsavedChanges = () =>
     !!state.pendingMutation ||
     Object.entries(state.newTaskDrafts).some(
@@ -658,7 +672,7 @@ export function createToDooWorkbench(request: ToDooRequest) {
     const data = state.snapshot,
       task = data?.tasks.find((t) => t.id === id);
     const occurrence =
-      data?.occurrences.find((o) => o.id === occurrenceId) ||
+      data?.occurrences.find((o) => o.id === occurrenceId && o.taskId === id && !o.deletedAt) ||
       data?.occurrences
         .filter((o) => o.taskId === id && !o.deletedAt)
         .sort((a, b) => (a.scheduledDate || '').localeCompare(b.scheduledDate || ''))[0] ||
@@ -794,7 +808,7 @@ export function createToDooWorkbench(request: ToDooRequest) {
       if (ticket === generation) adoptDetail(data, id);
       return data;
     } catch (e) {
-      state.error = e instanceof Error ? e.message : String(e);
+      if (ticket === generation) state.error = e instanceof Error ? e.message : String(e);
     }
   }
   async function nextCollectionPage(kind: ToDooEntityKind, taskId?: string) {
@@ -843,6 +857,7 @@ export function createToDooWorkbench(request: ToDooRequest) {
   }
   async function loadPendingOperations(append = false) {
     if (state.operationLoading) return;
+    const ticket = generation;
     state.operationLoading = true;
     state.operationError = '';
     try {
@@ -851,6 +866,7 @@ export function createToDooWorkbench(request: ToDooRequest) {
         '/api/to-doo/state?kind=operation&limit=50' +
           (cursor ? '&cursor=' + encodeURIComponent(cursor) : ''),
       )) as ToDooSnapshot;
+      if (ticket !== generation) return;
       const values = new Map((append ? state.pendingOperations : []).map((o) => [o.id, o]));
       data.operations.forEach((o) => values.set(o.id, o));
       state.pendingOperations = [...values.values()].filter(
@@ -858,7 +874,7 @@ export function createToDooWorkbench(request: ToDooRequest) {
       );
       state.operationPage = data.page;
     } catch (e) {
-      state.operationError = e instanceof Error ? e.message : String(e);
+      if (ticket === generation) state.operationError = e instanceof Error ? e.message : String(e);
     } finally {
       state.operationLoading = false;
     }
@@ -893,6 +909,28 @@ export function createToDooWorkbench(request: ToDooRequest) {
     try {
       const result = (await request('/api/to-doo/commands', 'POST', command)) as ToDooCommandResult;
       adopt(result.snapshot);
+      if (command.action === 'set_occurrence_status') {
+        const affected = new Set([
+          command.payload.id,
+          ...result.changed
+            .filter((change) => change.kind === 'occurrence')
+            .map((change) => change.id),
+        ]);
+        // Status commits independently of detail edits, including drafts for another selection.
+        for (const [draftKey, current] of Object.entries(state.drafts)) {
+          if (!current.occurrence || !affected.has(current.occurrence.id)) continue;
+          const baseline = JSON.parse(
+            saved.get(draftKey) || fingerprint(current),
+          ) as ToDooTaskDraft;
+          checkpointSavedEntity(
+            draftKey,
+            baseline.occurrence || current.occurrence,
+            state.snapshot?.occurrences.find((o) => o.id === current.occurrence!.id),
+            'occurrence',
+            baseline,
+          );
+        }
+      }
       state.pendingMutation = null;
       persistRecovery();
       state.preview = result.preview || null;
@@ -944,14 +982,14 @@ export function createToDooWorkbench(request: ToDooRequest) {
   async function saveTask(scope: 'all' | 'future' = 'all') {
     const value = draft();
     if (!value) return;
+    if (value.task.recurrence) {
+      value.task.recurrence.time ||= null;
+      value.task.recurrence.until ||= null;
+      value.task.recurrence.count ||= null;
+    }
     const draftKey = key(),
       submitted = clone(value),
-      baseline = JSON.parse(saved.get(draftKey) || 'null') as ToDooTaskDraft | null;
-    if (submitted.task.recurrence) {
-      submitted.task.recurrence.time ||= null;
-      submitted.task.recurrence.until ||= null;
-      submitted.task.recurrence.count ||= null;
-    }
+      baseline = JSON.parse(saved.get(draftKey) || fingerprint(value)) as ToDooTaskDraft;
     const {
       id,
       revision,
@@ -962,7 +1000,6 @@ export function createToDooWorkbench(request: ToDooRequest) {
       recurrenceHistory,
       ...patch
     } = submitted.task;
-    const before = fingerprint(value);
     const result = await execute(
       { action: 'update_task', payload: { id, expectedRevision: revision, patch } },
       '',
@@ -970,8 +1007,51 @@ export function createToDooWorkbench(request: ToDooRequest) {
     if (!result) return;
     const ownRevisions = new Map(result.changed.map((c) => [c.id, c.revision]));
     const fresh = state.snapshot?.tasks.find((t) => t.id === id);
-    if (fresh && state.drafts[draftKey]) state.drafts[draftKey]!.task.revision = fresh.revision;
-    if (fingerprint(baseline?.task.recurrence) !== fingerprint(recurrence)) {
+    checkpointSavedEntity(
+      draftKey,
+      {
+        ...submitted.task,
+        recurrence: baseline.task.recurrence,
+        recurrenceHistory: baseline.task.recurrenceHistory,
+      },
+      fresh,
+      'task',
+      baseline,
+    );
+    if (
+      submitted.occurrence &&
+      fingerprint(baseline?.occurrence) !== fingerprint(submitted.occurrence)
+    ) {
+      const changed = await saveEntity(
+        'occurrence',
+        submitted.occurrence,
+        ownRevisions.get(submitted.occurrence.id) || submitted.occurrence.revision,
+        '',
+      );
+      if (!changed) return;
+      checkpointSavedEntity(
+        draftKey,
+        submitted.occurrence,
+        state.snapshot?.occurrences.find((o) => o.id === submitted.occurrence!.id),
+        'occurrence',
+        baseline,
+      );
+    }
+    for (const block of submitted.blocks) {
+      if (fingerprint(baseline?.blocks.find((b) => b.id === block.id)) === fingerprint(block))
+        continue;
+      const changed = await saveEntity('timeBlock', block, block.revision || undefined, '');
+      if (!changed) return;
+      checkpointSavedEntity(
+        draftKey,
+        block,
+        state.snapshot?.timeBlocks.find((b) => b.id === block.id),
+        'timeBlock',
+        baseline,
+      );
+    }
+    // Commit instance edits first so recurrence changes preserve those explicitly edited cycles.
+    if (fingerprint(baseline.task.recurrence) !== fingerprint(recurrence)) {
       const changed = await execute(
         {
           action: 'change_recurrence',
@@ -993,35 +1073,22 @@ export function createToDooWorkbench(request: ToDooRequest) {
         '',
       );
       if (!changed) return;
-      changed.changed.forEach((c) => ownRevisions.set(c.id, c.revision));
-    }
-    if (
-      submitted.occurrence &&
-      fingerprint(baseline?.occurrence) !== fingerprint(submitted.occurrence)
-    ) {
-      const changed = await saveEntity(
-        'occurrence',
-        submitted.occurrence,
-        ownRevisions.get(submitted.occurrence.id) || submitted.occurrence.revision,
-        '',
+      checkpointSavedEntity(
+        draftKey,
+        submitted.task,
+        state.snapshot?.tasks.find((t) => t.id === id),
+        'task',
+        baseline,
       );
-      if (!changed) return;
     }
-    for (const block of submitted.blocks) {
-      if (fingerprint(baseline?.blocks.find((b) => b.id === block.id)) === fingerprint(block))
-        continue;
-      const changed = await saveEntity('timeBlock', block, block.revision || undefined, '');
-      if (!changed) return;
-    }
-    // Text typed during the save remains a draft. Only the submitted snapshot becomes the baseline.
+    // Only committed input becomes the baseline; text typed during the save remains a draft.
     const current = state.drafts[draftKey];
-    if (current && fingerprint({ ...current, task: { ...current.task, revision } }) === before) {
+    if (current && saved.get(draftKey) === fingerprint(current)) {
       delete state.drafts[draftKey];
-      if (state.selectedTaskId === id) selectTask(id, submitted.occurrence?.id);
-    } else if (current) {
-      const remote = state.snapshot?.tasks.find((t) => t.id === id);
-      saved.set(draftKey, fingerprint({ ...submitted, task: remote || submitted.task }));
+      if (key() === draftKey) selectTask(id, submitted.occurrence?.id);
     }
+    if (key() !== draftKey && !dirty())
+      selectTask(state.selectedTaskId, state.selectedOccurrenceId);
     state.rebasedFields = [];
     state.notice = '任务已保存';
     return result;
@@ -1254,6 +1321,48 @@ export function createToDooWorkbench(request: ToDooRequest) {
     state.snapshot?.page.nextCursor
       ? load({ ...state.query, cursor: state.snapshot.page.nextCursor }, true)
       : Promise.resolve();
+  async function retryPending() {
+    const pending = state.pendingMutation;
+    if (!pending) return;
+    const { requestId, ...input } = pending;
+    if (input.action === 'create_task') return createTask(input.payload);
+    const result = await execute(input);
+    if (!result) return;
+    for (const [draftKey, current] of Object.entries(state.drafts)) {
+      const baseline = JSON.parse(saved.get(draftKey) || fingerprint(current)) as ToDooTaskDraft;
+      if (input.action === 'update_task' && current.task.id === input.payload.id) {
+        checkpointSavedEntity(
+          draftKey,
+          { ...baseline.task, ...input.payload.patch },
+          state.snapshot?.tasks.find((t) => t.id === input.payload.id),
+          'task',
+          baseline,
+        );
+      } else if (input.action === 'change_recurrence' && current.task.id === input.payload.taskId) {
+        checkpointSavedEntity(
+          draftKey,
+          { ...baseline.task, recurrence: input.payload.rule },
+          state.snapshot?.tasks.find((t) => t.id === input.payload.taskId),
+          'task',
+          baseline,
+        );
+      } else if (input.action === 'save_entity') {
+        const { kind, entity } = input.payload;
+        if (kind !== 'task' && kind !== 'occurrence' && kind !== 'timeBlock') continue;
+        const base =
+          kind === 'timeBlock' ? baseline.blocks.find((b) => b.id === entity.id) : baseline[kind];
+        if (!base || base.id !== entity.id) continue;
+        checkpointSavedEntity(
+          draftKey,
+          { ...base, ...entity } as ToDooEntity,
+          state.snapshot?.[TO_DOO_COLLECTIONS[kind]].find((e) => e.id === entity.id),
+          kind,
+          baseline,
+        );
+      }
+    }
+    return result;
+  }
   function discardDraft() {
     delete state.drafts[key()];
     selectTask(state.selectedTaskId, state.selectedOccurrenceId);
@@ -1346,14 +1455,7 @@ export function createToDooWorkbench(request: ToDooRequest) {
       Object.entries(state.newTaskDrafts).some(
         ([key, value]) => newSaved.get(key) !== fingerprint(value),
       ),
-    retryPending: () => {
-      const pending = state.pendingMutation;
-      if (!pending) return Promise.resolve(undefined);
-      const { requestId, ...input } = pending;
-      return input.action === 'create_task'
-        ? createTask(input.payload)
-        : execute(input as ToDooInput);
-    },
+    retryPending,
     ensureTask,
     nextCollectionPage,
     nextTaskCollectionPage: (id: string, kind: ToDooEntityKind) => nextCollectionPage(kind, id),

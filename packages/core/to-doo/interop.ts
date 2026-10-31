@@ -1530,6 +1530,7 @@ function copyPortableEntities(entries: PortableEntity[], jobId: string): Portabl
     predecessorId: 'occurrence',
     habitId: 'habit',
     sourceSessionId: 'focusSession',
+    topicId: 'focusTopic',
     expandedFromId: 'calendarEvent',
   };
   function rewrite(value: unknown, key: string, owner: ToDooEntityKind): unknown {
@@ -1602,6 +1603,8 @@ function orderImportEntries(entries: ImportEntry[]): ImportEntry[] {
     occurrence: 7,
     exception: 8,
     timeBlock: 9,
+    focusTopic: 10,
+    focusSession: 11,
     import: 100,
   };
   const sorted = [...entries].sort((a, b) => (ranks[a.kind] ?? 20) - (ranks[b.kind] ?? 20)),

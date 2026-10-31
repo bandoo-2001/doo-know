@@ -214,7 +214,8 @@ test('wide task details continue the quick draft and submit exactly one real tas
     fullPage: true,
   });
   await detail.getByRole('button', { name: '创建任务', exact: true }).click();
-  await expect(detail.getByRole('button', { name: '保存任务', exact: true })).toBeVisible();
+  await expect(detail.getByLabel('任务标题', { exact: true })).toHaveValue(title);
+  await expect(detail.getByRole('button', { name: '保存任务', exact: true })).not.toBeVisible();
   const state = await (
     await page.request.get(
       '/api/to-doo/state?filter=' + encodeURIComponent(JSON.stringify({ query: title })),

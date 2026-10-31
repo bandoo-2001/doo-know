@@ -1,0 +1,13 @@
+
+ RUN  v5.0.4 /home/bandoo/workspace/projects/doo-know
+
+
+ Test Files  52 passed (52)
+      Tests  457 passed (457)
+   Start at  09:26:02
+   Duration  51.21s (tests 73%, import 26%, transform 1%)
+
+     Import  313 modules were evaluated 519 times · 11.04s total, 26% of tracked time
+             ~4.38s faster with isolate: false — shared modules are evaluated once per worker instead of once per file
+             learn more: https://vitest.dev/guide/improving-performance#test-isolation
+

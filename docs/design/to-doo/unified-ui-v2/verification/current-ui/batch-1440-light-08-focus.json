@@ -1,0 +1,43 @@
+{
+  "datasetId": "532c6b87-5d27-470d-8e2d-0b8a07026f8e",
+  "source": {
+    "sha256": "a63b7f3133e6f154744f6d405e98fcb59beb3f18bacc3820b2f1312448152619",
+    "files": 1096,
+    "head": "393979a664142dcef981abbfe6422fa70715a4fa"
+  },
+  "geometry": [
+    {
+      "id": "08-focus",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1366,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 156,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    }
+  ],
+  "images": [
+    {
+      "id": "08-focus",
+      "label": "专注与历史",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "file": "desktop-08-focus-light.png",
+      "category": "desktop"
+    }
+  ]
+}

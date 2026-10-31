@@ -1,0 +1,24 @@
+{
+  "vue": "3.5.44",
+  "vueuse": "15.0.0",
+  "external": [
+    "vue"
+  ],
+  "target": "es2022",
+  "results": [
+    {
+      "name": "native",
+      "sourceBytes": 746,
+      "bundleBytes": 543,
+      "gzipBytes": 309,
+      "inputs": 1
+    },
+    {
+      "name": "vueuse",
+      "sourceBytes": 676,
+      "bundleBytes": 4323,
+      "gzipBytes": 2088,
+      "inputs": 3
+    }
+  ]
+}

@@ -44,6 +44,13 @@ export function toDooDisclosureHeader(scope: ToDooScope, title: string) {
 
 export async function expandToDooGroup(scope: ToDooScope, title: string) {
   const header = toDooDisclosureHeader(scope, title);
+  if (!(await header.isVisible())) {
+    const advanced = toDooDisclosureHeader(scope, '更多详情');
+    if (await advanced.count()) {
+      if ((await advanced.getAttribute('aria-expanded')) !== 'true') await advanced.click();
+      await expect(advanced).toHaveAttribute('aria-expanded', 'true');
+    }
+  }
   await expect(header).toBeVisible();
   if ((await header.getAttribute('aria-expanded')) !== 'true') await header.click();
   await expect(header).toHaveAttribute('aria-expanded', 'true');

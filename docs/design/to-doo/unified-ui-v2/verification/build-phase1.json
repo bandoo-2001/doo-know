@@ -1,0 +1,406 @@
+{
+  "stage": "after shared shell and statistics, before focus UI and dependency decisions",
+  "command": "npm run build",
+  "entry": "components/ToDooWorkspace.vue",
+  "entryBytes": 485873,
+  "staticGraphBytes": 2263004,
+  "staticGraphGzipBytes": 724987,
+  "chunks": [
+    {
+      "source": "_Icon--L4UdodL.js",
+      "file": "assets/Icon--L4UdodL.js",
+      "bytes": 4888,
+      "gzipBytes": 2287
+    },
+    {
+      "source": "_Keyframes-K60KFfv3.js",
+      "file": "assets/Keyframes-K60KFfv3.js",
+      "bytes": 202,
+      "gzipBytes": 165
+    },
+    {
+      "source": "_LoadingState-mxB3oOJr.js",
+      "file": "assets/LoadingState-mxB3oOJr.js",
+      "bytes": 863,
+      "gzipBytes": 528
+    },
+    {
+      "source": "_MCPDomainPermissions-B7QZ4TUK.js",
+      "file": "assets/MCPDomainPermissions-B7QZ4TUK.js",
+      "bytes": 56524,
+      "gzipBytes": 18045
+    },
+    {
+      "source": "_Modal-nTyJRGdT.js",
+      "file": "assets/Modal-nTyJRGdT.js",
+      "bytes": 21123,
+      "gzipBytes": 7083
+    },
+    {
+      "source": "_NoteEditorHost-SDg2i7KK.js",
+      "file": "assets/NoteEditorHost-SDg2i7KK.js",
+      "bytes": 23188,
+      "gzipBytes": 9101
+    },
+    {
+      "source": "_Popover-y3pDo5lQ.js",
+      "file": "assets/Popover-y3pDo5lQ.js",
+      "bytes": 28443,
+      "gzipBytes": 8511
+    },
+    {
+      "source": "_Portal-DgScv1Dz.js",
+      "file": "assets/Portal-DgScv1Dz.js",
+      "bytes": 1245,
+      "gzipBytes": 689
+    },
+    {
+      "source": "_Serializer-Bj4K8kgG.js",
+      "file": "assets/Serializer-Bj4K8kgG.js",
+      "bytes": 3857,
+      "gzipBytes": 1810
+    },
+    {
+      "source": "_SetupImport-Bp4j8nFM.js",
+      "file": "assets/SetupImport-Bp4j8nFM.js",
+      "bytes": 158897,
+      "gzipBytes": 49089
+    },
+    {
+      "source": "__Map-BG_hZP7Q.js",
+      "file": "assets/_Map-BG_hZP7Q.js",
+      "bytes": 3588,
+      "gzipBytes": 1487
+    },
+    {
+      "source": "__Uint8Array-CMFdC-r2.js",
+      "file": "assets/_Uint8Array-CMFdC-r2.js",
+      "bytes": 3431,
+      "gzipBytes": 1305
+    },
+    {
+      "source": "__assignValue-Gs1q8_NF.js",
+      "file": "assets/_assignValue-Gs1q8_NF.js",
+      "bytes": 333,
+      "gzipBytes": 260
+    },
+    {
+      "source": "__baseEach-BayCoSQZ.js",
+      "file": "assets/_baseEach-BayCoSQZ.js",
+      "bytes": 1600,
+      "gzipBytes": 791
+    },
+    {
+      "source": "__baseFor-CNqcXraa.js",
+      "file": "assets/_baseFor-CNqcXraa.js",
+      "bytes": 159,
+      "gzipBytes": 148
+    },
+    {
+      "source": "__baseSlice-DSr_lfFX.js",
+      "file": "assets/_baseSlice-DSr_lfFX.js",
+      "bytes": 165,
+      "gzipBytes": 154
+    },
+    {
+      "source": "__baseUniq-Bfuquh3q.js",
+      "file": "assets/_baseUniq-Bfuquh3q.js",
+      "bytes": 1258,
+      "gzipBytes": 675
+    },
+    {
+      "source": "__common-Bl6Fx5Rl.js",
+      "file": "assets/_common-Bl6Fx5Rl.js",
+      "bytes": 17482,
+      "gzipBytes": 5143
+    },
+    {
+      "source": "__initCloneObject-DoncAx_3.js",
+      "file": "assets/_initCloneObject-DoncAx_3.js",
+      "bytes": 1483,
+      "gzipBytes": 753
+    },
+    {
+      "source": "__plugin-vue_export-helper-BJsYJOx4.js",
+      "file": "assets/_plugin-vue_export-helper-BJsYJOx4.js",
+      "bytes": 112751,
+      "gzipBytes": 36214
+    },
+    {
+      "source": "_alert-aoNnh5A-.js",
+      "file": "assets/alert-aoNnh5A-.js",
+      "bytes": 4853,
+      "gzipBytes": 2116
+    },
+    {
+      "source": "_api-D0SxfNg-.js",
+      "file": "assets/api-D0SxfNg-.js",
+      "bytes": 1308,
+      "gzipBytes": 837
+    },
+    {
+      "source": "_app-shortcuts-DFVIeMX5.js",
+      "file": "assets/app-shortcuts-DFVIeMX5.js",
+      "bytes": 2949,
+      "gzipBytes": 1497
+    },
+    {
+      "source": "_config-provider-BkyKRYFv.js",
+      "file": "assets/config-provider-BkyKRYFv.js",
+      "bytes": 30751,
+      "gzipBytes": 10069
+    },
+    {
+      "source": "_customParseFormat-CE1URwp2.js",
+      "file": "assets/customParseFormat-CE1URwp2.js",
+      "bytes": 4941,
+      "gzipBytes": 2224
+    },
+    {
+      "source": "_dayjs.min-BEt9nRqS.js",
+      "file": "assets/dayjs.min-BEt9nRqS.js",
+      "bytes": 7185,
+      "gzipBytes": 3075
+    },
+    {
+      "source": "_diagram-binding-0Ow6np7P.js",
+      "file": "assets/diagram-binding-0Ow6np7P.js",
+      "bytes": 534,
+      "gzipBytes": 362
+    },
+    {
+      "source": "_diagram-fences-23j-frz9.js",
+      "file": "assets/diagram-fences-23j-frz9.js",
+      "bytes": 845,
+      "gzipBytes": 517
+    },
+    {
+      "source": "_diagram-portability-D2A_i6MW.js",
+      "file": "assets/diagram-portability-D2A_i6MW.js",
+      "bytes": 3543,
+      "gzipBytes": 1852
+    },
+    {
+      "source": "_diagrams-CGsE3C5r.js",
+      "file": "assets/diagrams-CGsE3C5r.js",
+      "bytes": 11507,
+      "gzipBytes": 5154
+    },
+    {
+      "source": "_download-3ZpJah8W.js",
+      "file": "assets/download-3ZpJah8W.js",
+      "bytes": 165,
+      "gzipBytes": 151
+    },
+    {
+      "source": "_drafts-D_zi38iR.js",
+      "file": "assets/drafts-D_zi38iR.js",
+      "bytes": 6877,
+      "gzipBytes": 3130
+    },
+    {
+      "source": "_event-ES5oG9TS.js",
+      "file": "assets/event-ES5oG9TS.js",
+      "bytes": 102872,
+      "gzipBytes": 30922
+    },
+    {
+      "source": "_extends-CvVTau-c.js",
+      "file": "assets/extends-CvVTau-c.js",
+      "bytes": 231,
+      "gzipBytes": 183
+    },
+    {
+      "source": "_floating-tools-DssGhUKf.js",
+      "file": "assets/floating-tools-DssGhUKf.js",
+      "bytes": 812,
+      "gzipBytes": 526
+    },
+    {
+      "source": "_floating-ui.dom-B0ujvShr.js",
+      "file": "assets/floating-ui.dom-B0ujvShr.js",
+      "bytes": 18381,
+      "gzipBytes": 7192
+    },
+    {
+      "source": "_format-length-ouRhuO8O.js",
+      "file": "assets/format-length-ouRhuO8O.js",
+      "bytes": 497,
+      "gzipBytes": 326
+    },
+    {
+      "source": "_frontmatter-range-B0dCtEUL.js",
+      "file": "assets/frontmatter-range-B0dCtEUL.js",
+      "bytes": 280,
+      "gzipBytes": 203
+    },
+    {
+      "source": "_hasIn-CKXQJp4K.js",
+      "file": "assets/hasIn-CKXQJp4K.js",
+      "bytes": 5451,
+      "gzipBytes": 2446
+    },
+    {
+      "source": "_image-requests-Cv4Ec059.js",
+      "file": "assets/image-requests-Cv4Ec059.js",
+      "bytes": 6192,
+      "gzipBytes": 2534
+    },
+    {
+      "source": "_input-DyKQx5FZ.js",
+      "file": "assets/input-DyKQx5FZ.js",
+      "bytes": 38963,
+      "gzipBytes": 11741
+    },
+    {
+      "source": "_isArrayLikeObject-m6Elkd6j.js",
+      "file": "assets/isArrayLikeObject-m6Elkd6j.js",
+      "bytes": 192,
+      "gzipBytes": 161
+    },
+    {
+      "source": "_isEmpty-Cwr2kRf_.js",
+      "file": "assets/isEmpty-Cwr2kRf_.js",
+      "bytes": 457,
+      "gzipBytes": 302
+    },
+    {
+      "source": "_isPlainObject-CsaqUi4q.js",
+      "file": "assets/isPlainObject-CsaqUi4q.js",
+      "bytes": 393,
+      "gzipBytes": 275
+    },
+    {
+      "source": "_knowledge-markdown-BgHhP2AZ.js",
+      "file": "assets/knowledge-markdown-BgHhP2AZ.js",
+      "bytes": 113074,
+      "gzipBytes": 44915
+    },
+    {
+      "source": "_map-C2LS9OcF.js",
+      "file": "assets/map-C2LS9OcF.js",
+      "bytes": 298,
+      "gzipBytes": 226
+    },
+    {
+      "source": "_merge-CwWEzXhh.js",
+      "file": "assets/merge-CwWEzXhh.js",
+      "bytes": 1696,
+      "gzipBytes": 939
+    },
+    {
+      "source": "_omit-BwjpUar9.js",
+      "file": "assets/omit-BwjpUar9.js",
+      "bytes": 143,
+      "gzipBytes": 142
+    },
+    {
+      "source": "_pick-DbRnfsA2.js",
+      "file": "assets/pick-DbRnfsA2.js",
+      "bytes": 901,
+      "gzipBytes": 530
+    },
+    {
+      "source": "_plugin-drafts-C5sSBZiZ.js",
+      "file": "assets/plugin-drafts-C5sSBZiZ.js",
+      "bytes": 3269,
+      "gzipBytes": 1631
+    },
+    {
+      "source": "_plugins-BTqvRT2J.js",
+      "file": "assets/plugins-BTqvRT2J.js",
+      "bytes": 3116,
+      "gzipBytes": 1677
+    },
+    {
+      "source": "_preload-helper-BLdHbfdN.js",
+      "file": "assets/preload-helper-BLdHbfdN.js",
+      "bytes": 1519,
+      "gzipBytes": 800
+    },
+    {
+      "source": "_preview-artifact-BMsAYdhF.js",
+      "file": "assets/preview-artifact-BMsAYdhF.js",
+      "bytes": 9846,
+      "gzipBytes": 4169
+    },
+    {
+      "source": "_purify.es-BXhPiKO5.js",
+      "file": "assets/purify.es-BXhPiKO5.js",
+      "bytes": 29020,
+      "gzipBytes": 11315
+    },
+    {
+      "source": "_rolldown-runtime-Dd_uD5pT.js",
+      "file": "assets/rolldown-runtime-Dd_uD5pT.js",
+      "bytes": 1106,
+      "gzipBytes": 629
+    },
+    {
+      "source": "_runtime-dom.esm-bundler-CnnyrCGU.js",
+      "file": "assets/runtime-dom.esm-bundler-CnnyrCGU.js",
+      "bytes": 112116,
+      "gzipBytes": 42547
+    },
+    {
+      "source": "_segmented-C5UFJFcC.js",
+      "file": "assets/segmented-C5UFJFcC.js",
+      "bytes": 42318,
+      "gzipBytes": 12789
+    },
+    {
+      "source": "_skeleton-CyrpCALO.js",
+      "file": "assets/skeleton-CyrpCALO.js",
+      "bytes": 9658,
+      "gzipBytes": 3171
+    },
+    {
+      "source": "_spin-CCIR8yVV.js",
+      "file": "assets/spin-CCIR8yVV.js",
+      "bytes": 6392,
+      "gzipBytes": 2462
+    },
+    {
+      "source": "_statusUtils-uW6hk9wD.js",
+      "file": "assets/statusUtils-uW6hk9wD.js",
+      "bytes": 14406,
+      "gzipBytes": 4957
+    },
+    {
+      "source": "_svg-policy-CBTjIAI7.js",
+      "file": "assets/svg-policy-CBTjIAI7.js",
+      "bytes": 35633,
+      "gzipBytes": 11096
+    },
+    {
+      "source": "_toString-CdechC8o.js",
+      "file": "assets/toString-CdechC8o.js",
+      "bytes": 1365,
+      "gzipBytes": 720
+    },
+    {
+      "source": "_tree-select-K9r21RB2.js",
+      "file": "assets/tree-select-K9r21RB2.js",
+      "bytes": 240090,
+      "gzipBytes": 71733
+    },
+    {
+      "source": "_zoom-Boh0qh3G.js",
+      "file": "assets/zoom-Boh0qh3G.js",
+      "bytes": 10438,
+      "gzipBytes": 4393
+    },
+    {
+      "source": "components/ToDooWorkspace.vue",
+      "file": "assets/ToDooWorkspace-wZtxJ03a.js",
+      "bytes": 485873,
+      "gzipBytes": 135838
+    },
+    {
+      "source": "components/Workspace.vue",
+      "file": "assets/Workspace-gjULV60f.js",
+      "bytes": 449068,
+      "gzipBytes": 136275
+    }
+  ]
+}

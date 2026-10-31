@@ -178,7 +178,7 @@ test('tablet rotation switches between bottom tabs and the left rail and closes 
   await expect(rail).toBeVisible();
   const railBox = await rail.boundingBox();
   expect(railBox!.x).toBeCloseTo(0, 0);
-  expect(railBox!.width).toBeCloseTo(60, 0);
+  expect(railBox!.width).toBeCloseTo(64, 0);
   expect(railBox!.height).toBeCloseTo(820, 0);
   await page
     .getByRole('navigation', { name: 'To Doo 主菜单', exact: true })
@@ -310,11 +310,12 @@ test('desktop keeps the full left rail and its direct navigation', async ({ page
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/?view=apps&app=to-doo&appSection=calendar');
   await expect(tabs(page)).toBeHidden();
+  await expect(page.locator('.todo-page h1')).toHaveText('日历');
   const rail = page.locator('.workspace-footer');
   await expect(rail).toBeVisible();
   const box = await rail.boundingBox();
   expect(box!.x).toBeCloseTo(0, 0);
-  expect(box!.width).toBeCloseTo(60, 0);
+  expect(box!.width).toBeCloseTo(64, 0);
   expect(box!.height).toBeCloseTo(1000, 0);
   const menu = page.getByRole('navigation', { name: 'To Doo 主菜单', exact: true });
   await expect(menu.getByRole('button', { name: '纪念日', exact: true })).toBeVisible();
@@ -325,7 +326,7 @@ test('desktop keeps the full left rail and its direct navigation', async ({ page
     'page',
   );
   const content = await page.locator('.main-content').boundingBox();
-  expect(content!.x).toBeGreaterThanOrEqual(59);
+  expect(content!.x).toBeCloseTo(64, 0);
   expect(content!.y + content!.height).toBeCloseTo(1000, 0);
   await capture(page, info, 'desktop-rail');
 });

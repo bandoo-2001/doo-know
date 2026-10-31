@@ -1,0 +1,312 @@
+{
+  "tool": "built-in GPT Image",
+  "styleReference": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/light-sidebar-desktop.png",
+  "commonPromptFinal": "Use case: ui-mockup. Produce ONE high-resolution, front-facing, practical Chinese To Doo web-app UI screen, landscape about16:10, not a poster or device photograph. Chinese must be crisp and legible. Image1 is the authoritative REAL PRODUCT style and primary-navigation reference. Copy its quiet white/pale-gray/indigo design family, not its page content. Any other reference images supply relevant CONTENT only.\nCRITICAL SHARED SHELL, SAME ON EVERY DESKTOP PAGE: preserve the ORIGINAL VERY NARROW PRIMARY MENU, approximately60px wide, not a140–180px text sidebar. In this leftmost pale gray rail, center a small outline icon ABOVE a short small Chinese label in each item. Exact order: 任务、日历、四象限、专注、习惯、纪念日、复盘; bottom 通知、设置. Selected item uses a subtle pale-indigo rounded rectangle and blue icon/text. Never put icons and words side-by-side in this primary rail. A small back button at top; the blue check logo and \"To Doo\" wordmark live in the TOP CONTENT BAR, not squeezed horizontally into the narrow rail. Top bar includes a quiet breadcrumb. A secondary context sidebar around180px may appear ONLY for task-list/board/goal/calendar views where specified; it is distinct from the global60px rail. No full-width blue menu.\nCONSISTENT STYLE: white content, #f7f9fc-like secondary surfaces, indigo-blue primary actions, dark blue-gray readable text, restrained neutral secondary text, fine separators,6–8px rounding, compact outline icons,8px spacing rhythm. Body about14px and headings22–24px at app scale. Comfortable density, no huge decorative cards, gradients, glass, colorful illustrations, AI tools, gamification or invented integrations. One clear main action per page; quiet secondary tools. No default '无优先级' or '0份资料' metadata chips. Date plans and deadlines are distinct; only genuinely overdue items look red, due-today uses neutral/amber. Current demo date is Friday2026-10-30. Sample content is illustrative. Keep page features buildable from existing To Doo tasks/lists, manual scheduling, focus sessions/notes, habit quantities, anniversaries, review, reminders, settings, archive/import/export. Never invent backend automation or imply a mockup is an implemented screenshot. Render UI only, no external explanatory paragraphs, watermark, OS window chrome or multi-page collage unless the screen brief explicitly requests it.\nDATA LABEL PRECISION: a priority flag must say 高优先级/中优先级/低优先级, never ambiguously 重要. Where a raw date/time could be confused, label it 计划 or 截止. Do not infer that something due today is overdue. Keep the primary rail narrow and vertically stacked exactly as image1.\nCOMPLETION SEMANTICS: only actual TASK rows use completion circles. Focus-history entries use clocks, goals use target icons with derived task progress, and quantity habits use quantity inputs.",
+  "jobs": [
+    {
+      "id": "01",
+      "title": "任务列表与详情",
+      "file": "01-tasks-detail.png",
+      "selected": "任务",
+      "context": "tasks",
+      "brief": "A full task-list screen with the approved document-like detail inspector. Secondary task directory: 收集箱、今天、近七天、所有任务(selected), 目标总览, 工作、学习. Main title 所有任务; concise quick entry 添加任务，按Enter创建; compact 列表/看板/四象限 view switch and search/filter. Three title-first rows with completion circles: 整理下周计划(selected,计划 今天09:00), 撰写方案(截止 今天17:00), 归档参考资料(no metadata). Around52px per simple row. No none-priority badge. Selected tint and thin side marker. Right inspector about420px at desktop scale: top breadcrumb 收集箱 and 已保存; large editable title 整理下周计划 with completion circle at its left; quiet 待开始 and 收集箱 selectors; single-line 添加说明，或记下下一步…; property rows 计划 今天09:00·30分钟, 截止 设置截止日期, 优先级 未设置. Quiet direct 重复/提醒/资料 links and collapsed 更多详情. Bottom only 专注 and ⋯. Clean state: NO Save button. No always-open date pickers or dense form labels. Preserve whitespace; readable list width is bounded rather than infinitely stretched."
+    },
+    {
+      "id": "02",
+      "title": "任务看板",
+      "file": "02-board.png",
+      "selected": "任务",
+      "context": "tasks",
+      "brief": "Task board with same task context sidebar as list. Main title 所有任务, 看板 view active; compact 分组：按状态 selector, search/filter and ＋新建任务. Four in-use columns 待开始(3),进行中(2),受阻(1),已完成(2); quiet column count and menu. Title-first compact white cards on soft neutral columns. Examples 待开始: 整理下周计划,阅读资料,归档笔记; 进行中:撰写方案,完成中断实验; 受阻:等待接口确认; 已完成:整理需求,修复交互问题. Only meaningful dates, subtle explicit priority flags and nonzero references appear. Do not repeat the grouping label inside every card. A small clear completion action and ellipsis; NO permanent native status dropdown or footer button row on each card. Task drag between columns is supported, but no invented AI or automation. Consistent geometry and colors with the list."
+    },
+    {
+      "id": "03",
+      "title": "目标总览",
+      "file": "03-goals.png",
+      "selected": "任务",
+      "context": "tasks",
+      "brief": "Secondary task directory with 目标总览 selected. Main title 目标总览. Goals are primary, not a generic analytics dashboard. Three restrained compact goal areas: 完成方案迭代 progress4/8 deadline11月6日 next action确认信息结构; 系统学习嵌入式 progress8/20 持续推进 next action完成中断实验; 提升英语阅读 progress6/12 deadline11月30日 next action阅读一篇技术文章. Thin indigo progress, title/next action clear, one menu each, no giant colored KPI tiles. Primary ＋新建目标. Ordinary lists 工作、学习、个人 appear separately as compact navigation rows, not goals. Secondary 今日行动 list shows 整理下周计划 and 撰写方案; tiny 最近成果 list below with 方案草稿 and 实验记录. Clear hierarchy, no redundant cards within cards."
+    },
+    {
+      "id": "04",
+      "title": "日历周视图",
+      "file": "04-calendar-week.png",
+      "selected": "日历",
+      "context": "calendar",
+      "brief": "Secondary calendar navigation contains 今天、月视图、周视图(selected)、时间线. Main calendar week2026年10月26日—11月1日; arrows,今天,周/月 switch,primary ＋时间安排, one quiet 显示 filter. Seven headers 周一26、周二27、周三28、周四29、周五30(today)、周六31、周日1. 全天 strip, visible working hours08:00–18:00, fine grid and compact blocks: Monday09:00整理资料, Wednesday14:00方案讨论, Friday09:00–09:30整理下周计划, Friday14:00–15:00撰写方案. Distinct amber ◆截止17:00提交方案 marker, not an occupied-hour block. Show timezone unobtrusively. No AI scheduling, resize handles or giant options forms; manual blocks and clicking events are existing functions."
+    },
+    {
+      "id": "05",
+      "title": "日历月视图",
+      "file": "05-calendar-month.png",
+      "selected": "日历",
+      "context": "calendar",
+      "brief": "Same calendar context sidebar, 月视图 selected. Header2026年10月, arrows,今天,周/月 switch and ＋时间安排. Monday-first seven-column calendar with correct dates. Six rows: Sep28–Oct4;Oct5–11;Oct12–18;Oct19–25;Oct26–Nov1;Nov2–8. Dim outside-month dates; FridayOct30 blue today circle. Sparse real-looking schedule labels e.g Oct26整理资料,Oct28方案讨论,Oct30计划09:00整理下周计划 and distinct ◆截止17:00提交方案. On one busier day show3 compact single-line entries and ＋2项 rather than an endlessly tall cell. No tiny illegible stacked paragraphs; separators light; same page controls as week. Use the actual date/plan semantics, not invented personal event photos or external calendar accounts."
+    },
+    {
+      "id": "06",
+      "title": "时间线",
+      "file": "06-timeline.png",
+      "selected": "日历",
+      "context": "calendar",
+      "brief": "Calendar context sidebar 时间线 selected. A buildable scheduling timeline, not a project-management dependency engine. Header 时间线 and range2026年10月26日—11月22日; arrows/今天/＋时间安排. Fixed task-name column with 整理下周计划、撰写方案、完成中断实验、归档参考资料. Readable day columns show first14 days Oct26–Nov8 of the28-day range with a subtle horizontal scrollbar, sticky task names and todayOct30 line. Bars represent explicit scheduled time blocks/all-day blocks; use small amber diamond for deadline. No inferred completion percentages, dependency arrows or automatic shifting. Empty tasks show an unobtrusive blank track. Optional 连续安排 tool stays collapsed and would use preview+confirmation."
+    },
+    {
+      "id": "07",
+      "title": "四象限",
+      "file": "07-matrix.png",
+      "selected": "四象限",
+      "context": "none",
+      "brief": "Full content with no task-directory sidebar. Main title 四象限, primary ＋新建任务, quiet help. Balanced2x2 regions: 重要且紧急/立即行动 count2 with提交方案(◆截止今天17:00 in amber) and核对交付清单; 重要不紧急/安排计划 count1 with整理下周计划; 紧急不重要/协调处理 count1 with确认会议安排; 不紧急不重要/留待以后 count1 with归档参考资料. Very soft surfaces and tiny restrained red/amber/blue/green category accents, never saturated full quadrants. Compact task rows with completion circles, only necessary dates. Guidance is noninteractive text, not delegation buttons. Importance/urgency and explicit priority remain separate. Retain narrow global60px primary rail."
+    },
+    {
+      "id": "08",
+      "title": "专注项目与历史",
+      "file": "08-focus-history.png",
+      "selected": "专注",
+      "context": "none",
+      "refs": [
+        "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/light-sidebar-desktop.png",
+        "/home/bandoo/.codex/generated_images/01a18c8a-accd-74f2-bf52-b5a4bb52d8a3/exec-05b3a984-a454-4432-baa3-726009c6896f.png"
+      ],
+      "brief": "Image2 is the approved CONTENT layout but has an incorrect WIDE menu. Rebuild it with the strict60px icon-ABOVE-short-label rail from image1. Keep the useful left project list/right overview-history/bottom-left small timer composition, filling freed space with content, not a second global navigation. Left title 专注, tabs进行中/已归档, ＋新建项目; columns专注项目/今日/累计. Rows 嵌入式学习50分钟/36小时20分; 英语25分钟/18小时40分; 架构学习0分钟/12小时; 产品设计0分钟/9小时; 阅读0分钟/6小时. Row play and menu, no task checkboxes or target-hour goals. Right scope全部项目, statistics今日3次/75分钟,累计197次/82小时. Chronological CLOCK-icon records today10月30日:14:00–14:25嵌入式学习25分钟 note理解中断与任务切换;10:30–10:55英语25分钟 note阅读技术文章;09:00–09:25嵌入式学习25分钟 note复习内存布局. Yesterday10月29日:16:00–16:25架构学习25分钟;14:00–14:25产品设计25分钟. 加载更早记录 below. Bottom-left idle timer选中嵌入式学习,番茄钟/正计时/休息,25:00,关联任务(可选)不关联任务,开始专注. No pause/finish in idle. Theme/archive/history represents the requested feasible design extension, not invented AI."
+    },
+    {
+      "id": "09",
+      "title": "习惯记录",
+      "file": "09-habits.png",
+      "selected": "习惯",
+      "context": "none",
+      "brief": "No task-directory sidebar. Main title习惯, date10月30日周五, ＋新建习惯. 今天/历史 tabs, 今天 active. Three compact horizontal rows: 阅读今天10/20页, this-recording numeric input5页,记录数量; 运动今天0次 and SEPARATE本周累计2/3次, input1次,记录数量; 练习英语今天15/15分钟, small今日达标, secondary继续记录. Thin indigo progress, same outline icons/row spacing. Menu holds existing edit/skip/undo/pause-today actions; no icon should imply a quantity habit is a boolean checklist. A quiet collapsed本周记录 below. Distinguish today's quantity from weekly/monthly period success. No points, badges or full historical grid competing with today."
+    },
+    {
+      "id": "10",
+      "title": "纪念日",
+      "file": "10-anniversaries.png",
+      "selected": "纪念日",
+      "context": "none",
+      "brief": "Main title纪念日, ＋新建纪念日, no task-directory sidebar. Hierarchy today/soon/later. Today section contains项目启动纪念日 with clear就是今天 and original公历10月30日, quiet every-year marker and reminder summary09:00. Upcoming section contains阅读计划纪念日 with还有11天 and下一次2026年11月10日. Further dates compact row家人生日 with原日期:农历八月十五,下一次公历:2027年9月15日,还有320天. These lunar/Gregorian conversions and day counts are verified from2026-10-30. Calendar labels must remain distinct. Restrained warmth from a small accent, not decorative birthday artwork. Edit entry clearly marked/ellipsis, recurring and reminder states visible only when relevant; no0份资料 chips. Past one-off events can have a quiet已发生 section."
+    },
+    {
+      "id": "11",
+      "title": "统计与复盘",
+      "file": "11-review-stats.png",
+      "selected": "复盘",
+      "context": "none",
+      "brief": "Main title统计与复盘. Compact近7天/近30天/自定义 selector; 近7天 active and date context10月24日—10月30日; do not keep two editable date boxes always open. Primary写复盘. A light three-part text summary (not giant cards):完成行动12项,专注185分钟,沉淀成果3份. One primary completion trend chart seven bars dated10/24–10/30 with counts1,2,1,3,2,1,2 (sum12), legible zero-based axis. Secondary目标进展 rows with thin progress and next actions; compact复盘与成果 records below or in sibling tab. Include subtle context note selected-period statistics vs currently loaded details, and clear继续载入 if needed. Do not draw a31-day chart while labeling a longer range. No productivity scores or AI analysis."
+    },
+    {
+      "id": "12",
+      "title": "通知与提醒",
+      "file": "12-notifications.png",
+      "selected": "通知",
+      "context": "none",
+      "brief": "Main title通知, segmented待处理/稍后/历史,待处理 active. Quiet全部标为已读 (not complete-all). Three compact source-aware reminder rows: task提交方案, today16:30,截止前30分钟,primary查看任务; habit阅读,today16:00,今天10/20页,primary查看习惯; anniversary项目启动纪念日,today09:00,就是今天,primary查看日期. An unread dot is separate from handled state. Each row has one main action, quiet稍后15分钟 and overflow for read/acknowledge/dismiss, not four equal big permanent buttons. Do not conflate read with completed or snoozed with archived. History still searchable via its tab. No live OS notification popup obscuring the page, no task checkbox on focus-history records."
+    },
+    {
+      "id": "13",
+      "title": "设置",
+      "file": "13-settings.png",
+      "selected": "设置",
+      "context": "none",
+      "brief": "Main title设置. Page-local category tabs偏好/提醒与连接/数据与恢复/清单管理,偏好 selected; this local section navigation is not a second wide primary app menu. Compact sections日常使用 and日期与提醒. Fields默认视图任务列表,默认安排45分钟;显示时区Asia/Shanghai,一周开始于星期一;免打扰 enabled22:00–08:00. Collapsed任务规则 withsummary紧急48小时·层级8, collapsed专注节奏 withsummary25分钟·休息5分钟. A small有未保存的更改 indicator and one保存偏好 button make the dirty state explicit. Related tabs keep device push state/test/revoke, calendar connections, full JSON/ICS export, import preview/confirm/recovery and list/tag/template management discoverable without piling every form into this viewport. No secret values or fake synced accounts."
+    },
+    {
+      "id": "14",
+      "title": "关键创建与编辑状态",
+      "file": "14-key-editors.png",
+      "selected": "none",
+      "context": "forms",
+      "brief": "This asset is the EXPLICIT exception: a legible2-column by3-row contact sheet of SIX isolated To Doo editing panels on a quiet pale background, high resolution portrait. Same typography, input heights, labels,6px corners, buttons and separators as the full desktop pages; no full app menus inside each panel. Six states: (1)新建任务 SIDE PANEL with任务标题整理下周计划,optional任务说明,目标或清单工作,计划日期2026-10-31,更多选项 collapsed,primary创建任务 and quiet放弃草稿. (2)新建习惯 modal with名称每日阅读,周期每天/每周/每月 daily selected,目标数量20,单位页,开始今天 hint,补充信息 collapsed,取消/保存. (3)新建纪念日 modal名称家人生日,date2026-08-15,历法农历,每年重复 checked,农历闰月 unchecked,补充信息 collapsed,取消/保存. Clearly interpret entered date as lunar年月日, not converted Gregorian. (4)新建时间安排 modal title整理下周计划,date2026-10-30,time09:00,duration30分钟,全天unchecked,补充信息 collapsed,取消/保存; no all-day+clock contradiction. (5)创建成果笔记 modal context关联任务整理下周计划,title下周计划·成果,正文withshort成果与下一步,同时完成关联行动 unchecked,更多保存选项 collapsed,收起并保留输入/创建并关联. (6)新建复盘 modal名称周复盘,range2026-10-24 to2026-10-30,main复盘内容 text,补充信息 collapsed,取消/保存. These are real existing kinds and safe explicit save semantics, not automatic saving or arbitrary new setup forms."
+    },
+    {
+      "id": "15",
+      "title": "手机关键页面",
+      "file": "15-mobile.png",
+      "selected": "none",
+      "context": "mobile",
+      "brief": "This asset is the EXPLICIT exception: four complete narrow mobile web app screens side-by-side, each about390px viewport width, on a quiet neutral canvas, high-resolution landscape. Same To Doo light indigo style, no device hardware. On mobile the existing compact navigation becomes bottom tabs任务/日历/四象限/专注/更多, icons ABOVE short labels; no desktop sidebar squeezed into phones. Screens: task read-detail with large title整理下周计划,completion circle,quiet状态/清单,plan今天09:00·30分钟,截止设置日期,重复/提醒/资料,Save hidden in clean state; mobile calendar今日10月30日 agenda09:00整理下周计划30分钟,14:00撰写方案60分钟,◆截止17:00提交方案, empty days compact; focus page with项目/历史 switching,selected嵌入式学习 and today's3次75分钟,dated history clocks,small persistent25:00 idle strip abovebottomtabs开始专注; habits今日阅读10/20页 and运动今日0次/本周2/3次,quantity inputs and记录数量. Keep readable16px editable text, safe44px touch targets, no horizontal overflow or side-by-side desktop columns inside a phone. This responsive adaptation uses existing mobile navigation and the requested focus-history extension."
+    }
+  ],
+  "corrections": [
+    {
+      "id": "02",
+      "title": "看板功能标记校正",
+      "file": "02-board-v2.png",
+      "prompt": "Make targeted corrections to this To Doo board image. Preserve the complete layout, narrow icon-ABOVE-label primary rail, typography, white/indigo style, columns, task names and counts. Correct only task metadata: remove the red 重要 flag and2份资料 from 整理下周计划, since its detail view has no explicit priority or references. Its time reads 计划 今天09:00 in neutral/blue. Relabel red flags on 撰写方案 and 等待接口确认 as 高优先级, not 重要. Dates must identify plan vs deadline: 撰写方案 shows 计划 今天14:00 and 截止 今天17:00 (amber); 阅读资料 计划 今天10:15; 完成中断实验 计划 今天16:00; 等待接口确认 截止11月2日; 归档笔记 计划11月5日. Keep completed items checked; their past date labels can say 计划10月28日 and 计划10月27日. Do not add data badges or change card density. No other changes."
+    },
+    {
+      "id": "03",
+      "title": "目标总览操作语义校正",
+      "file": "03-goals-v2.png",
+      "prompt": "Preserve this To Doo goal overview's layout, narrow primary rail, all goal names, task counts, progress values and style. Make one precise semantic correction: the three empty completion circles directly before the MAIN GOAL titles 完成方案迭代、系统学习嵌入式、提升英语阅读 must become small muted outline TARGET/bullseye icons. Goals derive progress from tasks and have no independent task-completion checkbox. Keep actual task-completion circles under 下一步行动 and 今日行动 unchanged. The two goal date labels can say 目标日期11月6日 and 目标日期11月30日 rather than task截止. No other changes."
+    },
+    {
+      "id": "05",
+      "title": "月视图来源与时间校正",
+      "file": "05-calendar-month-v2.png",
+      "prompt": "Edit this existing To Doo month screen, preserving the narrow global primary rail, calendar grid dates, todayFridayOct30 highlight, style and layout. Correct functional labels in the LEFT calendar-source legend to exactly 任务计划、截止日期、外部日历; remove the unsupported 专注记录 calendar overlay. Replace 新建日历 with 管理日历来源 (existing settings/connection function). Align the key events with the week view: Oct26 09:00整理资料; Oct28 14:00方案讨论 only; Oct30 09:00整理下周计划,14:00撰写方案, and amber◆截止17:00提交方案. Remove the incorrectly placed Oct28 09:00方案讨论/14:00撰写方案 and any Oct28 extra labels. For the compact3-items-plus-more demonstration, use Oct21 outside this week:10:00阅读资料,15:00练习英语,17:00整理笔记, then ＋2项. Keep earlier/outside-month sample dates and existing correct6-row month grid. No focus-session calendar, no new external accounts, no other changes."
+    },
+    {
+      "id": "06",
+      "title": "时间线日期定位校正",
+      "file": "06-timeline-v2.png",
+      "prompt": "Preserve this timeline's app shell, narrow primary rail, task-name column, exact14 visible date columns Oct26–Nov8, header rangeOct26–Nov22, todayOct30 vertical highlight, scrollbar and restrained style. Correct only schedule geometry and labels: each SMALL single-day block must lie INSIDE its actual DATE CELL, not span unrelated days. Row整理下周计划: only FridayOct30 block09:00 /30分钟; remove its earlier 整理资料 block. Row撰写方案: only FridayOct30 block14:00 /60分钟, with a separate amber◆17:00截止 marker below in the SAME Friday cell. Remove the long mislabeled multi-day bar. Row完成中断实验: WednesdayOct28 block14:00 /120分钟 and ThursdayOct29 block10:00 /120分钟. Row归档参考资料: ThursdayNov5 block13:00 /120分钟 and SaturdayNov7 block09:00 /120分钟. Use two short text lines in each narrow day block; task names already exist in the left column. Do not repeat long titles inside cells. No dependency arrows, percentages, new projects or invented controls. No other changes."
+    },
+    {
+      "id": "07",
+      "title": "四象限独立属性校正",
+      "file": "07-matrix-v2.png",
+      "prompt": "Preserve this complete To Doo matrix screen, narrow primary rail, all four headings/guidance/counts, task names, colors and layout. Clarify that priority is independent of quadrant: keep the explicit 高优先级 badge ONLY on 提交方案. Remove the 中优先级 badges from 核对交付清单 and 整理下周计划, and remove the 低优先级 badges from 确认会议安排 and 归档参考资料; these tasks have no explicit priority in this example, so leave clean space, do not replace with 无优先级. Change 整理下周计划's metadata to 计划 今天09:00 to match task details/calendar. Keep the amber deadline 今天17:00, other planning metadata, all task completion circles and headers unchanged. No other edits."
+    },
+    {
+      "id": "10",
+      "title": "纪念日总数校正",
+      "file": "10-anniversaries-v2.png",
+      "prompt": "Make ONE text-only correction to this existing To Doo anniversaries UI: the first top filter says 全部3 but there are four displayed records (today, soon, later, past), so change it to 全部4. Preserve every other pixel as closely as possible: all dates, lunar/Gregorian labels, weekdays,320/11-day counts, task names, sections, narrow primary menu, typography and colors. No other edits."
+    },
+    {
+      "id": "11",
+      "title": "复盘统计口径校正",
+      "file": "11-review-stats-v2.png",
+      "prompt": "Preserve this To Doo statistics/review screen's narrow primary menu, layout, date range, main totals12项/185分钟/3份 and the correct seven-bar chart1,2,1,3,2,1,2. Make these targeted semantic corrections: remove all three 较上周期 comparison lines, since that comparison is not implemented. In the RIGHT 目标进展 panel replace habit/page/count examples with actual TASK-COUNT goals: 完成方案迭代 4/8项 50%, next确认信息结构; 系统学习嵌入式 8/20项 40%, next完成中断实验; 提升英语阅读 6/12项 50%, next阅读一篇技术文章. Use small target icons rather than habit sports icons; label this panel 目标进展（累计） so it is distinct from selected-period statistics. In the bottom review-record list replace the per-review badges3份成果/2份成果/1份成果 with a simple 查看复盘 link or chevron, not a fake outcome grouping. Preserve the existing general data-scope notice, load-more action and all other UI."
+    },
+    {
+      "id": "13",
+      "title": "设置时长与免打扰语义校正",
+      "file": "13-settings-v2.png",
+      "prompt": "Preserve this entire To Doo settings image, narrow global rail, all values, category tabs, dirty indicator, Save button and panel layout. Correct ONLY two helper texts: under 默认安排, replace the sentence about default focus duration with 新建时间安排的默认时长. This45-minute setting is a scheduled time-block duration, not pomodoro/focus length. Under 免打扰模式, replace the sentence promising app/device muting with 在此时段内暂缓设备通知推送，结束后继续发送. Do not promise control over operating-system audio. Keep 45分钟,Asia/Shanghai,星期一,22:00–08:00,紧急48小时·层级8 and25分钟·休息5分钟 unchanged. No other edits."
+    },
+    {
+      "id": "06",
+      "title": "时间线连续日期校正",
+      "file": "06-timeline-v3.png",
+      "prompt": "Preserve this timeline image's physical grid, all bars, today-highlighted column, typography and narrow primary rail. Correct header LABELS ONLY so its15 visible day columns are consecutive and contain no duplicated date. Keep Friday10/30 in its CURRENT SIXTH column. The15 exact column labels left-to-right must be: 周日10月25日;周一10月26日;周二10月27日;周三10月28日;周四10月29日;周五10月30日;周六10月31日;周日11月1日;周一11月2日;周二11月3日;周三11月4日;周四11月5日;周五11月6日;周六11月7日;周日11月8日. This is just relabeling the first four headers one day earlier; remaining headers already match. Change main28-day range to 2026年10月25日—11月21日. Do NOT add/delete/move grid columns or schedule bars. The first two tasks remain on todayFriday10/30. Also make the LEFT calendar view menu exactly 月视图 / 周视图 / 时间线, highlighting 时间线; remove the invented 日程列表 entry. No other changes."
+    },
+    {
+      "id": "14",
+      "title": "编辑面板字段类型校正",
+      "file": "14-key-editors-v2.png",
+      "prompt": "Preserve this exact2-column by3-row To Doo editor contact-sheet composition, typography, panel geometry, values and button styles. Correct these form semantics only. TOP-LEFT 新建任务: the 目标或清单 field must be a SINGLE-LINE DROPDOWN with selected value 收集箱 and a chevron, not a multiline steps/checklist textarea. Remove its invented steps placeholder and combined 工作 label. TOP-RIGHT 新建习惯: 单位 is a free text input value 页, with NO dropdown chevron. Replace the extra 开始时间/今天 picker with one quiet hint 从今天开始，可在补充信息中调整。, preserving only four main fields名称/重复周期/目标数量/单位. MIDDLE-LEFT 新建纪念日: keep 农历 selected and date2026-08-15; add quiet hint 按农历年月日填写. Rename the second checkbox to 日期属于农历闰月; remove the misleading 闰月时也提醒 wording. MIDDLE-RIGHT 新建时间安排: 标题 is optional and 开始时间 is optional, remove their required stars; 日期 and 时长 stay required. Keep time09:00,duration30分钟 and 全天 unchecked. BOTTOM-LEFT 创建成果笔记: associated task is fixed context, so remove its × unlink control and replace its empty checkbox-like circle with a small link icon. BOTTOM-RIGHT 新建复盘: 复盘内容 is optional, remove its required star; keep title and date range required. All explicit Save/Create/Cancel/retain-input semantics remain. No other changes or new controls."
+    },
+    {
+      "id": "15",
+      "title": "手机专注与截止语义校正",
+      "file": "15-mobile-v2.png",
+      "prompt": "Preserve this four-phone To Doo mobile contact-sheet layout, light/indigo design, task/calendar/habit content and existing bottom tabs任务/日历/四象限/专注/更多. Make targeted corrections. Set all four generic status-bar clocks to16:45 so today's already-finished focus records are not in the future. FIRST task screen: replace 无清单 with 收集箱. SECOND calendar screen: the amber 截止17:00提交方案 is a SINGLE TIME MARKER, not a17:00–18:00 occupied event: remove its hour-tall filled background and show a slim amber diamond/text at the17:00 line. THIRD focus screen must follow the new LONG-TERM PROJECT + COMPACT BOTTOM TIMER design: keep 专注,项目/历史 tabs with项目 selected and 今日已专注3次·75分钟. Replace the mixed-history/giant circular timer area with a compact project list: 嵌入式学习 今日50分钟,英语 今日25分钟,架构学习 今日0分钟,产品设计 今日0分钟,阅读 今日0分钟. Selected嵌入式学习 row may have pale tint and a small quick-start play control; no project-completion checkbox. Historical CLOCK records are reached through the 历史 tab, not mixed into this projects view. At the BOTTOM directly above navigation, use a slim persistent strip about80px high with 嵌入式学习,25:00,番茄钟 and a small blue 开始专注 button. NO giant timer ring taking half the page. Idle only, no pause/finish controls. FOURTH habits screen unchanged. No other edits."
+    },
+    {
+      "id": "14",
+      "title": "清单可选标记校正",
+      "file": "14-key-editors-v3.png",
+      "prompt": "Use case: precise-object-edit/ui-mockup. Make ONE tiny text correction in this exact six-panel To Doo editor image: in the TOP-LEFT 新建任务 panel, remove the red required asterisk immediately after the field label 目标或清单. This field is optional and defaults to 收集箱. Keep the dropdown, value收集箱, every other required asterisk, all Chinese text, all six panels, geometry, colors, borders, data and buttons unchanged. Do not redraw, add or remove anything else."
+    }
+  ],
+  "selected": [
+    {
+      "id": "01",
+      "title": "任务列表与详情",
+      "file": "01-tasks-detail.png",
+      "path": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/unified-ui-v2/01-tasks-detail.png",
+      "source": "/home/bandoo/.codex/generated_images/01a18c8a-accd-74f2-bf52-b5a4bb52d8a3/exec-dc520449-ad73-4191-93b9-d5b3880f6839.png"
+    },
+    {
+      "id": "02",
+      "title": "任务看板",
+      "file": "02-board-v2.png",
+      "path": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/unified-ui-v2/02-board-v2.png",
+      "source": "/home/bandoo/.codex/generated_images/01a18c8a-accd-74f2-bf52-b5a4bb52d8a3/exec-e0d31d31-2956-43d1-aac0-66e80ca4fcf4.png"
+    },
+    {
+      "id": "03",
+      "title": "目标总览",
+      "file": "03-goals-v2.png",
+      "path": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/unified-ui-v2/03-goals-v2.png",
+      "source": "/home/bandoo/.codex/generated_images/01a18c8a-accd-74f2-bf52-b5a4bb52d8a3/exec-a00aa799-c620-4d7c-bb8d-54f7a5eeaaeb.png"
+    },
+    {
+      "id": "04",
+      "title": "日历周视图",
+      "file": "04-calendar-week.png",
+      "path": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/unified-ui-v2/04-calendar-week.png",
+      "source": "/home/bandoo/.codex/generated_images/01a18c8a-accd-74f2-bf52-b5a4bb52d8a3/exec-9e634340-de1b-4488-9bdc-aa46eb0f6b58.png"
+    },
+    {
+      "id": "05",
+      "title": "日历月视图",
+      "file": "05-calendar-month-v2.png",
+      "path": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/unified-ui-v2/05-calendar-month-v2.png",
+      "source": "/home/bandoo/.codex/generated_images/01a18c8a-accd-74f2-bf52-b5a4bb52d8a3/exec-c2e4db82-3622-41fd-8fe1-14b2b94471bd.png"
+    },
+    {
+      "id": "06",
+      "title": "时间线",
+      "file": "06-timeline-v3.png",
+      "path": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/unified-ui-v2/06-timeline-v3.png",
+      "source": "/home/bandoo/.codex/generated_images/01a18c8a-accd-74f2-bf52-b5a4bb52d8a3/exec-ca159d1a-2a5f-4ac8-81a1-8cfb34d45e36.png"
+    },
+    {
+      "id": "07",
+      "title": "四象限",
+      "file": "07-matrix-v2.png",
+      "path": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/unified-ui-v2/07-matrix-v2.png",
+      "source": "/home/bandoo/.codex/generated_images/01a18c8a-accd-74f2-bf52-b5a4bb52d8a3/exec-54dd74ef-4571-44e4-ad2a-7ad77f2973bd.png"
+    },
+    {
+      "id": "08",
+      "title": "专注项目与历史",
+      "file": "08-focus-history.png",
+      "path": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/unified-ui-v2/08-focus-history.png",
+      "source": "/home/bandoo/.codex/generated_images/01a18c8a-accd-74f2-bf52-b5a4bb52d8a3/exec-ca969f6f-a6ff-46f5-8a71-d2ffa3b68271.png"
+    },
+    {
+      "id": "09",
+      "title": "习惯记录",
+      "file": "09-habits.png",
+      "path": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/unified-ui-v2/09-habits.png",
+      "source": "/home/bandoo/.codex/generated_images/01a18c8a-accd-74f2-bf52-b5a4bb52d8a3/exec-df3aeff0-746d-4570-a2fa-fdea34cc7ce8.png"
+    },
+    {
+      "id": "10",
+      "title": "纪念日",
+      "file": "10-anniversaries-v2.png",
+      "path": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/unified-ui-v2/10-anniversaries-v2.png",
+      "source": "/home/bandoo/.codex/generated_images/01a18c8a-accd-74f2-bf52-b5a4bb52d8a3/exec-729e94d1-252c-49e3-8dda-ad96ec021eed.png"
+    },
+    {
+      "id": "11",
+      "title": "统计与复盘",
+      "file": "11-review-stats-v2.png",
+      "path": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/unified-ui-v2/11-review-stats-v2.png",
+      "source": "/home/bandoo/.codex/generated_images/01a18c8a-accd-74f2-bf52-b5a4bb52d8a3/exec-9fb42c82-82a1-409e-9fdd-db447ad211fc.png"
+    },
+    {
+      "id": "12",
+      "title": "通知与提醒",
+      "file": "12-notifications.png",
+      "path": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/unified-ui-v2/12-notifications.png",
+      "source": "/home/bandoo/.codex/generated_images/01a18c8a-accd-74f2-bf52-b5a4bb52d8a3/exec-99cda880-1f03-4ee9-957c-c6b3ac809ff2.png"
+    },
+    {
+      "id": "13",
+      "title": "设置",
+      "file": "13-settings-v2.png",
+      "path": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/unified-ui-v2/13-settings-v2.png",
+      "source": "/home/bandoo/.codex/generated_images/01a18c8a-accd-74f2-bf52-b5a4bb52d8a3/exec-2145885b-3597-4747-85ea-f0f8648b3368.png"
+    },
+    {
+      "id": "14",
+      "title": "关键创建与编辑状态",
+      "file": "14-key-editors-v3.png",
+      "path": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/unified-ui-v2/14-key-editors-v3.png",
+      "source": "/home/bandoo/.codex/generated_images/01a18c8a-accd-74f2-bf52-b5a4bb52d8a3/exec-43b8075b-5c88-4d2f-9da6-30933b438bf3.png"
+    },
+    {
+      "id": "15",
+      "title": "手机关键页面",
+      "file": "15-mobile-v2.png",
+      "path": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/unified-ui-v2/15-mobile-v2.png",
+      "source": "/home/bandoo/.codex/generated_images/01a18c8a-accd-74f2-bf52-b5a4bb52d8a3/exec-c8484c51-c396-43ab-8d29-84fbb8720d1f.png"
+    }
+  ]
+}

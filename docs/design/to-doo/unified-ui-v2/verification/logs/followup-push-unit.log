@@ -1,0 +1,12 @@
+
+ RUN  v5.0.4 /home/bandoo/workspace/projects/doo-know
+
+
+ Test Files  4 passed (4)
+      Tests  89 passed (89)
+   Start at  08:57:09
+   Duration  4.75s (tests 84%, import 13%, transform 2%)
+
+    Isolate  4 workers spawned · ~145ms startup each (spawn + environment, per file)
+             at least ~434ms faster with isolate: false — reuses workers across files instead of one per file
+

@@ -1,11 +1,26 @@
 import { describe, expect, test } from 'vitest';
 import { createToDooWorkbench } from '../apps/web/to-doo-workbench';
+import * as presentation from '../apps/web/to-doo-presentation';
 import {
   toDooQuickFilter,
   prepareToDooQuickDraft,
   toDooDraftPayload,
   toDooDateLabel,
 } from '../apps/web/to-doo-presentation';
+
+test.each([
+  ['month', 1, { from: '2026-09-28', to: '2026-11-08' }],
+  ['week', 1, { from: '2026-10-26', to: '2026-11-01' }],
+  ['week', 0, { from: '2026-10-25', to: '2026-10-31' }],
+  ['timeline', 1, { from: '2026-10-30', to: '2026-11-26' }],
+] as const)(
+  'calendar data covers the entire %s display with week start %s',
+  (view, weekStartsOn, expected) => {
+    expect((presentation as any).toDooCalendarRange('2026-10-30', view, weekStartsOn)).toEqual(
+      expected,
+    );
+  },
+);
 
 describe('daily task navigation', () => {
   test('leaving trash for today resets incompatible filters while retaining search and tags', () => {
@@ -89,7 +104,10 @@ describe('inline task capture', () => {
     const value = draft();
     Object.assign(value, { title: '稍后安排', planDate: '', planDateCleared: true });
     const restored = JSON.parse(JSON.stringify(value));
-    expect(toDooDraftPayload(prepareToDooQuickDraft(restored, '2026-10-29', [], '2026-10-29'), 'UTC').plan).toBeNull();
+    expect(
+      toDooDraftPayload(prepareToDooQuickDraft(restored, '2026-10-29', [], '2026-10-29'), 'UTC')
+        .plan,
+    ).toBeNull();
   });
 });
 

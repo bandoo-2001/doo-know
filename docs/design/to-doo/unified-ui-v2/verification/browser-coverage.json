@@ -1,0 +1,3322 @@
+{
+  "status": "passed-by-case-consolidation",
+  "description": "All expected desktop/mobile cases reconciled against chronological native Playwright logs. Earlier failed attempts remain visible. Skips retain their original device-only conditions.",
+  "source": {
+    "sha256": "ba544fb9d70365572832c0eeb2ddde2017b9c8c9250a3c1f664d49b6e3ca0389",
+    "files": 533,
+    "head": "393979a664142dcef981abbfe6422fa70715a4fa",
+    "capturedAt": "2026-10-31T09:32:25.084666+00:00",
+    "description": "Follow-up notification snapshot cache fix; excludes test/doc sources."
+  },
+  "expectedCount": 236,
+  "counts": {
+    "passed": 234,
+    "skipped": 2
+  },
+  "cases": [
+    {
+      "project": "desktop",
+      "file": "app-main-menu.spec.ts",
+      "line": 11,
+      "title": "app rail owns main functions and settings while only contextual pages have a secondary directory",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 18
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "app-main-menu.spec.ts",
+      "line": 62,
+      "title": "returning to DooKnow preserves the mounted note draft and reentering an app restores its location",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 19
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "app-main-menu.spec.ts",
+      "line": 108,
+      "title": "cancelled app settings navigation and return retain both the route and the unsaved form",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 20
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "app-main-menu.spec.ts",
+      "line": 136,
+      "title": "cancelling browser back from unsaved app settings restores its URL and permits a later confirmed back",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 21
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "app-main-menu.spec.ts",
+      "line": 162,
+      "title": "the default app hub remains reachable and unpinned app cards restore the last app page",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 22
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "app-main-menu.spec.ts",
+      "line": 197,
+      "title": "app return restores a DooKnow collection instead of losing its last location",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 23
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "app-shortcuts.spec.ts",
+      "line": 7,
+      "title": "pins apps without opening them, retains shortcuts after reload and removes them",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 24
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "app-shortcuts.spec.ts",
+      "line": 37,
+      "title": "opening a pinned app retains the mounted unsaved note",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 25
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "app-shortcuts.spec.ts",
+      "line": 59,
+      "title": "returning to the default menu respects the unsaved To Doo confirmation before opening a pinned app",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 26
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "blog.spec.ts",
+      "line": 14,
+      "title": "blog manual publication keeps the original and public snapshots independent",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 27
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "blog.spec.ts",
+      "line": 196,
+      "title": "blog preserves per-article edits through delayed reads and real version conflicts",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 28
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "blog.spec.ts",
+      "line": 336,
+      "title": "a failed post-save preview refresh cannot publish an unreviewed source in the next click",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 29
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "notes-first.spec.ts",
+      "line": 7,
+      "title": "keeps note identity, secondary actions and editor preferences usable without losing the draft",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 30
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "notes-first.spec.ts",
+      "line": 83,
+      "title": "allows keyboard and pointer resizing of the desktop directory and remembers the width",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 31
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "notes-first.spec.ts",
+      "line": 117,
+      "title": "explains invalid plugin input and confirms a successful save without sending invalid data",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 32
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "responsive-layout.spec.ts",
+      "line": 10,
+      "title": "keeps navigation reachable and content scrolling inside the window with a long directory",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 33
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "responsive-tabbar.spec.ts",
+      "line": 37,
+      "title": "phone tabs switch pages directly and keep a selected overflow page identifiable",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 34
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "responsive-tabbar.spec.ts",
+      "line": 88,
+      "title": "tab navigation preserves the unsaved settings leave confirmation",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 35
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "responsive-tabbar.spec.ts",
+      "line": 115,
+      "title": "More and account menus keep keyboard focus inside and close one level at a time",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 36
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "responsive-tabbar.spec.ts",
+      "line": 158,
+      "title": "tablet rotation switches between bottom tabs and the left rail and closes overflow",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 37
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "responsive-tabbar.spec.ts",
+      "line": 197,
+      "title": "rotating with the account popup open closes both menus and restores a visible focus target",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 38
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "responsive-tabbar.spec.ts",
+      "line": 224,
+      "title": "large touch tablet portrait keeps bottom tabs",
+      "status": "skipped",
+      "attempts": [
+        {
+          "status": "skipped",
+          "log": "followup-cache-desktop.log",
+          "logLine": 39
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "responsive-tabbar.spec.ts",
+      "line": 232,
+      "title": "blog labels fit the phone tabbar and site settings remain reachable",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 40
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "responsive-tabbar.spec.ts",
+      "line": 283,
+      "title": "short phone landscape keeps overflow controls above the bottom tabs",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 41
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "responsive-tabbar.spec.ts",
+      "line": 309,
+      "title": "desktop keeps the full left rail and its direct navigation",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 42
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-antdv-values.spec.ts",
+      "line": 61,
+      "title": "real Ant Select saves null, false, two tag identifiers and numeric zero",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 43
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-antdv-values.spec.ts",
+      "line": 121,
+      "title": "closing the portaled outcome Modal hides it and reopening preserves the unsaved draft",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 44
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-antdv.spec.ts",
+      "line": 84,
+      "title": "period statistics and progress follow real seven-day, thirty-day and custom date requests",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 45
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-antdv.spec.ts",
+      "line": 167,
+      "title": "Ant review modal preserves a canceled discard and saves a fresh local-date review once",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 46
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-antdv.spec.ts",
+      "line": 232,
+      "title": "focus and habit quantity modals cancel without writes and persist explicit numeric receipts",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 47
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-antdv.spec.ts",
+      "line": 334,
+      "title": "320px dark Ant calendar popup and review modal keep their controls inside the viewport",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 48
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-calendar-range.spec.ts",
+      "line": 9,
+      "title": "a month query includes the entire displayed grid rather than only the anchor week",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 49
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-calendar-range.spec.ts",
+      "line": 43,
+      "title": "the initial review interval uses dataset time rather than a different browser day",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 50
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-capture-polish.spec.ts",
+      "line": 5,
+      "title": "quick capture schedules explicitly after recognizing a date and retains the chosen plan",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 51
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-capture-polish.spec.ts",
+      "line": 34,
+      "title": "Q focuses capture without stealing keys from text entry",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 52
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-capture-polish.spec.ts",
+      "line": 50,
+      "title": "clearing the contextual plan in Today survives a browser reload",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 53
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-default-view.spec.ts",
+      "line": 7,
+      "title": "saved default view applies to a fresh opening while explicit navigation and return memory win",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 54
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-detail-audit.spec.ts",
+      "line": 20,
+      "title": "moving a task to another list clears its old section and saves successfully",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 55
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-detail-audit.spec.ts",
+      "line": 55,
+      "title": "invalid typed deadline prevents saving an unrelated title change",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 56
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-detail-audit.spec.ts",
+      "line": 82,
+      "title": "input composition does not submit a task through the save shortcut",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 57
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-detail-audit.spec.ts",
+      "line": 110,
+      "title": "optional detail fields stay folded and remain editable when requested",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 58
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-detail-audit.spec.ts",
+      "line": 145,
+      "title": "320px dark detail keeps its fields and footer inside the screen",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 59
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-detail-audit.spec.ts",
+      "line": 193,
+      "title": "narrow task detail contains keyboard focus and Escape keeps its draft",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 60
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-focus-history.spec.ts",
+      "line": 6,
+      "title": "leaving focus stops polling and returning reloads the kept page",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 61
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-focus-history.spec.ts",
+      "line": 32,
+      "title": "break defaults follow the configured rhythm and zero skips without creating a session",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 62
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-focus-history.spec.ts",
+      "line": 108,
+      "title": "phone focus keeps one header and a compact timer with optional settings",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 63
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-focus-history.spec.ts",
+      "line": 124,
+      "title": "a focus project saves records, survives refresh and archives without changing its linked task",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 64
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-focus-history.spec.ts",
+      "line": 196,
+      "title": "1205 older records do not hide the current timer and history filters use real paging",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 65
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-focus-history.spec.ts",
+      "line": 269,
+      "title": "another window can finish the timer while a local note survives read and save failures",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 66
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-focus-history.spec.ts",
+      "line": 314,
+      "title": "typing while finish is pending keeps the newer note after the receipt arrives",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 67
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-focus-history.spec.ts",
+      "line": 359,
+      "title": "saving a retained note detects another window text and can preserve both versions",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 68
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-focus-history.spec.ts",
+      "line": 404,
+      "title": "an interrupted session resumes from history and active note conflicts preserve both versions",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 69
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-forms.spec.ts",
+      "line": 31,
+      "title": "a short habit form saves its optional settings and retains them when reopened",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 70
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-forms.spec.ts",
+      "line": 78,
+      "title": "an entity form locks the submitted fields while saving and restores them after failure",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 71
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-forms.spec.ts",
+      "line": 121,
+      "title": "a valid lunar day outside the Gregorian month can be saved and reopened as its original date",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 72
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-forms.spec.ts",
+      "line": 164,
+      "title": "invalid Gregorian input stays visible and cannot silently save the previous date",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 73
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-forms.spec.ts",
+      "line": 194,
+      "title": "all-day schedule hides irrelevant controls, restores the timed draft and persists a valid day",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 74
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-forms.spec.ts",
+      "line": 234,
+      "title": "changing list type does not erase its hidden goal fields",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 75
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-forms.spec.ts",
+      "line": 265,
+      "title": "invalid required settings inside a closed group are revealed on save",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 76
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-forms.spec.ts",
+      "line": 281,
+      "title": "task settings shortcuts open the existing editors with one click",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 77
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-forms.spec.ts",
+      "line": 295,
+      "title": "preference groups preserve folded values while saving a common setting",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 78
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-forms.spec.ts",
+      "line": 317,
+      "title": "settings tabs preserve drafts and keep unrelated forms out of preferences",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 79
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-forms.spec.ts",
+      "line": 342,
+      "title": "header save reveals a folded invalid preference and accepts a zero break",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 80
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-forms.spec.ts",
+      "line": 369,
+      "title": "preferences typed while a save is pending remain as the next draft: new value",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 81
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-forms.spec.ts",
+      "line": 369,
+      "title": "preferences typed while a save is pending remain as the next draft: return to original value",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 82
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-habit-cards.spec.ts",
+      "line": 4,
+      "title": "a failed quantity write retains the input and retries the same request once",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 83
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-habit-cards.spec.ts",
+      "line": 50,
+      "title": "habit cards distinguish today from weekly achievement and include all pages before recording, skipping and pausing",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 84
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-lazy-pages.spec.ts",
+      "line": 5,
+      "title": "task entry skips other page modules and a failed page can retry without losing the task draft",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 86
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-lazy-pages.spec.ts",
+      "line": 38,
+      "title": "page-header actions wait for a delayed review module",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 87
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-light-sidebar.spec.ts",
+      "line": 39,
+      "title": "a clean narrow dark task shows its content and date summary without edit controls",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 88
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-light-sidebar.spec.ts",
+      "line": 72,
+      "title": "explicit save preserves failed title and description edits and retries the same submission",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 89
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-light-sidebar.spec.ts",
+      "line": 133,
+      "title": "deadline editing updates the summary and stays closed after reopening or changing tasks",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 90
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-light-sidebar.spec.ts",
+      "line": 192,
+      "title": "title completion preserves an unsaved description and saving it keeps the task completed",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 91
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-loading.spec.ts",
+      "line": 60,
+      "title": "an initial task request shows Ant skeletons until the usable task list arrives",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 92
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-loading.spec.ts",
+      "line": 90,
+      "title": "a failed refresh retains the task DOM, search focus and content position",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 93
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-loading.spec.ts",
+      "line": 143,
+      "title": "reduced motion keeps the loading placeholder static and an initial failure can retry",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 94
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-loading.spec.ts",
+      "line": 179,
+      "title": "a cold To Doo component download has the same branded loading feedback",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 95
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-loading.spec.ts",
+      "line": 208,
+      "title": "returning during a cold To Doo download is safe and its late completion preserves the destination",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 96
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-mcp-roundtrip.spec.ts",
+      "line": 9,
+      "title": "browser writes and SDK writes share the actual dataset and live resource grants",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 97
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-mobile-lists.spec.ts",
+      "line": 38,
+      "title": "mobile navigation opens personal lists and quick capture inherits the selected list",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 98
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-mobile-lists.spec.ts",
+      "line": 100,
+      "title": "closing mobile new-list creation keeps the current list selected",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 99
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-notification-history.spec.ts",
+      "line": 22,
+      "title": "recent notifications and mark-all include unread records beyond the first 200",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 100
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-notification-history.spec.ts",
+      "line": 97,
+      "title": "a recurring task notification opens its own execution rather than the first task execution",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 101
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-push-worker.spec.ts",
+      "line": 9,
+      "title": "the real notification worker receives push, wakes after restart and preserves the task draft",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-worker-desktop.log",
+          "logLine": 18
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-reminders.spec.ts",
+      "line": 61,
+      "title": "older reminder summaries use the app badge and live cards stay below edit dialogs",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-other-desktop.log",
+          "logLine": 18
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-reminders.spec.ts",
+      "line": 99,
+      "title": "workspace reminder card completes a real task and fits the viewport",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-other-desktop.log",
+          "logLine": 19
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-reminders.spec.ts",
+      "line": 120,
+      "title": "activating a desktop notification keeps the current unsaved note and opens its reminder",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-other-desktop.log",
+          "logLine": 20
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-reminders.spec.ts",
+      "line": 169,
+      "title": "cold notification links open the right habit and record the entered amount once",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-other-desktop.log",
+          "logLine": 21
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-reminders.spec.ts",
+      "line": 189,
+      "title": "closing a cold notification card prevents that generation from reopening on refresh",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-other-desktop.log",
+          "logLine": 22
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-reminders.spec.ts",
+      "line": 202,
+      "title": "switching from an exact reminder occurrence to another task clears the old occurrence",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-other-desktop.log",
+          "logLine": 23
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-review-period.spec.ts",
+      "line": 9,
+      "title": "saving a review retains the applied interval when the following refresh fails",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 102
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-task-row-clarity.spec.ts",
+      "line": 26,
+      "title": "the opened recurring occurrence is active independently of batch selection",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 103
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-task-row-clarity.spec.ts",
+      "line": 75,
+      "title": "plan and deadline labels keep an overdue deadline separate from tomorrow’s plan",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 104
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-unified-shell.spec.ts",
+      "line": 6,
+      "title": "a long page title leaves the main action visible on a narrow screen",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-other-desktop.log",
+          "logLine": 24
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-unified-shell.spec.ts",
+      "line": 32,
+      "title": "the shared header keeps save visible while a long settings form scrolls",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-other-desktop.log",
+          "logLine": 25
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-unified-shell.spec.ts",
+      "line": 55,
+      "title": "desktop pages share the global header and contextual layout boundaries",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-other-desktop.log",
+          "logLine": 26
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-unified-shell.spec.ts",
+      "line": 126,
+      "title": "the light shell and task detail fit all supported widths and the host navigation",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-other-desktop.log",
+          "logLine": 27
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-unified-shell.spec.ts",
+      "line": 126,
+      "title": "the dark shell and task detail fit all supported widths and the host navigation",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-other-desktop.log",
+          "logLine": 28
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-ux.spec.ts",
+      "line": 20,
+      "title": "quick add today persists its plan without opening details and keeps completed tasks folded",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-other-desktop.log",
+          "logLine": 29
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-ux.spec.ts",
+      "line": 80,
+      "title": "quick add inherits the selected list and clearing filters restores tasks across views",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-other-desktop.log",
+          "logLine": 30
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-ux.spec.ts",
+      "line": 129,
+      "title": "quick add keeps its draft after a failed POST and retries into real server data",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-other-desktop.log",
+          "logLine": 31
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-ux.spec.ts",
+      "line": 166,
+      "title": "today and inbox quick navigation survive reload and browser history",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-other-desktop.log",
+          "logLine": 32
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-ux.spec.ts",
+      "line": 192,
+      "title": "wide task details continue the quick draft and submit exactly one real task",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-other-desktop.log",
+          "logLine": 33
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-ux.spec.ts",
+      "line": 227,
+      "title": "discarding a wide new-task detail clears its original list draft and preserves another list",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-other-desktop.log",
+          "logLine": 34
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-ux.spec.ts",
+      "line": 274,
+      "title": "quick entry stays usable in a 320px dark workspace",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-other-desktop.log",
+          "logLine": 35
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-ux.spec.ts",
+      "line": 297,
+      "title": "deleting a list immediately removes it from the sidebar catalog",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-other-desktop.log",
+          "logLine": 36
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-ux.spec.ts",
+      "line": 319,
+      "title": "retrying a deleted list refreshes the sidebar after its editor was closed",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-other-desktop.log",
+          "logLine": 37
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-ux.spec.ts",
+      "line": 351,
+      "title": "quick view time zones › initial today quick view uses the loaded workspace time zone across midnight",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-other-desktop.log",
+          "logLine": 38
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-visible-workspace.spec.ts",
+      "line": 29,
+      "title": "primary tools and contextual task directories are discoverable without expanding hidden groups",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 105
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-visible-workspace.spec.ts",
+      "line": 63,
+      "title": "matrix uses four distinguishable surfaces and explains each action without wasting the viewport",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 106
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-visible-workspace.spec.ts",
+      "line": 116,
+      "title": "mobile navigation keeps keyboard focus inside and restores the opener on Escape",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 107
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-visible-workspace.spec.ts",
+      "line": 143,
+      "title": "leaving from navigation keeps focus on the unsaved confirmation and retains a cancelled draft",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 108
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo-visible-workspace.spec.ts",
+      "line": 169,
+      "title": "priority edits persist independently from visible matrix classification and dates",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 109
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo.spec.ts",
+      "line": 18,
+      "title": "To Doo creates a real goal and task, preserves edits, completes and survives refresh",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 110
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo.spec.ts",
+      "line": 97,
+      "title": "all To Doo sections are reachable on narrow and dark workspaces without overflow",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 111
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo.spec.ts",
+      "line": 169,
+      "title": "focus, habit check-ins, anniversary and real CSV import/export use durable server data",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 112
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo.spec.ts",
+      "line": 259,
+      "title": "To Doo source and evidence › an unsaved note can create a linked action and a real outcome note without overwriting its source",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 113
+        }
+      ]
+    },
+    {
+      "project": "desktop",
+      "file": "to-doo.spec.ts",
+      "line": 413,
+      "title": "bulk and cascade completion freeze execution membership and persist their actual states",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-cache-desktop.log",
+          "logLine": 114
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "app-main-menu.spec.ts",
+      "line": 11,
+      "title": "app rail owns main functions and settings while only contextual pages have a secondary directory",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 18
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "app-main-menu.spec.ts",
+      "line": 62,
+      "title": "returning to DooKnow preserves the mounted note draft and reentering an app restores its location",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 19
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "app-main-menu.spec.ts",
+      "line": 108,
+      "title": "cancelled app settings navigation and return retain both the route and the unsaved form",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 20
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "app-main-menu.spec.ts",
+      "line": 136,
+      "title": "cancelling browser back from unsaved app settings restores its URL and permits a later confirmed back",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 21
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "app-main-menu.spec.ts",
+      "line": 162,
+      "title": "the default app hub remains reachable and unpinned app cards restore the last app page",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 22
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "app-main-menu.spec.ts",
+      "line": 197,
+      "title": "app return restores a DooKnow collection instead of losing its last location",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 23
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "app-shortcuts.spec.ts",
+      "line": 7,
+      "title": "pins apps without opening them, retains shortcuts after reload and removes them",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 24
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "app-shortcuts.spec.ts",
+      "line": 37,
+      "title": "opening a pinned app retains the mounted unsaved note",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 25
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "app-shortcuts.spec.ts",
+      "line": 59,
+      "title": "returning to the default menu respects the unsaved To Doo confirmation before opening a pinned app",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 26
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "blog.spec.ts",
+      "line": 14,
+      "title": "blog manual publication keeps the original and public snapshots independent",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 27
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "blog.spec.ts",
+      "line": 196,
+      "title": "blog preserves per-article edits through delayed reads and real version conflicts",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 28
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "blog.spec.ts",
+      "line": 336,
+      "title": "a failed post-save preview refresh cannot publish an unreviewed source in the next click",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 29
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "notes-first.spec.ts",
+      "line": 7,
+      "title": "keeps note identity, secondary actions and editor preferences usable without losing the draft",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 30
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "notes-first.spec.ts",
+      "line": 83,
+      "title": "allows keyboard and pointer resizing of the desktop directory and remembers the width",
+      "status": "skipped",
+      "attempts": [
+        {
+          "status": "skipped",
+          "log": "followup-mobile.log",
+          "logLine": 31
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "notes-first.spec.ts",
+      "line": 117,
+      "title": "explains invalid plugin input and confirms a successful save without sending invalid data",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 32
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "responsive-layout.spec.ts",
+      "line": 10,
+      "title": "keeps navigation reachable and content scrolling inside the window with a long directory",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 33
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "responsive-tabbar.spec.ts",
+      "line": 37,
+      "title": "phone tabs switch pages directly and keep a selected overflow page identifiable",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 34
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "responsive-tabbar.spec.ts",
+      "line": 88,
+      "title": "tab navigation preserves the unsaved settings leave confirmation",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 35
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "responsive-tabbar.spec.ts",
+      "line": 115,
+      "title": "More and account menus keep keyboard focus inside and close one level at a time",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 36
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "responsive-tabbar.spec.ts",
+      "line": 158,
+      "title": "tablet rotation switches between bottom tabs and the left rail and closes overflow",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 37
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "responsive-tabbar.spec.ts",
+      "line": 197,
+      "title": "rotating with the account popup open closes both menus and restores a visible focus target",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 38
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "responsive-tabbar.spec.ts",
+      "line": 224,
+      "title": "large touch tablet portrait keeps bottom tabs",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 39
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "responsive-tabbar.spec.ts",
+      "line": 232,
+      "title": "blog labels fit the phone tabbar and site settings remain reachable",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 40
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "responsive-tabbar.spec.ts",
+      "line": 283,
+      "title": "short phone landscape keeps overflow controls above the bottom tabs",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 41
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "responsive-tabbar.spec.ts",
+      "line": 309,
+      "title": "desktop keeps the full left rail and its direct navigation",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 42
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-antdv-values.spec.ts",
+      "line": 61,
+      "title": "real Ant Select saves null, false, two tag identifiers and numeric zero",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 43
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-antdv-values.spec.ts",
+      "line": 121,
+      "title": "closing the portaled outcome Modal hides it and reopening preserves the unsaved draft",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 44
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-antdv.spec.ts",
+      "line": 84,
+      "title": "period statistics and progress follow real seven-day, thirty-day and custom date requests",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 45
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-antdv.spec.ts",
+      "line": 167,
+      "title": "Ant review modal preserves a canceled discard and saves a fresh local-date review once",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 46
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-antdv.spec.ts",
+      "line": 232,
+      "title": "focus and habit quantity modals cancel without writes and persist explicit numeric receipts",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 47
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-antdv.spec.ts",
+      "line": 334,
+      "title": "320px dark Ant calendar popup and review modal keep their controls inside the viewport",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 48
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-calendar-range.spec.ts",
+      "line": 9,
+      "title": "a month query includes the entire displayed grid rather than only the anchor week",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 49
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-calendar-range.spec.ts",
+      "line": 43,
+      "title": "the initial review interval uses dataset time rather than a different browser day",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 50
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-capture-polish.spec.ts",
+      "line": 5,
+      "title": "quick capture schedules explicitly after recognizing a date and retains the chosen plan",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 51
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-capture-polish.spec.ts",
+      "line": 34,
+      "title": "Q focuses capture without stealing keys from text entry",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 52
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-capture-polish.spec.ts",
+      "line": 50,
+      "title": "clearing the contextual plan in Today survives a browser reload",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 53
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-default-view.spec.ts",
+      "line": 7,
+      "title": "saved default view applies to a fresh opening while explicit navigation and return memory win",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 54
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-detail-audit.spec.ts",
+      "line": 20,
+      "title": "moving a task to another list clears its old section and saves successfully",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 55
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-detail-audit.spec.ts",
+      "line": 55,
+      "title": "invalid typed deadline prevents saving an unrelated title change",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 56
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-detail-audit.spec.ts",
+      "line": 82,
+      "title": "input composition does not submit a task through the save shortcut",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 57
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-detail-audit.spec.ts",
+      "line": 110,
+      "title": "optional detail fields stay folded and remain editable when requested",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 58
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-detail-audit.spec.ts",
+      "line": 145,
+      "title": "320px dark detail keeps its fields and footer inside the screen",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 59
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-detail-audit.spec.ts",
+      "line": 193,
+      "title": "narrow task detail contains keyboard focus and Escape keeps its draft",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 60
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-focus-history.spec.ts",
+      "line": 6,
+      "title": "leaving focus stops polling and returning reloads the kept page",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 61
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-focus-history.spec.ts",
+      "line": 32,
+      "title": "break defaults follow the configured rhythm and zero skips without creating a session",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 62
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-focus-history.spec.ts",
+      "line": 108,
+      "title": "phone focus keeps one header and a compact timer with optional settings",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 63
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-focus-history.spec.ts",
+      "line": 124,
+      "title": "a focus project saves records, survives refresh and archives without changing its linked task",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 64
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-focus-history.spec.ts",
+      "line": 196,
+      "title": "1205 older records do not hide the current timer and history filters use real paging",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 65
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-focus-history.spec.ts",
+      "line": 269,
+      "title": "another window can finish the timer while a local note survives read and save failures",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 66
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-focus-history.spec.ts",
+      "line": 314,
+      "title": "typing while finish is pending keeps the newer note after the receipt arrives",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 67
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-focus-history.spec.ts",
+      "line": 359,
+      "title": "saving a retained note detects another window text and can preserve both versions",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 68
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-focus-history.spec.ts",
+      "line": 404,
+      "title": "an interrupted session resumes from history and active note conflicts preserve both versions",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 69
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-forms.spec.ts",
+      "line": 31,
+      "title": "a short habit form saves its optional settings and retains them when reopened",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 70
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-forms.spec.ts",
+      "line": 78,
+      "title": "an entity form locks the submitted fields while saving and restores them after failure",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 71
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-forms.spec.ts",
+      "line": 121,
+      "title": "a valid lunar day outside the Gregorian month can be saved and reopened as its original date",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 72
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-forms.spec.ts",
+      "line": 164,
+      "title": "invalid Gregorian input stays visible and cannot silently save the previous date",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 73
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-forms.spec.ts",
+      "line": 194,
+      "title": "all-day schedule hides irrelevant controls, restores the timed draft and persists a valid day",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 74
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-forms.spec.ts",
+      "line": 234,
+      "title": "changing list type does not erase its hidden goal fields",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 75
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-forms.spec.ts",
+      "line": 265,
+      "title": "invalid required settings inside a closed group are revealed on save",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 76
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-forms.spec.ts",
+      "line": 281,
+      "title": "task settings shortcuts open the existing editors with one click",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 77
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-forms.spec.ts",
+      "line": 295,
+      "title": "preference groups preserve folded values while saving a common setting",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 78
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-forms.spec.ts",
+      "line": 317,
+      "title": "settings tabs preserve drafts and keep unrelated forms out of preferences",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 79
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-forms.spec.ts",
+      "line": 342,
+      "title": "header save reveals a folded invalid preference and accepts a zero break",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 80
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-forms.spec.ts",
+      "line": 369,
+      "title": "preferences typed while a save is pending remain as the next draft: new value",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 81
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-forms.spec.ts",
+      "line": 369,
+      "title": "preferences typed while a save is pending remain as the next draft: return to original value",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 82
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-habit-cards.spec.ts",
+      "line": 4,
+      "title": "a failed quantity write retains the input and retries the same request once",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 83
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-habit-cards.spec.ts",
+      "line": 50,
+      "title": "habit cards distinguish today from weekly achievement and include all pages before recording, skipping and pausing",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 84
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-lazy-pages.spec.ts",
+      "line": 5,
+      "title": "task entry skips other page modules and a failed page can retry without losing the task draft",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 86
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-lazy-pages.spec.ts",
+      "line": 38,
+      "title": "page-header actions wait for a delayed review module",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 87
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-light-sidebar.spec.ts",
+      "line": 39,
+      "title": "a clean narrow dark task shows its content and date summary without edit controls",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 88
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-light-sidebar.spec.ts",
+      "line": 72,
+      "title": "explicit save preserves failed title and description edits and retries the same submission",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 89
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-light-sidebar.spec.ts",
+      "line": 133,
+      "title": "deadline editing updates the summary and stays closed after reopening or changing tasks",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 90
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-light-sidebar.spec.ts",
+      "line": 192,
+      "title": "title completion preserves an unsaved description and saving it keeps the task completed",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 91
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-loading.spec.ts",
+      "line": 60,
+      "title": "an initial task request shows Ant skeletons until the usable task list arrives",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 92
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-loading.spec.ts",
+      "line": 90,
+      "title": "a failed refresh retains the task DOM, search focus and content position",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 93
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-loading.spec.ts",
+      "line": 143,
+      "title": "reduced motion keeps the loading placeholder static and an initial failure can retry",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 94
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-loading.spec.ts",
+      "line": 179,
+      "title": "a cold To Doo component download has the same branded loading feedback",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 95
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-loading.spec.ts",
+      "line": 208,
+      "title": "returning during a cold To Doo download is safe and its late completion preserves the destination",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 96
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-mcp-roundtrip.spec.ts",
+      "line": 9,
+      "title": "browser writes and SDK writes share the actual dataset and live resource grants",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 97
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-mobile-lists.spec.ts",
+      "line": 38,
+      "title": "mobile navigation opens personal lists and quick capture inherits the selected list",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 98
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-mobile-lists.spec.ts",
+      "line": 100,
+      "title": "closing mobile new-list creation keeps the current list selected",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 99
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-notification-history.spec.ts",
+      "line": 22,
+      "title": "recent notifications and mark-all include unread records beyond the first 200",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 100
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-notification-history.spec.ts",
+      "line": 97,
+      "title": "a recurring task notification opens its own execution rather than the first task execution",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 101
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-push-worker.spec.ts",
+      "line": 9,
+      "title": "the real notification worker receives push, wakes after restart and preserves the task draft",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 138
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-reminders.spec.ts",
+      "line": 61,
+      "title": "older reminder summaries use the app badge and live cards stay below edit dialogs",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 102
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-reminders.spec.ts",
+      "line": 99,
+      "title": "workspace reminder card completes a real task and fits the viewport",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 103
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-reminders.spec.ts",
+      "line": 120,
+      "title": "activating a desktop notification keeps the current unsaved note and opens its reminder",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 104
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-reminders.spec.ts",
+      "line": 169,
+      "title": "cold notification links open the right habit and record the entered amount once",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 105
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-reminders.spec.ts",
+      "line": 189,
+      "title": "closing a cold notification card prevents that generation from reopening on refresh",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 106
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-reminders.spec.ts",
+      "line": 202,
+      "title": "switching from an exact reminder occurrence to another task clears the old occurrence",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 107
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-review-period.spec.ts",
+      "line": 9,
+      "title": "saving a review retains the applied interval when the following refresh fails",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 108
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-task-row-clarity.spec.ts",
+      "line": 26,
+      "title": "the opened recurring occurrence is active independently of batch selection",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 109
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-task-row-clarity.spec.ts",
+      "line": 75,
+      "title": "plan and deadline labels keep an overdue deadline separate from tomorrow’s plan",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 110
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-unified-shell.spec.ts",
+      "line": 6,
+      "title": "a long page title leaves the main action visible on a narrow screen",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 111
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-unified-shell.spec.ts",
+      "line": 32,
+      "title": "the shared header keeps save visible while a long settings form scrolls",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 112
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-unified-shell.spec.ts",
+      "line": 55,
+      "title": "desktop pages share the global header and contextual layout boundaries",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 113
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-unified-shell.spec.ts",
+      "line": 126,
+      "title": "the light shell and task detail fit all supported widths and the host navigation",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 114
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-unified-shell.spec.ts",
+      "line": 126,
+      "title": "the dark shell and task detail fit all supported widths and the host navigation",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 115
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-ux.spec.ts",
+      "line": 20,
+      "title": "quick add today persists its plan without opening details and keeps completed tasks folded",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 116
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-ux.spec.ts",
+      "line": 80,
+      "title": "quick add inherits the selected list and clearing filters restores tasks across views",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 117
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-ux.spec.ts",
+      "line": 129,
+      "title": "quick add keeps its draft after a failed POST and retries into real server data",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 118
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-ux.spec.ts",
+      "line": 166,
+      "title": "today and inbox quick navigation survive reload and browser history",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 119
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-ux.spec.ts",
+      "line": 192,
+      "title": "wide task details continue the quick draft and submit exactly one real task",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 120
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-ux.spec.ts",
+      "line": 227,
+      "title": "discarding a wide new-task detail clears its original list draft and preserves another list",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 121
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-ux.spec.ts",
+      "line": 274,
+      "title": "quick entry stays usable in a 320px dark workspace",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 122
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-ux.spec.ts",
+      "line": 297,
+      "title": "deleting a list immediately removes it from the sidebar catalog",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 123
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-ux.spec.ts",
+      "line": 319,
+      "title": "retrying a deleted list refreshes the sidebar after its editor was closed",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 124
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-ux.spec.ts",
+      "line": 351,
+      "title": "quick view time zones › initial today quick view uses the loaded workspace time zone across midnight",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 125
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-visible-workspace.spec.ts",
+      "line": 29,
+      "title": "primary tools and contextual task directories are discoverable without expanding hidden groups",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 126
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-visible-workspace.spec.ts",
+      "line": 63,
+      "title": "matrix uses four distinguishable surfaces and explains each action without wasting the viewport",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 127
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-visible-workspace.spec.ts",
+      "line": 116,
+      "title": "mobile navigation keeps keyboard focus inside and restores the opener on Escape",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 128
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-visible-workspace.spec.ts",
+      "line": 143,
+      "title": "leaving from navigation keeps focus on the unsaved confirmation and retains a cancelled draft",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 129
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo-visible-workspace.spec.ts",
+      "line": 169,
+      "title": "priority edits persist independently from visible matrix classification and dates",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 130
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo.spec.ts",
+      "line": 18,
+      "title": "To Doo creates a real goal and task, preserves edits, completes and survives refresh",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 131
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo.spec.ts",
+      "line": 97,
+      "title": "all To Doo sections are reachable on narrow and dark workspaces without overflow",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 132
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo.spec.ts",
+      "line": 169,
+      "title": "focus, habit check-ins, anniversary and real CSV import/export use durable server data",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 133
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo.spec.ts",
+      "line": 259,
+      "title": "To Doo source and evidence › an unsaved note can create a linked action and a real outcome note without overwriting its source",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 134
+        }
+      ]
+    },
+    {
+      "project": "mobile",
+      "file": "to-doo.spec.ts",
+      "line": 413,
+      "title": "bulk and cascade completion freeze execution membership and persist their actual states",
+      "status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "log": "followup-mobile.log",
+          "logLine": 135
+        }
+      ]
+    }
+  ]
+}

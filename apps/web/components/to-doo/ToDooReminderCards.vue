@@ -9,6 +9,9 @@ import {
 } from '../../to-doo-reminders';
 import type { ToDooReminderCard } from '../../../../shared/to-doo-reminders';
 
+const props = withDefaults(defineProps<{ showMissedSummary?: boolean }>(), {
+  showMissedSummary: true,
+});
 const emit = defineEmits<{ open: [card?: ToDooReminderCard]; 'consume-link': [] }>();
 let channel: BroadcastChannel | undefined;
 const controller = createToDooReminderController(api, {
@@ -21,14 +24,11 @@ const current = ref(0),
   minutes = ref(15),
   amount = ref<number | undefined>(1);
 const card = computed(() => state.cards[Math.min(current.value, state.cards.length - 1)]);
-watch(
-  () => [card.value?.event.id, card.value?.event.deliveryGeneration],
-  () => {
-    const habit = card.value?.habit;
-    amount.value = habit ? Math.max(0.001, habit.target - habit.amount) : 1;
-    minutes.value = 15;
-  },
-);
+watch([() => card.value?.event.id, () => card.value?.event.deliveryGeneration], () => {
+  const habit = card.value?.habit;
+  amount.value = habit ? Math.max(0.001, habit.target - habit.amount) : 1;
+  minutes.value = 15;
+});
 const clock = computed(() => {
   if (!card.value) return '';
   const date = new Date(card.value.event.snoozedUntil ?? card.value.event.scheduledAt);
@@ -128,7 +128,7 @@ onBeforeUnmount(() => {
 <template>
   <Teleport to="body">
     <section
-      v-if="card || state.error || state.missedCount"
+      v-if="card || state.error || (props.showMissedSummary && state.missedCount)"
       class="reminder-stack"
       aria-label="到点提醒"
     >
@@ -242,7 +242,10 @@ onBeforeUnmount(() => {
           >查看通知中心</AButton
         >
       </div>
-      <AButton v-if="state.missedCount" class="reminder-missed" @click="emit('open')"
+      <AButton
+        v-if="props.showMissedSummary && state.missedCount"
+        class="reminder-missed"
+        @click="emit('open')"
         >还有 {{ state.missedCount }} 条较早提醒，查看通知中心</AButton
       >
     </section>
@@ -255,7 +258,7 @@ onBeforeUnmount(() => {
   right: 24px;
   bottom: calc(44px + var(--workspace-bottom-inset, 0px));
   width: min(400px, calc(100vw - 32px));
-  z-index: 1050;
+  z-index: 90;
   color: var(--text, #202534);
   font-family: inherit;
 }

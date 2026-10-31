@@ -19,7 +19,7 @@ const props = withDefaults(
     showSearch?: boolean;
     allowClear?: boolean;
   }>(),
-  { showSearch: true },
+  { showSearch: true, disabled: undefined },
 );
 const emit = defineEmits<{
   'update:modelValue': [value: any];

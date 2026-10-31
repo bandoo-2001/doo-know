@@ -22,9 +22,9 @@ async function command(page: Page, action: string, payload: Record<string, unkno
   expect(response.ok(), await response.text()).toBe(true);
   return response.json();
 }
-async function seedReminder(page: Page, habit = false) {
+async function seedReminder(page: Page, habit = false, minutesAgo = 1) {
   const title = (habit ? '提醒打卡 ' : '提醒任务 ') + crypto.randomUUID();
-  const at = new Date(Date.now() - 60000).toISOString();
+  const at = new Date(Date.now() - minutesAgo * 60000).toISOString();
   const reminders = [{ id: crypto.randomUUID(), anchor: 'absolute', at }];
   const saved = habit
     ? await command(page, 'save_entity', {
@@ -57,6 +57,44 @@ async function seedReminder(page: Page, habit = false) {
   return { id, title, sourceId: saved.ids[0] };
 }
 const cards = (page: Page) => page.getByRole('region', { name: '到点提醒', exact: true });
+
+test('older reminder summaries use the app badge and live cards stay below edit dialogs', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 700 });
+  const old = await seedReminder(page, false, 30);
+  const pending = page.waitForResponse(
+    (response) => new URL(response.url()).pathname === '/api/to-doo/reminders/pending',
+  );
+  await page.goto('/?view=apps&app=to-doo&appSection=settings');
+  expect((await (await pending).json()).missedCount).toBeGreaterThan(0);
+  const app = page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
+  await expect(app.getByLabel('显示时区', { exact: true })).toBeVisible();
+  const feed = await (await page.request.get('/api/to-doo/reminders/pending')).json();
+  expect(feed.missedCount).toBeGreaterThan(0);
+  await expect(app.getByRole('button', { name: '打开通知中心', exact: true })).toContainText(/\d+/);
+  await expect(page.locator('.reminder-missed')).not.toBeVisible();
+  const stored = await (
+    await page.request.get('/api/to-doo/state?kind=reminderEvent&ids=' + old.id)
+  ).json();
+  expect(stored.reminderEvents[0].userState).toBe('unread');
+  await page.goto('/?view=apps');
+  await expect(page.locator('.reminder-missed')).toBeVisible();
+  const live = await seedReminder(page);
+  await page.goto('/?view=apps&app=to-doo&appSection=habits');
+  await expect(cards(page).getByRole('heading', { name: live.title, exact: true })).toBeVisible();
+  await app.getByRole('button', { name: /新建习惯/ }).click();
+  const editor = page.getByRole('dialog', { name: '新建习惯', exact: true });
+  await expect(editor).toBeVisible();
+  const layers = await page.evaluate(() => ({
+    reminder: Number(getComputedStyle(document.querySelector('.reminder-stack')!).zIndex),
+    modal: Number(getComputedStyle(document.querySelector('.ant-modal-wrap')!).zIndex),
+  }));
+  expect(layers.reminder).toBeLessThan(layers.modal);
+  await editor.getByRole('button', { name: '取消', exact: true }).click();
+  await expect(editor).not.toBeVisible();
+  await cards(page).getByRole('button', { name: '关闭这条提醒', exact: true }).click();
+});
 
 test('workspace reminder card completes a real task and fits the viewport', async ({
   page,

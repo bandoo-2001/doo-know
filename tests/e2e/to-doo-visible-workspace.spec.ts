@@ -6,6 +6,7 @@ import {
   goToToDooSection,
   openToDooDirectory,
 } from '../support/to-doo-navigation';
+import { expandToDooGroup } from '../support/to-doo-ant-controls';
 
 async function command(
   page: import('@playwright/test').Page,
@@ -207,7 +208,8 @@ test('priority edits persist independently from visible matrix classification an
     const row = quadrants.nth(index).locator('.todo-task-row').filter({ hasText: title });
     await expect(row).toBeVisible();
     await expect(row.locator('.todo-task-deadline')).toBeVisible();
-    await expect(row.locator('.todo-priority-label')).toBeVisible();
+    if (index === 3) await expect(row.locator('.todo-priority-label')).toHaveCount(0);
+    else await expect(row.locator('.todo-priority-label')).toBeVisible();
   }
   await page.screenshot({
     path: `.local/to-doo-visible-workspace/${info.project.name}-matrix-populated.png`,
@@ -215,6 +217,7 @@ test('priority edits persist independently from visible matrix classification an
   });
   await quadrants.first().getByRole('button', { name: '提交产品方案', exact: true }).click();
   const detail = page.getByRole('complementary', { name: '任务详情', exact: true });
+  await expandToDooGroup(detail, '四象限归类');
   await expect(detail.getByLabel('重要程度', { exact: true })).toBeVisible();
   await expect(detail.getByLabel('紧急程度', { exact: true })).toBeVisible();
   await detail.locator('.todo-priority-select').click();

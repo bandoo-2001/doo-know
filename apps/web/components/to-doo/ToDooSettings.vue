@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ToDooDisclosure from './ToDooDisclosure.vue';
+import ToDooFormLayout from './ToDooFormLayout.vue';
 import {
   Alert as AAlert,
   Button as AButton,
@@ -8,6 +9,8 @@ import {
   Input as AInput,
   InputNumber as AInputNumber,
   Progress as AProgress,
+  Tabs as ATabs,
+  TabPane as ATabPane,
   Textarea as ATextarea,
 } from 'ant-design-vue';
 import ToDooSelect from './ToDooSelect.vue';
@@ -19,7 +22,8 @@ import {
   type ToDooCurrentPushDevice,
   type ToDooPushHost,
 } from '../../to-doo-push';
-import { computed, onMounted, onActivated, onUnmounted, reactive, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, onActivated, onUnmounted, reactive, ref, watch } from 'vue';
+import { toDooEntitySchemas } from '../../../../shared/to-doo-contracts';
 import type {
   ToDooEntityKind,
   ToDooEntityMap,
@@ -33,6 +37,48 @@ const emit = defineEmits<{
   edit: [kind: ToDooEntityKind, entity?: Record<string, any>, seed?: Record<string, any>];
 }>();
 const confirmAction = useToDooConfirm();
+const activeTab = ref('preferences');
+const preferencesForm = ref<InstanceType<typeof ToDooFormLayout>>();
+const taskRules = ref<InstanceType<typeof ToDooDisclosure>>();
+const focusRules = ref<InstanceType<typeof ToDooDisclosure>>();
+const validationError = ref('');
+const invalidPreferences = ref(false);
+const savingPreferences = ref(false);
+const preferenceLabels: Record<string, string> = {
+  defaultDurationMinutes: '默认安排分钟',
+  timeZone: '显示时区',
+  weekStartsOn: '一周开始于',
+  urgentHours: '紧急阈值（小时）',
+  maxDepth: '任务层级上限',
+  focusMinutes: '专注分钟',
+  shortBreakMinutes: '短休息分钟',
+  longBreakMinutes: '长休息分钟',
+  longBreakAfter: '长休息间隔（次）',
+};
+async function revealPreference(key: string, message: string) {
+  activeTab.value = 'preferences';
+  validationError.value = message;
+  if (['urgentHours', 'maxDepth'].includes(key)) taskRules.value?.expand({ immediate: true });
+  if (['focusMinutes', 'shortBreakMinutes', 'longBreakMinutes', 'longBreakAfter'].includes(key))
+    focusRules.value?.expand({ immediate: true });
+  await nextTick();
+  const field = preferencesForm.value?.element?.querySelector<HTMLElement>(
+    `[aria-label="${preferenceLabels[key]}"]`,
+  );
+  field?.focus();
+  field?.scrollIntoView?.({ block: 'nearest' });
+}
+function revealInvalid(event: Event) {
+  const field = event.target as HTMLInputElement;
+  const label = field.getAttribute('aria-label') || '';
+  const key = Object.keys(preferenceLabels).find((key) => preferenceLabels[key] === label) || '';
+  void revealPreference(key, `请检查${label || '偏好设置'}：${field.validationMessage}`);
+}
+async function submitPreferences() {
+  activeTab.value = 'preferences';
+  await nextTick();
+  preferencesForm.value?.requestSubmit();
+}
 const state = props.model.state,
   settings = ref<ToDooSettings>(),
   settingsBaseline = ref(''),
@@ -92,7 +138,12 @@ function diffValue(value: unknown): string {
 watch(
   () => state.snapshot?.settings,
   (value) => {
-    if (value && (!settings.value || JSON.stringify(settings.value) === settingsBaseline.value)) {
+    if (
+      value &&
+      !savingPreferences.value &&
+      (!settings.value ||
+        (!invalidPreferences.value && JSON.stringify(settings.value) === settingsBaseline.value))
+    ) {
       settings.value = JSON.parse(JSON.stringify(value));
       settingsBaseline.value = JSON.stringify(value);
       importZone.value = value.timeZone;
@@ -161,7 +212,9 @@ async function controlJob(operation: 'cancel' | 'resume') {
   });
 }
 const dirty = computed(
-  () => !!settings.value && JSON.stringify(settings.value) !== settingsBaseline.value,
+  () =>
+    invalidPreferences.value ||
+    (!!settings.value && JSON.stringify(settings.value) !== settingsBaseline.value),
 );
 watch(
   () => dirty.value || !!content.value || !!connection.url,
@@ -228,16 +281,40 @@ async function refreshConnections() {
 onMounted(() => void work(refreshConnections));
 onActivated(() => void props.model.loadPendingOperations());
 async function save() {
-  if (!settings.value) return;
-  const result = await props.model.saveEntity(
-    'settings',
-    settings.value,
-    settings.value.revision,
-    '偏好已保存',
-  );
-  if (result) {
-    settings.value = JSON.parse(JSON.stringify(state.snapshot!.settings));
-    settingsBaseline.value = JSON.stringify(settings.value);
+  if (!settings.value || state.busy) return;
+  const parsed = toDooEntitySchemas.settings.safeParse(settings.value);
+  if (!parsed.success) {
+    const issue = parsed.error.issues[0];
+    const key = String(issue.path[0]);
+    await revealPreference(
+      key,
+      `请检查${preferenceLabels[key] || '偏好设置'}，填写有效值后再保存。`,
+    );
+    return;
+  }
+  validationError.value = '';
+  const submitted = JSON.parse(JSON.stringify(parsed.data)) as ToDooSettings;
+  savingPreferences.value = true;
+  try {
+    const result = await props.model.saveEntity(
+      'settings',
+      submitted,
+      submitted.revision,
+      '偏好已保存',
+    );
+    if (result) {
+      const saved = JSON.parse(JSON.stringify(state.snapshot!.settings)) as ToDooSettings;
+      const laterEdits = Object.fromEntries(
+        (Object.keys(settings.value) as (keyof ToDooSettings)[])
+          .filter((key) => JSON.stringify(settings.value![key]) !== JSON.stringify(submitted[key]))
+          .map((key) => [key, settings.value![key]]),
+      );
+      settingsBaseline.value = JSON.stringify(saved);
+      settings.value = { ...saved, ...laterEdits };
+      if (dirty.value) state.notice = '偏好已保存，后续修改仍未保存';
+    }
+  } finally {
+    savingPreferences.value = false;
   }
 }
 type NumericSetting =
@@ -423,11 +500,31 @@ async function disconnect(id: string) {
     state.notice = '连接已断开，已载入事件保留';
   });
 }
-defineExpose({ hasUnsavedChanges: () => dirty.value || !!content.value || !!connection.url });
+defineExpose({
+  hasUnsavedChanges: () => dirty.value || !!content.value || !!connection.url,
+  submitPreferences,
+  dirty,
+});
 </script>
 <template>
   <div class="todo-settings">
-    <section class="todo-panel">
+    <ATabs v-model:active-key="activeTab" class="todo-settings-tabs" aria-label="设置分类">
+      <ATabPane key="preferences" tab="偏好" />
+      <ATabPane key="connections" tab="提醒与连接" />
+      <ATabPane key="data" tab="数据与恢复" />
+      <ATabPane key="lists" tab="清单管理" />
+    </ATabs>
+    <AAlert
+      v-if="activeTab !== 'data' && (state.pendingOperations.length || importJob)"
+      type="info"
+      :show-icon="true"
+    >
+      <template #message
+        >有待继续的数据操作
+        <AButton type="link" @click="activeTab = 'data'">查看进度</AButton></template
+      >
+    </AAlert>
+    <section v-show="activeTab === 'data'" class="todo-panel">
       <div class="todo-panel-header">
         <h2>待继续的成果笔记</h2>
         <AButton
@@ -503,125 +600,162 @@ defineExpose({ hasUnsavedChanges: () => dirty.value || !!content.value || !!conn
         >
       </div>
     </section>
-    <section v-if="settings" class="todo-panel">
+    <section v-if="settings" v-show="activeTab === 'preferences'" class="todo-panel">
       <div class="todo-panel-header">
-        <h2>偏好与提醒</h2>
+        <h2>日常偏好</h2>
         <span v-if="dirty" class="todo-warning todo-small">有未保存的更改</span>
       </div>
-      <form class="todo-form todo-pad" @submit.prevent="save">
-        <div class="todo-form-grid">
-          <label
-            >显示时区<AInput
-              v-model:value="settings.timeZone"
-              required
-              placeholder="Asia/Shanghai" /></label
-          ><label
-            >一周开始于<ToDooSelect v-model="settings.weekStartsOn">
-              <option
-                v-for="(n, i) in [
-                  '星期日',
-                  '星期一',
-                  '星期二',
-                  '星期三',
-                  '星期四',
-                  '星期五',
-                  '星期六',
-                ]"
-                :key="i"
-                :value="i"
-              >
-                {{ n }}
-              </option>
-            </ToDooSelect></label
-          ><label
-            >默认视图<ToDooSelect v-model="settings.defaultView">
-              <option
-                v-for="(n, k) in {
-                  overview: '目标总览',
-                  tasks: '任务列表',
-                  calendar: '日历',
-                  board: '看板',
-                  matrix: '四象限',
-                }"
-                :key="k"
-                :value="k"
-              >
-                {{ n }}
-              </option>
-            </ToDooSelect></label
-          ><label
-            >默认安排分钟<AInputNumber
-              aria-label="默认安排分钟"
-              :value="settings.defaultDurationMinutes"
-              @update:value="setSettingNumber('defaultDurationMinutes', $event)"
-              :min="1"
-              :max="1440" /></label
-          ><label
-            >紧急阈值（小时）<AInputNumber
-              aria-label="紧急阈值（小时）"
-              :value="settings.urgentHours"
-              @update:value="setSettingNumber('urgentHours', $event)"
-              :min="1" /></label
-          ><label
-            >任务层级上限<AInputNumber
-              aria-label="任务层级上限"
-              :value="settings.maxDepth"
-              @update:value="setSettingNumber('maxDepth', $event)"
-              :min="1"
-              :max="32" /></label
-          ><label
-            >专注分钟<AInputNumber
-              aria-label="专注分钟"
-              :value="settings.focusMinutes"
-              @update:value="setSettingNumber('focusMinutes', $event)"
-              :min="1"
-              :max="1440" /></label
-          ><label
-            >短休息分钟<AInputNumber
-              aria-label="短休息分钟"
-              :value="settings.shortBreakMinutes"
-              @update:value="setSettingNumber('shortBreakMinutes', $event)"
-              :min="0"
-              :max="1440" /></label
-          ><label
-            >长休息分钟<AInputNumber
-              aria-label="长休息分钟"
-              :value="settings.longBreakMinutes"
-              @update:value="setSettingNumber('longBreakMinutes', $event)"
-              :min="0"
-              :max="1440" /></label
-          ><label
-            >长休息间隔（次）<AInputNumber
-              aria-label="长休息间隔（次）"
-              :value="settings.longBreakAfter"
-              @update:value="setSettingNumber('longBreakAfter', $event)"
-              :min="1"
-          /></label>
-        </div>
-        <ACheckbox
-          :checked="settings.quietHours?.enabled"
-          @change="quiet(($event.target as HTMLInputElement).checked)"
-          class="todo-checkbox"
-          >开启免打扰时段</ACheckbox
-        >
-        <div v-if="settings.quietHours?.enabled" class="todo-form-grid">
-          <label>开始<ToDooDateField v-model="settings.quietHours.start" type="time" /></label
-          ><label>结束<ToDooDateField v-model="settings.quietHours.end" type="time" /></label>
-        </div>
-        <div>
-          <AButton
-            html-type="submit"
-            class="todo-button todo-primary"
-            :disabled="state.busy || !dirty"
-            :loading="state.busy"
-            type="primary"
+      <ToDooFormLayout
+        ref="preferencesForm"
+        @validity-change="invalidPreferences = $event"
+        class="todo-pad"
+        @submit="save"
+        @invalid="revealInvalid"
+        @input="validationError = ''"
+      >
+        <AAlert v-if="validationError" type="error" :message="validationError" show-icon />
+        <section class="todo-form-section">
+          <h3>日常使用</h3>
+          <div class="todo-form-grid">
+            <label
+              >默认视图<ToDooSelect v-model="settings.defaultView">
+                <option
+                  v-for="(n, k) in {
+                    overview: '目标总览',
+                    tasks: '任务列表',
+                    calendar: '日历',
+                    board: '看板',
+                    matrix: '四象限',
+                    timeline: '时间线',
+                    focus: '专注',
+                    habits: '习惯',
+                    anniversaries: '纪念日',
+                    stats: '复盘',
+                  }"
+                  :key="k"
+                  :value="k"
+                >
+                  {{ n }}
+                </option>
+              </ToDooSelect></label
+            ><label
+              >默认安排分钟<AInputNumber
+                aria-label="默认安排分钟"
+                :value="settings.defaultDurationMinutes"
+                @update:value="setSettingNumber('defaultDurationMinutes', $event)"
+                :min="1"
+                :max="1440"
+            /></label>
+          </div>
+        </section>
+        <section class="todo-form-section">
+          <h3>日期与提醒</h3>
+          <div class="todo-form-grid">
+            <label
+              >显示时区<AInput
+                v-model:value="settings.timeZone"
+                aria-label="显示时区"
+                required
+                placeholder="Asia/Shanghai" /></label
+            ><label
+              >一周开始于<ToDooSelect v-model="settings.weekStartsOn">
+                <option
+                  v-for="(n, i) in [
+                    '星期日',
+                    '星期一',
+                    '星期二',
+                    '星期三',
+                    '星期四',
+                    '星期五',
+                    '星期六',
+                  ]"
+                  :key="i"
+                  :value="i"
+                >
+                  {{ n }}
+                </option>
+              </ToDooSelect></label
+            >
+          </div>
+          <ACheckbox
+            :checked="settings.quietHours?.enabled"
+            @change="quiet(($event.target as HTMLInputElement).checked)"
+            class="todo-checkbox"
+            >开启免打扰时段</ACheckbox
           >
-            保存偏好
-          </AButton>
-        </div>
-      </form>
+          <div v-if="settings.quietHours?.enabled" class="todo-form-grid">
+            <label>开始<ToDooDateField v-model="settings.quietHours.start" type="time" /></label
+            ><label>结束<ToDooDateField v-model="settings.quietHours.end" type="time" /></label>
+          </div>
+        </section>
+        <ToDooDisclosure ref="taskRules">
+          <template #header>
+            <span>任务规则</span>
+            <span class="todo-muted todo-small">
+              · 紧急 {{ settings.urgentHours }} 小时 · 最多 {{ settings.maxDepth }} 层
+            </span>
+          </template>
+          <p class="todo-form-help">调整紧急任务的判定范围与子任务层级。</p>
+          <div class="todo-form-grid">
+            <label
+              >紧急阈值（小时）<AInputNumber
+                aria-label="紧急阈值（小时）"
+                :value="settings.urgentHours"
+                @update:value="setSettingNumber('urgentHours', $event)"
+                :min="1" /></label
+            ><label
+              >任务层级上限<AInputNumber
+                aria-label="任务层级上限"
+                :value="settings.maxDepth"
+                @update:value="setSettingNumber('maxDepth', $event)"
+                :min="1"
+                :max="32"
+            /></label>
+          </div>
+        </ToDooDisclosure>
+        <ToDooDisclosure ref="focusRules">
+          <template #header>
+            <span>专注节奏</span>
+            <span class="todo-muted todo-small">
+              · 专注 {{ settings.focusMinutes }} 分钟 · 休息 {{ settings.shortBreakMinutes }} /
+              {{ settings.longBreakMinutes }} 分钟 · 每 {{ settings.longBreakAfter }} 次长休
+            </span>
+          </template>
+          <p class="todo-form-help">选择休息时按已结束的番茄次数推荐时长，0 分钟表示跳过休息。</p>
+          <div class="todo-form-grid">
+            <label
+              >专注分钟<AInputNumber
+                aria-label="专注分钟"
+                :value="settings.focusMinutes"
+                @update:value="setSettingNumber('focusMinutes', $event)"
+                :min="1"
+                :max="1440" /></label
+            ><label
+              >短休息分钟<AInputNumber
+                aria-label="短休息分钟"
+                :value="settings.shortBreakMinutes"
+                @update:value="setSettingNumber('shortBreakMinutes', $event)"
+                :min="0"
+                :max="1440" /></label
+            ><label
+              >长休息分钟<AInputNumber
+                aria-label="长休息分钟"
+                :value="settings.longBreakMinutes"
+                @update:value="setSettingNumber('longBreakMinutes', $event)"
+                :min="0"
+                :max="1440" /></label
+            ><label
+              >长休息间隔（次）<AInputNumber
+                aria-label="长休息间隔（次）"
+                :value="settings.longBreakAfter"
+                @update:value="setSettingNumber('longBreakAfter', $event)"
+                :min="1"
+            /></label>
+          </div>
+        </ToDooDisclosure>
+      </ToDooFormLayout>
     </section>
-    <section class="todo-panel">
+    <section v-show="activeTab === 'data'" class="todo-panel">
       <div class="todo-panel-header"><h2>数据与备份</h2></div>
       <div class="todo-setting-row">
         <div>
@@ -660,52 +794,81 @@ defineExpose({ hasUnsavedChanges: () => dirty.value || !!content.value || !!conn
       </div>
       <div class="todo-pad todo-form">
         <h3>从文件导入</h3>
+        <p class="todo-form-help">选择文件或粘贴内容，预览核对后再确认导入。</p>
         <input
           type="file"
           accept=".json,.ics,.csv"
           aria-label="选择导入文件"
           @change="chooseFile"
         />
-        <div class="todo-form-grid">
-          <label
-            >文件编码<ToDooSelect v-model="encoding" @change="decodeFile">
-              <option value="utf-8">UTF-8</option>
-              <option value="gb18030">GB18030 / GBK</option>
-              <option value="utf-16le">UTF-16 LE</option>
-            </ToDooSelect></label
-          ><label
-            >格式<ToDooSelect v-model="format">
-              <option value="json">To Doo JSON</option>
-              <option value="csv">滴答 CSV</option>
-              <option value="ics">iCalendar ICS</option>
-            </ToDooSelect></label
-          ><label
-            >重复处理<ToDooSelect v-model="mergeMode">
-              <option value="skip">跳过重复，保留已有内容</option>
-              <option value="copy">保留独立副本</option>
-              <option value="update">按原始身份明确更新</option>
-            </ToDooSelect></label
-          ><label>导入时区<AInput v-model:value="importZone" required /></label
-          ><label
-            >内容用途<ToDooSelect v-model="target">
-              <option value="tasks">转为任务</option>
-              <option value="calendar">作为日历事件</option>
-            </ToDooSelect></label
-          ><label
-            >目标清单<ToDooSelect v-model="importList">
-              <option :value="null">使用原清单 / 收集箱</option>
-              <option
-                v-for="l in state.snapshot?.lists.filter((l) => !l.deletedAt)"
-                :key="l.id"
-                :value="l.id"
-              >
-                {{ l.name }}
-              </option>
-            </ToDooSelect></label
-          >
-        </div>
+        <label v-if="!file"
+          >或粘贴文件内容<ATextarea
+            v-model:value="content"
+            :rows="4"
+            placeholder="粘贴 JSON、CSV 或 ICS 内容"
+          ></ATextarea
+        ></label>
+        <ToDooDisclosure :open="!!file && !content">
+          <template #header>
+            <span>导入选项</span>
+            <span class="todo-muted todo-small">
+              · {{ format.toUpperCase() }} ·
+              {{ { skip: '跳过重复', copy: '保留副本', update: '更新已有内容' }[mergeMode] }} ·
+              {{ target === 'tasks' ? '转为任务' : '日历事件' }}
+              <template v-if="encoding !== 'utf-8'"> · {{ encoding.toUpperCase() }}</template>
+              <template v-if="importZone !== settings?.timeZone"> · {{ importZone }}</template>
+              <template v-if="importList">
+                · {{ state.snapshot?.lists.find((l) => l.id === importList)?.name || '指定清单' }}
+              </template>
+            </span>
+          </template>
+          <p class="todo-form-help">需要调整文件解析、重复处理或导入位置时再修改。</p>
+          <div class="todo-form-grid">
+            <label
+              >文件编码<ToDooSelect v-model="encoding" @change="decodeFile">
+                <option value="utf-8">UTF-8</option>
+                <option value="gb18030">GB18030 / GBK</option>
+                <option value="utf-16le">UTF-16 LE</option>
+              </ToDooSelect></label
+            ><label
+              >格式<ToDooSelect v-model="format">
+                <option value="json">To Doo JSON</option>
+                <option value="csv">滴答 CSV</option>
+                <option value="ics">iCalendar ICS</option>
+              </ToDooSelect></label
+            ><label
+              >重复处理<ToDooSelect v-model="mergeMode">
+                <option value="skip">跳过重复，保留已有内容</option>
+                <option value="copy">保留独立副本</option>
+                <option value="update">按原始身份明确更新</option>
+              </ToDooSelect></label
+            ><label>导入时区<AInput v-model:value="importZone" required /></label
+            ><label
+              >内容用途<ToDooSelect v-model="target">
+                <option value="tasks">转为任务</option>
+                <option value="calendar">作为日历事件</option>
+              </ToDooSelect></label
+            ><label
+              >目标清单<ToDooSelect v-model="importList">
+                <option :value="null">使用原清单 / 收集箱</option>
+                <option
+                  v-for="l in state.snapshot?.lists.filter((l) => !l.deletedAt)"
+                  :key="l.id"
+                  :value="l.id"
+                >
+                  {{ l.name }}
+                </option>
+              </ToDooSelect></label
+            >
+          </div>
+        </ToDooDisclosure>
         <ToDooDisclosure v-if="format === 'csv'">
-          <template #header><span>CSV 列映射（留空自动识别）</span></template>
+          <template #header
+            ><span>CSV 列映射（留空自动识别）</span
+            ><span v-if="Object.values(mapping).some(Boolean)" class="todo-muted todo-small">
+              · 已指定 {{ Object.values(mapping).filter(Boolean).length }} 列
+            </span></template
+          >
           <div class="todo-form-grid">
             <label
               v-for="(label, key) in {
@@ -725,13 +888,7 @@ defineExpose({ hasUnsavedChanges: () => dirty.value || !!content.value || !!conn
             /></label>
           </div>
         </ToDooDisclosure>
-        <label v-if="!file"
-          >或粘贴文件内容<ATextarea
-            v-model:value="content"
-            :rows="4"
-            placeholder="粘贴 JSON、CSV 或 ICS 内容"
-          ></ATextarea></label
-        ><AButton
+        <AButton
           html-type="button"
           class="todo-button"
           :disabled="busy || !content"
@@ -789,7 +946,7 @@ defineExpose({ hasUnsavedChanges: () => dirty.value || !!content.value || !!conn
         </div>
       </div>
     </section>
-    <section v-if="importJob" class="todo-panel">
+    <section v-if="importJob" v-show="activeTab === 'data'" class="todo-panel">
       <div class="todo-panel-header">
         <h2>导入进度</h2>
         <span class="todo-badge">{{ jobStatusLabels[importJob.status] || importJob.status }}</span>
@@ -834,7 +991,7 @@ defineExpose({ hasUnsavedChanges: () => dirty.value || !!content.value || !!conn
         </div>
       </div>
     </section>
-    <section class="todo-panel">
+    <section v-show="activeTab === 'connections'" class="todo-panel">
       <div class="todo-panel-header">
         <h2>桌面提醒</h2>
         <AButton
@@ -920,7 +1077,7 @@ defineExpose({ hasUnsavedChanges: () => dirty.value || !!content.value || !!conn
         </div>
       </div>
     </section>
-    <section class="todo-panel">
+    <section v-show="activeTab === 'connections'" class="todo-panel">
       <div class="todo-panel-header"><h2>日历连接与订阅</h2></div>
       <form class="todo-form todo-pad" @submit.prevent="connect">
         <h3>连接外部只读日历</h3>
@@ -1019,7 +1176,7 @@ defineExpose({ hasUnsavedChanges: () => dirty.value || !!content.value || !!conn
         </AButton>
       </div>
     </section>
-    <section class="todo-panel">
+    <section v-show="activeTab === 'lists'" class="todo-panel">
       <div class="todo-panel-header"><h2>清单、标签与模板</h2></div>
       <div class="todo-setting-row">
         <span>新建与管理</span>

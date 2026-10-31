@@ -1,0 +1,57 @@
+
+> doo-know@1.0.0 test:e2e
+> tsx scripts/e2e.ts tests/e2e/to-doo-reminders.spec.ts --grep older reminder summaries --project=desktop
+
+[WebServer] (node:2604565) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2604579) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2604590) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2604590) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:2604645) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/e2e/to-doo-reminders.spec.ts:61:1 › older reminder summaries use the app badge and live cards stay below edit dialogs (8.3s)
+
+
+  1) [desktop] › tests/e2e/to-doo-reminders.spec.ts:61:1 › older reminder summaries use the app badge and live cards stay below edit dialogs 
+
+    Error: expect(locator).not.toBeVisible() failed
+
+    Locator:  locator('.reminder-missed')
+    Expected: not visible
+    Received: visible
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "not toBeVisible" locator('.reminder-missed') with timeout 5000ms
+      - waiting for locator('.reminder-missed')
+        14 × locator resolved to <button type="button" data-v-9541284d="" class="css-xjeq ant-btn ant-btn-default reminder-missed">…</button>
+           - unexpected value "visible"
+
+
+      74 |   expect(feed.missedCount).toBeGreaterThan(0);
+      75 |   await expect(app.getByRole('button', { name: '打开通知中心', exact: true })).toContainText(/\d+/);
+    > 76 |   await expect(page.locator('.reminder-missed')).not.toBeVisible();
+         |                                                      ^
+      77 |   const stored = await (
+      78 |     await page.request.get('/api/to-doo/state?kind=reminderEvent&ids=' + old.id)
+      79 |   ).json();
+        at /home/bandoo/workspace/projects/doo-know/tests/e2e/to-doo-reminders.spec.ts:76:54
+
+    Error Context: test-results/to-doo-reminders-older-rem-693b8-rds-stay-below-edit-dialogs-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/to-doo-reminders-older-rem-693b8-rds-stay-below-edit-dialogs-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/to-doo-reminders-older-rem-693b8-rds-stay-below-edit-dialogs-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [desktop] › tests/e2e/to-doo-reminders.spec.ts:61:1 › older reminder summaries use the app badge and live cards stay below edit dialogs 

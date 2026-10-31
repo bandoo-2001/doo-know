@@ -6,6 +6,7 @@ import type { TreeEntry } from '../../../shared/contracts';
 import type { BlogSection, BlogWorkbench } from '../blog-workbench';
 import type { ToDooAppSection, WorkspaceRoute } from '../navigation';
 import '../blog.css';
+import '../to-doo-tokens.css';
 import { workspaceApps, type WorkspaceAppId } from '../app-shortcuts';
 import { useWorkspaceMainMenu, type WorkspaceMainMenuDefinition } from '../workspace-main-menu';
 import ToDooLoadingState from './to-doo/ToDooLoadingState.vue';
@@ -152,7 +153,7 @@ watch(
         <button
           class="app-card"
           type="button"
-          @click="emit('navigate', item.id, item.id === 'to-doo' ? 'tasks' : 'overview')"
+          @click="emit('navigate', item.id, item.id === 'to-doo' ? undefined : 'overview')"
         >
           <div class="app-card-top">
             <span class="blog-app-icon"><Icon :name="item.icon" :size="28" /></span

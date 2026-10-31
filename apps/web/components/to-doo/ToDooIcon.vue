@@ -22,6 +22,8 @@ const paths: Record<string, string> = {
   search: 'M10 3a7 7 0 1 0 0 14 7 7 0 0 0 0-14 M15 15l6 6',
   filter: 'M4 6h16 M7 12h10 M10 18h4',
   plus: 'M12 5v14 M5 12h14',
+  play: 'm9 5 11 7-11 7z',
+  refresh: 'M20 7v5h-5 M4 17v-5h5 M5 8a8 8 0 0 1 13-3l2 2 M4 17l2 2a8 8 0 0 0 13-3',
   more: 'M5 12h.01 M12 12h.01 M19 12h.01',
   chevron: 'm9 5 7 7-7 7',
   check: 'm5 12 4 4L19 6',

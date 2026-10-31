@@ -1,5 +1,4 @@
 import { createHash } from 'node:crypto';
-import lunar from 'lunar-javascript';
 import type {
   ToDooRecurrence,
   ToDooDateTime,
@@ -77,7 +76,11 @@ export function expandRecurrence(
     }
     if (dates.size > limit) throw new Error('重复结果超出单次上限，请分页缩小区间');
   }
-  for (const date of rule.additionalDates) if (date >= from && date <= end) dates.add(date);
+  for (const date of rule.additionalDates)
+    if (date >= from && date <= end) {
+      dates.add(date);
+      if (dates.size > limit) throw new Error('重复结果超出单次上限，请分页缩小区间');
+    }
   return [...dates].sort().map((date) => ({ date, cycleKey: rule.id + ':' + date }));
 }
 const formatterCache = new Map<string, Intl.DateTimeFormat>();
@@ -141,65 +144,4 @@ export function dateTimeInstant(value: ToDooDateTime, allDayTime = '23:59'): Dat
   if (best === undefined) throw new Error('无法解释当地时间');
   return new Date(best);
 }
-export function nextAnniversary(
-  value: Pick<
-    ToDooEntityMap['anniversary'],
-    'calendar' | 'date' | 'repeatYearly' | 'lunarLeapMonth' | 'leapPolicy'
-  >,
-  today: string,
-): { date: string; days: number } {
-  const [y, m, d] = value.date.split('-').map(Number),
-    startYear = Number(today.slice(0, 4));
-  let selected: string | undefined;
-  for (
-    let year = value.repeatYearly ? startYear : y;
-    year <= (value.repeatYearly ? startYear + 20 : y);
-    year++
-  ) {
-    let candidate: string | undefined;
-    try {
-      if (value.calendar === 'lunar') {
-        const solar = lunar.Lunar.fromYmd(year, value.lunarLeapMonth ? -m : m, d).getSolar();
-        candidate =
-          String(solar.getYear()).padStart(4, '0') +
-          '-' +
-          String(solar.getMonth()).padStart(2, '0') +
-          '-' +
-          String(solar.getDay()).padStart(2, '0');
-      } else {
-        const last = new Date(Date.UTC(year, m, 0)).getUTCDate();
-        if (d > last && value.leapPolicy === 'skip') continue;
-        candidate =
-          d > last && value.leapPolicy === 'next_day'
-            ? dateString(new Date(Date.UTC(year, m, 1)))
-            : dateString(new Date(Date.UTC(year, m - 1, Math.min(d, last))));
-      }
-    } catch {
-      if (value.leapPolicy === 'skip') continue;
-      if (value.calendar === 'lunar' && value.lunarLeapMonth) {
-        try {
-          const solar = lunar.Lunar.fromYmd(year, m, d).getSolar();
-          candidate =
-            String(solar.getYear()).padStart(4, '0') +
-            '-' +
-            String(solar.getMonth()).padStart(2, '0') +
-            '-' +
-            String(solar.getDay()).padStart(2, '0');
-        } catch {
-          continue;
-        }
-      } else continue;
-    }
-    if (candidate && (candidate >= today || !value.repeatYearly)) {
-      selected = candidate;
-      break;
-    }
-  }
-  if (!selected) throw new Error('历法支持范围内未找到下一日期');
-  return {
-    date: selected,
-    days: Math.round(
-      (Date.parse(selected + 'T00:00:00Z') - Date.parse(today + 'T00:00:00Z')) / dayMs,
-    ),
-  };
-}
+export { nextToDooAnniversary as nextAnniversary } from '../../../shared/to-doo-anniversaries.js';

@@ -40,8 +40,12 @@ test('To Doo creates a real goal and task, preserves edits, completes and surviv
   await app.getByLabel('完成标准', { exact: true }).fill('确认真实持久化与资料关联');
   await app.getByRole('button', { name: '创建任务', exact: true }).click();
   const detail = app.getByRole('complementary', { name: '任务详情' });
-  await expect(detail.getByRole('button', { name: '保存任务', exact: true })).toBeVisible();
+  await expect(detail.getByLabel('任务标题', { exact: true })).toHaveValue(
+    '验证真实任务持久保存 ' + name,
+  );
+  await expect(detail.getByRole('button', { name: '保存任务', exact: true })).not.toBeVisible();
   await detail.getByLabel('任务说明', { exact: true }).fill('刷新后应该仍能读到这段记录');
+  await expect(detail.getByRole('button', { name: '保存任务', exact: true })).toBeVisible();
   await detail.getByRole('button', { name: '保存任务', exact: true }).click();
   await expect(app.getByRole('status')).toContainText('任务已保存');
   await expandToDooGroup(detail, '任务附件');
@@ -193,6 +197,7 @@ test('focus, habit check-ins, anniversary and real CSV import/export use durable
   await page.getByRole('dialog').getByRole('button', { name: '保存', exact: true }).click();
   await expect(app.getByRole('button', { name, exact: true })).toBeVisible();
   const today = new Date().toISOString().slice(0, 10);
+  await app.getByText('历史', { exact: true }).click();
   await app
     .getByRole('button', { name: name + ' ' + today + ' 打卡，当前 0 页', exact: true })
     .click();
@@ -230,9 +235,11 @@ test('focus, habit check-ins, anniversary and real CSV import/export use durable
   await page.getByRole('dialog').getByRole('button', { name: '保存', exact: true }).click();
   await expect(app.getByRole('heading', { name: '重要日子 ' + name, exact: true })).toBeVisible();
   await go('settings', '设置');
+  await app.getByRole('tab', { name: '数据与恢复', exact: true }).click();
   const download = page.waitForEvent('download');
   await app.getByRole('button', { name: '导出 JSON', exact: true }).click();
   expect((await download).suggestedFilename()).toBe('to-doo.json');
+  await expandToDooGroup(app, '导入选项');
   await selectToDooOption(app, '格式', '滴答 CSV');
   await app
     .getByLabel('或粘贴文件内容', { exact: true })
@@ -281,7 +288,8 @@ test.describe('To Doo source and evidence', () => {
     await capture.getByRole('button', { name: '创建任务', exact: true }).click();
     const app = page.getByRole('region', { name: 'To Doo 行动工作空间' }),
       detail = app.getByRole('complementary', { name: '任务详情' });
-    await expect(detail.getByRole('button', { name: '保存任务', exact: true })).toBeVisible();
+    await expect(detail.getByLabel('任务标题', { exact: true })).toHaveValue(taskTitle);
+    await expect(detail.getByRole('button', { name: '保存任务', exact: true })).not.toBeVisible();
     const taskId = new URL(page.url()).searchParams.get('task');
     expect(taskId).toBeTruthy();
     const state = await (
@@ -381,6 +389,7 @@ test.describe('To Doo source and evidence', () => {
     });
     expect(createdFolder.ok()).toBe(true);
     await page.goto('/?view=apps&app=to-doo&appSection=settings');
+    await app.getByRole('button', { name: '查看进度', exact: true }).click();
     const recovery = app
       .locator('.todo-setting-row')
       .filter({ has: page.getByRole('heading', { name: pendingTitle, exact: true }) });

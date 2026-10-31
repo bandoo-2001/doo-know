@@ -1,0 +1,20 @@
+{
+  "datasetId": "532c6b87-5d27-470d-8e2d-0b8a07026f8e",
+  "source": {
+    "sha256": "a63b7f3133e6f154744f6d405e98fcb59beb3f18bacc3820b2f1312448152619",
+    "files": 1096,
+    "head": "393979a664142dcef981abbfe6422fa70715a4fa"
+  },
+  "geometry": [],
+  "images": [
+    {
+      "id": "schedule",
+      "label": "时间安排",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "file": "editor-schedule-dark.png",
+      "category": "editor"
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+/* Geometry belongs to the shell; page components must consume these values. */
+:root {
+  --todo-primary-nav-width: 64px;
+  --todo-global-header-height: 56px;
+  --todo-context-nav-width: 180px;
+  --todo-detail-width: 420px;
+  --todo-page-padding: 24px;
+  --todo-space: 8px;
+  --todo-radius: 8px;
+  --todo-bg: #ffffff;
+  --todo-paper: #fff;
+  --todo-soft: #f7f8fa;
+  --todo-ink: #272b3a;
+  --todo-muted: #657084;
+  --todo-line: #e6e9f1;
+  --todo-accent: #4566c6;
+  --todo-tint: #edf1ff;
+  --todo-green: #438674;
+  --todo-danger: #b75b66;
+  --todo-warning: #a47939;
+}
+
+:root[data-theme='dark'] {
+  --todo-bg: #13151e;
+  --todo-paper: #1b1e29;
+  --todo-soft: #252937;
+  --todo-ink: #e5e8f0;
+  --todo-muted: #a1a9bb;
+  --todo-line: #323746;
+  --todo-accent: #8ba4ff;
+  --todo-tint: #25334d;
+  --todo-green: #8bcaaf;
+  --todo-danger: #eea1ac;
+  --todo-warning: #dbb884;
+}
+
+/* Scope host changes to To Doo, retaining the notebook and blog rail geometry. */
+@media (min-width: 721px) {
+  .workspace.sidebar-collapsed:has(.workspace-main-menu[data-menu-id='to-doo']) {
+    grid-template-columns: var(--todo-primary-nav-width) 0 minmax(0, 1fr);
+  }
+  .workspace-footer.workspace-main-menu[data-menu-id='to-doo'] {
+    width: var(--todo-primary-nav-width);
+  }
+}

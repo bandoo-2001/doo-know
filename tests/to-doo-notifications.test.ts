@@ -155,6 +155,23 @@ describe('persistent notification outbox', () => {
     expect(f.sent).toBe(2);
     f.runtime.close();
   });
+  it('rejects snoozing when the source is already invalid rather than promising an undeliverable reminder', async () => {
+    const f = fixture();
+    await f.runtime.configure({ enabled: true });
+    await f.runtime.process();
+    const event = Object.values(f.events)[0];
+    f.cancel();
+    expect(() =>
+      f.runtime.action(event.id, {
+        action: 'snooze',
+        until: '2026-10-29T09:05:00.000Z',
+        requestId: 'invalid-source-snooze',
+        expectedRevision: event.revision,
+      }),
+    ).toThrow(/来源/);
+    expect(f.events[event.id].userState).toBe('unread');
+    f.runtime.close();
+  });
   it('does not turn an already delivered unread reminder into repeated missed summaries', async () => {
     const f = fixture();
     await f.runtime.configure({ enabled: true });

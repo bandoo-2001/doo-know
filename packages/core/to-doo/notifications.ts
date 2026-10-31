@@ -415,6 +415,8 @@ export function createToDooNotifications(
         Date.parse(input.until) > now().getTime() + 366 * 86400000)
     )
       throw new ToDooNotificationError('Choose a future snooze time within one year');
+    if (input.action === 'snooze' && !port.valid(event))
+      throw new ToDooNotificationError('提醒来源已变化，无法再次提醒', 410);
     const userState =
       input.action === 'acknowledge'
         ? 'acknowledged'
@@ -1067,7 +1069,20 @@ export function notificationDomainPort(
   service: ToDooService,
   clock: () => Date = () => new Date(),
 ): NotificationDomainPort {
-  const snapshot = () => service.snapshot({ all: true });
+  let cached: { version: string; state: ToDooSnapshot } | undefined;
+  const snapshot = () => {
+    const version = service.getVersion?.();
+    if (version !== undefined && cached?.version === version) return cached.state;
+    const state = service.snapshot({ all: true });
+    cached =
+      version === undefined
+        ? undefined
+        : {
+            version: JSON.stringify([state.datasetId, state.version]),
+            state,
+          };
+    return state;
+  };
   const prepared = new Set<string>();
   return {
     prepare: (at) => {

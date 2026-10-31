@@ -1,0 +1,107 @@
+[
+  {
+    "id": "01",
+    "title": "任务列表与详情",
+    "file": "01-tasks-detail.png",
+    "path": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/unified-ui-v2/01-tasks-detail.png",
+    "source": "/home/bandoo/.codex/generated_images/01a18c8a-accd-74f2-bf52-b5a4bb52d8a3/exec-dc520449-ad73-4191-93b9-d5b3880f6839.png"
+  },
+  {
+    "id": "02",
+    "title": "任务看板",
+    "file": "02-board-v2.png",
+    "path": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/unified-ui-v2/02-board-v2.png",
+    "source": "/home/bandoo/.codex/generated_images/01a18c8a-accd-74f2-bf52-b5a4bb52d8a3/exec-e0d31d31-2956-43d1-aac0-66e80ca4fcf4.png"
+  },
+  {
+    "id": "03",
+    "title": "目标总览",
+    "file": "03-goals-v2.png",
+    "path": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/unified-ui-v2/03-goals-v2.png",
+    "source": "/home/bandoo/.codex/generated_images/01a18c8a-accd-74f2-bf52-b5a4bb52d8a3/exec-a00aa799-c620-4d7c-bb8d-54f7a5eeaaeb.png"
+  },
+  {
+    "id": "04",
+    "title": "日历周视图",
+    "file": "04-calendar-week.png",
+    "path": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/unified-ui-v2/04-calendar-week.png",
+    "source": "/home/bandoo/.codex/generated_images/01a18c8a-accd-74f2-bf52-b5a4bb52d8a3/exec-9e634340-de1b-4488-9bdc-aa46eb0f6b58.png"
+  },
+  {
+    "id": "05",
+    "title": "日历月视图",
+    "file": "05-calendar-month-v2.png",
+    "path": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/unified-ui-v2/05-calendar-month-v2.png",
+    "source": "/home/bandoo/.codex/generated_images/01a18c8a-accd-74f2-bf52-b5a4bb52d8a3/exec-c2e4db82-3622-41fd-8fe1-14b2b94471bd.png"
+  },
+  {
+    "id": "06",
+    "title": "时间线",
+    "file": "06-timeline-v3.png",
+    "path": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/unified-ui-v2/06-timeline-v3.png",
+    "source": "/home/bandoo/.codex/generated_images/01a18c8a-accd-74f2-bf52-b5a4bb52d8a3/exec-ca159d1a-2a5f-4ac8-81a1-8cfb34d45e36.png"
+  },
+  {
+    "id": "07",
+    "title": "四象限",
+    "file": "07-matrix-v2.png",
+    "path": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/unified-ui-v2/07-matrix-v2.png",
+    "source": "/home/bandoo/.codex/generated_images/01a18c8a-accd-74f2-bf52-b5a4bb52d8a3/exec-54dd74ef-4571-44e4-ad2a-7ad77f2973bd.png"
+  },
+  {
+    "id": "08",
+    "title": "专注项目与历史",
+    "file": "08-focus-history.png",
+    "path": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/unified-ui-v2/08-focus-history.png",
+    "source": "/home/bandoo/.codex/generated_images/01a18c8a-accd-74f2-bf52-b5a4bb52d8a3/exec-ca969f6f-a6ff-46f5-8a71-d2ffa3b68271.png"
+  },
+  {
+    "id": "09",
+    "title": "习惯记录",
+    "file": "09-habits.png",
+    "path": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/unified-ui-v2/09-habits.png",
+    "source": "/home/bandoo/.codex/generated_images/01a18c8a-accd-74f2-bf52-b5a4bb52d8a3/exec-df3aeff0-746d-4570-a2fa-fdea34cc7ce8.png"
+  },
+  {
+    "id": "10",
+    "title": "纪念日",
+    "file": "10-anniversaries-v2.png",
+    "path": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/unified-ui-v2/10-anniversaries-v2.png",
+    "source": "/home/bandoo/.codex/generated_images/01a18c8a-accd-74f2-bf52-b5a4bb52d8a3/exec-729e94d1-252c-49e3-8dda-ad96ec021eed.png"
+  },
+  {
+    "id": "11",
+    "title": "统计与复盘",
+    "file": "11-review-stats-v2.png",
+    "path": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/unified-ui-v2/11-review-stats-v2.png",
+    "source": "/home/bandoo/.codex/generated_images/01a18c8a-accd-74f2-bf52-b5a4bb52d8a3/exec-9fb42c82-82a1-409e-9fdd-db447ad211fc.png"
+  },
+  {
+    "id": "12",
+    "title": "通知与提醒",
+    "file": "12-notifications.png",
+    "path": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/unified-ui-v2/12-notifications.png",
+    "source": "/home/bandoo/.codex/generated_images/01a18c8a-accd-74f2-bf52-b5a4bb52d8a3/exec-99cda880-1f03-4ee9-957c-c6b3ac809ff2.png"
+  },
+  {
+    "id": "13",
+    "title": "设置",
+    "file": "13-settings-v2.png",
+    "path": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/unified-ui-v2/13-settings-v2.png",
+    "source": "/home/bandoo/.codex/generated_images/01a18c8a-accd-74f2-bf52-b5a4bb52d8a3/exec-2145885b-3597-4747-85ea-f0f8648b3368.png"
+  },
+  {
+    "id": "14",
+    "title": "关键创建与编辑状态",
+    "file": "14-key-editors-v3.png",
+    "path": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/unified-ui-v2/14-key-editors-v3.png",
+    "source": "/home/bandoo/.codex/generated_images/01a18c8a-accd-74f2-bf52-b5a4bb52d8a3/exec-43b8075b-5c88-4d2f-9da6-30933b438bf3.png"
+  },
+  {
+    "id": "15",
+    "title": "手机关键页面",
+    "file": "15-mobile-v2.png",
+    "path": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/unified-ui-v2/15-mobile-v2.png",
+    "source": "/home/bandoo/.codex/generated_images/01a18c8a-accd-74f2-bf52-b5a4bb52d8a3/exec-c8484c51-c396-43ab-8d29-84fbb8720d1f.png"
+  }
+]

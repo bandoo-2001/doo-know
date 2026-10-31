@@ -30,3 +30,10 @@ To Doo 使用项目现有 Ant Design Vue 4.2.6，与全局 ConfigProvider 共用
 `ToDooLoadingState.vue` 使用 Ant Skeleton，按列表、卡片、四象限或日历显示低对比占位。首次数据读取使用 embedded 模式；异步组件下载超过 150ms 时显示带 To Doo 标识的同款占位。骨架缓慢呼吸，首次内容以 220ms 透明度动画出现，系统开启“减少动态效果”时关闭动画。
 
 已有内容刷新时保持 KeepAlive、输入和焦点，顶部细条脱离文档流，延迟 140ms 淡入，不插入挤动正文的提示，也不延长请求。异步组件的 ref 可能暂时指向加载组件，离开检查须使用可选方法调用；加载中仍可返回，晚到的组件不能改变返回后的页面。首次读取失败沿用重新载入入口。相关慢网、失败、焦点与返回行为由 `tests/e2e/to-doo-loading.spec.ts` 验证。
+
+## 统一外壳与专注页面
+
+所有To Doo页面使用ToDooWorkspace统一外壳，PageHeader、PageToolbar与SectionHeader负责共享结构；尺寸和跨页规则统一见[规范与验收入口](design/to-doo/unified-ui-v2/IMPLEMENTATION.md)，不要在页面中重定义。专注页面使用真实focusTopic实体、独立历史/活动查询与完整统计；计时字段在ToDooFocusTimerFields复用，手机显示在AntDV Drawer中。
+
+
+共享`ToDooFormLayout`使用AntDV Form和统一提交/错误定位，忙碌时通过Form disabled与原生fieldset锁定控件；Select/Date适配器未显式指定disabled时继承该上下文。日期的未确认非法文本保留在控件中，保存会阻止并定位；取消输入使用Escape。农历原始日期使用独立文本字段，避免公历DatePicker替换合法农历日期。主题颜色只在`to-doo-tokens.css`定义，弹层继承同一组变量。

@@ -1,0 +1,39 @@
+
+> doo-know@1.0.0 test
+> vitest run --reporter=dot
+
+
+ RUN  v5.0.4 /home/bandoo/workspace/projects/doo-know
+
+···········································································································································································································································································································································································································································································································································stdout | tests/graph-vector-real.test.ts > actual local BGE document embeddings > publishes real paraphrase vectors and serves two-sided semantic evidence with the runtime stopped
+Actual BGE fixed-corpus cosine: {"spaceId":"6fabd979756dff4dc79f1430da4cdff500badfb47db0eb8c0d4b07b02770faf5","paraphraseScore":0.7671246923237023,"originalUnrelatedScore":0.4556464655713199,"paraphraseUnrelatedScore":0.3854686800263479}
+
+·····································································································································································································································stdout | tests/knowledge/independent-p1-review.test.ts > independent W01 committed update retains success after read-race
+INDEPENDENT-W01-READBACK {"label":"read-race","http":200,"operation":"succeeded","body":{"id":"6417c498-5165-4684-967c-cc8a014118fc","relativePath":"00-Inbox/receipt.md","modifiedAt":"1793407313656514364","contentHash":"4d4c190a62a8ae1d26f3a9df1a1733c4c08efdf74c8b37f819987383af68fcf8","sizeBytes":11,"indexState":"pending","title":"committed","editorMode":"full","longestLineBytes":11,"url":"http://localhost:3010/?note=6417c498-5165-4684-967c-cc8a014118fc","sourceRevision":null,"readState":"unknown","receipt":{"id":"6417c498-5165-4684-967c-cc8a014118fc","relativePath":"00-Inbox/receipt.md","modifiedAt":"1793407313656514364","contentHash":"4d4c190a62a8ae1d26f3a9df1a1733c4c08efdf74c8b37f819987383af68fcf8","sizeBytes":11,"indexState":"pending"},"currentReadError":"CURRENT_READ_UNAVAILABLE","content":"# committed","shared":false,"updatedAt":"2026-10-31T00:41:53.656Z"}}
+
+·stdout | tests/knowledge/independent-p1-review.test.ts > independent W01 committed update retains success after invalid-utf8
+INDEPENDENT-W01-READBACK {"label":"invalid-utf8","http":200,"operation":"succeeded","body":{"id":"b81b6a93-97d0-4562-97ab-24854b06129f","relativePath":"00-Inbox/receipt.md","modifiedAt":"1793407313897507355","contentHash":"4d4c190a62a8ae1d26f3a9df1a1733c4c08efdf74c8b37f819987383af68fcf8","sizeBytes":11,"indexState":"pending","title":"committed","editorMode":"full","longestLineBytes":11,"url":"http://localhost:3010/?note=b81b6a93-97d0-4562-97ab-24854b06129f","sourceRevision":null,"readState":"unknown","receipt":{"id":"b81b6a93-97d0-4562-97ab-24854b06129f","relativePath":"00-Inbox/receipt.md","modifiedAt":"1793407313897507355","contentHash":"4d4c190a62a8ae1d26f3a9df1a1733c4c08efdf74c8b37f819987383af68fcf8","sizeBytes":11,"indexState":"pending"},"currentReadError":"INVALID_UTF8","content":"# committed","shared":false,"updatedAt":"2026-10-31T00:41:53.897Z"}}
+
+·stdout | tests/knowledge/independent-p1-review.test.ts > independent W01 committed update retains success after io
+INDEPENDENT-W01-READBACK {"label":"io","http":200,"operation":"succeeded","body":{"id":"fdf5d012-0dd3-4a8d-8ae1-a73267aabdb1","relativePath":"00-Inbox/receipt.md","modifiedAt":"1793407314153499910","contentHash":"4d4c190a62a8ae1d26f3a9df1a1733c4c08efdf74c8b37f819987383af68fcf8","sizeBytes":11,"indexState":"pending","title":"committed","editorMode":"full","longestLineBytes":11,"url":"http://localhost:3010/?note=fdf5d012-0dd3-4a8d-8ae1-a73267aabdb1","sourceRevision":null,"readState":"unknown","receipt":{"id":"fdf5d012-0dd3-4a8d-8ae1-a73267aabdb1","relativePath":"00-Inbox/receipt.md","modifiedAt":"1793407314153499910","contentHash":"4d4c190a62a8ae1d26f3a9df1a1733c4c08efdf74c8b37f819987383af68fcf8","sizeBytes":11,"indexState":"pending"},"currentReadError":"CURRENT_READ_UNAVAILABLE","content":"# committed","shared":false,"updatedAt":"2026-10-31T00:41:54.153Z"}}
+
+·stdout | tests/knowledge/independent-p1-review.test.ts > independent W03 restores a root README without stranding its intent
+INDEPENDENT-W03-ROOT {"http":200,"body":{"id":"389cde67-49ac-4cf2-935d-37849a25dac7","title":"root README","documentType":"markdown","relativePath":"README.md","content":"# root README","modifiedAt":"1793407314393492930","updatedAt":"2026-10-31T00:41:54.393Z","shared":false,"receipt":{"id":"389cde67-49ac-4cf2-935d-37849a25dac7","relativePath":"README.md","modifiedAt":"1793407314393492930","contentHash":"6453436176149288da9871bf79de8ae48ba94b8469b4142defcc889d772ed65b","sizeBytes":13,"indexState":"pending","restored":true}},"operation":"succeeded"}
+
+··················································································································································································································································································································································································································································································································································································stdout | tests/workspace-markdown-navigation.test.ts > does no hidden preview parsing for 25 edits of a 200KiB draft and renders the latest draft on reveal
+{"mode":"edit","bytes":205166,"parseCount":0,"sanitizeCount":0,"parseMs":0}
+
+·················································stderr | tests/mcp-agent-protocol.test.ts > discovers strict schemas and instructions within the complete JSON-RPC frame budget
+unknown format "uri" ignored in schema at path "#/anyOf/0/properties/data/properties/items/items/properties/url"
+unknown format "uri" ignored in schema at path "#/anyOf/0/properties/data/properties/items/items/properties/url"
+
+····························································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································-
+
+ Test Files  385 passed | 1 skipped (386)
+      Tests  2770 passed | 1 skipped (2771)
+   Start at  00:24:53
+   Duration  1373.06s (tests 89%, import 11%)
+
+    Isolate  386 workers spawned · ~145ms startup each (spawn + environment, per file)
+             at least ~55.77s faster with isolate: false — reuses workers across files instead of one per file
+

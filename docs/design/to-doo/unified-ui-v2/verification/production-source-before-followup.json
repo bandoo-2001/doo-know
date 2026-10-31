@@ -1,0 +1,7 @@
+{
+  "sha256": "2b596dff23e3f9cf3b4a06c516d492fd2fc115a36d46ea870b7400de6983b93a",
+  "files": 533,
+  "head": "393979a664142dcef981abbfe6422fa70715a4fa",
+  "description": "Final production/config source after reminder overlay fix. Tests and documents excluded.",
+  "capturedAt": "2026-10-31T00:53:23.670367+00:00"
+}

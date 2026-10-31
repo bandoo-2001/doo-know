@@ -7,6 +7,8 @@ import {
   Textarea as ATextarea,
 } from 'ant-design-vue';
 import ToDooSelect from './ToDooSelect.vue';
+import ToDooDisclosure from './ToDooDisclosure.vue';
+import ToDooFormLayout from './ToDooFormLayout.vue';
 import { computed, reactive, ref } from 'vue';
 import type { TreeEntry } from '../../../../shared/contracts';
 import type {
@@ -143,46 +145,66 @@ defineExpose({ hasUnsavedChanges: () => dirty.value || busy.value });
       :disabled="busy"
       >×</AButton
     >
-    <p class="todo-muted todo-small">
+    <p class="todo-form-help">
       正文保存在知识库，并作为这次行动的成果证据。收起窗口会保留本次输入。
     </p>
+    <p>
+      关联任务：{{ task.title
+      }}<template v-if="occurrence.scheduledDate || occurrence.due?.date">
+        · {{ occurrence.scheduledDate || occurrence.due?.date }}</template
+      >
+    </p>
+    <p
+      v-if="model.state.selectedOccurrenceId && model.state.selectedOccurrenceId !== occurrence.id"
+      class="todo-warning"
+      role="status"
+    >
+      当前显示的是已保留的成果草稿。保存后会关联上方任务，请先完成这份草稿。
+    </p>
 
-    <form class="todo-form" @submit.prevent="save">
+    <ToDooFormLayout :busy="busy" @submit="save">
       <fieldset class="todo-create-fields" :disabled="busy || !!submitted">
         <label>笔记标题<AInput v-model:value="form.title" required :maxlength="256" /></label>
-        <div class="todo-outcome-directory">
-          <label for="to-doo-outcome-directory">保存目录</label>
-          <DirectoryTreeSelect
-            id="to-doo-outcome-directory"
-            v-model:value="form.folderPath"
-            :folders="folders"
-            label="保存目录"
-            root-label="默认目录"
-            :disabled="busy || !!submitted"
-          />
-        </div>
         <label
           >成果正文（Markdown）<ATextarea
             v-model:value="form.content"
             :rows="10"
             required
           ></ATextarea></label
-        ><label
-          >验证方式<ToDooSelect v-model="form.verification" :disabled="busy || !!submitted">
-            <option value="self_assessed">自评</option>
-            <option value="practice">练习验证</option>
-            <option value="reviewed">经过评审</option>
-            <option value="delivered">已交付</option>
-          </ToDooSelect></label
         ><ACheckbox
           class="todo-checkbox"
           v-model:checked="form.complete"
           :disabled="busy || !!submitted"
           >同时完成这次行动</ACheckbox
         >
-        <p v-if="form.complete" class="todo-muted todo-small">
+        <p v-if="form.complete" class="todo-form-help">
           父项仍有未完成子项时，请先处理子项，或取消同时完成。
         </p>
+        <ToDooDisclosure>
+          <template #header>更多保存选项</template>
+          <section class="todo-form-section">
+            <div class="todo-outcome-directory">
+              <label for="to-doo-outcome-directory">保存目录</label>
+              <DirectoryTreeSelect
+                id="to-doo-outcome-directory"
+                v-model:value="form.folderPath"
+                :folders="folders"
+                label="保存目录"
+                root-label="默认目录"
+                :disabled="busy || !!submitted"
+              />
+            </div>
+            <label
+              >验证方式<ToDooSelect v-model="form.verification" :disabled="busy || !!submitted">
+                <option value="self_assessed">自评</option>
+                <option value="practice">练习验证</option>
+                <option value="reviewed">经过评审</option>
+                <option value="delivered">已交付</option>
+              </ToDooSelect></label
+            >
+            <p class="todo-form-help">未调整时，保存到默认目录，验证方式为自评。</p>
+          </section>
+        </ToDooDisclosure>
       </fieldset>
       <p v-if="error" class="todo-error" role="alert">{{ error }}</p>
       <AButton
@@ -213,7 +235,7 @@ defineExpose({ hasUnsavedChanges: () => dirty.value || busy.value });
           核对当前任务版本后继续关联
         </AButton>
       </div>
-      <div class="todo-actions">
+      <template #actions>
         <AButton class="todo-button" html-type="button" :disabled="busy" @click="emit('close')">
           收起并保留输入</AButton
         ><AButton
@@ -224,8 +246,8 @@ defineExpose({ hasUnsavedChanges: () => dirty.value || busy.value });
         >
           {{ busy ? '正在保存…' : submitted ? '重试原操作' : '创建并关联成果笔记' }}
         </AButton>
-      </div>
-    </form>
+      </template>
+    </ToDooFormLayout>
   </AModal>
 </template>
 <style scoped>

@@ -1,0 +1,7 @@
+{
+  "sha256": "ba544fb9d70365572832c0eeb2ddde2017b9c8c9250a3c1f664d49b6e3ca0389",
+  "files": 533,
+  "head": "393979a664142dcef981abbfe6422fa70715a4fa",
+  "capturedAt": "2026-10-31T09:32:25.084666+00:00",
+  "description": "Follow-up notification snapshot cache fix; excludes test/doc sources."
+}

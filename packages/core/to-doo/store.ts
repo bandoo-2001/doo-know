@@ -165,6 +165,7 @@ export function createToDooStore(config: { knowledgeRoot: string }, db: AppDatab
   db.exec(
     `CREATE TABLE IF NOT EXISTS todo_meta(key TEXT PRIMARY KEY,value TEXT NOT NULL);CREATE TABLE IF NOT EXISTS todo_instance_state(id INTEGER PRIMARY KEY CHECK(id=1),root TEXT NOT NULL);CREATE TABLE IF NOT EXISTS todo_entities(kind TEXT NOT NULL,id TEXT NOT NULL,revision TEXT NOT NULL,data TEXT NOT NULL,envelope TEXT NOT NULL,digest TEXT NOT NULL,PRIMARY KEY(kind,id));CREATE TABLE IF NOT EXISTS todo_transactions(id TEXT PRIMARY KEY,request_id TEXT NOT NULL UNIQUE,fingerprint TEXT NOT NULL,data TEXT NOT NULL,digest TEXT NOT NULL,sequence INTEGER NOT NULL);CREATE TABLE IF NOT EXISTS todo_pending_files(kind TEXT NOT NULL,id TEXT NOT NULL,PRIMARY KEY(kind,id));CREATE TABLE IF NOT EXISTS todo_imported_receipts(request_id TEXT PRIMARY KEY,data TEXT NOT NULL);`,
   );
+  db.exec('CREATE INDEX IF NOT EXISTS todo_transactions_sequence ON todo_transactions(sequence)');
   for (const field of [
     'taskId',
     'occurrenceId',

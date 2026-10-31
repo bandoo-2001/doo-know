@@ -111,7 +111,7 @@ export function createToDooReminderController(
   }
   async function act(
     card: ToDooReminderCard,
-    action: 'read' | 'acknowledge' | 'snooze' | 'complete',
+    action: 'read' | 'acknowledge' | 'dismiss' | 'snooze' | 'complete',
     value: { minutes?: number; amount?: number } = {},
   ) {
     if (disposed || state.busy) return false;

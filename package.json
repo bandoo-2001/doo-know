@@ -99,6 +99,7 @@
     "@types/semver": "7.8.0",
     "@types/web-push": "3.6.4",
     "@vitejs/plugin-vue": "^6.0.10",
+    "@vueuse/core": "15.0.0",
     "ant-design-vue": "4.2.6",
     "codemirror": "^6.0.2",
     "commonmark": "0.31.2",
