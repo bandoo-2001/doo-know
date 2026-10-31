@@ -99,6 +99,7 @@ const readReply = z.discriminatedUnion('kind', [
   object({ kind: z.literal('accepted'), operation }),
 ]);
 const share = object({
+  allowDiagramSource: z.boolean().optional(),
   enabled: z.boolean(),
   state: z.enum(['private', 'active', 'expired', 'revoked']),
   permission: z.enum(['view', 'edit']),
@@ -109,6 +110,7 @@ const share = object({
   editUnavailableReason: z.string().max(1024).optional(),
 });
 const shareOptions = {
+  allowDiagramSource: z.boolean().optional(),
   permission: z.enum(['view', 'edit']).optional(),
   expiresAt: z.string().max(64).nullable().optional(),
 };

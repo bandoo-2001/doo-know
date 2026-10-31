@@ -83,6 +83,10 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
       return { n, file: join(config.dataRoot, 'history', r.file), historical: true,logicalModifiedAt:undefined,expectedHash:undefined };
     }
     const published=notes.readableSource(noteId);
+    if (isSharePrincipal(p)) {
+      if (readMetadata(published.file, n.path).documentType !== 'markdown')
+        fail(403, 'DIAGRAM_SOURCE_FORBIDDEN');
+    }
     return {n,file:published.file,historical:!!published.publication,logicalModifiedAt:published.modifiedAt,expectedHash:published.expectedHash};
   };
   function assertSnapshotNamespace(p:Principal,snapshotId:string,exportJobId?:string){

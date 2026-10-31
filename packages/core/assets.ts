@@ -193,6 +193,8 @@ export function assetService(config: AppConfig, db: AppDatabase, notes: NoteServ
   }
   async function savedAsset(noteId: string, path: string) {
     const note = notes.exists(noteId);
+    // Native diagram originals are authorized only by the semantic public projection facade.
+    if (/\.(?:excalidraw|mmd)$/i.test(path)) fail(403, 'DIAGRAM_SOURCE_FORBIDDEN');
     if (!allowed[extname(path).toLowerCase()]) throw new HttpError(404, '附件不存在');
     if (
       !(await hasSavedAssetReference(

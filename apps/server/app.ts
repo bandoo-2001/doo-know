@@ -1,5 +1,5 @@
 import {registerDiagramDocumentRoutes} from './knowledge/diagram-routes.js';
-import {isWhiteboard,MAX_WHITEBOARD_BYTES,whiteboardId,whiteboardReference} from '../../shared/whiteboard.js';
+import {isWhiteboard,MAX_WHITEBOARD_BYTES} from '../../shared/whiteboard.js';
 import Fastify from 'fastify';
 import { statSync } from 'node:fs';
 import { basename, join, relative, sep } from 'node:path';
@@ -12,6 +12,8 @@ import staticPlugin from '@fastify/static';
 import { fromNodeHeaders } from 'better-auth/node';
 import type { AppConfig } from '../../shared/contracts.js';
 import type { HostConfig } from '../../shared/platform-contracts.js';
+import { publicDiagramProjectionService } from '../../packages/core/public-diagram-projection.js';
+import { resolveWhiteboardResource } from '../../packages/core/knowledge/diagram-resource-resolver.js';
 import { releaseInfo } from './platform/release.js';
 import { searchRuntimeManager } from './platform/search-runtime.js';
 import { platformRuntime, lazyService } from './platform/runtime.js';
@@ -33,7 +35,7 @@ import { createAuth } from './auth.js';
 import { noteService, saveInput } from '../../packages/core/notes.js';
 import { HttpError, text } from '../../packages/core/errors.js';
 import { shareService } from '../../packages/core/shares.js';
-import { renderMarkdown, renderMarkdownReferences, localReference } from '../../packages/core/render.js';
+import { renderMarkdown, localReference } from '../../packages/core/render.js';
 import { recoveryService } from '../../packages/core/recovery.js';
 import { assetService } from '../../packages/core/assets.js';
 import { diagramArtifactService, DIAGRAM_SOURCE_MIMES } from '../../packages/core/knowledge/diagram-artifacts.js';
@@ -469,25 +471,36 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     }
   });
   const shares = lazyService(() => platform.get().shares);
-  function resolveBoard(parentPath: string, reference: string) {
-    const ref = whiteboardReference(reference);
-    const id = ref && (whiteboardId(ref) || (db.prepare('SELECT id FROM notes WHERE active=1 AND path=?')
-      .get(localReference(parentPath,ref)) as {id:string}|undefined)?.id);
-    if (!id) throw new HttpError(404, '白板不存在或已移入回收站');
-    const board = notes.getNote(id);
-    if (!isWhiteboard(board.relativePath)) throw new HttpError(404, '白板不存在');
-    return board;
-  }
-  app.get<{ Params: { id: string }; Querystring: { source: string } }>('/api/notes/:id/whiteboards/resolve', async (req) =>
-    resolveBoard(notes.row(req.params.id).path, req.query.source),
+  const publicProjection = publicDiagramProjectionService(
+    businessConfig,
+    db,
+    notes,
+    assets,
+    shares,
   );
-  app.get<{ Params: { token: string; id: string } }>('/api/public/shares/:token/whiteboards/:id', async (req) => {
-    const parent = shares.document(req.params.token);
-    const allowed = isWhiteboard(parent.relativePath) ? parent.id === req.params.id :
-      renderMarkdownReferences(parent.content).includes(req.params.id);
-    if (!allowed) throw new HttpError(404, '白板不存在或未在此分享中引用');
-    return resolveBoard(parent.relativePath,req.params.id);
-  });
+  function resolveBoard(parentPath: string, reference: string) {
+    return resolveWhiteboardResource(
+      businessConfig,
+      db,
+      notes,
+      webPrincipal,
+      parentPath,
+      reference,
+    );
+  }
+  app.get<{ Params: { id: string }; Querystring: { source: string } }>(
+    '/api/notes/:id/whiteboards/resolve',
+    async (req) => resolveBoard(notes.row(req.params.id).path, req.query.source),
+  );
+  app.get<{ Params: { token: string; id: string } }>(
+    '/api/public/shares/:token/whiteboards/:id',
+    async (req) => {
+      return publicProjection.resource(req.params.token, req.params.id);
+    },
+  );
+  app.get<{ Params: { token: string } }>('/api/public/shares/:token/diagram', async (req) =>
+    publicProjection.resource(req.params.token),
+  );
   await registerWebKnowledgeRoutes(
     app,
     businessConfig,
@@ -495,6 +508,7 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     knowledge,
     shares,
     async (req) => !!(await auth.api.getSession({ headers: fromNodeHeaders(req.headers) })),
+    publicProjection,
   );
   app.get<{ Params: { id: string } }>('/api/notes/:id/share', async (req) =>
     shares.status(req.params.id),
@@ -509,15 +523,22 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     shares.revoke(req.params.id),
   );
   app.get<{ Params: { token: string } }>('/api/public/shares/:token', async (req, reply) => {
-    const n = shares.document(req.params.token);
+    const projected = publicProjection.project(req.params.token),
+      n = projected.note;
     reply.header('X-Robots-Tag', 'noindex, nofollow');
     return {
       title: n.title,
       updatedAt: n.updatedAt,
       ...shares.access(req.params.token),
-      ...(isWhiteboard(n.relativePath) ? { documentType: 'whiteboard', content: n.content } : {}),
-      ...renderMarkdown(n.content, (url) =>
-        assets.mapUrl(n, url, `/api/public/shares/${req.params.token}/assets/`),
+      ...(projected.resource ? { documentType: projected.resource.documentType } : {}),
+      ...renderMarkdown(projected.content, (url) =>
+        projected.assets.has(localReference(n.relativePath, url) ?? '')
+          ? assets.mapUrl(
+              { ...n, content: projected.content },
+              url,
+              `/api/public/shares/${req.params.token}/assets/`,
+            )
+          : undefined,
       ),
     };
   });
@@ -525,7 +546,7 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     '/api/public/shares/:token/assets/:assetId',
     async (req, reply) => {
       const note = shares.lookup(req.params.token);
-      const asset = await assets.publicAsset(note.id, req.params.assetId);
+      const asset = publicProjection.asset(req.params.token, { id: req.params.assetId });
       if (shares.lookup(req.params.token).id !== note.id)
         throw new HttpError(404, '分享不存在或已取消');
       return sendAsset(reply, asset, req.query.download);
@@ -535,7 +556,9 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     '/api/public/shares/:token/asset',
     async (req, reply) => {
       const note = shares.lookup(req.params.token);
-      const asset = await assets.publicSource(note.id, text(req.query.source, '附件引用', 8192));
+      const asset = publicProjection.asset(req.params.token, {
+        source: text(req.query.source, '附件引用', 8192),
+      });
       if (shares.lookup(req.params.token).id !== note.id)
         throw new HttpError(404, '分享不存在或已取消');
       return sendAsset(reply, asset, req.query.download);

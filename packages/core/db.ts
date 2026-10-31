@@ -46,6 +46,12 @@ export function openDatabase(
     );
   if (!shareColumns.some((column) => column.name === 'expires_at'))
     db.exec('ALTER TABLE shares ADD COLUMN expires_at INTEGER');
+  if (!shareColumns.some((column) => column.name === 'allow_diagram_source'))
+    db.exec(
+      'ALTER TABLE shares ADD COLUMN allow_diagram_source INTEGER NOT NULL DEFAULT 0 CHECK(allow_diagram_source IN (0,1))',
+    );
+  if (!shareColumns.some((column) => column.name === 'policy_revision'))
+    db.exec('ALTER TABLE shares ADD COLUMN policy_revision INTEGER NOT NULL DEFAULT 1');
   migrateKnowledge(db);
   migrateCollections(db);
   migrateBlog(db);

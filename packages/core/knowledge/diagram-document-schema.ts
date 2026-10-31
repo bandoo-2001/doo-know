@@ -3,6 +3,14 @@ import type { AppDatabase } from '../db.js';
 /** Additive migration: reservations are deliberately separate from discoverable notes. */
 export function migrateDiagramDocuments(db: AppDatabase) {
   db.exec(`
+    CREATE TABLE IF NOT EXISTS legacy_diagram_previews (
+      note_id TEXT NOT NULL REFERENCES notes(id),
+      document_hash TEXT NOT NULL,
+      render_hash TEXT NOT NULL,
+      manifest TEXT NOT NULL,
+      created_at INTEGER NOT NULL,
+      PRIMARY KEY(note_id,document_hash,render_hash)
+    );
     CREATE TABLE IF NOT EXISTS diagram_creation_intents (
       id TEXT PRIMARY KEY,
       note_id TEXT UNIQUE NOT NULL,

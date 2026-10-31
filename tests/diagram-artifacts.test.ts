@@ -196,7 +196,7 @@ describe('immutable diagram source and PNG groups', () => {
     }
   });
 
-  it('authorizes source and PNG only through current saved public references and survives an offline directory copy', async () => {
+  it('publishes referenced PNG while keeping native source private and survives an offline directory copy', async () => {
     const n = await note(), input = body('excalidraw', JSON.stringify(emptyWhiteboard()));
     const response = await post(n.id, input);
     expect(response.statusCode, response.body).toBe(201);
@@ -205,12 +205,12 @@ describe('immutable diagram source and PNG groups', () => {
     const token = await share();
     for (const asset of [group.preview, group.source]) {
       expect((await app.inject({ url: `/api/assets/${asset.id}` })).statusCode).toBe(401);
-      expect((await app.inject({ url: `/api/public/shares/${token}/assets/${asset.id}` })).statusCode).toBe(404);
+      expect((await app.inject({ url: `/api/public/shares/${token}/assets/${asset.id}` })).statusCode).toBe(asset===group.source?403:404);
     }
     const markdown = `# 兼容设计\n\n![预览](${group.preview.markdownPath})\n\n[源文件](${group.source.markdownPath})\n`;
     await writeFile(join(f.knowledgeRoot, n.relativePath), markdown);
     for (const asset of [group.preview, group.source])
-      expect((await app.inject({ url: `/api/public/shares/${token}/assets/${asset.id}` })).statusCode).toBe(200);
+      expect((await app.inject({ url: `/api/public/shares/${token}/assets/${asset.id}` })).statusCode).toBe(asset===group.source?403:200);
     const copy = join(f.root, 'offline-copy');
     await cp(join(f.knowledgeRoot, n.relativePath.replace(/\/[^/]+$/, '')), copy, { recursive: true });
     expect(await readFile(join(copy, 'parent.md'), 'utf8')).toBe(markdown);

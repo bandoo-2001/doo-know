@@ -17,6 +17,8 @@ import { readBoundDiagramAssetSnapshot } from './diagram-resource-files.js';
 import { validateDiagramSource, validatePng } from './diagram-artifacts.js';
 import { sha256 } from './operations.js';
 import { fail } from './errors.js';
+import { isWhiteboard, whiteboardId, whiteboardReference } from '../../../shared/whiteboard.js';
+import { resolveLegacyDiagram } from './legacy-diagram-previews.js';
 
 export type DiagramSourceSnapshot = {
   noteId: string;
@@ -44,6 +46,8 @@ export function resolvePrimaryDiagram(
   if (isSharePrincipal(principal)) fail(403, 'DIAGRAM_SOURCE_FORBIDDEN');
   const row = notes.row(noteId);
   authorizePath(principal, row.path);
+  if (isWhiteboard(row.path))
+    return resolveLegacyDiagram(config, db, notes, principal, noteId, options);
   const { note } = notes.getNoteSnapshot(noteId),
     parsed = parseDiagramDocument(note.content);
   if (parsed.status !== 'diagram')
@@ -181,4 +185,31 @@ export function resolvePrimaryDiagram(
     ...(note.publication ? { publication: note.publication } : {}),
     ...(issues.length ? { issues } : {}),
   });
+}
+
+/** Resolve document identity first; never interpret a Markdown main file as scene JSON. */
+export function resolveWhiteboardResource(
+  config: AppConfig,
+  db: AppDatabase,
+  notes: NoteService,
+  principal: Principal,
+  parentPath: string,
+  reference: string,
+  options: DiagramResolveOptions = {},
+): DiagramResource {
+  const ref = whiteboardReference(reference),
+    path = ref && !whiteboardId(ref) ? localReference(parentPath, ref) : undefined;
+  const id =
+    ref &&
+    (whiteboardId(ref) ||
+      (path &&
+        (
+          db.prepare('SELECT id FROM notes WHERE active=1 AND path=?').get(path) as
+            | { id: string }
+            | undefined
+        )?.id));
+  if (!id) fail(404, 'WHITEBOARD_NOT_FOUND');
+  const resource = resolvePrimaryDiagram(config, db, notes, principal, id, options);
+  if (resource.documentType !== 'whiteboard') fail(404, 'WHITEBOARD_NOT_FOUND');
+  return resource;
 }

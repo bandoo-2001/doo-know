@@ -13,7 +13,10 @@ export function documentType(path: string, content?: string): DocumentType {
   return 'markdown';
 }
 export function documentTitle(path: string, content = '') {
-  if(!isWhiteboard(path) && content) { const parsed=parseDiagramDocument(content); if(parsed.status==='diagram') return parsed.title; }
+  if (!isWhiteboard(path) && content) {
+    const parsed = parseDiagramDocument(content);
+    if (parsed.status === 'diagram') return parsed.title;
+  }
   return (
     (isWhiteboard(path) ? '' : content.match(/^#\s+(.+)$/m)?.[1]) ||
     path
@@ -300,7 +303,7 @@ export function whiteboardReference(code: string) {
     (value.length <= 1000 &&
     !/[\r\n\\:\u0000-\u001f]/.test(value) &&
     !value.startsWith('/') &&
-    isWhiteboard(value)
+    /\.(?:excalidraw|md)$/i.test(value)
       ? value
       : undefined)
   );
