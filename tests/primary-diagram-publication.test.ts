@@ -1,6 +1,14 @@
 import { afterEach, beforeEach, expect, it } from 'vitest';
 import { createHash, randomUUID } from 'node:crypto';
-import { mkdtempSync, mkdirSync, rmSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
+import {
+  mkdtempSync,
+  mkdirSync,
+  rmSync,
+  readFileSync,
+  writeFileSync,
+  existsSync,
+  unlinkSync,
+} from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import type { AppConfig } from '../shared/contracts';
@@ -266,4 +274,129 @@ it('preserves unsupported document versions as ordinary Markdown source without 
   expect(db.prepare('SELECT count(*) AS count FROM diagram_document_versions').get()).toEqual({
     count: 0,
   });
+});
+
+it('keeps recovery unresolved if a committed main file has lost its fixed PNG', async () => {
+  const { intent, prepared, markdown } = prepare(),
+    request = { preparedId: prepared.id, markdown, requestId: randomUUID() },
+    s = services();
+  db.exec(
+    "CREATE TRIGGER publication_missing_preview BEFORE UPDATE OF active ON notes WHEN NEW.active=1 BEGIN SELECT RAISE(FAIL,'fixture record interruption'); END",
+  );
+  expect(() => s.primary.commit(request)).toThrow();
+  db.exec('DROP TRIGGER publication_missing_preview');
+  const { unlinkSync } = await import('node:fs');
+  unlinkSync(join(config.knowledgeRoot, prepared.preview.relativePath));
+  const recovered = await services().core.recover();
+  expect(recovered.recovered).toBe(0);
+  expect(db.prepare('SELECT active FROM notes WHERE id=?').get(intent.noteId)).toEqual({
+    active: 0,
+  });
+  expect(diagramCreationService(config, db, principal).get(intent.id).status).not.toBe('published');
+  expect(() => services().primary.commit(request)).toThrow();
+});
+
+it('does not confirm cancellation once creation has entered a recoverable filesystem commit', async () => {
+  const { intent, prepared, markdown } = prepare(),
+    s = services();
+  db.exec(
+    "CREATE TRIGGER publication_cancel_interruption BEFORE UPDATE OF active ON notes WHEN NEW.active=1 BEGIN SELECT RAISE(FAIL,'fixture record interruption'); END",
+  );
+  expect(() =>
+    s.primary.commit({ preparedId: prepared.id, markdown, requestId: randomUUID() }),
+  ).toThrow();
+  db.exec('DROP TRIGGER publication_cancel_interruption');
+  expect(() => diagramCreationService(config, db, principal).cancel(intent.id)).toThrowError(
+    expect.objectContaining({ code: 'CREATION_COMMIT_IN_PROGRESS' }),
+  );
+  await services().core.recover();
+  expect(diagramCreationService(config, db, principal).get(intent.id).status).toBe('published');
+});
+
+it('binds explicit preparedId to its own source, render, preview and asset destinations', () => {
+  const { intent, prepared: first, source } = prepare(),
+    s = services();
+  const second = s.primary.prepare({
+    target: { kind: 'creation', intentId: intent.id },
+    type: 'whiteboard',
+    source,
+    sourceHash: sha(source),
+    title: '不同标题',
+    renderer: first.renderer,
+    config: {},
+    pngBase64: png.toString('base64'),
+    requestId: randomUUID(),
+  });
+  const markdown = renderPreparedDiagramDocument({ prepared: second, title: second.title, source });
+  expect(() =>
+    s.primary.commit({ preparedId: first.id, markdown, requestId: randomUUID() }),
+  ).toThrowError(expect.objectContaining({ code: 'DIAGRAM_PREPARATION_MISMATCH' }));
+  expect(existsSync(join(config.knowledgeRoot, intent.relativePath))).toBe(false);
+});
+
+it('keeps explicit preparation ownership while allowing an authorized raw writer to reuse the same fixed snapshot', () => {
+  const { intent, prepared, markdown, source } = prepare(),
+    s = services();
+  const published = s.primary.commit({
+    preparedId: prepared.id,
+    markdown,
+    requestId: randomUUID(),
+  });
+  const next = s.primary.prepare({
+    target: {
+      kind: 'document',
+      noteId: intent.noteId,
+      expectedDocumentHash: sha(markdown),
+      expectedSourceHash: sha(source),
+    },
+    type: 'whiteboard',
+    source,
+    sourceHash: sha(source),
+    title: '已准备的新标题',
+    renderer: prepared.renderer,
+    config: {},
+    pngBase64: png.toString('base64'),
+    requestId: randomUUID(),
+  });
+  const nextMarkdown = renderPreparedDiagramDocument({ prepared: next, title: next.title, source }),
+    other = { ...principal, clientId: 'another-editor' };
+  expect(() =>
+    services(other).primary.commit({
+      preparedId: next.id,
+      markdown: nextMarkdown,
+      requestId: randomUUID(),
+    }),
+  ).toThrowError(expect.objectContaining({ statusCode: 403 }));
+  services().core.update(other, intent.noteId, nextMarkdown, published.modifiedAt, randomUUID());
+  expect(s.notes.getNote(intent.noteId).content).toBe(nextMarkdown);
+});
+
+it('releases an uncommitted creation claim and reuses its reserved inactive identity on a fresh retry', () => {
+  const { intent, prepared, markdown } = prepare(),
+    s = services();
+  db.function('fixture_remove_preview', () => {
+    unlinkSync(join(config.knowledgeRoot, prepared.preview.relativePath));
+    return 1;
+  });
+  db.exec(
+    "CREATE TRIGGER publication_precommit_loss AFTER INSERT ON write_intents WHEN NEW.kind='create' BEGIN SELECT fixture_remove_preview(); END",
+  );
+  expect(() =>
+    s.primary.commit({ preparedId: prepared.id, markdown, requestId: randomUUID() }),
+  ).toThrow();
+  db.exec('DROP TRIGGER publication_precommit_loss');
+  expect(existsSync(join(config.knowledgeRoot, prepared.preview.relativePath))).toBe(false);
+  expect(db.prepare('SELECT active FROM notes WHERE id=?').get(intent.noteId)).toEqual({
+    active: 0,
+  });
+  expect(diagramCreationService(config, db, principal).get(intent.id)).toMatchObject({
+    status: 'prepared',
+  });
+  expect(
+    diagramCreationService(config, db, principal).get(intent.id).commitOperationId,
+  ).toBeUndefined();
+  writeFileSync(join(config.knowledgeRoot, prepared.preview.relativePath), png);
+  const result = s.primary.commit({ preparedId: prepared.id, markdown, requestId: randomUUID() });
+  expect(result.id).toBe(intent.noteId);
+  expect(db.prepare('SELECT count(*) AS count FROM notes').get()).toEqual({ count: 1 });
 });

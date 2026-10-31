@@ -206,6 +206,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
           db.prepare(
             "UPDATE write_intents SET status='failed' WHERE id=? AND status='prepared'",
           ).run(op.id);
+          db.prepare("UPDATE diagram_creation_intents SET commit_operation_id=NULL WHERE commit_operation_id=? AND status IN ('reserved','prepared')").run(op.id);
         })();
         for (const file of staged)
           try {
@@ -311,7 +312,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
           intent.note_id,
         );
       }
-      recordDiagramPublication(db,intent.id);
+      recordDiagramPublication(config,db,intent.id);
       const result = {
         id: intent.note_id,
         relativePath: intent.path,
@@ -355,7 +356,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
       const file = safePath(config.knowledgeRoot, path, 'note', true);
       if (existsSync(file)) fail(409, 'NAME_CONFLICT');
       const creation=creationIntentId?diagramCreationService(config,db,p).get(creationIntentId):undefined;
-      if(!creation && db.prepare("SELECT 1 FROM diagram_creation_intents WHERE path=? AND status IN ('reserved','prepared') AND expires_at>?").get(path,Date.now())) fail(409,'NAME_CONFLICT');
+      if(!creation && db.prepare("SELECT 1 FROM diagram_creation_intents WHERE path=? AND status IN ('reserved','prepared') AND (expires_at>? OR commit_operation_id IS NOT NULL)").get(path,Date.now())) fail(409,'NAME_CONFLICT');
       const noteId = creation?.noteId || randomUUID(),
         temp = join(dirname(file), `.doo-${op.operation.id}.tmp`);
       assertDiagramPublication(config,db,p,{operationId:op.operation.id,noteId,path,markdown:content,creationIntentId});
@@ -363,7 +364,13 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
       if(isWhiteboard(path)){content=withWhiteboardId(content,noteId);if(Buffer.byteLength(content)>MAX_WHITEBOARD_BYTES)fail(413,'REQUEST_TOO_LARGE','白板不能超过 8 MiB');}
       durableFile(temp, content);
       db.transaction(() => {
-        db.prepare('INSERT INTO notes(id,path,active) VALUES(?,?,0)').run(noteId, path);
+        if(creationIntentId) {
+          const claimed=db.prepare("UPDATE diagram_creation_intents SET commit_operation_id=? WHERE id=? AND note_id=? AND status IN ('reserved','prepared') AND (commit_operation_id IS NULL OR commit_operation_id=?)")
+            .run(op.operation.id,creationIntentId,noteId,op.operation.id);
+          if(!claimed.changes) fail(409,'CREATION_COMMIT_IN_PROGRESS');
+          const inserted=db.prepare('INSERT INTO notes(id,path,active) VALUES(?,?,0) ON CONFLICT(id) DO UPDATE SET path=excluded.path,active=0 WHERE notes.active=0 AND notes.trash_path IS NULL AND notes.path=excluded.path').run(noteId,path);
+          if(!inserted.changes) fail(409,'CREATION_INTENT_UNAVAILABLE');
+        } else db.prepare('INSERT INTO notes(id,path,active) VALUES(?,?,0)').run(noteId, path);
         db.prepare(
           'INSERT INTO write_intents(id,note_id,path,kind,target_hash,temp_path) VALUES(?,?,?,?,?,?)',
         ).run(op.operation.id, noteId, path, 'create', sha256(content), temp);

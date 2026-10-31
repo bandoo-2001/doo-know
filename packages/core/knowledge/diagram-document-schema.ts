@@ -38,6 +38,11 @@ export function migrateDiagramDocuments(db: AppDatabase) {
     CREATE TABLE IF NOT EXISTS diagram_document_versions(note_id TEXT NOT NULL REFERENCES notes(id),document_hash TEXT NOT NULL,path TEXT NOT NULL,document_type TEXT NOT NULL,source_hash TEXT NOT NULL,render_hash TEXT NOT NULL,preview_hash TEXT NOT NULL,manifest TEXT NOT NULL,created_at INTEGER NOT NULL,PRIMARY KEY(note_id,document_hash));
     CREATE INDEX IF NOT EXISTS diagram_published_bindings ON diagram_document_versions(note_id,source_hash,render_hash,preview_hash);
   `);
+  const intentColumns = db.prepare('PRAGMA table_info(diagram_creation_intents)').all() as {
+    name: string;
+  }[];
+  if (!intentColumns.some((column) => column.name === 'commit_operation_id'))
+    db.exec('ALTER TABLE diagram_creation_intents ADD COLUMN commit_operation_id TEXT');
   const columns = db.prepare('PRAGMA table_info(document_state)').all() as { name: string }[];
   if (!columns.some((column) => column.name === 'document_type'))
     db.exec("ALTER TABLE document_state ADD COLUMN document_type TEXT NOT NULL DEFAULT 'markdown'");

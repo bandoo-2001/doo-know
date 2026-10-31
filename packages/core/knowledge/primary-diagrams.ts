@@ -1,3 +1,4 @@
+import { localReference } from '../render.js';
 import { mutationCore } from './core.js';
 import { parseDiagramDocument } from '../../../shared/diagram-document.js';
 import type { NoteDocument } from '../../../shared/contracts.js';
@@ -310,9 +311,15 @@ export function primaryDiagramService(
       fail(400, 'INVALID_INPUT');
     return workspaceWriteSync(db, { kind: 'diagram-primary.commit' }, () => {
       const row = db
-        .prepare('SELECT result,expires_at FROM diagram_prepared_primaries WHERE id=?')
-        .get(value.preparedId) as { result: string; expires_at: number } | undefined;
+        .prepare(
+          'SELECT result,expires_at,principal,client_id FROM diagram_prepared_primaries WHERE id=?',
+        )
+        .get(value.preparedId) as
+        | { result: string; expires_at: number; principal: string; client_id: string }
+        | undefined;
       if (!row) fail(404, 'NOT_FOUND');
+      if (row.principal !== principal.id || row.client_id !== principal.clientId)
+        fail(403, 'FORBIDDEN');
       const prepared = JSON.parse(row.result) as PreparedDiagramPrimary;
       if (prepared.creationIntentId) creations.get(prepared.creationIntentId);
       else authorizePath(principal, notes.row(prepared.noteId).path, 'knowledge:write');
@@ -325,6 +332,23 @@ export function primaryDiagramService(
         )
         .immediate();
       if (operation.status !== 'prepared') return existingResult(operation) as NoteDocument;
+      const candidate = parseDiagramDocument(value.markdown);
+      const targetPath = prepared.creationIntentId
+        ? creations.get(prepared.creationIntentId).relativePath
+        : notes.row(prepared.noteId).path;
+      if (candidate.status !== 'diagram') fail(400, 'INVALID_DIAGRAM_DOCUMENT');
+      if (
+        candidate.type !== prepared.type ||
+        candidate.primary.binding.sourceHash !== prepared.sourceHash ||
+        candidate.primary.binding.renderHash !== prepared.renderHash ||
+        candidate.primary.binding.previewHash !== prepared.previewHash ||
+        localReference(targetPath, candidate.primary.previewPath) !==
+          prepared.preview.relativePath ||
+        (candidate.primary.source.format === 'excalidraw'
+          ? localReference(targetPath, candidate.primary.source.path)
+          : undefined) !== prepared.source?.relativePath
+      )
+        fail(409, 'DIAGRAM_PREPARATION_MISMATCH');
       const innerRequestId = 'primary-' + operation.id,
         kind = prepared.creationIntentId ? 'create' : 'update';
       const inner = db

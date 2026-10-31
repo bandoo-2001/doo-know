@@ -211,3 +211,9 @@ Files: `packages/core/knowledge/{diagram-creation,diagram-document-schema}.ts`�
 2026-10-31 Task 4C（发布基础）：新增 `diagram-publication-policy.ts` 与 `diagram-publications.ts`，通过待发布日志和固定版本资源清单，联动 mutation core 的新建/普通更新及恢复 record。`createDiagram` 只接受已授权创建意图并从服务端取预留 UUID，普通 create 不能冒充完整主图；完整提交固定源码/PNG/标题/renderer/config，普通源写入不能移除主图或绕过预览，说明区变化可复用已发布资源。`primary.commit` 支持已知/不明结果重试、跨文件系统写入后数据库记录失败的恢复，回执返回 Markdown；类型缓存和文件树/原文类型响应同步更新。单篇授权用固定 noteId/role/path/hash 证明读取其源附件，不扩大目录权限。未知格式版本保留普通 Markdown 源码恢复能力；已知主图不能借此移除类型。
 
 验证：9 个发布集成测试通过，连同准备/格式/旧白板/传输/恢复共 113/113 通过；typecheck 通过。Task 4 整项仍未完成，接续事项：patch/file-jobs、上传提交和小/大历史恢复接入同一策略；补齐预留创建到资源读取的 Web/MCP 接口。尚未开放新建 UI/路由，不宣称公开投影、大文件、移动、历史资源保留已完成；这些必须在阶段 2 验收前解决。
+
+2026-10-31 Task 4C 发布复审：独立审阅复现 1 个 P1（record 恢复未验证附件）和 2 个 P2（提交结果未明时取消仍成功、显式 preparedId 与提交快照不符）。三项均已 RED→GREEN 修复。恢复记录前重新验证清单内每份源/PNG 的固定摘要，缺失/变化保持未激活与待恢复；创建意图增加 commit_operation_id，进入可恢复文件提交后显示 committing 并拒绝假确认取消，提交前失败则释放占用、保留预留 UUID 可重试。显式 commit 必须匹配指定回执的主体/客户端、源/渲染/PNG 摘要和资产路径。
+
+普通已授权文档更新仍可复用同篇文档、同基线的固定准备产物，供浏览器准备后由 MCP 按原写入重试；这不开放其他笔记资源，也不开放显式 preparedId 的跨主体提交。发布集成测试现为 14 项，含三项审阅复现、跨客户端授权差异和真实提交前文件丢失后的新请求恢复；相关回归 118/118，typecheck 与 build 通过。原目录 427 份兼容文件 SHA-256 再核对保持一致。
+
+下一执行单元：Task 4D，先为 patch/file-jobs、snapshot 上传、revision 恢复列出实际落盘入口；复用同一发布校验。大文件用有界声明扫描区分普通 Markdown 与图形，不为检查类型整篇读取/解析普通大笔记；对图形 main/source/PNG 则固定完整版本。完成这些写入闸门及 Web/MCP 资源接口后才进入 Task 5 的新 UI 和公开投影，不提前声称 Task 4 或阶段 2 完成。

@@ -24,7 +24,13 @@ const inputSchema = z
     requestId: z.string().min(1).max(128),
   })
   .strict();
-type CreationStatus = 'reserved' | 'prepared' | 'published' | 'cancelled' | 'expired';
+type CreationStatus =
+  | 'reserved'
+  | 'prepared'
+  | 'committing'
+  | 'published'
+  | 'cancelled'
+  | 'expired';
 export type DiagramCreationIntent = {
   id: string;
   noteId: string;
@@ -33,6 +39,7 @@ export type DiagramCreationIntent = {
   status: CreationStatus;
   createdAt: number;
   expiresAt: number;
+  commitOperationId?: string;
 };
 type CreationRow = {
   id: string;
@@ -44,6 +51,7 @@ type CreationRow = {
   status: CreationStatus;
   created_at: number;
   expires_at: number;
+  commit_operation_id: string | null;
 };
 function project(row: CreationRow): DiagramCreationIntent {
   return {
@@ -52,9 +60,12 @@ function project(row: CreationRow): DiagramCreationIntent {
     relativePath: row.path,
     documentType: row.document_type,
     status:
-      ['reserved', 'prepared'].includes(row.status) && row.expires_at <= Date.now()
-        ? 'expired'
-        : row.status,
+      row.commit_operation_id && ['reserved', 'prepared'].includes(row.status)
+        ? 'committing'
+        : ['reserved', 'prepared'].includes(row.status) && row.expires_at <= Date.now()
+          ? 'expired'
+          : row.status,
+    ...(row.commit_operation_id ? { commitOperationId: row.commit_operation_id } : {}),
     createdAt: row.created_at,
     expiresAt: row.expires_at,
   };
@@ -104,7 +115,7 @@ export function diagramCreationService(config: AppConfig, db: AppDatabase, princ
           }
           const now = Date.now();
           db.prepare(
-            "UPDATE diagram_creation_intents SET status='expired' WHERE path=? AND status IN ('reserved','prepared') AND expires_at<=?",
+            "UPDATE diagram_creation_intents SET status='expired' WHERE path=? AND status IN ('reserved','prepared') AND expires_at<=? AND commit_operation_id IS NULL",
           ).run(input.path, now);
           if (
             existsSync(target) ||
@@ -143,6 +154,8 @@ export function diagramCreationService(config: AppConfig, db: AppDatabase, princ
         .transaction(() => {
           const row = owned(id),
             current = project(row);
+          if (row.commit_operation_id && row.status !== 'published')
+            fail(409, 'CREATION_COMMIT_IN_PROGRESS', '提交结果待确认，请先完成恢复');
           if (current.status === 'published') fail(409, 'CREATION_ALREADY_PUBLISHED');
           if (current.status === 'cancelled' || current.status === 'expired') return current;
           assertWritable(db);

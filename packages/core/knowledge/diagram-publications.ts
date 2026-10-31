@@ -1,3 +1,7 @@
+import type { AppConfig } from '../../../shared/contracts.js';
+import { readBoundDiagramAsset } from './diagram-resource-files.js';
+import { sha256 } from './operations.js';
+import { fail } from './errors.js';
 import type { AppDatabase } from '../db.js';
 import type { DiagramDocumentType } from '../../../shared/diagram-document.js';
 import type { PreparedDiagramPrimary } from '../../../shared/diagram-primary.js';
@@ -51,7 +55,7 @@ export function hasDiagramResourceProof(
   }
   return false;
 }
-export function recordDiagramPublication(db: AppDatabase, operationId: string) {
+export function recordDiagramPublication(config: AppConfig, db: AppDatabase, operationId: string) {
   const pending = db
     .prepare('SELECT * FROM diagram_pending_publications WHERE operation_id=?')
     .get(operationId) as
@@ -65,6 +69,31 @@ export function recordDiagramPublication(db: AppDatabase, operationId: string) {
     | undefined;
   if (!pending) return;
   const manifest = JSON.parse(pending.manifest) as DiagramVersionManifest;
+  // Recovery must validate the same immutable resources before it can activate a main file.
+  for (const resource of manifest.resources) {
+    try {
+      if (sha256(readBoundDiagramAsset(config, resource.path, resource.role)) !== resource.hash)
+        throw Error();
+    } catch {
+      fail(409, 'DIAGRAM_ARTIFACT_CONFLICT', '固定图形资源缺失或已变化，发布仍待恢复');
+    }
+  }
+  if (pending.creation_intent_id) {
+    const creation = db
+      .prepare(
+        'SELECT status,commit_operation_id FROM diagram_creation_intents WHERE id=? AND note_id=?',
+      )
+      .get(pending.creation_intent_id, pending.note_id) as
+      | { status: string; commit_operation_id: string | null }
+      | undefined;
+    if (
+      !creation ||
+      !['prepared', 'reserved', 'published'].includes(creation.status) ||
+      creation.commit_operation_id !== operationId
+    )
+      fail(409, 'CREATION_INTENT_UNAVAILABLE');
+  }
+
   db.prepare(
     'INSERT OR IGNORE INTO diagram_document_versions(note_id,document_hash,path,document_type,source_hash,render_hash,preview_hash,manifest,created_at) VALUES(?,?,?,?,?,?,?,?,?)',
   ).run(

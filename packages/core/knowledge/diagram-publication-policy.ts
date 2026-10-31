@@ -1,4 +1,4 @@
-import { openSync, closeSync, fstatSync, readFileSync, constants } from 'node:fs';
+import { readBoundDiagramAsset } from './diagram-resource-files.js';
 import type { AppConfig } from '../../../shared/contracts.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
 import { parseDiagramDocument } from '../../../shared/diagram-document.js';
@@ -7,10 +7,10 @@ import {
   type PreparedDiagramPrimary,
 } from '../../../shared/diagram-primary.js';
 import { serializeDiagramRenderInput } from '../../../shared/diagram-document-binding.js';
-import { whiteboardText, MAX_WHITEBOARD_BYTES } from '../../../shared/whiteboard.js';
+import { whiteboardText } from '../../../shared/whiteboard.js';
 import type { AppDatabase } from '../db.js';
 import { canAccessPath } from '../agent/auth.js';
-import { safePath, validateRelative } from '../files.js';
+import { validateRelative } from '../files.js';
 import { localReference } from '../render.js';
 import { isSharePrincipal } from '../share-policy.js';
 import { validateDiagramSource, validatePng } from './diagram-artifacts.js';
@@ -20,32 +20,6 @@ import { sha256 } from './operations.js';
 import { fail } from './errors.js';
 
 type Parsed = Extract<ReturnType<typeof parseDiagramDocument>, { status: 'diagram' }>;
-export function readBoundDiagramAsset(config: AppConfig, path: string, role: 'source' | 'preview') {
-  const fd = openSync(
-    safePath(config.knowledgeRoot, path, 'asset'),
-    constants.O_RDONLY | constants.O_NOFOLLOW,
-  );
-  try {
-    const before = fstatSync(fd, { bigint: true });
-    if (
-      !before.isFile() ||
-      before.size > BigInt(role === 'source' ? MAX_WHITEBOARD_BYTES : 10 * 1024 * 1024)
-    )
-      fail(409, 'DIAGRAM_ARTIFACT_CONFLICT');
-    const bytes = readFileSync(fd),
-      after = fstatSync(fd, { bigint: true });
-    if (
-      before.mtimeNs !== after.mtimeNs ||
-      before.ctimeNs !== after.ctimeNs ||
-      before.size !== after.size ||
-      bytes.length !== Number(after.size)
-    )
-      fail(409, 'DIAGRAM_ARTIFACT_CONFLICT');
-    return bytes;
-  } finally {
-    closeSync(fd);
-  }
-}
 function assetPath(
   config: AppConfig,
   db: AppDatabase,
@@ -109,7 +83,7 @@ export function assertDiagramPublication(
     before =
       input.currentMarkdown === undefined ? undefined : parseDiagramDocument(input.currentMarkdown);
   if (parsed.status === 'invalid') {
-    if(parsed.unsupported && before?.status!=='diagram' && !input.creationIntentId) return;
+    if (parsed.unsupported && before?.status !== 'diagram' && !input.creationIntentId) return;
     fail(400, 'INVALID_DIAGRAM_DOCUMENT', parsed.reason);
   }
   if (before?.status === 'diagram' && (parsed.status !== 'diagram' || before.type !== parsed.type))
@@ -124,7 +98,10 @@ export function assertDiagramPublication(
     if (!input.creationIntentId) fail(409, 'DIAGRAM_CREATION_REQUIRED');
     const intent = diagramCreationService(config, db, principal).get(input.creationIntentId);
     if (
-      !['reserved', 'prepared'].includes(intent.status) ||
+      !(
+        ['reserved', 'prepared'].includes(intent.status) ||
+        (intent.status === 'committing' && intent.commitOperationId === input.operationId)
+      ) ||
       intent.noteId !== input.noteId ||
       intent.relativePath !== input.path ||
       intent.documentType !== parsed.type
