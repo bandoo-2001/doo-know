@@ -288,3 +288,42 @@ it.each(['tEXt', 'zTXt', 'iTXt'] as const)(
     ).toContain(safe.toString('base64'));
   },
 );
+it('denies source-bearing published blog design media while preserving its private original bytes', async () => {
+  const f = await createFixture();
+  fixtures.push(f);
+  const { blogService } = await import('../packages/core/blog/service');
+  const { defaultBlogDesign } = await import('../shared/blog-design');
+  const db = openDatabase(f.dataRoot),
+    blog = blogService(f.config, db, noteService(f.config, db));
+  const principal = { ...webPrincipal, scopes: [...webPrincipal.scopes, 'blog:publish'] };
+  const bytes = pngWithText('zTXt');
+  try {
+    const media = blog.uploadDesignMedia(principal, {
+      name: 'native.png',
+      mime: 'image/png',
+      base64: bytes.toString('base64'),
+      requestId: randomUUID(),
+    });
+    blog.updateSettings(principal, {
+      settings: { ...blog.settings(), enabled: true },
+      requestId: randomUUID(),
+    });
+    const design = defaultBlogDesign();
+    design.profile.avatar = media.url;
+    blog.saveDesign(principal, {
+      design,
+      expectedVersion: blog.designState(principal).version,
+      requestId: randomUUID(),
+    });
+    blog.publishDesign(principal, {
+      expectedVersion: blog.designState(principal).version,
+      requestId: randomUUID(),
+    });
+    expect(blog.designMedia(principal, media.hash).bytes).toEqual(bytes);
+    const r = await f.app.inject({ url: media.url });
+    expect(r.statusCode, r.body).toBeGreaterThanOrEqual(400);
+    expect(r.rawPayload).not.toEqual(bytes);
+  } finally {
+    db.close();
+  }
+});
