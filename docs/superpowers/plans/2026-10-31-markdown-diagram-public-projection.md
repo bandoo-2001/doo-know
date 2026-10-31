@@ -20,6 +20,8 @@
 - 分享选项/状态/公开 access 增加 `allowDiagramSource?:boolean`（默认 false，持久化，修改由 owner 操作）。新主图/旧白板永远公开只读，显式 grant 仅开放原件能力。旧普通 Markdown 分享编辑保持既有行为。
 - public `/api/public/shares/:token/whiteboards/:reference` 保留 URL，但返回安全 `DiagramResource` 视图：无 grant 时 `source` 仅有 format/hash、canEdit=false、canDownloadSource=false；PNG 用 preview.path，前端通过此 share 的 `/asset?source=...` 取图。显式 grant 可提供原件，但每次当前 share/reference/角色校验。支持旧 UUID/路径以及指向新 Markdown 白板的同一身份引用。
 
+- public `GET /api/public/shares/:token/diagram` 返回分享主图（含三种新类型及旧白板）的相同安全 DTO。需要原件时 UI 可在 `allowDiagramSource` 为真后读取该 DTO 的 source/content；可增独立 attachment 下载 route，但不能借用只允许公开编辑的 `/source` 或把 grant 当作 edit 权限。公开普通 Markdown body 不暴露内部 schema/配置。
+
 **Implementation requirements:**
 
 - [ ] RED 真正 HTTP 测试：新三类型和旧白板默认无场景/大纲/Mermaid/隐藏文字泄露，公开只读；主正文、源 GET、分段读取、附件 ID 与 source 两入口、旧 whiteboard 资源 URL 均受同一能力约束。伪造路径/类型数据库缓存不能升级权限；撤销/到期/收紧 grant 后旧 cursor/asset/source 也拒绝。
