@@ -461,3 +461,83 @@ it('backs up private final PNG/source preparations and their retained restore ma
     db.close();
   }
 });
+it('preserves a rewritten active ordinary backlink changed after directory rename and refuses activation/index publication', async () => {
+  const f = await fixture(true);
+  await f.prepare();
+  const { spawnSync } = await import('node:child_process');
+  const child = spawnSync(
+    process.execPath,
+    [
+      '--import',
+      'tsx',
+      'tests/support/folder-native-restore-child.ts',
+      JSON.stringify(f.config),
+      f.archived.id,
+      'Restored',
+      f.requestId,
+      'directory_renamed',
+    ],
+    { encoding: 'utf8' },
+  );
+  expect(child.status, child.stderr).toBe(91);
+  const incoming = join(f.config.knowledgeRoot, 'Topic/incoming.md');
+  writeFileSync(incoming, '# External after rename');
+  await expect(
+    workspaceExclusive(f.db, { kind: 'folder.recover', recovery: true }, async () =>
+      recoverFolders(f.config, f.db),
+    ),
+  ).rejects.toMatchObject({ code: 'TRASH_CHANGED' });
+  expect(readFileSync(incoming, 'utf8')).toBe('# External after rename');
+  expect(f.db.prepare('SELECT active FROM notes WHERE id=?').get(f.original.id)).toEqual({
+    active: 0,
+  });
+  expect(
+    (
+      f.db
+        .prepare('SELECT content_hash FROM document_state WHERE note_id=?')
+        .get(f.plain!.noteId) as { content_hash?: string } | undefined
+    )?.content_hash,
+  ).not.toBe(sha256('# Incoming\n\n[Inside](../Restored/inside.md)'));
+});
+it('does not accept altered active ordinary bytes even when their owned publication timestamp is restored exactly', async () => {
+  const f = await fixture(true);
+  await f.prepare();
+  const { spawnSync } = await import('node:child_process'),
+    { utimesSync, lstatSync } = await import('node:fs');
+  const child = spawnSync(
+    process.execPath,
+    [
+      '--import',
+      'tsx',
+      'tests/support/folder-native-restore-child.ts',
+      JSON.stringify(f.config),
+      f.archived.id,
+      'Restored',
+      f.requestId,
+      'directory_renamed_known_time',
+    ],
+    { encoding: 'utf8' },
+  );
+  expect(child.status, child.stderr).toBe(91);
+  const raw = f.db
+      .prepare(
+        'SELECT p.plan FROM folder_native_restore_plans p JOIN folder_trash f ON f.operation_id=p.operation_id WHERE f.id=?',
+      )
+      .get(f.archived.id) as { plan: string },
+    entry = JSON.parse(raw.plan).files.find((v: any) => v.path === 'Topic/incoming.md');
+  const incoming = join(f.config.knowledgeRoot, entry.path);
+  writeFileSync(incoming, '# Forged current ordinary content');
+  utimesSync(incoming, 1000000000, 1000000000);
+  expect(lstatSync(incoming, { bigint: true }).mtimeNs.toString()).toBe(
+    entry.publicationEvidence.mtime,
+  );
+  await expect(
+    workspaceExclusive(f.db, { kind: 'folder.recover', recovery: true }, async () =>
+      recoverFolders(f.config, f.db),
+    ),
+  ).rejects.toMatchObject({ code: 'TRASH_CHANGED' });
+  expect(f.db.prepare('SELECT active FROM notes WHERE id=?').get(f.original.id)).toEqual({
+    active: 0,
+  });
+  expect(readFileSync(incoming, 'utf8')).toBe('# Forged current ordinary content');
+});

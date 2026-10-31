@@ -396,6 +396,7 @@ export function recordFolderNativeRestore(
       entry.asset.relativePath,
     );
   }
+  verifyFolderNativeActiveFiles(config, plan);
   for (const entry of plan.files.filter((f) => f.active)) {
     const file = safePath(config.knowledgeRoot, entry.path, 'note'),
       s = lstatSync(file, { bigint: true });
@@ -468,5 +469,23 @@ export function authorizeFolderNativeRestore(p: Principal, plan: FolderNativeRes
     if (!canAccessPath(p, entry.path)) fail(403, 'DEPENDENCY_FORBIDDEN');
     authorizePath(p, entry.path, 'knowledge:read');
     authorizePath(p, entry.path, 'knowledge:write');
+  }
+}
+
+export function verifyFolderNativeActiveFiles(config: AppConfig, plan: FolderNativeRestorePlan) {
+  for (const entry of plan.files.filter((f) => f.active)) {
+    const path = safePath(config.knowledgeRoot, entry.path, 'note'),
+      stamp = evidence(path),
+      expected = entry.publicationEvidence;
+    if (
+      !expected ||
+      sha256(readFileSync(path)) !== entry.afterHash ||
+      stamp.dev !== expected.dev ||
+      stamp.ino !== expected.ino ||
+      stamp.birthtime !== expected.birthtime ||
+      stamp.mtime !== expected.mtime ||
+      String(lstatSync(path, { bigint: true }).mode) !== entry.publicationMode
+    )
+      fail(409, 'TRASH_CHANGED');
   }
 }

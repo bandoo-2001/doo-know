@@ -46,3 +46,7 @@ New follow-on requested by root after phase 2: allow ordinary live folder moveme
 - Copy inline-primary P2: 975fe21 prepares final relocated source and PNG before first copy activation, retries the same key and leaves the original tuple unchanged.
 
 Fresh archive P1 verification: six files / 66 tests passed (`archive-p1-commit-tests.log`), including ordinary file-intent recovery startup and independent ordinary-tree mutation cases; typecheck exit 0 (`archive-p1-commit-types.log`). Earlier six-file review bundle passed 68 checks. Copy 4/4 passed. The root final reviewer was asked to rerun the exact original repro scripts.
+
+### Active outside after-image review completion
+
+The remaining activation-boundary repro was reproduced: an active ordinary inbound note edited after the restored directory rename could previously bypass diagram-only checks. Final activation now verifies every changed active file's afterHash, owned publication inode/birthtime/mtime and mode, before any metadata activation and again before index enqueue. Both direct outside-content replacement and replacement with its exact original owned timestamp restored are covered by real child-process crashes; external bytes remain untouched and archived UUIDs stay inactive. Folder/lifecycle bundle passed 55 tests. The later frozen shared integration bundle (same production code) passed 172 tests and typecheck 0.

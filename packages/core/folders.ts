@@ -10,6 +10,7 @@ import {
   recordFolderNativeRestoreRevisions,
   rebindFolderNativeRestore,
   authorizeFolderNativeRestore,
+  verifyFolderNativeActiveFiles,
 } from './knowledge/folder-native-restore.js';
 import { KnowledgeError } from './knowledge/errors.js';
 import { randomUUID } from 'node:crypto';
@@ -172,7 +173,10 @@ function finish(config: AppConfig, db: AppDatabase, row: FolderRow) {
     : [];
   const restorePlan = restoring ? getFolderNativeRestorePlan(db, row.operation_id) : undefined;
   if (restoring) verifyDiagramRelocations(config, diagrams);
-  if (restorePlan) verifyActivatedFolderTree(restorePlan, destination);
+  if (restorePlan) {
+    verifyActivatedFolderTree(restorePlan, destination);
+    verifyFolderNativeActiveFiles(config, restorePlan);
+  }
   const assets = restoring ? archivedAssets(db, row, destination) : [];
   db.transaction(() => {
     const nativePlan = restoring ? getFolderNativeRestorePlan(db, row.operation_id) : undefined;
