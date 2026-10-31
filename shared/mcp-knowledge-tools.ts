@@ -1,3 +1,4 @@
+import { operationPreviewToolDefinitions } from './mcp-operation-preview-tools.js';
 import {
   primaryDiagramProtocols,
   primaryCreationIntent,
@@ -52,6 +53,7 @@ const operation = object({
     'failed',
     'cancelled',
     'needs_reconciliation',
+    'awaiting_preview',
   ]),
   snapshotId: id.optional(),
   result: fileResult.optional(),
@@ -239,6 +241,7 @@ const portableImportSummary = object({
   error: z.string().max(64).optional(),
 });
 export const knowledgeToolDefinitions: KnowledgeToolDefinition[] = [
+  ...operationPreviewToolDefinitions,
   tool(
     'export_portable_documents',
     '严格便携导出；单篇无依赖返回 Markdown，多篇、目录或依赖返回带完整清单的归档。用 read_mcp_transfer 读取，原 requestId 可重试。',
@@ -328,10 +331,10 @@ export const knowledgeToolDefinitions: KnowledgeToolDefinition[] = [
             createdAt: z.string().max(64),
             modifiedAt: version,
             sizeBytes: z.number().int().nonnegative(),
-            documentType:z.enum(['markdown','whiteboard','mindmap','flowchart']).optional(),
-            payloadFormat:z.enum(['markdown','excalidraw']).optional(),
-            logicalPath:path.optional(),
-            contentHash:hash.optional(),
+            documentType: z.enum(['markdown', 'whiteboard', 'mindmap', 'flowchart']).optional(),
+            payloadFormat: z.enum(['markdown', 'excalidraw']).optional(),
+            logicalPath: path.optional(),
+            contentHash: hash.optional(),
           }),
         )
         .max(30),

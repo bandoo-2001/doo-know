@@ -1,3 +1,8 @@
+import { safePreviewRequiredDetails } from '../../../shared/mcp-preview-required.js';
+import {
+  createOperationPreviewToolPort,
+  operationPreviewToolNames,
+} from './operation-preview-tools.js';
 import { createPortableToolPort, portableToolNames } from './portable-tools.js';
 import { createPrimaryDiagramToolPort, primaryDiagramToolNames } from './primary-diagram-tools.js';
 import { primaryDiagramService } from '../../../packages/core/knowledge/primary-diagrams.js';
@@ -214,6 +219,8 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
     options?: ServiceCallOptions,
     state?: McpTransferInfo['state'],
   ) {
+    if (operationPreviews.handlesTransfer(binding))
+      return operationPreviews.authorizeTransfer(binding, write, options);
     if (binding.kind === 'portable-import' || binding.kind === 'portable-export')
       return portable.authorizeTransfer(binding, write, options);
     if (primary.handlesTransfer(binding))
@@ -337,7 +344,9 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
     let p = context.authorize(def.scopes, options);
     const revalidate = () => context.authorize(def.scopes, options);
     let result: any;
-    if (portableToolNames.has(name)) result = await portable.call(name, a, options);
+    if (operationPreviewToolNames.has(name))
+      result = await operationPreviews.call(name, a, options);
+    else if (portableToolNames.has(name)) result = await portable.call(name, a, options);
     else if (primaryDiagramToolNames.has(name)) result = await primary.call(name, a, options);
     else if (knowledgeBundleToolNames.has(name)) result = await bundles.call(name, a, options);
     else if (name === 'list_note_revisions') {
@@ -355,9 +364,16 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
           const st = lstatSync(join(config.dataRoot, 'history', r.file));
           if (!st.isFile() || st.isSymbolicLink() || st.nlink !== 1)
             fail(404, 'REVISION_NOT_FOUND');
-          return { id: r.id, createdAt: r.createdAt, modifiedAt: r.modifiedAt, sizeBytes: st.size,
-            ...(r.documentType?{documentType:r.documentType}:{}),...(r.payloadFormat?{payloadFormat:r.payloadFormat}:{}),
-            ...(r.logicalPath?{logicalPath:r.logicalPath}:{}),...(r.contentHash?{contentHash:r.contentHash}:{}) };
+          return {
+            id: r.id,
+            createdAt: r.createdAt,
+            modifiedAt: r.modifiedAt,
+            sizeBytes: st.size,
+            ...(r.documentType ? { documentType: r.documentType } : {}),
+            ...(r.payloadFormat ? { payloadFormat: r.payloadFormat } : {}),
+            ...(r.logicalPath ? { logicalPath: r.logicalPath } : {}),
+            ...(r.contentHash ? { contentHash: r.contentHash } : {}),
+          };
         }),
         a,
       );
@@ -1009,6 +1025,17 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
         ? k.files.operation(p, op.operationId)
         : op;
     } else fail(404, 'UNKNOWN_TOOL');
+    if (name === 'get_knowledge_operation' && result.error?.code === 'DIAGRAM_PREVIEW_REQUIRED') {
+      const details = safePreviewRequiredDetails(result.error.details);
+      result = {
+        ...result,
+        error: {
+          code: result.error.code,
+          retryable: !!result.error.retryable,
+          ...(details ? { details: { ...details, operationId: result.operationId } } : {}),
+        },
+      };
+    }
     // Reads are rechecked after awaits; write replays still need the current grant.
     const fresh = revalidate();
     if (def.scopes.includes('knowledge:manage') && !fresh.knowledgeAll) fail(403, 'FORBIDDEN');
@@ -1062,6 +1089,7 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
       throw error;
     }
   }
+  const operationPreviews = createOperationPreviewToolPort(context, paged);
   const portable = createPortableToolPort(context, paged);
   const primary = createPrimaryDiagramToolPort(context);
   const bundles = createKnowledgeBundlePort(context, paged);

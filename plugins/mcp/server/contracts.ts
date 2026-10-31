@@ -1,3 +1,4 @@
+import { operationPreviewNeed } from '../../../shared/mcp-operation-preview-tools.js';
 import {documentTypeSchema} from '../../../shared/diagram-resource.js';
 import { z } from "zod";
 export type Principal = import('../../../shared/knowledge-contracts.js').Principal;
@@ -177,8 +178,10 @@ export const fileOperation = z.object({
     "failed",
     "cancelled",
     "needs_reconciliation",
+    "awaiting_preview",
   ]),
   snapshotId: z.string().optional(),
+  previewRequired:z.object({planId:noteId,operationId:noteId.optional(),totalCount:z.number().int().nonnegative().optional(),nextCursor:z.string().max(8192).optional(),documents:z.array(operationPreviewNeed).max(20)}).strict().optional(),
   result: fileResult.optional(),
   error: z
     .object({
