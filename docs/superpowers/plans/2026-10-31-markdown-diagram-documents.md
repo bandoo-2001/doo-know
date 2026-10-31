@@ -84,9 +84,9 @@
 **Files:** 新建 `packages/core/knowledge/diagram-documents.ts` 及 schema；修改 `diagram-artifacts.ts`、`notes.ts`、`knowledge/core.ts`、`db.ts`、Web/agent routes；新增临时库集成测试。
 **Interfaces:** `reserve(input:{requestId,path,type}):CreationIntent`；`resolve(noteId,role,principal):DiagramResource`；`commit(input:{intentId?,noteId,expectedDocumentHash,expectedSourceHash,markdown,requestId}):NoteDocument`；所有 mutation 调用同一个提交校验。
 
-- [ ] RED：首次 PNG 未完成不入扫描、提交失败旧版本可读、并发/不明结果幂等重试、过期源和源码绕过被拒绝、取消/续跑/过期意图。
+- [x] RED：首次 PNG 未完成不入扫描、提交失败旧版本可读、并发/不明结果幂等重试、过期源和源码绕过被拒绝、取消/续跑/过期意图。
 - [x] 实现兼容数据库迁移、预留/激活状态、权限资源解析、源/PNG 摘要校验及写入恢复日志；长准备在锁外。
-- [ ] GREEN：Web/MCP/patch/上传同策略；恢复重启与授权隔离集成测试、typecheck；审阅并提交。
+- [x] GREEN：Web/MCP/patch/上传同策略；恢复重启与授权隔离集成测试、typecheck；审阅并提交。
 
 ### Task 4A: 可恢复预留身份（Task 4 的首个可验证子项）
 
@@ -99,9 +99,9 @@ Files: `packages/core/knowledge/{diagram-creation,diagram-document-schema}.ts`�
 **Files:** 修改 `Workspace.vue`、`WhiteboardWorkspace.vue`、`DiagramPreview.vue`、`DocumentEditor.vue`、draft/session 模块、`knowledge-markdown.ts`、`shares.ts`、`share-resources.ts`、公开路由；新增测试。
 **Interfaces:** 白板 UI 消费 Task 4 的 reserve/resolve/commit；草稿 v2 `{documentType,payloadFormat,documentHash,sourceHash,intentId?,payload}`；公开解析仅授予 preview 能力。
 
-- [ ] RED：新建/重开/只读分享/旧白板双读、旧 JSON 草稿保留、跨视图/多标签页冲突及所有公开原件入口拒绝。
-- [ ] 接入创建及自动保存协调者、源码恢复/预览切换、原文保护 token；所有公开读取和源下载遵循能力校验。
-- [ ] GREEN：单元/桌面与移动白板 E2E、typecheck；审阅并提交。
+- [x] RED：新建/重开/只读分享/旧白板双读、旧 JSON 草稿保留、跨视图/多标签页冲突及所有公开原件入口拒绝。
+- [x] 接入创建及自动保存协调者、源码恢复/预览切换、原文保护 token；所有公开读取和源下载遵循能力校验。
+- [x] GREEN：单元/桌面白板 E2E（本轮按用户要求不开展移动端）、typecheck；审阅并提交。
 
 ## Task 6: 历史、资源保留和移动计划（阶段 2）
 
@@ -117,43 +117,43 @@ Files: `packages/core/knowledge/{diagram-creation,diagram-document-schema}.ts`�
 **Files:** 新建 `packages/core/knowledge/whiteboard-migrations.ts`、迁移 Web UI/路由及测试；修改 portable identity、旧 UUID/路径解析、历史/草稿转换。
 **Interfaces:** `preflight():MigrationReport`；`prepare/commit/resume/rollback` 绑定专用 journal、旧身份和版本；浏览器调用既有画布准备 PNG。
 
-- [ ] RED：同名冲突、无效场景、缺附件、旧会话写入、中断每个日志节点、重复执行、已编辑文档回滚不覆盖。
-- [ ] 实现预检、短切换锁、日志恢复、身份/历史归属和入站引用范围改写；原件受控保留且不被重复扫描。
-- [ ] GREEN：只用临时测试知识库验证上述场景及收藏/ToDoo/分享限制不变；审阅并提交。
+- [x] RED：同名冲突、无效场景、缺附件、旧会话写入、中断每个日志节点、重复执行、已编辑文档回滚不覆盖。
+- [x] 实现预检、短切换锁、日志恢复、身份/历史归属和入站引用范围改写；原件受控保留且不被重复扫描。
+- [x] GREEN：只用临时测试知识库验证上述场景及收藏/ToDoo/分享限制不变；审阅并提交。
 
 ## Task 8: 索引投影与真实引用（阶段 3）
 
 **Files:** 修改 `indexing/{chunks,text,state,reconcile}.ts`、knowledge 引用读取、集合/向量/图谱；新增文档投影测试。
 **Interfaces:** `projectDiagramText(markdown):{scanHash,ranges}`，完整扫描证明与可检索真实行/UTF-8 字节范围独立。
 
-- [ ] RED：中文真实行字节、排除元数据/JSON/重复预览、全文件扫描不连续 chunk 不触发 INDEX_INCOMPLETE、保留图谱人工决策。
-- [ ] 实现三类型投影及完整扫描校验；迁移不沿用旧 JSON 假范围。
-- [ ] GREEN：索引/全文/AI 引用/向量/集合/图谱测试；审阅并提交阶段 3。
+- [x] RED：中文真实行字节、排除元数据/JSON/重复预览、全文件扫描不连续 chunk 不触发 INDEX_INCOMPLETE、保留图谱人工决策。
+- [x] 实现三类型投影及完整扫描校验；迁移不沿用旧 JSON 假范围。
+- [x] GREEN：索引/全文/AI 引用/向量/集合/图谱测试；审阅并提交阶段 3。
 
 ## Task 9: 脑图编辑器（阶段 4）
 
 **Files:** 新建 `MindmapWorkspace.vue`；修改创建菜单、Workspace 路由、草稿/撤销会话及渲染。
 **Interfaces:** 复用 Tasks 1–5 的解析、适配、reserve/resolve/commit。
 
-- [ ] RED：同级/子级新增、删除、拖拽、折叠/缩放/撤销、中文输入、源码重解析、说明区字节及待预览策略。
-- [ ] 接入按需加载和临时整树 PNG；不引入权威 JSON，切换重置撤销边界。
-- [ ] GREEN：单元及 desktop/mobile E2E、typecheck/build；审阅并提交阶段 4。
+- [x] RED：同级/子级新增、删除、拖拽、折叠/缩放/撤销、中文输入、源码重解析、说明区字节及待预览策略。
+- [x] 接入按需加载和临时整树 PNG；不引入权威 JSON，切换重置撤销边界。
+- [x] GREEN：单元及 desktop E2E（本轮不开展 mobile）、typecheck/build；审阅并提交阶段 4。
 
 ## Task 10: 流程图编辑器（阶段 5）
 
 **Files:** 新建 `FlowchartWorkspace.vue`；修改 Workspace、Mermaid 图形准备/保存策略及模板。
 **Interfaces:** 主图使用受管 Mermaid 原文和完整提交；内嵌保留旧源码保存策略。
 
-- [ ] RED：模板、语法定位、实时预览、保存重开原文不变、源码与 PNG 同快照、普通笔记兼容。
-- [ ] 实现 CodeMirror/现有 Mermaid 预览与统一会话，根标题变化使预览过期。
-- [ ] GREEN：desktop/mobile E2E 及相关图形测试；审阅并提交阶段 5。
+- [x] RED：模板、语法定位、实时预览、保存重开原文不变、源码与 PNG 同快照、普通笔记兼容。
+- [x] 实现 CodeMirror/现有 Mermaid 预览与统一会话，根标题变化使预览过期。
+- [x] GREEN：desktop E2E（本轮不开展 mobile） 及相关图形测试；审阅并提交阶段 5。
 
 ## Task 11: 共享依赖规划及便携交付协议（阶段 6）
 
 **Files:** 新建 `packages/core/knowledge/portable-{dependencies,paths,manifest,export}.ts`、shared 传输协议；修改管理端、MCP、reading-export 和下载 UI。
 **Interfaces:** `planPortableExport({selection,principal,budget}):PortableExportPlan` 固定版本闭包和边类型；`PortableDelivery` 返回 kind/name/mime/size/hash/manifestVersion；原文及旧 bundle 契约保留。
 
-- [ ] RED：单篇无依赖含表格/外链直接 md；缺附件失败；多篇/目录归档；引用式/HTML src/srcset/poster/source；跨目录、循环、代码示例、同名/大小写/中文转义。
+- [x] RED：单篇无依赖含表格/外链直接 md；缺附件失败；多篇/目录归档；引用式/HTML src/srcset/poster/source；跨目录、循环、代码示例、同名/大小写/中文转义。
 - [ ] 实现范围解析和改写、摘要去重及完整性校验；原生链接重定位按 Task 6 先准备匹配预览；两套任务共用核心。
 - [ ] GREEN：离开原目录用标准渲染器核对图片/路径且无 API/令牌/UUID 协议；审阅并提交。
 
@@ -162,16 +162,16 @@ Files: `packages/core/knowledge/{diagram-creation,diagram-document-schema}.ts`�
 **Files:** 修改 assets、上传/MCP/公开路由；新建 bounded staging/remote media；修改 export tasks 和 download 授权。
 **Interfaces:** 受校验 MP4/WebM/MP3/WAV 流式资产；Task 3 预算共享；每次下载复核 Task 11 固定闭包。
 
-- [ ] RED：真实文件结构/MIME不符、配额/重定向/SSRF、blob/data 处理、远程失败诊断、撤权终止、慢网络不阻塞普通保存。
-- [ ] 实现有界流式暂存、地址与重定向校验、不给远程转发会话、短锁复核与所有失败路径回收；媒体标准文件链接和封面。
-- [ ] GREEN：慢流、取消和权限变更集成测试；审阅并提交。
+- [x] RED：真实文件结构/MIME不符、配额/重定向/SSRF、blob/data 处理、远程失败诊断、撤权终止、慢网络不阻塞普通保存。
+- [x] 实现有界流式暂存、地址与重定向校验、不给远程转发会话、短锁复核与所有失败路径回收；媒体标准文件链接和封面。
+- [x] GREEN：慢流、取消和权限变更集成测试；审阅并提交。
 
 ## Task 13: 清单归档/目录整体回导（阶段 6）
 
 **Files:** 修改 import/file jobs/transfer routes、Web 导入和 MCP 传输；新增 portable import 服务及测试。
 **Interfaces:** `stagePortableImport` 识别版本清单、字节摘要及资源预算，`commitPortableImport` 分配新身份并重写内部路径/源/预览。
 
-- [ ] RED：真实便携包和解压目录整体回导、超过旧 20 MiB/200 文件、清单损坏/版本未知、绝对/越界/符号链接/重复文件拒绝。
+- [x] RED：真实便携包和解压目录整体回导、超过旧 20 MiB/200 文件、清单损坏/版本未知、绝对/越界/符号链接/重复文件拒绝。
 - [ ] 实现安全解包和批次暂存，清单不当普通资产；源变化需要匹配预览才提交。
 - [ ] GREEN：导出→移位→回导→重开三类型和媒体；旧小 JSON API 限制不变；审阅并提交阶段 6。
 
@@ -180,8 +180,8 @@ Files: `packages/core/knowledge/{diagram-creation,diagram-document-schema}.ts`�
 **Files:** 修改 indexing watcher/reconcile/Git state、博客捕获和发布、HTML/打印、MCP/Bridge SDK、backup/restore；新增全链路测试。
 **Interfaces:** 源/PNG 反向依赖状态传播到主文档；博客冻结同一资源解析结果及版本，不包含未授权原件。
 
-- [ ] RED：只改/删除源、只改 PNG、Git 冲突、博客无 fence 新白板仍复核源、公开各入口投影一致、备份恢复新状态表。
-- [ ] 完成协议消费者、引用保留、图谱决策和 ToDoo 笔记关联；清查所有后缀分支及导出入口文案。
+- [x] RED：只改/删除源、只改 PNG、Git 冲突、博客无 fence 新白板仍复核源、公开各入口投影一致、备份恢复新状态表。
+- [x] 完成协议消费者、引用保留、图谱决策和 ToDoo 笔记关联；清查所有后缀分支及导出入口文案。
 - [ ] GREEN：适用全链路 E2E、`npm test`、`npm run typecheck`、`npm run build`，按既有发布检查补齐无需部署的部分。
 - [ ] 独立整分支审阅，修复重要问题并回归；更新进度、剩余限制及真实迁移/部署另行处理的操作说明。
 
@@ -233,3 +233,6 @@ Task5已细化为 `2026-10-31-markdown-diagram-public-projection.md` 与 `2026-1
 Task4F 最终验收：发布后当前路径鉴权已在5b841f5修复，三种成功/不明成功情形均真实RED→GREEN；五文件62/62，修复后typecheck/build通过。独立复审Spec/质量均批准。核心私有主图与写入已完成，Task5继续旧格式/嵌入资源兼容与公开投影；这些兼容项及Task6通过前，阶段2不关闭。
 
 Task5A 后端与旧资源适配已完成审阅：公开投影/分页、原件能力、旧源码与PNG、博客主图分支；三项审阅问题真实复现后修复，独立复审Spec/质量通过，覆盖8文件104项。草稿v2基础与失败恢复保留已通过51项（含真实IndexedDB CAS/隔离）。安全公开阅读及原件授权开关桌面/移动8项通过，当前typecheck/build通过。仍未完成实际保存协调者、新Markdown白板创建和会话视图、历史与移动，阶段2继续；完整长套件留阶段冻结后运行。
+
+
+2026-10-31 稳定性收尾更新：以上分项勾选补录已实际实现并经专项测试/审阅的工作；验证明细及提交见 `docs/markdown-diagram-stability-progress-2026-10-31.md`。它们不等于最后统一验收。Task 6 跨目录历史资源身份、回收站改名恢复，Task 11/13 最大完整资源包回导的暂存配额修复仍在收口；Task 14 最终冻结 typecheck/build/Vitest 全分片、桌面集成及原项目安全回集尚未完成。常驻服务、真实知识库未迁移或部署。

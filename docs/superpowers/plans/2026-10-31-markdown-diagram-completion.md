@@ -29,25 +29,25 @@
 **Interface:** `hasDiagramBindingProof(db,noteId,{sourceHash,renderHash,previewHash,previewPath,sourcePath?})`，匹配保留版本或有效准备的完整tuple+实际路径。调用者仍负责主体/当前文件哈希检查。
 
 - [x] 实际 SQLite 版本/租约 RED→GREEN；不能仅凭 PNG path/hash 证明新标题/config；publication 回归21/21。
-- [ ] 导出两个入口接入、外部伪造完整元数据回归；审阅验证。
+- [x] 导出两个入口接入、外部伪造完整元数据回归；审阅验证。
 
 ## Task 2: 语义投影与引用（semantic_projection）
 
 **Files:** shared diagram-text-projection、indexing chunks/text/schema/worker、graph analysis 和引用消费者/测试。
 **Interface:** `diagramTextSpans(markdown)` 原始 char/UTF8byte/line；`diagramAnalysisText(markdown)` 保持字符/行位置的遮罩。既有 chunk/stage/publish 方法签名不变，完整迭代写 raw hash/size/chunk inventory proof。
 
-- [ ] 三类正文/摘要/大纲/标签真实位置，元数据与重复预览排除；普通20MiB流式和内存预算不退化。
-- [ ] publish 对全chunker要求完整扫描、缺语义块仍拒绝；图谱本地和模型同投影，人工决策保留。
-- [ ] 旧索引/旧checkpoint升级失效及重排，旧JSON原始范围不假装Markdown；定向回归与审阅。
+- [x] 三类正文/摘要/大纲/标签真实位置，元数据与重复预览排除；普通20MiB流式和内存预算不退化。
+- [x] publish 对全chunker要求完整扫描、缺语义块仍拒绝；图谱本地和模型同投影，人工决策保留。
+- [x] 旧索引/旧checkpoint升级失效及重排，旧JSON原始范围不假装Markdown；定向回归与审阅。
 
 ## Task 3: 媒体和完整资源交付（portable_media）
 
 **Files:** assets/media/remote/portable core、shared资源解析与预算、owner/public流式HTTP、必要上传UI。
 **Interfaces:** asset inspect/inspectById 返回元数据descriptor，open(descriptor,{start,end,check})返回已核验流；portable validate(p,id)实时复核fixed closure；import第三参数check回调用于批次权限更新。与MCP agent协调。
 
-- [ ] MP4/WebM/MP3/WAV 结构校验和流式上传/读取/range，128MiB单媒体与共享总/暂存配额。
-- [ ] HTML媒体/封面/srcset/source真实源码范围、data安全持久化、blob浏览器先持久化；包内标准链接降级可用。
-- [ ] DNS固定公共IP、30s/3跳、不转发凭据、取消/错误清理；短锁快照与锁外网络/压缩，实际慢流不阻塞保存。
+- [x] MP4/WebM/MP3/WAV 结构校验和流式上传/读取/range，128MiB单媒体与共享总/暂存配额。
+- [x] HTML媒体/封面/srcset/source真实源码范围、data安全持久化、blob浏览器先持久化；包内标准链接降级可用。
+- [x] DNS固定公共IP、30s/3跳、不转发凭据、取消/错误清理；短锁快照与锁外网络/压缩，实际慢流不阻塞保存。
 - [ ] 自己生成的完整媒体包归档和目录回导，权限收紧停止流或未执行发布，审阅验证。
 
 ## Task 4: MCP 严格便携入口（portable_mcp）
@@ -55,24 +55,26 @@
 **Files:** focused portable MCP port、mcp-transfers、knowledge-tools/bundles、shared/SDK与测试。
 **Interfaces:** `export_portable_documents`、`begin_portable_import_upload`、`import_portable_archive`、`get_portable_import_result`；共用 portable core，不改变raw下载和旧bundle归档形式。
 
-- [ ] 有界流式transfer，大包无全Buffer，所有完整重复JSON帧≤64KiB；1000映射分页、精确未知结果恢复。
-- [ ] 各块重新鉴权/版本/工作区、媒体descriptor流、导入每份发布fresh principal；角色/目标不能交换。
-- [ ] 旧bundle对新primary同固定预览闸门；SDK未知导入结果查新receipt，不误用知识operation。
+- [x] 有界流式transfer，大包无全Buffer，所有完整重复JSON帧≤64KiB；1000映射分页、精确未知结果恢复。
+- [x] 各块重新鉴权/版本/工作区、媒体descriptor流、导入每份发布fresh principal；角色/目标不能交换。
+- [x] 旧bundle对新primary同固定预览闸门；SDK未知导入结果查新receipt，不误用知识operation。
 
 ## Task 5: 稳定身份迁移、历史与通用文件操作（父执行者）
 
 **Files:** 新 whiteboard-migrations / migration-journal / revision-context / native-link plan 与routes/UI/tests；窄修改core intents/recovery、notes scanner、recovery/snapshots/history consumers。
 **Interfaces:** 迁移preflight/plan/prepare/commit/resume/rollback；固定旧身份、原文/最终source hash、新MD、受控备份及入站改写；历史记录 documentType/payloadFormat/logicalPath/contentHash/resources。浏览器渲染最终源码。
 
-- [ ] 迁移前保留旧文档活动，固定新source+PNG之后短切换；专用日志恢复所有FS/DB中断，旧路径别名与UUID、收藏/ToDoo/历史归属不丢。
-- [ ] 冲突目标不覆盖、未知/无效场景跳过保留、重复幂等；新编辑后回滚不覆盖，旧会话VERSION_CONFLICT；旧copy不被扫描成第二note。
+- [x] 迁移前保留旧文档活动，固定新source+PNG之后短切换；专用日志恢复所有FS/DB中断，旧路径别名与UUID、收藏/ToDoo/历史归属不丢。
+- [x] 冲突目标不覆盖、未知/无效场景跳过保留、重复幂等；新编辑后回滚不覆盖，旧会话VERSION_CONFLICT；旧copy不被扫描成第二note。
 - [ ] 历史原始类型与逻辑路径/资源清单，旧JSON按场景重新prepare，跨目录恢复先重定位并匹配最终PG；小/大恢复同规则。
 - [ ] 将当前原生链接拒绝分支提升成有固定基线/最终source/PG的操作计划，跨目录move/copy/rename/undo/restore/导出导入共规则；共享资源保留及备份重建完整。
-- [ ] 旧inline v1完整回导重建durable准备/路径证明，消除无修改再导出仍需重画；已消费旧receipt跟随当前实际身份。
+- [x] 旧inline v1完整回导重建durable准备/路径证明，消除无修改再导出仍需重画；已消费旧receipt跟随当前实际身份。
 
 ## Task 6: 最后集成与完成审计
 
-- [ ] 浏览器目录整体上传、作业跨重开管理/取消/恢复，与MCP/owner传输统一核心。
+- [x] 浏览器目录整体上传、作业跨重开管理/取消/恢复，与MCP/owner传输统一核心。
 - [ ] 桌面全部功能和故障回归，真实迁移/旧草稿/历史/ToDoo/备份临时库，全类型媒体包换目录普通渲染及回导。
 - [ ] 独立审阅修复，冻结type/build/full shards exit0；当前跳过的发行物门禁按所需发行检查补证，不冒充通过。
 - [ ] 按完整规格逐条审计而非只验现有实现；更新原项目报告和安全task-only回集。所有明确要求有足够证据才完成goal。
+
+进展记录：已勾选项目的实际提交及验证见 `docs/markdown-diagram-stability-progress-2026-10-31.md`；最后的完整冻结验证尚未执行。252 MiB 两媒体包回导的额外复制暂存，以及跨目录历史和回收站上下文仍需完成，不能用当前专项通过代替总体完成。
