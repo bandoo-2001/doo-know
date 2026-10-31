@@ -1,3 +1,9 @@
+import {
+  primaryDiagramProtocols,
+  primaryCreationIntent,
+  primaryPreparedReceipt,
+  primaryCommitReceipt,
+} from './mcp-primary-diagram-contracts.js';
 import { diagramResourceSchema } from './diagram-resource.js';
 import { z } from 'zod';
 import { mcpTransferInfoSchema } from './mcp-transfer-tools.js';
@@ -223,6 +229,16 @@ const readScopes = ['knowledge:read'],
   archiveScopes = ['knowledge:read', 'knowledge:archive'],
   writeScopes = ['knowledge:read', 'knowledge:write'];
 export const knowledgeToolDefinitions: KnowledgeToolDefinition[] = [
+  ...primaryDiagramProtocols.map((p) =>
+    tool(
+      p.name,
+      p.description,
+      p.readOnly ? readScopes : writeScopes,
+      p.readOnly,
+      p.input,
+      p.output,
+    ),
+  ),
   tool(
     'list_note_revisions',
     '分页列出授权笔记的历史版本摘要；不返回本机历史文件路径。',
@@ -558,6 +574,9 @@ export const knowledgeToolDefinitions: KnowledgeToolDefinition[] = [
       .extend({
         result: z
           .union([
+            primaryCreationIntent,
+            primaryPreparedReceipt,
+            primaryCommitReceipt,
             fileResult,
             write,
             restored,

@@ -1,3 +1,4 @@
+import { createPrimaryDiagramToolPort, primaryDiagramToolNames } from './primary-diagram-tools.js';
 import { primaryDiagramService } from '../../../packages/core/knowledge/primary-diagrams.js';
 import { hasDiagramResourceProof } from '../../../packages/core/knowledge/diagram-publications.js';
 import { basename, dirname, posix } from 'node:path';
@@ -5,7 +6,11 @@ import { lstatSync } from 'node:fs';
 import { join } from 'node:path';
 import { knowledgeToolByName } from '../../../shared/mcp-knowledge-tools.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
-import type { McpManagedDomainPort, McpTransferBinding } from '../../../shared/mcp-domain-tools.js';
+import type {
+  McpManagedDomainPort,
+  McpTransferBinding,
+  McpTransferInfo,
+} from '../../../shared/mcp-domain-tools.js';
 import type { ServiceCallOptions } from '../../../packages/plugin-sdk/index.js';
 import type { McpDomainContext } from './mcp-domain-context.js';
 import { authorizePath, requireScope } from '../../../packages/core/agent/auth.js';
@@ -205,7 +210,10 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
     binding: McpTransferBinding,
     write: boolean,
     options?: ServiceCallOptions,
+    state?: McpTransferInfo['state'],
   ) {
+    if (primary.handlesTransfer(binding))
+      return primary.authorizeTransfer(binding, write, options, state);
     if (binding.kind === 'bundle-import' || binding.kind === 'bundle-export')
       return bundles.authorizeTransfer(binding, write, options);
     if (binding.domain !== 'knowledge') fail(403, 'FORBIDDEN');
@@ -298,7 +306,8 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
     let p = context.authorize(def.scopes, options);
     const revalidate = () => context.authorize(def.scopes, options);
     let result: any;
-    if (knowledgeBundleToolNames.has(name)) result = await bundles.call(name, a, options);
+    if (primaryDiagramToolNames.has(name)) result = await primary.call(name, a, options);
+    else if (knowledgeBundleToolNames.has(name)) result = await bundles.call(name, a, options);
     else if (name === 'list_note_revisions') {
       note(p, a.noteId);
       const rows = db
@@ -574,31 +583,42 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
               : snapshot.format === 'mermaid'
                 ? 'text/plain'
                 : 'text/markdown';
-        const transfer = transfers.createDownload(p, {
-          requestId:
-            'diagram-source-' +
-            sha256(
-              [p.id, p.clientId, snapshot.noteId, snapshot.documentHash, snapshot.sourceHash].join(
-                '\0',
-              ),
-            ),
-          binding: {
-            domain: 'knowledge',
-            kind: 'diagram-source',
-            id: snapshot.noteId,
-            revision: snapshot.modifiedAt,
-            metadata: {
-              documentHash: snapshot.documentHash,
-              sourceHash: snapshot.sourceHash,
-              format: snapshot.format,
-              ...(snapshot.sourcePath ? { sourcePath: snapshot.sourcePath } : {}),
+        let requestId =
+          'diagram-source-' +
+          sha256(
+            [
+              p.id,
+              p.clientId,
+              snapshot.noteId,
+              snapshot.documentHash,
+              snapshot.sourceHash,
+              snapshot.modifiedAt,
+            ].join('\0'),
+          );
+        for (let attempt = 0; attempt < 128; attempt++) {
+          const transfer = transfers.createDownload(p, {
+            requestId,
+            binding: {
+              domain: 'knowledge',
+              kind: 'diagram-source',
+              id: snapshot.noteId,
+              revision: snapshot.modifiedAt,
+              metadata: {
+                documentHash: snapshot.documentHash,
+                sourceHash: snapshot.sourceHash,
+                format: snapshot.format,
+                ...(snapshot.sourcePath ? { sourcePath: snapshot.sourcePath } : {}),
+              },
             },
-          },
-          name: basename(runtime.notes.row(snapshot.noteId).path, '.md') + extension,
-          mime,
-          bytes: Buffer.from(snapshot.content, 'utf8'),
-        });
-        return transfer.transferId;
+            name: basename(runtime.notes.row(snapshot.noteId).path, '.md') + extension,
+            mime,
+            bytes: Buffer.from(snapshot.content, 'utf8'),
+          });
+          if (transfer.state === 'ready') return transfer.transferId;
+          if (transfer.state !== 'cancelled') fail(503, 'MCP_TRANSFER_UNAVAILABLE');
+          requestId = 'diagram-source-' + sha256(transfer.transferId);
+        }
+        return fail(503, 'MCP_TRANSFER_UNAVAILABLE');
       };
       let resource = primary.resolve(a.noteId, { maxInlineBytes: 8192, sourceHandle });
       if (mcpResultFrameSize({ data: resource }) > mcpMaximumFrameBytes) {
@@ -853,7 +873,8 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
         .get(op.operationId) as { binding: string } | undefined;
       if (row) {
         const b = JSON.parse(row.binding);
-        if (b.noteId) lifecycle(p, b.noteId);
+        if (b.primary) primary.authorizeOperation(p, b.primary, { scope: 'knowledge:read' });
+        else if (b.noteId) lifecycle(p, b.noteId);
         else if (b.folderId) archivedFolder(p, b.folderId);
         else if (b.directoryId) {
           const dir = db
@@ -902,7 +923,14 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
     if (name === 'list_note_collection')
       for (const item of result.items) authorizePath(fresh, item.path);
     if (name === 'list_note_assets') note(fresh, a.noteId);
-    if(name==='get_note_diagram') {note(fresh,a.noteId);try{requireScope(fresh,'knowledge:write');}catch{result.capabilities.canEdit=false;}}
+    if (name === 'get_note_diagram') {
+      note(fresh, a.noteId);
+      try {
+        requireScope(fresh, 'knowledge:write');
+      } catch {
+        result.capabilities.canEdit = false;
+      }
+    }
     const out = def.output.safeParse(result);
     if (!out.success) fail(502, 'INVALID_BACKEND_RESPONSE');
     return out.data as Record<string, unknown>;
@@ -940,6 +968,7 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
       throw error;
     }
   }
+  const primary = createPrimaryDiagramToolPort(context);
   const bundles = createKnowledgeBundlePort(context, paged);
   return { call, authorizeTransfer };
 }

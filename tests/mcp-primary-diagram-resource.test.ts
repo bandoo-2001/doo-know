@@ -1,3 +1,5 @@
+import { utimes } from 'node:fs/promises';
+import { join } from 'node:path';
 import { afterEach, expect, it } from 'vitest';
 import { randomUUID, createHash } from 'node:crypto';
 import { pluginRuntimeFixture } from './support/plugin-runtime';
@@ -99,7 +101,40 @@ it('rechecks the current note version before later source chunks are authorized'
   );
 });
 
-it('keeps semantic Markdown graph types and pending publication status in the SDK metadata contract',async()=>{
- const f=await fixture(),info=await f.runtime.knowledge.info(f.principal,f.intent.noteId),{noteInfo}=await import('../plugins/mcp/server/contracts');
- expect(info.documentType).toBe('whiteboard');expect(noteInfo.parse(info).documentType).toBe('whiteboard');
+it('keeps semantic Markdown graph types and pending publication status in the SDK metadata contract', async () => {
+  const f = await fixture(),
+    info = await f.runtime.knowledge.info(f.principal, f.intent.noteId),
+    { noteInfo } = await import('../plugins/mcp/server/contracts');
+  expect(info.documentType).toBe('whiteboard');
+  expect(noteInfo.parse(info).documentType).toBe('whiteboard');
+});
+
+it('issues a fresh source handle after a same-byte external save changes the main revision', async () => {
+  const f = await fixture(),
+    first: any = await f.port.call('get_note_diagram', { noteId: f.intent.noteId }),
+    old = f.transfers.info(f.principal, first.source.readHandle);
+  await utimes(
+    join(f.config.knowledgeRoot, f.intent.relativePath),
+    new Date(),
+    new Date(Date.now() + 2000),
+  );
+  expect(() => f.port.authorizeTransfer(old.binding, false)).toThrowError(
+    expect.objectContaining({ code: 'STALE_CURSOR' }),
+  );
+  const next: any = await f.port.call('get_note_diagram', { noteId: f.intent.noteId });
+  expect(next.source.hash).toBe(first.source.hash);
+  expect(next.source.readHandle).not.toBe(first.source.readHandle);
+  f.port.authorizeTransfer(f.transfers.info(f.principal, next.source.readHandle).binding, false);
+});
+
+it('acquires a new ready source snapshot after its previous handle was cancelled', async () => {
+  const f = await fixture(),
+    first: any = await f.port.call('get_note_diagram', { noteId: f.intent.noteId });
+  f.transfers.cancel(f.principal, first.source.readHandle);
+  const next: any = await f.port.call('get_note_diagram', { noteId: f.intent.noteId });
+  expect(next.source.readHandle).not.toBe(first.source.readHandle);
+  expect(f.transfers.info(f.principal, first.source.readHandle).state).toBe('cancelled');
+  expect(f.transfers.info(f.principal, next.source.readHandle).state).toBe('ready');
+  const again: any = await f.port.call('get_note_diagram', { noteId: f.intent.noteId });
+  expect(again.source.readHandle).toBe(next.source.readHandle);
 });

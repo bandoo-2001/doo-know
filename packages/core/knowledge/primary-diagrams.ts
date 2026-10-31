@@ -376,7 +376,10 @@ export function primaryDiagramService(
       return result;
     });
   }
-  function getPreparation(id: string, options: { fresh?: boolean } = {}) {
+  function getPreparation(
+    id: string,
+    options: { fresh?: boolean; scope?: 'knowledge:read' | 'knowledge:write' } = {},
+  ) {
     const row = db
       .prepare(
         'SELECT result,principal,client_id,expires_at FROM diagram_prepared_primaries WHERE id=?',
@@ -387,12 +390,76 @@ export function primaryDiagramService(
     if (!row || row.principal !== principal.id || row.client_id !== principal.clientId)
       fail(404, 'NOT_FOUND');
     const prepared = JSON.parse(row.result) as PreparedDiagramPrimary;
-    if (prepared.creationIntentId) creations.get(prepared.creationIntentId);
-    else authorizePath(principal, notes.row(prepared.noteId).path, 'knowledge:write');
+    const scope = options.scope ?? 'knowledge:write';
+    if (prepared.creationIntentId) creations.get(prepared.creationIntentId, { scope });
+    else authorizePath(principal, notes.row(prepared.noteId).path, scope);
     if (options.fresh && row.expires_at <= Date.now()) fail(409, 'DIAGRAM_PREPARATION_EXPIRED');
     return prepared;
   }
+  /** Recover only this actor's committed preparation metadata, never uploaded content.
+   * The caller supplies its durable upload digest/size binding before attempting commit. */
+  function getCommitMetadata(input: {
+    preparedId: string;
+    requestId: string;
+    contentHash: string;
+    sizeBytes: number;
+    paramsHash: string;
+  }) {
+    const prepared = getPreparation(input.preparedId);
+    const operation = db
+      .prepare(
+        "SELECT * FROM operations WHERE principal=? AND client_id=? AND kind='diagram-primary.commit' AND request_id=?",
+      )
+      .get(principal.id, principal.clientId, input.requestId) as OperationRow | undefined;
+    if (!operation) return undefined;
+    if (operation.params_hash !== input.paramsHash) fail(409, 'IDEMPOTENCY_CONFLICT');
+    const inner = db
+      .prepare(
+        'SELECT * FROM operations WHERE principal=? AND client_id=? AND kind=? AND request_id=?',
+      )
+      .get(
+        principal.id,
+        principal.clientId,
+        prepared.creationIntentId ? 'create' : 'update',
+        'primary-' + operation.id,
+      ) as OperationRow | undefined;
+    if (inner?.status !== 'succeeded') return undefined;
+    const receipt = existingResult(inner);
+    if (
+      receipt.id !== prepared.noteId ||
+      receipt.contentHash !== input.contentHash ||
+      receipt.sizeBytes !== input.sizeBytes
+    )
+      fail(409, 'DIAGRAM_PREPARATION_MISMATCH');
+    const metadata = {
+      id: receipt.id,
+      relativePath: receipt.relativePath,
+      documentType: prepared.type,
+      title: prepared.title,
+      modifiedAt: receipt.modifiedAt,
+      updatedAt: new Date(Number(BigInt(receipt.modifiedAt) / 1000000n)).toISOString(),
+    };
+    if (operation.status === 'succeeded') {
+      const recorded = existingResult(operation);
+      if (
+        recorded.id !== metadata.id ||
+        recorded.modifiedAt !== metadata.modifiedAt ||
+        recorded.documentType !== metadata.documentType
+      )
+        fail(409, 'DIAGRAM_PREPARATION_MISMATCH');
+    } else {
+      if (operation.status !== 'prepared') existingResult(operation);
+      completeOperation(db, operation.id, metadata);
+    }
+    return {
+      ...metadata,
+      contentHash: receipt.contentHash,
+      sizeBytes: receipt.sizeBytes,
+      indexState: receipt.indexState,
+    };
+  }
   return {
+    getCommitMetadata,
     validateTarget: target,
     getPreparation,
     prepare,
