@@ -1,4 +1,12 @@
-import { constants, openSync, closeSync, fstatSync, readSync, readFileSync } from 'node:fs';
+import {
+  constants,
+  openSync,
+  closeSync,
+  fstatSync,
+  readSync,
+  readFileSync,
+  statSync,
+} from 'node:fs';
 import { join, posix } from 'node:path';
 import { createHash } from 'node:crypto';
 import type { AppConfig } from '../../../shared/contracts.js';
@@ -9,15 +17,25 @@ import { fileVersionStamp } from './file-reader.js';
 import { limits } from './limits.js';
 import { fail } from './errors.js';
 import { hasDiagramDeclarationSync } from './diagram-declaration.js';
-import type { DiagramVersionResource } from './diagram-publications.js';
-import { rebaseRevisionMarkdown } from './revision-relocation.js';
+import type { Principal } from '../../../shared/knowledge-contracts.js';
+import { scanRevisionDestinations, revisionDestinationUrl } from './revision-relocation.js';
+import {
+  captureRevisionReferences,
+  retainRevisionResourceIds,
+  revisionIdentityMapping,
+  type RevisionResource,
+  type RevisionReferences,
+} from './revision-identities.js';
+import { revisionNativeEdits } from './revision-native-restore.js';
+import { webPrincipal } from './core.js';
 
 export type RevisionContext = {
   documentType: DocumentType;
   payloadFormat: 'markdown' | 'excalidraw';
   logicalPath: string | null;
   contentHash: string;
-  resources: DiagramVersionResource[];
+  resources: RevisionResource[];
+  references: RevisionReferences;
 };
 type RevisionIntent = {
   id: string;
@@ -38,6 +56,8 @@ type Row = {
   logical_path: string | null;
   content_hash: string | null;
   resources_manifest: string | null;
+  references_manifest: string | null;
+  created_at: string;
 };
 
 export function migrateRevisionContext(db: AppDatabase) {
@@ -50,6 +70,7 @@ export function migrateRevisionContext(db: AppDatabase) {
     'logical_path',
     'content_hash',
     'resources_manifest',
+    'references_manifest',
   ])
     if (!columns.has(name)) db.exec(`ALTER TABLE revisions ADD COLUMN ${name} TEXT`);
   db.exec(`CREATE TABLE IF NOT EXISTS diagram_history_restores(
@@ -120,7 +141,7 @@ function resources(
   noteId: string,
   hash: string,
   path: string | null,
-): DiagramVersionResource[] {
+): RevisionResource[] {
   if (!path) return [];
   const row = db
     .prepare(
@@ -148,15 +169,26 @@ function resources(
 }
 function store(db: AppDatabase, revisionId: string, value: RevisionContext) {
   db.prepare(
-    'UPDATE revisions SET document_type=?,payload_format=?,logical_path=?,content_hash=?,resources_manifest=? WHERE id=?',
+    'UPDATE revisions SET document_type=?,payload_format=?,logical_path=?,content_hash=?,resources_manifest=?,references_manifest=? WHERE id=?',
   ).run(
     value.documentType,
     value.payloadFormat,
     value.logicalPath,
     value.contentHash,
     JSON.stringify(value.resources),
+    JSON.stringify(value.references),
     revisionId,
   );
+}
+function publishedLogicalPath(db: AppDatabase, noteId: string, hash: string, createdAt: string) {
+  const at = Date.parse(createdAt);
+  if (!Number.isFinite(at)) return null;
+  const row = db
+    .prepare(
+      'SELECT path FROM diagram_document_versions WHERE note_id=? AND document_hash=? AND created_at<=? ORDER BY created_at DESC,rowid DESC LIMIT 1',
+    )
+    .get(noteId, hash, at) as { path: string } | undefined;
+  return row?.path ?? null;
 }
 /** Called within core.record's transaction, before the current identity changes its logical path. */
 export function recordRevisionContext(config: AppConfig, db: AppDatabase, intent: RevisionIntent) {
@@ -180,10 +212,24 @@ export function recordRevisionContext(config: AppConfig, db: AppDatabase, intent
     new Date().toISOString(),
     intent.original_mtime ?? '0',
   );
+  const retained = retainRevisionResourceIds(
+    db,
+    resources(db, intent.note_id, value.contentHash, logicalPath),
+  );
   store(db, intent.revision_id, {
     ...value,
     logicalPath,
-    resources: resources(db, intent.note_id, value.contentHash, logicalPath),
+    resources: retained,
+    references: captureRevisionReferences(
+      config,
+      db,
+      intent.note_id,
+      logicalPath,
+      revisionFile(config, intent.history_file),
+      retained,
+      undefined,
+      value.contentHash,
+    ),
   });
 }
 
@@ -198,44 +244,147 @@ export function revisionContext(
     .prepare('SELECT * FROM revisions WHERE id=? AND note_id=?')
     .get(revisionId, noteId) as Row | undefined;
   if (!row) fail(404, 'REVISION_NOT_FOUND');
-  let path = row.logical_path;
+  let path =
+    row.logical_path ??
+    (row.content_hash ? publishedLogicalPath(db, noteId, row.content_hash, row.created_at) : null);
   if (!row.content_hash) {
     const intent = db
       .prepare(
-        'SELECT path,kind FROM write_intents WHERE revision_id=? AND note_id=? ORDER BY rowid LIMIT 1',
+        'SELECT id,path,kind FROM write_intents WHERE revision_id=? AND note_id=? ORDER BY rowid LIMIT 1',
       )
-      .get(revisionId, noteId) as { path: string; kind: string } | undefined;
+      .get(revisionId, noteId) as { id: string; path: string; kind: string } | undefined;
     // Move/migration intents record their destination. Without a saved context it is not evidence
     // of the original path. Ordinary update/patch intents do retain the original logical path.
     path =
-      intent && !['move', 'restore', 'whiteboard-migrate'].includes(intent.kind)
+      path ??
+      (intent &&
+      !['move', 'restore', 'whiteboard-migrate', 'whiteboard-rollback'].includes(intent.kind)
         ? intent.path
-        : null;
-    const value = inspect(config, row.file, path);
+        : null);
+    if (!path && intent) {
+      if (['whiteboard-migrate', 'whiteboard-rollback'].includes(intent.kind)) {
+        const migration = db
+          .prepare(
+            'SELECT old_path,new_path FROM whiteboard_migrations WHERE commit_operation_id=? OR rollback_operation_id=?',
+          )
+          .get(intent.id, intent.id) as { old_path: string; new_path: string } | undefined;
+        path = migration
+          ? intent.kind === 'whiteboard-migrate'
+            ? migration.old_path
+            : migration.new_path
+          : null;
+      } else if (intent.kind === 'move') {
+        const operation = db
+          .prepare("SELECT result FROM operations WHERE id=? AND status='succeeded'")
+          .get(intent.id) as { result: string } | undefined;
+        try {
+          const from = JSON.parse(operation?.result ?? '{}').previousRelativePath;
+          if (typeof from === 'string') path = from;
+        } catch {
+          /* Unknown result is not logical-path evidence. */
+        }
+      }
+    }
+    let value = inspect(config, row.file, path);
+    if (!path) {
+      path = publishedLogicalPath(db, noteId, value.contentHash, row.created_at);
+      if (path) value = inspect(config, row.file, path);
+    }
+    const since = Number.isFinite(Date.parse(row.created_at))
+      ? Date.parse(row.created_at)
+      : undefined;
+    const retained = retainRevisionResourceIds(
+      db,
+      resources(db, noteId, value.contentHash, path),
+      since,
+    );
     const context = {
       ...value,
       logicalPath: path,
-      resources: resources(db, noteId, value.contentHash, path),
+      resources: retained,
+      references: captureRevisionReferences(
+        config,
+        db,
+        noteId,
+        path,
+        revisionFile(config, row.file),
+        retained,
+        since,
+        value.contentHash,
+      ),
     };
     store(db, revisionId, context);
     return context;
   }
   const checked = inspect(config, row.file, path);
   if (checked.contentHash !== row.content_hash) fail(409, 'REVISION_CONTENT_CONFLICT');
-  let retained: DiagramVersionResource[];
+  let retained: RevisionResource[];
   try {
     retained = JSON.parse(row.resources_manifest ?? '[]');
   } catch {
     return fail(409, 'REVISION_CONTEXT_INVALID');
   }
-  if (!Array.isArray(retained)) fail(409, 'REVISION_CONTEXT_INVALID');
-  return {
+  if (
+    !Array.isArray(retained) ||
+    !retained.every(
+      (resource) =>
+        resource &&
+        ['source', 'preview'].includes(resource.role) &&
+        typeof resource.path === 'string' &&
+        /^[a-f0-9]{64}$/.test(resource.hash) &&
+        (resource.assetId === undefined || typeof resource.assetId === 'string'),
+    )
+  )
+    fail(409, 'REVISION_CONTEXT_INVALID');
+  const since = Number.isFinite(Date.parse(row.created_at))
+    ? Date.parse(row.created_at)
+    : undefined;
+  retained = retainRevisionResourceIds(db, retained, since);
+  let references: RevisionReferences;
+  if (row.references_manifest) {
+    try {
+      references = JSON.parse(row.references_manifest);
+      if (
+        references.version !== 1 ||
+        typeof references.complete !== 'boolean' ||
+        !Array.isArray(references.items) ||
+        !references.items.every(
+          (ref) =>
+            ref &&
+            typeof ref.path === 'string' &&
+            (ref.noteId === undefined || typeof ref.noteId === 'string') &&
+            (ref.assetId === undefined || typeof ref.assetId === 'string') &&
+            !(ref.noteId && ref.assetId) &&
+            (ref.hash === undefined || /^[a-f0-9]{64}$/.test(ref.hash)) &&
+            (!ref.assetId || !!ref.hash),
+        )
+      )
+        throw Error();
+    } catch {
+      return fail(409, 'REVISION_CONTEXT_INVALID');
+    }
+  } else
+    references = captureRevisionReferences(
+      config,
+      db,
+      noteId,
+      path,
+      revisionFile(config, row.file),
+      retained,
+      since,
+      row.content_hash,
+    );
+  const context = {
     documentType: row.document_type ?? checked.documentType,
     payloadFormat: row.payload_format ?? checked.payloadFormat,
     logicalPath: path,
     contentHash: row.content_hash,
     resources: retained,
+    references,
   };
+  if (!row.references_manifest || JSON.stringify(retained) !== row.resources_manifest)
+    store(db, revisionId, context);
+  return context;
 }
 
 /** Shared by small saves and background restore jobs. Old JSON never enters a Markdown writer. */
@@ -245,6 +394,7 @@ export function revisionRestoreSource(
   noteId: string,
   revisionId: string,
   targetPath: string,
+  principal?: Principal,
 ) {
   const context = revisionContext(config, db, noteId, revisionId);
   const row = db
@@ -259,17 +409,81 @@ export function revisionRestoreSource(
     });
   if (context.payloadFormat === 'markdown' && isWhiteboard(targetPath))
     fail(409, 'DIAGRAM_DOCUMENT_CONVERSION_REQUIRED');
-  if (context.logicalPath && posix.dirname(context.logicalPath) !== posix.dirname(targetPath)) {
+  const mapping = revisionIdentityMapping(config, db, context.references, principal);
+  if (!context.logicalPath) {
+    const scanned = scanRevisionDestinations(file);
+    if (scanned.contentHash !== context.contentHash) fail(409, 'REVISION_CONTENT_CONFLICT');
+    if (
+      scanned.spans.some((span) => span.url && !/^(?:#|\/|[a-z][a-z\d+.-]*:)/i.test(span.url)) ||
+      scanned.nativeGroups.length ||
+      !scanned.complete
+    )
+      fail(409, 'REVISION_PATH_UNKNOWN');
+  }
+  if (
+    context.logicalPath &&
+    (context.references.items.some((ref) => ref.native) ||
+      posix.dirname(context.logicalPath) !== posix.dirname(targetPath) ||
+      [...mapping].some(([from, to]) => from !== to))
+  ) {
     if (context.documentType !== 'markdown')
       fail(409, 'DIAGRAM_PREVIEW_REQUIRED', '跨目录图形历史需要重新准备预览', false, {
         noteId,
         revisionId,
       });
-    const original = readFileSync(file, 'utf8');
+    const scanned = scanRevisionDestinations(file);
+    if (scanned.contentHash !== context.contentHash) fail(409, 'REVISION_CONTENT_CONFLICT');
+    if (!context.references.complete || !scanned.complete)
+      fail(409, 'REVISION_REFERENCE_CONTEXT_INCOMPLETE');
+    const overrides = new Map<string, string>();
+    const pairs = context.references.items
+      .filter((ref) => ref.native && ref.previewPath && ref.hash)
+      .map((ref) => ({
+        start: -1,
+        end: -1,
+        sourcePath: posix.relative(posix.dirname(context.logicalPath!), ref.path),
+        previewPath: posix.relative(posix.dirname(context.logicalPath!), ref.previewPath!),
+        sourceHash: ref.hash!,
+        code: '',
+        codeHash: '',
+        pair: true as const,
+      }));
+    const nativeEdits = revisionNativeEdits(
+      config,
+      db,
+      principal ?? webPrincipal,
+      noteId,
+      revisionId,
+      context.contentHash,
+      context.logicalPath,
+      targetPath,
+      [...scanned.nativeGroups, ...pairs],
+      mapping,
+      overrides,
+    );
+    for (const [from, to] of overrides) mapping.set(from, to);
+    const edits = [
+      ...nativeEdits,
+      ...scanned.spans.flatMap((span) => {
+        if (nativeEdits.some((edit) => span.startByte >= edit.start && span.endByte <= edit.end))
+          return [];
+        const text = revisionDestinationUrl(span, context.logicalPath!, targetPath, mapping);
+        return text === undefined ? [] : [{ start: span.startByte, end: span.endByte, text }];
+      }),
+    ];
+    if (!edits.length) return { file, context };
+    if (statSync(file).size > limits.ordinary) return { file, context, edits };
+    const original = readFileSync(file);
     if (createHash('sha256').update(original).digest('hex') !== context.contentHash)
       fail(409, 'REVISION_CONTENT_CONFLICT');
-    const content = rebaseRevisionMarkdown(original, context.logicalPath, targetPath);
-    return { file, context, ...(content !== original ? { content } : {}) };
+    const parts: Buffer[] = [];
+    let offset = 0;
+    for (const edit of edits.sort((a, b) => a.start - b.start)) {
+      parts.push(original.subarray(offset, edit.start), Buffer.from(edit.text));
+      offset = edit.end;
+    }
+    parts.push(original.subarray(offset));
+    return { file, context, content: Buffer.concat(parts).toString('utf8') };
   }
   return { file, context };
 }

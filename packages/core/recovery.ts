@@ -20,24 +20,36 @@ export function recoveryService(config: AppConfig, db: AppDatabase, notes: NoteS
         file: string;
         createdAt: string;
         modifiedAt: string;
-        documentType:string|null;
-        payloadFormat:string|null;
-        logicalPath:string|null;
-        contentHash:string|null;
+        documentType: string | null;
+        payloadFormat: string | null;
+        logicalPath: string | null;
+        contentHash: string | null;
       }[]
     ).map((r) => ({
       id: r.id,
       createdAt: r.createdAt,
       modifiedAt: r.modifiedAt,
-      documentType:r.documentType,payloadFormat:r.payloadFormat,logicalPath:r.logicalPath,contentHash:r.contentHash,
+      documentType: r.documentType,
+      payloadFormat: r.payloadFormat,
+      logicalPath: r.logicalPath,
+      contentHash: r.contentHash,
       sizeBytes: statSync(join(config.dataRoot, 'history', r.file)).size,
     }));
   }
   function restoreRevision(id: string, revisionId: string, expected: string, requestId?: string) {
-    const source=revisionRestoreSource(config,db,id,revisionId,notes.row(id).path);
+    const source = revisionRestoreSource(
+      config,
+      db,
+      id,
+      revisionId,
+      notes.row(id).path,
+      webPrincipal,
+    );
+    if (source.edits)
+      throw new KnowledgeError(413, 'HISTORY_BACKGROUND_REQUIRED', '请通过后台作业恢复大文件历史');
     return notes.saveNote(
       id,
-      source.content??readFileSync(source.file, 'utf8'),
+      source.content ?? readFileSync(source.file, 'utf8'),
       expected,
       requestId,
     );

@@ -22,7 +22,10 @@ import { revisionContext, revisionFile } from './revision-context.js';
 import { beginOperation, completeOperation, existingResult, sha256 } from './operations.js';
 import { workspaceWriteSync } from '../workspace/gate.js';
 import { fail } from './errors.js';
-import { rebaseRevisionMarkdown } from './revision-relocation.js';
+import { rebaseRevisionMarkdown, scanRevisionDestinations } from './revision-relocation.js';
+import { revisionIdentityMapping, revisionResourcePath } from './revision-identities.js';
+import { revisionNativeEdits } from './revision-native-restore.js';
+import { boundDiagramSources } from '../../../shared/diagram-portability.js';
 
 export type DiagramHistoryRestorePlan = {
   id: string;
@@ -41,6 +44,7 @@ export type DiagramHistoryRestorePlan = {
   revisionHash: string;
   baseMarkdown: string;
   expiresAt: number;
+  referencesHash?: string;
 };
 type Row = {
   id: string;
@@ -89,10 +93,15 @@ export function diagramHistoryRestoreService(
     )
       fail(409, 'VERSION_CONFLICT');
     if (current.sourceHash !== value.expectedSourceHash) fail(409, 'DIAGRAM_SOURCE_CONFLICT');
+    const context = revisionContext(config, db, value.noteId, value.revisionId);
+    if (context.contentHash !== value.revisionHash) fail(409, 'REVISION_CONTENT_CONFLICT');
     if (
-      revisionContext(config, db, value.noteId, value.revisionId).contentHash !== value.revisionHash
+      value.referencesHash &&
+      sha256(
+        JSON.stringify([...revisionIdentityMapping(config, db, context.references, principal)]),
+      ) !== value.referencesHash
     )
-      fail(409, 'REVISION_CONTENT_CONFLICT');
+      fail(409, 'VERSION_CONFLICT');
     return current;
   }
   function plan(
@@ -103,13 +112,25 @@ export function diagramHistoryRestoreService(
   ): DiagramHistoryRestorePlan {
     authorize(noteId);
     return workspaceWriteSync(db, { kind: 'diagram-history.plan' }, () => {
-      const op = beginOperation(db, principal, 'diagram-history.plan', requestId, {
+      const params = {
         noteId,
         revisionId,
         expectedModifiedAt,
-      });
-      if (!op.fresh) return existingResult(op.operation) as DiagramHistoryRestorePlan;
+      };
+      if (
+        db
+          .prepare(
+            "SELECT id FROM operations WHERE principal=? AND client_id=? AND kind='diagram-history.plan' AND request_id=?",
+          )
+          .get(principal.id, principal.clientId, requestId)
+      )
+        return existingResult(
+          beginOperation(db, principal, 'diagram-history.plan', requestId, params).operation,
+        ) as DiagramHistoryRestorePlan;
       const context = revisionContext(config, db, noteId, revisionId);
+      const mapping = revisionIdentityMapping(config, db, context.references, principal);
+      if (!context.references.complete && context.logicalPath !== notes.row(noteId).path)
+        fail(409, 'REVISION_REFERENCE_CONTEXT_INCOMPLETE');
       const current = readPrimaryDiagramState(db, notes, assets, principal, noteId);
       if (current.note.modifiedAt !== expectedModifiedAt) fail(409, 'VERSION_CONFLICT');
       const revision = db
@@ -137,10 +158,58 @@ export function diagramHistoryRestoreService(
       } else if (parsed.status === 'diagram') {
         if (!context.logicalPath)
           fail(409, 'REVISION_PATH_UNKNOWN', '历史版本缺少原始逻辑路径，无法安全重定位资源');
+        const scanned = scanRevisionDestinations(revisionFile(config, revision.file));
+        if (scanned.contentHash !== context.contentHash) fail(409, 'REVISION_CONTENT_CONFLICT');
+        const pairs = context.references.items
+          .filter((ref) => ref.native && ref.previewPath && ref.hash)
+          .map((ref) => ({
+            start: -1,
+            end: -1,
+            sourcePath: posix.relative(posix.dirname(context.logicalPath!), ref.path),
+            previewPath: posix.relative(posix.dirname(context.logicalPath!), ref.previewPath!),
+            sourceHash: ref.hash!,
+            code: '',
+            codeHash: '',
+            pair: true as const,
+          }));
+        const overrides = new Map<string, string>(),
+          nativeEdits = revisionNativeEdits(
+            config,
+            db,
+            principal,
+            noteId,
+            revisionId,
+            context.contentHash,
+            context.logicalPath,
+            current.note.relativePath,
+            [...scanned.nativeGroups, ...pairs],
+            mapping,
+            overrides,
+          ),
+          bodyMapping = new Map([...mapping, ...overrides]);
+        let body = historical;
+        if (nativeEdits.length) {
+          const bytes = Buffer.from(historical),
+            parts: Buffer[] = [];
+          let offset = 0;
+          for (const edit of nativeEdits.sort((a, b) => a.start - b.start)) {
+            parts.push(bytes.subarray(offset, edit.start), Buffer.from(edit.text));
+            offset = edit.end;
+          }
+          parts.push(bytes.subarray(offset));
+          body = Buffer.concat(parts).toString('utf8');
+        }
+        const bodyParsed = parseDiagramDocument(body);
+        if (bodyParsed.status !== 'diagram') fail(409, 'REVISION_CONTEXT_INVALID');
         baseMarkdown = rebaseRevisionMarkdown(
-          historical,
+          body,
           context.logicalPath,
           current.note.relativePath,
+          bodyMapping,
+          [
+            bodyParsed.primary.range,
+            ...boundDiagramSources(body).map((group) => ({ from: group.prefixFrom, to: group.to })),
+          ],
         );
         title = parsed.title;
         render = primaryRenderDescriptor(parsed);
@@ -151,11 +220,27 @@ export function diagramHistoryRestoreService(
           oldSourcePath =
             retained?.path ?? localReference(context.logicalPath, parsed.primary.source.path);
           if (!oldSourcePath) fail(409, 'REVISION_CONTEXT_INVALID');
-          source = assets.file(oldSourcePath).bytes.toString('utf8');
+          const sourcePath = retained ? revisionResourcePath(config, db, retained) : oldSourcePath;
+          try {
+            source = assets.file(sourcePath).bytes.toString('utf8');
+          } catch {
+            return fail(409, 'DIAGRAM_ARTIFACT_CONFLICT');
+          }
           if (sha256(source) !== parsed.primary.binding.sourceHash)
             fail(409, 'DIAGRAM_ARTIFACT_CONFLICT');
           parseWhiteboard(source);
-        } else source = parsed.primary.source.content;
+        } else
+          source =
+            parsed.primary.source.format === 'markdown-outline'
+              ? rewriteLibraryReferences(
+                  parsed.primary.source.content,
+                  context.logicalPath,
+                  current.note.relativePath,
+                  [...mapping]
+                    .filter(([from, to]) => from !== to)
+                    .map(([from, to]) => ({ from, to })),
+                ).content
+              : parsed.primary.source.content;
       } else return fail(409, 'REVISION_CONTEXT_INVALID');
       if (type === 'whiteboard') {
         if (!oldSourcePath)
@@ -165,8 +250,15 @@ export function diagramHistoryRestoreService(
           'assets',
           'history.excalidraw',
         );
-        source = rewriteLibraryReferences(source, oldSourcePath, targetSource, [], true).content;
+        source = rewriteLibraryReferences(
+          source,
+          oldSourcePath,
+          targetSource,
+          [...mapping].filter(([from, to]) => from !== to).map(([from, to]) => ({ from, to })),
+          true,
+        ).content;
       }
+      const op = beginOperation(db, principal, 'diagram-history.plan', requestId, params);
       const value: DiagramHistoryRestorePlan = {
         id: op.operation.id,
         noteId,
@@ -184,6 +276,7 @@ export function diagramHistoryRestoreService(
         revisionHash: context.contentHash,
         baseMarkdown,
         expiresAt: Date.now() + 60 * 60 * 1000,
+        referencesHash: sha256(JSON.stringify([...mapping])),
       };
       db.transaction(() => {
         db.prepare(
