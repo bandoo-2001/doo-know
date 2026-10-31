@@ -120,15 +120,13 @@ it('pages all preparation needs with bounded replies and actor-bound invalidatin
     };
   });
   const { operation } = beginOperation(f.db, f.p, 'move', randomUUID(), {});
-  f.db
-    .prepare("UPDATE operations SET status='awaiting_preview',error=? WHERE id=?")
-    .run(
-      JSON.stringify({
-        code: 'DIAGRAM_PREVIEW_REQUIRED',
-        details: { planId: documents[0].snapshotId, documents },
-      }),
-      operation.id,
-    );
+  f.db.prepare("UPDATE operations SET status='awaiting_preview',error=? WHERE id=?").run(
+    JSON.stringify({
+      code: 'DIAGRAM_PREVIEW_REQUIRED',
+      details: { planId: documents[0].snapshotId, documents },
+    }),
+    operation.id,
+  );
   const first = diagramOperationPreviewNeeds(f.config, f.db, f.p, { operationId: operation.id });
   expect(first.documents).toHaveLength(20);
   expect(Buffer.byteLength(JSON.stringify(first))).toBeLessThan(16000);
@@ -160,14 +158,12 @@ it('pages all preparation needs with bounded replies and actor-bound invalidatin
       { operationId: operation.id },
     ),
   ).toThrowError(expect.objectContaining({ statusCode: 403 }));
-  f.db
-    .prepare('UPDATE operations SET error=? WHERE id=?')
-    .run(
-      JSON.stringify({
-        details: { planId: documents[0].snapshotId, documents: [...documents].reverse() },
-      }),
-      operation.id,
-    );
+  f.db.prepare('UPDATE operations SET error=? WHERE id=?').run(
+    JSON.stringify({
+      details: { planId: documents[0].snapshotId, documents: [...documents].reverse() },
+    }),
+    operation.id,
+  );
   expect(() =>
     diagramOperationPreviewNeeds(f.config, f.db, f.p, {
       operationId: operation.id,
@@ -192,5 +188,34 @@ it('serves exact source bytes through bounded ranges and rechecks the baseline f
   writeFileSync(join(f.config.knowledgeRoot, f.note.relativePath), 'Changed');
   expect(() => f.registry.readSource(f.snapshot.id, { offset: 0 })).toThrowError(
     expect.objectContaining({ code: 'VERSION_CONFLICT' }),
+  );
+});
+it('does not reuse a fixed source lease after an authorized workspace root rebind with identical document bytes', async () => {
+  const f = fixture();
+  const { renameSync, cpSync, lstatSync, realpathSync } = await import('node:fs');
+  const old = join(f.root, 'old-knowledge');
+  renameSync(f.config.knowledgeRoot, old);
+  cpSync(old, f.config.knowledgeRoot, { recursive: true, preserveTimestamps: true });
+  const s = lstatSync(f.config.knowledgeRoot, { bigint: true });
+  f.db.prepare("UPDATE index_meta SET value=? WHERE key='root_identity'").run(
+    JSON.stringify({
+      path: realpathSync(f.config.knowledgeRoot),
+      dev: String(s.dev),
+      ino: String(s.ino),
+    }),
+  );
+  expect(() => f.registry.metadata(f.snapshot.id)).toThrowError(
+    expect.objectContaining({ code: 'LIBRARY_BINDING_CHANGED' }),
+  );
+});
+it('retains an explicit expired outcome when a fresh snapshot replaces an expired fingerprint', () => {
+  const f = fixture();
+  f.db
+    .prepare('UPDATE diagram_operation_previews SET expires_at=? WHERE id=?')
+    .run(Date.now() - 1, f.snapshot.id);
+  const fresh = f.registry.fix(f.snapshot.input);
+  expect(fresh.id).not.toBe(f.snapshot.id);
+  expect(() => f.registry.get(f.snapshot.id)).toThrowError(
+    expect.objectContaining({ code: 'DIAGRAM_PREPARATION_EXPIRED' }),
   );
 });

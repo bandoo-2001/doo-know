@@ -364,6 +364,13 @@ export function prepareOrganization(
     bodyBytes += size;
     if (bodyBytes > organizationLimits.bodyBytes) fail(413, 'ORGANIZATION_LIMIT');
     const body = readBody(config, n.path);
+    const nativeRewrite = native.get(n.id);
+    if (
+      nativeRewrite &&
+      (nativeRewrite.documentHash !== body.hash ||
+        nativeRewrite.documentModifiedAt !== body.evidence.mtime)
+    )
+      fail(409, 'VERSION_CONFLICT');
     coverage.push({ path: n.path, id: n.id, hash: body.hash, evidence: body.evidence });
     const target = map(n.path),
       rewrite = native.has(n.id)

@@ -1,3 +1,4 @@
+import { archivedDiagramRoot, type ArchivedDiagramContext } from './archived-diagram-context.js';
 import { lstatSync, readFileSync } from 'node:fs';
 import { posix } from 'node:path';
 import type { AppConfig } from '../../../shared/contracts.js';
@@ -34,6 +35,9 @@ export type NativePreviewNeed = {
   snapshotId: string;
 };
 export type NativeDocumentRewrite = {
+  documentHash: string;
+  documentModifiedAt: string;
+  snapshotIds?: string[];
   content: string;
   primary?: PreparedDiagramPrimary;
   legacy?: {
@@ -51,7 +55,11 @@ export function collectNativeLinkChanges(
   db: AppDatabase,
   p: Principal,
   moves: { from: string; to: string }[],
-  options: { excludeNoteIds?: string[] } = {},
+  options: {
+    excludeNoteIds?: string[];
+    notes?: { id: string; path: string }[];
+    archive?: ArchivedDiagramContext;
+  } = {},
 ) {
   const registry = diagramOperationPreviewRegistry(config, db, p),
     rewrites = new Map<string, NativeDocumentRewrite>(),
@@ -63,16 +71,38 @@ export function collectNativeLinkChanges(
       "SELECT result FROM operations WHERE kind LIKE 'diagram-artifacts:%' AND status='succeeded' AND result IS NOT NULL",
     )
     .all() as { result: string }[];
-  for (const note of db.prepare('SELECT id,path FROM notes WHERE active=1 ORDER BY path').all() as {
-    id: string;
-    path: string;
-  }[]) {
+  const archiveRoot = options.archive
+    ? archivedDiagramRoot(config, db, options.archive)
+    : undefined;
+  const readAsset = (path: string) =>
+    archiveRoot && path.startsWith(options.archive!.logicalRoot + '/')
+      ? readBoundDiagramAsset(
+          { ...config, knowledgeRoot: archiveRoot },
+          path.slice(options.archive!.logicalRoot.length + 1),
+          'source',
+        )
+      : readBoundDiagramAsset(config, path, 'source');
+  for (const note of options.notes ??
+    (db.prepare('SELECT id,path FROM notes WHERE active=1 ORDER BY path').all() as {
+      id: string;
+      path: string;
+    }[])) {
     if (options.excludeNoteIds?.includes(note.id)) continue;
-    const file = safePath(config.knowledgeRoot, note.path, 'note'),
+    const snapshotIds: string[] = [];
+    const file = archiveRoot
+        ? safePath(archiveRoot, note.path.slice(options.archive!.logicalRoot.length + 1), 'note')
+        : safePath(config.knowledgeRoot, note.path, 'note'),
       stamp = lstatSync(file, { bigint: true });
     if (stamp.size > 20n * 1024n * 1024n) fail(413, 'FILE_TOO_LARGE');
-    const original = readFileSync(file, 'utf8'),
-      documentHash = sha256(original),
+    let original: string;
+    try {
+      original = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(
+        readFileSync(file),
+      );
+    } catch {
+      fail(422, 'INVALID_UTF8');
+    }
+    const documentHash = sha256(original),
       target = relocatePath(note.path, moves),
       parsed = parseDiagramDocument(original);
     let content = rewriteLibraryReferences(
@@ -126,6 +156,7 @@ export function collectNativeLinkChanges(
         moves,
         permissions: [target],
         context: { key, inventory: fixedInventory },
+        ...(options.archive ? { archive: options.archive } : {}),
       });
       const prepared = registry.prepared(snapshot.id);
       if (!prepared) {
@@ -139,6 +170,7 @@ export function collectNativeLinkChanges(
         });
         return;
       }
+      snapshotIds.push(snapshot.id);
       const rebase = (asset: PreparedDiagramPrimary['preview']) => ({
         ...asset,
         relativePath: relocatePath(asset.relativePath, moves),
@@ -159,7 +191,7 @@ export function collectNativeLinkChanges(
     if (parsed.status === 'diagram' && parsed.primary.source.format === 'excalidraw') {
       const sourcePath = localReference(note.path, parsed.primary.source.path);
       if (!sourcePath) fail(409, 'DIAGRAM_ARTIFACT_CONFLICT');
-      const source = readBoundDiagramAsset(config, sourcePath, 'source').toString('utf8');
+      const source = readAsset(sourcePath).toString('utf8');
       if (sha256(source) !== parsed.primary.binding.sourceHash)
         fail(409, 'DIAGRAM_SOURCE_CONFLICT');
       const render = primaryRenderDescriptor(parsed),
@@ -180,6 +212,68 @@ export function collectNativeLinkChanges(
           prepared: primary,
           source: result.source,
         });
+      }
+    } else if (parsed.status === 'diagram') {
+      const next = parseDiagramDocument(content);
+      if (
+        next.status !== 'diagram' ||
+        next.primary.source.format === 'excalidraw' ||
+        parsed.primary.source.format === 'excalidraw'
+      )
+        fail(409, 'DIAGRAM_ARTIFACT_CONFLICT');
+      const beforeSource = parsed.primary.source.content,
+        finalSource = next.primary.source.content;
+      if (beforeSource !== finalSource) {
+        if (!canAccessPath(p, note.path)) fail(403, 'DEPENDENCY_FORBIDDEN');
+        if (sha256(beforeSource) !== parsed.primary.binding.sourceHash)
+          fail(409, 'DIAGRAM_SOURCE_CONFLICT');
+        const render = primaryRenderDescriptor(parsed),
+          snapshot = registry.fix({
+            noteId: note.id,
+            role: 'primary',
+            documentPath: note.path,
+            documentHash,
+            documentModifiedAt: stamp.mtimeNs.toString(),
+            sourceHash: parsed.primary.binding.sourceHash,
+            finalSource,
+            type: parsed.type,
+            title: parsed.title,
+            renderer: render.renderer,
+            config: render.config,
+            moves,
+            permissions: [target],
+            context: { key: 'primary-inline', inventory: fixedInventory },
+            ...(options.archive ? { archive: options.archive } : {}),
+          });
+        const prepared = registry.prepared(snapshot.id);
+        if (!prepared)
+          needs.push({
+            noteId: note.id,
+            role: 'primary',
+            documentHash,
+            sourceHash: snapshot.sourceHash,
+            renderHash: snapshot.renderHash,
+            snapshotId: snapshot.id,
+          });
+        else {
+          snapshotIds.push(snapshot.id);
+          primary = {
+            ...prepared,
+            preview: {
+              ...prepared.preview,
+              relativePath: relocatePath(prepared.preview.relativePath, moves),
+              markdownPath: posix.relative(
+                posix.dirname(target),
+                relocatePath(prepared.preview.relativePath, moves),
+              ),
+            },
+          };
+          content = applyPreparedDiagramDocument({
+            markdown: content,
+            prepared: primary,
+            source: finalSource,
+          });
+        }
       }
     } else if (isWhiteboard(note.path)) {
       const row = db
@@ -220,7 +314,7 @@ export function collectNativeLinkChanges(
       .sort((a, b) => b.from - a.from)) {
       const path = localReference(note.path, group.sourcePath);
       if (!path) fail(409, 'DIAGRAM_ARTIFACT_CONFLICT');
-      const source = readBoundDiagramAsset(config, path, 'source').toString('utf8');
+      const source = readAsset(path).toString('utf8');
       if (sha256(source) !== group.binding.sourceHash) fail(409, 'DIAGRAM_SOURCE_CONFLICT');
       const result = prepare(
         source,
@@ -291,9 +385,7 @@ export function collectNativeLinkChanges(
         )
       )
         continue;
-      const source = readBoundDiagramAsset(config, pair.source.relativePath, 'source').toString(
-        'utf8',
-      );
+      const source = readAsset(pair.source.relativePath).toString('utf8');
       if (sha256(source) !== pair.sourceHash) fail(409, 'DIAGRAM_SOURCE_CONFLICT');
       const result = prepare(
         source,
@@ -322,6 +414,9 @@ export function collectNativeLinkChanges(
     if (content !== original)
       rewrites.set(note.id, {
         content,
+        documentHash,
+        documentModifiedAt: stamp.mtimeNs.toString(),
+        snapshotIds,
         ...(primary ? { primary } : {}),
         ...(legacy ? { legacy } : {}),
       });

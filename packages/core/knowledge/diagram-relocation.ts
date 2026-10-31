@@ -526,11 +526,44 @@ function assertLegacyArtifactPreparations(
       /* Recoverable history can prove consumption. */
     }
     if (!consumed)
-      for (const history of db
-        .prepare('SELECT file FROM revisions WHERE note_id=?')
-        .all(noteId) as { file: string }[]) {
+      for (const history of db.prepare('SELECT * FROM revisions WHERE note_id=?').all(noteId) as {
+        file: string;
+        content_hash?: string;
+        references_manifest?: string;
+      }[]) {
         if (!/^[a-zA-Z0-9-]+\.md$/.test(history.file)) continue;
         try {
+          // Typed reference inventories preserve exact asset identities for ordinary
+          // large Markdown whose source reader intentionally requires large-file mode.
+          if (history.references_manifest && history.content_hash) {
+            const proof = JSON.parse(history.references_manifest) as {
+              version: number;
+              complete: boolean;
+              items: { assetId?: string; hash?: string }[];
+            };
+            const file = safePath(join(config.dataRoot, 'history'), history.file, 'note'),
+              stamp = lstatSync(file);
+            if (
+              proof.version === 1 &&
+              proof.complete === true &&
+              Array.isArray(proof.items) &&
+              stamp.isFile() &&
+              stamp.nlink === 1 &&
+              stamp.size <= 20 * 1024 * 1024 &&
+              sha256(readFileSync(file)) === history.content_hash &&
+              proof.items.some(
+                (r) => r.assetId === prepared.source.id && r.hash === prepared.sourceHash,
+              ) &&
+              proof.items.some(
+                (r) =>
+                  r.assetId === prepared.preview.id &&
+                  r.hash === sha256(readAsset(config, currentPreview, 'preview')),
+              )
+            ) {
+              consumed = true;
+              break;
+            }
+          }
           const body = readDocument(join(config.dataRoot, 'history'), history.file, {
             allowDiagramLarge: true,
           }).content;

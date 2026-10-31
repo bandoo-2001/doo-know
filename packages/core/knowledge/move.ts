@@ -276,7 +276,12 @@ export function moveService(config: AppConfig, db: AppDatabase, record: (intent:
         db.prepare(
           "UPDATE operations SET status='awaiting_preview',error=?,updated_at=? WHERE id=?",
         ).run(
-          JSON.stringify({ code: error.code, details: error.details }),
+          JSON.stringify({
+            status: 409,
+            retryable: false,
+            code: error.code,
+            details: error.details,
+          }),
           Date.now(),
           pending.operation.id,
         );

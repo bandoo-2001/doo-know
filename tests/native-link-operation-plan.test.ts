@@ -1,6 +1,6 @@
 import { afterEach, expect, it } from 'vitest';
 import { randomUUID } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { organizationFixture } from './support/organization-fixture';
 import { organizationService } from '../packages/core/organization/service';
@@ -547,4 +547,107 @@ it('records one original typed revision for each rewritten dependent main docume
   expect(
     f.db.prepare('SELECT COUNT(*) AS count FROM revisions WHERE note_id=?').get(f.target.noteId),
   ).toEqual({ count: 0 });
+});
+it('prepares an authoritative mindmap outline changed by relative-link relocation before publishing a new PNG binding', async () => {
+  const f = fixture(),
+    assets = assetService(f.config, f.db, f.notes),
+    primary = primaryDiagramService(f.config, f.db, f.notes, assets, f.p),
+    intent = diagramCreationService(f.config, f.db, f.p).reserve({
+      path: '00-Inbox/map.md',
+      type: 'mindmap',
+      requestId: randomUUID(),
+    }),
+    source = '- [[../Topic/target.md]]\n';
+  const prepared = primary.prepare({
+    target: { kind: 'creation', intentId: intent.id },
+    type: 'mindmap',
+    source,
+    sourceHash: sha256(source),
+    title: 'Map',
+    renderer: diagramRendererVersions.mindmap,
+    config: {},
+    pngBase64: png,
+    requestId: randomUUID(),
+  });
+  const map = primary.commit({
+    preparedId: prepared.id,
+    markdown: renderPreparedDiagramDocument({ prepared, title: 'Map', source }),
+    requestId: randomUUID(),
+  });
+  const pending = await f.rename();
+  expect(pending.previewRequired?.documents).toHaveLength(2);
+  const mapNeed = pending.previewRequired!.documents.find((d) => d.noteId === map.id)!;
+  const fixed = f.registry.get(mapNeed.snapshotId);
+  expect(fixed.source).toBe('- [[../Topic/renamed.md]]\n');
+  expect(primary.resolve(map.id).source.hash).toBe(prepared.sourceHash);
+  for (const need of pending.previewRequired!.documents) {
+    const snapshot = f.registry.get(need.snapshotId);
+    f.registry.prepare(snapshot.id, {
+      sourceHash: snapshot.sourceHash,
+      pngBase64: png,
+      requestId: randomUUID(),
+    });
+  }
+  await f.org.resume(f.p, { operationId: pending.operationId });
+  await f.org.drain();
+  expect(f.org.operation(f.p, { operationId: pending.operationId }).status).toBe('succeeded');
+  expect(primary.resolve(map.id).source.hash).toBe(fixed.sourceHash);
+  expect(primary.resolve(map.id).preview?.state).toBe('ready');
+  expect(primary.resolve(map.id).preview?.renderHash).toBe(fixed.renderHash);
+});
+it('rejects an inbound ordinary document changed between native enumeration and the fixed organization manifest', async () => {
+  const f = organizationFixture();
+  cleanup.push(async () => f.close());
+  const org = organizationService(f.config, f.db, f.notes);
+  cleanup.push(() => org.close());
+  const target = f.create('Topic/a.md', '# A');
+  f.create('00-Inbox/incoming.md', '# Original\n[Link](../Topic/a.md)');
+  const context = org.context(f.p),
+    prepare = f.db.prepare.bind(f.db);
+  let reads = 0;
+  f.db.prepare = ((sql: string) => {
+    const statement = prepare(sql);
+    if (sql === 'SELECT id,path FROM notes WHERE active=1 ORDER BY path') {
+      const all = statement.all.bind(statement);
+      statement.all = ((...args: any[]) => {
+        reads++;
+        if (reads === 2)
+          writeFileSync(
+            join(f.config.knowledgeRoot, '00-Inbox/incoming.md'),
+            '# User edit\n[Link](../Topic/a.md)',
+          );
+        return all(...args);
+      }) as typeof statement.all;
+    }
+    return statement;
+  }) as typeof f.db.prepare;
+  const { prepareOrganization } = await import('../packages/core/organization/plan');
+  try {
+    expect(() =>
+      prepareOrganization(
+        f.config,
+        f.db,
+        f.p,
+        {
+          requestId: randomUUID(),
+          libraryId: context.libraryId,
+          expectedStructureRevision: context.structureRevision,
+          actions: [
+            {
+              type: 'move_note',
+              ...target,
+              toDirectoryId: f.directory('Topic').id,
+              fileName: 'renamed.md',
+            },
+          ],
+        },
+        randomUUID(),
+      ),
+    ).toThrowError(expect.objectContaining({ code: 'VERSION_CONFLICT' }));
+  } finally {
+    f.db.prepare = prepare;
+  }
+  expect(readFileSync(join(f.config.knowledgeRoot, '00-Inbox/incoming.md'), 'utf8')).toContain(
+    '# User edit',
+  );
 });

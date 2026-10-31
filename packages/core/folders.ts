@@ -1,3 +1,16 @@
+import { diagramOperationPreviewRegistry } from './knowledge/diagram-operation-previews.js';
+import { inventory } from './organization/plan.js';
+import { diagramOperationPreviewNeeds } from './knowledge/diagram-operation-preview-pages.js';
+import {
+  prepareFolderNativeRestore,
+  applyFolderNativeRestore,
+  getFolderNativeRestorePlan,
+  recordFolderNativeRestore,
+  recordFolderNativeRestoreRevisions,
+  rebindFolderNativeRestore,
+  authorizeFolderNativeRestore,
+} from './knowledge/folder-native-restore.js';
+import { KnowledgeError } from './knowledge/errors.js';
 import { randomUUID } from 'node:crypto';
 import { lstatSync, readdirSync, mkdirSync, renameSync } from 'node:fs';
 import { basename, dirname, join } from 'node:path';
@@ -11,7 +24,13 @@ import { assertRoot } from './indexing/reconcile.js';
 import { assertWritable, fsyncDirectory, webPrincipal } from './knowledge/core.js';
 import { fail } from './knowledge/errors.js';
 import { portableLibrary } from './portable-library.js';
-import { assertFolderDiagramResourcesUnshared, planFolderDiagramRestore, recordDiagramRelocations, verifyDiagramRelocations, type DiagramRelocation } from './knowledge/diagram-relocation.js';
+import {
+  assertFolderDiagramResourcesUnshared,
+  planFolderDiagramRestore,
+  recordDiagramRelocations,
+  verifyDiagramRelocations,
+  type DiagramRelocation,
+} from './knowledge/diagram-relocation.js';
 import { beginOperation, completeOperation, existingResult } from './knowledge/operations.js';
 import {
   operationHasLiveWorkspaceWriter,
@@ -110,15 +129,24 @@ export function rebindRestoredFolders(config: AppConfig, db: AppDatabase) {
     inspect(candidate);
     if (identity(candidate) !== stamp) fail(409, 'TRASH_CHANGED');
     db.prepare('UPDATE folder_trash SET identity=? WHERE id=?').run(stamp, row.id);
+    if (row.state === 'restoring')
+      rebindFolderNativeRestore(config, db, row.operation_id, candidate, stamp);
   }
 }
 
-function archivedAssets(db: AppDatabase, row: { path: string; assets_json?: string | null }, physicalRoot: string): FolderAsset[] {
+function archivedAssets(
+  db: AppDatabase,
+  row: { path: string; assets_json?: string | null },
+  physicalRoot: string,
+): FolderAsset[] {
   if (row.assets_json) return JSON.parse(row.assets_json) as FolderAsset[];
   // Legacy journals have no frozen catalog. Include only files actually in that
   // archived tree, never files subsequently uploaded into a reused live folder.
-  return (db.prepare('SELECT id,path FROM assets').all() as FolderAsset[]).filter((asset) =>
-    asset.path.startsWith(row.path + '/') && exists(join(physicalRoot, asset.path.slice(row.path.length + 1))));
+  return (db.prepare('SELECT id,path FROM assets').all() as FolderAsset[]).filter(
+    (asset) =>
+      asset.path.startsWith(row.path + '/') &&
+      exists(join(physicalRoot, asset.path.slice(row.path.length + 1))),
+  );
 }
 
 function finish(config: AppConfig, db: AppDatabase, row: FolderRow) {
@@ -130,11 +158,22 @@ function finish(config: AppConfig, db: AppDatabase, row: FolderRow) {
   if (identity(destination) !== row.identity)
     fail(409, 'RECOVERY_REQUIRED', '文件夹发生变化，请核对后重试');
   const diagrams: DiagramRelocation[] = restoring
-    ? row.diagram_plan ? JSON.parse(row.diagram_plan) : planFolderDiagramRestore(config, db, JSON.parse(row.notes_json), row.path, row.restore_path!, destination)
+    ? row.diagram_plan
+      ? JSON.parse(row.diagram_plan)
+      : planFolderDiagramRestore(
+          config,
+          db,
+          JSON.parse(row.notes_json),
+          row.path,
+          row.restore_path!,
+          destination,
+        )
     : [];
   if (restoring) verifyDiagramRelocations(config, diagrams);
   const assets = restoring ? archivedAssets(db, row, destination) : [];
   db.transaction(() => {
+    const nativePlan = restoring ? getFolderNativeRestorePlan(db, row.operation_id) : undefined;
+    if (nativePlan) recordFolderNativeRestoreRevisions(config, db, nativePlan);
     for (const note of JSON.parse(row.notes_json) as FolderNote[]) {
       library.remember(note.id);
       if (restoring) {
@@ -159,11 +198,15 @@ function finish(config: AppConfig, db: AppDatabase, row: FolderRow) {
       for (const asset of assets) {
         if (!asset.path.startsWith(row.path + '/')) continue;
         const target = row.restore_path! + asset.path.slice(row.path.length);
-        const current = db.prepare('SELECT path FROM assets WHERE id=?').get(asset.id) as { path: string } | undefined;
+        const current = db.prepare('SELECT path FROM assets WHERE id=?').get(asset.id) as
+          | { path: string }
+          | undefined;
         if (!current || (current.path !== asset.path && current.path !== target))
           fail(409, 'DIAGRAM_RESOURCES_RETAINED');
         db.prepare('UPDATE assets SET path=? WHERE id=?').run(target, asset.id);
       }
+      const nativePlan = getFolderNativeRestorePlan(db, row.operation_id);
+      if (nativePlan) recordFolderNativeRestore(config, db, nativePlan);
       recordDiagramRelocations(db, diagrams);
     }
     db.prepare('UPDATE folder_trash SET state=? WHERE id=?').run(
@@ -209,6 +252,15 @@ export function recoverFolders(config: AppConfig, db: AppDatabase) {
     const source = restoring ? trash : join(config.knowledgeRoot, row.path);
     if (exists(destination) && identity(destination) === row.identity) finish(config, db, row);
     else if (exists(source) && identity(source) === row.identity && !exists(destination)) {
+      const nativePlan = restoring ? getFolderNativeRestorePlan(db, row.operation_id) : undefined;
+      if (nativePlan) {
+        applyFolderNativeRestore(config, db, nativePlan, source);
+        renameSync(source, destination);
+        fsyncDirectory(dirname(source));
+        fsyncDirectory(dirname(destination));
+        finish(config, db, row);
+        continue;
+      }
       db.transaction(() => {
         if (restoring) db.prepare("UPDATE folder_trash SET state='trashed' WHERE id=?").run(row.id);
         else db.prepare('DELETE FROM folder_trash WHERE id=?').run(row.id);
@@ -233,7 +285,15 @@ export function archiveFolder(
   assertRoot(config, db);
   assertWritable(db);
   allowed(path);
-  const authorize = () => { const p=revalidate?.()||principal; authorizeFolderPath(p,path,'knowledge:write'); if(p.id!=='web-owner') { requireScope(p,'knowledge:archive');requireScope(p,'knowledge:organize'); } return p; };
+  const authorize = () => {
+    const p = revalidate?.() || principal;
+    authorizeFolderPath(p, path, 'knowledge:write');
+    if (p.id !== 'web-owner') {
+      requireScope(p, 'knowledge:archive');
+      requireScope(p, 'knowledge:organize');
+    }
+    return p;
+  };
   authorize();
   recoverFolders(config, db);
   const started = beginOperation(db, principal, 'folder.archive', requestId, { path });
@@ -308,7 +368,27 @@ export function restoreFolder(
     id,
     name: name ?? null,
   });
-  if (!started.fresh) return existingResult(started.operation);
+  if (!started.fresh && started.operation.status !== 'awaiting_preview')
+    return existingResult(started.operation);
+  if (started.operation.status === 'awaiting_preview') {
+    const details = JSON.parse(started.operation.error!).details,
+      registry = diagramOperationPreviewRegistry(config, db, revalidate?.() ?? principal);
+    for (const need of details.documents) {
+      const fixed = registry.get(need.snapshotId);
+      if ((fixed.input.context as any)?.inventory !== inventory(config))
+        fail(409, 'STRUCTURE_VERSION_CONFLICT');
+      if (!registry.prepared(need.snapshotId))
+        fail(
+          409,
+          'DIAGRAM_PREVIEW_REQUIRED',
+          undefined,
+          false,
+          diagramOperationPreviewNeeds(config, db, principal, {
+            operationId: started.operation.id,
+          }),
+        );
+    }
+  }
   workspaceOperation(db, started.operation.id);
   let journaled = false;
   try {
@@ -320,7 +400,15 @@ export function restoreFolder(
     if (!validName(leaf) || leaf === 'assets') fail(400, 'INVALID_INPUT', '文件夹名称无效');
     const path = dirname(row.path) === '.' ? leaf : dirname(row.path) + '/' + leaf;
     allowed(path);
-    const authorize=()=> { const p=revalidate?.()||principal;authorizeFolderPath(p,row.path,'knowledge:write');authorizeFolderPath(p,path,'knowledge:write');if(p.id!=='web-owner'){requireScope(p,'knowledge:archive');requireScope(p,'knowledge:organize');} };
+    const authorize = () => {
+      const p = revalidate?.() || principal;
+      authorizeFolderPath(p, row.path, 'knowledge:write');
+      authorizeFolderPath(p, path, 'knowledge:write');
+      if (p.id !== 'web-owner') {
+        requireScope(p, 'knowledge:archive');
+        requireScope(p, 'knowledge:organize');
+      }
+    };
     authorize();
     // Recreate missing ancestors, validating each segment before creating it.
     let parent = '';
@@ -346,7 +434,9 @@ export function restoreFolder(
     for (const asset of assets) {
       if (!asset.path.startsWith(row.path + '/')) continue;
       const target = path + asset.path.slice(row.path.length);
-      const current = db.prepare('SELECT path FROM assets WHERE id=?').get(asset.id) as { path: string } | undefined;
+      const current = db.prepare('SELECT path FROM assets WHERE id=?').get(asset.id) as
+        | { path: string }
+        | undefined;
       if (!current || current.path !== asset.path)
         fail(409, 'DIAGRAM_RESOURCES_RETAINED', '原附件身份已在其他位置使用，请核对后恢复');
       if (db.prepare('SELECT 1 FROM assets WHERE path=? AND id<>?').get(target, asset.id))
@@ -354,7 +444,16 @@ export function restoreFolder(
       if (path !== row.path && exists(join(config.knowledgeRoot, asset.path)))
         fail(409, 'DIAGRAM_RESOURCES_RETAINED', '原位置的附件仍在使用，请核对后恢复目录');
     }
-    const diagrams = planFolderDiagramRestore(config, db, JSON.parse(row.notes_json), row.path, path, source);
+    const nativePlan = prepareFolderNativeRestore(config, db, revalidate?.() ?? principal, {
+      folderId: id,
+      from: row.path,
+      to: path,
+      identity: row.identity,
+      physicalRoot: source,
+      operationId: started.operation.id,
+      notes: JSON.parse(row.notes_json),
+    });
+    const diagrams = nativePlan.diagrams;
     row.diagram_plan = JSON.stringify(diagrams);
     row.assets_json = JSON.stringify(assets);
     row.state = 'restoring';
@@ -365,6 +464,8 @@ export function restoreFolder(
     ).run(path, started.operation.id, row.diagram_plan, row.assets_json, id);
     journaled = true;
     authorize();
+    authorizeFolderNativeRestore(revalidate?.() ?? principal, nativePlan);
+    applyFolderNativeRestore(config, db, nativePlan, source);
     renameSync(source, destination);
     fsyncDirectory(dirname(source));
     fsyncDirectory(dirname(destination));
@@ -373,6 +474,27 @@ export function restoreFolder(
   } catch (e) {
     if (journaled)
       fail(503, 'OPERATION_OUTCOME_UNKNOWN', '文件夹操作结果待核对，请按原请求重试', true);
+    if (!journaled && e instanceof KnowledgeError && e.code === 'DIAGRAM_PREVIEW_REQUIRED') {
+      db.prepare(
+        "UPDATE operations SET status='awaiting_preview',error=?,updated_at=? WHERE id=?",
+      ).run(
+        JSON.stringify({
+          code: e.code,
+          status: e.statusCode,
+          message: e.message,
+          details: e.details,
+        }),
+        Date.now(),
+        started.operation.id,
+      );
+      fail(
+        409,
+        e.code,
+        e.message,
+        false,
+        diagramOperationPreviewNeeds(config, db, principal, { operationId: started.operation.id }),
+      );
+    }
     if (!journaled)
       db.prepare("UPDATE operations SET status='failed',error=?,updated_at=? WHERE id=?").run(
         JSON.stringify({

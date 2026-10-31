@@ -359,7 +359,12 @@ export function organizationService(config: AppConfig, db: AppDatabase, notes: N
           ? 'needs_reconciliation'
           : 'failed';
     const storedError = preview
-      ? JSON.stringify({ code, details: (error as KnowledgeError).details })
+      ? JSON.stringify({
+          status: 409,
+          retryable: false,
+          code,
+          details: (error as KnowledgeError).details,
+        })
       : code;
     db.transaction(() => {
       db.prepare(

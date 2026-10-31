@@ -1,3 +1,5 @@
+import { diagramOperationWorkspace } from './diagram-operation-previews.js';
+import { archivedDiagramRoot } from './archived-diagram-context.js';
 import type { AppConfig } from '../../../shared/contracts.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
 import type { AppDatabase } from '../db.js';
@@ -29,6 +31,7 @@ export function diagramOperationPreviewNeeds(
   const details = JSON.parse(row.error).details,
     documents = details?.documents as NativePreviewNeed[];
   if (!Array.isArray(documents) || !documents.length) fail(409, 'DIAGRAM_OPERATION_NOT_PENDING');
+  const workspace = diagramOperationWorkspace(config, db);
   // Recheck the complete dependency scope before exposing even the first page.
   for (const need of documents) {
     const snapshotRow = db
@@ -38,7 +41,9 @@ export function diagramOperationPreviewNeeds(
       fail(403, 'DEPENDENCY_FORBIDDEN');
     const snapshot = JSON.parse(snapshotRow.snapshot),
       note = db.prepare('SELECT path,active FROM notes WHERE id=?').get(need.noteId) as any;
-    if (!note?.active) fail(409, 'VERSION_CONFLICT');
+    if (snapshot.workspace !== workspace) fail(409, 'LIBRARY_BINDING_CHANGED');
+    if (!note || (!note.active && !snapshot.input.archive)) fail(409, 'VERSION_CONFLICT');
+    if (snapshot.input.archive) archivedDiagramRoot(config, db, snapshot.input.archive);
     for (const path of new Set<string>([
       note.path,
       snapshot.input.documentPath,

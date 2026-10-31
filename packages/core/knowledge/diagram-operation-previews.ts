@@ -1,5 +1,22 @@
+import { fsyncDirectory } from './core.js';
+import { assertRoot } from '../indexing/reconcile.js';
+import { join, posix } from 'node:path';
+import {
+  archivedDiagramRoot,
+  archivedTreeInventory,
+  type ArchivedDiagramContext,
+} from './archived-diagram-context.js';
 import { randomUUID } from 'node:crypto';
-import { readFileSync, lstatSync } from 'node:fs';
+import {
+  readFileSync,
+  lstatSync,
+  mkdirSync,
+  writeFileSync,
+  openSync,
+  closeSync,
+  fsyncSync,
+  existsSync,
+} from 'node:fs';
 import type { AppConfig } from '../../../shared/contracts.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
 import type { DiagramDocumentType } from '../../../shared/diagram-document.js';
@@ -32,9 +49,11 @@ export type FixedDiagramSnapshotInput = {
   moves: { from: string; to: string }[];
   permissions?: string[];
   context?: unknown;
+  archive?: ArchivedDiagramContext;
 };
 export type FixedDiagramSnapshot = {
   id: string;
+  workspace: string;
   input: FixedDiagramSnapshotInput;
   source: string;
   sourceHash: string;
@@ -42,6 +61,20 @@ export type FixedDiagramSnapshot = {
   expiresAt: number;
 };
 const lease = 24 * 60 * 60 * 1000;
+export function diagramOperationWorkspace(config: AppConfig, db: AppDatabase) {
+  assertRoot(config, db);
+  const root = (
+    db.prepare("SELECT value FROM index_meta WHERE key='root_identity'").get() as {
+      value: string;
+    }
+  ).value;
+  const table = db.prepare("SELECT 1 FROM sqlite_master WHERE name='organization_library'").get();
+  const library = table
+    ? db.prepare('SELECT library_id,binding_version FROM organization_library WHERE id=1').get()
+    : undefined;
+  return sha256(JSON.stringify([root, library]));
+}
+
 /** A frozen final-source lease shared by native relocation, migration and delivery.
  * Publication remains the caller's responsibility and uses its recoverable journal. */
 export function diagramOperationPreviewRegistry(
@@ -55,14 +88,25 @@ export function diagramOperationPreviewRegistry(
     fingerprint TEXT NOT NULL, snapshot TEXT NOT NULL, prepared TEXT,
     expires_at INTEGER NOT NULL, UNIQUE(principal,client_id,fingerprint)
   )`);
+  const workspace = () => diagramOperationWorkspace(config, db);
   function validate(input: FixedDiagramSnapshotInput) {
     for (const path of new Set([input.documentPath, ...(input.permissions || [])]))
       authorizePath(principal, path, 'knowledge:write');
     const row = db.prepare('SELECT path,active FROM notes WHERE id=?').get(input.noteId) as
       | { path: string; active: number }
       | undefined;
-    if (!row?.active || row.path !== input.documentPath) fail(409, 'VERSION_CONFLICT');
-    const path = safePath(config.knowledgeRoot, input.documentPath, 'note');
+    if (!row || (input.archive ? row.active : !row.active) || row.path !== input.documentPath)
+      fail(409, 'VERSION_CONFLICT');
+    const archiveRoot = input.archive ? archivedDiagramRoot(config, db, input.archive) : undefined;
+    if (archiveRoot && archivedTreeInventory(archiveRoot) !== input.archive!.inventory)
+      fail(409, 'TRASH_CHANGED');
+    const path = archiveRoot
+      ? safePath(
+          archiveRoot,
+          input.documentPath.slice(input.archive!.logicalRoot.length + 1),
+          'note',
+        )
+      : safePath(config.knowledgeRoot, input.documentPath, 'note');
     const stamp = lstatSync(path, { bigint: true });
     if (
       stamp.mtimeNs.toString() !== input.documentModifiedAt ||
@@ -71,7 +115,17 @@ export function diagramOperationPreviewRegistry(
       fail(409, 'VERSION_CONFLICT');
     if (
       input.sourcePath &&
-      sha256(readBoundDiagramAsset(config, input.sourcePath, 'source')) !== input.sourceHash
+      sha256(
+        readBoundDiagramAsset(
+          archiveRoot && input.sourcePath.startsWith(input.archive!.logicalRoot + '/')
+            ? { ...config, knowledgeRoot: archiveRoot }
+            : config,
+          archiveRoot && input.sourcePath.startsWith(input.archive!.logicalRoot + '/')
+            ? input.sourcePath.slice(input.archive!.logicalRoot.length + 1)
+            : input.sourcePath,
+          'source',
+        ),
+      ) !== input.sourceHash
     )
       fail(409, 'DIAGRAM_SOURCE_CONFLICT');
   }
@@ -81,20 +135,25 @@ export function diagramOperationPreviewRegistry(
       fail(404, 'NOT_FOUND');
     if (row.expires_at <= Date.now()) fail(409, 'DIAGRAM_PREPARATION_EXPIRED');
     const snapshot = JSON.parse(row.snapshot) as FixedDiagramSnapshot;
+    if (snapshot.workspace !== workspace()) fail(409, 'LIBRARY_BINDING_CHANGED');
     validate(snapshot.input);
     return snapshot;
   }
   function fix(input: FixedDiagramSnapshotInput): FixedDiagramSnapshot {
     input = { ...input, moves: input.moves.map(({ from, to }) => ({ from, to })) };
+    const binding = workspace();
     validate(input);
-    const fingerprint = sha256(JSON.stringify(input));
+    const fingerprint = sha256(JSON.stringify([binding, input]));
     const prior = db
       .prepare(
         'SELECT id,expires_at FROM diagram_operation_previews WHERE principal=? AND client_id=? AND fingerprint=?',
       )
       .get(principal.id, principal.clientId, fingerprint) as any;
     if (prior?.expires_at > Date.now()) return get(prior.id);
-    if (prior) db.prepare('DELETE FROM diagram_operation_previews WHERE id=?').run(prior.id);
+    if (prior)
+      db.prepare(
+        "UPDATE diagram_operation_previews SET fingerprint=fingerprint||':'||id WHERE id=?",
+      ).run(prior.id);
     const sourceHash = sha256(input.finalSource);
     const renderHash = sha256(
       serializeDiagramRenderInput({
@@ -107,6 +166,7 @@ export function diagramOperationPreviewRegistry(
     );
     const snapshot: FixedDiagramSnapshot = {
       id: randomUUID(),
+      workspace: binding,
       input,
       source: input.finalSource,
       sourceHash,
@@ -126,7 +186,7 @@ export function diagramOperationPreviewRegistry(
     return snapshot;
   }
   function prepared(id: string): PreparedDiagramPrimary | undefined {
-    get(id);
+    const snapshot = get(id);
     const row = db
       .prepare('SELECT prepared FROM diagram_operation_previews WHERE id=?')
       .get(id) as any;
@@ -136,7 +196,14 @@ export function diagramOperationPreviewRegistry(
       ['source', result.source, result.sourceHash],
       ['preview', result.preview, result.previewHash],
     ] as const)
-      if (asset && sha256(readBoundDiagramAsset(config, asset.relativePath, role)) !== hash)
+      if (
+        asset &&
+        sha256(
+          snapshot.input.archive
+            ? readFileSync(join(config.dataRoot, 'diagram-operation-previews', id, role))
+            : readBoundDiagramAsset(config, asset.relativePath, role),
+        ) !== hash
+      )
         fail(409, 'DIAGRAM_ARTIFACT_CONFLICT');
     return result;
   }
@@ -177,10 +244,49 @@ export function diagramOperationPreviewRegistry(
         input.requestId,
         { snapshotId: id, sourceHash: snapshot.sourceHash, previewHash },
       );
+      const upload = (name: string, mime: string, bytes: Buffer, role: 'source' | 'preview') => {
+        if (!fixed.archive)
+          return assets!.upload(
+            fixed.noteId,
+            name,
+            mime,
+            bytes,
+            'diagram-operation-' + id + '-' + role,
+          );
+        const directory = join(config.dataRoot, 'diagram-operation-previews', id);
+        mkdirSync(directory, { recursive: true, mode: 0o700 });
+        fsyncDirectory(config.dataRoot);
+        fsyncDirectory(join(config.dataRoot, 'diagram-operation-previews'));
+        fsyncDirectory(directory);
+        const file = join(directory, role);
+        if (existsSync(file)) {
+          if (sha256(readFileSync(file)) !== sha256(bytes)) fail(409, 'DIAGRAM_ARTIFACT_CONFLICT');
+        } else {
+          const fd = openSync(file, 'wx', 0o600);
+          try {
+            writeFileSync(fd, bytes);
+            fsyncSync(fd);
+          } finally {
+            closeSync(fd);
+          }
+        }
+        fsyncDirectory(directory);
+        const assetId = randomUUID(),
+          path = posix.join(
+            posix.dirname(fixed.documentPath),
+            'assets',
+            'diagram-' + sha256(id + '-' + role) + posix.extname(name),
+          );
+        return {
+          id: assetId,
+          relativePath: path,
+          markdownPath: posix.relative(posix.dirname(fixed.documentPath), path),
+          mime,
+        };
+      };
       const source =
         fixed.type === 'whiteboard' || fixed.role === 'embedded'
-          ? assets.upload(
-              fixed.noteId,
+          ? upload(
               'diagram.' + (kind === 'mermaid' ? 'mmd' : kind === 'svg' ? 'svg' : 'excalidraw'),
               kind === 'svg'
                 ? 'image/svg+xml'
@@ -188,16 +294,10 @@ export function diagramOperationPreviewRegistry(
                   ? 'text/plain'
                   : DIAGRAM_SOURCE_MIMES['.excalidraw'],
               Buffer.from(snapshot.source),
-              'diagram-operation-' + id + '-source',
+              'source',
             )
           : undefined;
-      const preview = assets.upload(
-        fixed.noteId,
-        'diagram.png',
-        'image/png',
-        png,
-        'diagram-operation-' + id + '-preview',
-      );
+      const preview = upload('diagram.png', 'image/png', png, 'preview');
       const result: PreparedDiagramPrimary = {
         id: operation.id,
         noteId: fixed.noteId,
