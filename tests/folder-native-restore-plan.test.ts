@@ -308,3 +308,156 @@ it('returns opaque dependency denial before exposing previews when an outside or
     ).content,
   ).toContain('../00-Inbox/inside.md');
 });
+it('does not leave an authorized recovery marker when final rights are revoked before restore publication', async () => {
+  const f = organizationFixture();
+  cleanup.push(f.close);
+  const note = f.create('00-Inbox/inside.md', '# Inside\n\n[Self](inside.md)');
+  const archived = await workspaceExclusive(f.db, { kind: 'folder.archive' }, async () =>
+    archiveFolder(f.config, f.db, '00-Inbox', randomUUID(), () => f.notes.scan()),
+  );
+  const actor = { ...f.p, scopes: [...f.p.scopes, 'knowledge:archive'] };
+  let calls = 0;
+  const revalidate = () => (++calls < 3 ? actor : { ...actor, scopes: [] });
+  await expect(
+    workspaceExclusive(f.db, { kind: 'folder.restore' }, async () =>
+      restoreFolder(f.config, f.db, archived.id, 'Restored', randomUUID(), actor, revalidate),
+    ),
+  ).rejects.toMatchObject({ statusCode: 403 });
+  expect(f.db.prepare('SELECT state FROM folder_trash WHERE id=?').get(archived.id)).toEqual({
+    state: 'trashed',
+  });
+  await workspaceExclusive(f.db, { kind: 'folder.recover', recovery: true }, async () =>
+    recoverFolders(f.config, f.db),
+  );
+  expect(f.db.prepare('SELECT active FROM notes WHERE id=?').get(note.noteId)).toEqual({
+    active: 0,
+  });
+});
+it.each(['ordinary content', 'extra file'] as const)(
+  'rejects %s changed after the restore directory rename',
+  async (change) => {
+    const f = organizationFixture();
+    cleanup.push(f.close);
+    const note = f.create('00-Inbox/inside.md', '# Original plain');
+    const archived = await workspaceExclusive(f.db, { kind: 'folder.archive' }, async () =>
+      archiveFolder(f.config, f.db, '00-Inbox', randomUUID(), () => f.notes.scan()),
+    );
+    const { spawnSync } = await import('node:child_process');
+    const child = spawnSync(
+      process.execPath,
+      [
+        '--import',
+        'tsx',
+        'tests/support/folder-native-restore-child.ts',
+        JSON.stringify(f.config),
+        archived.id,
+        'Restored',
+        randomUUID(),
+        'directory_renamed',
+      ],
+      { encoding: 'utf8' },
+    );
+    expect(child.status, child.stderr).toBe(91);
+    if (change === 'ordinary content')
+      writeFileSync(join(f.config.knowledgeRoot, 'Restored/inside.md'), '# External');
+    else writeFileSync(join(f.config.knowledgeRoot, 'Restored/unplanned.md'), '# New outside plan');
+    await expect(
+      workspaceExclusive(f.db, { kind: 'folder.recover', recovery: true }, async () =>
+        recoverFolders(f.config, f.db),
+      ),
+    ).rejects.toMatchObject({ code: 'TRASH_CHANGED' });
+    expect(f.db.prepare('SELECT active FROM notes WHERE id=?').get(note.noteId)).toEqual({
+      active: 0,
+    });
+    expect(readFileSync(join(f.config.knowledgeRoot, 'Restored/inside.md'), 'utf8')).toBe(
+      change === 'ordinary content' ? '# External' : '# Original plain',
+    );
+    expect(() => f.notes.scan()).toThrow();
+    expect(
+      f.db.prepare('SELECT id FROM notes WHERE path=?').get('Restored/unplanned.md'),
+    ).toBeUndefined();
+  },
+);
+it('keeps partial live dependency rewrites behind a recovery barrier until the fixed folder transaction completes', async () => {
+  const f = await fixture(true);
+  await f.prepare();
+  const { spawnSync } = await import('node:child_process');
+  const child = spawnSync(
+    process.execPath,
+    [
+      '--import',
+      'tsx',
+      'tests/support/folder-native-restore-child.ts',
+      JSON.stringify(f.config),
+      f.archived.id,
+      'Restored',
+      f.requestId,
+      'active_note',
+    ],
+    { encoding: 'utf8' },
+  );
+  expect(child.status, child.stderr).toBe(91);
+  expect(() => f.notes.getNote(f.outside!.id)).toThrowError(
+    expect.objectContaining({ code: 'FOLDER_RECOVERY_REQUIRED' }),
+  );
+  await workspaceExclusive(f.db, { kind: 'folder.recover', recovery: true }, async () =>
+    recoverFolders(f.config, f.db),
+  );
+  expect(f.primary.resolve(f.outside!.id).preview?.state).toBe('ready');
+});
+it('backs up private final PNG/source preparations and their retained restore materials', async () => {
+  const f = await fixture();
+  const [fixed] = await f.prepare();
+  const { backup } = await import('../apps/server/backup');
+  const destination = join(f.root, 'backup');
+  await backup(f.config, destination);
+  expect(
+    readFileSync(
+      join(destination, 'data', 'diagram-operation-previews', fixed.id, 'source'),
+      'utf8',
+    ),
+  ).toBe(fixed.source);
+  expect(
+    readFileSync(
+      join(destination, 'data', 'diagram-operation-previews', fixed.id, 'preview'),
+    ).subarray(0, 8),
+  ).toEqual(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
+  await f.restore();
+  const complete = join(f.root, 'complete-backup');
+  await backup(f.config, complete);
+  const row = f.db
+    .prepare(
+      'SELECT p.plan FROM folder_native_restore_plans p JOIN folder_trash f ON f.operation_id=p.operation_id WHERE f.id=?',
+    )
+    .get(f.archived.id) as { plan: string };
+  const plan = JSON.parse(row.plan);
+  expect(readFileSync(join(complete, 'data', plan.files[0].backup), 'utf8')).toBe(
+    f.original.content,
+  );
+  const { restore } = await import('../apps/server/backup'),
+    { openDatabase } = await import('../packages/core/db'),
+    { noteService } = await import('../packages/core/notes');
+  const restoredConfig = {
+    ...f.config,
+    knowledgeRoot: join(f.root, 'restored-knowledge'),
+    dataRoot: join(f.root, 'restored-data'),
+  };
+  await restore(complete, restoredConfig);
+  const db = openDatabase(restoredConfig.dataRoot);
+  try {
+    const notes = noteService(restoredConfig, db);
+    notes.scan();
+    const primary = primaryDiagramService(
+      restoredConfig,
+      db,
+      notes,
+      assetService(restoredConfig, db, notes),
+      webPrincipal,
+    );
+    expect(notes.row(f.original.id).path).toBe('Restored/board.md');
+    expect(primary.resolve(f.original.id).source.hash).toBe(fixed.sourceHash);
+    expect(primary.resolve(f.original.id).preview?.state).toBe('ready');
+  } finally {
+    db.close();
+  }
+});

@@ -1,3 +1,6 @@
+import { folderRestorePending } from '../../../packages/core/knowledge/folder-restore-pending.js';
+import { recoverFolders } from '../../../packages/core/folders.js';
+import { workspaceExclusive } from '../../../packages/core/workspace/gate.js';
 import {isWhiteboard,documentTitle,MAX_WHITEBOARD_BYTES} from '../../../shared/whiteboard.js';
 import { hasActiveShare } from '../../../packages/core/share-policy.js';
 import { stat } from 'node:fs/promises';
@@ -83,6 +86,7 @@ export async function createKnowledgeRuntime(
   db: AppDatabase,
   notes: NoteService,
 ) {
+  if(folderRestorePending(db))await workspaceExclusive(db,{kind:'folder.recover',recovery:true},async()=>recoverFolders(config,db));
   const organization = organizationService(config, db, notes);
   await organization.recover();
   syncDirectoryCatalog(config, db);

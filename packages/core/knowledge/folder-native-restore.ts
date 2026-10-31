@@ -1,3 +1,9 @@
+import {
+  captureFolderTree,
+  folderTreeDigest,
+  verifyFolderTree,
+  type FolderTreeEntry,
+} from './folder-restore-tree.js';
 import { canAccessPath, requireScope, authorizePath } from '../agent/auth.js';
 import { recordOperationRevision } from './operation-revisions.js';
 import { evidence, sameEvidence, type Evidence } from '../organization/plan.js';
@@ -43,6 +49,9 @@ export type FolderNativeRestorePlan = {
   inventory: string;
   activeInventory: string;
   phase: 'prepared' | 'applying' | 'applied';
+  treeBefore?: FolderTreeEntry[];
+  treeAfter?: string;
+  fixedResources?: Record<string, { id: string; hash: string }>;
   files: {
     noteId: string;
     path: string;
@@ -51,6 +60,7 @@ export type FolderNativeRestorePlan = {
     beforeEvidence: Evidence;
     originalModifiedAt?: string;
     publicationEvidence?: Evidence;
+    publicationMode?: string;
     afterHash: string;
     backup: string;
     stage: string;
@@ -188,6 +198,7 @@ export function prepareFolderNativeRestore(
       inventory: archive.inventory,
       activeInventory,
       phase: 'prepared',
+      treeBefore: captureFolderTree(input.physicalRoot),
       files: [],
       assets: [],
       diagrams: [],
@@ -210,6 +221,22 @@ export function prepareFolderNativeRestore(
             hash,
           });
     }
+  plan.fixedResources = {};
+  for (const asset of db.prepare('SELECT id,path FROM assets').all() as {
+    id: string;
+    path: string;
+  }[]) {
+    if (asset.path.startsWith(input.from + '/')) {
+      const path = asset.path.slice(input.from.length + 1),
+        entry = plan.treeBefore!.find((e) => e.path === path && e.kind === 'file');
+      if (entry?.hash) plan.fixedResources[path] = { id: asset.id, hash: entry.hash };
+    }
+  }
+  for (const asset of plan.assets)
+    plan.fixedResources[asset.asset.relativePath.slice(plan.to.length + 1)] = {
+      id: asset.asset.id,
+      hash: asset.hash,
+    };
   const readAssetFor =
     (archived: boolean): typeof readBoundDiagramAsset =>
     (cfg, path, role) => {
@@ -279,9 +306,16 @@ export function applyFolderNativeRestore(
   if (plan.phase === 'prepared') {
     if (inventory(config) !== plan.activeInventory) fail(409, 'STRUCTURE_VERSION_CONFLICT');
     if (archivedTreeInventory(physicalRoot) !== plan.inventory) fail(409, 'TRASH_CHANGED');
+    if (
+      !plan.treeBefore ||
+      folderTreeDigest(captureFolderTree(physicalRoot), plan.fixedResources) !==
+        folderTreeDigest(plan.treeBefore, plan.fixedResources)
+    )
+      fail(409, 'TRASH_CHANGED');
     plan.phase = 'applying';
     store(db, plan);
   }
+  verifyFolderTree(plan, physicalRoot);
   for (const entry of plan.assets) {
     const relative = entry.asset.relativePath.slice(plan.to.length + 1);
     let parent = '';
@@ -323,6 +357,7 @@ export function applyFolderNativeRestore(
     );
     writePrivate(temp, bytes);
     entry.publicationEvidence = evidence(temp);
+    entry.publicationMode = String(lstatSync(temp, { bigint: true }).mode);
     store(db, plan);
     renameSync(temp, file);
     fsyncDirectory(dirname(file));
@@ -336,6 +371,10 @@ export function applyFolderNativeRestore(
       ) !== entry.afterHash
     )
       fail(409, 'TRASH_CHANGED');
+  plan.treeAfter = folderTreeDigest(
+    verifyFolderTree(plan, physicalRoot, true),
+    plan.fixedResources,
+  );
   plan.phase = 'applied';
   store(db, plan);
 }
@@ -397,17 +436,27 @@ export function rebindFolderNativeRestore(
 ) {
   const plan = getFolderNativeRestorePlan(db, operationId);
   if (!plan) return;
+  const currentTree = captureFolderTree(physicalRoot);
+  verifyFolderTree(plan, physicalRoot, false, true, currentTree);
   for (const entry of plan.files) {
     const file = safePath(entry.active ? config.knowledgeRoot : physicalRoot, entry.path, 'note'),
       hash = sha256(readFileSync(file));
     entry.originalModifiedAt ??= entry.beforeEvidence.mtime;
     if (hash === entry.beforeHash) entry.beforeEvidence = evidence(file);
-    else if (hash === entry.afterHash) entry.publicationEvidence = evidence(file);
-    else fail(409, 'TRASH_CHANGED');
+    else if (hash === entry.afterHash) {
+      entry.publicationEvidence = evidence(file);
+      entry.publicationMode = String(lstatSync(file, { bigint: true }).mode);
+    } else fail(409, 'TRASH_CHANGED');
   }
   for (const entry of plan.assets)
     if (sha256(readFileSync(join(config.dataRoot, entry.stage))) !== entry.hash)
       fail(409, 'DIAGRAM_ARTIFACT_CONFLICT');
+  const current = new Map(currentTree.map((e) => [e.path, e]));
+  plan.treeBefore = plan.treeBefore!.map((e) => ({
+    ...current.get(e.path)!,
+    ...(e.hash ? { hash: e.hash } : {}),
+  }));
+  if (plan.phase === 'applied') plan.treeAfter = folderTreeDigest(currentTree, plan.fixedResources);
   plan.identity = identity;
   plan.inventory = archivedTreeInventory(physicalRoot);
   plan.activeInventory = inventory(config);

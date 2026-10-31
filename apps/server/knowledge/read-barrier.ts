@@ -1,9 +1,14 @@
+import { folderRestorePending } from '../../../packages/core/knowledge/folder-restore-pending.js';
 import type { FastifyInstance } from 'fastify';
 import type { AppDatabase } from '../../../packages/core/db.js';
 import { workspaceRead } from '../../../packages/core/workspace/gate.js';
 
 /** Hold the shared lease through response streaming, so a move cannot publish a mixed read. */
-export function registerKnowledgeReadBarrier(app: FastifyInstance, db: AppDatabase) {
+export function registerKnowledgeReadBarrier(
+  app: FastifyInstance,
+  db: AppDatabase,
+  recoverFolder?: () => Promise<void>,
+) {
   app.addHook('preHandler', (request, reply, done) => {
     const path = request.url.split('?')[0];
     const readsKnowledge =
@@ -27,27 +32,30 @@ export function registerKnowledgeReadBarrier(app: FastifyInstance, db: AppDataba
       return;
     }
     let handedOff = false;
-    void workspaceRead(
-      db,
-      { kind: 'http.knowledge.read' },
-      () =>
-        new Promise<void>((resolve, reject) => {
-          const release = () => {
-            reply.raw.removeListener('finish', release);
-            reply.raw.removeListener('close', release);
-            resolve();
-          };
-          reply.raw.once('finish', release);
-          reply.raw.once('close', release);
-          handedOff = true;
-          try {
-            done();
-          } catch (error) {
-            release();
-            reject(error);
-          }
-        }),
-    ).catch((error) => {
+    void (async () => {
+      if (path === '/api/tree' && recoverFolder && folderRestorePending(db)) await recoverFolder();
+      return workspaceRead(
+        db,
+        { kind: 'http.knowledge.read' },
+        () =>
+          new Promise<void>((resolve, reject) => {
+            const release = () => {
+              reply.raw.removeListener('finish', release);
+              reply.raw.removeListener('close', release);
+              resolve();
+            };
+            reply.raw.once('finish', release);
+            reply.raw.once('close', release);
+            handedOff = true;
+            try {
+              done();
+            } catch (error) {
+              release();
+              reject(error);
+            }
+          }),
+      );
+    })().catch((error) => {
       if (!handedOff) done(error);
       else request.log.error({ err: error }, 'Knowledge read lease release failed');
     });

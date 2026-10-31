@@ -36,3 +36,13 @@ Verification:
 Commits so far: 80d187b (current operations); d80f7b5 (typed journal revisions). Parent owns actual move/copy/batch/trash UI integration, MCP preview transport, final full-suite freeze and independent review. No production data, deployment, existing service restart or mobile work was performed.
 
 New follow-on requested by root after phase 2: allow ordinary live folder movement with shared retained resources, keeping delete/archive refusal strict. That work is not claimed by this phase; it requires explicit retained identity/path proof and current/trash/history/preparation coverage.
+
+## Independent review fixes
+
+- Archive authorization P1: reproduced the third-revalidation denial leaving a recoverable marker. Final actor, folder and active dependency grants now run in the same SQLite transaction before the restoring/committing marker. A denial leaves the archive trashed and cannot be activated by recovery.
+- Archive full-tree P1: reproduced changing an untouched plain note / adding an extra Markdown file after directory rename. The journal now seals every original path, file digest and identity/mode/version plus the complete expected result. Recovery rejects both cases independently, keeps external bytes, and cannot index unplanned notes. Registered immutable resources are pinned by exact asset identity/path/hash so a controlled repair of the correct original bytes remains recoverable.
+- Partially rewritten live documents remain behind a pending-folder read/write barrier. Startup and owner tree refresh finish only the frozen restore journal under an exclusive gate before opening a knowledge read lease. Ordinary write-intent startup recovery is unchanged when no folder restore is pending.
+- Backup includes private diagram-operation-previews, folder-restores and the forthcoming note-restores materials; pending directory commits are rejected like pending organization commits. The actual backup/restore regression verifies prepared source/PNG bytes, original before-images, stable restored UUIDs and a ready fixed preview.
+- Copy inline-primary P2: 975fe21 prepares final relocated source and PNG before first copy activation, retries the same key and leaves the original tuple unchanged.
+
+Fresh archive P1 verification: six files / 66 tests passed (`archive-p1-commit-tests.log`), including ordinary file-intent recovery startup and independent ordinary-tree mutation cases; typecheck exit 0 (`archive-p1-commit-types.log`). Earlier six-file review bundle passed 68 checks. Copy 4/4 passed. The root final reviewer was asked to rerun the exact original repro scripts.

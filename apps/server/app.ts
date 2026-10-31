@@ -53,7 +53,7 @@ import { webPrincipal } from '../../packages/core/knowledge/core.js';
 import { KnowledgeError } from '../../packages/core/knowledge/errors.js';
 import { registerStorageRoutes } from './platform/storage.js';
 import { registerManagementRoutes } from './platform/management.js';
-import { archiveFolder } from '../../packages/core/folders.js';
+import { archiveFolder, recoverFolders } from '../../packages/core/folders.js';
 import { workspaceExclusive } from '../../packages/core/workspace/gate.js';
 import { registerTransferRoutes } from './platform/transfers.js';
 import { gitRemoteService } from './git/service.js';
@@ -221,7 +221,11 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
       return forwardAuthResponse(response, reply);
     },
   });
-  registerKnowledgeReadBarrier(app, db);
+  registerKnowledgeReadBarrier(app, db, async () => {
+    await workspaceExclusive(db, { kind: 'folder.recover', recovery: true }, async () =>
+      recoverFolders(platform.get().config, db),
+    );
+  });
   app.get('/api/security/csrf', async (_req, reply) => ({ token: reply.generateCsrf() }));
   app.get('/api/collections/status', async (req) =>
     platform.get().collections.status((req as any).ownerId, (req.query as any).kind));

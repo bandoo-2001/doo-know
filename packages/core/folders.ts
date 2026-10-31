@@ -1,3 +1,4 @@
+import { verifyActivatedFolderTree } from './knowledge/folder-restore-tree.js';
 import { diagramOperationPreviewRegistry } from './knowledge/diagram-operation-previews.js';
 import { inventory } from './organization/plan.js';
 import { diagramOperationPreviewNeeds } from './knowledge/diagram-operation-preview-pages.js';
@@ -169,7 +170,9 @@ function finish(config: AppConfig, db: AppDatabase, row: FolderRow) {
           destination,
         )
     : [];
+  const restorePlan = restoring ? getFolderNativeRestorePlan(db, row.operation_id) : undefined;
   if (restoring) verifyDiagramRelocations(config, diagrams);
+  if (restorePlan) verifyActivatedFolderTree(restorePlan, destination);
   const assets = restoring ? archivedAssets(db, row, destination) : [];
   db.transaction(() => {
     const nativePlan = restoring ? getFolderNativeRestorePlan(db, row.operation_id) : undefined;
@@ -400,14 +403,15 @@ export function restoreFolder(
     if (!validName(leaf) || leaf === 'assets') fail(400, 'INVALID_INPUT', '文件夹名称无效');
     const path = dirname(row.path) === '.' ? leaf : dirname(row.path) + '/' + leaf;
     allowed(path);
-    const authorize = () => {
-      const p = revalidate?.() || principal;
+    const authorize = (p = revalidate?.() ?? principal) => {
+      if (p.id !== principal.id || p.clientId !== principal.clientId) fail(403, 'FORBIDDEN');
       authorizeFolderPath(p, row.path, 'knowledge:write');
       authorizeFolderPath(p, path, 'knowledge:write');
       if (p.id !== 'web-owner') {
         requireScope(p, 'knowledge:archive');
         requireScope(p, 'knowledge:organize');
       }
+      return p;
     };
     authorize();
     // Recreate missing ancestors, validating each segment before creating it.
@@ -456,15 +460,24 @@ export function restoreFolder(
     const diagrams = nativePlan.diagrams;
     row.diagram_plan = JSON.stringify(diagrams);
     row.assets_json = JSON.stringify(assets);
+    db.transaction(() => {
+      const current = authorize();
+      authorizeFolderNativeRestore(current, nativePlan);
+      const changed = db
+        .prepare(
+          "UPDATE folder_trash SET state='restoring',restore_path=?,operation_id=?,diagram_plan=?,assets_json=? WHERE id=? AND state='trashed' AND identity=?",
+        )
+        .run(path, started.operation.id, row.diagram_plan, row.assets_json, id, row.identity);
+      if (!changed.changes) fail(409, 'TRASH_CHANGED');
+      db.prepare("UPDATE operations SET status='committing',updated_at=? WHERE id=?").run(
+        Date.now(),
+        started.operation.id,
+      );
+    }).immediate();
     row.state = 'restoring';
     row.restore_path = path;
     row.operation_id = started.operation.id;
-    db.prepare(
-      "UPDATE folder_trash SET state='restoring',restore_path=?,operation_id=?,diagram_plan=?,assets_json=? WHERE id=?",
-    ).run(path, started.operation.id, row.diagram_plan, row.assets_json, id);
     journaled = true;
-    authorize();
-    authorizeFolderNativeRestore(revalidate?.() ?? principal, nativePlan);
     applyFolderNativeRestore(config, db, nativePlan, source);
     renameSync(source, destination);
     fsyncDirectory(dirname(source));
