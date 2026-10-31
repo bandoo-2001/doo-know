@@ -254,9 +254,9 @@ export function prepareNoteTrashRestore(
     source: string;
     trashFile: string;
   },
-) {
+): { plan: NoteTrashRestorePlan | undefined; targets: ArchivedNoteDiagramContext['targets'] } {
   const context = archiveRevision(config, db, input.noteId, input.source);
-  if (!context) return;
+  if (!context) return { plan: undefined, targets: [] };
   if (
     context.contentHash !== revisionFileDigest(input.source) ||
     context.logicalPath !== input.from
@@ -271,11 +271,16 @@ export function prepareNoteTrashRestore(
     },
     p,
   );
+  const targets = context.references.items.flatMap((ref) =>
+    ref.noteId && ref.noteId !== input.noteId
+      ? [{ noteId: ref.noteId, path: mapping.get(ref.path) ?? ref.path }]
+      : [],
+  );
   mapping.set(input.from, input.to);
   const moves = [...mapping]
     .filter(([from, to]) => from !== to)
     .map(([from, to]) => ({ from, to }));
-  if (!moves.length) return;
+  if (!moves.length) return { plan: undefined, targets };
   if (!context.references.complete) fail(409, 'REVISION_REFERENCE_CONTEXT_INCOMPLETE');
   const original: ArchivedNoteDiagramContext = {
     noteId: input.noteId,
@@ -336,7 +341,7 @@ export function prepareNoteTrashRestore(
       !scanned.spans.length &&
       !scanned.nativeGroups.length
     )
-      return;
+      return { plan: undefined, targets };
     fail(413, 'FILE_TOO_LARGE');
   }
   {
@@ -394,7 +399,7 @@ export function prepareNoteTrashRestore(
   plan.afterStamp = fileVersionStamp(lstatSync(plan.afterFile, { bigint: true }));
   archivedNoteDiagramFile(config, db, original);
   store(db, plan);
-  return plan;
+  return { plan, targets };
 }
 export function verifyNoteTrashRestore(
   config: AppConfig,
@@ -477,6 +482,7 @@ export function commitNoteRestore(
     sourceHash: string;
     sourceStamp: string;
     targetHash: string;
+    targets: ArchivedNoteDiagramContext['targets'];
   },
   plan?: NoteTrashRestorePlan,
 ) {
@@ -487,13 +493,20 @@ export function commitNoteRestore(
       revisionFileDigest(input.source) !== input.sourceHash
     )
       fail(409, 'RESTORE_CONFLICT');
+    for (const target of input.targets)
+      if (
+        !db
+          .prepare('SELECT 1 FROM notes WHERE id=? AND path=? AND active=1')
+          .get(target.noteId, target.path)
+      )
+        fail(409, 'REVISION_REFERENCE_UNAVAILABLE');
     authorizeArchivedNoteOperation(
       config,
       db,
       p,
       input.noteId,
       [input.from, input.path],
-      plan?.targets.map((t) => t.path) ?? [],
+      input.targets.map((t) => t.path),
       true,
     );
     // Root and persisted rights are checked in the same immediate transaction as the durable marker.
@@ -504,11 +517,24 @@ export function commitNoteRestore(
       store(db, plan);
     }
     db.exec(
-      'CREATE TABLE IF NOT EXISTS note_restore_commits(operation_id TEXT PRIMARY KEY,note_id TEXT NOT NULL,path TEXT NOT NULL,target_hash TEXT NOT NULL,workspace TEXT NOT NULL)',
+      'CREATE TABLE IF NOT EXISTS note_restore_commits(operation_id TEXT PRIMARY KEY,note_id TEXT NOT NULL,path TEXT NOT NULL,target_hash TEXT NOT NULL,workspace TEXT NOT NULL,targets TEXT NOT NULL)',
     );
+    if (
+      !(db.prepare('PRAGMA table_info(note_restore_commits)').all() as { name: string }[]).some(
+        (column) => column.name === 'targets',
+      )
+    )
+      db.exec('ALTER TABLE note_restore_commits ADD COLUMN targets TEXT');
     db.prepare(
-      'INSERT INTO note_restore_commits(operation_id,note_id,path,target_hash,workspace) VALUES(?,?,?,?,?)',
-    ).run(input.operationId, input.noteId, input.path, input.targetHash, workspace);
+      'INSERT INTO note_restore_commits(operation_id,note_id,path,target_hash,workspace,targets) VALUES(?,?,?,?,?,?)',
+    ).run(
+      input.operationId,
+      input.noteId,
+      input.path,
+      input.targetHash,
+      workspace,
+      JSON.stringify(input.targets),
+    );
     const changed = db
       .prepare(
         "UPDATE operations SET status='committing',error=NULL WHERE id=? AND status='prepared'",
@@ -531,9 +557,17 @@ export function assertNoteRestoreCommitted(
     marker.note_id !== intent.note_id ||
     marker.path !== intent.path ||
     marker.target_hash !== intent.target_hash ||
+    typeof marker.targets !== 'string' ||
     marker.workspace !== diagramOperationWorkspace(config, db)
   )
     fail(409, 'RESTORE_CONFLICT', '恢复操作尚未通过最终授权核对');
+  for (const target of JSON.parse(marker.targets) as ArchivedNoteDiagramContext['targets'])
+    if (
+      !db
+        .prepare('SELECT 1 FROM notes WHERE id=? AND path=? AND active=1')
+        .get(target.noteId, target.path)
+    )
+      fail(409, 'REVISION_REFERENCE_UNAVAILABLE');
 }
 export function noteTrashRestorePending(db: AppDatabase) {
   return (

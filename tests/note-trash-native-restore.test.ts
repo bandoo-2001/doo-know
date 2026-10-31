@@ -927,3 +927,36 @@ it('never activates an unchanged ordinary intent that crashed before the final a
     ),
   ).toBe('# Plain');
 });
+it('rechecks captured target read rights for an unchanged primary after restore intent insertion', async () => {
+  const f = await archived(false, false),
+    requestId = randomUUID(),
+    original = f.db.prepare.bind(f.db);
+  let revoked = false;
+  f.db.prepare = ((sql: string) => {
+    const statement = original(sql),
+      run = statement.run.bind(statement);
+    statement.run = ((...args: any[]) => {
+      const result = run(...args);
+      if (!revoked && sql.startsWith('INSERT INTO write_intents')) {
+        revoked = true;
+        f.config.agent!.policies = [{ ...f.p, knowledgeAll: false, allowedPrefixes: ['00-Inbox'] }];
+      }
+      return result;
+    }) as any;
+    return statement;
+  }) as any;
+  try {
+    expect(() => f.core.restore(f.p, f.note.id, undefined, requestId)).toThrowError();
+  } finally {
+    f.db.prepare = original;
+  }
+  expect(revoked).toBe(true);
+  expect(existsSync(f.file)).toBe(false);
+  expect(f.db.prepare('SELECT active FROM notes WHERE id=?').get(f.note.id)).toEqual({ active: 0 });
+  expect(
+    readFileSync(join(f.config.knowledgeRoot, '90-Archive/.trash', f.note.id, 'board.md'), 'utf8'),
+  ).toBe(f.original);
+  expect((await f.core.recover()).recovered).toBe(0);
+  expect((await f.core.recover()).recovered).toBe(0);
+  expect(f.db.prepare('SELECT active FROM notes WHERE id=?').get(f.note.id)).toEqual({ active: 0 });
+});

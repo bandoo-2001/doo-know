@@ -774,7 +774,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
       intent.target_hash = restoreHash(source);
       const sourceHash = intent.target_hash;
       intent.original_mtime = st.mtimeNs.toString();
-      const nativePlan = prepareNoteTrashRestore(config, db, p, {
+      const { plan: nativePlan, targets } = prepareNoteTrashRestore(config, db, p, {
         operationId: intent.id, noteId: id, from: n.path, to: path, source, trashFile: n.trash_path,
       });
       if (nativePlan) intent.target_hash = nativePlan.afterHash;
@@ -786,7 +786,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
       ).run(intent.id, id, path, 'restore', intent.original_mtime, intent.target_hash, source);
       commitNoteRestore(config, db, p, {
         operationId: intent.id, noteId: id, from: n.path, path, source, sourceHash,
-        sourceStamp: fileVersionStamp(st), targetHash: intent.target_hash,
+        sourceStamp: fileVersionStamp(st), targetHash: intent.target_hash, targets,
       }, nativePlan);
       commit();
       return finishRestore(intent);
