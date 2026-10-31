@@ -58,17 +58,22 @@ export function revisionNativeEdits(
       return fail(409, 'DIAGRAM_ARTIFACT_CONFLICT');
     }
     if (sha256(source) !== group.sourceHash) fail(409, 'DIAGRAM_ARTIFACT_CONFLICT');
-    const final = rewriteLibraryReferences(
-      source,
-      originalSource,
-      posix.join(posix.dirname(after), 'assets/history.excalidraw'),
-      moves,
-      true,
-    ).content;
+    // Reuse keeps this asset at its actual path. Equal bytes at a possible new upload base
+    // do not prove that the retained source still resolves its node targets correctly.
+    const reusable =
+      rewriteLibraryReferences(source, originalSource, actualSource, moves, true).content ===
+      source;
     let sourcePath = posix.relative(posix.dirname(after), actualSource),
       previewPath = posix.relative(posix.dirname(after), actualPreview),
       sourceHash = group.sourceHash;
-    if (final !== source) {
+    if (!reusable) {
+      const final = rewriteLibraryReferences(
+        source,
+        originalSource,
+        posix.join(posix.dirname(after), 'assets/history.excalidraw'),
+        moves,
+        true,
+      ).content;
       const snapshot = registry.fix({
           noteId,
           role: 'embedded',

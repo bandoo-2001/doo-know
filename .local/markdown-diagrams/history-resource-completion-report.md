@@ -34,3 +34,11 @@ Explicit remaining limitations:
 - Browser preview collection is parent-owned. The parent is wiring the ordinary restore and primary-history planning requests through the existing preview-collection client. This backend never substitutes a fake PNG or activates changed native source without its prepared tuple.
 
 Owned files: revision-context, revision-relocation, revision-identities, revision-native-restore, diagram-history-restore, narrow file-jobs/recovery changes, three focused test files, and this report. Organization journal/folder/preview-registry changes remain owned by the native-operation agent.
+
+## Review follow-up: retained native source bases
+
+The review reproduced an incorrect reuse decision when a note and its linked target move individually while the historical source stays in the old assets directory. Planned new source bytes can equal the original bytes even though those bytes resolve the wrong target at the retained asset's actual path.
+
+The shared historical native helper now tests reuse at the actual retained source path. If mapped destinations require a change there, restoration prepares a new source/PNG at the planned upload base even when that final source text equals the original. This applies to bound groups, older unbound source/PNG pairs, and diagram-prose groups through the same helper.
+
+RED: two actual organization regressions (small bound group and 2 MiB background unbound pair) restored without requesting the required preview. A whole-folder move control already passed and reused the correctly located original. GREEN: all 20 historical-resource integration cases pass; the restored native href resolves from its actual published source path to the current target UUID, new source/PNG paths match the verified prepared tuple, and the original source bytes remain unchanged. Focused follow-up validation: 8 files / 43 tests passed; `npm run typecheck` and diff checks exited 0. No browser or full suite run.

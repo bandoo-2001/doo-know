@@ -480,13 +480,16 @@ it('prepares native groups in historical diagram prose before creating a primary
   ).toBe('../renamed.md');
 });
 it.each([
-  [false, false],
-  [true, false],
-  [false, true],
-  [true, true],
-])(
-  'prepares final native source and PNG before an ordinary embedded history activation (background %s, unbound pair %s)',
-  async (background, unbound) => {
+  [false, false, 'folder-rename'],
+  [true, false, 'folder-rename'],
+  [false, true, 'folder-rename'],
+  [true, true, 'folder-rename'],
+  [false, false, 'individual'],
+  [true, true, 'individual'],
+  [false, false, 'folder'],
+] as const)(
+  'restores native history through the correct source base (background %s, unbound pair %s, move %s)',
+  async (background, unbound, move) => {
     const f = fixture(),
       note = f.notes.createNote('Topic/Folder', 'embedded.md', '# Ordinary\n');
     const source = JSON.stringify({
@@ -554,13 +557,51 @@ it.each([
     );
     if (changed.kind !== 'accepted') throw Error('operation');
     await files.drain();
-    expect(files.operation(f.p, changed.operation.operationId).status).toBe('succeeded');
+    const updated = files.operation(f.p, changed.operation.operationId);
+    expect(updated.status).toBe('succeeded');
     const revision = (
       f.db
         .prepare('SELECT id FROM revisions WHERE note_id=? ORDER BY rowid DESC LIMIT 1')
         .get(note.id) as any
     ).id;
-    await f.moveFolder();
+    if (move === 'individual') {
+      const target = f.notes.getNote(f.target.noteId),
+        receipt = updated.result as any;
+      await f.organize([
+        {
+          type: 'move_note',
+          noteId: note.id,
+          expectedModifiedAt: receipt.modifiedAt,
+          expectedContentHash: receipt.contentHash,
+          toDirectoryId: f.directory('00-Inbox').id,
+          fileName: 'embedded.md',
+        },
+        {
+          type: 'move_note',
+          noteId: target.id,
+          expectedModifiedAt: target.modifiedAt,
+          expectedContentHash: sha256(target.content),
+          toDirectoryId: f.directory('00-Inbox').id,
+          fileName: 'target.md',
+        },
+      ]);
+    } else if (move === 'folder') {
+      syncDirectoryCatalog(f.config, f.db);
+      const folder = f.directory('Topic/Folder');
+      await f.organize([
+        {
+          type: 'move_directory',
+          directoryId: folder.id,
+          toDirectoryId: f.directory('00-Inbox').id,
+          name: 'Moved',
+          expectedSubtreeRevision: folder.subtreeRevision,
+        },
+      ]);
+    } else await f.moveFolder();
+    const currentPath =
+        move === 'individual' ? '00-Inbox/embedded.md' : '00-Inbox/Moved/embedded.md',
+      expectedLink = move === 'folder-rename' ? '../renamed.md' : '../target.md',
+      requiresPreview = move !== 'folder';
     await snapshots.available(f.p, note.id, {});
     await snapshots.drain();
     const current = await snapshots.available(f.p, note.id, {});
@@ -574,44 +615,43 @@ it.each([
     } catch (error) {
       preview = error;
     }
-    expect(preview).toMatchObject({
-      code: 'DIAGRAM_PREVIEW_REQUIRED',
-      details: { documents: expect.any(Array) },
-    });
-    expect(
-      f.db.prepare('SELECT id FROM operations WHERE request_id=?').get(requestId),
-    ).toBeUndefined();
-    expect(
-      readFileSync(join(f.config.knowledgeRoot, '00-Inbox/Moved/embedded.md'), 'utf8').slice(
-        0,
-        256,
-      ),
-    ).toContain('Later prose');
+    if (requiresPreview) {
+      expect(preview).toMatchObject({
+        code: 'DIAGRAM_PREVIEW_REQUIRED',
+        details: { documents: expect.any(Array) },
+      });
+      expect(
+        f.db.prepare('SELECT id FROM operations WHERE request_id=?').get(requestId),
+      ).toBeUndefined();
+      expect(
+        readFileSync(join(f.config.knowledgeRoot, currentPath), 'utf8').slice(0, 256),
+      ).toContain('Later prose');
+    } else expect(preview).toBeUndefined();
     const registry = background
       ? f.registry
       : diagramOperationPreviewRegistry(f.config, f.db, webPrincipal, f.assets);
-    for (const need of preview.details.documents) {
+    let preparedNative: ReturnType<typeof registry.prepare> | undefined;
+    for (const need of preview?.details.documents ?? []) {
       const snapshot = registry.get(need.snapshotId);
       expect(JSON.parse(snapshot.source)).toMatchObject({
         future: { retain: true },
-        elements: [{ link: '../renamed.md' }],
+        elements: [{ link: expectedLink }],
       });
-      registry.prepare(snapshot.id, {
+      if (move === 'individual') expect(snapshot.source).toBe(source);
+      preparedNative = registry.prepare(snapshot.id, {
         sourceHash: snapshot.sourceHash,
         pngBase64: png,
         requestId: randomUUID(),
       });
     }
-    if (background) {
+    if (background && requiresPreview) {
       const restored = await files.restore(f.p, note.id, revision, current.modified_at, requestId);
       if (restored.kind !== 'accepted') throw Error('operation');
       await files.drain();
       expect(files.operation(f.p, restored.operation.operationId).status).toBe('succeeded');
-    } else recovery.restoreRevision(note.id, revision, current.modified_at, requestId);
-    const restored = readFileSync(
-        join(f.config.knowledgeRoot, '00-Inbox/Moved/embedded.md'),
-        'utf8',
-      ),
+    } else if (requiresPreview)
+      recovery.restoreRevision(note.id, revision, current.modified_at, requestId);
+    const restored = readFileSync(join(f.config.knowledgeRoot, currentPath), 'utf8'),
       native = boundDiagramSources(restored)[0];
     if (!unbound) expect(native).toBeDefined();
     expect(restored.slice(0, 2048)).toContain('Preserve prose and `[[target]]`.');
@@ -619,20 +659,29 @@ it.each([
       expect(native.code.trim()).toBe(native.sourcePath);
       expect(sha256(normalizeDiagramCode(native.code))).toBe(native.binding.codeHash);
     }
-    expect(
-      JSON.parse(
-        f.assets
-          .file(
-            localReference(
-              '00-Inbox/Moved/embedded.md',
-              unbound
-                ? references(restored).find((url) => url.endsWith('.excalidraw'))!
-                : native.sourcePath,
-            )!,
-          )
-          .bytes.toString('utf8'),
-      ).elements[0].link,
-    ).toBe('../renamed.md');
+    const actualSource = localReference(
+        currentPath,
+        unbound
+          ? references(restored).find((url) => url.endsWith('.excalidraw'))!
+          : native.sourcePath,
+      )!,
+      scene = JSON.parse(f.assets.file(actualSource).bytes.toString('utf8'));
+    expect(scene.elements[0].link).toBe(expectedLink);
+    expect(localReference(actualSource, scene.elements[0].link)).toBe(
+      f.notes.row(f.target.noteId).path,
+    );
+    const retained = (f.db.prepare('SELECT path FROM assets WHERE id=?').get(pair.source.id) as any)
+      .path;
+    expect(f.assets.file(retained).bytes.toString('utf8')).toBe(source);
+    if (requiresPreview) {
+      expect(actualSource).toBe(preparedNative!.source!.relativePath);
+      const previewPath = localReference(
+        currentPath,
+        unbound ? references(restored).find((url) => url.endsWith('.png'))! : native.previewPath,
+      )!;
+      expect(previewPath).toBe(preparedNative!.preview.relativePath);
+      expect(sha256(f.assets.file(previewPath).bytes)).toBe(preparedNative!.previewHash);
+    } else expect(actualSource).toBe(retained);
   },
 );
 it.each([false, true])(
