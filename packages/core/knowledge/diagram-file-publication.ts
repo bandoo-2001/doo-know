@@ -82,7 +82,8 @@ export function assertDiagramRestorePublication(
   let markdown: string;
   try {
     const info = fstatSync(fd);
-    if (!info.isFile() || info.nlink !== 1 || info.size > limits.file) fail(400, 'INVALID_PATH');
+    if (!info.isFile() || info.nlink !== 1) fail(400, 'INVALID_PATH');
+    if (info.size > limits.file) fail(413, 'FILE_TOO_LARGE');
     const bytes = readFileSync(fd);
     if (createHash('sha256').update(bytes).digest('hex') !== input.sourceHash)
       fail(409, 'RESTORE_CONFLICT');

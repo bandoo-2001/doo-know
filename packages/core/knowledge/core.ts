@@ -1,6 +1,10 @@
 import { migrationAliasState } from './migration-alias-state.js';
 import { finishWhiteboardMigration, finishWhiteboardRollback, type MigrationRow } from './diagram-migration-journal.js';
 import { recordRevisionContext } from './revision-context.js';
+import {
+  captureNoteArchiveContext, prepareNoteTrashRestore, noteTrashRestorePlan,
+  commitNoteTrashRestore, publishNoteTrashRestoreAssets, verifyNoteTrashRestore,
+} from './note-trash-native-restore.js';
 import {parseDiagramDocument} from '../../../shared/diagram-document.js';
 import { assertDiagramPublication } from './diagram-publication-policy.js';
 import { recordDiagramPublication,verifyPendingDiagramPublication } from './diagram-publications.js';
@@ -55,7 +59,7 @@ import {
   releaseSnapshotRef,
 } from './operations.js';
 import { observeSource } from '../indexing/state.js';
-import { hashFile } from './file-reader.js';
+import { hashFile, fileVersionStamp } from './file-reader.js';
 import { limits } from './limits.js';
 import { assertRoot } from '../indexing/reconcile.js';
 import { moveService } from './move.js';
@@ -193,6 +197,12 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
       );
     } catch (error) {
       if (!committing) {
+        if (op.kind === 'restore' && error instanceof KnowledgeError && error.code === 'DIAGRAM_PREVIEW_REQUIRED') {
+          db.prepare(
+            "UPDATE operations SET error='DIAGRAM_PREVIEW_REQUIRED',updated_at=? WHERE id=? AND status='prepared'",
+          ).run(Date.now(), op.id);
+          throw error;
+        }
         const e = error as { statusCode?: number };
         db.transaction(() => {
           db.prepare(
@@ -242,6 +252,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
       if (current?.status !== 'prepared') fail(409, 'OPERATION_ALREADY_RESOLVED');
       library.remember(intent.note_id);
       if (intent.kind === 'archive') {
+        captureNoteArchiveContext(config, db, intent);
         db.prepare('UPDATE notes SET active=0,trash_path=? WHERE id=?').run(
           basename(intent.path),
           intent.note_id,
@@ -317,6 +328,14 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
         );
       }
       recordDiagramPublication(config,db,intent.id);
+      if (intent.kind === 'restore' && noteTrashRestorePlan(db, intent.id)) {
+        const identity = JSON.parse(intent.original_hash || 'null');
+        const published = lstatSync(file, { bigint: true });
+        if (!identity || published.ino !== BigInt(identity.ino) || published.dev !== BigInt(identity.dev) ||
+          Number(published.mode) !== identity.mode || published.mtimeNs.toString() !== identity.mtime ||
+          restoreHash(file) !== intent.target_hash)
+          fail(409, 'RESTORE_CONFLICT', '恢复目标发生外部变化');
+      }
       const result = {
         id: intent.note_id,
         relativePath: intent.path,
@@ -486,6 +505,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
       const file = safePath(config.knowledgeRoot, n.path, 'note'),
         s = statSync(file, { bigint: true });
       if (s.mtimeNs.toString() !== expected) fail(409, 'VERSION_CONFLICT');
+      const archiveHash = restoreHash(file);
       const archive = join(config.knowledgeRoot, '90-Archive');
       mkdirSync(archive, { recursive: true, mode: 0o700 });
       safePath(config.knowledgeRoot, '90-Archive', 'folder');
@@ -499,9 +519,9 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
       destination = join(destination, basename(n.path));
       if (existsSync(destination)) fail(409, 'TRASH_CONFLICT');
       db.prepare(
-        'INSERT INTO write_intents(id,note_id,path,kind,original_mtime,temp_path) VALUES(?,?,?,?,?,?)',
-      ).run(op.operation.id, id, n.path, 'archive', expected, destination);
-      if (statSync(file, { bigint: true }).mtimeNs.toString() !== expected)
+        'INSERT INTO write_intents(id,note_id,path,kind,original_hash,original_mtime,temp_path) VALUES(?,?,?,?,?,?,?)',
+      ).run(op.operation.id, id, n.path, 'archive', archiveHash, expected, destination);
+      if (fileVersionStamp(statSync(file, { bigint: true })) !== fileVersionStamp(s))
         fail(409, 'VERSION_CONFLICT');
       commit();
       renameSync(file, destination);
@@ -548,6 +568,8 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
   }
   function finishRestore(intent: Intent) {
     assertRoot(config, db);
+    const nativePlan = noteTrashRestorePlan(db, intent.id);
+    if (nativePlan) publishNoteTrashRestoreAssets(config, db, nativePlan);
     verifyPendingDiagramPublication(config,db,intent.id);
     assertRestoreDestination(intent);
     const source = trashSource(intent),
@@ -561,15 +583,16 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     const matches = (file: string) => {
       const st = lstatSync(file);
       if (!st.isFile() || st.isSymbolicLink() || st.nlink !== 1) fail(409, 'RESTORE_CONFLICT');
+      if (nativePlan && (st.mode & 0o777) !== 0o600) fail(409, 'RESTORE_CONFLICT');
       return restoreHash(file) === intent.target_hash;
     };
-    if (existsSync(source) && !matches(source)) fail(409, 'RESTORE_CONFLICT', '回收站原件发生变化');
+    if (existsSync(source) && !nativePlan && !matches(source)) fail(409, 'RESTORE_CONFLICT', '回收站原件发生变化');
     // Keep a separate, durable inode until the database commit. A competing edit
     // or unlink of the public target must not destroy the last original copy.
     if (!existsSync(stage) || !matches(stage)) {
       if (!existsSync(source)) fail(409, 'RESTORE_CONFLICT', '恢复文件证据缺失');
       if (existsSync(stage)) unlinkSync(stage);
-      copyFileSync(source, stage, constants.COPYFILE_EXCL);
+      copyFileSync(nativePlan?.afterFile ?? source, stage, constants.COPYFILE_EXCL);
       chmodSync(stage, 0o600);
       const fd = openSync(stage, 'r');
       try {
@@ -603,7 +626,10 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
       if (!matches(publication)) fail(409, 'RESTORE_CONFLICT');
       fsyncDirectory(parent);
       const staged = lstatSync(publication);
-      intent.original_hash = JSON.stringify({ ino: staged.ino, dev: staged.dev });
+      intent.original_hash = JSON.stringify({
+        ino: staged.ino, dev: staged.dev,
+        ...(nativePlan ? { mode: staged.mode, mtime: statSync(publication, { bigint: true }).mtimeNs.toString() } : {}),
+      });
       db.prepare('UPDATE write_intents SET original_hash=? WHERE id=?').run(
         intent.original_hash,
         intent.id,
@@ -624,6 +650,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
       st.isSymbolicLink() ||
       st.ino !== identity.ino ||
       st.dev !== identity.dev ||
+      (nativePlan && (st.mode !== identity.mode || statSync(dest, { bigint: true }).mtimeNs.toString() !== identity.mtime)) ||
       restoreHash(dest) !== intent.target_hash
     )
       fail(409, 'RESTORE_CONFLICT', '恢复目标发生外部变化');
@@ -640,15 +667,25 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
         // and record. The private stage survives any process exit or read failure.
         assertRestoreDestination(intent);
         safePath(config.knowledgeRoot, intent.path, 'note');
+        if (nativePlan) verifyNoteTrashRestore(config, db, nativePlan);
         if (existsSync(source)) {
-          if (!matches(source)) fail(409, 'RESTORE_CONFLICT');
-          unlinkSync(source);
-          fsyncDirectory(dirname(source));
+          if (!nativePlan) {
+            if (!matches(source)) fail(409, 'RESTORE_CONFLICT');
+            unlinkSync(source);
+            fsyncDirectory(dirname(source));
+          }
         }
-        return record(intent);
+        return record(intent, nativePlan ? readFileSync(nativePlan.afterFile, 'utf8') : undefined);
       })
       .immediate();
     try {
+      if (nativePlan && existsSync(source)) {
+        if (fileVersionStamp(lstatSync(source, { bigint: true })) === nativePlan.original.stamp &&
+          restoreHash(source) === nativePlan.original.hash) {
+          unlinkSync(source);
+          fsyncDirectory(dirname(source));
+        }
+      }
       if (matches(dest)) {
         unlinkSync(stage);
         fsyncDirectory(parent);
@@ -659,6 +696,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     return result;
   }
   function preserveRestoreSource(intent: Intent) {
+    if (noteTrashRestorePlan(db, intent.id)) return;
     const n = row(intent.note_id, true);
     if (n.active || !n.trash_path) return;
     const source = trashSource(intent),
@@ -699,7 +737,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
       const intent = db
         .prepare("SELECT * FROM write_intents WHERE id=? AND kind='restore' AND status='prepared'")
         .get(op.operation.id) as Intent | undefined;
-      if (intent && ['prepared', 'needs_reconciliation'].includes(op.operation.status)) {
+      if (intent && ['prepared', 'committing', 'needs_reconciliation'].includes(op.operation.status)) {
         acquireNoteWrite(db, id, intent.id, intent.id);
         try {
           return finishRestore(intent);
@@ -707,7 +745,8 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
           releaseNoteWrite(db, id, intent.id);
         }
       }
-      return existingResult(op.operation);
+      if (intent || op.operation.status !== 'prepared' || op.operation.error !== 'DIAGRAM_PREVIEW_REQUIRED')
+        return existingResult(op.operation);
     }
     return runOperation(op.operation, (commit) => {
       if (n.active || !n.trash_path) fail(404, 'NOT_FOUND');
@@ -733,10 +772,17 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
       const st = lstatSync(source, { bigint: true });
       intent.target_hash = restoreHash(source);
       intent.original_mtime = st.mtimeNs.toString();
-      assertDiagramRestorePublication(config,db,p,{operationId:intent.id,noteId:id,path,sourceFile:source,sourceHash:intent.target_hash});
+      const nativePlan = prepareNoteTrashRestore(config, db, p, {
+        operationId: intent.id, noteId: id, from: n.path, to: path, source, trashFile: n.trash_path,
+      });
+      if (nativePlan) intent.target_hash = nativePlan.afterHash;
+      else assertDiagramRestorePublication(config, db, p, {
+        operationId: intent.id, noteId: id, path, sourceFile: source, sourceHash: intent.target_hash,
+      });
       db.prepare(
         'INSERT INTO write_intents(id,note_id,path,kind,original_mtime,target_hash,temp_path) VALUES(?,?,?,?,?,?,?)',
       ).run(intent.id, id, path, 'restore', intent.original_mtime, intent.target_hash, source);
+      if (nativePlan) commitNoteTrashRestore(config, db, p, nativePlan);
       commit();
       return finishRestore(intent);
     }, id);
@@ -758,7 +804,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     }
     for (const orphan of db
       .prepare(
-        "SELECT id FROM operations WHERE kind IN ('create','update','archive','restore','move') AND status='prepared' AND NOT EXISTS(SELECT 1 FROM write_intents WHERE write_intents.id=operations.id)",
+        "SELECT id FROM operations WHERE kind IN ('create','update','archive','restore','move') AND status='prepared' AND (error IS NULL OR error<>'DIAGRAM_PREVIEW_REQUIRED') AND NOT EXISTS(SELECT 1 FROM write_intents WHERE write_intents.id=operations.id)",
       )
       .all() as any[]) {
       if (!operationHasLiveWorkspaceWriter(db, orphan.id))

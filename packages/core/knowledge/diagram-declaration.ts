@@ -122,7 +122,7 @@ export function hasDiagramDeclarationSync(file: string) {
   try {
     const info = fstatSync(fd);
     if (!info.isFile() || info.nlink !== 1) fail(400, 'INVALID_PATH');
-    if (info.size > limits.file) fail(413, 'FILE_TOO_LARGE');
+    // Candidate detection streams ordinary large files; graph readers apply their own size bound.
     const scanner = declarationScanner(),
       bytes = Buffer.allocUnsafe(limits.io);
     let length: number;

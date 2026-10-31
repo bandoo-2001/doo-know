@@ -397,7 +397,6 @@ export function registerManagementRoutes(
             return { id, ok: true, relativePath: row.path };
           } catch (e) {
             if (
-              id.startsWith('folder-') &&
               e instanceof KnowledgeError &&
               ['OPERATION_OUTCOME_UNKNOWN','DIAGRAM_PREVIEW_REQUIRED'].includes(e.code)
             )

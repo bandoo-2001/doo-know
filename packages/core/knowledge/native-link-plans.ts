@@ -1,4 +1,8 @@
 import { archivedDiagramRoot, type ArchivedDiagramContext } from './archived-diagram-context.js';
+import {
+  archivedNoteDiagramFile,
+  type ArchivedNoteDiagramContext,
+} from './archived-note-diagram-context.js';
 import { lstatSync, readFileSync } from 'node:fs';
 import { posix } from 'node:path';
 import type { AppConfig } from '../../../shared/contracts.js';
@@ -59,6 +63,8 @@ export function collectNativeLinkChanges(
     excludeNoteIds?: string[];
     notes?: { id: string; path: string }[];
     archive?: ArchivedDiagramContext;
+    noteTrash?: ArchivedNoteDiagramContext;
+    referenceMapping?: ReadonlyMap<string, string>;
   } = {},
 ) {
   const registry = diagramOperationPreviewRegistry(config, db, p),
@@ -74,14 +80,16 @@ export function collectNativeLinkChanges(
   const archiveRoot = options.archive
     ? archivedDiagramRoot(config, db, options.archive)
     : undefined;
-  const readAsset = (path: string) =>
-    archiveRoot && path.startsWith(options.archive!.logicalRoot + '/')
+  const readAsset = (path: string) => {
+    path = options.referenceMapping?.get(path) ?? path;
+    return archiveRoot && path.startsWith(options.archive!.logicalRoot + '/')
       ? readBoundDiagramAsset(
           { ...config, knowledgeRoot: archiveRoot },
           path.slice(options.archive!.logicalRoot.length + 1),
           'source',
         )
       : readBoundDiagramAsset(config, path, 'source');
+  };
   for (const note of options.notes ??
     (db.prepare('SELECT id,path FROM notes WHERE active=1 ORDER BY path').all() as {
       id: string;
@@ -89,9 +97,11 @@ export function collectNativeLinkChanges(
     }[])) {
     if (options.excludeNoteIds?.includes(note.id)) continue;
     const snapshotIds: string[] = [];
-    const file = archiveRoot
-        ? safePath(archiveRoot, note.path.slice(options.archive!.logicalRoot.length + 1), 'note')
-        : safePath(config.knowledgeRoot, note.path, 'note'),
+    const file = options.noteTrash
+        ? archivedNoteDiagramFile(config, db, options.noteTrash)
+        : archiveRoot
+          ? safePath(archiveRoot, note.path.slice(options.archive!.logicalRoot.length + 1), 'note')
+          : safePath(config.knowledgeRoot, note.path, 'note'),
       stamp = lstatSync(file, { bigint: true });
     if (stamp.size > 20n * 1024n * 1024n) fail(413, 'FILE_TOO_LARGE');
     let original: string;
@@ -135,7 +145,11 @@ export function collectNativeLinkChanges(
         moves,
         true,
       );
-      if (!final.changed) return;
+      const existingChanges = sourcePath
+        ? rewriteLibraryReferences(source, sourcePath, relocatePath(sourcePath, moves), moves, true)
+            .changed
+        : false;
+      if (!final.changed && !existingChanges) return;
       if (!sourcePath && isWhiteboard(note.path))
         final.content = withWhiteboardId(final.content, note.id);
       if (!canAccessPath(p, note.path)) fail(403, 'DEPENDENCY_FORBIDDEN');
@@ -146,7 +160,9 @@ export function collectNativeLinkChanges(
         documentPath: note.path,
         documentHash,
         documentModifiedAt: stamp.mtimeNs.toString(),
-        sourcePath,
+        sourcePath: sourcePath
+          ? (options.referenceMapping?.get(sourcePath) ?? sourcePath)
+          : undefined,
         sourceHash,
         finalSource: final.content,
         type: 'whiteboard',
@@ -157,6 +173,7 @@ export function collectNativeLinkChanges(
         permissions: [target],
         context: { key, inventory: fixedInventory },
         ...(options.archive ? { archive: options.archive } : {}),
+        ...(options.noteTrash ? { noteTrash: options.noteTrash } : {}),
       });
       const prepared = registry.prepared(snapshot.id);
       if (!prepared) {
@@ -244,6 +261,7 @@ export function collectNativeLinkChanges(
             permissions: [target],
             context: { key: 'primary-inline', inventory: fixedInventory },
             ...(options.archive ? { archive: options.archive } : {}),
+            ...(options.noteTrash ? { noteTrash: options.noteTrash } : {}),
           });
         const prepared = registry.prepared(snapshot.id);
         if (!prepared)

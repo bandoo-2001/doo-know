@@ -1,5 +1,11 @@
 import { fsyncDirectory } from './core.js';
 import { assertRoot } from '../indexing/reconcile.js';
+import {
+  archivedNoteDiagramFile,
+  authorizeArchivedNoteOperation,
+  type ArchivedNoteDiagramContext,
+} from './archived-note-diagram-context.js';
+import { lifecyclePrincipal } from './lifecycle-access.js';
 import { join, posix } from 'node:path';
 import {
   archivedDiagramRoot,
@@ -50,6 +56,7 @@ export type FixedDiagramSnapshotInput = {
   permissions?: string[];
   context?: unknown;
   archive?: ArchivedDiagramContext;
+  noteTrash?: ArchivedNoteDiagramContext;
 };
 export type FixedDiagramSnapshot = {
   id: string;
@@ -90,23 +97,68 @@ export function diagramOperationPreviewRegistry(
   )`);
   const workspace = () => diagramOperationWorkspace(config, db);
   function validate(input: FixedDiagramSnapshotInput) {
+    if (input.noteTrash) {
+      authorizeArchivedNoteOperation(
+        config,
+        db,
+        principal,
+        input.noteId,
+        [input.documentPath, ...(input.permissions ?? [])],
+        input.noteTrash.targets.map((t) => t.path),
+        true,
+      );
+      if (
+        input.noteTrash.noteId !== input.noteId ||
+        input.noteTrash.logicalPath !== input.documentPath ||
+        input.noteTrash.hash !== input.documentHash
+      )
+        fail(409, 'TRASH_CHANGED');
+      if (
+        input.sourcePath &&
+        !input.noteTrash.resources.some(
+          (r) => r.path === input.sourcePath && r.hash === input.sourceHash,
+        )
+      )
+        fail(409, 'DIAGRAM_SOURCE_CONFLICT');
+      for (const t of input.noteTrash.targets)
+        if (
+          !db
+            .prepare('SELECT 1 FROM notes WHERE id=? AND path=? AND active=1')
+            .get(t.noteId, t.path)
+        )
+          fail(409, 'REVISION_REFERENCE_UNAVAILABLE');
+    }
+    const actor = input.noteTrash
+      ? lifecyclePrincipal(db, principal, 'note', input.noteId, input.documentPath)
+      : principal;
     for (const path of new Set([input.documentPath, ...(input.permissions || [])]))
-      authorizePath(principal, path, 'knowledge:write');
+      authorizePath(
+        input.noteTrash ? lifecyclePrincipal(db, actor, 'note', input.noteId, path) : actor,
+        path,
+        'knowledge:write',
+      );
     const row = db.prepare('SELECT path,active FROM notes WHERE id=?').get(input.noteId) as
       | { path: string; active: number }
       | undefined;
-    if (!row || (input.archive ? row.active : !row.active) || row.path !== input.documentPath)
+    if (
+      !row ||
+      (input.archive || input.noteTrash ? row.active : !row.active) ||
+      row.path !== input.documentPath
+    )
       fail(409, 'VERSION_CONFLICT');
+    if (input.archive && input.noteTrash) fail(400, 'INVALID_INPUT');
     const archiveRoot = input.archive ? archivedDiagramRoot(config, db, input.archive) : undefined;
     if (archiveRoot && archivedTreeInventory(archiveRoot) !== input.archive!.inventory)
       fail(409, 'TRASH_CHANGED');
-    const path = archiveRoot
-      ? safePath(
-          archiveRoot,
-          input.documentPath.slice(input.archive!.logicalRoot.length + 1),
-          'note',
-        )
-      : safePath(config.knowledgeRoot, input.documentPath, 'note');
+    const path = input.noteTrash
+      ? archivedNoteDiagramFile(config, db, input.noteTrash)
+      : archiveRoot
+        ? safePath(
+            archiveRoot,
+            input.documentPath.slice(input.archive!.logicalRoot.length + 1),
+            'note',
+          )
+        : safePath(config.knowledgeRoot, input.documentPath, 'note');
     const stamp = lstatSync(path, { bigint: true });
     if (
       stamp.mtimeNs.toString() !== input.documentModifiedAt ||
@@ -192,6 +244,22 @@ export function diagramOperationPreviewRegistry(
       .get(id) as any;
     if (!row.prepared) return;
     const result = JSON.parse(row.prepared) as PreparedDiagramPrimary;
+    if (snapshot.input.noteTrash) {
+      const receipt = db
+        .prepare(
+          "SELECT result FROM operations WHERE id=? AND principal=? AND client_id=? AND status='succeeded'",
+        )
+        .get(result.id, principal.id, principal.clientId) as { result: string } | undefined;
+      if (!receipt || sha256(receipt.result) !== sha256(JSON.stringify(result)))
+        fail(409, 'DIAGRAM_PREPARATION_MISMATCH');
+      if (
+        snapshot.input.role === 'primary' &&
+        !db
+          .prepare('SELECT 1 FROM diagram_prepared_primaries WHERE id=? AND note_id=? AND result=?')
+          .get(result.id, result.noteId, JSON.stringify(result))
+      )
+        fail(409, 'DIAGRAM_PREPARATION_MISMATCH');
+    }
     for (const [role, asset, hash] of [
       ['source', result.source, result.sourceHash],
       ['preview', result.preview, result.previewHash],
@@ -199,7 +267,7 @@ export function diagramOperationPreviewRegistry(
       if (
         asset &&
         sha256(
-          snapshot.input.archive
+          snapshot.input.archive || snapshot.input.noteTrash
             ? readFileSync(join(config.dataRoot, 'diagram-operation-previews', id, role))
             : readBoundDiagramAsset(config, asset.relativePath, role),
         ) !== hash
@@ -245,7 +313,7 @@ export function diagramOperationPreviewRegistry(
         { snapshotId: id, sourceHash: snapshot.sourceHash, previewHash },
       );
       const upload = (name: string, mime: string, bytes: Buffer, role: 'source' | 'preview') => {
-        if (!fixed.archive)
+        if (!fixed.archive && !fixed.noteTrash)
           return assets!.upload(
             fixed.noteId,
             name,
@@ -315,6 +383,7 @@ export function diagramOperationPreviewRegistry(
         expiresAt: snapshot.expiresAt,
       };
       db.transaction(() => {
+        if (fixed.noteTrash) validate(fixed);
         if (fixed.role === 'primary')
           db.prepare(
             'INSERT INTO diagram_prepared_primaries(id,note_id,principal,client_id,document_hash,baseline_source_hash,source_hash,render_hash,preview_hash,result,created_at,expires_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)',
