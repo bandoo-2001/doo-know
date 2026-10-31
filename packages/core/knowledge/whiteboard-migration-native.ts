@@ -81,6 +81,33 @@ export function refreshMigrationNative(
   const fixed = JSON.parse(row.plan),
     moves = [{ from: row.old_path, to: row.new_path }],
     registry = diagramOperationPreviewRegistry(config, db, p);
+  // Staging before cutover does not write references. Rebuild those bytes only when
+  // their stable writer has never started; an issued/unknown receipt keeps its old baseline.
+  const staged = JSON.parse(row.references_json) as {
+    noteId: string;
+    status: string;
+    after?: string;
+  }[];
+  if (staged.length) {
+    if (row.commit_operation_id) fail(409, 'REFERENCE_CONFLICT');
+    for (const reference of staged) {
+      const operation = db
+        .prepare("SELECT 1 FROM operations WHERE kind='update' AND request_id=?")
+        .get('migration-ref-' + row.id + '-' + reference.noteId);
+      if (operation || reference.status === 'rewritten') fail(409, 'REFERENCE_CONFLICT');
+      if (!reference.after) continue;
+      const entry = fixed.inbound.find((x: any) => x.noteId === reference.noteId);
+      if (!entry) fail(409, 'REFERENCE_CONFLICT');
+      const current = notes.row(reference.noteId);
+      authorizePath(p, current.path, 'knowledge:write');
+      const document = readDocument(config.knowledgeRoot, current.path, {
+        allowDiagramLarge: true,
+      });
+      entry.path = current.path;
+      entry.hash = sha256(document.content);
+      entry.modifiedAt = document.modifiedAt;
+    }
+  }
   const collected = collectNativeLinkChanges(config, db, p, moves, {
     excludeNoteIds: [row.note_id],
   });
@@ -195,6 +222,8 @@ export function refreshMigrationNative(
     needs.length ? 'awaiting-native-previews' : row.prepared ? 'prepared' : 'planned',
     row.id,
   );
+  if (staged.length)
+    db.prepare("UPDATE whiteboard_migrations SET references_json='[]' WHERE id=?").run(row.id);
   if (!needs.length)
     for (const rewrite of rewrites) {
       immutableMigrationFile(

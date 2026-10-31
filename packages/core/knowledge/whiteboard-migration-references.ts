@@ -22,6 +22,7 @@ type ReferenceRecord = {
   before?: string;
   after?: string;
   afterHash?: string;
+  baseline?: { path: string; hash: string; modifiedAt: string; rewriteHash: string };
 };
 /** Persist each rewrite's exact before/after bytes before invoking the ordinary versioned writer. */
 export function rewriteMigrationInbound(
@@ -75,6 +76,17 @@ export function rewriteMigrationInbound(
         fail(409, 'VERSION_CONFLICT');
       const native = fixed.nativeRewrites?.find((x) => x.noteId === entry.noteId);
       if (entry.native && !native) fail(409, 'DIAGRAM_PREVIEW_REQUIRED');
+      const rewriteHash = sha256(JSON.stringify(native ?? null));
+      if (
+        value.after &&
+        (value.before !== doc.content ||
+          (value.baseline &&
+            (value.baseline.path !== entry.path ||
+              value.baseline.hash !== entry.hash ||
+              value.baseline.modifiedAt !== entry.modifiedAt ||
+              value.baseline.rewriteHash !== rewriteHash)))
+      )
+        fail(409, 'REFERENCE_CONFLICT');
       if (!value.after) {
         const base = native?.content ?? doc.content;
         const replacements: { start: number; end: number; text: string }[] = [];
@@ -122,6 +134,12 @@ export function rewriteMigrationInbound(
           before: doc.content,
           after,
           afterHash: sha256(after),
+          baseline: {
+            path: entry.path,
+            hash: entry.hash,
+            modifiedAt: entry.modifiedAt,
+            rewriteHash,
+          },
         };
         persist(value);
       }

@@ -13,7 +13,7 @@ import { diagramCreationService } from '../packages/core/knowledge/diagram-creat
 import { diagramArtifactService } from '../packages/core/knowledge/diagram-artifacts';
 import { legacyDiagramPreviewService } from '../packages/core/knowledge/legacy-diagram-previews';
 import { webPrincipal } from '../packages/core/knowledge/core';
-import { sha256 } from '../packages/core/knowledge/operations';
+import { beginOperation, sha256 } from '../packages/core/knowledge/operations';
 import { diagramRendererVersions, renderPreparedDiagramDocument } from '../shared/diagram-primary';
 import { emptyWhiteboard } from '../shared/whiteboard';
 import { renderPortableFigure } from '../shared/portable-figure';
@@ -192,6 +192,104 @@ it('discovers late native arrivals as a new stable preview plan and keeps the ol
     'committed',
   );
   expect(f.primary.resolve(inbound.note.id).preview!.state).toBe('ready');
+});
+it.each(['legacy', 'primary', 'embedded', 'ordinary'] as const)(
+  'rebuilds an unconsumed %s inbound rewrite after cutover interruption without losing later edits',
+  (kind) => {
+    const f = fixture();
+    let inbound;
+    if (kind === 'legacy')
+      inbound = f.notes.createNote('00-Inbox', 'inbound.excalidraw', source('drawing.excalidraw'));
+    else if (kind === 'primary') inbound = inboundPrimary(f).note;
+    else if (kind === 'ordinary')
+      inbound = f.notes.createNote('00-Inbox', 'inbound.md', '[Drawing](drawing.excalidraw)');
+    else {
+      inbound = f.notes.createNote('00-Inbox', 'inbound.md', '# Embedded');
+      const scene = source('../drawing.excalidraw'),
+        pair = diagramArtifactService(db, f.notes, f.assets, webPrincipal).prepare(inbound.id, {
+          kind: 'excalidraw',
+          source: scene,
+          sourceHash: sha256(scene),
+          pngBase64: png,
+          requestId: randomUUID(),
+        }),
+        code = pair.source.markdownPath,
+        content =
+          renderPortableFigure({
+            alt: 'EXCALIDRAW 预览',
+            previewPath: pair.preview.markdownPath,
+            source: { type: 'file', path: code },
+          }) +
+          '\n' +
+          serializeDiagramBinding({
+            kind: 'excalidraw',
+            sourceHash: pair.sourceHash,
+            codeHash: sha256(code),
+          }) +
+          '\n\n```excalidraw\n' +
+          code +
+          '\n```\n';
+      inbound = f.notes.saveNote(inbound.id, content, inbound.modifiedAt);
+    }
+    let job = prepareMain(
+      f,
+      prepareNeeds(f, f.service.plan({ noteId: f.main.id, requestId: randomUUID() })),
+    );
+    db.exec(
+      "CREATE TRIGGER stop_cutover BEFORE INSERT ON write_intents WHEN NEW.kind='whiteboard-migrate' BEGIN SELECT RAISE(FAIL,'cutover interrupted'); END",
+    );
+    expect(() => f.service.commit({ migrationId: job.id, requestId: randomUUID() })).toThrow(
+      'cutover interrupted',
+    );
+    db.exec('DROP TRIGGER stop_cutover');
+    const current = f.notes.getNote(inbound.id),
+      changed =
+        kind === 'legacy'
+          ? JSON.stringify({ ...JSON.parse(current.content), userEdit: 'keep this edit' })
+          : current.content + '\nKeep this user edit.\n';
+    f.notes.saveNote(current.id, changed, current.modifiedAt);
+    const edited = f.notes.getNote(current.id).content;
+    job = prepareNeeds(f, f.service.resume(job.id));
+    expect(f.service.commit({ migrationId: job.id, requestId: randomUUID() }).status).toBe(
+      'committed',
+    );
+    expect(f.notes.getNote(current.id).content).toContain(
+      kind === 'legacy' ? 'keep this edit' : 'Keep this user edit.',
+    );
+    if (kind === 'legacy' || kind === 'primary')
+      expect(f.primary.resolve(current.id).preview!.state).toBe('ready');
+    f.service.rollback({ migrationId: job.id, requestId: randomUUID() });
+    expect(f.notes.getNote(current.id).content).toBe(edited);
+    if (kind === 'legacy' || kind === 'primary')
+      expect(f.primary.resolve(current.id).preview!.state).toBe('ready');
+  },
+);
+it('keeps an unconsumed reference journal when its stable writer has an unknown outcome', () => {
+  const f = fixture(),
+    inbound = inboundPrimary(f);
+  const job = prepareMain(
+    f,
+    prepareNeeds(f, f.service.plan({ noteId: f.main.id, requestId: randomUUID() })),
+  );
+  db.exec(
+    "CREATE TRIGGER stop_cutover BEFORE INSERT ON write_intents WHEN NEW.kind='whiteboard-migrate' BEGIN SELECT RAISE(FAIL,'cutover interrupted'); END",
+  );
+  expect(() => f.service.commit({ migrationId: job.id, requestId: randomUUID() })).toThrow(
+    'cutover interrupted',
+  );
+  db.exec('DROP TRIGGER stop_cutover');
+  beginOperation(db, webPrincipal, 'update', 'migration-ref-' + job.id + '-' + inbound.note.id, {});
+  const before = db
+    .prepare('SELECT references_json FROM whiteboard_migrations WHERE id=?')
+    .get(job.id);
+  expect(() => f.service.resume(job.id)).toThrowError(
+    expect.objectContaining({ code: 'REFERENCE_CONFLICT' }),
+  );
+  expect(
+    db.prepare('SELECT references_json FROM whiteboard_migrations WHERE id=?').get(job.id),
+  ).toEqual(before);
+  expect(f.notes.getNote(inbound.note.id).content).toBe(inbound.note.content);
+  expect(f.notes.getNote(f.main.id).relativePath).toBe(f.main.relativePath);
 });
 it('keeps cutover inactive if any fixed native preview disappears', () => {
   const f = fixture();
