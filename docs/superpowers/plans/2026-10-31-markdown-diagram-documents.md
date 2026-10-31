@@ -231,3 +231,5 @@ Files: `packages/core/knowledge/{diagram-creation,diagram-document-schema}.ts`�
 Task5已细化为 `2026-10-31-markdown-diagram-public-projection.md` 与 `2026-10-31-markdown-diagram-editor-session.md`。公开投影/旧资源适配和前端会话分离实施，接口由两个子计划冻结；Task6历史/移动、后续迁移/检索/编辑器/便携交付仍持续推进，不代表完成。
 
 Task4F 最终验收：发布后当前路径鉴权已在5b841f5修复，三种成功/不明成功情形均真实RED→GREEN；五文件62/62，修复后typecheck/build通过。独立复审Spec/质量均批准。核心私有主图与写入已完成，Task5继续旧格式/嵌入资源兼容与公开投影；这些兼容项及Task6通过前，阶段2不关闭。
+
+Task5A 后端与旧资源适配已完成审阅：公开投影/分页、原件能力、旧源码与PNG、博客主图分支；三项审阅问题真实复现后修复，独立复审Spec/质量通过，覆盖8文件104项。草稿v2基础与失败恢复保留已通过51项（含真实IndexedDB CAS/隔离）。安全公开阅读及原件授权开关桌面/移动8项通过，当前typecheck/build通过。仍未完成实际保存协调者、新Markdown白板创建和会话视图、历史与移动，阶段2继续；完整长套件留阶段冻结后运行。

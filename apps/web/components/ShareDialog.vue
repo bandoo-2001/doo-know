@@ -16,6 +16,7 @@ const emit = defineEmits<{
   action: [action: 'create' | 'reset' | 'revoke', options?: ShareOptions];
 }>();
 const permission = ref<'view' | 'edit'>('view');
+const allowDiagramSource = ref(false);
 const duration = ref('7d'),
   customDate = ref(''),
   validation = ref(''),
@@ -41,6 +42,7 @@ watch(
   () => {
     if (!props.show) return;
     permission.value = props.status.permission;
+    allowDiagramSource.value = props.status.allowDiagramSource === true;
     originalExpiry = props.status.expiresAt;
     duration.value =
       props.status.state === 'private' ? '7d' : originalExpiry ? 'custom' : 'permanent';
@@ -77,7 +79,7 @@ function submit(action: 'create' | 'reset' | 'revoke') {
     };
     expiresAt = new Date(Date.now() + milliseconds[duration.value]).toISOString();
   }
-  emit('action', action, { permission: permission.value, expiresAt });
+  emit('action', action, { permission: permission.value, expiresAt, allowDiagramSource: allowDiagramSource.value });
 }
 async function copy() {
   copied.value = false;
@@ -154,6 +156,10 @@ async function copy() {
           :disabled="busy"
         /><small>按当前设备的本地时间设置。</small></label
       >
+      <label class="share-original">
+        <input v-model="allowDiagramSource" type="checkbox" aria-label="允许下载图形原件" :disabled="busy" />
+        <span>允许下载图形原件<small>原件可能包含预览未展示的编辑内容，默认关闭。</small></span>
+      </label>
     </div>
     <p v-if="!status.editSupported" class="share-limitation" role="note">
       {{
@@ -222,6 +228,21 @@ async function copy() {
 }
 .share-custom {
   grid-column: 1/-1;
+}
+.share-settings .share-original {
+  grid-column: 1/-1;
+  flex-direction: row;
+  align-items: flex-start;
+}
+.share-settings .share-original input {
+  width: auto;
+  margin: 2px 0 0;
+}
+.share-original small {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  line-height: 1.8;
 }
 .share-custom small,
 .share-limitation {
