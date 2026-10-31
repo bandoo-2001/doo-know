@@ -1,13 +1,17 @@
+import {
+  portableInputSnapshot,
+  extractPortableStream,
+  type PortableInputSnapshot,
+} from './input-snapshot.js';
 import { createWriteStream, linkSync, unlinkSync } from 'node:fs';
 import { setImmediate as yieldToRequests } from 'node:timers/promises';
 import { pipeline } from 'node:stream/promises';
-import { hashAssetSync, assetStamp } from '../asset-stream.js';
+import { hashAssetSync, assetStamp, openAsset } from '../asset-stream.js';
 import { createReadStream } from 'node:fs';
 import { mkdir, readFile, rm, stat } from 'node:fs/promises';
 import { existsSync, mkdirSync, readFileSync, lstatSync } from 'node:fs';
 import { join, posix } from 'node:path';
 import { randomUUID } from 'node:crypto';
-import { Parser, extract } from 'tar';
 import type { AppConfig } from '../../../shared/contracts.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
 import type { PortableImportResult } from '../../../shared/portable-delivery-contracts.js';
@@ -45,13 +49,14 @@ import {
   checkNativeLinks,
   nativeLinks,
   destinations,
+  externalNavigation,
   rewriteDestinations,
   internalNoteNavigation,
   unresolvedInternalNavigation,
 } from './paths.js';
 import { portableStaging } from './staging.js';
 
-export type PortableImportOptions = { check?: () => Principal };
+export type PortableImportOptions = { check?: () => Principal; snapshot?: PortableInputSnapshot };
 function request(input: { requestId: string; folderPath: string }) {
   if (!input || !/^[A-Za-z0-9_-]{1,128}$/.test(input.requestId)) fail(400, 'INVALID_REQUEST_ID');
   if (input.folderPath) portablePath(input.folderPath);
@@ -65,63 +70,6 @@ function ensureDirectory(config: AppConfig, path: string) {
     else mkdirSync(join(config.knowledgeRoot, current), { mode: 0o700 });
   }
 }
-async function safeExtract(file: string, destination: string, reserve: (bytes: number) => void) {
-  const sourceStamp = assetStamp(file);
-  const info = await stat(file);
-  if (info.size > limits.packageBytes) fail(413, 'PORTABLE_BUDGET_EXCEEDED');
-  await new Promise<void>((resolve, reject) => {
-    const input = createReadStream(file);
-    let total = 0;
-    const seen = new Set<string>();
-    const parser = new Parser({
-      strict: true,
-      onReadEntry(entry) {
-        try {
-          const path = entry.path.replace(/\/$/, '');
-          portablePath(path);
-          const key = path.normalize('NFC').toLowerCase();
-          if (!['File', 'OldFile', 'Directory'].includes(entry.type) || seen.has(key))
-            fail(400, 'INVALID_PORTABLE_ENTRY');
-          seen.add(key);
-          total += entry.size;
-          if (seen.size > limits.files * 2 + 1 || total > limits.packageBytes)
-            fail(413, 'PORTABLE_BUDGET_EXCEEDED');
-          reserve(total);
-        } catch (error) {
-          parser.abort(error as Error);
-        }
-        entry.resume();
-      },
-    });
-    parser.once('error', (error) => {
-      input.destroy();
-      reject(error);
-    });
-    parser.once('end', () => resolve());
-    input.once('error', (error) => parser.abort(error));
-    input.pipe(parser as any);
-  });
-  if (assetStamp(file) !== sourceStamp) fail(409, 'PORTABLE_VERSION_CONFLICT');
-  let extractedBytes = 0;
-  await extract({
-    file,
-    cwd: destination,
-    strict: true,
-    preservePaths: false,
-    filter: (_path, entry) => {
-      if (!['File', 'OldFile', 'Directory'].includes((entry as any).type))
-        fail(400, 'INVALID_PORTABLE_ENTRY');
-      extractedBytes += (entry as any).size;
-      if (extractedBytes > limits.packageBytes) fail(413, 'PORTABLE_BUDGET_EXCEEDED');
-      reserve(extractedBytes);
-      return true;
-    },
-    chmod: true,
-    processUmask: 0o077,
-  });
-  if (assetStamp(file) !== sourceStamp) fail(409, 'PORTABLE_VERSION_CONFLICT');
-}
-
 /** Whole self-manifest input: preflight all hashes and render bindings before any note is created. */
 export async function importPortableDirectory(
   config: AppConfig,
@@ -145,9 +93,12 @@ export async function importPortableDirectory(
   db.exec(
     'CREATE TABLE IF NOT EXISTS portable_import_jobs(id TEXT PRIMARY KEY,principal TEXT NOT NULL,client TEXT NOT NULL,request_id TEXT NOT NULL,fingerprint TEXT NOT NULL,result TEXT NOT NULL,complete INTEGER NOT NULL DEFAULT 0,UNIQUE(principal,client,request_id));',
   );
-  const listed = directoryFiles(input.directoryPath),
-    manifestPath = join(input.directoryPath, manifestName);
-  if (!listed.includes(manifestName) || lstatSync(manifestPath).size > 4 * 1024 ** 2)
+  options.snapshot?.assert(p, input.folderPath, input.directoryPath);
+  const sourceFile = (path: string) =>
+    options.snapshot?.path(path) ?? join(input.directoryPath, path);
+  const listed = options.snapshot?.files() ?? directoryFiles(input.directoryPath),
+    manifestPath = listed.includes(manifestName) ? sourceFile(manifestName) : undefined;
+  if (!manifestPath || lstatSync(manifestPath).size > 4 * 1024 ** 2)
     fail(400, 'INVALID_PORTABLE_MANIFEST');
   let raw: unknown;
   try {
@@ -164,7 +115,7 @@ export async function importPortableDirectory(
     fail(400, 'PORTABLE_MANIFEST_FILES_MISMATCH');
   for (const file of manifest.files) {
     refresh();
-    const absolute = join(input.directoryPath, file.path);
+    const absolute = sourceFile(file.path);
     if (lstatSync(absolute).size !== file.sizeBytes || (await hashFile(absolute)) !== file.sha256)
       fail(400, 'PORTABLE_DIGEST_MISMATCH');
   }
@@ -199,7 +150,9 @@ export async function importPortableDirectory(
   const mapping = new Map(
       manifest.files.map((file) => [file.path, posix.join(input.folderPath, file.path)]),
     ),
-    validatedAssets = assetService({ ...config, knowledgeRoot: input.directoryPath }, db, notes);
+    validatedAssets = options.snapshot
+      ? { inspect: options.snapshot.inspect, open: openAsset }
+      : assetService({ ...config, knowledgeRoot: input.directoryPath }, db, notes);
   const documents = new Set<string>(),
     embeddedGroups = new Map<string, ReturnType<typeof boundDiagramSources>>();
   // A mutation can have committed just before progress persistence was interrupted.
@@ -250,10 +203,7 @@ export async function importPortableDirectory(
     if (file.kind === 'asset') {
       validatedAssets.inspect(file.path);
       if (/\.excalidraw$/i.test(file.path))
-        checkIncomingNative(
-          await readFile(join(input.directoryPath, file.path), 'utf8'),
-          file.path,
-        );
+        checkIncomingNative(await readFile(sourceFile(file.path), 'utf8'), file.path);
       continue;
     }
     if (
@@ -262,7 +212,7 @@ export async function importPortableDirectory(
       file.path.split('/').includes('assets')
     )
       fail(400, 'INVALID_PORTABLE_DOCUMENT');
-    const documentBytes = await readFile(join(input.directoryPath, file.path));
+    const documentBytes = await readFile(sourceFile(file.path));
     if (sha256(documentBytes) !== file.sha256) fail(409, 'PORTABLE_DIGEST_MISMATCH');
     let content: string;
     try {
@@ -280,12 +230,7 @@ export async function importPortableDirectory(
         fail(422, 'PORTABLE_RESOURCE_UNSUPPORTED', '便携包内文档导航必须使用标准相对链接');
       const local = localReference(file.path, ref.url);
       if (!local) {
-        if (
-          !ref.image &&
-          /^https?:\/\//i.test(ref.url) &&
-          !/^\/api(?:\/|$)/i.test(new URL(ref.url).pathname)
-        )
-          continue;
+        if (!ref.image && externalNavigation(ref.url, config.origin)) continue;
         fail(422, 'PORTABLE_RESOURCE_UNSUPPORTED');
       }
       if (!fileMap.has(local))
@@ -305,8 +250,8 @@ export async function importPortableDirectory(
         fileMap.get(previewPath)?.kind !== 'asset'
       )
         fail(400, 'INVALID_PORTABLE_MANIFEST');
-      const sourceBytes = await readFile(join(input.directoryPath, sourcePath)),
-        previewBytes = await readFile(join(input.directoryPath, previewPath));
+      const sourceBytes = await readFile(sourceFile(sourcePath)),
+        previewBytes = await readFile(sourceFile(previewPath));
       const source = validateDiagramSource(group.kind, sourceBytes);
       validatePng(previewBytes);
       if (
@@ -324,10 +269,7 @@ export async function importPortableDirectory(
       const source =
         parsed.primary.source.format === 'excalidraw'
           ? await readFile(
-              join(
-                input.directoryPath,
-                localReference(file.path, parsed.primary.source.path) || '',
-              ),
+              sourceFile(localReference(file.path, parsed.primary.source.path) || ''),
               'utf8',
             )
           : parsed.primary.source.content;
@@ -338,7 +280,7 @@ export async function importPortableDirectory(
       const previewPath = localReference(file.path, parsed.primary.previewPath),
         previewEntry = previewPath && fileMap.get(previewPath);
       if (!previewEntry || previewEntry.kind !== 'asset') fail(400, 'INVALID_PORTABLE_MANIFEST');
-      const preview = await readFile(join(input.directoryPath, previewPath!));
+      const preview = await readFile(sourceFile(previewPath!));
       validatePng(preview);
       const descriptor = primaryRenderDescriptor(parsed),
         binding = parsed.primary.binding;
@@ -374,6 +316,29 @@ export async function importPortableDirectory(
       if (!canAccessPath(p, target)) fail(403, 'FORBIDDEN');
       ensureDirectory(config, posix.dirname(target));
     });
+    if (options.snapshot) {
+      const descriptor = validatedAssets.inspect(file.path),
+        existing = existsSync(join(config.knowledgeRoot, target))
+          ? assets.inspect(target)
+          : undefined;
+      if (existing && (await hashFile(existing.absolutePath)) !== file.sha256)
+        fail(409, 'PORTABLE_IMPORT_COLLISION');
+      workspaceWriteSync(db, { kind: 'portable.promote-import-asset' }, () => {
+        refresh();
+        if (!canAccessPath(p, target)) fail(403, 'FORBIDDEN');
+        if (existing && assetStamp(existing.absolutePath) !== existing.stamp)
+          fail(409, 'PORTABLE_IMPORT_COLLISION');
+        options.snapshot!.promote(
+          file.path,
+          target,
+          descriptor.sizeBytes,
+          descriptor.stamp,
+          !!existing,
+        );
+        assets.register(target);
+      });
+      continue;
+    }
     const descriptor = validatedAssets.inspect(file.path),
       temporary = join(config.knowledgeRoot, posix.dirname(target), '.portable-' + randomUUID());
     const reservation = await portableStaging(config, db, descriptor.sizeBytes);
@@ -436,7 +401,7 @@ export async function importPortableDirectory(
       authorizePath(p, target, 'knowledge:write');
       ensureDirectory(config, directory);
     });
-    const originalBytes = readFileSync(join(input.directoryPath, path));
+    const originalBytes = readFileSync(sourceFile(path));
     if (sha256(originalBytes) !== fileMap.get(path)!.sha256) fail(409, 'PORTABLE_DIGEST_MISMATCH');
     const original = originalBytes.toString('utf8'),
       before = parseDiagramDocument(original);
@@ -453,14 +418,9 @@ export async function importPortableDirectory(
       if (before.status !== 'diagram') fail(400, 'INVALID_DIAGRAM_DOCUMENT');
       const source =
         before.primary.source.format === 'excalidraw'
-          ? readFileSync(
-              join(input.directoryPath, localReference(path, before.primary.source.path)!),
-              'utf8',
-            )
+          ? readFileSync(sourceFile(localReference(path, before.primary.source.path)!), 'utf8')
           : before.primary.source.content;
-      const preview = readFileSync(
-        join(input.directoryPath, localReference(path, before.primary.previewPath)!),
-      );
+      const preview = readFileSync(sourceFile(localReference(path, before.primary.previewPath)!));
       if (
         sha256(source) !== before.primary.binding.sourceHash ||
         sha256(preview) !== before.primary.binding.previewHash
@@ -552,18 +512,27 @@ export async function importPortableArchive(
   request(input);
   const stage = await portableStaging(config, db);
   try {
-    await safeExtract(input.archivePath, stage.directory, stage.resize);
+    const principalId = p.id,
+      clientId = p.clientId,
+      check = () => {
+        const next = options.check?.() ?? p;
+        if (next.id !== principalId || next.clientId !== clientId) fail(403, 'FORBIDDEN');
+        requireScope(next, 'knowledge:write');
+        return next;
+      };
+    const snapshot = portableInputSnapshot(config, db, notes, check(), input.folderPath, stage),
+      before = assetStamp(input.archivePath);
+    if ((await stat(input.archivePath)).size > limits.packageBytes)
+      fail(413, 'PORTABLE_BUDGET_EXCEEDED');
+    await extractPortableStream(createReadStream(input.archivePath), snapshot, stage.resize, check);
+    if (assetStamp(input.archivePath) !== before) fail(409, 'PORTABLE_VERSION_CONFLICT');
     return await importPortableDirectory(
       config,
       db,
       notes,
       p,
-      {
-        directoryPath: stage.directory,
-        folderPath: input.folderPath,
-        requestId: input.requestId,
-      },
-      options,
+      { directoryPath: stage.directory, folderPath: input.folderPath, requestId: input.requestId },
+      { ...options, snapshot },
     );
   } finally {
     await stage.release();

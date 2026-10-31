@@ -94,13 +94,14 @@ async function importArchive() {
   )
     return;
   const archive = archiveFile.value,
-    destination = archiveFolder.value;
+    destination = archiveFolder.value,
+    request = archiveRequest;
   archiveBusy.value = true;
   archiveError.value = '';
   try {
     const body = new FormData();
     body.append('folderPath', destination);
-    body.append('requestId', archiveRequest);
+    body.append('requestId', request);
     if (archive) body.append('archive', archive, archive.name);
     else {
       for (const file of archiveDirectory.value) {
@@ -112,7 +113,12 @@ async function importArchive() {
     }
     archiveResult.value = await withPortablePreviews(() =>
       api<PortableImportResult>(
-        archive ? '/api/portable-deliveries/import' : '/api/portable-deliveries/import-directory',
+        archive
+          ? '/api/portable-deliveries/import?folderPath=' +
+              encodeURIComponent(destination) +
+              '&requestId=' +
+              encodeURIComponent(request)
+          : '/api/portable-deliveries/import-directory',
         'POST',
         body,
         { timeoutMs: 180000 },

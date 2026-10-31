@@ -1735,3 +1735,186 @@ it('applies the 256 MiB package bound to final files while counting superseded n
   });
   expect(await f.service.create(webPrincipal, input)).toMatchObject({ kind: 'archive' });
 }, 30000);
+it('review: preserves passive native external API, mail and telephone navigation exactly across package roundtrip', async () => {
+  const f = await fixture(),
+    links = ['https://example.com/api/reference', 'mailto:alice@example.com', 'tel:+1234567890'],
+    source = JSON.stringify({
+      ...emptyWhiteboard(),
+      elements: links.map((link, index) => ({ id: 'external-' + index, type: 'rectangle', link })),
+    }),
+    graph = f.diagram('whiteboard', source),
+    out = await f.service.create(webPrincipal, {
+      selection: { kind: 'single', noteId: graph.note.id },
+      requestId: randomUUID(),
+    }),
+    archive = join(f.root, 'external-native.tar.gz'),
+    directory = join(f.root, 'external-native');
+  await writeFile(archive, await deliveryBytes(f, out.id));
+  await mkdir(directory);
+  await extractArchive(archive, directory);
+  expect(await readFile(join(directory, graph.prepared.source!.relativePath), 'utf8')).toBe(source);
+  const target = await fixture(),
+    result = await target.service.importArchive(webPrincipal, {
+      archivePath: archive,
+      folderPath: '00-Inbox/external',
+      requestId: randomUUID(),
+    });
+  expect(result.notes).toHaveLength(1);
+  expect(
+    await target.service.create(webPrincipal, {
+      selection: { kind: 'single', noteId: result.notes[0].noteId },
+      requestId: randomUUID(),
+    }),
+  ).toMatchObject({ kind: 'archive' });
+});
+it('review: keeps ordinary external API, mail and telephone links resource-free and unchanged in package roundtrip', async () => {
+  const f = await fixture(),
+    content =
+      '[API docs](https://example.com/api/reference)\n[mail](mailto:alice@example.com)\n[call](tel:+1234567890)\n',
+    note = f.create('external-nav.md', content);
+  let calls = 0;
+  const service = portableDeliveryService(f.config, f.db, f.notes, {
+    resolve: async () => [{ address: '93.184.216.34', family: 4 }],
+    request: (() => {
+      calls++;
+      throw Error('must not fetch navigation');
+    }) as any,
+  });
+  const plain = await service.create(webPrincipal, {
+    selection: { kind: 'single', noteId: note.id },
+    requestId: randomUUID(),
+  });
+  expect(plain.kind).toBe('markdown');
+  expect(await deliveryBytes(f, plain.id)).toEqual(Buffer.from(content));
+  const out = await service.create(webPrincipal, {
+      selection: { kind: 'multiple', noteIds: [note.id] },
+      requestId: randomUUID(),
+    }),
+    row = f.db.prepare('SELECT artifact FROM portable_deliveries WHERE id=?').get(out.id) as {
+      artifact: string;
+    },
+    target = await fixture(),
+    result = await target.service.importArchive(webPrincipal, {
+      archivePath: row.artifact,
+      folderPath: '00-Inbox/external',
+      requestId: randomUUID(),
+    });
+  expect(target.notes.getNote(result.notes[0].noteId).content).toBe(content);
+  expect(result.assets).toBe(0);
+  expect(calls).toBe(0);
+});
+it('review: two real incompressible 126 MiB WAVs roundtrip with the original 252 MiB archive retained under 512 MiB', async () => {
+  const f = await fixture(),
+    { open } = await import('node:fs/promises'),
+    { randomFillSync } = await import('node:crypto'),
+    total = 126 * 1024 ** 2,
+    chunk = Buffer.alloc(65536);
+  for (const name of ['max-a.wav', 'max-b.wav']) {
+    const header = Buffer.alloc(44);
+    header.write('RIFF');
+    header.writeUInt32LE(total - 8, 4);
+    header.write('WAVEfmt ', 8);
+    header.writeUInt32LE(16, 16);
+    header.writeUInt16LE(1, 20);
+    header.writeUInt16LE(1, 22);
+    header.writeUInt32LE(8000, 24);
+    header.writeUInt32LE(8000, 28);
+    header.writeUInt16LE(1, 32);
+    header.writeUInt16LE(8, 34);
+    header.write('data', 36);
+    header.writeUInt32LE(total - 44, 40);
+    const file = await open(join(f.config.knowledgeRoot, '00-Inbox/assets', name), 'wx');
+    try {
+      await file.write(header);
+      for (let at = 44; at < total; at += chunk.length)
+        await file.write(randomFillSync(chunk.subarray(0, Math.min(chunk.length, total - at))));
+    } finally {
+      await file.close();
+    }
+  }
+  const note = f.create('max-package.md', '[a](assets/max-a.wav)\n[b](assets/max-b.wav)\n'),
+    out = await f.service.create(webPrincipal, {
+      selection: { kind: 'single', noteId: note.id },
+      requestId: randomUUID(),
+    }),
+    row = f.db.prepare('SELECT artifact FROM portable_deliveries WHERE id=?').get(out.id) as {
+      artifact: string;
+    };
+  expect(out.sizeBytes).toBeGreaterThan(252 * 1024 ** 2);
+  expect(out.sizeBytes).toBeLessThan(256 * 1024 ** 2);
+  let peak = 0;
+  const result = await f.service.importArchive(
+    webPrincipal,
+    { archivePath: row.artifact, folderPath: '00-Inbox/max-copy', requestId: randomUUID() },
+    {
+      check: () => {
+        const stages = (
+            f.db.prepare('SELECT coalesce(sum(bytes),0) n FROM portable_staging_runs').get() as any
+          ).n,
+          retained = (
+            f.db.prepare('SELECT coalesce(sum(bytes),0) n FROM portable_deliveries').get() as any
+          ).n;
+        peak = Math.max(peak, stages + retained);
+        return webPrincipal;
+      },
+    },
+  );
+  expect(result.assets).toBe(2);
+  expect(result.notes).toHaveLength(1);
+  expect(peak).toBeLessThanOrEqual(512 * 1024 ** 2);
+  expect(f.service.validate(webPrincipal, out.id).sha256).toBe(out.sha256);
+  expect(f.db.prepare('SELECT count(*) n FROM portable_staging_runs').get()).toMatchObject({
+    n: 0,
+  });
+  const { hashFile } = await import('../packages/core/portable-delivery/manifest');
+  for (const name of ['max-a.wav', 'max-b.wav'])
+    expect(
+      await hashFile(join(f.config.knowledgeRoot, '00-Inbox/max-copy/00-Inbox/assets', name)),
+    ).toBe(await hashFile(join(f.config.knowledgeRoot, '00-Inbox/assets', name)));
+}, 60000);
+it('review: revocation during streamed archive extraction reclaims private shards before any asset or main publication', async () => {
+  const f = await fixture();
+  await writeFile(join(f.config.knowledgeRoot, '00-Inbox/assets/cancel.png'), png);
+  const note = f.create('cancel-extract.md', '![image](assets/cancel.png)\n'),
+    delivery = await f.service.create(webPrincipal, {
+      selection: { kind: 'single', noteId: note.id },
+      requestId: randomUUID(),
+    }),
+    row = f.db.prepare('SELECT artifact FROM portable_deliveries WHERE id=?').get(delivery.id) as {
+      artifact: string;
+    };
+  await expect(
+    f.service.importArchive(
+      webPrincipal,
+      { archivePath: row.artifact, folderPath: '00-Inbox/cancel-extract', requestId: randomUUID() },
+      {
+        check: () => {
+          const staged = (
+            f.db.prepare('SELECT coalesce(sum(bytes),0) n FROM portable_staging_runs').get() as any
+          ).n;
+          if (staged > 0) return { ...webPrincipal, scopes: ['knowledge:read'] };
+          return webPrincipal;
+        },
+      },
+    ),
+  ).rejects.toMatchObject({ code: 'FORBIDDEN' });
+  expect(
+    f.db
+      .prepare(
+        "SELECT count(*) n FROM notes WHERE active=1 AND path LIKE '00-Inbox/cancel-extract/%'",
+      )
+      .get(),
+  ).toMatchObject({ n: 0 });
+  expect(
+    f.db.prepare("SELECT count(*) n FROM assets WHERE path LIKE '00-Inbox/cancel-extract/%'").get(),
+  ).toMatchObject({ n: 0 });
+  expect(f.db.prepare('SELECT count(*) n FROM portable_staging_runs').get()).toMatchObject({
+    n: 0,
+  });
+  expect(f.db.prepare('SELECT count(*) n FROM portable_staging_locations').get()).toMatchObject({
+    n: 0,
+  });
+  expect(
+    await stat(join(f.config.knowledgeRoot, '00-Inbox/cancel-extract')).catch(() => undefined),
+  ).toBeUndefined();
+});

@@ -1,6 +1,8 @@
 import { randomUUID } from 'node:crypto';
-import { mkdir, rm } from 'node:fs/promises';
-import { join } from 'node:path';
+import { mkdir, rm, rmdir, readdir } from 'node:fs/promises';
+import { join, relative, basename, dirname } from 'node:path';
+import { existsSync } from 'node:fs';
+import { safePath, validName } from '../files.js';
 import type { AppConfig } from '../../../shared/contracts.js';
 import { portableResourceLimits } from '../../../shared/portable-resource-limits.js';
 import type { AppDatabase } from '../db.js';
@@ -8,18 +10,83 @@ import { fail } from '../knowledge/errors.js';
 
 export async function portableStaging(config: AppConfig, db: AppDatabase, bytes = 0) {
   db.exec(
-    'CREATE TABLE IF NOT EXISTS portable_staging_runs(id TEXT PRIMARY KEY,bytes INTEGER NOT NULL,expires INTEGER NOT NULL);',
+    'CREATE TABLE IF NOT EXISTS portable_staging_runs(id TEXT PRIMARY KEY,bytes INTEGER NOT NULL,expires INTEGER NOT NULL); CREATE TABLE IF NOT EXISTS portable_staging_locations(run_id TEXT NOT NULL,directory TEXT NOT NULL,PRIMARY KEY(run_id,directory)); CREATE TABLE IF NOT EXISTS portable_staging_parents(run_id TEXT NOT NULL,directory TEXT NOT NULL,PRIMARY KEY(run_id,directory));',
   );
   const root = join(config.dataRoot, 'portable-staging');
+  async function removeLocations(id: string) {
+    const missing = new Map<string, string>();
+    for (const row of db
+      .prepare('SELECT directory FROM portable_staging_locations WHERE run_id=?')
+      .all(id) as { directory: string }[]) {
+      const parent = relative(config.knowledgeRoot, dirname(row.directory));
+      if (parent.startsWith('..') || !basename(row.directory).startsWith('.portable-' + id + '-'))
+        fail(409, 'PORTABLE_STAGING_CONFLICT');
+      if (!existsSync(row.directory)) {
+        missing.set(basename(row.directory), row.directory);
+        continue;
+      }
+      if (parent) safePath(config.knowledgeRoot, parent, 'folder');
+      await rm(row.directory, { recursive: true, force: true });
+      db.prepare('DELETE FROM portable_staging_locations WHERE run_id=? AND directory=?').run(
+        id,
+        row.directory,
+      );
+    }
+    // A legitimate folder operation can move an in-flight hidden shard. Resolve only
+    // this run's exact private names; never follow a symlink or delete normal content.
+    async function findMoved(root: string): Promise<void> {
+      const entries = await readdir(root, { withFileTypes: true }).catch((error) => {
+        if (error.code === 'ENOENT') return [];
+        throw error;
+      });
+      for (const entry of entries) {
+        if (entry.isSymbolicLink() || !entry.isDirectory()) continue;
+        const path = join(root, entry.name),
+          original = missing.get(entry.name);
+        if (original) {
+          await rm(path, { recursive: true, force: true });
+          db.prepare('DELETE FROM portable_staging_locations WHERE run_id=? AND directory=?').run(
+            id,
+            original,
+          );
+          missing.delete(entry.name);
+        } else if (missing.size && validName(entry.name)) await findMoved(path);
+      }
+    }
+    if (missing.size) await findMoved(config.knowledgeRoot);
+    if (missing.size) fail(409, 'PORTABLE_STAGING_CONFLICT');
+    for (const row of db
+      .prepare(
+        'SELECT directory FROM portable_staging_parents WHERE run_id=? ORDER BY length(directory) DESC',
+      )
+      .all(id) as { directory: string }[]) {
+      const path = relative(config.knowledgeRoot, row.directory);
+      if (!path || path.startsWith('..')) fail(409, 'PORTABLE_STAGING_CONFLICT');
+      try {
+        safePath(config.knowledgeRoot, path, 'folder');
+        await rmdir(row.directory);
+      } catch (error) {
+        if (
+          (error as any).statusCode !== 404 &&
+          !['ENOENT', 'ENOTEMPTY', 'EEXIST'].includes((error as any).code)
+        )
+          throw error;
+      }
+    }
+    db.prepare('DELETE FROM portable_staging_parents WHERE run_id=?').run(id);
+  }
+
   const stale = db
     .prepare('SELECT id FROM portable_staging_runs WHERE expires<?')
     .all(Date.now()) as { id: string }[];
   for (const row of stale) {
+    await removeLocations(row.id);
     await rm(join(root, row.id), { recursive: true, force: true });
     db.prepare('DELETE FROM portable_staging_runs WHERE id=?').run(row.id);
   }
   const id = randomUUID(),
     directory = join(root, id);
+  let currentBytes = bytes;
   function resize(bytes: number) {
     db.transaction(() => {
       const staging = (
@@ -43,6 +110,7 @@ export async function portableStaging(config: AppConfig, db: AppDatabase, bytes 
         'INSERT INTO portable_staging_runs VALUES(?,?,?) ON CONFLICT(id) DO UPDATE SET bytes=excluded.bytes,expires=excluded.expires',
       ).run(id, bytes, Date.now() + 60 * 60 * 1000);
     }).immediate();
+    currentBytes = bytes;
   }
   resize(bytes);
   try {
@@ -52,9 +120,16 @@ export async function portableStaging(config: AppConfig, db: AppDatabase, bytes 
     throw error;
   }
   return {
+    id,
     directory,
+    reduce: (bytes: number) => resize(currentBytes - bytes),
+    addParent: (directory: string) =>
+      db.prepare('INSERT OR IGNORE INTO portable_staging_parents VALUES(?,?)').run(id, directory),
+    addLocation: (directory: string) =>
+      db.prepare('INSERT INTO portable_staging_locations VALUES(?,?)').run(id, directory),
     resize,
     release: async () => {
+      await removeLocations(id);
       await rm(directory, { recursive: true, force: true });
       db.prepare('DELETE FROM portable_staging_runs WHERE id=?').run(id);
     },

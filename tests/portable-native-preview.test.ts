@@ -275,3 +275,33 @@ it('binds an incoming import source to current write prefixes without activating
     n: 0,
   });
 });
+it('review: reclaims an owned input shard after its target parent moved during upload', async () => {
+  const f = setup(),
+    { portableStaging } = await import('../packages/core/portable-delivery/staging'),
+    { portableInputSnapshot } = await import('../packages/core/portable-delivery/input-snapshot'),
+    { noteService } = await import('../packages/core/notes'),
+    { rename } = await import('node:fs/promises'),
+    p = { ...f.p, scopes: ['knowledge:read', 'knowledge:write'] },
+    stage = await portableStaging(f.config, f.db),
+    snapshot = portableInputSnapshot(
+      f.config,
+      f.db,
+      noteService(f.config, f.db),
+      p,
+      'target',
+      stage,
+    ),
+    file = await snapshot.allocate('notes/a.md');
+  writeFileSync(file, '# A');
+  stage.resize(3);
+  await rename(join(f.config.knowledgeRoot, 'target'), join(f.config.knowledgeRoot, 'moved'));
+  await expect(stage.release()).resolves.toBeUndefined();
+  expect(f.db.prepare('SELECT count(*) n FROM portable_staging_runs').get()).toMatchObject({
+    n: 0,
+  });
+  expect(f.db.prepare('SELECT count(*) n FROM portable_staging_locations').get()).toMatchObject({
+    n: 0,
+  });
+  const { readdir } = await import('node:fs/promises');
+  expect(await readdir(join(f.config.knowledgeRoot, 'moved/notes'))).toEqual([]);
+});

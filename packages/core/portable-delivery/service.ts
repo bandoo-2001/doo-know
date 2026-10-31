@@ -63,6 +63,7 @@ import { fail } from '../knowledge/errors.js';
 import { manifestName, hashFile, portablePath, type PortableManifest } from './manifest.js';
 import {
   destinations,
+  externalNavigation,
   rewriteDestinations,
   nativeLinks,
   rewriteNativeLinks,
@@ -375,7 +376,7 @@ export function portableDeliveryService(
               addAsset(asset.path, document, link);
               return { path: asset.path, suffix: url.hash };
             }
-            if (/^https?:$/.test(url.protocol) && !/^\/api(?:\/|$)/i.test(url.pathname)) return;
+            if (externalNavigation(link, config.origin)) return;
           } catch (error) {
             if ((error as any).code) throw error;
           }
@@ -683,12 +684,7 @@ export function portableDeliveryService(
               }
             }
             if (!local) {
-              if (
-                !ref.image &&
-                /^https?:\/\//i.test(ref.url) &&
-                !/^\/api(?:\/|$)/i.test(new URL(ref.url).pathname)
-              )
-                continue;
+              if (!ref.image && externalNavigation(ref.url, config.origin)) continue;
               if (/^blob:/i.test(ref.url))
                 fail(
                   409,

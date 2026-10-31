@@ -145,6 +145,22 @@ export function unresolvedInternalNavigation(markdown: string, origin: string): 
   }
   return visit(navigationParser.parse(markdown, {}));
 }
+/** Passive navigation never becomes a fetched package resource. App-owned API and
+ * identity URLs are resolved separately, while relative file references remain dependencies. */
+export function externalNavigation(value: string, origin: string) {
+  if (/[\u0000-\u001f\u007f]/.test(value)) return false;
+  try {
+    const url = new URL(value, origin);
+    if (/^(?:mailto|tel):$/i.test(url.protocol)) return true;
+    if (!/^(?:https?:)?\/\//i.test(value) || !/^https?:$/.test(url.protocol)) return false;
+    return (
+      url.origin !== new URL(origin).origin ||
+      (!/^\/api(?:\/|$)/i.test(url.pathname) && !internalNoteNavigation(value, origin))
+    );
+  } catch {
+    return false;
+  }
+}
 /** Enumerate only Excalidraw element navigation, never text, appState or embedded file data. */
 export function nativeLinks(source: string): string[] {
   const scene = JSON.parse(source);
@@ -229,8 +245,7 @@ export function checkNativeLinks(source: string, document: string, origin?: stri
         const url = new URL(link, origin);
         appApi = url.origin === new URL(origin).origin && /^\/api(?:\/|$)/i.test(url.pathname);
       } catch {}
-    if (/^https?:\/\//i.test(link) && !appApi && !(origin && internalNoteNavigation(link, origin)))
-      continue;
+    if (externalNavigation(link, origin ?? 'https://portable.invalid')) continue;
     const local = localReference(document, link);
     if (local && !appApi) continue;
     fail(409, 'PORTABLE_DEPENDENCY_UNAVAILABLE', '原生场景引用需要完整的包内目标', false, {

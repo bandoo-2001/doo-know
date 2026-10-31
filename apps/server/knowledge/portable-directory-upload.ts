@@ -13,6 +13,7 @@ export async function stagePortableDirectory(
   directory: string,
   resize: (bytes: number) => void,
   check: () => void,
+  allocate?: (path: string, fields: Record<string, string>) => Promise<string | undefined>,
 ) {
   const fields: Record<string, string> = {},
     seen = new Set<string>(),
@@ -46,7 +47,7 @@ export async function stagePortableDirectory(
       }
       seen.add(key);
       if (++count > limits.files + 1) fail(413, 'PORTABLE_BUDGET_EXCEEDED');
-      const absolute = join(directory, path);
+      const absolute = (await allocate?.(path, fields)) ?? join(directory, path);
       await mkdir(dirname(absolute), { recursive: true, mode: 0o700 });
       await pipeline(
         part.file,

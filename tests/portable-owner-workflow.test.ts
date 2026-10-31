@@ -323,3 +323,187 @@ it('serves only the actual owner fixed portable source and prepares its private 
     db.prepare('SELECT count(*) n FROM notes WHERE path=?').get('00-Inbox/board.md'),
   ).toMatchObject({ n: 0 });
 });
+it('review: streams a file-first 252 MiB owner archive across data/knowledge filesystems with its export retained', async () => {
+  const { mkdtemp, mkdir, open, rm, stat } = await import('node:fs/promises'),
+    { createReadStream, statSync } = await import('node:fs'),
+    { Readable } = await import('node:stream'),
+    { randomFillSync } = await import('node:crypto');
+  const knowledge = await mkdtemp(join(process.cwd(), '.local/portable-owner-cross-'));
+  closes.push(() => rm(knowledge, { recursive: true, force: true }));
+  await mkdir(join(knowledge, '00-Inbox/assets'), { recursive: true });
+  const f = await createFixture({ knowledgeRoot: knowledge });
+  closes.push(f.close);
+  const headers = await loginFixtureOwner(f),
+    { openDatabase } = await import('../packages/core/db'),
+    db = openDatabase(f.dataRoot);
+  closes.push(async () => {
+    db.close();
+  });
+  const { noteService } = await import('../packages/core/notes'),
+    { mutationCore, webPrincipal } = await import('../packages/core/knowledge/core'),
+    { portableDeliveryService } = await import('../packages/core/portable-delivery/service'),
+    notes = noteService(f.config, db),
+    core = portableDeliveryService(f.config, db, notes),
+    owner = (db.prepare('SELECT id FROM user LIMIT 1').get() as { id: string }).id,
+    p = { ...webPrincipal, id: owner, clientId: 'portable-owner' };
+  const size = 126 * 1024 ** 2,
+    chunk = Buffer.alloc(65536);
+  for (const name of ['owner-a.wav', 'owner-b.wav']) {
+    const header = Buffer.alloc(44);
+    header.write('RIFF');
+    header.writeUInt32LE(size - 8, 4);
+    header.write('WAVEfmt ', 8);
+    header.writeUInt32LE(16, 16);
+    header.writeUInt16LE(1, 20);
+    header.writeUInt16LE(1, 22);
+    header.writeUInt32LE(8000, 24);
+    header.writeUInt32LE(8000, 28);
+    header.writeUInt16LE(1, 32);
+    header.writeUInt16LE(8, 34);
+    header.write('data', 36);
+    header.writeUInt32LE(size - 44, 40);
+    const file = await open(join(knowledge, '00-Inbox/assets', name), 'wx');
+    try {
+      await file.write(header);
+      for (let at = 44; at < size; at += chunk.length)
+        await file.write(randomFillSync(chunk.subarray(0, Math.min(chunk.length, size - at))));
+    } finally {
+      await file.close();
+    }
+  }
+  const note = mutationCore(f.config, db).create(
+      p,
+      '00-Inbox',
+      'owner-max.md',
+      '[a](assets/owner-a.wav)\n[b](assets/owner-b.wav)',
+      randomUUID(),
+    ),
+    delivery = await core.create(p, {
+      selection: { kind: 'single', noteId: note.id },
+      requestId: randomUUID(),
+    }),
+    archive = (
+      db.prepare('SELECT artifact FROM portable_deliveries WHERE id=?').get(delivery.id) as {
+        artifact: string;
+      }
+    ).artifact;
+  expect(delivery.sizeBytes).toBeGreaterThan(252 * 1024 ** 2);
+  expect(delivery.sizeBytes).toBeLessThan(256 * 1024 ** 2);
+  await f.app.listen({ host: '127.0.0.1', port: 0 });
+  const port = (f.app.server.address() as { port: number }).port,
+    folder = '00-Inbox/owner-cross',
+    requestId = randomUUID(),
+    boundary = 'owner-large-' + randomUUID(),
+    prefix = Buffer.from(
+      `--${boundary}\r\nContent-Disposition: form-data; name="archive"; filename="documents.tar.gz"\r\nContent-Type: application/gzip\r\n\r\n`,
+    ),
+    suffix = Buffer.from(
+      `\r\n--${boundary}\r\nContent-Disposition: form-data; name="folderPath"\r\n\r\n${folder}\r\n--${boundary}\r\nContent-Disposition: form-data; name="requestId"\r\n\r\n${requestId}\r\n--${boundary}--\r\n`,
+    );
+  let peak = 0,
+    sawTargetStage = false;
+  const observer = setInterval(() => {
+    const staged = (
+        db.prepare('SELECT coalesce(sum(bytes),0) n FROM portable_staging_runs').get() as any
+      ).n,
+      retained = (
+        db.prepare('SELECT coalesce(sum(bytes),0) n FROM portable_deliveries').get() as any
+      ).n;
+    peak = Math.max(peak, staged + retained);
+    if (!db.prepare("SELECT 1 FROM sqlite_master WHERE name='portable_staging_locations'").get())
+      return;
+    for (const row of db.prepare('SELECT directory FROM portable_staging_locations').all() as {
+      directory: string;
+    }[]) {
+      try {
+        expect(row.directory.startsWith(join(knowledge, folder) + '/')).toBe(true);
+        expect(statSync(row.directory).dev).toBe(statSync(knowledge).dev);
+        sawTargetStage = true;
+      } catch (error) {
+        if ((error as any).code !== 'ENOENT') throw error;
+      }
+    }
+  }, 5);
+  try {
+    async function* body() {
+      yield prefix;
+      for await (const bytes of createReadStream(archive)) yield bytes;
+      yield suffix;
+    }
+    const response = await fetch(
+        `http://127.0.0.1:${port}/api/portable-deliveries/import?folderPath=${encodeURIComponent(folder)}&requestId=${requestId}`,
+        {
+          method: 'POST',
+          headers: {
+            ...headers,
+            'content-type': 'multipart/form-data; boundary=' + boundary,
+            'content-length': String(prefix.length + delivery.sizeBytes + suffix.length),
+          },
+          body: Readable.from(body()),
+          duplex: 'half',
+        } as any,
+      ),
+      result = await response.json();
+    expect(response.status, JSON.stringify(result)).toBe(201);
+    expect(result).toMatchObject({
+      assets: 2,
+      notes: expect.arrayContaining([
+        expect.objectContaining({ sourcePath: '00-Inbox/owner-max.md' }),
+      ]),
+    });
+  } finally {
+    clearInterval(observer);
+  }
+  expect(sawTargetStage).toBe(true);
+  expect(peak).toBeLessThanOrEqual(512 * 1024 ** 2);
+  expect(core.validate(p, delivery.id).sha256).toBe(delivery.sha256);
+  expect(db.prepare('SELECT count(*) n FROM portable_staging_runs').get()).toMatchObject({ n: 0 });
+  expect(db.prepare('SELECT count(*) n FROM portable_staging_locations').get()).toMatchObject({
+    n: 0,
+  });
+  const { hashFile } = await import('../packages/core/portable-delivery/manifest');
+  for (const name of ['owner-a.wav', 'owner-b.wav'])
+    expect(await hashFile(join(knowledge, folder, '00-Inbox/assets', name))).toBe(
+      await hashFile(join(knowledge, '00-Inbox/assets', name)),
+    );
+}, 90000);
+it('review: preserves legacy small file-first archive uploads and rejects mismatched early context before publication', async () => {
+  const f = await createFixture();
+  closes.push(f.close);
+  const headers = await loginFixtureOwner(f),
+    { mkdir, writeFile, readFile } = await import('node:fs/promises'),
+    { create } = await import('tar'),
+    root = join(f.root, 'small-archive');
+  await mkdir(join(root, 'notes'), { recursive: true });
+  for (const [path, content] of bundle()) await writeFile(join(root, path), content);
+  const archive = join(f.root, 'small.tar.gz');
+  await create({ file: archive, cwd: root, gzip: true }, ['notes/a.md', 'dooknow-portable.json']);
+  const bytes = await readFile(archive),
+    boundary = 'legacy-' + randomUUID(),
+    requestId = randomUUID(),
+    folder = '00-Inbox/legacy-file-first',
+    head = Buffer.from(
+      `--${boundary}\r\nContent-Disposition: form-data; name="archive"; filename="documents.tar.gz"\r\nContent-Type: application/gzip\r\n\r\n`,
+    ),
+    tail = Buffer.from(
+      `\r\n--${boundary}\r\nContent-Disposition: form-data; name="folderPath"\r\n\r\n${folder}\r\n--${boundary}\r\nContent-Disposition: form-data; name="requestId"\r\n\r\n${requestId}\r\n--${boundary}--\r\n`,
+    ),
+    payload = Buffer.concat([head, bytes, tail]);
+  const response = await f.app.inject({
+    method: 'POST',
+    url: '/api/portable-deliveries/import',
+    headers: { ...headers, 'content-type': 'multipart/form-data; boundary=' + boundary },
+    payload,
+  });
+  expect(response.statusCode, response.body).toBe(201);
+  expect(response.json().notes).toHaveLength(1);
+  const mismatch = await f.app.inject({
+    method: 'POST',
+    url: '/api/portable-deliveries/import?folderPath=00-Inbox%2Fother&requestId=' + requestId,
+    headers: { ...headers, 'content-type': 'multipart/form-data; boundary=' + boundary },
+    payload,
+  });
+  expect(mismatch.statusCode).toBe(400);
+  const tree = (await f.app.inject({ url: '/api/tree', headers })).json();
+  expect(JSON.stringify(tree)).not.toContain('00-Inbox/other');
+});

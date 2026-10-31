@@ -1,3 +1,8 @@
+import {
+  portableInputSnapshot,
+  extractPortableStream,
+  type PortableInputSnapshot,
+} from '../../../packages/core/portable-delivery/input-snapshot.js';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { createWriteStream } from 'node:fs';
 import { join } from 'node:path';
@@ -137,8 +142,16 @@ export function registerPortableDeliveryRoutes(
     { bodyLimit: limits.packageBytes + 16384 },
     async (req, reply) => {
       const p = principal(req),
-        current = runtime(),
-        stage = await portableStaging(current.config, db);
+        current = runtime();
+      const contextSchema = z
+        .object({
+          folderPath: z.string().max(2000),
+          requestId: z.string().regex(/^[A-Za-z0-9_-]{1,128}$/),
+        })
+        .strict();
+      const query = req.query as Record<string, unknown>;
+      const early = Object.keys(query).length ? contextSchema.parse(query) : undefined;
+      const stage = await portableStaging(current.config, db);
       const controller = new AbortController();
       const cancel = () => {
         if (!reply.raw.writableEnded) controller.abort(Error('PORTABLE_CANCELLED'));
@@ -149,14 +162,43 @@ export function registerPortableDeliveryRoutes(
         checkOwner?.(req);
         if (principal(req).id !== p.id) fail(403, 'FORBIDDEN');
       };
-      let archivePath: string | undefined;
+      let snapshot: PortableInputSnapshot | undefined,
+        archivePath: string | undefined,
+        fileSeen = false;
       const fields: Record<string, string> = {};
       try {
         for await (const part of req.parts({
           limits: { fileSize: limits.packageBytes, files: 1, fields: 2, parts: 3, fieldSize: 2048 },
         })) {
           if (part.type === 'file') {
-            if (part.fieldname !== 'archive' || archivePath) fail(400, 'INVALID_PORTABLE_UPLOAD');
+            if (part.fieldname !== 'archive' || fileSeen) fail(400, 'INVALID_PORTABLE_UPLOAD');
+            fileSeen = true;
+            const target =
+              early ??
+              (fields.requestId
+                ? contextSchema.parse({
+                    folderPath: fields.folderPath ?? '00-Inbox',
+                    requestId: fields.requestId,
+                  })
+                : undefined);
+            if (target) {
+              snapshot = portableInputSnapshot(
+                current.config,
+                db,
+                current.notes,
+                p,
+                target.folderPath,
+                stage,
+              );
+              await extractPortableStream(part.file, snapshot, stage.resize, () => {
+                check();
+                return principal(req);
+              });
+              if (part.file.truncated) fail(413, 'PORTABLE_BUDGET_EXCEEDED');
+              continue;
+            }
+            // Legacy file-first callers retain the bounded spool path. Current callers
+            // give fixed target context before the file so no duplicate archive is stored.
             archivePath = join(stage.directory, 'archive.tar.gz');
             let bytes = 0;
             await pipeline(
@@ -187,31 +229,55 @@ export function registerPortableDeliveryRoutes(
             fields[part.fieldname] = part.value;
           }
         }
-        if (!archivePath || !fields.requestId) fail(400, 'INVALID_PORTABLE_UPLOAD');
+        if (!fileSeen || (!archivePath && !snapshot)) fail(400, 'INVALID_PORTABLE_UPLOAD');
+        const target = contextSchema.parse(
+          early ?? { folderPath: fields.folderPath ?? '00-Inbox', requestId: fields.requestId },
+        );
+        if (
+          early &&
+          ((fields.requestId && fields.requestId !== early.requestId) ||
+            (fields.folderPath !== undefined && fields.folderPath !== early.folderPath))
+        )
+          fail(400, 'INVALID_PORTABLE_UPLOAD');
+        if (snapshot && snapshot.folderPath !== target.folderPath)
+          fail(400, 'INVALID_PORTABLE_UPLOAD');
         const result = await jobs.run(
           p.id,
-          fields.requestId,
+          target.requestId,
           'import-archive',
-          { folderPath: fields.folderPath ?? '00-Inbox' },
-          async (_signal, checkJob) =>
-            service().importArchive(
-              p,
-              {
-                archivePath: archivePath!,
-                folderPath: fields.folderPath ?? '00-Inbox',
-                requestId: fields.requestId,
+          { folderPath: target.folderPath },
+          async (_signal, checkJob) => {
+            const options = {
+              check: () => {
+                checkJob();
+                check();
+                checkOwner?.(req);
+                return principal(req);
               },
-              {
-                check: () => {
-                  checkJob();
-                  check();
-                  checkOwner?.(req);
-                  return principal(req);
-                },
-              },
-            ),
+            };
+            return snapshot
+              ? service().importDirectory(
+                  p,
+                  {
+                    directoryPath: stage.directory,
+                    folderPath: target.folderPath,
+                    requestId: target.requestId,
+                  },
+                  { ...options, snapshot },
+                )
+              : service().importArchive(
+                  p,
+                  {
+                    archivePath: archivePath!,
+                    folderPath: target.folderPath,
+                    requestId: target.requestId,
+                  },
+                  options,
+                );
+          },
           controller.signal,
         );
+        await stage.release();
         return reply.code(201).send(result);
       } finally {
         reply.raw.removeListener('close', cancel);
@@ -224,7 +290,10 @@ export function registerPortableDeliveryRoutes(
     { bodyLimit: limits.packageBytes + 4 * 1024 * 1024 },
     async (req, reply) => {
       const p = principal(req),
-        stage = await portableStaging(runtime().config, db);
+        current = runtime(),
+        stage = await portableStaging(current.config, db);
+      let snapshot: PortableInputSnapshot | undefined,
+        legacySource = false;
       const controller = new AbortController();
       const cancel = () => {
         if (!reply.raw.writableEnded) controller.abort(Error('PORTABLE_CANCELLED'));
@@ -237,7 +306,28 @@ export function registerPortableDeliveryRoutes(
         if (next.id !== p.id) fail(403, 'FORBIDDEN');
       };
       try {
-        const input = await stagePortableDirectory(req, stage.directory, stage.resize, check);
+        const input = await stagePortableDirectory(
+          req,
+          stage.directory,
+          stage.resize,
+          check,
+          async (path, fields) => {
+            if (!fields.requestId || fields.folderPath === undefined) {
+              legacySource = true;
+              return undefined;
+            }
+            if (legacySource) return undefined;
+            snapshot ??= portableInputSnapshot(
+              current.config,
+              db,
+              current.notes,
+              p,
+              fields.folderPath ?? '00-Inbox',
+              stage,
+            );
+            return snapshot.allocate(path, principal(req));
+          },
+        );
         const result = await jobs.run(
           p.id,
           input.requestId,
@@ -248,6 +338,7 @@ export function registerPortableDeliveryRoutes(
               p,
               { ...input, directoryPath: stage.directory },
               {
+                ...(snapshot ? { snapshot } : {}),
                 check: () => {
                   checkJob();
                   check();
@@ -257,6 +348,7 @@ export function registerPortableDeliveryRoutes(
             ),
           controller.signal,
         );
+        await stage.release();
         return reply.code(201).send(result);
       } finally {
         reply.raw.removeListener('close', cancel);
