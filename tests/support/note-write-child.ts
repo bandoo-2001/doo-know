@@ -1,3 +1,4 @@
+import { operationError } from '../../packages/core/knowledge/operations.js';
 import fs from 'node:fs';
 import promises from 'node:fs/promises';
 import { syncBuiltinESMExports } from 'node:module';
@@ -80,7 +81,7 @@ try {
         .get() as any;
       fs.writeFileSync(
         join(root, `${label}.result`),
-        JSON.stringify({ ok: operation.status === 'succeeded', code: operation.error }),
+        JSON.stringify({ ok: operation.status === 'succeeded', code: operation.error ? operationError(operation.error).code : undefined }),
       );
     } finally {
       await jobs.close();
