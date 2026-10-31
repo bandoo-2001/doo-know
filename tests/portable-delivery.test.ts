@@ -763,3 +763,67 @@ it('preserves unbalanced parentheses in inline and reference document paths acro
     });
   expect(imported.notes).toHaveLength(4);
 });
+
+it('roundtrips uppercase and mixed-case Markdown extensions without changing linked filenames', async () => {
+  const f = await fixture(),
+    child = f.create('MiXeD.mD', '# Child'),
+    parent = f.create('UPPER.MD', '# Upper\n\n[child](MiXeD.mD)\n');
+  const out = await f.service.create(webPrincipal, {
+      selection: { kind: 'multiple', noteIds: [parent.id] },
+      requestId: randomUUID(),
+    }),
+    archive = join(f.root, 'case-preserved.tar.gz');
+  await writeFile(archive, await deliveryBytes(f, out.id));
+  const target = await fixture(),
+    imported = await target.service.importArchive(webPrincipal, {
+      archivePath: archive,
+      folderPath: '00-Inbox/imported',
+      requestId: randomUUID(),
+    });
+  expect(imported.notes.map((note) => note.sourcePath).sort()).toEqual([
+    '00-Inbox/MiXeD.mD',
+    '00-Inbox/UPPER.MD',
+  ]);
+  const copiedParent = imported.notes.find((note) => note.sourcePath === '00-Inbox/UPPER.MD')!,
+    copiedChild = imported.notes.find((note) => note.sourcePath === '00-Inbox/MiXeD.mD')!;
+  expect(copiedParent.relativePath).toBe('00-Inbox/imported/00-Inbox/UPPER.MD');
+  expect(copiedChild.relativePath).toBe('00-Inbox/imported/00-Inbox/MiXeD.mD');
+  expect(copiedParent.noteId).not.toBe(parent.id);
+  expect(copiedChild.noteId).not.toBe(child.id);
+  const markdown = await readFile(
+    join(target.config.knowledgeRoot, copiedParent.relativePath),
+    'utf8',
+  );
+  expect(new MarkdownIt().render(markdown)).toContain('href="MiXeD.mD"');
+  expect(await readFile(join(target.config.knowledgeRoot, copiedChild.relativePath), 'utf8')).toBe(
+    '# Child',
+  );
+});
+
+it('still refuses a manifest document entry inside assets even with a Markdown extension', async () => {
+  const f = await fixture(),
+    directory = join(f.root, 'asset-role');
+  await mkdir(join(directory, 'assets'), { recursive: true });
+  const content = '# Not a note',
+    path = 'assets/UPPER.MD';
+  await writeFile(join(directory, path), content);
+  await writeFile(
+    join(directory, 'dooknow-portable.json'),
+    JSON.stringify({
+      format: 'dooknow-portable',
+      version: 1,
+      files: [
+        { path, kind: 'document', sizeBytes: Buffer.byteLength(content), sha256: sha256(content) },
+      ],
+      selected: [path],
+    }),
+  );
+  await expect(
+    f.service.importDirectory(webPrincipal, {
+      directoryPath: directory,
+      folderPath: '00-Inbox/imported',
+      requestId: randomUUID(),
+    }),
+  ).rejects.toMatchObject({ code: 'INVALID_PORTABLE_DOCUMENT' });
+  expect(f.db.prepare('SELECT count(*) n FROM notes WHERE active=1').get()).toEqual({ n: 0 });
+});

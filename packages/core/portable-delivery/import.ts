@@ -9,6 +9,7 @@ import type { Principal } from '../../../shared/knowledge-contracts.js';
 import type { PortableImportResult } from '../../../shared/portable-delivery-contracts.js';
 import { portableResourceLimits as limits } from '../../../shared/portable-resource-limits.js';
 import { parseDiagramDocument } from '../../../shared/diagram-document.js';
+import { isDocument, isWhiteboard } from '../../../shared/whiteboard.js';
 import { primaryRenderDescriptor } from '../../../shared/diagram-primary.js';
 import { serializeDiagramRenderInput } from '../../../shared/diagram-document-binding.js';
 import type { AppDatabase } from '../db.js';
@@ -184,7 +185,11 @@ export async function importPortableDirectory(
       validatedAssets.file(file.path);
       continue;
     }
-    if (!file.path.endsWith('.md') || file.path.split('/').includes('assets'))
+    if (
+      !isDocument(file.path) ||
+      isWhiteboard(file.path) ||
+      file.path.split('/').includes('assets')
+    )
       fail(400, 'INVALID_PORTABLE_DOCUMENT');
     const documentBytes = await readFile(join(input.directoryPath, file.path));
     if (sha256(documentBytes) !== file.sha256) fail(409, 'PORTABLE_DIGEST_MISMATCH');
