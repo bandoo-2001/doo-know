@@ -1,6 +1,6 @@
 import { afterEach, expect, it } from 'vitest';
 import { randomUUID, createHash } from 'node:crypto';
-import { existsSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdirSync, renameSync } from 'node:fs';
 import { join } from 'node:path';
 import { pluginRuntimeFixture } from './support/plugin-runtime';
 import { createKnowledgeToolPort } from '../apps/server/plugins/knowledge-tools';
@@ -523,3 +523,148 @@ it('rejects expired creation intents on later source upload chunks', async () =>
     'expired',
   );
 });
+
+function movePublishedFixtureDocument(
+  f: Awaited<ReturnType<typeof fixture>>,
+  intent: { noteId: string; relativePath: string },
+) {
+  // Represent an independently authorized admin/external move. Product graph movement is Task6.
+  const path = `private/${intent.noteId}.md`;
+  mkdirSync(join(f.config.knowledgeRoot, 'private'), { recursive: true });
+  renameSync(join(f.config.knowledgeRoot, intent.relativePath), join(f.config.knowledgeRoot, path));
+  f.db.prepare('UPDATE notes SET path=? WHERE id=? AND active=1').run(path, intent.noteId);
+  // Historical receipts also survive later ordinary-description edits; they must not reapply old CAS baselines.
+  appendFileSync(join(f.config.knowledgeRoot, path), '\n外部管理员补充说明\n');
+  return path;
+}
+
+it('checks the current published path for status, historical replay and completed progress after an external move', async () => {
+  const f = await fixture(),
+    p = await f.prepare();
+  const args = {
+    preparedId: p.prepared.id,
+    documentTransferId: p.main.transferId,
+    requestId: randomUUID(),
+  };
+  const receipt = await f.call('commit_primary_diagram', args);
+  const completed = [p.handles.source, p.handles.preview, p.main].map((handle) =>
+    f.transfers.info(f.principal, handle.transferId),
+  );
+  movePublishedFixtureDocument(f, p.intent);
+
+  f.setPrincipal({ ...f.principal, scopes: ['knowledge:read'] });
+  await expect(
+    f.call('get_diagram_creation_intent', { intentId: p.intent.id }),
+  ).rejects.toMatchObject({ statusCode: 403 });
+  for (const requestId of [p.args.requestId, args.requestId])
+    await expect(f.call('get_knowledge_operation', { requestId })).rejects.toMatchObject({
+      statusCode: 403,
+    });
+
+  f.setPrincipal(f.principal);
+  await expect(f.call('commit_primary_diagram', args)).rejects.toMatchObject({ statusCode: 403 });
+  await expect(f.call('prepare_primary_diagram', p.args)).rejects.toMatchObject({
+    statusCode: 403,
+  });
+  await expect(
+    f.call('cancel_diagram_creation_intent', { intentId: p.intent.id }),
+  ).rejects.toMatchObject({ statusCode: 403 });
+  for (const info of completed) {
+    expect(info.state).toBe('completed');
+    expect(() => f.port.authorizeTransfer(info.binding, true, undefined, info.state)).toThrowError(
+      expect.objectContaining({ statusCode: 403 }),
+    );
+  }
+
+  f.setPrincipal({ ...f.principal, scopes: ['knowledge:read'], allowedPrefixes: ['private'] });
+  expect(await f.call('get_diagram_creation_intent', { intentId: p.intent.id })).toMatchObject({
+    status: 'published',
+    relativePath: p.intent.relativePath,
+  });
+  expect((await f.call('get_knowledge_operation', { requestId: p.args.requestId })).result).toEqual(
+    p.prepared,
+  );
+  expect((await f.call('get_knowledge_operation', { requestId: args.requestId })).result).toEqual(
+    receipt,
+  );
+
+  f.setPrincipal({ ...f.principal, allowedPrefixes: ['private'] });
+  expect(await f.call('commit_primary_diagram', args)).toEqual(receipt);
+  expect(await f.call('prepare_primary_diagram', p.args)).toEqual(p.prepared);
+  for (const info of completed)
+    expect(() => f.port.authorizeTransfer(info.binding, true, undefined, info.state)).not.toThrow();
+  await expect(
+    f.call('cancel_diagram_creation_intent', { intentId: p.intent.id }),
+  ).rejects.toMatchObject({ code: 'CREATION_ALREADY_PUBLISHED' });
+  await expect(
+    f.call('begin_primary_diagram_upload', {
+      target: p.target,
+      type: p.type,
+      sourceBytes: Buffer.byteLength(p.source),
+      previewBytes: png.length,
+      requestId: randomUUID(),
+    }),
+  ).rejects.toMatchObject({ code: 'CREATION_ALREADY_PUBLISHED' });
+  await expect(
+    f.call('begin_primary_diagram_document_upload', {
+      preparedId: p.prepared.id,
+      totalBytes: 1,
+      requestId: randomUUID(),
+    }),
+  ).rejects.toMatchObject({ code: 'CREATION_INTENT_UNAVAILABLE' });
+});
+
+it.each(['knowledge.primary-commit', 'diagram-primary.commit'])(
+  'checks the current published path before recovering moved %s unknown-success',
+  async (kind) => {
+    const f = await fixture(),
+      p = await f.prepare(),
+      args = {
+        preparedId: p.prepared.id,
+        documentTransferId: p.main.transferId,
+        requestId: randomUUID(),
+      };
+    f.db.exec(
+      `CREATE TRIGGER simulate_moved_lost_receipt BEFORE UPDATE OF status ON operations WHEN NEW.kind='${kind}' AND NEW.status='succeeded' BEGIN SELECT RAISE(ABORT,'lost receipt'); END`,
+    );
+    await expect(f.call('commit_primary_diagram', args)).rejects.toThrow('lost receipt');
+    f.db.exec('DROP TRIGGER simulate_moved_lost_receipt');
+    const modifiedAt = f.runtime.notes.getNote(p.intent.noteId).modifiedAt;
+    movePublishedFixtureDocument(f, p.intent);
+    f.db.prepare('UPDATE mcp_transfers SET expires_at=0').run();
+    f.transfers.cleanup();
+    f.db.prepare('UPDATE diagram_prepared_primaries SET expires_at=0').run();
+
+    f.setPrincipal({ ...f.principal, scopes: ['knowledge:read'] });
+    await expect(
+      f.call('get_diagram_creation_intent', { intentId: p.intent.id }),
+    ).rejects.toMatchObject({ statusCode: 403 });
+    await expect(
+      f.call('get_knowledge_operation', { requestId: args.requestId }),
+    ).rejects.toMatchObject({ statusCode: 403 });
+    f.setPrincipal(f.principal);
+    await expect(f.call('commit_primary_diagram', args)).rejects.toMatchObject({ statusCode: 403 });
+
+    f.setPrincipal({ ...f.principal, allowedPrefixes: ['private'], scopes: ['knowledge:read'] });
+    expect((await f.call('get_knowledge_operation', { requestId: args.requestId })).status).toBe(
+      'prepared',
+    );
+    expect((await f.call('get_diagram_creation_intent', { intentId: p.intent.id })).status).toBe(
+      'published',
+    );
+    f.setPrincipal({ ...f.principal, allowedPrefixes: ['private'] });
+    const receipt = await f.call('commit_primary_diagram', args);
+    expect(receipt).toMatchObject({
+      id: p.intent.noteId,
+      relativePath: p.intent.relativePath,
+      modifiedAt,
+      contentHash: sha(p.markdown),
+    });
+    expect((await f.call('get_knowledge_operation', { requestId: args.requestId })).result).toEqual(
+      receipt,
+    );
+    expect(await f.call('commit_primary_diagram', args)).toEqual(receipt);
+    expect(f.db.prepare('SELECT count(*) AS n FROM notes WHERE active=1').get()).toEqual({ n: 1 });
+    expect(f.db.prepare('SELECT count(*) AS n FROM assets').get()).toEqual({ n: 2 });
+  },
+);

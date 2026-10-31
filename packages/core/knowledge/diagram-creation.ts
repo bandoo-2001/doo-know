@@ -70,7 +70,16 @@ export function diagramCreationService(config: AppConfig, db: AppDatabase, princ
       | undefined;
     if (!row || row.principal !== principal.id || row.client_id !== principal.clientId)
       fail(404, 'NOT_FOUND');
-    authorizePath(principal, row.path, scope);
+    let path = row.path;
+    if (row.status === 'published') {
+      // The reservation path is immutable history; access follows the active note after publication.
+      const current = db.prepare('SELECT path FROM notes WHERE id=? AND active=1').get(row.note_id) as
+        | { path: string }
+        | undefined;
+      if (!current) fail(404, 'NOT_FOUND');
+      path = current.path;
+    }
+    authorizePath(principal, path, scope);
     return row;
   }
   function get(id: string, options: { scope?: 'knowledge:read' | 'knowledge:write' } = {}): DiagramCreationIntent {
