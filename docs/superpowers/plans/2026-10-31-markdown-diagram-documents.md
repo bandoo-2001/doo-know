@@ -88,6 +88,12 @@
 - [ ] 实现兼容数据库迁移、预留/激活状态、权限资源解析、源/PNG 摘要校验及写入恢复日志；长准备在锁外。
 - [ ] GREEN：Web/MCP/patch/上传同策略；恢复重启与授权隔离集成测试、typecheck；审阅并提交。
 
+### Task 4A: 可恢复预留身份（Task 4 的首个可验证子项）
+
+`diagramCreationService(config, db, principal)` 先提供 `reserve({path,type,requestId})`、`get(intentId)`、`cancel(intentId)`。预留 UUID 仅存 `diagram_creation_intents`，不提前写 notes 活动记录或主文件；24 小时准备租约，过期/取消释放路径，但同一请求仍返回明确终态，不复用旧回执新建身份。主键、调用主体/客户端、路径和请求参数均绑定；后台重开数据库保持身份。表迁移在 openDatabase 中幂等创建。图形附件准备接入与完整发布为 Task 4B，届时由同一意图传递可信 noteId 给 mutation core；不能开放一个可由客户端指定任意 UUID 的普通创建参数。
+
+Files: `packages/core/knowledge/{diagram-creation,diagram-document-schema}.ts`、`packages/core/db.ts`、`tests/diagram-creation.test.ts`。测试涵盖无主文件/活动索引、重复请求/参数冲突/路径竞争、撤权和跨主体访问、已有文件冲突、取消/过期与重启恢复。该子项不单独开放 Web/MCP 创建入口。
+
 ## Task 5: 新白板 UI、草稿、隐藏标记与公开投影（阶段 2）
 
 **Files:** 修改 `Workspace.vue`、`WhiteboardWorkspace.vue`、`DiagramPreview.vue`、`DocumentEditor.vue`、draft/session 模块、`knowledge-markdown.ts`、`shares.ts`、`share-resources.ts`、公开路由；新增测试。
@@ -189,3 +195,7 @@
 验证：相关 Vitest 103/103；独立适配 Playwright 6/6；typecheck 通过；build 通过；新增两库许可证被现有发布 notices 脚本收录。独立阶段审阅发现 1 个 P1、2 个 P2，均以真实失败用例修复；额外补测 PNG 固定快照、根节点和公开资源能力。详见 `docs/diagrams/stage-1-validation.md`。
 
 全量 `npm test` 仍在运行，已观察到的 chunks-large/tokenizer 和 search-cli/model-local 两项环境失败均定位并单测重跑通过；最终结果需继续收集，不能声称全量已通过。隔离依赖就绪后的源码 SHA-256 核对：原目录 427 份兼容文件均保持一致。下一步：收集全量结果并推进 Task 4 的预留身份、资源准备和统一完整提交；不得提前启用新编辑器或迁移真实知识库。
+
+2026-10-31 Task 4A：新增幂等数据库表及 `diagramCreationService` 的 reserve/get/cancel 原语。预留不创建主文件、不插入 notes/document_state 活动记录；绑定主体、客户端、目标路径和幂等参数，支持 24 小时租约、取消、过期和重启恢复。7 个专项测试通过，连同格式/资源契约回归 50/50；typecheck 通过。尚未开放 Web/MCP 入口，也未接入附件准备和发布，Task 4 整项保持未完成。
+
+接续 Task 4B 的责任边界：新增主图准备回执，固定调用主体、预留 ID/笔记 ID、主文件基线、原生源基线、源码摘要、标题/renderer/config 渲染指纹和 PNG 摘要。白板写不可变源附件+PNG；大纲/Mermaid 只需 inline 源+PNG。`assets.upload` 当前要求活动 notes，须增加在同一短锁内验证创建意图的专用准备入口，不能扩大普通 `notes.exists` 权限。最终创建需通过可信服务将预留 UUID 交给 mutation core，客户端不能任意指定 UUID。所有普通写入入口随后接入同一图形完整性闸门；准备失败或无 PNG 不激活主文件。
