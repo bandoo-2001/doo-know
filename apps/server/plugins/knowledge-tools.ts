@@ -610,7 +610,7 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
                 ...(snapshot.sourcePath ? { sourcePath: snapshot.sourcePath } : {}),
               },
             },
-            name: basename(runtime.notes.row(snapshot.noteId).path, '.md') + extension,
+            name: basename(runtime.notes.row(snapshot.noteId).path).replace(/\.(?:md|excalidraw)$/i, '') + extension,
             mime,
             bytes: Buffer.from(snapshot.content, 'utf8'),
           });

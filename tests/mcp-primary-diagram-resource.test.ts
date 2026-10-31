@@ -172,6 +172,7 @@ it('consumes a selected legacy scene through real multi-chunk source transfers a
   expect(chunks.length).toBeGreaterThan(1);
   expect(Buffer.concat(chunks).toString('utf8')).toBe(note.content);
   expect(info.binding.metadata?.sourcePath).toBe(note.relativePath);
+  expect(info.name).toBe('legacy-large.excalidraw');
   expect(f.principal.allowedPrefixes).toEqual([note.relativePath]);
   expect(() =>
     f.port.authorizeTransfer(

@@ -1,4 +1,5 @@
 import {registerDiagramDocumentRoutes} from './knowledge/diagram-routes.js';
+import { registerPortableDeliveryRoutes } from './knowledge/portable-delivery-routes.js';
 import {isWhiteboard,MAX_WHITEBOARD_BYTES} from '../../shared/whiteboard.js';
 import Fastify from 'fastify';
 import { statSync } from 'node:fs';
@@ -378,6 +379,7 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     return reply.code(201).send(assets.upload(req.params.id, part.filename, part.mimetype, bytes, requestId));
   });
   await registerDiagramDocumentRoutes(app,db,()=>platform.get());
+  registerPortableDeliveryRoutes(app,db,()=>platform.get());
   const diagramArtifacts = diagramArtifactService(db, notes, assets, webPrincipal);
   app.post<{ Params: { id: string } }>('/api/notes/:id/diagram-artifacts', { bodyLimit: 32 * 1024 * 1024 }, async (req, reply) =>
     reply.code(201).send(diagramArtifacts.prepare(req.params.id, req.body)),
@@ -479,7 +481,7 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     shares,
   );
   function resolveBoard(parentPath: string, reference: string) {
-    return resolveWhiteboardResource(
+    const resource = resolveWhiteboardResource(
       businessConfig,
       db,
       notes,
@@ -487,6 +489,8 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
       parentPath,
       reference,
     );
+    // Retain owner-route identity/path metadata while the payload is a semantic resource.
+    return { ...resource, id: resource.noteId, relativePath: notes.row(resource.noteId).path };
   }
   app.get<{ Params: { id: string }; Querystring: { source: string } }>(
     '/api/notes/:id/whiteboards/resolve',
