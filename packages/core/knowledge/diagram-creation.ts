@@ -63,18 +63,18 @@ function project(row: CreationRow): DiagramCreationIntent {
 
 /** Only the bound principal/client can prepare or publish a reserved document identity. */
 export function diagramCreationService(config: AppConfig, db: AppDatabase, principal: Principal) {
-  function owned(id: string) {
+  function owned(id: string, scope: 'knowledge:read' | 'knowledge:write' = 'knowledge:write') {
     assertRoot(config, db);
     const row = db.prepare('SELECT * FROM diagram_creation_intents WHERE id=?').get(id) as
       | CreationRow
       | undefined;
     if (!row || row.principal !== principal.id || row.client_id !== principal.clientId)
       fail(404, 'NOT_FOUND');
-    authorizePath(principal, row.path, 'knowledge:write');
+    authorizePath(principal, row.path, scope);
     return row;
   }
-  function get(id: string): DiagramCreationIntent {
-    return project(owned(id));
+  function get(id: string, options: { scope?: 'knowledge:read' | 'knowledge:write' } = {}): DiagramCreationIntent {
+    return project(owned(id, options.scope));
   }
   function reserve(value: {
     path: string;

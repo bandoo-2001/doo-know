@@ -231,7 +231,12 @@ export function noteService(config: AppConfig, db: AppDatabase) {
         'SELECT * FROM notes WHERE active=1',
       )
       .all() as NoteRow[]) {
-      const metadata = readMetadata(publishedNoteSource(config, db, n.id, n.path).file, n.path);
+      let metadata: ReturnType<typeof readMetadata> = { documentType: 'markdown' };
+      try {
+        metadata = readMetadata(publishedNoteSource(config, db, n.id, n.path).file, n.path);
+      } catch {
+        // A damaged source stays reachable for recovery without hiding the remaining library.
+      }
       all.push({
         id: n.id,
         path: n.path,

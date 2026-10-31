@@ -78,3 +78,12 @@ it('rebuilds semantic type from source and invalidates the cached type after ext
       .find((e) => e.id === f.note.id)?.documentType,
   ).toBeUndefined();
 });
+
+it('isolates unreadable declaration candidates so the remaining file tree stays available',async()=>{
+ const f=await fixture();
+ await writeFile(join(f.config.knowledgeRoot,'00-Inbox/broken.md'),Buffer.concat([Buffer.from('<!-- dooknow:document '),Buffer.from([0xff,0xfe])]));
+ const tree=f.runtime.notes.tree(),entries=tree.flatMap(entry=>entry.children||[]);
+ expect(entries.find(entry=>entry.id===f.note.id)?.documentType).toBe('mindmap');
+ expect(entries.find(entry=>entry.path==='00-Inbox/broken.md')).toMatchObject({type:'note'});
+ expect(entries.find(entry=>entry.path==='00-Inbox/broken.md')?.documentType).toBeUndefined();
+});

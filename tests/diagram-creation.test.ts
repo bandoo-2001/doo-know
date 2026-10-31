@@ -129,3 +129,12 @@ it('refuses existing files, unsupported types and unsafe or non-Markdown destina
     service.reserve({ ...input('00-Inbox/future.md'), type: 'unknown' as 'whiteboard' }),
   ).toThrow();
 });
+
+it('allows the owning read-only actor to inspect an intent without acquiring mutation rights',()=>{
+ const intent=diagramCreationService(config,db,principal).reserve(input()),reader=diagramCreationService(config,db,{...principal,scopes:['knowledge:read']});
+ expect(reader.get(intent.id,{scope:'knowledge:read'})).toEqual(intent);
+ expect(()=>reader.get(intent.id)).toThrowError(expect.objectContaining({statusCode:403}));
+ expect(()=>reader.cancel(intent.id)).toThrowError(expect.objectContaining({statusCode:403}));
+ const narrowed=diagramCreationService(config,db,{...principal,scopes:['knowledge:read'],allowedPrefixes:['private']});
+ expect(()=>narrowed.get(intent.id,{scope:'knowledge:read'})).toThrowError(expect.objectContaining({statusCode:403}));
+});
