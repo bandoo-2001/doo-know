@@ -1,3 +1,4 @@
+import { assertDiagramFilePublication } from './diagram-file-publication.js';
 import {
   workspaceWrite,
   workspaceArtifact,
@@ -226,6 +227,28 @@ export function fileJobService(
         ).mtimeNs.toString() !== input.expectedModifiedAt
       )
         fail(409, 'VERSION_CONFLICT');
+      await assertDiagramFilePublication(
+        config,
+        db,
+        p,
+        {
+          operationId: opId,
+          noteId: id,
+          path: n.path,
+          beforeFile: snapshot.path,
+          targetFile: temp,
+          beforeHash: input.expectedContentHash,
+          targetHash,
+        },
+        signal,
+      );
+      // The guarded scan yields between bounded reads; recheck external changes immediately before commit.
+      authorized(p, id);
+      if (
+        (await hashFile(file, signal)) !== input.expectedContentHash ||
+        (await stat(file, { bigint: true })).mtimeNs.toString() !== input.expectedModifiedAt
+      )
+        fail(409, 'VERSION_CONFLICT');
       db.transaction(() => {
         assertWritable(db, id, undefined, `${opId}:${epoch}`);
         const job = db.prepare('SELECT * FROM file_operations WHERE id=?').get(opId) as any;
@@ -283,7 +306,21 @@ export function fileJobService(
           : op.status === 'committing'
             ? 'needs_reconciliation'
             : 'failed';
-      db.prepare('UPDATE operations SET status=?,error=? WHERE id=?').run(status, code, opId);
+      const recordedError =
+        e instanceof KnowledgeError
+          ? JSON.stringify({
+              status: e.statusCode,
+              code: e.code,
+              message: e.message,
+              retryable: e.retryable,
+              details: e.details,
+            })
+          : code;
+      db.prepare('UPDATE operations SET status=?,error=? WHERE id=?').run(
+        status,
+        recordedError,
+        opId,
+      );
       db.prepare('UPDATE file_operations SET status=?,error=? WHERE id=?').run(status, code, opId);
     } finally {
       clearInterval(heartbeat);

@@ -124,6 +124,10 @@ export function findOperation(
           error: {
             code: operationError(op.error).code,
             retryable: op.status === 'needs_reconciliation',
+            ...(operationError(op.error).details &&
+            Object.keys(operationError(op.error).details).length
+              ? { details: operationError(op.error).details }
+              : {}),
           },
         }
       : {}),

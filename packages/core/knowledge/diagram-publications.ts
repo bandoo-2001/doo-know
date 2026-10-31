@@ -55,7 +55,11 @@ export function hasDiagramResourceProof(
   }
   return false;
 }
-export function recordDiagramPublication(config: AppConfig, db: AppDatabase, operationId: string) {
+export function verifyPendingDiagramPublication(
+  config: AppConfig,
+  db: AppDatabase,
+  operationId: string,
+) {
   const pending = db
     .prepare('SELECT * FROM diagram_pending_publications WHERE operation_id=?')
     .get(operationId) as
@@ -94,6 +98,12 @@ export function recordDiagramPublication(config: AppConfig, db: AppDatabase, ope
       fail(409, 'CREATION_INTENT_UNAVAILABLE');
   }
 
+  return { pending, manifest };
+}
+export function recordDiagramPublication(config: AppConfig, db: AppDatabase, operationId: string) {
+  const verified = verifyPendingDiagramPublication(config, db, operationId);
+  if (!verified) return;
+  const { pending, manifest } = verified;
   db.prepare(
     'INSERT OR IGNORE INTO diagram_document_versions(note_id,document_hash,path,document_type,source_hash,render_hash,preview_hash,manifest,created_at) VALUES(?,?,?,?,?,?,?,?,?)',
   ).run(

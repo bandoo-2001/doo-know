@@ -217,3 +217,9 @@ Files: `packages/core/knowledge/{diagram-creation,diagram-document-schema}.ts`�
 普通已授权文档更新仍可复用同篇文档、同基线的固定准备产物，供浏览器准备后由 MCP 按原写入重试；这不开放其他笔记资源，也不开放显式 preparedId 的跨主体提交。发布集成测试现为 14 项，含三项审阅复现、跨客户端授权差异和真实提交前文件丢失后的新请求恢复；相关回归 118/118，typecheck 与 build 通过。原目录 427 份兼容文件 SHA-256 再核对保持一致。
 
 下一执行单元：Task 4D，先为 patch/file-jobs、snapshot 上传、revision 恢复列出实际落盘入口；复用同一发布校验。大文件用有界声明扫描区分普通 Markdown 与图形，不为检查类型整篇读取/解析普通大笔记；对图形 main/source/PNG 则固定完整版本。完成这些写入闸门及 Web/MCP 资源接口后才进入 Task 5 的新 UI 和公开投影，不提前声称 Task 4 或阶段 2 完成。
+
+2026-10-31 Task 4D：完成实际落盘入口核查与统一校验。新增 `diagram-declaration.ts` 的有界同步/异步声明扫描，`diagram-file-publication.ts` 对保留声明的候选主图按完整固定字节摘要校验。后台 patch 和大文件历史恢复从固定 snapshot 读取原版本，提交前复核现场主文件；回收站恢复在搬回前及重试时复核资源。MCP 上传和小历史恢复已通过 core 策略，实际集成测试验证；修复原文上传默认 UTF-8 解码丢 BOM 的问题。后台操作错误持久化完整待预览列表，operation 返回结构化 details。恢复证明首次文件未保留时释放创建占用并保持原 UUID 可新请求重试。
+
+验证：声明/入口/旧 patch/中断恢复等 51 项通过；另组旧 MCP 全链路/恢复 30 项通过（两组重叠）；真实 20 MiB 分块及原有内存预算测试通过。typecheck/build 已通过，最终固定 snapshot 调用调整的补充回归亦通过。详见 `docs/diagrams/stage-2-write-entries.md`。
+
+下一步 Task 4E 仍需完成：资源解析与 Web/MCP 接口、>1 MiB 图形主文档及发布中读取一致性；尤其更新 rename 后 record 失败不能向读者冒充完整版本。通用 operation 状态不能承载大型全文；主图幂等原文返回与有界状态结果需要区分。随后 Task 5 公共投影与 UI、Task 6 生命周期/历史/原生链接，以及所有后续阶段继续执行，Task 4/阶段 2 仍未完成。

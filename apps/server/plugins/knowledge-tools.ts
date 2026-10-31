@@ -639,7 +639,7 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
           async () => {
             let content: string;
             try {
-              content = new TextDecoder('utf-8', { fatal: true }).decode(upload.bytes);
+              content = new TextDecoder('utf-8', { fatal: true, ignoreBOM:true }).decode(upload.bytes);
             } catch {
               fail(400, 'INVALID_INPUT');
             }

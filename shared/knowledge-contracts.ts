@@ -104,7 +104,7 @@ export type FileOperation = {
     | 'needs_reconciliation';
   snapshotId?: string;
   result?: PatchResult;
-  error?: { code: string; retryable: boolean };
+  error?: { code: string; retryable: boolean; details?: Record<string,unknown> };
 };
 export type FileReply<T> =
   | { kind: 'ready'; data: T }

@@ -1,5 +1,6 @@
 import { assertDiagramPublication } from './diagram-publication-policy.js';
-import { recordDiagramPublication } from './diagram-publications.js';
+import { recordDiagramPublication,verifyPendingDiagramPublication } from './diagram-publications.js';
+import { assertDiagramRestorePublication } from './diagram-file-publication.js';
 import { diagramCreationService } from './diagram-creation.js';
 import {isWhiteboard,isDocument,parseWhiteboard,MAX_WHITEBOARD_BYTES,documentTitle,documentType,whiteboardText,withWhiteboardId} from '../../../shared/whiteboard.js';
 import {
@@ -295,7 +296,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
       );
       observeCollectionSource(db, intent.note_id, s.mtimeNs.toString(), Number(s.size), isWhiteboard(intent.path) && content !== undefined ? whiteboardText(content) : content,
         `${s.dev}:${s.ino}:${s.ctimeNs}`, intent.target_hash!);
-      db.prepare('UPDATE document_state SET longest_line_bytes=NULL WHERE note_id=?').run(
+      db.prepare("UPDATE document_state SET longest_line_bytes=NULL,document_type='markdown' WHERE note_id=?").run(
         intent.note_id,
       );
       if (content !== undefined) {
@@ -541,6 +542,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
   }
   function finishRestore(intent: Intent) {
     assertRoot(config, db);
+    verifyPendingDiagramPublication(config,db,intent.id);
     assertRestoreDestination(intent);
     const source = trashSource(intent),
       parent =
@@ -725,6 +727,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
       const st = lstatSync(source, { bigint: true });
       intent.target_hash = restoreHash(source);
       intent.original_mtime = st.mtimeNs.toString();
+      assertDiagramRestorePublication(config,db,p,{operationId:intent.id,noteId:id,path,sourceFile:source,sourceHash:intent.target_hash});
       db.prepare(
         'INSERT INTO write_intents(id,note_id,path,kind,original_mtime,target_hash,temp_path) VALUES(?,?,?,?,?,?,?)',
       ).run(intent.id, id, path, 'restore', intent.original_mtime, intent.target_hash, source);
@@ -841,6 +844,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
         db.prepare(
           "UPDATE file_operations SET status='failed',error='OPERATION_UNAPPLIED' WHERE id=?",
         ).run(intent.id);
+        db.prepare("UPDATE diagram_creation_intents SET commit_operation_id=NULL WHERE commit_operation_id=? AND status IN ('reserved','prepared')").run(intent.id);
         releaseSnapshotRef(db, intent.id);
         report.unapplied++;
       } catch (e) {

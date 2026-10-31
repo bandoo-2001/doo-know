@@ -400,3 +400,23 @@ it('releases an uncommitted creation claim and reuses its reserved inactive iden
   expect(result.id).toBe(intent.noteId);
   expect(db.prepare('SELECT count(*) AS count FROM notes').get()).toEqual({ count: 1 });
 });
+
+it('releases an abandoned creation claim when recovery proves that the target was never retained', async () => {
+  const { intent, prepared, markdown } = prepare(),
+    s = services();
+  db.exec(
+    "CREATE TRIGGER creation_unapplied_record BEFORE UPDATE OF active ON notes WHEN NEW.active=1 BEGIN SELECT RAISE(FAIL,'fixture interruption'); END",
+  );
+  expect(() =>
+    s.primary.commit({ preparedId: prepared.id, markdown, requestId: randomUUID() }),
+  ).toThrow();
+  db.exec('DROP TRIGGER creation_unapplied_record');
+  unlinkSync(join(config.knowledgeRoot, intent.relativePath));
+  expect((await s.core.recover()).unapplied).toBe(1);
+  expect(
+    diagramCreationService(config, db, principal).get(intent.id).commitOperationId,
+  ).toBeUndefined();
+  expect(s.primary.commit({ preparedId: prepared.id, markdown, requestId: randomUUID() }).id).toBe(
+    intent.noteId,
+  );
+});
