@@ -710,7 +710,12 @@ export function portableDeliveryService(
             )
               throw error;
             fail(409, 'PORTABLE_DEPENDENCY_UNAVAILABLE', '远程媒体无法完整导出', false, {
-              diagnostics: [{ document: resource.remote.document, resource: resource.remote.url }],
+              diagnostics: [
+                {
+                  document: resource.remote.document,
+                  resource: resourceDiagnostic(resource.remote.url),
+                },
+              ],
               reason: (error as Error).message,
             });
           }

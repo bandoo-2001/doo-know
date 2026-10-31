@@ -58,7 +58,8 @@ function ensureDirectory(config: AppConfig, path: string) {
     else mkdirSync(join(config.knowledgeRoot, current), { mode: 0o700 });
   }
 }
-async function safeExtract(file: string, destination: string) {
+async function safeExtract(file: string, destination: string, reserve: (bytes: number) => void) {
+  const sourceStamp = assetStamp(file);
   const info = await stat(file);
   if (info.size > limits.packageBytes) fail(413, 'PORTABLE_BUDGET_EXCEEDED');
   await new Promise<void>((resolve, reject) => {
@@ -78,6 +79,7 @@ async function safeExtract(file: string, destination: string) {
           total += entry.size;
           if (seen.size > limits.files * 2 + 1 || total > limits.packageBytes)
             fail(413, 'PORTABLE_BUDGET_EXCEEDED');
+          reserve(total);
         } catch (error) {
           parser.abort(error as Error);
         }
@@ -92,15 +94,25 @@ async function safeExtract(file: string, destination: string) {
     input.once('error', (error) => parser.abort(error));
     input.pipe(parser as any);
   });
+  if (assetStamp(file) !== sourceStamp) fail(409, 'PORTABLE_VERSION_CONFLICT');
+  let extractedBytes = 0;
   await extract({
     file,
     cwd: destination,
     strict: true,
     preservePaths: false,
-    filter: (_path, entry) => ['File', 'OldFile', 'Directory'].includes((entry as any).type),
+    filter: (_path, entry) => {
+      if (!['File', 'OldFile', 'Directory'].includes((entry as any).type))
+        fail(400, 'INVALID_PORTABLE_ENTRY');
+      extractedBytes += (entry as any).size;
+      if (extractedBytes > limits.packageBytes) fail(413, 'PORTABLE_BUDGET_EXCEEDED');
+      reserve(extractedBytes);
+      return true;
+    },
     chmod: true,
     processUmask: 0o077,
   });
+  if (assetStamp(file) !== sourceStamp) fail(409, 'PORTABLE_VERSION_CONFLICT');
 }
 
 /** Whole self-manifest input: preflight all hashes and render bindings before any note is created. */
@@ -456,9 +468,9 @@ export async function importPortableArchive(
 ) {
   requireScope(p, 'knowledge:write');
   request(input);
-  const stage = await portableStaging(config, db, limits.packageBytes);
+  const stage = await portableStaging(config, db);
   try {
-    await safeExtract(input.archivePath, stage.directory);
+    await safeExtract(input.archivePath, stage.directory, stage.resize);
     return await importPortableDirectory(
       config,
       db,

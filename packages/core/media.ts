@@ -109,64 +109,225 @@ export function inspectMediaFile(
       }
       if (at !== size || !fmt || !data) bad();
     } else if (mime === 'video/mp4') {
-      let ftyp = false,
-        moov = false,
-        mdat = false,
-        track = false,
-        sample = false;
-      let boxes = 0;
-      function walk(start: number, end: number, depth: number) {
-        if (depth > 8) bad();
+      type Box = { type: string; body: number; end: number };
+      let boxCount = 0;
+      const requiredParent: Record<string, string> = {
+        ftyp: 'root',
+        moov: 'root',
+        mdat: 'root',
+        mvhd: 'moov',
+        trak: 'moov',
+        tkhd: 'trak',
+        mdia: 'trak',
+        mdhd: 'mdia',
+        hdlr: 'mdia',
+        minf: 'mdia',
+        vmhd: 'minf',
+        smhd: 'minf',
+        dinf: 'minf',
+        dref: 'dinf',
+        stbl: 'minf',
+        stsd: 'stbl',
+        stts: 'stbl',
+        stsc: 'stbl',
+        stsz: 'stbl',
+        stz2: 'stbl',
+        stco: 'stbl',
+        co64: 'stbl',
+      };
+      function boxes(start: number, end: number, parent: string): Box[] {
+        const found: Box[] = [];
         let at = start;
         while (at < end) {
-          if (++boxes > 100000) bad();
+          if (++boxCount > 100000 || end - at < 8) bad();
           const h = read(at, 8),
             type = h.toString('ascii', 4),
-            n = h.readUInt32BE(0);
+            small = h.readUInt32BE();
           let header = 8,
-            length = n;
-          if (n === 1) {
-            const large = read(at + 8, 8).readBigUInt64BE();
-            if (large > BigInt(Number.MAX_SAFE_INTEGER)) bad();
-            length = Number(large);
+            length = small;
+          if (small === 1) {
+            if (end - at < 16) bad();
+            const n = read(at + 8, 8).readBigUInt64BE();
+            if (n > BigInt(Number.MAX_SAFE_INTEGER)) bad();
+            length = Number(n);
             header = 16;
           }
-          if (n === 0) length = end - at;
-          if (length < header || at + length > end) bad();
-          if (!depth && type === 'ftyp') {
-            if (length < header + 8 || (length - header) % 4) bad();
-            const brands = read(at + header, Math.min(length - header, 256)).toString('ascii');
-            if (!/(?:isom|iso[2-9]|mp4[12]|avc1|M4V |dash)/.test(brands)) bad();
-            ftyp = true;
-          }
-          if (!depth && type === 'mdat' && length > header) mdat = true;
-          if (type === 'moov') moov = true;
-          if (type === 'hdlr') {
-            const h = read(at + header, 12);
-            if (['vide', 'soun'].includes(h.toString('ascii', 8, 12))) track = true;
-          }
-          if (type === 'stsd') {
-            const h = read(at + header, 8),
-              count = h.readUInt32BE(4);
-            if (!count || count > 10000 || length < header + 16) bad();
-            let entry = at + header + 8;
-            for (let index = 0; index < count; index++) {
-              const e = read(entry, 8),
-                n = e.readUInt32BE();
-              if (n < 16 || entry + n > at + length) bad();
-              entry += n;
-            }
-            if (entry !== at + length) bad();
-            sample = true;
-          }
-          if (['moov', 'trak', 'mdia', 'minf', 'stbl'].includes(type))
-            walk(at + header, at + length, depth + 1);
+          if (small === 0) length = end - at;
+          if (
+            length < header ||
+            at + length > end ||
+            (requiredParent[type] && requiredParent[type] !== parent)
+          )
+            bad();
+          found.push({ type, body: at + header, end: at + length });
           at += length;
         }
         if (at !== end) bad();
+        return found;
       }
-      walk(0, size, 0);
-      if (!ftyp || !moov || !mdat || !track || !sample) bad();
+      function one(list: Box[], type: string) {
+        const matching = list.filter((box) => box.type === type);
+        if (matching.length !== 1) return bad();
+        return matching[0];
+      }
+      const versioned = (box: Box, v0: number, v1: number) => {
+        const v = read(box.body, 1)[0];
+        if (v > 1 || box.end - box.body < (v ? v1 : v0)) bad();
+        return v;
+      };
+      const table = (box: Box, stride: number) => {
+        if (box.end - box.body < 8 || read(box.body, 4).readUInt32BE() !== 0) bad();
+        const n = read(box.body + 4, 4).readUInt32BE();
+        if (box.end - box.body !== 8 + n * stride) bad();
+        return n;
+      };
+      const root = boxes(0, size, 'root'),
+        ftyp = one(root, 'ftyp'),
+        movie = one(root, 'moov');
+      if (
+        ftyp.end - ftyp.body < 8 ||
+        (ftyp.end - ftyp.body) % 4 ||
+        !/(?:isom|iso[2-9]|mp4[12]|avc1|M4V |dash)/.test(
+          read(ftyp.body, Math.min(ftyp.end - ftyp.body, 256)).toString('ascii'),
+        )
+      )
+        bad();
+      const payloads = root.filter((box) => box.type === 'mdat' && box.end > box.body);
+      if (!payloads.length) bad();
+      const movieBoxes = boxes(movie.body, movie.end, 'moov'),
+        header = one(movieBoxes, 'mvhd'),
+        version = versioned(header, 100, 112);
+      if (!read(header.body + (version ? 20 : 12), 4).readUInt32BE()) bad();
+      const tracks = movieBoxes.filter((box) => box.type === 'trak');
+      if (!tracks.length) bad();
+      let mediaTrack = false;
+      for (const track of tracks) {
+        const trackBoxes = boxes(track.body, track.end, 'trak'),
+          tkhd = one(trackBoxes, 'tkhd'),
+          tv = versioned(tkhd, 84, 96);
+        if (!read(tkhd.body + (tv ? 20 : 12), 4).readUInt32BE()) bad();
+        const media = one(trackBoxes, 'mdia'),
+          mediaBoxes = boxes(media.body, media.end, 'mdia'),
+          mdhd = one(mediaBoxes, 'mdhd'),
+          mv = versioned(mdhd, 24, 36);
+        if (!read(mdhd.body + (mv ? 20 : 12), 4).readUInt32BE()) bad();
+        const handler = one(mediaBoxes, 'hdlr');
+        if (handler.end - handler.body < 24 || read(handler.body, 4).readUInt32BE() !== 0) bad();
+        const kind = read(handler.body + 8, 4).toString('ascii'),
+          visual = kind === 'vide',
+          audio = kind === 'soun';
+        mediaTrack ||= visual || audio;
+        const minf = one(mediaBoxes, 'minf'),
+          mediaInfo = boxes(minf.body, minf.end, 'minf');
+        if (
+          (visual && one(mediaInfo, 'vmhd').end - one(mediaInfo, 'vmhd').body < 12) ||
+          (audio && one(mediaInfo, 'smhd').end - one(mediaInfo, 'smhd').body < 8)
+        )
+          bad();
+        const dinf = one(mediaInfo, 'dinf'),
+          dref = one(boxes(dinf.body, dinf.end, 'dinf'), 'dref');
+        if (dref.end - dref.body < 8 || read(dref.body, 4).readUInt32BE() !== 0) bad();
+        const references = boxes(dref.body + 8, dref.end, 'dref');
+        if (!references.length || references.length !== read(dref.body + 4, 4).readUInt32BE())
+          bad();
+        // External data references cannot establish a self-contained media attachment.
+        for (const ref of references)
+          if (
+            ref.type !== 'url ' ||
+            ref.end - ref.body !== 4 ||
+            read(ref.body, 4).readUInt32BE() !== 1
+          )
+            bad();
+        const stbl = one(mediaInfo, 'stbl'),
+          samples = boxes(stbl.body, stbl.end, 'stbl'),
+          stsd = one(samples, 'stsd');
+        if (stsd.end - stsd.body < 8 || read(stsd.body, 4).readUInt32BE() !== 0) bad();
+        const descriptions = boxes(stsd.body + 8, stsd.end, 'stsd');
+        if (!descriptions.length || descriptions.length !== read(stsd.body + 4, 4).readUInt32BE())
+          bad();
+        const videoCodecs: Record<string, string> = {
+          avc1: 'avcC',
+          avc2: 'avcC',
+          avc3: 'avcC',
+          avc4: 'avcC',
+          hvc1: 'hvcC',
+          hev1: 'hvcC',
+          mp4v: 'esds',
+          av01: 'av1C',
+          vp08: 'vpcC',
+          vp09: 'vpcC',
+        };
+        const audioCodecs: Record<string, string> = {
+          mp4a: 'esds',
+          Opus: 'dOps',
+          fLaC: 'dfLa',
+          'ac-3': 'dac3',
+          'ec-3': 'dec3',
+          alac: 'alac',
+        };
+        for (const entry of descriptions) {
+          if (entry.end - entry.body < 8) bad();
+          const base = read(entry.body, 8),
+            reference = base.readUInt16BE(6);
+          if (
+            base.subarray(0, 6).some((byte) => byte !== 0) ||
+            !reference ||
+            reference > references.length
+          )
+            bad();
+          if (visual) {
+            if (entry.end - entry.body < 78 || !videoCodecs[entry.type]) bad();
+            const h = read(entry.body, 78);
+            if (!h.readUInt16BE(24) || !h.readUInt16BE(26) || !h.readUInt16BE(40)) bad();
+            const config = one(
+              boxes(entry.body + 78, entry.end, 'visual-entry'),
+              videoCodecs[entry.type],
+            );
+            if (config.end - config.body < 4) bad();
+          } else if (audio) {
+            if (entry.end - entry.body < 28 || !audioCodecs[entry.type]) bad();
+            const h = read(entry.body, 28),
+              v = h.readUInt16BE(8);
+            if (v > 1 || !h.readUInt16BE(16) || !h.readUInt16BE(18) || !h.readUInt32BE(24)) bad();
+            const skip = v === 1 ? 44 : 28;
+            if (entry.end - entry.body < skip) bad();
+            const config = one(
+              boxes(entry.body + skip, entry.end, 'audio-entry'),
+              audioCodecs[entry.type],
+            );
+            if (config.end - config.body < 4) bad();
+          }
+        }
+        const timeCount = table(one(samples, 'stts'), 8),
+          chunkMapCount = table(one(samples, 'stsc'), 12);
+        const sizeBoxes = samples.filter((box) => box.type === 'stsz' || box.type === 'stz2');
+        if (sizeBoxes.length !== 1) bad();
+        const sizes = sizeBoxes[0];
+        if (sizes.end - sizes.body < 12 || read(sizes.body, 4).readUInt32BE() !== 0) bad();
+        const count = read(sizes.body + 8, 4).readUInt32BE();
+        if (sizes.type === 'stsz') {
+          const uniform = read(sizes.body + 4, 4).readUInt32BE();
+          if (sizes.end - sizes.body !== 12 + (uniform ? 0 : count * 4)) bad();
+        } else {
+          const bits = read(sizes.body + 7, 1)[0];
+          if (
+            ![4, 8, 16].includes(bits) ||
+            sizes.end - sizes.body !== 12 + Math.ceil((count * bits) / 8)
+          )
+            bad();
+        }
+        const offsets = samples.filter((box) => box.type === 'stco' || box.type === 'co64');
+        if (offsets.length !== 1) bad();
+        const offsetCount = table(offsets[0], offsets[0].type === 'co64' ? 8 : 4);
+        if (count && (!timeCount || !chunkMapCount || !offsetCount)) bad();
+        if (
+          !count &&
+          (!root.some((box) => box.type === 'moof') ||
+            !movieBoxes.some((box) => box.type === 'mvex'))
+        )
+          bad();
+      }
+      if (!mediaTrack) bad();
     } else if (mime === 'video/webm') {
       let doctype = false,
         tracks = false,

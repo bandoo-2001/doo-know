@@ -81,3 +81,53 @@ it('validates the 128 MiB media boundary using bounded structural reads', () => 
   }
   expect(() => inspectMediaFile(p, 'audio/wav')).toThrow(/配额/);
 });
+
+it('review regression: rejects forged MP4 with valid signatures but no movie/track/sample hierarchy', () => {
+  const box = (type: string, body: Buffer) => {
+    const head = Buffer.alloc(8);
+    head.writeUInt32BE(body.length + 8);
+    head.write(type, 4);
+    return Buffer.concat([head, body]);
+  };
+  const fake = Buffer.concat([
+    box('ftyp', Buffer.from('isom0000')),
+    box(
+      'moov',
+      Buffer.concat([
+        box('hdlr', Buffer.concat([Buffer.alloc(8), Buffer.from('vide')])),
+        box(
+          'stsd',
+          Buffer.concat([Buffer.from('0000000000000001', 'hex'), box('xxxx', Buffer.alloc(8))]),
+        ),
+      ]),
+    ),
+    box('mdat', Buffer.from('x')),
+  ]);
+  const path = join(root, 'bad.mp4');
+  writeFileSync(path, fake);
+  expect(() => inspectMediaFile(path, 'video/mp4')).toThrow();
+});
+
+it('retains a real H.264 video MP4 with an AAC audio track after hierarchy validation', () => {
+  const path = join(import.meta.dirname, 'fixtures/media/video.mp4');
+  expect(inspectMediaFile(path, 'video/mp4').sizeBytes).toBe(readFileSync(path).length);
+});
+
+it.each(['mvhd', 'trak', 'tkhd', 'mdia', 'mdhd', 'minf', 'stbl', 'stsd', 'avc1'])(
+  'rejects a real MP4 with required %s structure replaced',
+  (tag) => {
+    const bytes = Buffer.from(readFileSync(join(import.meta.dirname, 'fixtures/media/video.mp4'))),
+      offset = bytes.lastIndexOf(Buffer.from(tag));
+    expect(offset).toBeGreaterThan(0);
+    if (tag === 'trak') {
+      let at = bytes.indexOf(Buffer.from(tag));
+      while (at >= 0) {
+        bytes.write('xxxx', at);
+        at = bytes.indexOf(Buffer.from(tag), at + 4);
+      }
+    } else bytes.write('xxxx', offset);
+    const path = join(root, 'bad.mp4');
+    writeFileSync(path, bytes);
+    expect(() => inspectMediaFile(path, 'video/mp4')).toThrow();
+  },
+);

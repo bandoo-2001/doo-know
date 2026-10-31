@@ -1166,3 +1166,93 @@ it('streams a 24 MiB WAV upload with bounded Buffer allocations', async () => {
     b.mockRestore();
   }
 });
+
+it('review regression: remote failure diagnostics redact URL userinfo and inline data bytes', async () => {
+  const f = await fixture();
+  for (const [url, diagnostic] of [
+    ['https://user:pass@fixture.invalid/media.mp4', 'https://fixture.invalid/media.mp4'],
+    ['data:audio/wav;base64,c2VjcmV0LWJ5dGVz', 'data:audio/wav;base64,[inline bytes]'],
+  ]) {
+    const note = f.create(randomUUID() + '.md', `<video src="${url}"></video>`);
+    const error = await f.service
+      .create(webPrincipal, {
+        selection: { kind: 'single', noteId: note.id },
+        requestId: randomUUID(),
+      })
+      .catch((error) => error);
+    expect(error.code).toBe('PORTABLE_DEPENDENCY_UNAVAILABLE');
+    expect(error.details.diagnostics[0].resource).toBe(diagnostic);
+    expect(JSON.stringify(error.details)).not.toContain('user:pass');
+    expect(JSON.stringify(error.details)).not.toContain('c2VjcmV0LWJ5dGVz');
+  }
+});
+
+it('review regression: own-origin API asset autolinks cannot publish an archive retaining the application URL', async () => {
+  const f = await fixture();
+  await writeFile(join(f.config.knowledgeRoot, '00-Inbox/assets/auto.png'), png);
+  const asset = assetService(f.config, f.db, f.notes).register('00-Inbox/assets/auto.png');
+  const note = f.create('auto-api.md', `<http://localhost/api/assets/${asset.id}>\n`);
+  await expect(
+    f.service.create(webPrincipal, {
+      selection: { kind: 'single', noteId: note.id },
+      requestId: randomUUID(),
+    }),
+  ).rejects.toMatchObject({ code: 'PORTABLE_RESOURCE_UNSUPPORTED' });
+  expect(f.db.prepare('SELECT count(*) n FROM portable_deliveries').get()).toEqual({ n: 0 });
+});
+
+it('review regression: exact 128 MiB incompressible PCM roundtrips while its export remains retained within 512 MiB staging', async () => {
+  const f = await fixture(),
+    { open } = await import('node:fs/promises'),
+    { randomFillSync } = await import('node:crypto');
+  const size = 128 * 1024 * 1024,
+    path = join(f.config.knowledgeRoot, '00-Inbox/assets/limit.wav');
+  const header = Buffer.from(
+    await readFile(join(import.meta.dirname, 'fixtures/media/sample.wav')),
+  ).subarray(0, 44);
+  header.writeUInt32LE(size - 8, 4);
+  header.writeUInt32LE(size - 44, 40);
+  const fd = await open(path, 'wx'),
+    chunk = randomFillSync(Buffer.alloc(65536));
+  try {
+    await fd.write(header);
+    for (let at = 44; at < size; at += chunk.length)
+      await fd.write(chunk.subarray(0, Math.min(chunk.length, size - at)));
+  } finally {
+    await fd.close();
+  }
+  const note = f.create('limit-media.md', '[WAV](assets/limit.wav)\n'),
+    out = await f.service.create(webPrincipal, {
+      selection: { kind: 'single', noteId: note.id },
+      requestId: randomUUID(),
+    });
+  expect(out.sizeBytes).toBeGreaterThan(size);
+  const row = f.db.prepare('SELECT artifact FROM portable_deliveries WHERE id=?').get(out.id) as {
+    artifact: string;
+  };
+  let peak = 0;
+  const result = await f.service.importArchive(
+    webPrincipal,
+    { archivePath: row.artifact, folderPath: '10-Projects/large-copy', requestId: randomUUID() },
+    {
+      check: () => {
+        const active = (
+          f.db.prepare('SELECT coalesce(sum(bytes),0) n FROM portable_staging_runs').get() as {
+            n: number;
+          }
+        ).n;
+        const retained = (
+          f.db.prepare('SELECT coalesce(sum(bytes),0) n FROM portable_deliveries').get() as {
+            n: number;
+          }
+        ).n;
+        peak = Math.max(peak, active + retained);
+        return webPrincipal;
+      },
+    },
+  );
+  expect(result.assets).toBe(1);
+  expect(result.notes).toHaveLength(1);
+  expect(peak).toBeLessThanOrEqual(512 * 1024 * 1024);
+  expect(f.db.prepare('SELECT count(*) n FROM portable_staging_runs').get()).toEqual({ n: 0 });
+}, 60000);

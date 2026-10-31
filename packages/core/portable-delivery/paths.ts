@@ -126,6 +126,16 @@ export function unresolvedInternalNavigation(markdown: string, origin: string): 
       if (token.type === 'link_open') {
         const url = String(token.attrGet('href') || '');
         if (internalNoteNavigation(url, origin)) return url;
+        try {
+          const asset = new URL(url, origin);
+          if (
+            asset.origin === new URL(origin).origin &&
+            /^\/api\/assets\/[A-Za-z0-9-]+$/.test(asset.pathname)
+          )
+            return url;
+        } catch {
+          /* Invalid links grant no app resource capability. */
+        }
       }
       if (token.children) {
         const url = visit(token.children);
