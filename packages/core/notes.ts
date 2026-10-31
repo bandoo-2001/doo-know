@@ -1,9 +1,9 @@
+import { documentMetadataReader } from './knowledge/document-metadata.js';
 import {
   publishedNoteSource,
   readPublishedMarkdown,
   readableSourceVersion,
 } from './knowledge/published-note-source.js';
-import type { DocumentType } from '../../shared/diagram-resource.js';
 import {
   documentTitle,
   documentType,
@@ -51,6 +51,7 @@ export interface NoteRow {
   trash_path: string | null;
 }
 export function noteService(config: AppConfig, db: AppDatabase) {
+  const readMetadata = documentMetadataReader();
   const library = portableLibrary(config, db);
   const mutations = mutationCore(config, db);
   function scan() {
@@ -227,22 +228,20 @@ export function noteService(config: AppConfig, db: AppDatabase) {
     }));
     for (const n of db
       .prepare(
-        'SELECT n.*,s.document_type FROM notes n LEFT JOIN document_state s ON s.note_id=n.id WHERE n.active=1',
+        'SELECT * FROM notes WHERE active=1',
       )
-      .all() as (NoteRow & { document_type?: DocumentType })[])
+      .all() as NoteRow[]) {
+      const metadata = readMetadata(publishedNoteSource(config, db, n.id, n.path).file, n.path);
       all.push({
         id: n.id,
         path: n.path,
         name: basename(n.path),
         type: 'note',
-        ...(isWhiteboard(n.path)
-          ? { documentType: 'whiteboard' as const }
-          : n.document_type && n.document_type !== 'markdown'
-            ? { documentType: n.document_type }
-            : {}),
+        ...(metadata.documentType !== 'markdown' ? { documentType: metadata.documentType } : {}),
         updatedAt: modificationTime(n.path, 'note'),
         ...(ownerId ? { favorite: favorites.has(n.id) } : {}),
       });
+    }
     const map = new Map(all.map((e) => [e.path, e])),
       roots: TreeEntry[] = [];
     for (const e of all) {
@@ -357,6 +356,10 @@ export function noteService(config: AppConfig, db: AppDatabase) {
     return n;
   };
   return {
+    documentMetadata: (id: string) => {
+      const n = row(id);
+      return readMetadata(publishedNoteSource(config, db, id, n.path).file, n.path);
+    },
     readableVersion: (id: string) => {
       const n = row(id);
       return readableSourceVersion(db, publishedNoteSource(config, db, id, n.path));

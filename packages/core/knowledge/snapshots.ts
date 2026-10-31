@@ -1,3 +1,4 @@
+import { documentMetadataReader } from './document-metadata.js';
 import { currentPrincipalPolicy } from '../agent/config.js';
 import { assertSharePrincipal, isSharePrincipal } from '../share-policy.js';
 import { mkdir, open, stat, unlink } from 'node:fs/promises';
@@ -38,6 +39,7 @@ export interface SnapshotRow {
   source_revision: number | null;
 }
 export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteService) {
+  const readMetadata = documentMetadataReader();
   let tail = Promise.resolve();
   let closing = false;
   const operation = (id: string): FileOperation => {
@@ -248,6 +250,8 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
       const sourceHash = hash.digest('hex');
       if(expectedHash && sourceHash!==expectedHash) fail(409,'DIAGRAM_PUBLISHED_VERSION_UNAVAILABLE');
       authorizedFile(p, id);
+      const metadata = readMetadata(destination, n.path);
+      if (metadata.title !== undefined) title = [...metadata.title].slice(0, 256).join('');
       db.transaction(() => {
         const active = db
           .prepare('SELECT status,lease_epoch FROM file_operations WHERE id=?')
@@ -262,9 +266,10 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
           db.prepare(
             'UPDATE read_snapshots SET source_revision=(SELECT source_revision FROM document_state WHERE note_id=?) WHERE id=?',
           ).run(n.id, snapshotId);
-          db.prepare('UPDATE document_state SET longest_line_bytes=?,title=? WHERE note_id=?').run(
+          db.prepare('UPDATE document_state SET longest_line_bytes=?,title=?,document_type=? WHERE note_id=?').run(
             longest,
             title,
+            metadata.documentType,
             n.id,
           );
         }

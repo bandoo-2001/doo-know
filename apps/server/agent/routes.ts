@@ -44,10 +44,11 @@ export function metadataService(config: AppConfig, db: AppDatabase, notes: NoteS
     const state = db.prepare('SELECT * FROM document_state WHERE note_id=?').get(id) as any;
     const known = state?.mtime_ns === modifiedAt && state?.size_bytes === Number(s.size);
     const ready = known && state?.longest_line_bytes != null;
+    const metadata = notes.documentMetadata(id);
     return {
       id,
-      ...(isWhiteboard(row.path) ? {documentType: 'whiteboard' as const} : known && ['whiteboard','mindmap','flowchart'].includes(state.document_type)?{documentType:state.document_type}:{}),
-      title: [...(ready && state.title ? state.title : documentTitle(row.path))]
+      ...(metadata.documentType !== 'markdown' ? { documentType: metadata.documentType } : {}),
+      title: [...(metadata.title ?? (ready && state.title ? state.title : documentTitle(row.path)))]
         .slice(0, 256)
         .join(''),
       relativePath: row.path,
