@@ -17,7 +17,16 @@ export type DiagramDraftEnvelope = {
   baselineSourceHash?: string | null;
   intentId?: string;
   payload: string;
-  pending?: { requestId: string; preparedId?: string; markdown?: string };
+  documentMarkdown?: string;
+  title?: string;
+  pending?: {
+    requestId: string;
+    preparedId?: string;
+    markdown?: string;
+    source?: string;
+    title?: string;
+    inputMarkdown?: string;
+  };
 };
 export type DraftInput = {
   noteId: string;
@@ -77,6 +86,8 @@ export function validDiagramDraftEnvelope(
     !formats[draft.documentType]?.includes(draft.payloadFormat) ||
     typeof draft.payload !== 'string' ||
     draft.payload !== content ||
+    (draft.documentMarkdown !== undefined && typeof draft.documentMarkdown !== 'string') ||
+    (draft.title !== undefined && typeof draft.title !== 'string') ||
     !hash(draft.documentHash) ||
     !hash(draft.sourceHash) ||
     (draft.baselineSourceHash !== undefined && !hash(draft.baselineSourceHash)) ||
@@ -92,7 +103,10 @@ export function validDiagramDraftEnvelope(
       !!pending.requestId &&
       (pending.preparedId === undefined ||
         (typeof pending.preparedId === 'string' && !!pending.preparedId)) &&
-      (pending.markdown === undefined || typeof pending.markdown === 'string'))
+      (pending.markdown === undefined || typeof pending.markdown === 'string') &&
+      ['source', 'title', 'inputMarkdown'].every(
+        (key) => (pending as any)[key] === undefined || typeof (pending as any)[key] === 'string',
+      ))
   );
 }
 /** A JSON canvas draft must never be handed to the ordinary Markdown restore callback. */

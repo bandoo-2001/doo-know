@@ -145,3 +145,10 @@ test('captures the invocation snapshot even if the caller edits the tree while f
 }) => {
   expect(await page.evaluate(() => window.diagramAdapter.snapshotConsistency())).toBe(true);
 });
+test('rejects native styling rather than silently losing it in Markdown',async({page})=>{
+ const message=await page.evaluate(()=>{window.diagramAdapter.setRootStyle();try{window.diagramAdapter.tree();return '';}catch(e){return (e as Error).message;}});
+ expect(message).toContain('样式');
+});
+test('root text edits remain representable in the supported Markdown subset',async({page})=>{
+ await page.locator('me-root me-tpc').click();await page.keyboard.press('F2');await page.locator('#input-box').fill('已编辑根');await page.keyboard.press('Enter');expect(await page.evaluate(()=>window.diagramAdapter.tree().topic)).toBe('已编辑根');
+});

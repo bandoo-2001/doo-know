@@ -2,6 +2,8 @@
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
 import DOMPurify from 'dompurify';
 import { api } from '../api';
+import type {DiagramResource} from '../../../shared/diagram-resource';
+import {markdownDestination} from '../markdown-links';
 import Icon from './Icon.vue';
 import { parseWhiteboard, whiteboardId, whiteboardReference } from '../../../shared/whiteboard';
 import { validateSvgSource } from '../../../shared/svg-policy';
@@ -36,7 +38,8 @@ const svg = ref(''),
   title = ref('白板'),
   sourceVisible = ref(false),
   expanded = ref(false);
-const canEdit = computed(() => !props.readOnly && !props.shareToken);
+const resourceEdit=ref(true),sourceAllowed=ref(true),resourceIssue=ref('');
+const canEdit = computed(() => !props.readOnly && !props.shareToken && resourceEdit.value);
 const canGenerate = computed(() => canEdit.value && props.editable === true);
 const boardSource = ref('');
 const stalePreview = ref(false);
@@ -62,6 +65,7 @@ async function load() {
   portableError.value = '';
   boardId = '';
   boardSource.value = '';
+  resourceEdit.value=true;sourceAllowed.value=true;resourceIssue.value='';
   stalePreview.value = false;
   renderedSvg = '';
   svg.value = '';
@@ -110,14 +114,28 @@ async function load() {
         let url: string;
         if (shareToken)
           url = `/api/public/shares/${encodeURIComponent(shareToken)}/whiteboards/${encodeURIComponent(reference)}`;
-        else if (whiteboardId(reference)) url = '/api/notes/' + encodeURIComponent(reference);
+        else if (whiteboardId(reference)) url = '/api/notes/' + encodeURIComponent(reference)+'/diagram';
         else if (noteId)
           url = `/api/notes/${encodeURIComponent(noteId)}/whiteboards/resolve?source=${encodeURIComponent(reference)}`;
         else throw Error('请从原笔记打开此白板引用');
-        const board = await api(url);
-        text = board.content;
-        resolvedId = board.id;
-        boardTitle = board.title;
+        const board = await api<DiagramResource>(url);
+        if(!current())return;
+        text = board.source.content;
+        resolvedId = board.noteId;
+        boardTitle = board.title||'';
+        resourceEdit.value=board.capabilities.canEdit;
+        sourceAllowed.value=board.capabilities.canDownloadSource;if(!sourceAllowed.value)sourceVisible.value=false;
+        if(!board.capabilities.canEdit)resourceIssue.value='图形原件不可编辑，显示最后完整预览。'+(board.issues?.map(i=>i.code).join('，')||'');
+        if(text===undefined||!board.capabilities.canEdit){
+          boardSource.value=text||'';
+          if(board.preview){
+            if(shareToken)svgImage.value=`/api/public/shares/${encodeURIComponent(shareToken)}/asset?source=${encodeURIComponent(board.preview.path)}`;
+            else{const [main,assets]=await Promise.all([api('/api/notes/'+board.noteId),api<any[]>('/api/notes/'+board.noteId+'/assets')]);if(!current())return;const target=markdownDestination(board.preview.path,main.relativePath);const asset=assets.find(a=>a.relativePath===(target?.kind==='local'?target.path:board.preview!.path));if(asset)svgImage.value='/api/assets/'+asset.id;}
+          }
+          if(!current())return;boardId=resolvedId;title.value=boardTitle||'白板';
+          if(!svgImage.value)throw Error('图形源不可用，未创建空白画布');
+          return;
+        }
       }
       const scene = parseWhiteboard(text!);
       source = text!;
@@ -282,7 +300,7 @@ onBeforeUnmount(() => {
           <button type="button" :aria-pressed="!sourceVisible" @click="sourceVisible = false">
             预览
           </button>
-          <button type="button" :aria-pressed="sourceVisible" @click="sourceVisible = true">
+          <button v-if="sourceAllowed" type="button" :aria-pressed="sourceVisible" @click="sourceVisible = true">
             源码
           </button>
         </div>
@@ -308,6 +326,7 @@ onBeforeUnmount(() => {
         </button>
       </div>
     </figcaption>
+    <div v-if="resourceIssue" class="diagram-feedback" role="status">{{resourceIssue}}</div>
     <div v-if="portableError" class="diagram-feedback" role="alert">{{ portableError }}</div>
     <div v-if="stalePreview" class="diagram-stale-preview" role="status">源码已更新，通用预览仍是旧版本。保存时可重新生成预览。</div>
     <div v-if="sourceVisible" class="diagram-source-panel">

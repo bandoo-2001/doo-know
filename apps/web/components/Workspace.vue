@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import '../whiteboards/whiteboards.css';
+import {createPrimaryDocument,pendingCreation,cancelCreation,type PendingCreation} from '../diagrams/primary-creation';
 import {diagramFences} from '../../../shared/diagram-fences';
 import {createEditorSnippet, type EditorSnippet} from '../../../shared/editor-snippets';
 import {findDiagramRange,withDiagramPreview} from '../editor/diagram-edits';
@@ -143,6 +144,12 @@ async function finishDiagramSave(generate:boolean){
     if(currentView(target.id,target.epoch))diagramSaveError.value=cause instanceof Error?cause.message:String(cause);
   }finally{diagramSaveBusy.value=false;}
 }
+const DiagramDocumentWorkspace=defineAsyncComponent(()=>import('./DiagramDocumentWorkspace.vue'));
+const diagramRef=ref<InstanceType<typeof DiagramDocumentWorkspace>>();
+const embeddedPrimaryId=ref<string>();
+const embeddedPrimaryRef=ref<InstanceType<typeof DiagramDocumentWorkspace>>();
+const primaryDiagram=computed(()=>note.value?.documentType&&note.value.documentType!=='markdown'&&!isWhiteboard(note.value.relativePath));
+const unfinishedCreation=ref<PendingCreation>();
 const WhiteboardWorkspace=defineAsyncComponent(()=>import('./WhiteboardWorkspace.vue'));
 const embeddedBoardRef=ref<InstanceType<typeof WhiteboardWorkspace>>();
 const boardRef=ref<InstanceType<typeof WhiteboardWorkspace>>(), boardDirty=ref(false), embeddedBoardId=ref<string>(),
@@ -479,8 +486,8 @@ async function treeAction(entry: TreeEntry, action: TreeAction) {
     } else if (action === 'copy') {
       await navigator.clipboard.writeText(entry.path);
       tell('路径已复制');
-    } else if (action === 'new-note' || action === 'new-folder' || action === 'new-whiteboard') {
-      create(action === 'new-whiteboard'?'whiteboard':action === 'new-note' ? 'note' : 'folder', entry.path);
+    } else if (action === 'new-note' || action === 'new-folder' || action === 'new-whiteboard' || action === 'new-mindmap' || action === 'new-flowchart') {
+      create(action === 'new-whiteboard'?'whiteboard':action === 'new-mindmap'?'mindmap':action === 'new-flowchart'?'flowchart':action === 'new-note' ? 'note' : 'folder', entry.path);
     } else if (action === 'import') {
       importFolder.value = entry.path;
       importOpen.value = true;
@@ -607,7 +614,7 @@ const localDrafts = useNoteDraft(
     baseRevision: currentDraftBase(),
     content: draft.value,
     dirty: dirty.value,
-    enabled: noteInfo.value?.editorMode === 'full' && !isWhiteboard(note.value?.relativePath||'') && !editorComposing.value,
+    enabled: noteInfo.value?.editorMode === 'full' && !isWhiteboard(note.value?.relativePath||'') && !primaryDiagram.value && !editorComposing.value,
   }),
   (text) => {
     draft.value = text;
@@ -655,8 +662,8 @@ async function browseRoot() {
   );
 }
 const navigation = createWorkspaceNavigation({
-  dirty: () => historyWriteLocked.value || dirty.value || !!embeddedBoardId.value || !!appsRef.value?.hasUnsavedChanges(),
-  canPreserveDraft: (route) => !historyWriteLocked.value && !embeddedBoardId.value && (
+  dirty: () => historyWriteLocked.value || dirty.value || !!embeddedPrimaryId.value || !!embeddedBoardId.value || !!appsRef.value?.hasUnsavedChanges(),
+  canPreserveDraft: (route) => !historyWriteLocked.value && !embeddedPrimaryId.value && !embeddedBoardId.value && (
     (route.view === 'apps' && route.app === 'to-doo' && panel.value === 'apps' && appsApp.value === 'to-doo') ||
     (!appsRef.value?.hasUnsavedChanges() && (!!route.view || (!!route.note && note.value?.id === route.note)))),
   guard,
@@ -921,21 +928,19 @@ async function newBoard(content=JSON.stringify(emptyWhiteboard())){
     await refresh();
   }
   const stem=[...(note.value?.title||'未命名').replace(/[\u0000-\u001f/\\:]/g,' ').trim()].slice(0,35).join('')+'白板';
-  const paths=new Set(flat.value.map(item=>item.path));
-  let count=1;
-  while(paths.has(parent+'/'+stem+(count===1?'':' ('+count+')')+'.excalidraw'))count++;
-  const created=await api<NoteDocument>('/api/notes','POST',{folderPath:parent,
-    fileName:stem+(count===1?'':' ('+count+')')+'.excalidraw',content,requestId:crypto.randomUUID()});
+  const paths=new Set(flat.value.map(item=>item.path));let count=1;
+  while(paths.has(parent+'/'+stem+(count===1?'':' ('+count+')')+'.md'))count++;
+  const created=await createPrimaryDocument(draftScope.value!,{path:parent+'/'+stem+(count===1?'':' ('+count+')')+'.md',type:'whiteboard',title:stem,requestId:crypto.randomUUID(),source:content});
   await refresh();return created;
 }
 async function createInlineBoard(){
   if(boardCreating.value)return;boardCreating.value=true;
-  try{const created=await newBoard();insertBoard(created.id);if(!boardPickerOpen.value)embeddedBoardId.value=created.id;}
+  try{const created=await newBoard();insertBoard(created.id);if(!boardPickerOpen.value)embeddedPrimaryId.value=created.id;}
   catch(cause){showError(cause);}finally{boardCreating.value=false;}
 }
 async function openDiagramEvent(event:Event){
   const detail=(event as CustomEvent).detail,originId=note.value?.id,originEpoch=viewEpoch;
-  if(embeddedBoardId.value||boardCreating.value)return;
+  if(embeddedPrimaryId.value||embeddedBoardId.value||boardCreating.value)return;
   try{
     await editorRef.value?.flush();
     if(detail?.mermaid){
@@ -943,9 +948,9 @@ async function openDiagramEvent(event:Event){
       const scene=await (await import('../whiteboards/canvas')).mermaidScene(detail.mermaid);
       if(note.value?.id!==originId||viewEpoch!==originEpoch)return;
       const created=await newBoard(JSON.stringify(scene));
-      if(note.value?.id===originId&&viewEpoch===originEpoch)embeddedBoardId.value=created.id;
+      if(note.value?.id===originId&&viewEpoch===originEpoch)embeddedPrimaryId.value=created.id;
       notice.value='';
-    }else if(typeof detail?.id==='string'&&whiteboardId(detail.id))embeddedBoardId.value=detail.id;
+    }else if(typeof detail?.id==='string'&&whiteboardId(detail.id)){const target=await api<NoteDocument>('/api/notes/'+detail.id);if(note.value?.id!==originId||viewEpoch!==originEpoch)return;if(target.documentType==='whiteboard'&&!isWhiteboard(target.relativePath)&&note.value?.id===target.id)return;if(target.documentType==='whiteboard'&&!isWhiteboard(target.relativePath))embeddedPrimaryId.value=detail.id;else embeddedBoardId.value=detail.id;}
   }catch(cause){showError(cause);}finally{boardCreating.value=false;}
 }
 const portableBusy=ref(false);
@@ -1124,7 +1129,7 @@ async function openNote(id: string, location?: number | { line: number; query: s
         tell('原文已更新，当前未保存草稿会保留，请重新核对版本');
         return;
       }
-      if (meta.editorMode === 'full' && !isWhiteboard(meta.relativePath)) localDrafts.prepare();
+      if (meta.editorMode === 'full' && !isWhiteboard(meta.relativePath) && (!meta.documentType||meta.documentType==='markdown')) localDrafts.prepare();
       // Keep the current editor and its undo history while a different note is loading.
       editorGeneration.value = epoch;
       note.value = n;
@@ -1146,7 +1151,7 @@ async function openNote(id: string, location?: number | { line: number; query: s
       if (useDefaultMode) mode.value = linkedMode ?? editorPreferences.mode;
       noteLine.value = line;
       if (syncUrl) navigation.commit({ note: id, line, fragment });
-      if (meta.editorMode === 'full' && !isWhiteboard(meta.relativePath)) await localDrafts.load(id, currentDraftBase(), n.content);
+      if (meta.editorMode === 'full' && !isWhiteboard(meta.relativePath) && (!meta.documentType||meta.documentType==='markdown')) await localDrafts.load(id, currentDraftBase(), n.content);
       if (epoch !== viewEpoch || !currentIntent(intent)) return;
       // A mounted read-only editor can accept a model selection but cannot
       // establish DOM focus. Apply its editable state before revealing a target.
@@ -1190,6 +1195,7 @@ let pendingNavigation: (() => Promise<void>) | undefined;
 async function guard(fn: () => Promise<void>, intent = navigationIntent) {
   if (historyWriteLocked.value) return;
   if (panel.value === 'apps' && !await confirmAppLeave(intent)) return;
+  if(embeddedPrimaryId.value){await embeddedPrimaryRef.value?.requestClose();return;}
   if(embeddedBoardId.value){await embeddedBoardRef.value?.requestClose();return;}
   if(noteInfo.value?.editorMode === 'full') {try {await editorRef.value?.flush();}catch(cause){showError(cause);if(!dirty.value)return;}}
   if (!currentIntent(intent)) return;
@@ -1213,6 +1219,7 @@ async function leave(action: 'save' | 'discard' | 'cancel') {
       await localDrafts.discard();
       await largeRef.value?.discard();
       await boardRef.value?.discard();
+      await diagramRef.value?.discard();
     } catch (cause) {
       showError(cause);
       return;
@@ -1369,6 +1376,7 @@ async function performSave(
   retry?: NonNullable<typeof pendingSave.value>,
 ) {
   if (!note.value || (busy.value && !retry) || (!retry&&content===undefined&&diagramSaveBusy.value) || props.serviceUnavailable) return;
+  if(primaryDiagram.value&&!revisionId){await diagramRef.value?.save();return;}
   if (isWhiteboard(note.value.relativePath) && !revisionId) { await boardRef.value?.save(); return; }
   if(!retry && content === undefined && noteInfo.value?.editorMode === 'full'){
     const targetId=note.value.id,targetEpoch=viewEpoch;
@@ -1583,7 +1591,7 @@ async function shareAction(action: 'create' | 'reset' | 'revoke', options?: Shar
 const createBusy = ref(false),
   inboxBusy = ref(false);
 const createOpen = ref(false),
-  createKind = ref<'note' | 'folder' | 'whiteboard'>('note'),
+  createKind = ref<'note' | 'folder' | 'whiteboard' | 'mindmap' | 'flowchart'>('note'),
   newName = ref(''),
   newFolder = ref('');
 const rootFolderPurposes = [
@@ -1601,7 +1609,7 @@ const inboxAvailable = computed(() =>
 );
 const rootNoteNeedsFolder = computed(
   () =>
-    !newFolder.value && (createKind.value === 'whiteboard' ||
+    !newFolder.value && (['whiteboard','mindmap','flowchart'].includes(createKind.value) ||
     (createKind.value === 'note' && (newName.value.endsWith('.md') ? newName.value : newName.value + '.md') !== 'README.md')),
 );
 const rootFolderNeedsPurpose = computed(
@@ -1611,9 +1619,10 @@ const rootFolderNeedsPurpose = computed(
     !rootFolderPurposes.some((purpose) => purpose.value === newName.value),
 );
 let createRequestId = crypto.randomUUID();
-function create(kind: 'note' | 'folder' | 'whiteboard', parent?: string, intent = navigationIntent) {
+function create(kind: 'note' | 'folder' | 'whiteboard' | 'mindmap' | 'flowchart', parent?: string, intent = navigationIntent) {
   if (!currentIntent(intent) || !treeLoaded.value || !draftIdentityReady.value) return;
   dialogError.value = '';
+  if(draftScope.value)unfinishedCreation.value=pendingCreation(draftScope.value);
   createRequestId = crypto.randomUUID();
   createKind.value = kind;
   newFolder.value =
@@ -1622,6 +1631,8 @@ function create(kind: 'note' | 'folder' | 'whiteboard', parent?: string, intent 
   newName.value = kind === 'note' && !newFolder.value ? 'README.md' : '';
   createOpen.value = true;
 }
+async function resumeCreation(){if(!draftScope.value||!unfinishedCreation.value||createBusy.value)return;createBusy.value=true;try{const n=await createPrimaryDocument(draftScope.value,unfinishedCreation.value);createOpen.value=false;unfinishedCreation.value=undefined;await refresh();await openNote(n.id);}catch(e){showError(e);}finally{createBusy.value=false;}}
+async function cancelUnfinishedCreation(){if(!draftScope.value)return;try{await cancelCreation(draftScope.value);unfinishedCreation.value=undefined;}catch(e){showError(e);}}
 async function prepareInbox() {
   if (inboxBusy.value || createBusy.value || quickBusy.value) return;
   inboxBusy.value = true;
@@ -1665,18 +1676,19 @@ async function submitCreate() {
         tell('文件夹已创建');
       } else {
         await guard(async () => {
-          const name = createKind.value === 'whiteboard' ? (/\.excalidraw$/i.test(newName.value)?newName.value:newName.value+'.excalidraw') : newName.value.endsWith('.md') ? newName.value : newName.value + '.md';
+          const name = newName.value.endsWith('.md') ? newName.value : newName.value + '.md';
           const epoch = viewEpoch;
           let n: NoteDocument;
           try {
-            n = await api<NoteDocument>('/api/notes', 'POST', {
+            n = createKind.value !== 'note' ? await createPrimaryDocument(draftScope.value!,{path:(newFolder.value?newFolder.value+'/':'')+name,type:createKind.value as 'whiteboard'|'mindmap'|'flowchart',title:newName.value.replace(/\.md$/,''),requestId:createRequestId}) : await api<NoteDocument>('/api/notes', 'POST', {
               folderPath: newFolder.value,
               fileName: name,
-              content: createKind.value === 'whiteboard' ? JSON.stringify(emptyWhiteboard()) : `# ${newName.value.replace(/\.md$/, '')}\n\n`,
+              content: `# ${newName.value.replace(/\.md$/, '')}\n\n`,
               requestId: createRequestId,
             });
           } catch (e) {
-            if (e instanceof ApiError && e.status >= 400 && e.status < 500)
+            if(draftScope.value)unfinishedCreation.value=pendingCreation(draftScope.value);
+            if (createKind.value==='note' && e instanceof ApiError && e.status >= 400 && e.status < 500)
               createRequestId = crypto.randomUUID();
             throw e;
           }
@@ -2081,6 +2093,7 @@ async function imported(value: { id: string; relativePath: string }) {
   await run(refresh);
   tell('Markdown 已导入，可在目录中打开');
 }
+async function exportPortableNote(){if(!note.value||downloading.value)return;const id=note.value.id;downloading.value=true;try{await (await import('../diagrams/portable-download')).downloadPortableDocument(id);tell('便携文件已导出');}catch(e){showError(e);}finally{downloading.value=false;}}
 async function downloadNote(
   target: Pick<NoteDocument, 'id' | 'relativePath'> | undefined = note.value,
 ) {
@@ -2723,6 +2736,8 @@ onBeforeUnmount(() => {
                     <Icon name="file" />新建笔记
                   </button>
                   <button :disabled="!treeLoaded" @click="createMenuOpen=false;create('whiteboard')"><Icon name="whiteboard"/>新建白板</button>
+                  <button :disabled="!treeLoaded" @click="createMenuOpen=false;create('mindmap')"><Icon name="graph"/>新建脑图</button>
+                  <button :disabled="!treeLoaded" @click="createMenuOpen=false;create('flowchart')"><Icon name="code"/>新建流程图</button>
                   <button
                     :disabled="!treeLoaded"
                     @click="
@@ -2991,7 +3006,8 @@ onBeforeUnmount(() => {
       </div>
       <CollectionWorkspace v-if="panel === 'collection' && collection !== 'notes'" :kind="collection" :feed="collectionFeed" :favorite-busy="favoriteBusy" :menu-path="treeMenuPath" @select="select" @menu="showTreeMenu" @favorite="favoriteCard" @create="createFromCollection" />
       <WhiteboardWorkspace v-if="note && isWhiteboard(note.relativePath)" v-show="panel==='note'" ref="boardRef" :key="note.id" :board-id="note.id" :draft-scope="draftScope" @dirty="boardDirty=$event" @saved="onBoardSaved" @close="select({type:'folder',name:folder,path:folder})"/>
-      <section v-if="note && !isWhiteboard(note.relativePath)" v-show="panel === 'note'" class="note-workspace">
+      <DiagramDocumentWorkspace v-if="note && primaryDiagram" v-show="panel==='note'" ref="diagramRef" :key="'primary-'+note.id" :note-id="note.id" :draft-scope="draftScope" @dirty="boardDirty=$event" @saved="onBoardSaved" @close="select({type:'folder',name:folder,path:folder})"/>
+      <section v-if="note && !primaryDiagram && !isWhiteboard(note.relativePath)" v-show="panel === 'note'" class="note-workspace">
         <header class="note-header">
           <div class="note-topline">
             <div class="document-navigation">
@@ -3119,6 +3135,7 @@ onBeforeUnmount(() => {
                 :uploading="uploadBusy || uploadPreparing"
                 @move="showMove"
                 @download="downloadNote"
+                @portable="exportPortableNote"
                 @history="history()"
                 @upload="prepareUpload"
               @search="editorRef?.openSearch()"
@@ -3401,12 +3418,12 @@ onBeforeUnmount(() => {
             >
               <td>
                 <button type="button" class="folder-entry-open" @click="select(entry)">
-                  <Icon :name="entry.type === 'folder' ? 'folder' : isWhiteboard(entry.path)?'whiteboard':'file'" :size="23" /><span>{{
+                  <Icon :name="entry.type === 'folder' ? 'folder' : entry.documentType==='mindmap'?'graph':entry.documentType==='flowchart'?'code':entry.documentType==='whiteboard'||isWhiteboard(entry.path)?'whiteboard':'file'" :size="23" /><span>{{
                     entry.name
                   }}</span>
                 </button>
               </td>
-              <td>{{ entry.type === 'folder' ? '文件夹' : isWhiteboard(entry.path)?'白板':'Markdown' }}</td>
+              <td>{{ entry.type === 'folder' ? '文件夹' : entry.documentType==='mindmap'?'脑图':entry.documentType==='flowchart'?'流程图':entry.documentType==='whiteboard'||isWhiteboard(entry.path)?'白板':'Markdown' }}</td>
               <td :title="entry.path">
                 {{
                   entry.updatedAt
@@ -3590,8 +3607,8 @@ onBeforeUnmount(() => {
       v-model:show="createOpen"
       preset="card"
       class="dialog-card"
-      :title="createKind === 'whiteboard' ? '新建白板' : createKind === 'note' ? '新建笔记' : '新建文件夹'"
-      :aria-label="createKind === 'whiteboard' ? '新建白板' : createKind === 'note' ? '新建笔记' : '新建文件夹'"
+      :title="createKind === 'whiteboard' ? '新建白板' : createKind === 'mindmap' ? '新建脑图' : createKind === 'flowchart' ? '新建流程图' : createKind === 'note' ? '新建笔记' : '新建文件夹'"
+      :aria-label="createKind === 'whiteboard' ? '新建白板' : createKind === 'mindmap' ? '新建脑图' : createKind === 'flowchart' ? '新建流程图' : createKind === 'note' ? '新建笔记' : '新建文件夹'"
       :mask-closable="!createBusy && !inboxBusy"
       :close-on-esc="!createBusy && !inboxBusy"
       :closable="!createBusy && !inboxBusy"
@@ -3636,13 +3653,14 @@ onBeforeUnmount(() => {
           :aria-label="createKind !== 'folder' ? '文件名' : '文件夹名'"
           :placeholder="
             createKind !== 'folder'
-              ? (createKind === 'whiteboard'?'例如：系统架构.excalidraw':'例如：新的想法.md')
+              ? '例如：新的想法.md'
               : !newFolder
                 ? '选择上方用途后自动填写'
                 : '例如：读书笔记'
           "
         />
-        <p v-if="createKind==='whiteboard'" class="muted">创建后保存为 .excalidraw 白板文件，默认私有。</p>
+        <p v-if="['whiteboard','mindmap','flowchart'].includes(createKind)" class="muted">源与 PNG 预览完整保存后创建 Markdown 图形文档，默认私有。</p>
+        <div v-if="unfinishedCreation" role="status">未完成的图形：{{unfinishedCreation.path}} <button @click="resumeCreation">恢复未完成图形</button><button @click="cancelUnfinishedCreation">取消未完成图形</button></div>
         <p v-else class="muted">
           {{
             !newFolder
@@ -3754,9 +3772,10 @@ onBeforeUnmount(() => {
       :save-pending="!!pendingSave" :save-pending-restore="!!pendingSave?.revisionId"
       :baseline-stale="staleHistoryBase?.noteId === note.id && staleHistoryBase?.modifiedAt === note.modifiedAt"
       @check-save="run(async () => { await checkSave(); })" @restore="restoreRevision" />
+    <DiagramDocumentWorkspace ref="embeddedPrimaryRef" v-if="embeddedPrimaryId" :key="'embedded-primary-'+embeddedPrimaryId" :note-id="embeddedPrimaryId" embedded :draft-scope="draftScope" @close="embeddedPrimaryId=undefined"/>
     <WhiteboardWorkspace ref="embeddedBoardRef" v-if="embeddedBoardId" :key="'embedded-'+embeddedBoardId" :board-id="embeddedBoardId" embedded :draft-scope="draftScope" @close="embeddedBoardId=undefined"/>
     <SettingsOverlay v-model:show="boardPickerOpen" title="插入白板" description="引用已有白板，或创建一块新的画布。" icon="whiteboard" :busy="boardCreating" :width="560">
-      <div class="whiteboard-picker"><button v-for="board in flat.filter(item=>isWhiteboard(item.path))" :key="board.id" type="button" @click="insertBoard(board.id!)"><Icon name="whiteboard" :size="18"/><span>{{board.name}}<small>{{board.path}}</small></span><Icon name="chevron" :size="15"/></button><p v-if="!flat.some(item=>isWhiteboard(item.path))" class="muted">还没有白板，可以先创建一个。</p></div>
+      <div class="whiteboard-picker"><button v-for="board in flat.filter(item=>item.documentType==='whiteboard'||isWhiteboard(item.path))" :key="board.id" type="button" @click="insertBoard(board.id!)"><Icon name="whiteboard" :size="18"/><span>{{board.name}}<small>{{board.path}}</small></span><Icon name="chevron" :size="15"/></button><p v-if="!flat.some(item=>item.documentType==='whiteboard'||isWhiteboard(item.path))" class="muted">还没有白板，可以先创建一个。</p></div>
       <template #footer="{close}"><AButton :disabled="boardCreating" @click="close">取消</AButton><AButton type="primary" :loading="boardCreating" @click="createInlineBoard">新建并插入白板</AButton></template>
     </SettingsOverlay>
   </div>

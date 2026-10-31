@@ -14,6 +14,7 @@ const adapter = {
     instance?.destroy();
     instance = mountMindmap(document.querySelector('#map')!, root);
   },
+  setRootStyle() {instance.nodeData.style={fontWeight:'bold'};},
   tree() {
     return readMindmapTree(instance);
   },

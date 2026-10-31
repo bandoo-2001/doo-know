@@ -8,6 +8,7 @@ import {
   Select as ASelect,
 } from 'ant-design-vue';
 import { api } from '../../api';
+import type { PortableImportResult } from '../../../../shared/portable-delivery-contracts';
 import type { TreeEntry } from '../../../../shared/contracts';
 import type {
   ImportEntry,
@@ -29,6 +30,48 @@ const emit = defineEmits<{
   changed: [];
   busy: [value: boolean];
 }>();
+const archiveOpen = ref(false),
+  archiveFile = ref<File>(),
+  archiveFolder = ref(props.folderPath),
+  archiveBusy = ref(false),
+  archiveError = ref(''),
+  archiveResult = ref<PortableImportResult>();
+let archiveRequest = crypto.randomUUID();
+watch([archiveFile, archiveFolder], () => {
+  archiveRequest = crypto.randomUUID();
+  archiveResult.value = undefined;
+  archiveError.value = '';
+});
+watch(archiveBusy, (value) => emit('busy', value || busy.value || exportBusy.value));
+function selectArchive(event: Event) {
+  const file = (event.target as HTMLInputElement).files?.[0];
+  archiveFile.value = file;
+}
+async function importArchive() {
+  if (!archiveFile.value || archiveBusy.value || archiveResult.value) return;
+  const archive = archiveFile.value,
+    destination = archiveFolder.value;
+  archiveBusy.value = true;
+  archiveError.value = '';
+  try {
+    const body = new FormData();
+    body.append('archive', archive, archive.name);
+    body.append('folderPath', destination);
+    body.append('requestId', archiveRequest);
+    archiveResult.value = await api<PortableImportResult>(
+      '/api/portable-deliveries/import',
+      'POST',
+      body,
+      { timeoutMs: 180000 },
+    );
+    notice.value = '便携包导入完成，已分配新的笔记标识。';
+    emit('changed');
+  } catch (e) {
+    archiveError.value = (e as Error).message;
+  } finally {
+    archiveBusy.value = false;
+  }
+}
 const importOpen = ref(false),
   exportOpen = ref(false),
   step = ref<1 | 2 | 3>(1),
@@ -60,7 +103,9 @@ const previewCounts = computed(() => ({
 let requestId = crypto.randomUUID(),
   destinationEpoch = 0;
 
-watch([busy, exportBusy], ([importing, exporting]) => emit('busy', importing || exporting));
+watch([busy, exportBusy], ([importing, exporting]) =>
+  emit('busy', importing || exporting || archiveBusy.value),
+);
 watch(
   () => props.folderPath,
   (value) => {
@@ -287,6 +332,13 @@ const ImportContainer = defineComponent({
         @open="importOpen = true"
       />
       <SettingsActionCard
+        title="导入便携包"
+        description="导入完整便携归档，恢复主图、原件和预览，并生成新的笔记标识。"
+        icon="upload"
+        action-label="导入便携包"
+        @open="archiveOpen = true"
+      />
+      <SettingsActionCard
         v-if="showExport"
         title="导出资料"
         description="将整个知识库或指定目录打包，方便迁移原文。"
@@ -296,6 +348,72 @@ const ImportContainer = defineComponent({
       />
     </div>
 
+    <SettingsOverlay
+      v-model:show="archiveOpen"
+      title="导入便携包"
+      description="选择完整便携归档，连同 Markdown 和所需附件一起导入。导入后分配新的笔记标识。"
+      icon="upload"
+      :width="620"
+      :busy="archiveBusy"
+      :dirty="!!archiveFile && !archiveResult"
+      @after-leave="
+        archiveFile = undefined;
+        archiveResult = undefined;
+        archiveError = '';
+        archiveFolder = props.folderPath;
+      "
+    >
+      <div class="settings-form">
+        <div class="settings-field">
+          <label for="portable-archive-file">便携归档文件</label
+          ><input
+            id="portable-archive-file"
+            type="file"
+            accept=".tar.gz,.tgz,application/gzip"
+            :disabled="archiveBusy || !!archiveResult"
+            @change="selectArchive"
+          />
+        </div>
+        <div class="settings-field">
+          <label for="portable-archive-folder">导入目录</label
+          ><AInput
+            id="portable-archive-folder"
+            v-model:value="archiveFolder"
+            placeholder="例如 00-Inbox/Imported"
+            :disabled="archiveBusy || !!archiveResult"
+          />
+        </div>
+      </div>
+      <AAlert v-if="archiveError" type="error" :message="archiveError" role="alert" show-icon />
+      <div v-if="archiveResult" role="status">
+        <p>
+          导入完成：{{ archiveResult.notes.length }} 篇笔记，{{ archiveResult.assets }} 个附件。
+        </p>
+        <ul>
+          <li v-for="item in archiveResult.notes" :key="item.noteId">
+            <button
+              type="button"
+              @click="
+                archiveOpen = false;
+                emit('open-note', item.noteId);
+              "
+            >
+              {{ item.relativePath }}
+            </button>
+          </li>
+        </ul>
+      </div>
+      <template #footer="{ close }"
+        ><AButton :disabled="archiveBusy" @click="close">关闭</AButton
+        ><AButton
+          type="primary"
+          :loading="archiveBusy"
+          :disabled="!archiveFile || !!archiveResult"
+          @click="importArchive"
+          >导入整包</AButton
+        ></template
+      >
+    </SettingsOverlay>
     <ImportContainer>
       <template #default>
         <div v-if="inline || importOpen" class="transfer-import-flow">

@@ -213,7 +213,7 @@ watch(
     if (view && view.state.doc.toString() !== v) {
       programmatic = true;
       try {
-        view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: v } });
+        view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: v }, annotations: Transaction.addToHistory.of(false) });
       } finally {
         programmatic = false;
       }

@@ -114,6 +114,8 @@ export function readMindmapTree(mind: MindElixirInstance): MindmapNode {
   const read = (node: NodeObj, depth: number): MindmapNode => {
     if (depth > 64 || seen.size >= 500 || seen.has(node.id)) throw Error('脑图节点超限或身份重复');
     seen.add(node.id);
+    if ((node.style && Object.keys(node.style).length) || node.branchColor)
+      throw Error('当前 Markdown 脑图不支持节点样式，请撤销样式修改后保存');
     if (
       node.image ||
       node.hyperLink ||
