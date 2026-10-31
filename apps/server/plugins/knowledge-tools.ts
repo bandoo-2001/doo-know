@@ -344,7 +344,7 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
       note(p, a.noteId);
       const rows = db
         .prepare(
-          'SELECT id,file,created_at AS createdAt,modified_at AS modifiedAt FROM revisions WHERE note_id=? ORDER BY rowid DESC',
+          'SELECT id,file,created_at AS createdAt,modified_at AS modifiedAt,document_type AS documentType,payload_format AS payloadFormat,logical_path AS logicalPath,content_hash AS contentHash FROM revisions WHERE note_id=? ORDER BY rowid DESC',
         )
         .all(a.noteId) as any[];
       result = paged(
@@ -355,7 +355,9 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
           const st = lstatSync(join(config.dataRoot, 'history', r.file));
           if (!st.isFile() || st.isSymbolicLink() || st.nlink !== 1)
             fail(404, 'REVISION_NOT_FOUND');
-          return { id: r.id, createdAt: r.createdAt, modifiedAt: r.modifiedAt, sizeBytes: st.size };
+          return { id: r.id, createdAt: r.createdAt, modifiedAt: r.modifiedAt, sizeBytes: st.size,
+            ...(r.documentType?{documentType:r.documentType}:{}),...(r.payloadFormat?{payloadFormat:r.payloadFormat}:{}),
+            ...(r.logicalPath?{logicalPath:r.logicalPath}:{}),...(r.contentHash?{contentHash:r.contentHash}:{}) };
         }),
         a,
       );

@@ -328,6 +328,10 @@ export const knowledgeToolDefinitions: KnowledgeToolDefinition[] = [
             createdAt: z.string().max(64),
             modifiedAt: version,
             sizeBytes: z.number().int().nonnegative(),
+            documentType:z.enum(['markdown','whiteboard','mindmap','flowchart']).optional(),
+            payloadFormat:z.enum(['markdown','excalidraw']).optional(),
+            logicalPath:path.optional(),
+            contentHash:hash.optional(),
           }),
         )
         .max(30),
