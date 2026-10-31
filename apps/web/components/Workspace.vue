@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { attachmentAccept } from '../../../shared/media';
 import { restoreHistory } from '../diagrams/history-restore';
+import NoteCopyDialog from './NoteCopyDialog.vue';
 import '../whiteboards/whiteboards.css';
 import {createPrimaryDocument,pendingCreation,cancelCreation,type PendingCreation} from '../diagrams/primary-creation';
 import {diagramFences} from '../../../shared/diagram-fences';
@@ -361,6 +362,12 @@ const noteOpening = ref(false),
   editorGeneration = ref(0),
   editorTransfer = ref(false);
 const moveTarget = ref<NoteDocument>();
+const copyTarget=ref<TreeEntry>(),copyOpen=ref(false);
+let copyIntent=0;
+async function copied(result:{id:string;relativePath:string}){
+  const intent=copyIntent;
+  await run(async()=>{await refresh();if(currentIntent(intent))await openNote(result.id);tell('已创建文档副本');});
+}
 const moveOpen = ref(false),
   importOpen = ref(false),
   quickBusy = ref(false);
@@ -488,6 +495,8 @@ async function treeAction(entry: TreeEntry, action: TreeAction) {
     } else if (action === 'copy') {
       await navigator.clipboard.writeText(entry.path);
       tell('路径已复制');
+    } else if(action==='duplicate'&&entry.id){
+      copyTarget.value=entry;copyIntent=navigationIntent;copyOpen.value=true;
     } else if (action === 'new-note' || action === 'new-folder' || action === 'new-whiteboard' || action === 'new-mindmap' || action === 'new-flowchart') {
       create(action === 'new-whiteboard'?'whiteboard':action === 'new-mindmap'?'mindmap':action === 'new-flowchart'?'flowchart':action === 'new-note' ? 'note' : 'folder', entry.path);
     } else if (action === 'import') {
@@ -3534,6 +3543,7 @@ onBeforeUnmount(() => {
       :folders="folders"
       @moved="moved"
     />
+    <NoteCopyDialog v-model:show="copyOpen" :note-id="copyTarget?.id" :relative-path="copyTarget?.path" :folders="folders" @copied="copied" />
     <NModal v-model:show="toDooCaptureOpen" preset="card" class="dialog-card" title="从资料创建任务" :mask-closable="!toDooCaptureBusy" :close-on-esc="!toDooCaptureBusy" :closable="!toDooCaptureBusy">
       <form v-if="capturedTask" class="to-doo-capture-form" @submit.prevent="saveCapturedTask">
         <label>任务标题<AInput v-model:value="capturedTask.title" aria-label="任务标题" :maxlength="256" :disabled="toDooCaptureBusy" /></label>

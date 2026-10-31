@@ -8,6 +8,7 @@ export type TreeAction =
   | 'new-folder'
   | 'import'
   | 'copy'
+  | 'duplicate'
   | 'move'
   | 'download'
   | 'favorite'
@@ -49,6 +50,7 @@ const items = computed<{ key: TreeAction; label: string }[]>(() => [
           label: props.favoriteIds?.includes(entry.value?.id || '') ? '取消收藏' : '收藏',
         },
         { key: 'move' as const, label: '重命名或移动' },
+        { key: 'duplicate' as const, label: '创建副本' },
         {
           key: 'download' as const,
           label: /\.excalidraw$/i.test(entry.value?.path || '')
