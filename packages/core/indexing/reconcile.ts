@@ -1,3 +1,5 @@
+import { diagramDependencyChecker } from './diagram-dependencies.js';
+import { observeSource } from './state.js';
 import { lstatSync, realpathSync, readdirSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
 import type { AppConfig } from '../../../shared/contracts.js';
@@ -51,6 +53,7 @@ export function scopeFor(p: Principal, scope?: string) {
 export const scopeKey = (scopes?: string[]) =>
   scopes ? 'scope:' + sha256(JSON.stringify([...scopes].sort())) : 'root';
 export function reconcileService(config: AppConfig, db: AppDatabase) {
+  const dependencies = diagramDependencyChecker(config, db);
   const library = portableLibrary(config, db);
   let tail = Promise.resolve();
   const setMeta = (key: string, value: unknown) =>
@@ -106,6 +109,17 @@ export function reconcileService(config: AppConfig, db: AppDatabase) {
         .prepare("SELECT note_id AS id FROM write_intents WHERE path=? AND kind='create' AND status='prepared' LIMIT 1")
         .get(path)) as { id: string } | undefined;
     }
+    const quarantine = (noteId: string, path: string, hash: string, mtime: string, size: number) => {
+      if (!dependencies.conflicted(noteId, path, hash, conflicts)) return false;
+      const old = db.prepare('SELECT content_hash,mtime_ns,size_bytes FROM document_state WHERE note_id=?').get(noteId) as any;
+      if (!old || old.content_hash !== hash || old.mtime_ns !== mtime || old.size_bytes !== size)
+        observeSource(db, noteId, hash, mtime, size);
+      db.prepare('UPDATE document_state SET conflict=1,text_indexed_hash=NULL,vector_indexed_hash=NULL WHERE note_id=?').run(noteId);
+      db.prepare('UPDATE chunks SET active=0 WHERE note_id=?').run(noteId);
+      db.prepare("UPDATE index_jobs SET status='superseded' WHERE note_id=? AND status NOT IN ('done','superseded')").run(noteId);
+      conflicted++;
+      return true;
+    };
     // No async work inside this transaction. Re-read both source and identity
     // after Git/stat/hash waits, before exposing any new note or source state.
     const publish = db.transaction((path: string, checked: Awaited<ReturnType<typeof stableStat>>,
@@ -171,6 +185,7 @@ export function reconcileService(config: AppConfig, db: AppDatabase) {
       if (!fullHash && old?.content_hash && old.mtime_ns === before.mtimeNs.toString() &&
           old.size_bytes === Number(before.size) && old.active && !old.conflict && hint) {
         const outcome = publish.immediate(path, before, noteId => {
+          if (quarantine(noteId, path, old.content_hash, before.mtimeNs.toString(), Number(before.size))) return;
           db.prepare('UPDATE document_state SET last_checked_at=? WHERE note_id=?').run(new Date().toISOString(), noteId);
         }, { id: hint.id, hash: old.content_hash });
         if (outcome !== 'hash') continue;
@@ -185,6 +200,7 @@ export function reconcileService(config: AppConfig, db: AppDatabase) {
         fail(503, 'SOURCE_UNAVAILABLE', '原文读取期间变化', true);
       }
       publish.immediate(path, before, noteId => {
+        if (quarantine(noteId, path, hash, before.mtimeNs.toString(), Number(before.size))) return;
         const latest = db.prepare('SELECT * FROM document_state WHERE note_id=?').get(noteId) as any;
         if (latest?.content_hash !== hash || !latest?.active || latest?.conflict) changed++;
         enqueueSource(db, config, noteId, hash, before.mtimeNs.toString(), Number(before.size));
