@@ -21,7 +21,7 @@ import { webPrincipal } from './knowledge/core.js';
 import { sha256 } from './knowledge/operations.js';
 import { fail, KnowledgeError } from './knowledge/errors.js';
 import { readBoundDiagramAssetSnapshot } from './knowledge/diagram-resource-files.js';
-import { validatePng } from './knowledge/diagram-artifacts.js';
+import { assertNoEmbeddedDiagramSource, validatePng } from './knowledge/diagram-artifacts.js';
 import { renderPortableImage } from '../../shared/portable-figure.js';
 import { hasDiagramDeclarationSync } from './knowledge/diagram-declaration.js';
 
@@ -273,6 +273,7 @@ export function publicDiagramProjectionService(
           add(path, hashAssetSync(a.absolutePath), 'ordinary');
         } else {
           const a = assets.file(path);
+          assertNoEmbeddedDiagramSource(a.bytes);
           add(path, sha256(a.sourceBytes ?? a.bytes), 'ordinary');
         }
       } catch {}
@@ -361,6 +362,7 @@ export function publicDiagramProjectionService(
       const ordinary = lookup.id
         ? await assets.publicAsset(note.id, lookup.id)
         : await assets.publicSource(note.id, lookup.source ?? '');
+      assertNoEmbeddedDiagramSource(ordinary.bytes);
       checkPolicy(token, revision);
       return ordinary;
     }
@@ -395,6 +397,7 @@ export function publicDiagramProjectionService(
       };
     }
     const file = assets.file(path);
+    assertNoEmbeddedDiagramSource(file.bytes);
     if (sha256(file.sourceBytes ?? file.bytes) !== proof.hash)
       fail(409, 'DIAGRAM_RESOURCE_CONFLICT');
     checkPolicy(token, projection.policyRevision);

@@ -3,6 +3,7 @@ import { posix } from 'node:path';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
 import { MAX_WHITEBOARD_BYTES, parseWhiteboard } from '../../../shared/whiteboard.js';
 import { SVG_MIME } from '../../../shared/svg-policy.js';
+import { pngContainsDiagramSource } from '../../../shared/png-policy.js';
 import type { AppDatabase } from '../db.js';
 import type { NoteService } from '../notes.js';
 import type { assetService } from '../assets.js';
@@ -57,6 +58,14 @@ export function validateDiagramSource(kind: DiagramKind, bytes: Uint8Array) {
   return source;
 }
 
+/** Refuse the known native Excalidraw payload in public presentation bytes.
+ * Inspect only the bounded PNG keyword, never decompress attacker-controlled text.
+ * Ordinary images retain their original bytes and unrelated textual metadata. */
+export function assertNoEmbeddedDiagramSource(bytes: Buffer) {
+  if (pngContainsDiagramSource(bytes))
+    throw new HttpError(400, 'PNG 预览不得包含可编辑图形源数据');
+}
+
 /** Check the real PNG signature and IHDR before accepting a bounded raster preview. */
 export function validatePng(bytes: Buffer) {
   if (bytes.length > maxPng) throw new HttpError(413, 'PNG 预览不能超过 10 MiB');
@@ -81,6 +90,7 @@ export function validatePng(bytes: Buffer) {
     offset += length + 12;
   }
   if (!image || !end) throw new HttpError(400, '预览必须是完整的 PNG 图片');
+  assertNoEmbeddedDiagramSource(bytes);
 }
 
 type Assets = ReturnType<typeof assetService>;

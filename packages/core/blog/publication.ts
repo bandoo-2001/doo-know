@@ -22,7 +22,7 @@ import { assetService } from '../assets.js';
 import { localReference } from '../render.js';
 import { HttpError } from '../errors.js';
 import { BlogError } from './errors.js';
-import { validateDiagramSource } from '../knowledge/diagram-artifacts.js';
+import { assertNoEmbeddedDiagramSource, validateDiagramSource } from '../knowledge/diagram-artifacts.js';
 import { authorizeBlogPath, blogHash, publicationPng } from './resources.js';
 import { parseDiagramDocument } from '../../../shared/diagram-document.js';
 import {
@@ -55,6 +55,7 @@ export function capturePublication(
     resources = new Map<string, CapturedResource>();
   const observed = new Map<string, { kind: 'asset' | 'note'; hash: string }>();
   const add = (bytes: Buffer, mime: string) => {
+    assertNoEmbeddedDiagramSource(bytes);
     const hash = blogHash(bytes);
     if (bytes.length > 10 * 1024 ** 2) throw new BlogError(413, '博客单个资源不能超过 10 MiB');
     resources.set(hash, { hash, mime, bytes });

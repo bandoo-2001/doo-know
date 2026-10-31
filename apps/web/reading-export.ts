@@ -11,6 +11,7 @@ import { markdownStyles } from '../../shared/markdown-styles';
 import { frontmatterRange } from '../../shared/frontmatter-range';
 import { collectDiagramSaveNeeds, stripDiagramPreviews } from '../../shared/diagram-portability';
 import { validateSvgSource, SVG_MIME } from '../../shared/svg-policy';
+import { pngContainsDiagramSource } from '../../shared/png-policy';
 import { downloadBlob } from './whiteboards/download';
 
 export type ReadingExportInput = {
@@ -83,6 +84,7 @@ async function embeddedImage(input: Blob | string): Promise<string> {
   }
   if (!imageTypes.has(mime) || !bytes.length || bytes.length > maxImageBytes)
     throw Error('图片类型或大小不适合阅读导出');
+  if (pngContainsDiagramSource(bytes)) throw Error('PNG 预览不得包含可编辑图形源数据');
   if (mime === SVG_MIME) {
     const svg = validateSvgSource(bytes);
     if (!svg.ok) throw Error(`SVG 无法导出：${svg.message}`);
