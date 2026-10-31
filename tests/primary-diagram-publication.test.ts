@@ -14,7 +14,7 @@ import { tmpdir } from 'node:os';
 import type { AppConfig } from '../shared/contracts';
 import type { Principal } from '../shared/knowledge-contracts';
 import { emptyWhiteboard } from '../shared/whiteboard';
-import { diagramRendererVersions, renderPreparedDiagramDocument } from '../shared/diagram-primary';
+import { applyPreparedDiagramDocument, diagramRendererVersions, renderPreparedDiagramDocument } from '../shared/diagram-primary';
 import { noteService } from '../packages/core/notes';
 import { assetService } from '../packages/core/assets';
 import { openDatabase, type AppDatabase } from '../packages/core/db';
@@ -428,4 +428,16 @@ it('keeps operation status metadata bounded while replaying the exact committed 
  expect(Buffer.byteLength(row.result)).toBeLessThan(4096);
  expect(s.primary.commit(request)).toEqual(saved);
  expect(saved.content).toBe(markdown);
+});
+
+it.each(['whiteboard','mindmap','flowchart'] as const)('publishes a prepared %s replacement without rewriting surrounding prose or unknown metadata',type=>{
+ const f=prepare(type),s=services(),prefix='\uFEFF---\r\ncustom: retained\r\n---\r\n\r\n',description='\r\n用户说明  \r\n';
+ const markdown=prefix+f.markdown.replace('"version":1','"future":{"keep":42},"version":1').replace('"render":{','"render":{"future":{"keep":true},')+description;
+ const first=s.primary.commit({preparedId:f.prepared.id,markdown,requestId:randomUUID()}),source=f.source.replace('可检索文字','新的标签').replace('子节点','新节点').replace('A-->B','A[新]-->B');
+ const next=s.primary.prepare({target:{kind:'document',noteId:first.id,expectedDocumentHash:sha(markdown),expectedSourceHash:sha(f.source)},type,source,sourceHash:sha(source),title:first.title,renderer:f.prepared.renderer,config:{layout:'second'},pngBase64:png.toString('base64'),requestId:randomUUID()});
+ const updated=applyPreparedDiagramDocument({markdown,prepared:next,source});
+ const saved=s.primary.commit({preparedId:next.id,markdown:updated,requestId:randomUUID()});
+ expect(saved.content).toBe(updated);expect(saved.content.startsWith(prefix)).toBe(true);expect(saved.content.endsWith(description)).toBe(true);
+ expect(saved.content).toContain('"future":{"keep":42}');expect(saved.content).toContain('"future":{"keep":true}');
+ expect(s.notes.getNote(saved.id).content).toBe(updated);
 });

@@ -131,3 +131,43 @@ export function renderPreparedDiagramDocument(input: {
     throw Error('图形权威源的字节范围无法原样保存，请移除受管大纲首尾的分隔空行');
   return result;
 }
+
+/** Replace one prepared primary without rewriting frontmatter, title spelling or user prose. */
+export function applyPreparedDiagramDocument(input: {
+  markdown: string;
+  prepared: PreparedDiagramPrimary;
+  source: string;
+}): string {
+  const current = parseDiagramDocument(input.markdown),
+    p = input.prepared;
+  if (current.status !== 'diagram' || current.type !== p.type)
+    throw Error('文档类型无法安全替换，请使用明确的转换或源码恢复操作');
+  if (current.title !== p.title) throw Error('图形标题与准备快照不同，请重新准备预览');
+  const complete = renderPreparedDiagramDocument({
+      prepared: p,
+      title: p.title,
+      source: input.source,
+    }),
+    next = parseDiagramDocument(complete);
+  if (next.status !== 'diagram') throw Error('准备后的主图无法解析');
+  const metadata = {
+    ...current.metadata,
+    render: { ...current.metadata.render, renderer: p.renderer, config: p.config },
+  };
+  const oldHeader = input.markdown.slice(current.markerRange.from, current.markerRange.to),
+    indentation = oldHeader.match(/^[ \t]*/)?.[0] ?? '',
+    header =
+      indentation +
+      '<!-- dooknow:document ' +
+      inertJson(metadata) +
+      ' -->' +
+      oldHeader.slice(oldHeader.lastIndexOf('-->') + 3);
+  const managed = complete.slice(next.primary.range.from, next.primary.range.to),
+    updated =
+      input.markdown.slice(0, current.primary.range.from) +
+      managed +
+      input.markdown.slice(current.primary.range.to);
+  return (
+    updated.slice(0, current.markerRange.from) + header + updated.slice(current.markerRange.to)
+  );
+}

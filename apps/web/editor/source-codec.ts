@@ -1,3 +1,4 @@
+import { parseDiagramDocument } from '../../../shared/diagram-document';
 import MarkdownIt from 'markdown-it';
 import { markdownStyles } from '../../../shared/markdown-styles';
 import { hasKnowledgeSyntax } from '../../../shared/knowledge-markdown';
@@ -114,6 +115,19 @@ export function parseSource(markdown: string, revision = 0): SourceDocument {
     starts.sort((a, b) => a.from - b.from);
     blocks.lastIndex = to;
   }
+  const diagram = parseDiagramDocument(markdown);
+  if (diagram.status === 'diagram') {
+    // Keep one source atom for the primary, rather than editable inner lists/fences.
+    starts = starts.filter(
+      (item) => item.from < diagram.primary.range.from || item.from >= diagram.primary.range.to,
+    );
+    starts.push({ from: diagram.primary.range.from, kind: 'diagram_primary' });
+    starts = starts.filter(
+      (item) => item.from < diagram.markerRange.from || item.from >= diagram.markerRange.to,
+    );
+    starts.push({ from: diagram.markerRange.from, kind: 'diagram_metadata' });
+    starts.sort((a, b) => a.from - b.from);
+  }
   if (!starts.length && markdown.length) starts = [{ from: 0, kind: 'blank' }];
   const units: SourceUnit[] = starts.map((s, i) => {
     const from = i === 0 ? 0 : s.from,
@@ -125,7 +139,9 @@ export function parseSource(markdown: string, revision = 0): SourceDocument {
       to,
       raw,
       kind: s.kind,
-      opaque: s.kind === 'frontmatter' || s.kind === 'opaque' || isOpaque(raw, s.kind),
+      opaque:
+        s.kind === 'diagram_primary' || s.kind === 'diagram_metadata' ||
+        s.kind === 'frontmatter' || s.kind === 'opaque' || isOpaque(raw, s.kind),
       dependencies: [],
     };
   });
@@ -200,13 +216,20 @@ export function validateUnitOperation(
   intent: 'edit' | 'deleteOpaque',
 ): CommitResult {
   const result = serializeEdits(doc, edits);
-  if (!result.ok || intent === 'deleteOpaque') return result;
-  for (const unit of doc.units.filter((u) => u.opaque))
+  if (!result.ok) return result;
+  for (const unit of doc.units.filter(
+    (u) => u.opaque &&
+      (intent !== 'deleteOpaque' || u.kind === 'diagram_primary' || u.kind === 'diagram_metadata'),
+  ))
     for (const e of edits) {
       if (e.from < unit.to && e.to > unit.from) {
         const left = Math.max(unit.from, e.from),
           right = Math.min(unit.to, e.to);
-        if (!e.insert.includes(doc.markdown.slice(left, right)))
+        const protectedPrimary = unit.kind === 'diagram_primary' || unit.kind === 'diagram_metadata';
+        if (
+          (protectedPrimary && left === right && !!e.insert) ||
+          !e.insert.includes(doc.markdown.slice(left, right))
+        )
           return {
             ok: false,
             code: 'unsupported',
