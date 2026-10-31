@@ -4,6 +4,8 @@ Dedicated diagram documents and legacy `.excalidraw` notes are always read-only 
 
 Owner diagram reads use `GET /api/notes/:id/diagram` for both formats. Legacy `documentHash` and `source.hash` cover the exact native file bytes, and `source.content` contains the native JSON. A legacy note may have no preview. Bounded private callers can supply the existing source-handle callback.
 
+Legacy opaque source handles identify the exact logical native note path, so each transfer chunk can recheck that same note grant and version without adding an attachment-directory grant.
+
 The owner can register a legacy preview with `POST /api/notes/:id/diagram/legacy-preview`:
 
 ```json
@@ -31,7 +33,11 @@ Public resource endpoints return the safe `DiagramResource` DTO:
 
 Public HTML and segmented Markdown remove the declaration and complete managed primary region using parser ranges. They retain the title and author explanation and insert the fixed PNG. Generated whiteboard summaries, outlines, Mermaid source and renderer configuration are not part of that projection. Ordinary inline SVG/Mermaid behavior is preserved.
 
+A malformed or unsupported declared diagram is rejected on public reads and public editing; it cannot fall back to exposing ordinary source. Private Markdown recovery remains available. Raw public snapshots also refuse declared candidates, including large invalid documents, before loading their managed source.
+
 Both `/assets/:assetId` and `/asset?source=...` enforce the same semantic resource inventory, roles and byte hashes. A repeated source link cannot add a capability. Existing legacy portable bindings can supply a PNG only after matching their code/source/kind binding, actual native scene, and a durable artifact receipt proving the original PNG bytes. Bindings without that receipt need an owner-prepared legacy preview. They cannot upgrade a stale primary render. Low-level saved-asset helpers also refuse Excalidraw/Mermaid native originals; authorized originals go through the projection facade.
+
+Large ordinary parents use the existing bounded saved-reference scanner for attachments after an actual-file declaration check. PNG/PDF reads therefore keep working beyond the small-document byte/line limits. This path still refuses native originals and rechecks the current share policy epoch after asynchronous reference/file IO.
 
 Absent or stale fixed PNGs return structured `DIAGRAM_PREVIEW_REQUIRED` with the pending document/version information. Public routes never fall back to native JSON. The server does not render diagrams.
 

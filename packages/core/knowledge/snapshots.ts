@@ -1,4 +1,5 @@
 import { documentMetadataReader } from './document-metadata.js';
+import { hasDiagramDeclarationSync } from './diagram-declaration.js';
 import { currentPrincipalPolicy } from '../agent/config.js';
 import { assertSharePrincipal, isSharePrincipal } from '../share-policy.js';
 import { mkdir, open, stat, unlink } from 'node:fs/promises';
@@ -84,7 +85,10 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
     }
     const published=notes.readableSource(noteId);
     if (isSharePrincipal(p)) {
-      if (readMetadata(published.file, n.path).documentType !== 'markdown')
+      if (
+        hasDiagramDeclarationSync(published.file) ||
+        readMetadata(published.file, n.path).documentType !== 'markdown'
+      )
         fail(403, 'DIAGRAM_SOURCE_FORBIDDEN');
     }
     return {n,file:published.file,historical:!!published.publication,logicalModifiedAt:published.modifiedAt,expectedHash:published.expectedHash};

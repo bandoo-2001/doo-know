@@ -546,7 +546,7 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     '/api/public/shares/:token/assets/:assetId',
     async (req, reply) => {
       const note = shares.lookup(req.params.token);
-      const asset = publicProjection.asset(req.params.token, { id: req.params.assetId });
+      const asset = await publicProjection.asset(req.params.token, { id: req.params.assetId });
       if (shares.lookup(req.params.token).id !== note.id)
         throw new HttpError(404, '分享不存在或已取消');
       return sendAsset(reply, asset, req.query.download);
@@ -556,7 +556,7 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     '/api/public/shares/:token/asset',
     async (req, reply) => {
       const note = shares.lookup(req.params.token);
-      const asset = publicProjection.asset(req.params.token, {
+      const asset = await publicProjection.asset(req.params.token, {
         source: text(req.query.source, '附件引用', 8192),
       });
       if (shares.lookup(req.params.token).id !== note.id)

@@ -6,12 +6,17 @@ import { KnowledgeError } from './knowledge/errors.js';
 import { isWhiteboard } from '../../shared/whiteboard.js';
 import type { PublicShareAccess, ShareOptions, ShareStatus } from '../../shared/share-contracts.js';
 import { shareIdentity, shareState, type ShareRow } from './share-policy.js';
+import { parseDiagramDocument } from '../../shared/diagram-document.js';
 export function shareService(db: AppDatabase, notes: NoteService) {
   function editSupport(id: string) {
     if (isWhiteboard(notes.row(id).path))
       return { editSupported: false, editUnavailableReason: '白板分享暂不支持公开编辑' };
     try {
-      if (notes.getNote(id).documentType !== 'markdown')
+      const note = notes.getNote(id);
+      if (
+        note.documentType !== 'markdown' ||
+        parseDiagramDocument(note.content).status === 'invalid'
+      )
         return { editSupported: false, editUnavailableReason: '图形分享暂不支持公开编辑' };
       return { editSupported: true };
     } catch (error) {

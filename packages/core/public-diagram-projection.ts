@@ -17,10 +17,11 @@ import {
 } from './knowledge/diagram-resource-resolver.js';
 import { webPrincipal } from './knowledge/core.js';
 import { sha256 } from './knowledge/operations.js';
-import { fail } from './knowledge/errors.js';
+import { fail, KnowledgeError } from './knowledge/errors.js';
 import { readBoundDiagramAssetSnapshot } from './knowledge/diagram-resource-files.js';
 import { validatePng } from './knowledge/diagram-artifacts.js';
 import { renderPortableImage } from '../../shared/portable-figure.js';
+import { hasDiagramDeclarationSync } from './knowledge/diagram-declaration.js';
 
 export type ProjectionAsset = {
   path: string;
@@ -150,6 +151,8 @@ export function publicDiagramProjectionService(
     // Semantic classification uses actual current/last-complete bytes, never the document_state cache.
     const parsed = parseDiagramDocument(note.content),
       legacy = /\.excalidraw$/i.test(note.relativePath);
+    if (parsed.status === 'invalid')
+      fail(422, 'INVALID_DIAGRAM_DOCUMENT', '图形声明无效，请由所有者恢复原文');
     if (legacy || parsed.status === 'diagram') {
       const privateResource = resolvePrimaryDiagram(config, db, notes, webPrincipal, note.id);
       resource = safe(privateResource, note.relativePath, 'primary');
@@ -315,15 +318,36 @@ export function publicDiagramProjectionService(
     if (!found) fail(404, 'WHITEBOARD_NOT_FOUND');
     return found;
   }
-  function asset(token: string, lookup: { id?: string; source?: string }) {
-    const projection = project(token),
-      path = lookup.id
-        ? (
-            db.prepare('SELECT path FROM assets WHERE id=?').get(lookup.id) as
-              | { path: string }
-              | undefined
-          )?.path
-        : localReference(projection.note.relativePath, lookup.source ?? '');
+  async function asset(token: string, lookup: { id?: string; source?: string }) {
+    let projection: PublicProjection;
+    try {
+      projection = project(token);
+    } catch (error) {
+      if (!(error instanceof KnowledgeError) || error.code !== 'LARGE_FILE_MODE_REQUIRED')
+        throw error;
+      const revision = policyRevision(token),
+        note = shares.lookup(token);
+      // A size-mode failure grants no diagram capability. Only actual ordinary
+      // parents may use the bounded saved-reference scanner, which also denies
+      // native originals independently of links or the share's source option.
+      if (
+        /\.excalidraw$/i.test(note.path) ||
+        hasDiagramDeclarationSync(notes.readableSource(note.id).file)
+      )
+        fail(422, 'INVALID_DIAGRAM_DOCUMENT');
+      const ordinary = lookup.id
+        ? await assets.publicAsset(note.id, lookup.id)
+        : await assets.publicSource(note.id, lookup.source ?? '');
+      checkPolicy(token, revision);
+      return ordinary;
+    }
+    const path = lookup.id
+      ? (
+          db.prepare('SELECT path FROM assets WHERE id=?').get(lookup.id) as
+            | { path: string }
+            | undefined
+        )?.path
+      : localReference(projection.note.relativePath, lookup.source ?? '');
     if (!path) fail(404, 'ASSET_NOT_FOUND');
     const proof = projection.assets.get(path);
     if (!proof) {

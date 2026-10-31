@@ -105,6 +105,160 @@ async function share(f: Fixture, headers: any, id: string, input: any = {}) {
   return r.json();
 }
 
+it.each(['missing-end', 'unsupported-version'] as const)(
+  'rejects public reads of a declared diagram with %s while keeping private recovery',
+  async (corruption) => {
+    const { f, headers } = await setup(),
+      { note } = await primary(f, headers, 'mindmap'),
+      s = await share(f, headers, note.id),
+      url = `/api/public/shares/${s.token}`;
+    const first = await f.app.inject({
+      method: 'POST',
+      url: url + '/read',
+      payload: { maxBytes: 64 },
+    });
+    expect(first.statusCode, first.body).toBe(200);
+    const cursor = first.json().data.nextCursor;
+    const broken =
+      corruption === 'missing-end'
+        ? note.content.replace('<!-- dooknow:primary:end -->', '')
+        : note.content.replace('"version":1', '"version":2');
+    expect(broken).not.toBe(note.content);
+    await writeFile(join(f.knowledgeRoot, note.relativePath), broken);
+    for (const request of [
+      { url },
+      { method: 'POST' as const, url: url + '/read', payload: { maxBytes: 64 } },
+      { method: 'POST' as const, url: url + '/read', payload: { cursor } },
+    ]) {
+      const r = await f.app.inject(request);
+      expect(r.statusCode, r.body).toBeGreaterThanOrEqual(400);
+      expect(r.json().code).toBe('INVALID_DIAGRAM_DOCUMENT');
+      expect(r.body).not.toContain('PRIVATE_OUTLINE');
+    }
+    const recovery = await f.app.inject({ url: `/api/notes/${note.id}`, headers });
+    expect(recovery.statusCode, recovery.body).toBe(200);
+    expect(recovery.json().content).toBe(broken);
+    const ordinary = await create(f, headers, 'editable-recovery.md', '# Ordinary'),
+      editable = await share(f, headers, ordinary.id, { permission: 'edit' });
+    await writeFile(join(f.knowledgeRoot, ordinary.relativePath), broken);
+    expect(
+      (await f.app.inject({ url: `/api/public/shares/${editable.token}/source` })).statusCode,
+    ).toBe(403);
+    const db = openDatabase(f.dataRoot),
+      notes = noteService(f.config, db),
+      snapshots = snapshotService(f.config, db, notes);
+    try {
+      await expect(
+        snapshots.available(shareService(db, notes).principal(s.token).p, note.id, {}),
+      ).rejects.toMatchObject({ code: 'DIAGRAM_SOURCE_FORBIDDEN' });
+    } finally {
+      await snapshots.close();
+      db.close();
+    }
+    await writeFile(
+      join(f.knowledgeRoot, note.relativePath),
+      broken + '\n\nNormal paragraph.\n\n'.repeat(60000),
+    );
+    for (const payload of [{ cursor }, { maxBytes: 64 }]) {
+      const large = await f.app.inject({ method: 'POST', url: url + '/read', payload });
+      expect(large.statusCode, large.body).toBeGreaterThanOrEqual(400);
+      expect(large.statusCode).toBeLessThan(500);
+      expect(large.json().code).toEqual(expect.any(String));
+      expect(large.body).not.toContain('PRIVATE_OUTLINE');
+    }
+  },
+);
+
+it.each(['bytes', 'long-line'] as const)(
+  'streams PNG/PDF proofs for large ordinary %s parents through both asset entrances',
+  async (mode) => {
+    const { f, headers } = await setup(),
+      note = await create(f, headers, 'large-assets.md', '# Large');
+    await mkdir(join(f.knowledgeRoot, '00-Inbox', 'assets'), { recursive: true });
+    const files = [
+      { name: 'large.png', bytes: Buffer.from(png, 'base64'), mime: 'image/png' },
+      {
+        name: 'large.pdf',
+        bytes: Buffer.from(
+          '%PDF-1.4\n1 0 obj<</Type/Catalog>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF\n',
+        ),
+        mime: 'application/pdf',
+      },
+      {
+        name: 'private.excalidraw',
+        bytes: Buffer.from(JSON.stringify(emptyWhiteboard())),
+        mime: 'application/vnd.excalidraw+json',
+      },
+    ];
+    for (const file of files)
+      await writeFile(join(f.knowledgeRoot, '00-Inbox', 'assets', file.name), file.bytes);
+    const prefix =
+      '# Large\n\n![Image](assets/large.png)\n\n[PDF](assets/large.pdf)\n\n[Original](assets/private.excalidraw)\n\n';
+    await writeFile(join(f.knowledgeRoot, note.relativePath), prefix);
+    const registered = (
+      await f.app.inject({ url: `/api/notes/${note.id}/assets`, headers })
+    ).json();
+    const s = await share(f, headers, note.id),
+      url = `/api/public/shares/${s.token}`;
+    await writeFile(
+      join(f.knowledgeRoot, note.relativePath),
+      prefix + (mode === 'bytes' ? 'Normal paragraph.\n\n'.repeat(60000) : 'x'.repeat(32769)),
+    );
+    const owner = await f.app.inject({ url: `/api/notes/${note.id}`, headers });
+    expect(owner.json().code).toBe('LARGE_FILE_MODE_REQUIRED');
+    const paths = files.flatMap((file) => {
+      const asset = registered.find((a: any) => a.relativePath.endsWith('/' + file.name));
+      expect(asset).toBeTruthy();
+      return [
+        { file, path: '/assets/' + asset.id },
+        { file, path: '/asset?source=' + encodeURIComponent('assets/' + file.name) },
+      ];
+    });
+    for (const { file, path } of paths) {
+      const r = await f.app.inject({ url: url + path });
+      expect(r.statusCode, r.body).toBe(file.name.endsWith('.excalidraw') ? 403 : 200);
+      if (r.statusCode === 200) {
+        expect(r.rawPayload).toEqual(file.bytes);
+        expect(r.headers['content-type']).toContain(file.mime);
+      }
+    }
+    await share(f, headers, note.id, { allowDiagramSource: true });
+    for (const { file, path } of paths.filter((p) => p.file.name.endsWith('.excalidraw')))
+      expect((await f.app.inject({ url: url + path })).statusCode).toBe(403);
+    if (mode === 'bytes') {
+      const db = openDatabase(f.dataRoot),
+        notes = noteService(f.config, db),
+        assets = assetService(f.config, db, notes),
+        racing = {
+          ...assets,
+          async publicSource(id: string, source: string) {
+            const result = await assets.publicSource(id, source);
+            db.prepare(
+              'UPDATE shares SET allow_diagram_source=0,policy_revision=policy_revision+1 WHERE note_id=?',
+            ).run(note.id);
+            return result;
+          },
+        };
+      try {
+        await expect(
+          publicDiagramProjectionService(
+            f.config,
+            db,
+            notes,
+            racing,
+            shareService(db, notes),
+          ).asset(s.token, { source: 'assets/large.png' }),
+        ).rejects.toMatchObject({ code: 'SHARE_POLICY_CHANGED' });
+      } finally {
+        db.close();
+      }
+    }
+    await f.app.inject({ method: 'DELETE', url: `/api/notes/${note.id}/share`, headers });
+    for (const { path } of paths)
+      expect((await f.app.inject({ url: url + path })).statusCode).toBe(404);
+  },
+);
+
 it.each(['whiteboard', 'mindmap', 'flowchart'] as const)(
   'publishes only the fixed PNG and explanation for %s through every public entrance',
   async (type) => {
@@ -525,9 +679,9 @@ it('rechecks a source grant tightened during the actual attachment read', async 
       guarded,
       shareService(db, notes),
     );
-    expect(() => projection.asset(s.token, { id: prepared.source.id })).toThrowError(
-      expect.objectContaining({ code: 'SHARE_POLICY_CHANGED' }),
-    );
+    await expect(projection.asset(s.token, { id: prepared.source.id })).rejects.toMatchObject({
+      code: 'SHARE_POLICY_CHANGED',
+    });
   } finally {
     db.close();
   }

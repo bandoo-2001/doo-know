@@ -110,6 +110,7 @@ export function resolveLegacyDiagram(
       sourceHash: hash,
       format: 'excalidraw',
       title: note.title,
+      sourcePath: row.path,
       content: source,
     });
   else fail(413, 'DIAGRAM_SOURCE_HANDLE_REQUIRED');

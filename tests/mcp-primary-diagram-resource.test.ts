@@ -1,4 +1,4 @@
-import { utimes } from 'node:fs/promises';
+import { utimes, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { afterEach, expect, it } from 'vitest';
 import { randomUUID, createHash } from 'node:crypto';
@@ -137,4 +137,58 @@ it('acquires a new ready source snapshot after its previous handle was cancelled
   expect(f.transfers.info(f.principal, next.source.readHandle).state).toBe('ready');
   const again: any = await f.port.call('get_note_diagram', { noteId: f.intent.noteId });
   expect(again.source.readHandle).toBe(next.source.readHandle);
+});
+
+it('consumes a selected legacy scene through real multi-chunk source transfers and rechecks its grant/version', async () => {
+  const f = await fixture(),
+    created = f.runtime.knowledge.core.create(
+      f.principal,
+      '00-Inbox',
+      'legacy-large.excalidraw',
+      JSON.stringify({
+        ...emptyWhiteboard(),
+        elements: [{ id: 'label', type: 'text', text: 'legacy-private-'.repeat(1600) }],
+      }),
+      randomUUID(),
+    ),
+    note = f.runtime.notes.getNote(created.id);
+  f.principal.allowedPrefixes = [note.relativePath];
+  const resource: any = await f.port.call('get_note_diagram', { noteId: note.id });
+  expect(resource.source).not.toHaveProperty('content');
+  expect(resource.capabilities.canDownloadSource).toBe(true);
+  const info = f.transfers.info(f.principal, resource.source.readHandle);
+  const chunks: Buffer[] = [];
+  let offset = 0;
+  while (offset < info.totalBytes) {
+    f.port.authorizeTransfer(info.binding, false);
+    const chunk = f.transfers.read(f.principal, {
+      transferId: info.transferId,
+      offset,
+      maxBytes: 4096,
+    });
+    chunks.push(Buffer.from(chunk.base64, 'base64'));
+    offset = chunk.nextOffset;
+  }
+  expect(chunks.length).toBeGreaterThan(1);
+  expect(Buffer.concat(chunks).toString('utf8')).toBe(note.content);
+  expect(info.binding.metadata?.sourcePath).toBe(note.relativePath);
+  expect(f.principal.allowedPrefixes).toEqual([note.relativePath]);
+  expect(() =>
+    f.port.authorizeTransfer(
+      { ...info.binding, metadata: { ...info.binding.metadata, sourcePath: '00-Inbox/source.md' } },
+      false,
+    ),
+  ).toThrowError(expect.objectContaining({ statusCode: 403 }));
+  f.principal.allowedPrefixes = [];
+  expect(() => f.port.authorizeTransfer(info.binding, false)).toThrowError(
+    expect.objectContaining({ statusCode: 403 }),
+  );
+  f.principal.allowedPrefixes = [note.relativePath];
+  await writeFile(
+    join(f.config.knowledgeRoot, note.relativePath),
+    note.content.replace('legacy-private-', 'legacy-changed-'),
+  );
+  expect(() => f.port.authorizeTransfer(info.binding, false)).toThrowError(
+    expect.objectContaining({ code: 'STALE_CURSOR' }),
+  );
 });
