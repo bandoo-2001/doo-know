@@ -111,7 +111,7 @@ export function rewriteMigrationInbound(
         for (const token of markdown.parse(base, {}))
           if (token.type === 'fence' && token.info.trim() === 'excalidraw' && token.map) {
             const ref = whiteboardReference(token.content);
-            if (ref === r.note_id || (ref && localReference(entry.path, ref) === r.old_path)) {
+            if (ref === r.note_id || (ref && [r.old_path,r.new_path].includes(localReference(entry.path, ref)!))) {
               const target = posix
                   .relative(posix.dirname(entry.path), r.new_path)
                   .split('/')

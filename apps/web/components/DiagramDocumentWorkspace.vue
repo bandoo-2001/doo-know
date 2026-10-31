@@ -15,6 +15,7 @@ import { createDraftStore, type DraftScope, type DraftRecord } from '../drafts';
 import { createDocumentSession, type DocumentSessionState } from '../diagrams/document-session';
 import { readCoherentDiagramDocument } from '../diagrams/document-read';
 import { documentDraft, restoreDocumentDraft } from '../diagrams/document-draft';
+import {isLegacySceneDraft,convertLegacySceneDraft,heldDraftDownload} from '../diagrams/legacy-draft';
 import {
   readDiagram,
   renderPrimaryPng,
@@ -335,6 +336,7 @@ function markdownEdit(value: string) {
 async function restore() {
   if (!session || !recovered.value) return;
   try {
+    const originalSession=session,originalRecord=recovered.value;
     const draft = recovered.value.diagram;
     let baseline = session.state;
     if (
@@ -346,8 +348,20 @@ async function restore() {
         documentHash: draft.documentHash,
         sourceHash: draft.baselineSourceHash ?? null,
       };
-    const restored = restoreDocumentDraft(recovered.value, baseline);
-    session.restore(restored, restored.pending);
+    const legacy=isLegacySceneDraft(originalRecord,baseline);
+    const restored:Pick<DocumentSessionState,'markdown'|'source'|'title'|'pending'> = legacy
+      ? await convertLegacySceneDraft(originalRecord,baseline)
+      : restoreDocumentDraft(originalRecord, baseline);
+    if(disposed||session!==originalSession||recovered.value?.version!==originalRecord.version)
+      throw Error('草稿或页面已变化，请重新核对，原草稿仍保留');
+    if(legacy){
+      if(!store)throw Error('本地草稿存储尚未准备，请下载保留');
+      const upgraded={...baseline,...restored},envelope=documentDraft(upgraded);
+      // Upgrade with the store's existing CAS before adopting or dropping the offered JSON.
+      record=await store.put({noteId:props.noteId,kind:'note',baseRevision:baseline.documentHash!,content:envelope.payload,diagram:envelope});
+      if(disposed||session!==originalSession)return;
+    }
+    session.restore(restored,restored.pending);
     recovered.value = undefined;
     error.value = '';
     if (parseDiagramDocument(restored.markdown).status !== 'diagram') mode.value = 'source';
@@ -476,6 +490,11 @@ function download(markdown = false) {
             : '.outline.md'),
   );
 }
+function downloadDraft(){
+  if(!recovered.value){download();return;}
+  const held=heldDraftDownload(recovered.value);
+  downloadBlob(new Blob([held.content],{type:'text/plain;charset=utf-8'}),(doc?.title||'diagram')+held.extension);
+}
 function key(event: KeyboardEvent) {
   if (
     root.value?.getClientRects().length &&
@@ -583,7 +602,7 @@ defineExpose({ save, discard, reload:load, requestClose: close, flush: () => ses
     <div v-if="error" role="alert" class="diagram-document-error">
       {{ error }} <button :disabled="saving" @click="save">重试</button
       ><button :disabled="saving" @click="load">重新读取</button
-      ><button @click="download()">下载草稿</button>
+      ><button @click="downloadDraft">下载草稿</button>
     </div>
     <DraftRecovery
       v-if="recovered"
@@ -640,7 +659,7 @@ defineExpose({ save, discard, reload:load, requestClose: close, flush: () => ses
     </div>
     <div v-if="closing" class="diagram-document-close" role="dialog" aria-label="保留图形草稿">
       <p>当前图形尚未保存。</p>
-      <button @click="closing = false">继续编辑</button><button @click="download()">下载草稿</button
+      <button @click="closing = false">继续编辑</button><button @click="downloadDraft">下载草稿</button
       ><button :disabled="saving" @click="abandon">放弃修改并返回</button>
     </div>
   </section>

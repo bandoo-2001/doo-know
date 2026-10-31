@@ -4,6 +4,7 @@ import { renderPrimaryPng } from './primary-api';
 import type { DocumentSnapshot } from './document-session';
 import type { HistoryApi } from '../note-history';
 import { hashDiagramSource } from './preview-artifact';
+import {withOperationPreviews} from './operation-previews';
 type Plan = {
   id: string;
   type: DiagramDocumentType;
@@ -28,12 +29,12 @@ export async function restoreHistory(
 ) {
   const url = `/api/notes/${encodeURIComponent(note.id)}/revisions/${encodeURIComponent(revisionId)}`;
   if (!note.documentType || note.documentType === 'markdown' || !/\.md$/i.test(note.relativePath))
-    return call(url + '/restore', 'POST', { expectedModifiedAt, requestId });
+    return withOperationPreviews(()=>call(url + '/restore', 'POST', { expectedModifiedAt, requestId }));
   const planRequestId = 'history-plan-' + (await hashDiagramSource(requestId));
-  let plan = await call<Plan>(url + '/diagram-restore', 'POST', {
+  let plan = await withOperationPreviews(()=>call<Plan>(url + '/diagram-restore', 'POST', {
     expectedModifiedAt,
     requestId: planRequestId,
-  });
+  }));
   const target = '/api/diagram-history-restores/' + encodeURIComponent(plan.id);
   plan = await call<Plan>(target, 'GET');
   if (!plan.preparedId) {
