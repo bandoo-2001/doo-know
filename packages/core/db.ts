@@ -8,6 +8,7 @@ import { migrateCollections } from './collections/source.js';
 import { migrateBlog } from './blog/schema.js';
 import { migrateOrganization } from './organization/schema.js';
 import { migrateDiagramDocuments } from './knowledge/diagram-document-schema.js';
+import { migrateRevisionContext } from './knowledge/revision-context.js';
 import { CONTENT_MATCH_RANK, filenameMatchRank } from '../../shared/search-matching.js';
 export function openDatabase(
   dataRoot: string,
@@ -57,6 +58,7 @@ export function openDatabase(
   migrateBlog(db);
   migrateOrganization(db);
   migrateDiagramDocuments(db);
+  migrateRevisionContext(db);
   db.exec(
     'CREATE TABLE IF NOT EXISTS database_processes(id TEXT PRIMARY KEY,pid INTEGER NOT NULL,process_start TEXT NOT NULL,role TEXT NOT NULL,started_at INTEGER NOT NULL)',
   );

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { attachmentAccept } from '../../../shared/media';
+import { restoreHistory } from '../diagrams/history-restore';
 import '../whiteboards/whiteboards.css';
 import {createPrimaryDocument,pendingCreation,cancelCreation,type PendingCreation} from '../diagrams/primary-creation';
 import {diagramFences} from '../../../shared/diagram-fences';
@@ -864,6 +865,10 @@ function openEditorLink(url: string) {
     const target = notesByPath.value.get(destination.path), asset = assetsByPath.value.get(destination.path);
     if (target?.id) { void run(() => openMarkdownNote(target.id!, destination.fragment)); return; }
     if (asset) { window.open(`/api/assets/${asset.id}`,'_blank','noopener,noreferrer'); return; }
+    if (/\.excalidraw$/i.test(destination.path)) {
+      void run(async () => { const alias=await api<{noteId:string}>('/api/note-path-alias?path='+encodeURIComponent(destination.path)); await openMarkdownNote(alias.noteId,destination.fragment); });
+      return;
+    }
   }
   tell('未找到此链接对应的笔记或附件，可在链接设置中核对地址');
 }
@@ -1279,6 +1284,11 @@ async function checkSave(): Promise<'succeeded' | 'failed' | undefined> {
   const pending = pendingSave.value,
     epoch = viewEpoch;
   if (!pending || busy.value) return;
+  if(pending.revisionId&&primaryDiagram.value){
+    if(!currentView(pending.noteId,epoch))throw new Error('请返回原图形文档后核对恢复结果');
+    await save(pending.expected,pending.content,pending.revisionId,pending);
+    return !pendingSave.value&&!error.value&&!dialogError.value&&!conflict.value?'succeeded':undefined;
+  }
   busy.value = true;
   try {
     let op: FileOperation & { result?: { modifiedAt: string } };
@@ -1316,6 +1326,7 @@ async function checkSave(): Promise<'succeeded' | 'failed' | undefined> {
             note.value = document;
             draft.value = note.value.content;
             savedContent.value = note.value.content;
+            if(primaryDiagram.value)await diagramRef.value?.reload();
           } else {
             note.value.modifiedAt = op.result?.modifiedAt || note.value.modifiedAt;
             savedContent.value = pending.content;
@@ -1434,10 +1445,7 @@ async function performSave(
       revisionId,
     };
     let n: any = revisionId
-      ? await api<NoteDocument>(`/api/notes/${target.id}/revisions/${revisionId}/restore`, 'POST', {
-          expectedModifiedAt: expected || target.modifiedAt,
-          requestId,
-        })
+      ? await restoreHistory(api, target, revisionId, expected || target.modifiedAt, requestId)
       : await api<NoteDocument>(`/api/notes/${target.id}`, 'PUT', {
           content: text,
           expectedModifiedAt: expected || target.modifiedAt,
@@ -1489,6 +1497,7 @@ async function performSave(
     if (revisionId) draft.value = n.content;
     conflict.value = undefined;
     if (revisionId || draft.value === text) await localDrafts.clearSaved(target.id, localVersion);
+    if(revisionId&&primaryDiagram.value)await diagramRef.value?.reload();
     tell(revisionId ? '历史版本已恢复' : '笔记已保存');
     await refresh();
   } catch (e) {
@@ -3025,7 +3034,7 @@ onBeforeUnmount(() => {
       </div>
       <CollectionWorkspace v-if="panel === 'collection' && collection !== 'notes'" :kind="collection" :feed="collectionFeed" :favorite-busy="favoriteBusy" :menu-path="treeMenuPath" @select="select" @menu="showTreeMenu" @favorite="favoriteCard" @create="createFromCollection" />
       <WhiteboardWorkspace v-if="note && isWhiteboard(note.relativePath)" v-show="panel==='note'" ref="boardRef" :key="note.id" :board-id="note.id" :draft-scope="draftScope" @dirty="boardDirty=$event" @saved="onBoardSaved" @close="select({type:'folder',name:folder,path:folder})"/>
-      <DiagramDocumentWorkspace v-if="note && primaryDiagram" v-show="panel==='note'" ref="diagramRef" :key="'primary-'+note.id" :note-id="note.id" :draft-scope="draftScope" @dirty="boardDirty=$event" @saved="onBoardSaved" @close="select({type:'folder',name:folder,path:folder})"/>
+      <DiagramDocumentWorkspace v-if="note && primaryDiagram" v-show="panel==='note'" ref="diagramRef" :key="'primary-'+note.id" :note-id="note.id" :draft-scope="draftScope" @dirty="boardDirty=$event" @saved="onBoardSaved" @history="history()" @close="select({type:'folder',name:folder,path:folder})"/>
       <section v-if="note && !primaryDiagram && !isWhiteboard(note.relativePath)" v-show="panel === 'note'" class="note-workspace">
         <header class="note-header">
           <div class="note-topline">

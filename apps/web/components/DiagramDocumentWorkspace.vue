@@ -27,7 +27,7 @@ import { downloadBlob } from '../whiteboards/download';
 import MarkdownEditor from './MarkdownEditor.vue';
 import DraftRecovery from './DraftRecovery.vue';
 const props = defineProps<{ noteId: string; draftScope?: DraftScope; embedded?: boolean }>();
-const emit = defineEmits<{ dirty: [value: boolean]; saved: [document: NoteDocument]; close: [] }>();
+const emit = defineEmits<{ dirty: [value: boolean]; saved: [document: NoteDocument]; close: []; history:[] }>();
 const mount = ref<HTMLElement>(),
   root = ref<HTMLElement>(),
   revision = ref(0),
@@ -509,7 +509,7 @@ onBeforeUnmount(() => {
   window.removeEventListener('beforeunload', unload);
   emit('dirty', false);
 });
-defineExpose({ save, discard, requestClose: close, flush: () => session?.persist() });
+defineExpose({ save, discard, reload:load, requestClose: close, flush: () => session?.persist() });
 </script>
 <template>
   <section
@@ -563,6 +563,7 @@ defineExpose({ save, discard, requestClose: close, flush: () => session?.persist
           </button>
         </nav>
         <div class="diagram-document-actions">
+          <button v-if="!embedded" :disabled="loading || saving || !!recovered" @click="emit('history')">历史版本</button>
           <button :disabled="loading || saving || readingExportBusy" @click="exportReading(false)">
             导出 HTML</button
           ><button :disabled="loading || saving || readingExportBusy" @click="exportReading(true)">

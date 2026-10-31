@@ -6,6 +6,8 @@ import MarkdownIt from 'markdown-it';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { ApiError } from '../apps/web/api';
 import * as primaryCreation from '../apps/web/diagrams/primary-creation';
+import * as historyRestore from '../apps/web/diagrams/history-restore';
+import * as media from '../shared/media';
 import * as portableDownload from '../apps/web/diagrams/portable-download';
 import * as appShortcuts from '../apps/web/app-shortcuts';
 import * as workspaceMainMenu from '../apps/web/workspace-main-menu';
@@ -74,6 +76,8 @@ async function mount(waitForNote = true) {
     (id: string) => {
       if (id === 'vue') return Vue;
       if (id === '../diagrams/primary-creation') return primaryCreation;
+      if (id === '../diagrams/history-restore') return historyRestore;
+      if (id === '../../../shared/media') return media;
       if (id === '../diagrams/portable-download') return portableDownload;
       if(id.endsWith('.css'))return {};
       if(id==='../../../shared/diagram-fences')return {diagramFences};

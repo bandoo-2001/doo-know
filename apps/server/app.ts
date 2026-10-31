@@ -2,6 +2,7 @@ import { portableResourceLimits } from '../../shared/portable-resource-limits.js
 import { mediaMime } from '../../shared/media.js';
 import type { AssetDescriptor } from '../../packages/core/assets.js';
 import {registerDiagramDocumentRoutes} from './knowledge/diagram-routes.js';
+import {registerDiagramHistoryRoutes} from './knowledge/diagram-history-routes.js';
 import { registerPortableDeliveryRoutes } from './knowledge/portable-delivery-routes.js';
 import {isWhiteboard,MAX_WHITEBOARD_BYTES} from '../../shared/whiteboard.js';
 import Fastify from 'fastify';
@@ -389,6 +390,7 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     return reply.code(201).send(result);
   });
   await registerDiagramDocumentRoutes(app,db,()=>platform.get());
+  await registerDiagramHistoryRoutes(app,db,()=>platform.get());
   registerPortableDeliveryRoutes(app,db,()=>platform.get(),checkOwnerSession);
   const diagramArtifacts = diagramArtifactService(db, notes, assets, webPrincipal);
   app.post<{ Params: { id: string } }>('/api/notes/:id/diagram-artifacts', { bodyLimit: 32 * 1024 * 1024 }, async (req, reply) =>

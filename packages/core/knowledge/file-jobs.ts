@@ -1,4 +1,5 @@
 import { assertDiagramFilePublication } from './diagram-file-publication.js';
+import { revisionRestoreSource } from './revision-context.js';
 import {
   workspaceWrite,
   workspaceArtifact,
@@ -116,14 +117,16 @@ export function fileJobService(
         payload = JSON.parse(
           (db.prepare('SELECT payload FROM file_operations WHERE id=?').get(opId) as any).payload,
         );
-      let restoreFile: string | undefined;
+      let restoreFile: string | undefined, restoreContent: string | undefined;
       if (payload.restoreRevision) {
         const revision = db
           .prepare('SELECT file FROM revisions WHERE id=? AND note_id=?')
           .get(payload.restoreRevision, id) as any;
         if (!revision || !/^[a-zA-Z0-9-]+\.md$/.test(revision.file))
           fail(404, 'REVISION_NOT_FOUND');
-        restoreFile = join(config.dataRoot, 'history', revision.file);
+        const restored=revisionRestoreSource(config,db,id,payload.restoreRevision,n.path);
+        restoreFile=restored.file;
+        restoreContent=restored.content;
         let ready = await snapshots.available(p, id, {});
         while ('operation' in ready) {
           signal.throwIfAborted();
@@ -162,7 +165,7 @@ export function fileJobService(
         fail(409, 'VERSION_CONFLICT');
       const edits = restoreFile ? [] : await resolveEdits(snapshot, input.edits, signal),
         size = restoreFile
-          ? Number((await stat(restoreFile)).size)
+          ? restoreContent===undefined?Number((await stat(restoreFile)).size):Buffer.byteLength(restoreContent)
           : snapshot.size_bytes +
             edits.reduce((n, e) => n + e.insert.length - (e.end - e.start), 0);
       if (size > limits.file) fail(413, 'FILE_TOO_LARGE');
@@ -191,7 +194,14 @@ export function fileJobService(
       };
       let offset = 0;
       if (restoreFile) {
-        for await (const bytes of readBlocks(restoreFile, 0, undefined, signal)) await write(bytes);
+        if(restoreContent===undefined)
+          for await (const bytes of readBlocks(restoreFile, 0, undefined, signal)) await write(bytes);
+        else for(let from=0;from<restoreContent.length;){
+          let end=Math.min(from+Math.floor(limits.io/4),restoreContent.length);
+          if(end<restoreContent.length&&/[\uD800-\uDBFF]/.test(restoreContent[end-1]))end--;
+          await write(Buffer.from(restoreContent.slice(from,end)));
+          from=end;
+        }
         offset = snapshot.size_bytes;
       }
       for (const e of edits) {
