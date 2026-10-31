@@ -13,6 +13,7 @@ import { parseWhiteboard } from '../../../shared/whiteboard';
 import { api } from '../api';
 import { createDraftStore, type DraftScope, type DraftRecord } from '../drafts';
 import { createDocumentSession, type DocumentSessionState } from '../diagrams/document-session';
+import { readCoherentDiagramDocument } from '../diagrams/document-read';
 import { documentDraft, restoreDocumentDraft } from '../diagrams/document-draft';
 import {
   readDiagram,
@@ -113,8 +114,11 @@ function report(cause: unknown) {
   error.value = (cause as Error).message;
 }
 async function persist(snapshot: DocumentSessionState) {
+  // An offered recovery is not adopted by this clean server-baseline session.
+  if (recovered.value || loading.value) return;
   const copy = structuredClone(snapshot);
   const work = writeQueue.then(async () => {
+    if (recovered.value || loading.value) return;
     if (!store) throw Error('本地草稿身份尚未准备，请稍后重试');
     if (!session?.dirty()) {
       if (record) {
@@ -207,17 +211,29 @@ async function loadPreview() {
 async function load() {
   clearTimeout(timer);
   clearTimeout(draftTimer);
+  try {
+    await session?.persist();
+    await writeQueue;
+  } catch (e) {
+    report(e);
+    return;
+  }
   disposeEditor();
   loading.value = true;
   error.value = '';
   try {
     if (!props.draftScope) throw Error('本地草稿身份尚未准备');
-    store = createDraftStore({ scope: props.draftScope });
-    const [document, value] = await Promise.all([
-      api<NoteDocument>('/api/notes/' + props.noteId),
-      readDiagram(props.noteId),
-    ]);
+    const nextStore = createDraftStore({ scope: props.draftScope });
+    const { document, resource: value } = await readCoherentDiagramDocument(
+      () => api<NoteDocument>('/api/notes/' + props.noteId),
+      () => readDiagram(props.noteId),
+    );
     if (disposed) return;
+    const nextRecord = await nextStore.load(props.noteId);
+    if (disposed) return;
+    store = nextStore;
+    record = nextRecord;
+    recovered.value = nextRecord;
     doc = document;
     resource = value;
     const parsed = parseDiagramDocument(document.content);
@@ -242,8 +258,6 @@ async function load() {
         changed,
       },
     );
-    record = await store.load(props.noteId);
-    if (record) recovered.value = record;
     await loadPreview();
     if (!value.capabilities.canEdit) {
       error.value =
