@@ -43,9 +43,22 @@ export function migrateDiagramDocuments(db: AppDatabase) {
     );
     CREATE INDEX IF NOT EXISTS diagram_prepared_versions ON diagram_prepared_primaries(note_id,source_hash,render_hash,preview_hash);
     CREATE TABLE IF NOT EXISTS diagram_pending_publications(operation_id TEXT PRIMARY KEY REFERENCES operations(id),note_id TEXT NOT NULL,path TEXT NOT NULL,document_hash TEXT NOT NULL,creation_intent_id TEXT,manifest TEXT NOT NULL);
-    CREATE TABLE IF NOT EXISTS diagram_document_versions(note_id TEXT NOT NULL REFERENCES notes(id),document_hash TEXT NOT NULL,path TEXT NOT NULL,document_type TEXT NOT NULL,source_hash TEXT NOT NULL,render_hash TEXT NOT NULL,preview_hash TEXT NOT NULL,manifest TEXT NOT NULL,created_at INTEGER NOT NULL,PRIMARY KEY(note_id,document_hash));
+    CREATE TABLE IF NOT EXISTS diagram_document_versions(note_id TEXT NOT NULL REFERENCES notes(id),document_hash TEXT NOT NULL,path TEXT NOT NULL,document_type TEXT NOT NULL,source_hash TEXT NOT NULL,render_hash TEXT NOT NULL,preview_hash TEXT NOT NULL,manifest TEXT NOT NULL,created_at INTEGER NOT NULL,PRIMARY KEY(note_id,document_hash,path));
     CREATE INDEX IF NOT EXISTS diagram_published_bindings ON diagram_document_versions(note_id,source_hash,render_hash,preview_hash);
   `);
+  // A byte-identical document can be published in more than one logical directory.
+  // Keep its original historical context while registering the relocated context.
+  const versionColumns = db.prepare('PRAGMA table_info(diagram_document_versions)').all() as { name: string; pk: number }[];
+  if (!versionColumns.some((column) => column.name === 'path' && column.pk)) {
+    db.transaction(() => {
+      db.exec(`ALTER TABLE diagram_document_versions RENAME TO diagram_document_versions_old;
+        DROP INDEX IF EXISTS diagram_published_bindings;
+        CREATE TABLE diagram_document_versions(note_id TEXT NOT NULL REFERENCES notes(id),document_hash TEXT NOT NULL,path TEXT NOT NULL,document_type TEXT NOT NULL,source_hash TEXT NOT NULL,render_hash TEXT NOT NULL,preview_hash TEXT NOT NULL,manifest TEXT NOT NULL,created_at INTEGER NOT NULL,PRIMARY KEY(note_id,document_hash,path));
+        INSERT INTO diagram_document_versions SELECT * FROM diagram_document_versions_old;
+        DROP TABLE diagram_document_versions_old;
+        CREATE INDEX diagram_published_bindings ON diagram_document_versions(note_id,source_hash,render_hash,preview_hash);`);
+    }).immediate();
+  }
   const intentColumns = db.prepare('PRAGMA table_info(diagram_creation_intents)').all() as {
     name: string;
   }[];
@@ -54,4 +67,9 @@ export function migrateDiagramDocuments(db: AppDatabase) {
   const columns = db.prepare('PRAGMA table_info(document_state)').all() as { name: string }[];
   if (!columns.some((column) => column.name === 'document_type'))
     db.exec("ALTER TABLE document_state ADD COLUMN document_type TEXT NOT NULL DEFAULT 'markdown'");
+  const folderColumns = db.prepare('PRAGMA table_info(folder_trash)').all() as { name: string }[];
+  if (!folderColumns.some((column) => column.name === 'diagram_plan'))
+    db.exec('ALTER TABLE folder_trash ADD COLUMN diagram_plan TEXT');
+  if (!folderColumns.some((column) => column.name === 'assets_json'))
+    db.exec('ALTER TABLE folder_trash ADD COLUMN assets_json TEXT');
 }

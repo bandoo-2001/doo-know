@@ -9,6 +9,7 @@ import {
   fsyncSync,
   linkSync,
   unlinkSync,
+  readFileSync,
 } from 'node:fs';
 import { basename, dirname, join } from 'node:path';
 import type { AppConfig } from '../../../shared/contracts.js';
@@ -23,6 +24,8 @@ import { assertWritable, fsyncDirectory, restoreHash } from './core.js';
 import { acquireNoteWrite, releaseNoteWrite } from './write-lease.js';
 import { beginOperation, existingResult, sha256 } from './operations.js';
 import { fail, KnowledgeError } from './errors.js';
+import { hasDiagramDeclarationSync } from './diagram-declaration.js';
+import { assertNativeDiagramReferencesUnchanged, planDiagramRelocation, recordDiagramRelocations, verifyDiagramRelocations, type DiagramRelocation } from './diagram-relocation.js';
 
 export function moveService(config: AppConfig, db: AppDatabase, record: (intent: any) => any) {
   const stageFor = (intent: any) =>
@@ -165,6 +168,8 @@ export function moveService(config: AppConfig, db: AppDatabase, record: (intent:
       unlinkSync(publication);
       fsyncDirectory(dirname(dest));
     }
+    const diagrams: DiagramRelocation[] = evidence.diagram ? [evidence.diagram] : [];
+    verifyDiagramRelocations(config, diagrams);
     const result = db
       .transaction(() => {
         if (!destinationMatches()) fail(409, 'MOVE_CONFLICT');
@@ -173,7 +178,9 @@ export function moveService(config: AppConfig, db: AppDatabase, record: (intent:
           unlinkSync(source);
           fsyncDirectory(dirname(source));
         }
-        return record(intent);
+        const result = record(intent);
+        recordDiagramRelocations(db, diagrams);
+        return result;
       })
       .immediate();
     try {
@@ -229,6 +236,13 @@ export function moveService(config: AppConfig, db: AppDatabase, record: (intent:
       if (existsSync(dest) || db.prepare('SELECT 1 FROM notes WHERE path=? AND active=1').get(path))
         fail(409, 'NAME_CONFLICT');
       const hash = restoreHash(source);
+      assertNativeDiagramReferencesUnchanged(config, db, p, [{ from: note.path, to: path }], id);
+      let diagram: DiagramRelocation | undefined;
+      if (hasDiagramDeclarationSync(source)) {
+        if (s.size > 20n * 1024n * 1024n) fail(413, 'FILE_TOO_LARGE');
+        const content = readFileSync(source, 'utf8');
+        diagram = planDiagramRelocation(config, db, id, content, content, note.path, path, [{ from: note.path, to: path }]);
+      }
       let referencesChecked: string | undefined;
       if (dirname(note.path) !== dirname(path)) {
         let document: ReturnType<typeof readDocument>;
@@ -281,6 +295,7 @@ export function moveService(config: AppConfig, db: AppDatabase, record: (intent:
           'move',
           JSON.stringify({
             source: { dev: String(s.dev), ino: String(s.ino) },
+            ...(diagram ? { diagram } : {}),
             ...(referencesChecked ? { referencesChecked } : {}),
           }),
           expectedModifiedAt,

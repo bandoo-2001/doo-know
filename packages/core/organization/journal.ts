@@ -27,6 +27,7 @@ import { sha256 } from '../knowledge/operations.js';
 import { restoreHash, fsyncDirectory, enqueueSource } from '../knowledge/core.js';
 import { syncDirectoryCatalog } from './catalog.js';
 import { readOrganizationSettings } from './settings.js';
+import { recordDiagramRelocations, verifyDiagramRelocations } from '../knowledge/diagram-relocation.js';
 import {
   evidence,
   sameIdentity,
@@ -312,6 +313,7 @@ export function commitOrganization(
         fail(409, 'ORGANIZATION_EVIDENCE_CONFLICT');
     }
   }
+  verifyDiagramRelocations(config, m.diagrams || []);
   return db
     .transaction(() => {
       const existing = db
@@ -342,6 +344,7 @@ export function commitOrganization(
             enqueueSource(db, config, o.id, o.afterHash, s.mtime, s.size);
           } else db.prepare('UPDATE assets SET path=? WHERE id=?').run(o.to, o.id);
         }
+      recordDiagramRelocations(db, m.diagrams || []);
       const state = syncDirectoryCatalog(config, db, { recovering: true });
       m.resultRevision = state.structureRevision;
       m.outputInventory = outputInventory(config, m);

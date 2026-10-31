@@ -26,6 +26,7 @@ import {
 } from './catalog.js';
 import { rewriteLibraryReferences } from './references.js';
 import { assertOrganizationReceiptFits } from './response-budget.js';
+import { assertFolderDiagramResourcesUnshared, planDiagramRelocation, verifyDiagramRelocations, type DiagramRelocation } from '../knowledge/diagram-relocation.js';
 export const organizationLimits = {
   actions: 50,
   files: 1000,
@@ -90,6 +91,7 @@ export type OrganizationManifest = {
   outputInventory?: string;
   outputCoverage?: Coverage[];
   outputContentInventory?: string;
+  diagrams?: DiagramRelocation[];
 };
 export function evidence(path: string, hash?: string): Evidence {
   const s = lstatSync(path, { bigint: true });
@@ -291,6 +293,8 @@ export function prepareOrganization(
     to: c.to,
     business: true,
   }));
+  for (const move of moves) if (move.directory) assertFolderDiagramResourcesUnshared(config, db, move.from, false, moves);
+  const diagrams: DiagramRelocation[] = [];
   const assetRows = db.prepare('SELECT id,path FROM assets').all() as Array<{
     id: string;
     path: string;
@@ -353,6 +357,13 @@ export function prepareOrganization(
     coverage.push({ path: n.path, id: n.id, hash: body.hash, evidence: body.evidence });
     const target = map(n.path),
       rewrite = rewriteLibraryReferences(body.content, n.path, target, moves, isWhiteboard(n.path));
+    try {
+      const diagram = planDiagramRelocation(config, db, n.id, body.content, rewrite.content, n.path, target, moves);
+      if (diagram) diagrams.push(diagram);
+    } catch (error) {
+      if (!canAccessPath(p, n.path)) fail(403, 'DEPENDENCY_FORBIDDEN');
+      throw error;
+    }
     if (target !== n.path || rewrite.changed) {
       permissions.push(
         { path: n.path, scope: 'knowledge:read' },
@@ -406,6 +417,7 @@ export function prepareOrganization(
     graphRevision,
     inventory: snapshot,
     coverage,
+    diagrams,
     objects,
     permissions,
     changes: [
@@ -429,6 +441,7 @@ export function revalidateManifest(
   m: OrganizationManifest,
 ) {
   checkPermissions(p, m.permissions);
+  verifyDiagramRelocations(config, m.diagrams || [], true);
   const binding = libraryIdentity(db);
   if (!binding || binding.libraryId !== m.libraryId || binding.bindingVersion !== m.bindingVersion)
     fail(409, 'LIBRARY_BINDING_CHANGED');

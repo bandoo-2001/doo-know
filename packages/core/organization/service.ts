@@ -49,6 +49,7 @@ import {
   type Change,
 } from './plan.js';
 import { rewriteLibraryReferences } from './references.js';
+import { planDiagramRelocation, type DiagramRelocation } from '../knowledge/diagram-relocation.js';
 import { organizationResponseFits, assertOrganizationReceiptFits } from './response-budget.js';
 import {
   stageOrganization,
@@ -469,6 +470,7 @@ export function organizationService(config: AppConfig, db: AppDatabase, notes: N
       .filter((c) => c.from && c.type.startsWith('move_'))
       .map((c) => ({ from: c.to, to: c.from! }));
     let readBytes = 0;
+    const diagrams: DiagramRelocation[] = [];
     const coverage = (
       db.prepare('SELECT id,path FROM notes WHERE active=1 ORDER BY path').all() as any[]
     ).map((n) => {
@@ -486,6 +488,10 @@ export function organizationService(config: AppConfig, db: AppDatabase, notes: N
         inverseMoves,
         n.path.endsWith('.excalidraw'),
       );
+      const change = objects.find((o) => o.kind === 'file' && o.note && o.id === n.id);
+      const finalContent = change && change.kind === 'file' ? change.afterContent ?? b.content : b.content;
+      const diagram = planDiagramRelocation(config, db, n.id, b.content, finalContent, n.path, destination, inverseMoves);
+      if (diagram) diagrams.push(diagram);
       if (rewritten.changed && !objects.some((o) => o.kind === 'file' && o.id === n.id))
         fail(409, 'UNDO_CONFLICT');
       return { path: n.path, id: n.id, hash: b.hash, evidence: b.evidence };
@@ -499,6 +505,7 @@ export function organizationService(config: AppConfig, db: AppDatabase, notes: N
       graphRevision: sha256(JSON.stringify(coverage.map((c) => [c.id, c.path, c.hash]))),
       inventory: inventory(config),
       coverage,
+      diagrams,
       objects,
       permissions,
       undoOf: old.operationId,
