@@ -1,3 +1,4 @@
+import { verifyRetainedFolderResources } from '../knowledge/diagram-retained-folders.js';
 import { recordOperationRevision } from '../knowledge/operation-revisions.js';
 import {
   mkdirSync,
@@ -201,6 +202,7 @@ export function commitOrganization(
     .sort((a, b) => (a[1] as any).to.split('/').length - (b[1] as any).to.split('/').length)) {
     if (o.kind !== 'directory') continue;
     const target = join(config.knowledgeRoot, o.to);
+    if (o.existingTarget && !o.published) o.published = o.existingTarget;
     if (o.published) {
       if (!existsSync(target) || !sameIdentity(evidence(target), o.published))
         fail(409, 'ORGANIZATION_EVIDENCE_CONFLICT');
@@ -281,7 +283,10 @@ export function commitOrganization(
   }
   // Source trees are emptied object-by-object; only verified, empty directories are removed.
   const removals = m.objects
-    .filter((o) => o.kind === 'remove_directory' || (o.kind === 'directory' && o.from))
+    .filter(
+      (o) =>
+        o.kind === 'remove_directory' || (o.kind === 'directory' && o.from && !o.retainedSource),
+    )
     .sort((a, b) => (b as any).from.split('/').length - (a as any).from.split('/').length);
   for (const o of removals) {
     const source = join(config.knowledgeRoot, o.from!);
@@ -317,6 +322,7 @@ export function commitOrganization(
         fail(409, 'ORGANIZATION_EVIDENCE_CONFLICT');
     }
   }
+  verifyRetainedFolderResources(config, db, m.retainedResources ?? []);
   verifyDiagramRelocations(config, m.diagrams || []);
   return db
     .transaction(() => {
@@ -336,6 +342,12 @@ export function commitOrganization(
             backupPath: join(base, o.backup),
           });
         }
+      for (const o of m.objects)
+        if (o.kind === 'directory' && o.replacesDirectoryId)
+          db.prepare('UPDATE organization_directories SET active=0 WHERE id=? AND path=?').run(
+            o.replacesDirectoryId,
+            o.to,
+          );
       for (const o of m.objects)
         if (o.kind === 'directory' && o.business && o.from)
           db.prepare('UPDATE organization_directories SET active=0 WHERE id=?').run(o.id);
@@ -368,6 +380,17 @@ export function commitOrganization(
         ).run(entry.noteId, v.documentHash, v.renderHash, JSON.stringify(v), Date.now());
       }
       const state = syncDirectoryCatalog(config, db, { recovering: true });
+      m.retainedDirectories = m.objects
+        .filter((o) => o.kind === 'directory' && o.retainedSource && o.from)
+        .map((o) => ({
+          path: o.from!,
+          before: evidence(join(config.knowledgeRoot, o.from!)),
+          directoryId: (
+            db
+              .prepare('SELECT id FROM organization_directories WHERE path=? AND active=1')
+              .get(o.from!) as { id: string } | undefined
+          )?.id,
+        }));
       m.resultRevision = state.structureRevision;
       m.outputInventory = outputInventory(config, m);
       m.outputContentInventory = outputInventory(config, m, true);
@@ -423,5 +446,6 @@ export function outputInventory(
     if (o.kind === 'remove_directory') continue;
     visit(o.to);
   }
+  for (const retained of m.retainedDirectories ?? []) visit(retained.path);
   return sha256(JSON.stringify(result));
 }

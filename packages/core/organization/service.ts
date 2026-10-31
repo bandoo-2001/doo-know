@@ -429,9 +429,9 @@ export function organizationService(config: AppConfig, db: AppDatabase, notes: N
           object.business &&
           db
             .prepare(
-              'SELECT id FROM organization_directories WHERE library_id=? AND path=? AND active=1 AND id<>?',
+              'SELECT id FROM organization_directories WHERE library_id=? AND path=? AND active=1 AND id<>? AND id<>?',
             )
-            .get(manifest.libraryId, object.to, object.id)
+            .get(manifest.libraryId, object.to, object.id, object.replacesDirectoryId ?? '')
         ) {
           fail(409, 'UNDO_CONFLICT');
         }
@@ -518,7 +518,14 @@ export function organizationService(config: AppConfig, db: AppDatabase, notes: N
         const current = evidence(join(config.knowledgeRoot, o.to));
         if (!o.published || !sameIdentity(current, o.published)) fail(409, 'UNDO_CONFLICT');
         if (o.from) {
-          if (existsSync(join(config.knowledgeRoot, o.from))) fail(409, 'UNDO_CONFLICT');
+          const retained = old.retainedDirectories?.find((d) => d.path === o.from);
+          const existing = existsSync(join(config.knowledgeRoot, o.from));
+          if (
+            existing &&
+            (!retained ||
+              !sameIdentity(evidence(join(config.knowledgeRoot, o.from)), retained.before))
+          )
+            fail(409, 'UNDO_CONFLICT');
           objects.push({
             kind: 'directory',
             id: o.id,
@@ -526,6 +533,12 @@ export function organizationService(config: AppConfig, db: AppDatabase, notes: N
             from: o.to,
             to: o.from,
             before: current,
+            ...(existing && retained
+              ? {
+                  existingTarget: retained.before,
+                  ...(retained.directoryId ? { replacesDirectoryId: retained.directoryId } : {}),
+                }
+              : {}),
           });
           permissions.push(
             { path: o.to, scope: 'knowledge:organize' },
@@ -541,6 +554,7 @@ export function organizationService(config: AppConfig, db: AppDatabase, notes: N
     const inverseMoves = old.changes
       .filter((c) => c.from && c.type.startsWith('move_'))
       .map((c) => ({ from: c.to, to: c.from! }));
+    inverseMoves.push(...(old.retainedResources ?? []).map((r) => ({ from: r.path, to: r.path })));
     for (const path of previewPaths) {
       const move = inverseMoves.find((m) => path === m.from || path.startsWith(m.from + '/'));
       if (!move || objects.some((o) => o.kind === 'file' && o.from === path)) continue;
@@ -620,6 +634,7 @@ export function organizationService(config: AppConfig, db: AppDatabase, notes: N
       inventory: inventory(config),
       coverage,
       diagrams,
+      retainedResources: old.retainedResources,
       legacyPreviews: [...native].flatMap(([noteId, v]) =>
         v.legacy ? [{ noteId, manifest: v.legacy }] : [],
       ),

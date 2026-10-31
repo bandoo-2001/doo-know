@@ -1,3 +1,4 @@
+import { primaryRenderDescriptor } from '../../../shared/diagram-primary.js';
 import { lstatSync, readFileSync } from 'node:fs';
 import { join, posix } from 'node:path';
 import type { AppConfig } from '../../../shared/contracts.js';
@@ -50,11 +51,75 @@ export function planDiagramRelocation(
   const original = parseDiagramDocument(before),
     parsed = parseDiagramDocument(after);
   if (original.status !== 'diagram') return;
+  if (parsed.status !== 'diagram' || parsed.type !== original.type)
+    fail(409, 'DIAGRAM_PREVIEW_REQUIRED');
+  if (!prepared && parsed.status === 'diagram') {
+    const resources = [
+      {
+        role: 'preview' as const,
+        path: localReference(to, parsed.primary.previewPath),
+        hash: parsed.primary.binding.previewHash,
+      },
+      ...(parsed.primary.source.format === 'excalidraw'
+        ? [
+            {
+              role: 'source' as const,
+              path: localReference(to, parsed.primary.source.path),
+              hash: parsed.primary.binding.sourceHash,
+            },
+          ]
+        : []),
+    ];
+    const retained = db
+      .prepare(
+        'SELECT manifest FROM diagram_document_versions WHERE note_id=? AND document_hash=? AND path=?',
+      )
+      .get(noteId, sha256(after), to) as { manifest: string } | undefined;
+    if (retained) {
+      const manifest = JSON.parse(retained.manifest) as DiagramVersionManifest;
+      if (
+        manifest.type === parsed.type &&
+        manifest.sourceHash === parsed.primary.binding.sourceHash &&
+        manifest.renderHash === parsed.primary.binding.renderHash &&
+        manifest.previewHash === parsed.primary.binding.previewHash &&
+        resources.every(
+          (r) =>
+            r.path &&
+            manifest.resources.some(
+              (m) => m.role === r.role && m.path === r.path && m.hash === r.hash,
+            ),
+        )
+      ) {
+        const render = primaryRenderDescriptor(parsed),
+          asset = (role: 'source' | 'preview') => {
+            const r = resources.find((r) => r.role === role)!;
+            return {
+              id: 'retained-' + role,
+              relativePath: r.path!,
+              markdownPath: posix.relative(posix.dirname(to), r.path!),
+              mime: role === 'preview' ? 'image/png' : 'application/vnd.excalidraw+json',
+            };
+          };
+        prepared = {
+          id: 'retained-' + sha256(after),
+          noteId,
+          type: parsed.type,
+          documentHash: sha256(before),
+          baselineSourceHash: original.primary.binding.sourceHash,
+          ...parsed.primary.binding,
+          title: parsed.title,
+          renderer: render.renderer,
+          config: render.config,
+          preview: asset('preview'),
+          ...(parsed.primary.source.format === 'excalidraw' ? { source: asset('source') } : {}),
+          expiresAt: Number.MAX_SAFE_INTEGER,
+        };
+      }
+    }
+  }
   if (
-    parsed.status !== 'diagram' ||
-    parsed.type !== original.type ||
-    (!prepared &&
-      JSON.stringify(parsed.primary.binding) !== JSON.stringify(original.primary.binding))
+    !prepared &&
+    JSON.stringify(parsed.primary.binding) !== JSON.stringify(original.primary.binding)
   )
     fail(409, 'DIAGRAM_PREVIEW_REQUIRED');
   const binding = original.primary.binding;
@@ -114,12 +179,9 @@ export function planDiagramRelocation(
     if (prepared) {
       const asset = role === 'source' ? prepared.source : prepared.preview;
       if (!asset || asset.relativePath !== path) fail(409, 'DIAGRAM_PREPARATION_MISMATCH');
-      const existingPath = moves.reduce(
-        (value, m) =>
-          value === m.to || value.startsWith(m.to + '/')
-            ? m.from + value.slice(m.to.length)
-            : value,
+      const existingPath = relocatePath(
         path,
+        moves.map((m) => ({ from: m.to, to: m.from })),
       );
       if (sha256(readAsset(config, existingPath, role)) !== nextHash)
         fail(409, 'DIAGRAM_ARTIFACT_CONFLICT');
@@ -312,6 +374,7 @@ export function assertFolderDiagramResourcesUnshared(
   path: string,
   checkActive = true,
   moves: Move[] = [],
+  preserved: { path: string; hash: string }[] = [],
 ) {
   const retained = () =>
     fail(
@@ -331,8 +394,9 @@ export function assertFolderDiagramResourcesUnshared(
   }[])
     if (
       !own.has(row.note_id) &&
-      (JSON.parse(row.manifest) as DiagramVersionManifest).resources.some((r) =>
-        inside(path, r.path),
+      (JSON.parse(row.manifest) as DiagramVersionManifest).resources.some(
+        (r) =>
+          inside(path, r.path) && !preserved.some((p) => p.path === r.path && p.hash === r.hash),
       )
     )
       retained();
