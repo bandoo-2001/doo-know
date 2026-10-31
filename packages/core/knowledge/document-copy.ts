@@ -12,6 +12,7 @@ import { isDocument, isWhiteboard } from '../../../shared/whiteboard.js';
 import { parseDiagramDocument } from '../../../shared/diagram-document.js';
 import {
   primaryRenderDescriptor,
+  applyPreparedDiagramDocument,
   diagramRendererVersions,
   renderPreparedDiagramDocument,
   type PreparedDiagramPrimary,
@@ -199,7 +200,7 @@ export function documentCopyService(
           };
         };
         const render = primaryRenderDescriptor(parsed);
-        const prepared: PreparedDiagramPrimary = {
+        let prepared: PreparedDiagramPrimary = {
           id: operation.id,
           noteId: intent.noteId,
           creationIntentId: intent.id,
@@ -214,6 +215,64 @@ export function documentCopyService(
           ...(sourcePath ? { source: asset(sourcePath, 'application/vnd.excalidraw+json') } : {}),
           expiresAt: intent.expiresAt,
         };
+        const relocated = parseDiagramDocument(content);
+        if (relocated.status !== 'diagram') fail(409, 'DIAGRAM_ARTIFACT_CONFLICT');
+        if (
+          parsed.primary.source.format !== 'excalidraw' &&
+          relocated.primary.source.format !== 'excalidraw' &&
+          relocated.primary.source.content !== parsed.primary.source.content
+        ) {
+          const registry = diagramOperationPreviewRegistry(config, db, p, assets),
+            fixed = registry.fix({
+              noteId: id,
+              role: 'primary',
+              documentPath: row.path,
+              documentHash: body.hash,
+              documentModifiedAt: body.evidence.mtime,
+              sourceHash: binding.sourceHash,
+              finalSource: relocated.primary.source.content,
+              type: parsed.type,
+              title: parsed.title,
+              renderer: render.renderer,
+              config: render.config,
+              moves: [],
+              permissions: [target],
+              context: { copyOperationId: operation.id, creationIntentId: intent.id },
+            }),
+            snapshot = registry.prepared(fixed.id);
+          if (!snapshot)
+            fail(409, 'DIAGRAM_PREVIEW_REQUIRED', '请为副本的最终源码准备预览', false, {
+              planId: fixed.id,
+              documents: [
+                {
+                  noteId: id,
+                  role: 'primary',
+                  documentHash: body.hash,
+                  sourceHash: fixed.sourceHash,
+                  renderHash: fixed.renderHash,
+                  snapshotId: fixed.id,
+                },
+              ],
+            });
+          prepared = {
+            ...snapshot,
+            id: operation.id,
+            noteId: intent.noteId,
+            creationIntentId: intent.id,
+            documentHash: null,
+            baselineSourceHash: null,
+            preview: {
+              ...snapshot.preview,
+              markdownPath: posix.relative(posix.dirname(target), snapshot.preview.relativePath),
+            },
+            expiresAt: intent.expiresAt,
+          };
+          content = applyPreparedDiagramDocument({
+            markdown: content,
+            prepared,
+            source: fixed.source,
+          });
+        }
         db.prepare(
           'INSERT OR IGNORE INTO diagram_prepared_primaries(id,note_id,creation_intent_id,principal,client_id,document_hash,baseline_source_hash,source_hash,render_hash,preview_hash,result,created_at,expires_at) VALUES(?,?,?,?,?,NULL,NULL,?,?,?,?,?,?)',
         ).run(
