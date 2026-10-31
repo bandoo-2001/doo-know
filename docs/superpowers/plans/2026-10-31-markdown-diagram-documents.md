@@ -229,3 +229,5 @@ Files: `packages/core/knowledge/{diagram-creation,diagram-document-schema}.ts`�
 验证：30个图形/旧白板/快照相关测试文件301/301通过，MCP专用与兼容四文件51/51通过（重叠）；typecheck/build通过。读取审阅两项P2已复现并修复；写入独立审阅一项P2为发布后跨权限目录移动的当前路径鉴权，正在修复并将复审，Task4 GREEN/完成状态仍保留未勾选。原工作目录427份保护基线文件摘要均未变化。
 
 Task5已细化为 `2026-10-31-markdown-diagram-public-projection.md` 与 `2026-10-31-markdown-diagram-editor-session.md`。公开投影/旧资源适配和前端会话分离实施，接口由两个子计划冻结；Task6历史/移动、后续迁移/检索/编辑器/便携交付仍持续推进，不代表完成。
+
+Task4F 最终验收：发布后当前路径鉴权已在5b841f5修复，三种成功/不明成功情形均真实RED→GREEN；五文件62/62，修复后typecheck/build通过。独立复审Spec/质量均批准。核心私有主图与写入已完成，Task5继续旧格式/嵌入资源兼容与公开投影；这些兼容项及Task6通过前，阶段2不关闭。
