@@ -1,3 +1,4 @@
+import { recordOperationRevision } from '../knowledge/operation-revisions.js';
 import {
   mkdirSync,
   openSync,
@@ -323,6 +324,18 @@ export function commitOrganization(
         .prepare('SELECT status,result FROM operations WHERE id=?')
         .get(m.operationId) as any;
       if (existing?.status === 'succeeded') return JSON.parse(existing.result);
+      for (const o of m.objects)
+        if (o.kind === 'file' && o.note && o.before.hash && o.afterHash !== o.before.hash) {
+          if (!o.backup) fail(409, 'ORGANIZATION_EVIDENCE_CONFLICT');
+          recordOperationRevision(config, db, {
+            operationId: m.operationId,
+            noteId: o.id,
+            logicalPath: o.from,
+            beforeHash: o.before.hash,
+            modifiedAt: o.before.mtime,
+            backupPath: join(base, o.backup),
+          });
+        }
       for (const o of m.objects)
         if (o.kind === 'directory' && o.business && o.from)
           db.prepare('UPDATE organization_directories SET active=0 WHERE id=?').run(o.id);

@@ -447,6 +447,20 @@ for (const point of ['publish', 'source_removed', 'metadata'])
     expect(f.db.prepare('SELECT COUNT(*) AS count FROM notes WHERE active=1').get()).toEqual({
       count: 2,
     });
+    const history = f.db
+      .prepare('SELECT document_type,logical_path,content_hash FROM revisions WHERE note_id=?')
+      .all(f.note.id);
+    expect(history).toEqual([
+      {
+        document_type: 'whiteboard',
+        logical_path: '00-Inbox/board.md',
+        content_hash: sha256(f.note.content),
+      },
+    ]);
+    await f.org.recover();
+    expect(
+      f.db.prepare('SELECT COUNT(*) AS count FROM revisions WHERE note_id=?').get(f.note.id),
+    ).toEqual({ count: 1 });
   });
 it('rebases an ordinary native reference fence with its linked source when its containing note moves across directories', async () => {
   const f = fixture();
@@ -499,4 +513,38 @@ it('rebases an ordinary native reference fence with its linked source when its c
   expect(current.code.trim()).toBe(current.sourcePath);
   expect(current.binding.codeHash).toBe(sha256(normalizeDiagramCode(current.code)));
   expect(current.sourcePath).toContain('../00-Inbox/assets/');
+});
+it('records one original typed revision for each rewritten dependent main document and preserves it across receipt replay', async () => {
+  const f = fixture();
+  const pending = await f.rename();
+  for (const need of pending.previewRequired!.documents) {
+    const snapshot = f.registry.get(need.snapshotId);
+    f.registry.prepare(snapshot.id, {
+      sourceHash: snapshot.sourceHash,
+      pngBase64: png,
+      requestId: randomUUID(),
+    });
+  }
+  await f.org.resume(f.p, { operationId: pending.operationId });
+  await f.org.drain();
+  expect(f.org.operation(f.p, { operationId: pending.operationId }).status).toBe('succeeded');
+  const revisions = f.db.prepare('SELECT * FROM revisions WHERE note_id=?').all(f.note.id) as any[];
+  expect(revisions).toHaveLength(1);
+  expect(revisions[0]).toMatchObject({
+    document_type: 'whiteboard',
+    payload_format: 'markdown',
+    logical_path: '00-Inbox/board.md',
+    content_hash: sha256(f.note.content),
+  });
+  expect(readFileSync(join(f.config.dataRoot, 'history', revisions[0].file), 'utf8')).toBe(
+    f.note.content,
+  );
+  await f.org.resume(f.p, { operationId: pending.operationId });
+  await f.org.recover();
+  expect(
+    f.db.prepare('SELECT COUNT(*) AS count FROM revisions WHERE note_id=?').get(f.note.id),
+  ).toEqual({ count: 1 });
+  expect(
+    f.db.prepare('SELECT COUNT(*) AS count FROM revisions WHERE note_id=?').get(f.target.noteId),
+  ).toEqual({ count: 0 });
 });
