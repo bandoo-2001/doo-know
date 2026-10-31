@@ -56,7 +56,7 @@ function canonical(value: unknown, depth = 0): unknown {
   throw Error('图形渲染配置必须是 JSON');
 }
 /** Versioned domain separation; derived paths and binding bytes never enter the fingerprint. */
-export function diagramRenderFingerprint(input: DiagramRenderInput) {
+export function serializeDiagramRenderInput(input: DiagramRenderInput) {
   hash.parse(input.sourceHash);
   if (
     !['whiteboard', 'mindmap', 'flowchart'].includes(input.type) ||
@@ -64,16 +64,17 @@ export function diagramRenderFingerprint(input: DiagramRenderInput) {
     typeof input.title !== 'string'
   )
     throw Error('图形渲染参数不正确');
-  return hashDiagramBytes(
-    JSON.stringify(
-      canonical({
-        version: 1,
-        type: input.type,
-        sourceHash: input.sourceHash,
-        title: input.title,
-        renderer: input.renderer,
-        config: input.config,
-      }),
-    ),
+  return JSON.stringify(
+    canonical({
+      version: 1,
+      type: input.type,
+      sourceHash: input.sourceHash,
+      title: input.title,
+      renderer: input.renderer,
+      config: input.config,
+    }),
   );
+}
+export function diagramRenderFingerprint(input: DiagramRenderInput) {
+  return hashDiagramBytes(serializeDiagramRenderInput(input));
 }

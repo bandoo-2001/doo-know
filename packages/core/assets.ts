@@ -1,3 +1,6 @@
+import { diagramCreationService } from './knowledge/diagram-creation.js';
+import type { Principal } from '../../shared/knowledge-contracts.js';
+import { fail } from './knowledge/errors.js';
 import { workspaceWriteSync } from './workspace/gate.js';
 import { randomUUID, createHash } from 'node:crypto';
 import {
@@ -134,10 +137,10 @@ export function assetService(config: AppConfig, db: AppDatabase, notes: NoteServ
       }
     });
   }
-  function upload(id: string, name: string, mime: string, bytes: Buffer, requestId?: unknown) {
+  function upload(id: string, name: string, mime: string, bytes: Buffer, requestId?: unknown, reservedTarget?: {path:string}) {
     if (requestId !== undefined && (typeof requestId !== 'string' || !/^[A-Za-z0-9_-]{8,100}$/.test(requestId)))
       throw new HttpError(400, '上传请求标识不正确');
-    const n = notes.exists(id);
+    const n = reservedTarget || notes.exists(id);
     if (bytes.length > max) throw new HttpError(413, '附件不能超过 10 MiB');
     const ext = extname(name).toLowerCase();
     if (!allowed[ext] || allowed[ext] !== mime)
@@ -221,8 +224,14 @@ export function assetService(config: AppConfig, db: AppDatabase, notes: NoteServ
     mapUrl,
     list,
     candidatePaths,
-    upload: (...args: Parameters<typeof upload>) =>
-      workspaceWriteSync(db, { kind: 'asset.upload' }, () => upload(...args)),
+    upload: (id: string, name: string, mime: string, bytes: Buffer, requestId?: unknown) =>
+      workspaceWriteSync(db, { kind: 'asset.upload' }, () => upload(id,name,mime,bytes,requestId)),
+    uploadForDiagramCreation: (principal: Principal, intentId: string, name: string, mime: string, bytes: Buffer, requestId: string) =>
+      workspaceWriteSync(db, { kind: 'asset.diagram-creation' }, () => {
+        const intent=diagramCreationService(config,db,principal).get(intentId);
+        if (!['reserved','prepared'].includes(intent.status)) fail(409,'CREATION_INTENT_UNAVAILABLE');
+        return upload(intent.noteId,name,mime,bytes,requestId,{path:intent.relativePath});
+      }),
     publicAsset,
     publicSource,
   };

@@ -18,5 +18,21 @@ export function migrateDiagramDocuments(db: AppDatabase) {
     );
     CREATE UNIQUE INDEX IF NOT EXISTS diagram_reserved_path ON diagram_creation_intents(path)
       WHERE status IN ('reserved','prepared');
+    CREATE TABLE IF NOT EXISTS diagram_prepared_primaries (
+      id TEXT PRIMARY KEY REFERENCES operations(id),
+      note_id TEXT NOT NULL,
+      creation_intent_id TEXT REFERENCES diagram_creation_intents(id),
+      principal TEXT NOT NULL,
+      client_id TEXT NOT NULL,
+      document_hash TEXT,
+      baseline_source_hash TEXT,
+      source_hash TEXT NOT NULL,
+      render_hash TEXT NOT NULL,
+      preview_hash TEXT NOT NULL,
+      result TEXT NOT NULL,
+      created_at INTEGER NOT NULL,
+      expires_at INTEGER NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS diagram_prepared_versions ON diagram_prepared_primaries(note_id,source_hash,render_hash,preview_hash);
   `);
 }

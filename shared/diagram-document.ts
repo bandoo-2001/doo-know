@@ -11,6 +11,10 @@ export const diagramDocumentMetadataSchema = z
     version: z.literal(1),
     type: z.enum(['whiteboard', 'mindmap', 'flowchart']),
     engine: z.enum(['excalidraw', 'mind-elixir', 'mermaid']),
+    render: z
+      .object({ renderer: z.string().min(1).max(160), config: z.record(z.string(), z.unknown()) })
+      .passthrough()
+      .optional(),
   })
   .passthrough()
   .refine(
@@ -203,7 +207,18 @@ export function parseDiagramDocument(markdown: string): DiagramDocumentParse {
     const lists = within.filter((token) => token.type === 'bullet_list_open' && token.level === 0);
     if (fences.length || lists.length > 1) return invalid('脑图仅支持一个无序大纲');
     const r = lists.length ? range(lists[0]) : undefined;
-    const content = r ? markdown.slice(r.from, r.to) : '';
+    const lastNode = r
+      ? within
+          .filter(
+            (token) =>
+              token.type === 'inline' &&
+              token.level > 1 &&
+              range(token).from >= r.from &&
+              range(token).to <= r.to,
+          )
+          .at(-1)
+      : undefined;
+    const content = r && lastNode ? markdown.slice(r.from, range(lastNode).to) : '';
     const headingRange = range(headings[0]);
     try {
       parseMindmapOutline(

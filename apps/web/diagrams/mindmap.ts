@@ -1,13 +1,14 @@
 import MindElixir, { type MindElixirInstance, type NodeObj } from 'mind-elixir';
 import 'mind-elixir/style.css';
 import { snapdom } from '@zumer/snapdom';
+import { diagramRendererVersions } from '../../../shared/diagram-primary.js';
 import {
   parseMindmapOutline,
   serializeMindmapOutline,
   type MindmapNode,
 } from '../../../shared/mindmap-outline.js';
 
-export const MINDMAP_RENDERER = 'mind-elixir@5.15.1+snapdom@3.7.0';
+export const MINDMAP_RENDERER = diagramRendererVersions.mindmap;
 const fontFamily = '"WenQuanYi Micro Hei", "Microsoft YaHei", "PingFang SC", sans-serif';
 
 function editorTree(root: MindmapNode): NodeObj {

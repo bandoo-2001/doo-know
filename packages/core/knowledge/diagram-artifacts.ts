@@ -57,7 +57,7 @@ export function validateDiagramSource(kind: DiagramKind, bytes: Uint8Array) {
 }
 
 /** Check the real PNG signature and IHDR before accepting a bounded raster preview. */
-function validatePng(bytes: Buffer) {
+export function validatePng(bytes: Buffer) {
   if (bytes.length > maxPng) throw new HttpError(413, 'PNG 预览不能超过 10 MiB');
   if (
     bytes.length < 33 ||

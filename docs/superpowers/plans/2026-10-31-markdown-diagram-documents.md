@@ -199,3 +199,9 @@ Files: `packages/core/knowledge/{diagram-creation,diagram-document-schema}.ts`�
 2026-10-31 Task 4A：新增幂等数据库表及 `diagramCreationService` 的 reserve/get/cancel 原语。预留不创建主文件、不插入 notes/document_state 活动记录；绑定主体、客户端、目标路径和幂等参数，支持 24 小时租约、取消、过期和重启恢复。7 个专项测试通过，连同格式/资源契约回归 50/50；typecheck 通过。尚未开放 Web/MCP 入口，也未接入附件准备和发布，Task 4 整项保持未完成。
 
 接续 Task 4B 的责任边界：新增主图准备回执，固定调用主体、预留 ID/笔记 ID、主文件基线、原生源基线、源码摘要、标题/renderer/config 渲染指纹和 PNG 摘要。白板写不可变源附件+PNG；大纲/Mermaid 只需 inline 源+PNG。`assets.upload` 当前要求活动 notes，须增加在同一短锁内验证创建意图的专用准备入口，不能扩大普通 `notes.exists` 权限。最终创建需通过可信服务将预留 UUID 交给 mutation core，客户端不能任意指定 UUID。所有普通写入入口随后接入同一图形完整性闸门；准备失败或无 PNG 不激活主文件。
+
+2026-10-31 全量结果：原长跑已结束，392 文件中 387 通过、3 失败、2 跳过；2862 项中 2838 通过、8 失败、16 跳过。六个格式失败是长跑开始后缓存的审阅前实现，另两项为环境问题；当前最终实现对应测试全部已单独回归通过。该次混合版本运行不冒充全量通过，后续冻结代码后重新运行全量。
+
+2026-10-31 Task 4B（准备部分）：新增 `shared/diagram-primary.ts`（渲染器/适配器版本、准备回执和完整主文件序列化）、`knowledge/primary-diagrams.ts`（主图 prepare）、`primary-diagram-state.ts`（主文件与源的独立版本读取）。新增 `diagram_prepared_primaries`，绑定当前主体/客户端、预留身份或活动文档的完整摘要及源基线、源/渲染/PNG 摘要和租约。白板上传源+PNG；脑图/流程图只上传 PNG。普通上传仍拒绝未发布 UUID，专用上传在锁内复核创建意图；无主文件提前激活。幂等、重启、部分上传失败续跑、过期、篡改、并发源/主文档变化均有测试。相关回归 84/84、typecheck 通过。未开放新路由，完整提交闸门仍待实现。
+
+协议细化：metadata 可显式记录 `render:{renderer,config}`；渲染器指纹包含 DooKnow 适配器版本 `+dooknow@1`，与库版本共同绑定。大纲源的字节范围截止最后节点行的换行，不把图片前分隔空行计入源摘要；内联权威源需结束换行。格式解析和新序列化实际往返测试固定该规则。
