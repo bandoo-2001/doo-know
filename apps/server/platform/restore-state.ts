@@ -1,3 +1,4 @@
+import { rebindRestoredWhiteboardMigrations } from '../../../packages/core/knowledge/migration-restore-state.js';
 import { rebindKnowledgeDataRoot } from '../../../packages/core/knowledge-data.js';
 import { randomUUID } from 'node:crypto';
 import { realpathSync, lstatSync } from 'node:fs';
@@ -168,4 +169,5 @@ export function resetRestoredState(
     (db.pragma('foreign_key_check') as any[]).length
   )
     throw Error('恢复数据库一致性校验失败');
+  rebindRestoredWhiteboardMigrations(config, db);
 }

@@ -3,6 +3,15 @@ import type { AppDatabase } from '../db.js';
 /** Additive migration: reservations are deliberately separate from discoverable notes. */
 export function migrateDiagramDocuments(db: AppDatabase) {
   db.exec(`
+    CREATE TABLE IF NOT EXISTS whiteboard_migrations (
+      id TEXT PRIMARY KEY REFERENCES operations(id),note_id TEXT NOT NULL REFERENCES notes(id),
+      principal TEXT NOT NULL,client_id TEXT NOT NULL,old_path TEXT NOT NULL,new_path TEXT NOT NULL,
+      status TEXT NOT NULL,plan TEXT NOT NULL,prepared TEXT,markdown TEXT,backup_path TEXT NOT NULL,
+      commit_operation_id TEXT,rollback_operation_id TEXT,references_json TEXT NOT NULL DEFAULT '[]',created_at INTEGER NOT NULL
+    );
+    CREATE UNIQUE INDEX IF NOT EXISTS whiteboard_migration_active_note ON whiteboard_migrations(note_id) WHERE status <> 'rolled_back';
+    CREATE UNIQUE INDEX IF NOT EXISTS whiteboard_migration_target ON whiteboard_migrations(new_path) WHERE status <> 'rolled_back';
+    CREATE TABLE IF NOT EXISTS note_path_aliases(path TEXT PRIMARY KEY,note_id TEXT NOT NULL REFERENCES notes(id),migration_id TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS legacy_diagram_previews (
       note_id TEXT NOT NULL REFERENCES notes(id),
       document_hash TEXT NOT NULL,

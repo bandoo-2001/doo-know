@@ -1,3 +1,4 @@
+import { noteIdAtPath } from './note-path-aliases.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
 import type { AppConfig } from '../../../shared/contracts.js';
 import { diagramResourceSchema, type DiagramResource } from '../../../shared/diagram-resource.js';
@@ -202,12 +203,7 @@ export function resolveWhiteboardResource(
   const id =
     ref &&
     (whiteboardId(ref) ||
-      (path &&
-        (
-          db.prepare('SELECT id FROM notes WHERE active=1 AND path=?').get(path) as
-            | { id: string }
-            | undefined
-        )?.id));
+      (path && noteIdAtPath(db, path, principal)));
   if (!id) fail(404, 'WHITEBOARD_NOT_FOUND');
   const resource = resolvePrimaryDiagram(config, db, notes, principal, id, options);
   if (resource.documentType !== 'whiteboard') fail(404, 'WHITEBOARD_NOT_FOUND');

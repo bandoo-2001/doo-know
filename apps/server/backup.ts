@@ -71,7 +71,7 @@ export async function backup(config: AppConfig, destination: string) {
         .get()
     )
       throw new Error('知识库整理尚未恢复一致，请完成恢复后备份');
-    const retainedDirectories = ['history', 'reconciliation', 'organization'];
+    const retainedDirectories = ['history', 'reconciliation', 'organization', 'whiteboard-migrations'];
     const retainedBefore = await Promise.all(
       retainedDirectories.map((name) => optionalInventory(join(config.dataRoot, name))),
     );

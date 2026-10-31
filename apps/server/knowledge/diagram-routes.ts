@@ -1,3 +1,4 @@
+import { registerWhiteboardMigrationRoutes } from './whiteboard-migration-routes.js';
 import type { FastifyInstance } from 'fastify';
 import type { AppConfig } from '../../../shared/contracts.js';
 import type { AppDatabase } from '../../../packages/core/db.js';
@@ -17,6 +18,7 @@ export async function registerDiagramDocumentRoutes(
   db: AppDatabase,
   runtime: () => { config: AppConfig; notes: NoteService; assets: ReturnType<typeof assetService> },
 ) {
+  await registerWhiteboardMigrationRoutes(app,db,runtime);
   const services = () => {
     const { config, notes, assets } = runtime();
     return {

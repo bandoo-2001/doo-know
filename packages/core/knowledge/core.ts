@@ -1,3 +1,6 @@
+import { migrationAliasState } from './migration-alias-state.js';
+import { finishWhiteboardMigration, finishWhiteboardRollback, type MigrationRow } from './diagram-migration-journal.js';
+import { recordRevisionContext } from './revision-context.js';
 import {parseDiagramDocument} from '../../../shared/diagram-document.js';
 import { assertDiagramPublication } from './diagram-publication-policy.js';
 import { recordDiagramPublication,verifyPendingDiagramPublication } from './diagram-publications.js';
@@ -261,23 +264,14 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
       }
       const file = safePath(config.knowledgeRoot, intent.path, 'note'),
         s = statSync(file, { bigint: true });
-      if (['restore', 'move'].includes(intent.kind) && restoreHash(file) !== intent.target_hash)
+      if (['restore', 'move', 'whiteboard-migrate', 'whiteboard-rollback'].includes(intent.kind) && restoreHash(file) !== intent.target_hash)
         fail(409, 'RESTORE_CONFLICT', '恢复目标发生外部变化');
-      if (intent.revision_id)
-        db.prepare(
-          'INSERT OR IGNORE INTO revisions(id,note_id,file,created_at,modified_at) VALUES(?,?,?,?,?)',
-        ).run(
-          intent.revision_id,
-          intent.note_id,
-          intent.history_file,
-          new Date().toISOString(),
-          intent.original_mtime,
-        );
+      recordRevisionContext(config, db, intent);
       const previousRelativePath =
         intent.kind === 'move'
           ? (db.prepare('SELECT path FROM notes WHERE id=?').get(intent.note_id) as any).path
           : undefined;
-      if (intent.kind === 'restore' || intent.kind === 'move') {
+      if (intent.kind === 'restore' || intent.kind === 'move' || intent.kind === 'whiteboard-migrate' || intent.kind === 'whiteboard-rollback') {
         db.prepare('UPDATE notes SET path=?,active=1,trash_path=NULL WHERE id=?').run(
           intent.path,
           intent.note_id,
@@ -285,6 +279,14 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
         if (intent.kind === 'restore')
           db.prepare('UPDATE shares SET enabled=0 WHERE note_id=?').run(intent.note_id);
       } else db.prepare('UPDATE notes SET active=1 WHERE id=?').run(intent.note_id);
+      if (intent.kind === 'whiteboard-rollback') {
+        db.prepare('DELETE FROM note_path_aliases WHERE note_id=?').run(intent.note_id);
+      }
+      if (intent.kind === 'whiteboard-migrate') {
+        const migration = db.prepare('SELECT id,old_path FROM whiteboard_migrations WHERE commit_operation_id=?').get(intent.id) as { id:string;old_path:string } | undefined;
+        if (!migration) fail(409, 'MIGRATION_INTENT_MISSING');
+        db.prepare('INSERT INTO note_path_aliases(path,note_id,migration_id) VALUES(?,?,?) ON CONFLICT(path) DO UPDATE SET note_id=excluded.note_id,migration_id=excluded.migration_id').run(migration.old_path,intent.note_id,migration.id);
+      }
       if (intent.kind === 'move')
         db.prepare('UPDATE document_state SET active=0 WHERE note_id=?').run(intent.note_id);
       enqueueSource(
@@ -357,7 +359,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     return runOperation(op.operation, (commit, stage) => {
       if (directory !== '') safePath(config.knowledgeRoot, directory, 'folder');
       const file = safePath(config.knowledgeRoot, path, 'note', true);
-      if (existsSync(file)) fail(409, 'NAME_CONFLICT');
+      if (existsSync(file) || db.prepare("SELECT 1 FROM whiteboard_migrations WHERE new_path=? AND status NOT IN ('rolled_back','committed','references_pending')").get(path) || db.prepare('SELECT 1 FROM note_path_aliases WHERE path=?').get(path)) fail(409, 'NAME_CONFLICT');
       const creation=creationIntentId?diagramCreationService(config,db,p).get(creationIntentId):undefined;
       if(!creation && db.prepare("SELECT 1 FROM diagram_creation_intents WHERE path=? AND status IN ('reserved','prepared') AND (expires_at>? OR commit_operation_id IS NOT NULL)").get(path,Date.now())) fail(409,'NAME_CONFLICT');
       const noteId = creation?.noteId || randomUUID(),
@@ -404,6 +406,9 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
       if (isWhiteboard(n.path)) fail(403, 'SHARE_EDIT_UNSUPPORTED', '白板分享暂不支持公开编辑');
       if (content.split('\n').some(line => Buffer.byteLength(line) > 32768))
         fail(413, 'SHARE_EDIT_UNSUPPORTED', '公开编辑不支持超过 32 KiB 的长行');
+    }
+    if (!isWhiteboard(n.path) && db.prepare('SELECT 1 FROM note_path_aliases WHERE note_id=?').get(id)) {
+      try { const native = JSON.parse(content); if (native?.type === 'excalidraw') fail(409, 'VERSION_CONFLICT', '白板已迁移，请重新载入文档'); } catch (error) { if (error instanceof KnowledgeError) throw error; }
     }
     if (isWhiteboard(n.path)) { try { parseWhiteboard(content); } catch(e) { fail(400, 'INVALID_WHITEBOARD', (e as Error).message); } }
     if(isWhiteboard(n.path)){content=withWhiteboardId(content,id);if(Buffer.byteLength(content)>MAX_WHITEBOARD_BYTES)fail(413,'REQUEST_TOO_LARGE','白板不能超过 8 MiB');}
@@ -738,6 +743,19 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
   }
   async function recover(): Promise<RecoveryReport> {
     const report = { recovered: 0, unapplied: 0, conflicted: 0 };
+    for (const migration of db.prepare("SELECT * FROM whiteboard_migrations WHERE status IN ('committing','rolling_back')").all() as MigrationRow[]) {
+      const migrationOperationId = migration.status === 'rolling_back' ? migration.rollback_operation_id : migration.commit_operation_id;
+      if (!migrationOperationId || operationHasLiveWorkspaceWriter(db, migrationOperationId)) continue;
+      let owned = false;
+      try {
+        acquireNoteWrite(db, migration.note_id, migrationOperationId, migrationOperationId); owned = true;
+        if (migration.status === 'rolling_back') finishWhiteboardRollback(config, db, migration, record);
+        else finishWhiteboardMigration(config, db, migration, record);
+        library.flush(); migrationAliasState(config,db).flush(); report.recovered++;
+      } catch {
+        if (owned) report.conflicted++;
+      } finally { if (owned) releaseNoteWrite(db, migration.note_id, migrationOperationId); }
+    }
     for (const orphan of db
       .prepare(
         "SELECT id FROM operations WHERE kind IN ('create','update','archive','restore','move') AND status='prepared' AND NOT EXISTS(SELECT 1 FROM write_intents WHERE write_intents.id=operations.id)",
@@ -753,6 +771,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     for (let intent of db
       .prepare("SELECT * FROM write_intents WHERE status='prepared'")
       .all() as Intent[]) {
+      if (intent.kind === 'whiteboard-migrate' || intent.kind === 'whiteboard-rollback') continue;
       if (operationHasLiveWorkspaceWriter(db, intent.id)) continue;
       if (
         db
