@@ -1,7 +1,10 @@
+import { createWriteStream, linkSync, unlinkSync } from 'node:fs';
+import { pipeline } from 'node:stream/promises';
+import { hashAssetSync, assetStamp } from '../asset-stream.js';
 import { createReadStream } from 'node:fs';
-import { mkdir, readFile, writeFile, rm, stat, cp } from 'node:fs/promises';
-import { existsSync, mkdirSync, readFileSync, writeFileSync, lstatSync } from 'node:fs';
-import { join, posix, dirname } from 'node:path';
+import { mkdir, readFile, rm, stat } from 'node:fs/promises';
+import { existsSync, mkdirSync, readFileSync, lstatSync } from 'node:fs';
+import { join, posix } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { Parser, extract } from 'tar';
 import type { AppConfig } from '../../../shared/contracts.js';
@@ -41,6 +44,7 @@ import {
 } from './paths.js';
 import { portableStaging } from './staging.js';
 
+export type PortableImportOptions = { check?: () => Principal };
 function request(input: { requestId: string; folderPath: string }) {
   if (!input || !/^[A-Za-z0-9_-]{1,128}$/.test(input.requestId)) fail(400, 'INVALID_REQUEST_ID');
   if (input.folderPath) portablePath(input.folderPath);
@@ -106,8 +110,18 @@ export async function importPortableDirectory(
   notes: NoteService,
   p: Principal,
   input: { directoryPath: string; folderPath: string; requestId: string },
+  options: PortableImportOptions = {},
 ): Promise<PortableImportResult> {
-  requireScope(p, 'knowledge:write');
+  const principalId = p.id,
+    clientId = p.clientId;
+  const refresh = () => {
+    const next = options.check?.() ?? p;
+    if (next.id !== principalId || next.clientId !== clientId) fail(403, 'FORBIDDEN');
+    requireScope(next, 'knowledge:write');
+    p = next;
+    return p;
+  };
+  refresh();
   request(input);
   db.exec(
     'CREATE TABLE IF NOT EXISTS portable_import_jobs(id TEXT PRIMARY KEY,principal TEXT NOT NULL,client TEXT NOT NULL,request_id TEXT NOT NULL,fingerprint TEXT NOT NULL,result TEXT NOT NULL,complete INTEGER NOT NULL DEFAULT 0,UNIQUE(principal,client,request_id));',
@@ -130,6 +144,7 @@ export async function importPortableDirectory(
   )
     fail(400, 'PORTABLE_MANIFEST_FILES_MISMATCH');
   for (const file of manifest.files) {
+    refresh();
     const absolute = join(input.directoryPath, file.path);
     if (lstatSync(absolute).size !== file.sizeBytes || (await hashFile(absolute)) !== file.sha256)
       fail(400, 'PORTABLE_DIGEST_MISMATCH');
@@ -141,8 +156,10 @@ export async function importPortableDirectory(
   if (previous && previous.fingerprint !== fingerprint) fail(409, 'REQUEST_ID_CONFLICT');
   if (previous?.complete) {
     const completed: PortableImportResult = JSON.parse(previous.result);
-    for (const note of completed.notes)
+    for (const note of completed.notes) {
+      refresh();
       authorizePath(p, notes.row(note.noteId).path, 'knowledge:write');
+    }
     return completed;
   }
   const id = previous?.id || randomUUID(),
@@ -176,6 +193,7 @@ export async function importPortableDirectory(
       }
     }
   for (const file of manifest.files) {
+    refresh();
     const target = mapping.get(file.path)!;
     if (!canAccessPath(p, target)) fail(403, 'FORBIDDEN');
     if (
@@ -183,12 +201,12 @@ export async function importPortableDirectory(
       !result.notes.some((note) => note.relativePath === target) &&
       !(
         file.kind === 'asset' &&
-        sha256(readFileSync(safePath(config.knowledgeRoot, target, 'asset'))) === file.sha256
+        hashAssetSync(safePath(config.knowledgeRoot, target, 'asset')) === file.sha256
       )
     )
       fail(409, 'PORTABLE_IMPORT_COLLISION');
     if (file.kind === 'asset') {
-      validatedAssets.file(file.path);
+      validatedAssets.inspect(file.path);
       continue;
     }
     if (
@@ -282,30 +300,72 @@ export async function importPortableDirectory(
       .prepare('UPDATE portable_import_jobs SET result=? WHERE id=?')
       .run(JSON.stringify(result), id);
   const assets = assetService(config, db, notes),
-    core = mutationCore(config, db),
-    primary = primaryDiagramService(config, db, notes, assets, p);
-  for (const file of manifest.files.filter((file) => file.kind === 'asset'))
-    workspaceWriteSync(db, { kind: 'portable.import-asset' }, () => {
-      const target = mapping.get(file.path)!,
-        bytes = readFileSync(join(input.directoryPath, file.path));
-      if (sha256(bytes) !== file.sha256) fail(409, 'PORTABLE_DIGEST_MISMATCH');
+    core = mutationCore(config, db);
+  for (const file of manifest.files.filter((file) => file.kind === 'asset')) {
+    refresh();
+    const target = mapping.get(file.path)!;
+    workspaceWriteSync(db, { kind: 'portable.prepare-import-asset' }, () => {
+      refresh();
       if (!canAccessPath(p, target)) fail(403, 'FORBIDDEN');
       ensureDirectory(config, posix.dirname(target));
-      if (!existsSync(join(config.knowledgeRoot, target)))
-        writeFileSync(join(config.knowledgeRoot, target), bytes, { flag: 'wx', mode: 0o600 });
-      else if (
-        sha256(readFileSync(safePath(config.knowledgeRoot, target, 'asset'))) !== file.sha256
-      )
-        fail(409, 'PORTABLE_IMPORT_COLLISION');
-      assets.register(target);
     });
+    const descriptor = validatedAssets.inspect(file.path),
+      temporary = join(config.knowledgeRoot, posix.dirname(target), '.portable-' + randomUUID());
+    const reservation = await portableStaging(config, db, descriptor.sizeBytes);
+    try {
+      await pipeline(
+        validatedAssets.open(descriptor, {
+          check: () => {
+            refresh();
+            if (!canAccessPath(p, target)) fail(403, 'FORBIDDEN');
+          },
+        }),
+        createWriteStream(temporary, { flags: 'wx', mode: 0o600 }),
+      );
+      if ((await hashFile(temporary)) !== file.sha256) fail(409, 'PORTABLE_DIGEST_MISMATCH');
+      const existing = existsSync(join(config.knowledgeRoot, target))
+        ? assets.inspect(target)
+        : undefined;
+      if (existing && (await hashFile(existing.absolutePath)) !== file.sha256)
+        fail(409, 'PORTABLE_IMPORT_COLLISION');
+      workspaceWriteSync(db, { kind: 'portable.import-asset' }, () => {
+        refresh();
+        if (!canAccessPath(p, target)) fail(403, 'FORBIDDEN');
+        const destination = safePath(config.knowledgeRoot, target, 'asset', true);
+        if (existing) {
+          if (assetStamp(existing.absolutePath) !== existing.stamp)
+            fail(409, 'PORTABLE_IMPORT_COLLISION');
+        } else {
+          try {
+            linkSync(temporary, destination);
+            unlinkSync(temporary);
+          } catch (error) {
+            if ((error as NodeJS.ErrnoException).code === 'EEXIST')
+              fail(409, 'PORTABLE_IMPORT_COLLISION');
+            throw error;
+          }
+        }
+        assets.register(target);
+      });
+    } finally {
+      try {
+        unlinkSync(temporary);
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+      } finally {
+        await reservation.release();
+      }
+    }
+  }
   result.assets = manifest.files.filter((file) => file.kind === 'asset').length;
   persist();
   for (const path of documents) {
+    refresh();
     if (result.notes.some((note) => note.sourcePath === path)) continue;
     const target = mapping.get(path)!,
       directory = posix.dirname(target) === '.' ? '' : posix.dirname(target);
     workspaceWriteSync(db, { kind: 'portable.import-directory' }, () => {
+      refresh();
       authorizePath(p, target, 'knowledge:write');
       ensureDirectory(config, directory);
     });
@@ -317,6 +377,7 @@ export async function importPortableDirectory(
     const parsed = parseDiagramDocument(content);
     let note: { id: string };
     if (parsed.status === 'diagram') {
+      const primary = primaryDiagramService(config, db, notes, assets, p);
       const creation = diagramCreationService(config, db, p).reserve({
         path: target,
         type: parsed.type,
@@ -376,6 +437,8 @@ export async function importPortableDirectory(
     result.notes.push({ sourcePath: path, relativePath: target, noteId: note.id });
     persist();
   }
+  refresh();
+  for (const note of result.notes) authorizePath(p, note.relativePath, 'knowledge:write');
   db.prepare('UPDATE portable_import_jobs SET complete=1,result=? WHERE id=?').run(
     JSON.stringify(result),
     id,
@@ -389,17 +452,25 @@ export async function importPortableArchive(
   notes: NoteService,
   p: Principal,
   input: { archivePath: string; folderPath: string; requestId: string },
+  options: PortableImportOptions = {},
 ) {
   requireScope(p, 'knowledge:write');
   request(input);
   const stage = await portableStaging(config, db, limits.packageBytes);
   try {
     await safeExtract(input.archivePath, stage.directory);
-    return await importPortableDirectory(config, db, notes, p, {
-      directoryPath: stage.directory,
-      folderPath: input.folderPath,
-      requestId: input.requestId,
-    });
+    return await importPortableDirectory(
+      config,
+      db,
+      notes,
+      p,
+      {
+        directoryPath: stage.directory,
+        folderPath: input.folderPath,
+        requestId: input.requestId,
+      },
+      options,
+    );
   } finally {
     await stage.release();
   }

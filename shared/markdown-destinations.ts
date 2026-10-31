@@ -1,7 +1,10 @@
+import { htmlResourceSpans } from './html-resources.js';
 import MarkdownIt from 'markdown-it';
 import { knowledgeMarkdown } from './knowledge-markdown.js';
 
-interface DestinationSpan {
+export interface DestinationSpan {
+  html?: true;
+  media?: boolean;
   start: number;
   end: number;
   url: string;
@@ -13,9 +16,10 @@ interface DestinationSpan {
  * fences/indented code as opaque tokens; inline rules keep backticks and escapes opaque too.
  */
 export function markdownDestinationSpans(original: string): DestinationSpan[] {
-  const parser = new MarkdownIt({ html: false, linkify: true, breaks: false }).use(
+  const parser = new MarkdownIt({ html: true, linkify: true, breaks: false }).use(
     knowledgeMarkdown,
   );
+  parser.validateLink = () => true;
   const originalOffsets: number[] = [];
   let source = '';
   // Markdown normalizes newlines and NUL before parsing. Retain their original byte-for-byte
@@ -30,7 +34,7 @@ export function markdownDestinationSpans(original: string): DestinationSpan[] {
   const starts = [0];
   for (let n = 0; n < source.length; n++) if (source[n] === '\n') starts.push(n + 1);
   const spans: DestinationSpan[] = [];
-  let active: { source: string; positions: number[]; table: boolean } | undefined;
+  let active: { source: string; positions: number[]; table: boolean; rawText?: string } | undefined;
 
   function record(
     url: string,
@@ -38,7 +42,9 @@ export function markdownDestinationSpans(original: string): DestinationSpan[] {
     end: number,
     positions: number[],
     wiki?: DestinationSpan['wiki'],
+    extra: Partial<DestinationSpan> = {},
   ) {
+    if (active?.rawText) return;
     if (end <= start || positions[start] === undefined || positions[end - 1] === undefined) return;
     // A table removes backslashes before literal pipes. Those escapes belong to the
     // destination's physical span; stripped quote/list prefixes remain outside it.
@@ -53,11 +59,43 @@ export function markdownDestinationSpans(original: string): DestinationSpan[] {
     }
     spans.push({
       url,
+      ...extra,
       ...(wiki ? { wiki } : {}),
       start: originalOffsets[positions[start]],
       end: originalOffsets[positions[end - 1] + 1],
     });
   }
+  const htmlRule = (parser.inline.ruler as any).__rules__.find(
+    (r: any) => r.name === 'html_inline',
+  ).fn;
+  parser.inline.ruler.at('html_inline', (state: any, silent: boolean) => {
+    const start = state.pos,
+      context = active;
+    const accepted = htmlRule(state, silent);
+    if (accepted && !silent && context && state.src === context.source) {
+      const tag = state.src.slice(start, state.pos);
+      if (context.rawText) {
+        if (new RegExp('</' + context.rawText + '\\s*>', 'i').test(tag))
+          context.rawText = undefined;
+        return accepted;
+      }
+      const raw = /^<(script|style|textarea|title)\b/i.exec(tag);
+      if (raw) {
+        context.rawText = raw[1].toLowerCase();
+        return accepted;
+      }
+    }
+    if (accepted && !silent && context && state.src === context.source)
+      for (const span of htmlResourceSpans(
+        state.src.slice(start, state.pos),
+        parser.utils.unescapeAll,
+      ))
+        record(span.url, start + span.start, start + span.end, context.positions, undefined, {
+          html: true,
+          media: span.media,
+        });
+    return accepted;
+  });
   // Instrument the same wiki rule used for reading. Its destination is encoded by that rule,
   // while its label remains plain text; retain both meanings when the target is renamed.
   const wikiRule = (parser.inline.ruler as any).__rules__.find(
@@ -224,6 +262,20 @@ export function markdownDestinationSpans(original: string): DestinationSpan[] {
         tableCursor = starts[token.map[0]];
       }
       if (token.type === 'tr_close') tableRow = undefined;
+      if (token.type === 'html_block' && token.map) {
+        const mapped = inlinePositions(
+          token.content.replace(/\n$/, ''),
+          token.map,
+          false,
+          starts[token.map[0]],
+        );
+        if (mapped)
+          for (const span of htmlResourceSpans(token.content, parser.utils.unescapeAll))
+            record(span.url, span.start, span.end, mapped.positions, undefined, {
+              html: true,
+              media: span.media,
+            });
+      }
       if (token.type !== 'inline') continue;
       const range = token.map || tableRow;
       const mapped =

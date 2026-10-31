@@ -1,3 +1,5 @@
+import { mediaMime } from '../../shared/media.js';
+import { assetStamp, hashAssetSync } from './asset-stream.js';
 import { posix } from 'node:path';
 import MarkdownIt from 'markdown-it';
 import type { AppConfig, NoteDocument } from '../../shared/contracts.js';
@@ -266,8 +268,13 @@ export function publicDiagramProjectionService(
         continue;
       }
       try {
-        const a = assets.file(path);
-        add(path, sha256(a.sourceBytes ?? a.bytes), 'ordinary');
+        if (mediaMime(path)) {
+          const a = assets.inspect(path);
+          add(path, hashAssetSync(a.absolutePath), 'ordinary');
+        } else {
+          const a = assets.file(path);
+          add(path, sha256(a.sourceBytes ?? a.bytes), 'ordinary');
+        }
       } catch {}
     }
     checkPolicy(token, revision);
@@ -335,6 +342,22 @@ export function publicDiagramProjectionService(
         hasDiagramDeclarationSync(notes.readableSource(note.id).file)
       )
         fail(422, 'INVALID_DIAGRAM_DOCUMENT');
+      if (
+        (lookup.id && mediaMime(assets.inspectById(lookup.id).path)) ||
+        (lookup.source && mediaMime(lookup.source))
+      ) {
+        const descriptor = await assets.publicInspect(note.id, lookup),
+          parent = notes.readableSource(note.id).file,
+          parentStamp = assetStamp(parent);
+        checkPolicy(token, revision);
+        return {
+          ...descriptor,
+          check: () => {
+            checkPolicy(token, revision);
+            if (assetStamp(parent) !== parentStamp) fail(409, 'SHARE_POLICY_CHANGED');
+          },
+        };
+      }
       const ordinary = lookup.id
         ? await assets.publicAsset(note.id, lookup.id)
         : await assets.publicSource(note.id, lookup.source ?? '');
@@ -356,6 +379,21 @@ export function publicDiagramProjectionService(
     }
     if (proof.role === 'source' && !projection.allowDiagramSource)
       fail(403, 'DIAGRAM_SOURCE_FORBIDDEN');
+    if (mediaMime(path)) {
+      const descriptor = assets.inspect(path),
+        parent = notes.readableSource(projection.note.id).file,
+        parentStamp = assetStamp(parent);
+      if (hashAssetSync(descriptor.absolutePath) !== proof.hash)
+        fail(409, 'DIAGRAM_RESOURCE_CONFLICT');
+      checkPolicy(token, projection.policyRevision);
+      return {
+        ...descriptor,
+        check: () => {
+          checkPolicy(token, projection.policyRevision);
+          if (assetStamp(parent) !== parentStamp) fail(409, 'SHARE_POLICY_CHANGED');
+        },
+      };
+    }
     const file = assets.file(path);
     if (sha256(file.sourceBytes ?? file.bytes) !== proof.hash)
       fail(409, 'DIAGRAM_RESOURCE_CONFLICT');

@@ -1,3 +1,6 @@
+import { portableResourceLimits } from '../../shared/portable-resource-limits.js';
+import { mediaMime } from '../../shared/media.js';
+import type { AssetDescriptor } from '../../packages/core/assets.js';
 import {registerDiagramDocumentRoutes} from './knowledge/diagram-routes.js';
 import { registerPortableDeliveryRoutes } from './knowledge/portable-delivery-routes.js';
 import {isWhiteboard,MAX_WHITEBOARD_BYTES} from '../../shared/whiteboard.js';
@@ -145,6 +148,7 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     const session = await auth.api.getSession({ headers: fromNodeHeaders(req.headers) });
     if (!session) return reply.code(401).send({ error: '请登录后访问' });
     (req as any).ownerId = session.user.id;
+    (req as any).ownerSessionToken = session.session.token;
     if (
       (db.prepare('SELECT active FROM maintenance WHERE id=1').get() as { active: number }).active
     )
@@ -370,25 +374,46 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
   app.get<{ Params: { id: string } }>('/api/notes/:id/assets', async (req) =>
     assets.list(req.params.id),
   );
-  app.post<{ Params: { id: string } }>('/api/notes/:id/assets', async (req, reply) => {
+  const checkOwnerSession=(req:import('fastify').FastifyRequest)=>{
+    const row=db.prepare('SELECT userId,expiresAt FROM session WHERE token=?').get((req as any).ownerSessionToken) as {userId:string;expiresAt:number|string}|undefined;
+    const expiry=row&&(Number.isFinite(Number(row.expiresAt))?Number(row.expiresAt):Date.parse(String(row.expiresAt)));
+    if(!row||row.userId!==(req as any).ownerId||!expiry||expiry<=Date.now())throw new HttpError(401,'登录已失效');
+    if((db.prepare('SELECT active FROM maintenance WHERE id=1').get() as {active:number}).active)throw new HttpError(503,'维护中，请稍后重试');
+  };
+  app.post<{Params:{id:string}}>('/api/notes/:id/assets',{bodyLimit:portableResourceLimits.mediaBytes+16384},async(req,reply)=>{
     notes.exists(req.params.id);
-    const part = await req.file();
-    if (!part) throw new HttpError(400, '请选择附件');
-    const bytes = await part.toBuffer();
-    const requestId = req.headers['x-dooknow-upload-id'];
-    return reply.code(201).send(assets.upload(req.params.id, part.filename, part.mimetype, bytes, requestId));
+    const part=await req.file({limits:{fileSize:portableResourceLimits.mediaBytes+1,files:1,fields:0}});
+    if(!part)throw new HttpError(400,'请选择附件');
+    async function* source(){for await(const chunk of part!.file)yield chunk;if(part!.file.truncated)throw new HttpError(413,'附件超过配置配额');}
+    const result=await assets.uploadStream(req.params.id,part.filename,part.mimetype,source(),req.headers['x-dooknow-upload-id'],{check:()=>checkOwnerSession(req)});
+    return reply.code(201).send(result);
   });
   await registerDiagramDocumentRoutes(app,db,()=>platform.get());
-  registerPortableDeliveryRoutes(app,db,()=>platform.get());
+  registerPortableDeliveryRoutes(app,db,()=>platform.get(),checkOwnerSession);
   const diagramArtifacts = diagramArtifactService(db, notes, assets, webPrincipal);
   app.post<{ Params: { id: string } }>('/api/notes/:id/diagram-artifacts', { bodyLimit: 32 * 1024 * 1024 }, async (req, reply) =>
     reply.code(201).send(diagramArtifacts.prepare(req.params.id, req.body)),
   );
   const sendAsset = (
     reply: import('fastify').FastifyReply,
-    a: { bytes: Buffer; sourceBytes?: Buffer; mime: string; path: string },
+    a: { bytes: Buffer; sourceBytes?: Buffer; mime: string; path: string } | (AssetDescriptor & {check?:()=>void}),
     download?: string,
+    range?:string,
+    check?:()=>void,
   ) => {
+    if('absolutePath' in a) {
+      let start=0,end=a.sizeBytes-1;
+      reply.header('Accept-Ranges','bytes');
+      if(range) {
+        const m=/^bytes=(\d*)-(\d*)$/.exec(range);
+        if(!m||(!m[1]&&!m[2])) {reply.header('Content-Range',`bytes */${a.sizeBytes}`);throw new HttpError(416,'附件范围无效');}
+        if(!m[1]){const n=Number(m[2]);if(!Number.isSafeInteger(n)){reply.header('Content-Range',`bytes */${a.sizeBytes}`);throw new HttpError(416,'附件范围无效');}start=Math.max(0,a.sizeBytes-n);if(!n)start=a.sizeBytes;}else{start=Number(m[1]);if(m[2])end=Math.min(end,Number(m[2]));}
+        if(!Number.isSafeInteger(start)||!Number.isSafeInteger(end)||start<0||end<start||start>=a.sizeBytes){reply.header('Content-Range',`bytes */${a.sizeBytes}`);throw new HttpError(416,'附件范围无效');}
+        reply.code(206).header('Content-Range',`bytes ${start}-${end}/${a.sizeBytes}`);
+      }
+      const stream=assets.open(a,{start,end,check:()=>{check?.();a.check?.();}});reply.raw.once('close',()=>stream.destroy());
+      return reply.header('Content-Length',end-start+1).header('Content-Security-Policy',"default-src 'none'; sandbox").header('Content-Disposition',download==='1'?`attachment; filename="${basename(a.path).replace(/[^A-Za-z0-9._-]/g,'_')}"`:'inline').type(a.mime).send(stream);
+    }
     const attachment = download === '1' || Object.values(DIAGRAM_SOURCE_MIMES).some(mime => mime === a.mime);
     return reply
       .header('Content-Security-Policy', "default-src 'none'; sandbox")
@@ -403,7 +428,7 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
   };
   app.get<{ Params: { id: string }; Querystring: { download?: string } }>(
     '/api/assets/:id',
-    async (req, reply) => sendAsset(reply, assets.byId(req.params.id), req.query.download),
+    async (req,reply)=>{const descriptor=assets.inspectById(req.params.id);return sendAsset(reply,mediaMime(descriptor.path)?descriptor:assets.byId(req.params.id),req.query.download,req.headers.range,()=>checkOwnerSession(req));},
   );
   const recovery = lazyService(() => platform.get().recovery);
   app.get<{ Params: { id: string } }>('/api/notes/:id/revisions', async (req) => {
@@ -553,7 +578,7 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
       const asset = await publicProjection.asset(req.params.token, { id: req.params.assetId });
       if (shares.lookup(req.params.token).id !== note.id)
         throw new HttpError(404, '分享不存在或已取消');
-      return sendAsset(reply, asset, req.query.download);
+      return sendAsset(reply,asset,req.query.download,req.headers.range);
     },
   );
   app.get<{ Params: { token: string }; Querystring: { source?: string; download?: string } }>(
@@ -565,7 +590,7 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
       });
       if (shares.lookup(req.params.token).id !== note.id)
         throw new HttpError(404, '分享不存在或已取消');
-      return sendAsset(reply, asset, req.query.download);
+      return sendAsset(reply,asset,req.query.download,req.headers.range);
     },
   );
   if (config.staticRoot) {

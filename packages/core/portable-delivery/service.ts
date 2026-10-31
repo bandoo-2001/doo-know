@@ -1,3 +1,13 @@
+import { hasDiagramBindingProof } from '../knowledge/diagram-publications.js';
+import { assertRoot } from '../indexing/reconcile.js';
+import { mediaMime } from '../../../shared/media.js';
+import {
+  stageRemoteResource,
+  stageDataResource,
+  resourceDiagnostic,
+  type RemoteDependencies,
+} from './remote.js';
+import type { AssetDescriptor } from '../assets.js';
 import {
   createReadStream,
   readFileSync,
@@ -34,7 +44,12 @@ import { assetService } from '../assets.js';
 import { authorizePath, requireScope, canAccessPath } from '../agent/auth.js';
 import { safePath } from '../files.js';
 import { localReference, markdown } from '../render.js';
-import { workspaceExclusive, workspaceProcess, processIsAlive } from '../workspace/gate.js';
+import {
+  workspaceExclusive,
+  workspaceProcess,
+  processIsAlive,
+  assertOrganizationReadable,
+} from '../workspace/gate.js';
 import { resolvePrimaryDiagram } from '../knowledge/diagram-resource-resolver.js';
 import { sha256 } from '../knowledge/operations.js';
 import { fail } from '../knowledge/errors.js';
@@ -46,7 +61,11 @@ import {
   internalNoteNavigation,
   unresolvedInternalNavigation,
 } from './paths.js';
-import { importPortableArchive, importPortableDirectory } from './import.js';
+import {
+  importPortableArchive,
+  importPortableDirectory,
+  type PortableImportOptions,
+} from './import.js';
 
 type Proof = { noteId?: string; path: string; hash: string; stamp: string };
 type Row = {
@@ -97,7 +116,12 @@ function fixedBytes(path: string, max: number) {
 }
 
 /** Frozen local dependency closure. Compression and downloads never hold a workspace lock. */
-export function portableDeliveryService(config: AppConfig, db: AppDatabase, notes: NoteService) {
+export function portableDeliveryService(
+  config: AppConfig,
+  db: AppDatabase,
+  notes: NoteService,
+  dependencies: RemoteDependencies = {},
+) {
   db.exec(
     `CREATE TABLE IF NOT EXISTS portable_deliveries(id TEXT PRIMARY KEY,principal TEXT NOT NULL,client TEXT NOT NULL,request_id TEXT NOT NULL,fingerprint TEXT NOT NULL,status TEXT NOT NULL,result TEXT,proofs TEXT NOT NULL,artifact TEXT NOT NULL,bytes INTEGER NOT NULL DEFAULT 0,expires INTEGER NOT NULL,UNIQUE(principal,client,request_id));`,
   );
@@ -147,10 +171,19 @@ export function portableDeliveryService(config: AppConfig, db: AppDatabase, note
       fail(404, 'PORTABLE_DELIVERY_NOT_FOUND');
     return row;
   }
+  function currentNote(id: string) {
+    const row = db.prepare('SELECT id,path FROM notes WHERE id=? AND active=1').get(id) as
+      | { id: string; path: string }
+      | undefined;
+    if (!row) fail(404, 'NOTE_NOT_FOUND');
+    return row;
+  }
   function check(p: Principal, proofs: Proof[]) {
+    assertOrganizationReadable(db);
+    assertRoot(config, db);
     for (const proof of proofs) {
       if (proof.noteId) {
-        const row = notes.row(proof.noteId);
+        const row = currentNote(proof.noteId);
         authorizePath(p, row.path);
         if (row.path !== proof.path) fail(409, 'PORTABLE_VERSION_CONFLICT');
       }
@@ -165,7 +198,22 @@ export function portableDeliveryService(config: AppConfig, db: AppDatabase, note
       }
     }
   }
-  async function build(p: Principal, input: PortableDeliveryRequest): Promise<PortableDelivery> {
+  async function build(
+    p: Principal,
+    input: PortableDeliveryRequest,
+    options: { signal?: AbortSignal; check?: () => Principal } = {},
+  ): Promise<PortableDelivery> {
+    const signal = options.signal,
+      principalId = p.id,
+      clientId = p.clientId;
+    const checkBuild = (_principal: Principal, proofs: Proof[]) => {
+      if (signal?.aborted) throw signal.reason ?? Error('PORTABLE_CANCELLED');
+      const current = options.check?.() ?? p;
+      if (current.id !== principalId || current.clientId !== clientId) fail(403, 'FORBIDDEN');
+      p = current;
+      check(p, proofs);
+    };
+    checkBuild(p, []);
     requireScope(p, 'knowledge:read');
     requestId(input?.requestId);
     await expire();
@@ -176,7 +224,7 @@ export function portableDeliveryService(config: AppConfig, db: AppDatabase, note
     if (old) {
       if (old.fingerprint !== fingerprint) fail(409, 'REQUEST_ID_CONFLICT');
       if (old.status === 'ready') {
-        check(p, JSON.parse(old.proofs));
+        checkBuild(p, JSON.parse(old.proofs));
         return JSON.parse(old.result!);
       }
       fail(409, 'PORTABLE_DELIVERY_IN_PROGRESS');
@@ -202,7 +250,8 @@ export function portableDeliveryService(config: AppConfig, db: AppDatabase, note
       process.start,
     );
     try {
-      const plan = await workspaceExclusive(db, { kind: 'portable.capture' }, async () => {
+      const captured = await workspaceExclusive(db, { kind: 'portable.capture' }, async () => {
+        assertRoot(config, db);
         const active = db.prepare('SELECT id,path FROM notes WHERE active=1').all() as {
           id: string;
           path: string;
@@ -225,16 +274,10 @@ export function portableDeliveryService(config: AppConfig, db: AppDatabase, note
             if (!canAccessPath(p, path)) fail(403, 'FORBIDDEN');
           }
           selected = active
-            .filter((note) => !path || note.path.startsWith(path + '/'))
-            .map((note) => note.id)
-            .filter((noteId) => {
-              try {
-                authorizePath(p, notes.row(noteId).path);
-                return true;
-              } catch {
-                return false;
-              }
-            });
+            .filter(
+              (note) => (!path || note.path.startsWith(path + '/')) && canAccessPath(p, note.path),
+            )
+            .map((note) => note.id);
         } else return fail(400, 'INVALID_PORTABLE_SELECTION');
         if (!selected.length) fail(400, 'EMPTY_PORTABLE_SELECTION');
         if (selected.length > limits.documents) fail(413, 'PORTABLE_BUDGET_EXCEEDED');
@@ -242,9 +285,18 @@ export function portableDeliveryService(config: AppConfig, db: AppDatabase, note
         mkdirSync(capture, { mode: 0o700 });
         const queue = [...selected],
           docs = new Map<string, { noteId: string; snapshot: string; target: string }>(),
-          resources = new Map<string, { path: string; snapshot: string }>(),
+          resources = new Map<
+            string,
+            {
+              path: string;
+              snapshot: string;
+              descriptor?: AssetDescriptor;
+              remote?: { url: string; document: string };
+            }
+          >(),
           proofs: Proof[] = [],
           mapping = new Map<string, string>(),
+          aliases = new Map<string, string>(),
           notePaths = new Map<string, string>(),
           captures = new Map<string, string>();
         let total = 0,
@@ -272,11 +324,18 @@ export function portableDeliveryService(config: AppConfig, db: AppDatabase, note
         };
         const addAsset = (path: string, document: string, url: string) => {
           if (resources.has(path)) return;
-          if (/\.(?:mp4|webm|mp3|wav)$/i.test(path))
-            fail(422, 'PORTABLE_RESOURCE_UNSUPPORTED', '媒体暂不支持完整便携交付', false, {
-              diagnostics: [{ document, resource: url }],
-            });
           try {
+            if (mediaMime(path)) {
+              const descriptor = assets.inspect(path),
+                snapshot = join(capture, randomUUID() + extname(path));
+              capturedBytes += descriptor.sizeBytes;
+              if (capturedBytes > limits.packageBytes || proofs.length >= limits.files)
+                fail(413, 'PORTABLE_BUDGET_EXCEEDED');
+              adjust(id, capturedBytes);
+              proofs.push({ path, hash: '', stamp: descriptor.stamp });
+              resources.set(path, { path: '', snapshot, descriptor });
+              return;
+            }
             const asset = assets.file(path),
               bytes = asset.sourceBytes || asset.bytes;
             if (extname(path).toLowerCase() === '.excalidraw')
@@ -296,14 +355,14 @@ export function portableDeliveryService(config: AppConfig, db: AppDatabase, note
             )
               throw error;
             fail(409, 'PORTABLE_DEPENDENCY_UNAVAILABLE', '引用资源无法完整导出', false, {
-              diagnostics: [{ document, resource: url }],
+              diagnostics: [{ document, resource: resourceDiagnostic(url) }],
             });
           }
         };
         for (let index = 0; index < queue.length; index++) {
           if (queue.length > limits.documents) fail(413, 'PORTABLE_BUDGET_EXCEEDED');
           const noteId = queue[index],
-            row = notes.row(noteId);
+            row = currentNote(noteId);
           authorizePath(p, row.path);
           const bytes = fixedBytes(
             safePath(config.knowledgeRoot, row.path, 'note'),
@@ -329,6 +388,29 @@ export function portableDeliveryService(config: AppConfig, db: AppDatabase, note
                     documentHash: resolved.documentHash,
                     sourceHash: resolved.source.hash,
                     renderHash: resolved.preview?.renderHash,
+                  },
+                ],
+              });
+            if (
+              parsed.status === 'diagram' &&
+              !hasDiagramBindingProof(db, noteId, {
+                sourceHash: resolved.source.hash,
+                renderHash: resolved.preview.renderHash,
+                previewHash: resolved.preview.hash,
+                previewPath: localReference(row.path, parsed.primary.previewPath)!,
+                ...(parsed.primary.source.format === 'excalidraw'
+                  ? { sourcePath: localReference(row.path, parsed.primary.source.path)! }
+                  : {}),
+              })
+            )
+              fail(409, 'DIAGRAM_PREVIEW_REQUIRED', '图形需要对应当前渲染元组的准备记录', false, {
+                documents: [
+                  {
+                    noteId,
+                    role: 'primary',
+                    documentHash: resolved.documentHash,
+                    sourceHash: resolved.source.hash,
+                    renderHash: resolved.preview.renderHash,
                   },
                 ],
               });
@@ -434,15 +516,15 @@ export function portableDeliveryService(config: AppConfig, db: AppDatabase, note
             if (own) {
               if (ref.image)
                 fail(422, 'PORTABLE_RESOURCE_UNSUPPORTED', '文档导航不能作为图片资源', false, {
-                  diagnostics: [{ document: row.path, resource: ref.url }],
+                  diagnostics: [{ document: row.path, resource: resourceDiagnostic(ref.url) }],
                 });
               let linked: { id: string; path: string };
               try {
-                linked = notes.row(own.noteId);
+                linked = currentNote(own.noteId);
                 authorizePath(p, linked.path);
               } catch {
                 fail(409, 'PORTABLE_DEPENDENCY_UNAVAILABLE', '关联文档不可用', false, {
-                  diagnostics: [{ document: row.path, resource: ref.url }],
+                  diagnostics: [{ document: row.path, resource: resourceDiagnostic(ref.url) }],
                 });
               }
               notePaths.set(own.noteId, linked.path);
@@ -451,14 +533,53 @@ export function portableDeliveryService(config: AppConfig, db: AppDatabase, note
             }
             const local = localReference(row.path, ref.url);
             if (!local) {
+              try {
+                const url = new URL(ref.url, config.origin),
+                  assetId =
+                    url.origin === new URL(config.origin).origin &&
+                    /^\/api\/assets\/([A-Za-z0-9-]+)$/.exec(url.pathname)?.[1];
+                if (assetId) {
+                  const descriptor = assets.inspectById(assetId);
+                  addAsset(descriptor.path, row.path, ref.url);
+                  aliases.set(ref.url, descriptor.path);
+                  continue;
+                }
+              } catch (error) {
+                if ((error as any).code) throw error;
+                fail(409, 'PORTABLE_DEPENDENCY_UNAVAILABLE', '应用附件引用不可用', false, {
+                  diagnostics: [{ document: row.path, resource: resourceDiagnostic(ref.url) }],
+                });
+              }
+            }
+            if (!local) {
               if (
                 !ref.image &&
                 /^https?:\/\//i.test(ref.url) &&
                 !/^\/api(?:\/|$)/i.test(new URL(ref.url).pathname)
               )
                 continue;
-              fail(422, 'PORTABLE_RESOURCE_UNSUPPORTED', '资源需要先转为本地附件', false, {
-                diagnostics: [{ document: row.path, resource: ref.url }],
+              if (/^blob:/i.test(ref.url))
+                fail(
+                  409,
+                  'PORTABLE_REQUIRES_PERSISTENCE',
+                  '临时媒体需要在浏览器中先保存为附件',
+                  false,
+                  {
+                    diagnostics: [{ document: row.path, resource: resourceDiagnostic(ref.url) }],
+                    action: 'persist-browser-resources',
+                  },
+                );
+              if (/^(?:https?:|data:)/i.test(ref.url)) {
+                if (!resources.has(ref.url))
+                  resources.set(ref.url, {
+                    path: '',
+                    snapshot: '',
+                    remote: { url: ref.url, document: row.path },
+                  });
+                continue;
+              }
+              fail(422, 'PORTABLE_RESOURCE_UNSUPPORTED', '资源地址无法安全导出', false, {
+                diagnostics: [{ document: row.path, resource: resourceDiagnostic(ref.url) }],
               });
             }
             if (resources.has(local) || mapping.get(local) === local) continue;
@@ -469,7 +590,7 @@ export function portableDeliveryService(config: AppConfig, db: AppDatabase, note
                 authorizePath(p, linked.path);
               } catch {
                 fail(409, 'PORTABLE_DEPENDENCY_UNAVAILABLE', '关联文档不可用', false, {
-                  diagnostics: [{ document: row.path, resource: ref.url }],
+                  diagnostics: [{ document: row.path, resource: resourceDiagnostic(ref.url) }],
                 });
               }
               if (!queue.includes(linked.id)) queue.push(linked.id);
@@ -492,36 +613,11 @@ export function portableDeliveryService(config: AppConfig, db: AppDatabase, note
               if (!queue.includes(linked.id)) queue.push(linked.id);
             }
         }
-        const files: PortableManifest['files'] = [],
-          seen = new Set<string>();
-        function copy(path: string, bytes: Buffer, kind: 'document' | 'asset') {
-          portablePath(path);
-          const key = path.normalize('NFC').toLowerCase();
-          if (seen.has(key)) {
-            const entry = files.find((file) => file.path === path);
-            if (entry?.sha256 === sha256(bytes) && entry.kind === kind) return;
-            fail(409, 'PORTABLE_PATH_COLLISION');
-          }
-          seen.add(key);
-          total += bytes.length;
-          if (total > limits.packageBytes || files.length >= limits.files)
-            fail(413, 'PORTABLE_BUDGET_EXCEEDED');
-          adjust(id, capturedBytes + total);
-          mkdirSync(join(stage, posix.dirname(path)), { recursive: true, mode: 0o700 });
-          writeFileSync(join(stage, path), bytes, { flag: 'wx', mode: 0o600 });
-          files.push({ path, kind, sizeBytes: bytes.length, sha256: sha256(bytes) });
-        }
+        // Convert legacy embeds while the semantic resources and note identities are fixed.
         for (const [path, doc] of docs) {
-          let content = rewriteDestinations(
-            readFileSync(doc.snapshot, 'utf8'),
-            path,
-            doc.target,
-            mapping,
-            { origin: config.origin, notePaths },
-          );
-          const tokens = markdown.parse(content, {}),
-            lines = content.split('\n');
-          for (const token of tokens.reverse())
+          let content = readFileSync(doc.snapshot, 'utf8');
+          const lines = content.split('\n');
+          for (const token of markdown.parse(content, {}).reverse())
             if (token.type === 'fence' && token.info.trim() === 'excalidraw' && token.map) {
               const ref = token.content.trim(),
                 linked = active.find((note) =>
@@ -535,8 +631,8 @@ export function portableDeliveryService(config: AppConfig, db: AppDatabase, note
                 });
               const preview = localReference(linked.path, resource.preview.path)!;
               addAsset(preview, path, resource.preview.path);
-              const image = posix.relative(posix.dirname(doc.target), mapping.get(preview)!);
-              const noteLink = posix.relative(posix.dirname(doc.target), mapping.get(linked.path)!);
+              const image = posix.relative(posix.dirname(path), preview),
+                noteLink = posix.relative(posix.dirname(path), linked.path);
               lines.splice(
                 token.map[0],
                 token.map[1] - token.map[0],
@@ -546,42 +642,166 @@ export function portableDeliveryService(config: AppConfig, db: AppDatabase, note
                   ')',
               );
             }
-          content = lines.join('\n');
-          const unresolved = unresolvedInternalNavigation(content, config.origin);
-          if (unresolved)
-            fail(
-              422,
-              'PORTABLE_RESOURCE_UNSUPPORTED',
-              '应用内导航需要可安全改写的标准链接',
-              false,
-              { diagnostics: [{ document: path, resource: unresolved }] },
-            );
-          copy(doc.target, Buffer.from(content), 'document');
+          const transformed = lines.join('\n');
+          if (transformed !== content) doc.snapshot = captureBytes(Buffer.from(transformed));
         }
-        for (const resource of resources.values())
-          copy(resource.path, readFileSync(resource.snapshot), 'asset');
-        rmSync(capture, { recursive: true, force: true });
-        capturedBytes = 0;
-        adjust(id, total);
-        check(p, proofs);
-        for (const proof of proofs)
-          if (
-            sha256(
-              fixedBytes(
-                safePath(config.knowledgeRoot, proof.path, proof.noteId ? 'note' : 'asset'),
-                proof.noteId ? 20 * 1024 ** 2 : limits.attachmentBytes,
-              ),
-            ) !== proof.hash
-          )
-            fail(409, 'PORTABLE_VERSION_CONFLICT');
+        checkBuild(p, proofs);
         return {
-          files,
+          docs,
+          resources,
           proofs,
-          total,
-          selected: selected.map((noteId) => mapping.get(notes.row(noteId).path)!),
+          mapping,
+          notePaths,
+          aliases,
+          capture,
+          capturedBytes,
+          selected: selected.map((noteId) => mapping.get(currentNote(noteId).path)!),
           single: input.selection.kind === 'single' && docs.size === 1 && resources.size === 0,
         };
       });
+      const plan = captured as typeof captured & {
+        files: PortableManifest['files'];
+        total: number;
+      };
+      // All network I/O, media copies, hashes and compression execute outside the workspace gate.
+      let capturedBytes = plan.capturedBytes,
+        total = 0;
+      if (plan.resources.size + plan.docs.size > limits.files)
+        fail(413, 'PORTABLE_BUDGET_EXCEEDED');
+      for (const [source, resource] of plan.resources) {
+        checkBuild(p, plan.proofs);
+        let hash: string,
+          extension = extname(source).toLowerCase();
+        if (resource.remote) {
+          const temporary = join(plan.capture, randomUUID());
+          const onBytes = (bytes: number) => {
+            checkBuild(p, plan.proofs);
+            if (capturedBytes + bytes > limits.packageBytes) fail(413, 'PORTABLE_BUDGET_EXCEEDED');
+            adjust(id, capturedBytes + bytes);
+          };
+          try {
+            const result = resource.remote.url.startsWith('data:')
+              ? await stageDataResource(resource.remote.url, { destination: temporary, onBytes })
+              : await stageRemoteResource(resource.remote.url, {
+                  ...dependencies,
+                  destination: temporary,
+                  onBytes,
+                  signal,
+                });
+            extension = result.ext;
+            resource.snapshot = temporary + extension;
+            const { rename } = await import('node:fs/promises');
+            await rename(temporary, resource.snapshot);
+            // The response header and URL do not establish the type: validate the complete container.
+            assetService({ ...config, knowledgeRoot: plan.capture }, db, notes).inspect(
+              posix.basename(resource.snapshot),
+            );
+            capturedBytes += result.sizeBytes;
+            hash = result.sha256;
+          } catch (error) {
+            const code = (error as any).code;
+            if (
+              [
+                'FORBIDDEN',
+                'PORTABLE_VERSION_CONFLICT',
+                'PORTABLE_BUDGET_EXCEEDED',
+                'PORTABLE_STAGING_QUOTA_EXCEEDED',
+              ].includes(code)
+            )
+              throw error;
+            fail(409, 'PORTABLE_DEPENDENCY_UNAVAILABLE', '远程媒体无法完整导出', false, {
+              diagnostics: [{ document: resource.remote.document, resource: resource.remote.url }],
+              reason: (error as Error).message,
+            });
+          }
+        } else if (resource.descriptor) {
+          const { createWriteStream } = await import('node:fs');
+          await pipeline(
+            assets.open(resource.descriptor, { check: () => checkBuild(p, plan.proofs) }),
+            createWriteStream(resource.snapshot, { flags: 'wx', mode: 0o600 }),
+          );
+          hash = await hashFile(resource.snapshot);
+          plan.proofs.find((proof) => proof.path === source)!.hash = hash;
+        } else hash = await hashFile(resource.snapshot);
+        resource.path = 'assets/diagram-' + hash + extension;
+        if (!plan.docs.has(source)) plan.mapping.set(source, resource.path);
+      }
+      for (const [url, path] of plan.aliases) plan.mapping.set(url, plan.mapping.get(path)!);
+      const files: PortableManifest['files'] = [],
+        seen = new Map<string, string>();
+      async function copyFile(
+        path: string,
+        snapshot: string,
+        kind: 'document' | 'asset',
+        hash?: string,
+      ) {
+        portablePath(path);
+        hash ??= await hashFile(snapshot);
+        const key = path.normalize('NFC').toLowerCase();
+        if (seen.has(key)) {
+          if (seen.get(key) === hash) return;
+          fail(409, 'PORTABLE_PATH_COLLISION');
+        }
+        const sizeBytes = (await stat(snapshot)).size;
+        total += sizeBytes;
+        if (total > limits.packageBytes || files.length >= limits.files)
+          fail(413, 'PORTABLE_BUDGET_EXCEEDED');
+        adjust(id, capturedBytes + total);
+        seen.set(key, hash);
+        await mkdir(join(stage, posix.dirname(path)), { recursive: true, mode: 0o700 });
+        const { createWriteStream } = await import('node:fs');
+        await pipeline(
+          createReadStream(snapshot),
+          new Transform({
+            transform(chunk, _encoding, callback) {
+              try {
+                checkBuild(p, plan.proofs);
+                callback(null, chunk);
+              } catch (e) {
+                callback(e as Error);
+              }
+            },
+          }),
+          createWriteStream(join(stage, path), { flags: 'wx', mode: 0o600 }),
+        );
+        files.push({ path, kind, sizeBytes, sha256: hash });
+      }
+      for (const [path, doc] of plan.docs) {
+        const content = rewriteDestinations(
+          await readFile(doc.snapshot, 'utf8'),
+          path,
+          doc.target,
+          plan.mapping,
+          { origin: config.origin, notePaths: plan.notePaths },
+        );
+        const unresolved = unresolvedInternalNavigation(content, config.origin);
+        if (unresolved)
+          fail(422, 'PORTABLE_RESOURCE_UNSUPPORTED', '应用内导航需要可安全改写的标准链接', false, {
+            diagnostics: [{ document: path, resource: unresolved }],
+          });
+        const rendered = join(plan.capture, randomUUID());
+        await writeFile(rendered, content, { flag: 'wx', mode: 0o600 });
+        capturedBytes += Buffer.byteLength(content);
+        adjust(id, capturedBytes + total);
+        await copyFile(doc.target, rendered, 'document');
+        await rm(rendered, { force: true });
+        capturedBytes -= Buffer.byteLength(content);
+        if (![...plan.resources.values()].some((resource) => resource.snapshot === doc.snapshot)) {
+          capturedBytes -= (await stat(doc.snapshot)).size;
+          await rm(doc.snapshot, { force: true });
+        }
+        adjust(id, capturedBytes + total);
+      }
+      for (const resource of plan.resources.values()) {
+        await copyFile(resource.path, resource.snapshot, 'asset');
+        capturedBytes -= (await stat(resource.snapshot)).size;
+        await rm(resource.snapshot, { force: true });
+        adjust(id, capturedBytes + total);
+      }
+      await rm(plan.capture, { recursive: true, force: true });
+      capturedBytes = 0;
+      adjust(id, total);
+      Object.assign(plan, { files, total });
       const fileName = plan.single ? posix.basename(plan.files[0].path) : 'documents.tar.gz',
         artifact = join(directory, fileName);
       if (plan.single) {
@@ -613,6 +833,11 @@ export function portableDeliveryService(config: AppConfig, db: AppDatabase, note
           archive,
           new Transform({
             transform(chunk, _encoding, callback) {
+              try {
+                checkBuild(p, plan.proofs);
+              } catch (error) {
+                return callback(error as Error);
+              }
               packed += chunk.length;
               if (packed > limits.packageBytes)
                 return callback(
@@ -631,7 +856,7 @@ export function portableDeliveryService(config: AppConfig, db: AppDatabase, note
           createWriteStream(artifact, { flags: 'wx', mode: 0o600 }),
         );
       }
-      check(p, plan.proofs);
+      checkBuild(p, plan.proofs);
       for (const proof of plan.proofs)
         if (
           (await hashFile(
@@ -639,7 +864,7 @@ export function portableDeliveryService(config: AppConfig, db: AppDatabase, note
           )) !== proof.hash
         )
           fail(409, 'PORTABLE_VERSION_CONFLICT');
-      check(p, plan.proofs);
+      checkBuild(p, plan.proofs);
       const sizeBytes = (await stat(artifact)).size;
       const result: PortableDelivery = {
         id,
@@ -653,9 +878,12 @@ export function portableDeliveryService(config: AppConfig, db: AppDatabase, note
       };
       await rm(stage, { recursive: true, force: true });
       adjust(id, sizeBytes);
-      db.prepare(
-        "UPDATE portable_deliveries SET status='ready',result=?,proofs=?,artifact=? WHERE id=?",
-      ).run(JSON.stringify(result), JSON.stringify(plan.proofs), artifact, id);
+      await workspaceExclusive(db, { kind: 'portable.publish' }, async () => {
+        checkBuild(p, plan.proofs);
+        db.prepare(
+          "UPDATE portable_deliveries SET status='ready',result=?,proofs=?,artifact=? WHERE id=?",
+        ).run(JSON.stringify(result), JSON.stringify(plan.proofs), artifact, id);
+      });
       return result;
     } catch (error) {
       await rm(directory, { recursive: true, force: true });
@@ -663,7 +891,11 @@ export function portableDeliveryService(config: AppConfig, db: AppDatabase, note
       throw error;
     }
   }
-  function create(p: Principal, input: PortableDeliveryRequest): Promise<PortableDelivery> {
+  function create(
+    p: Principal,
+    input: PortableDeliveryRequest,
+    options: { signal?: AbortSignal; check?: () => Principal } = {},
+  ): Promise<PortableDelivery> {
     requireScope(p, 'knowledge:read');
     requestId(input?.requestId);
     let requests = activeRequests.get(db);
@@ -681,15 +913,23 @@ export function portableDeliveryService(config: AppConfig, db: AppDatabase, note
         return result;
       });
     }
-    const promise = build(p, input).finally(() => requests!.delete(key));
+    const promise = build(p, input, options).finally(() => requests!.delete(key));
     requests.set(key, { fingerprint, promise });
     return promise;
   }
-  async function download(p: Principal, id: string) {
+  async function download(p: Principal, id: string, options: { check?: () => Principal } = {}) {
+    const principalId = p.id,
+      clientId = p.clientId;
+    const checkDownload = (proofs: Proof[]) => {
+      const current = options.check?.() ?? p;
+      if (current.id !== principalId || current.clientId !== clientId) fail(403, 'FORBIDDEN');
+      p = current;
+      check(p, proofs);
+    };
     const row = own(p, id),
       proofs: Proof[] = JSON.parse(row.proofs),
       result: PortableDelivery = JSON.parse(row.result!);
-    check(p, proofs);
+    checkDownload(proofs);
     if ((await hashFile(row.artifact)) !== result.sha256) fail(409, 'PORTABLE_ARTIFACT_CONFLICT');
     for (const proof of proofs)
       if (
@@ -698,7 +938,7 @@ export function portableDeliveryService(config: AppConfig, db: AppDatabase, note
         )) !== proof.hash
       )
         fail(409, 'PORTABLE_VERSION_CONFLICT');
-    check(p, proofs);
+    checkDownload(proofs);
     const artifactStamp = stamp(row.artifact),
       input = createReadStream(row.artifact, {
         fd: openSync(row.artifact, constants.O_RDONLY | constants.O_NOFOLLOW),
@@ -707,7 +947,7 @@ export function portableDeliveryService(config: AppConfig, db: AppDatabase, note
     const checked = new Transform({
       transform(chunk, _encoding, callback) {
         try {
-          check(p, proofs);
+          checkDownload(proofs);
           if (stamp(row.artifact) !== artifactStamp) fail(409, 'PORTABLE_ARTIFACT_CONFLICT');
           callback(null, chunk);
         } catch (error) {
@@ -716,13 +956,17 @@ export function portableDeliveryService(config: AppConfig, db: AppDatabase, note
       },
       flush(callback) {
         try {
-          check(p, proofs);
+          checkDownload(proofs);
           if (stamp(row.artifact) !== artifactStamp) fail(409, 'PORTABLE_ARTIFACT_CONFLICT');
           callback();
         } catch (error) {
           callback(error as Error);
         }
       },
+    });
+    checked.once('error', () => {
+      db.prepare('DELETE FROM portable_deliveries WHERE id=?').run(id);
+      void rm(join(root, id), { recursive: true, force: true });
     });
     input.on('error', (error) => checked.destroy(error));
     checked.on('close', () => input.destroy());
@@ -737,13 +981,20 @@ export function portableDeliveryService(config: AppConfig, db: AppDatabase, note
     create,
     download,
     metadata,
+    validate: (p: Principal, id: string) => {
+      const row = own(p, id);
+      check(p, JSON.parse(row.proofs));
+      return JSON.parse(row.result!) as PortableDelivery;
+    },
     importArchive: (
       p: Principal,
       input: { archivePath: string; folderPath: string; requestId: string },
-    ) => importPortableArchive(config, db, notes, p, input),
+      options: PortableImportOptions = {},
+    ) => importPortableArchive(config, db, notes, p, input, options),
     importDirectory: (
       p: Principal,
       input: { directoryPath: string; folderPath: string; requestId: string },
-    ) => importPortableDirectory(config, db, notes, p, input),
+      options: PortableImportOptions = {},
+    ) => importPortableDirectory(config, db, notes, p, input, options),
   };
 }

@@ -1,3 +1,4 @@
+import { assetByteLimit } from '../../../shared/media.js';
 import { createHash } from 'node:crypto';
 import { createReadStream, constants, openSync } from 'node:fs';
 import { lstatSync, readdirSync } from 'node:fs';
@@ -49,7 +50,7 @@ export function validateManifest(value: unknown): PortableManifest {
     if (
       file.path === manifestName ||
       seen.has(key) ||
-      file.sizeBytes > (file.kind === 'document' ? 20 * 1024 ** 2 : limits.attachmentBytes)
+      file.sizeBytes > (file.kind === 'document' ? 20 * 1024 ** 2 : assetByteLimit(file.path))
     )
       fail(400, 'INVALID_PORTABLE_MANIFEST');
     seen.add(key);

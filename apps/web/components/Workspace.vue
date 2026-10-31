@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { attachmentAccept } from '../../../shared/media';
 import '../whiteboards/whiteboards.css';
 import {createPrimaryDocument,pendingCreation,cancelCreation,type PendingCreation} from '../diagrams/primary-creation';
 import {diagramFences} from '../../../shared/diagram-fences';
@@ -2093,7 +2094,25 @@ async function imported(value: { id: string; relativePath: string }) {
   await run(refresh);
   tell('Markdown 已导入，可在目录中打开');
 }
-async function exportPortableNote(){if(!note.value||downloading.value)return;const id=note.value.id;downloading.value=true;try{await (await import('../diagrams/portable-download')).downloadPortableDocument(id);tell('便携文件已导出');}catch(e){showError(e);}finally{downloading.value=false;}}
+const browserMediaPersistence=ref<{noteId:string;epoch:number}>();
+const browserMediaBusy=ref(false);
+async function persistPortableBrowserMedia(){
+ const target=browserMediaPersistence.value;if(!target||!currentView(target.noteId,target.epoch)||browserMediaBusy.value)return;
+ browserMediaBusy.value=true;
+ try{
+   await editorRef.value?.flush();
+   if(dirty.value)throw Error('请先保存当前正文，再保存临时媒体');
+   const previous=savedContent.value;
+   const next=await(await import('../diagrams/persist-browser-media')).persistBrowserMedia(target.noteId,previous);
+   if(!currentView(target.noteId,target.epoch)||savedContent.value!==previous||dirty.value)throw Error('正文已变化，附件已保留，请核对后重试');
+   if(!editorRef.value?.replaceMarkdown(next,previous))throw Error('编辑器已变化，请核对后重试');
+   draft.value=next;await save(undefined,next);
+   if(savedContent.value!==next)throw Error('媒体已上传，请先完成正文保存再导出');
+   browserMediaPersistence.value=undefined;await exportPortableNote();
+ }catch(cause){showError(cause);}finally{browserMediaBusy.value=false;}
+}
+async function exportPortableNote(){if(!note.value||downloading.value)return;const id=note.value.id,epoch=viewEpoch;downloading.value=true;try{await (await import('../diagrams/portable-download')).downloadPortableDocument(id);tell('便携文件已导出');}catch(e){if((e as any)?.data?.code==='PORTABLE_REQUIRES_PERSISTENCE'&&currentView(id,epoch)){browserMediaPersistence.value={noteId:id,epoch};}else showError(e);}finally{downloading.value=false;}}
+
 async function downloadNote(
   target: Pick<NoteDocument, 'id' | 'relativePath'> | undefined = note.value,
 ) {
@@ -2256,7 +2275,7 @@ async function prepareUpload(replacement?: ImageReplacementTarget) {
     if (uploadInput.value)
       uploadInput.value.accept = replacement
         ? 'image/png,image/jpeg,image/gif,image/webp,image/svg+xml'
-        : 'image/png,image/jpeg,image/gif,image/webp,image/svg+xml,application/pdf';
+        : attachmentAccept;
     uploadInput.value?.click();
   } catch (cause) {
     showError(cause);
@@ -3347,7 +3366,7 @@ onBeforeUnmount(() => {
         <input
           ref="uploadInput"
           type="file"
-          accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml,application/pdf" multiple
+          :accept="attachmentAccept" multiple
           :disabled="uploadBusy"
           hidden
           @change="upload"
@@ -3779,6 +3798,11 @@ onBeforeUnmount(() => {
       <template #footer="{close}"><AButton :disabled="boardCreating" @click="close">取消</AButton><AButton type="primary" :loading="boardCreating" @click="createInlineBoard">新建并插入白板</AButton></template>
     </SettingsOverlay>
   </div>
+  <NModal :show="!!browserMediaPersistence" preset="card" class="dialog-card" title="保存临时媒体后导出" :mask-closable="!browserMediaBusy" :close-on-esc="!browserMediaBusy" :closable="!browserMediaBusy" @update:show="browserMediaPersistence=undefined">
+      <p>正文包含仅当前浏览器可读取的临时媒体。保存媒体会上传附件、更新正文链接并保存笔记，然后重新导出。</p>
+      <p v-if="dirty">请先保存当前正文，再继续此操作。</p>
+      <div class="dialog-actions"><AButton :disabled="browserMediaBusy" @click="browserMediaPersistence=undefined">取消</AButton><AButton type="primary" :loading="browserMediaBusy" :disabled="dirty" @click="persistPortableBrowserMedia">保存媒体并导出</AButton></div>
+  </NModal>
 </template>
 <style scoped>
 .main-content {

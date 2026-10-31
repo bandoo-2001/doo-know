@@ -34,6 +34,7 @@ export function registerPortableDeliveryRoutes(
   app: FastifyInstance,
   db: AppDatabase,
   runtime: () => { config: AppConfig; notes: NoteService },
+  checkOwner?: (req: FastifyRequest) => void,
 ) {
   const service = () => {
     const current = runtime();
@@ -44,16 +45,38 @@ export function registerPortableDeliveryRoutes(
     if (typeof owner !== 'string') fail(401, 'UNAUTHORIZED');
     return { ...webPrincipal, id: owner, clientId: 'portable-owner' };
   };
-  app.post('/api/portable-deliveries', async (req, reply) =>
-    reply.code(201).send(await service().create(principal(req), requestSchema.parse(req.body))),
-  );
+  app.post('/api/portable-deliveries', async (req, reply) => {
+    const controller = new AbortController();
+    const cancel = () => {
+      if (!reply.raw.writableEnded) controller.abort(Error('PORTABLE_CANCELLED'));
+    };
+    reply.raw.once('close', cancel);
+    try {
+      return reply.code(201).send(
+        await service().create(principal(req), requestSchema.parse(req.body), {
+          signal: controller.signal,
+          check: () => {
+            checkOwner?.(req);
+            return principal(req);
+          },
+        }),
+      );
+    } finally {
+      reply.raw.removeListener('close', cancel);
+    }
+  });
   app.get<{ Params: { id: string } }>(
     '/api/portable-deliveries/:id/download',
     async (req, reply) => {
       const current = service(),
         p = principal(req),
         metadata = current.metadata(p, req.params.id),
-        stream = await current.download(p, req.params.id);
+        stream = await current.download(p, req.params.id, {
+          check: () => {
+            checkOwner?.(req);
+            return principal(req);
+          },
+        });
       return reply
         .header(
           'Content-Disposition',
@@ -110,11 +133,20 @@ export function registerPortableDeliveryRoutes(
           }
         }
         if (!archivePath || !fields.requestId) fail(400, 'INVALID_PORTABLE_UPLOAD');
-        const result = await service().importArchive(p, {
-          archivePath,
-          folderPath: fields.folderPath ?? '00-Inbox',
-          requestId: fields.requestId,
-        });
+        const result = await service().importArchive(
+          p,
+          {
+            archivePath,
+            folderPath: fields.folderPath ?? '00-Inbox',
+            requestId: fields.requestId,
+          },
+          {
+            check: () => {
+              checkOwner?.(req);
+              return principal(req);
+            },
+          },
+        );
         return reply.code(201).send(result);
       } finally {
         await stage.release();

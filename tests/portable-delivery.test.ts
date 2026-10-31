@@ -1,4 +1,4 @@
-import { afterEach, expect, it } from 'vitest';
+import { afterEach, expect, it, vi } from 'vitest';
 import { mkdtemp, mkdir, readFile, writeFile, rm, stat, symlink } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -166,7 +166,7 @@ it('exports the local linked Markdown closure with anchors and reference images 
   expect(b.id).not.toBe(a.id);
 });
 
-it('fails missing, inaccessible and unsupported media dependencies instead of delivering an incomplete package', async () => {
+it('fails missing, inaccessible and unavailable media dependencies instead of delivering an incomplete package', async () => {
   const f = await fixture(),
     missing = f.create('missing.md', '![broken](assets/missing.png)');
   await expect(
@@ -188,7 +188,7 @@ it('fails missing, inaccessible and unsupported media dependencies instead of de
   ).rejects.toMatchObject({ code: 'PORTABLE_DEPENDENCY_UNAVAILABLE' });
   expect(privateNote.id).toBeTruthy();
   for (const [name, content] of [
-    ['remote', '![remote](https://example.com/a.png)'],
+    ['remote', '![remote](http://127.0.0.1/a.png)'],
     ['html', '<video poster="poster.png"><source src="movie.mp4"></video>'],
     ['media', '[audio](assets/a.mp3)'],
   ]) {
@@ -198,7 +198,7 @@ it('fails missing, inaccessible and unsupported media dependencies instead of de
         selection: { kind: 'single', noteId: note.id },
         requestId: randomUUID(),
       }),
-    ).rejects.toMatchObject({ code: 'PORTABLE_RESOURCE_UNSUPPORTED' });
+    ).rejects.toMatchObject({ code: 'PORTABLE_DEPENDENCY_UNAVAILABLE' });
   }
 });
 
@@ -516,7 +516,7 @@ it('exports a prepared legacy UUID embed as ordinary PNG plus a linked Markdown 
   expect(target.primary.resolve(copied.noteId).preview?.state).toBe('ready');
 });
 
-it('localizes wikilinks as ordinary Markdown navigation and rejects data/blob resources explicitly', async () => {
+it('localizes wikilinks and reports invalid data or temporary blob resources explicitly', async () => {
   const f = await fixture();
   f.create('target.md', '# Target');
   const parent = f.create('wiki.md', '[[target|显示文本]]\n\n`[[missing]]`\n');
@@ -542,7 +542,11 @@ it('localizes wikilinks as ordinary Markdown navigation and rejects data/blob re
         selection: { kind: 'single', noteId: note.id },
         requestId: randomUUID(),
       }),
-    ).rejects.toMatchObject({ code: 'PORTABLE_RESOURCE_UNSUPPORTED' });
+    ).rejects.toMatchObject({
+      code: content.includes('blob:')
+        ? 'PORTABLE_REQUIRES_PERSISTENCE'
+        : 'PORTABLE_DEPENDENCY_UNAVAILABLE',
+    });
   }
 });
 
@@ -949,4 +953,216 @@ it('rejects unresolved own-origin autolinks instead of reporting dependency-free
       requestId: randomUUID(),
     }),
   ).rejects.toMatchObject({ code: 'PORTABLE_RESOURCE_UNSUPPORTED' });
+});
+
+it('exports and reimports all four real media formats with HTML sources, poster and offline fallback links', async () => {
+  const f = await fixture(),
+    extensions = ['mp4', 'webm', 'mp3', 'wav'];
+  for (const ext of extensions)
+    await writeFile(
+      join(f.config.knowledgeRoot, '00-Inbox/assets/a.' + ext),
+      await readFile(join(import.meta.dirname, 'fixtures/media/sample.' + ext)),
+    );
+  await writeFile(join(f.config.knowledgeRoot, '00-Inbox/assets/poster.png'), png);
+  const note = f.create(
+    'media.md',
+    '<video poster="assets/poster.png"><source src="assets/a.mp4"></video>\n<audio src="assets/a.mp3"></audio>\n\n[WebM](assets/a.webm)\n[WAV](assets/a.wav)\n',
+  );
+  const delivery = await f.service.create(webPrincipal, {
+    selection: { kind: 'single', noteId: note.id },
+    requestId: randomUUID(),
+  });
+  const archive = join(f.root, 'media.tgz'),
+    extracted = join(f.root, 'media');
+  await writeFile(archive, await deliveryBytes(f, delivery.id));
+  await mkdir(extracted);
+  await extractArchive(archive, extracted);
+  const manifest = JSON.parse(await readFile(join(extracted, 'dooknow-portable.json'), 'utf8'));
+  expect(manifest.files.filter((x: any) => x.kind === 'asset')).toHaveLength(5);
+  const md = await readFile(join(extracted, '00-Inbox/media.md'), 'utf8');
+  expect(md).toContain('[媒体文件]');
+  expect(md).not.toContain('/api/');
+  expect(md).not.toContain('assets/a.');
+  const target = await fixture();
+  const result = await target.service.importDirectory(webPrincipal, {
+    directoryPath: extracted,
+    folderPath: '10-Projects/relocated',
+    requestId: randomUUID(),
+  });
+  expect(result.assets).toBe(5);
+  expect(target.notes.getNote(result.notes[0].noteId).content).toContain('poster="../assets/');
+  const again = await target.service.create(webPrincipal, {
+    selection: { kind: 'single', noteId: result.notes[0].noteId },
+    requestId: randomUUID(),
+  });
+  expect(again.kind).toBe('archive');
+});
+
+it('localizes typed data media and leaves ordinary external hyperlinks unfetched', async () => {
+  const f = await fixture(),
+    wav = await readFile(join(import.meta.dirname, 'fixtures/media/sample.wav'));
+  const note = f.create(
+    'data.md',
+    `<audio src="data:audio/wav;base64,${wav.toString('base64')}"></audio>\n\n[site](http://127.0.0.1/no-fetch)\n`,
+  );
+  const delivery = await f.service.create(webPrincipal, {
+    selection: { kind: 'single', noteId: note.id },
+    requestId: randomUUID(),
+  });
+  expect(delivery.kind).toBe('archive');
+  const archive = join(f.root, 'data.tgz'),
+    extracted = join(f.root, 'data-extracted');
+  await writeFile(archive, await deliveryBytes(f, delivery.id));
+  await mkdir(extracted);
+  await extractArchive(archive, extracted);
+  expect(await readFile(join(extracted, '00-Inbox/data.md'), 'utf8')).toContain(
+    '[site](http://127.0.0.1/no-fetch)',
+  );
+});
+
+it('streams a slow remote media outside the workspace lock and aborts/reclaims cancelled staging', async () => {
+  const { createServer, request } = await import('node:http');
+  const f = await fixture(),
+    wav = await readFile(join(import.meta.dirname, 'fixtures/media/sample.wav'));
+  let entered!: () => void, finish!: () => void;
+  const started = new Promise<void>((r) => (entered = r)),
+    release = new Promise<void>((r) => (finish = r));
+  const server = createServer(async (_req, res) => {
+    res.setHeader('Content-Type', 'audio/wav');
+    res.flushHeaders();
+    entered();
+    await release;
+    res.end(wav);
+  });
+  await new Promise<void>((r) => server.listen(0, '127.0.0.1', r));
+  const port = (server.address() as any).port;
+  const service = portableDeliveryService(f.config, f.db, f.notes, {
+    resolve: async () => [{ address: '93.184.216.34', family: 4 }],
+    request: (url, options, cb) =>
+      request(`http://127.0.0.1:${port}${url.pathname}`, { ...options, lookup: undefined }, cb),
+  });
+  const remote = f.create('remote.md', '<audio src="https://fixture.test/media.wav"></audio>'),
+    ordinary = f.create('ordinary.md', '# Old\n');
+  const work = service.create(webPrincipal, {
+    selection: { kind: 'single', noteId: remote.id },
+    requestId: randomUUID(),
+  });
+  try {
+    await started;
+    const before = f.notes.getNote(ordinary.id),
+      start = Date.now();
+    await f.notes.saveNote(ordinary.id, '# Changed while remote waits\n', before.modifiedAt);
+    expect(Date.now() - start).toBeLessThan(1000);
+    finish();
+    expect((await work).kind).toBe('archive');
+  } finally {
+    finish();
+    server.closeAllConnections();
+    await new Promise<void>((r) => server.close(() => r()));
+  }
+});
+
+it('cancels slow network acquisition and reclaims all private staging and receipt bytes', async () => {
+  const { createServer, request } = await import('node:http'),
+    { readdir } = await import('node:fs/promises');
+  const f = await fixture();
+  let entered!: () => void;
+  const started = new Promise<void>((r) => (entered = r));
+  const server = createServer((_req, res) => {
+    res.setHeader('Content-Type', 'audio/wav');
+    res.flushHeaders();
+    entered();
+  });
+  await new Promise<void>((r) => server.listen(0, '127.0.0.1', r));
+  const port = (server.address() as any).port;
+  const service = portableDeliveryService(f.config, f.db, f.notes, {
+    resolve: async () => [{ address: '93.184.216.34', family: 4 }],
+    request: (url, options, cb) =>
+      request(`http://127.0.0.1:${port}${url.pathname}`, { ...options, lookup: undefined }, cb),
+  });
+  const note = f.create('cancel.md', '<audio src="https://fixture.test/slow.wav"></audio>'),
+    controller = new AbortController();
+  const work = service.create(
+    webPrincipal,
+    { selection: { kind: 'single', noteId: note.id }, requestId: randomUUID() },
+    { signal: controller.signal },
+  );
+  const rejected = expect(work).rejects.toThrow();
+  try {
+    await started;
+    controller.abort(Error('user cancelled'));
+    await rejected;
+    expect(f.db.prepare('SELECT count(*) n FROM portable_deliveries').get()).toEqual({ n: 0 });
+    expect(await readdir(join(f.config.dataRoot, 'portable-deliveries'))).toEqual([]);
+  } finally {
+    controller.abort();
+    server.closeAllConnections();
+    await new Promise<void>((r) => server.close(() => r()));
+  }
+});
+
+it('resolves owned API asset identities without fetching private application URLs', async () => {
+  const f = await fixture(),
+    note = f.create('api-asset.md', '# Media\n'),
+    assets = assetService(f.config, f.db, f.notes);
+  const { Readable } = await import('node:stream'),
+    bytes = await readFile(join(import.meta.dirname, 'fixtures/media/sample.mp4'));
+  const asset = await assets.uploadStream(
+    note.id,
+    'clip.mp4',
+    'video/mp4',
+    Readable.from([bytes]),
+    randomUUID(),
+  );
+  const source = f.create('api-source.md', `<video src="/api/assets/${asset.id}"></video>\n`);
+  const out = await f.service.create(webPrincipal, {
+    selection: { kind: 'single', noteId: source.id },
+    requestId: randomUUID(),
+  });
+  expect(out.kind).toBe('archive');
+  const archive = join(f.root, 'api.tgz'),
+    extracted = join(f.root, 'api-extracted');
+  await writeFile(archive, await deliveryBytes(f, out.id));
+  await mkdir(extracted);
+  await extractArchive(archive, extracted);
+  const md = await readFile(join(extracted, '00-Inbox/api-source.md'), 'utf8');
+  expect(md).not.toContain('/api/');
+  expect(md).toContain('[媒体文件]');
+});
+
+it('streams a 24 MiB WAV upload with bounded Buffer allocations', async () => {
+  const f = await fixture(),
+    note = f.create('bounded-media.md', '# Bounded media\n'),
+    assets = assetService(f.config, f.db, f.notes),
+    size = 24 * 1024 * 1024;
+  const head = Buffer.from(
+    await readFile(join(import.meta.dirname, 'fixtures/media/sample.wav')),
+  ).subarray(0, 44);
+  head.writeUInt32LE(size + 36, 4);
+  head.writeUInt32LE(size, 40);
+  const chunk = Buffer.alloc(65536);
+  let largest = 0;
+  const unsafe = Buffer.allocUnsafe,
+    allocate = Buffer.alloc;
+  const a = vi.spyOn(Buffer, 'allocUnsafe').mockImplementation((n: number) => {
+    largest = Math.max(largest, n);
+    return unsafe(n);
+  });
+  const b = vi.spyOn(Buffer, 'alloc').mockImplementation(((n: number, ...args: any[]) => {
+    largest = Math.max(largest, n);
+    return (allocate as any)(n, ...args);
+  }) as any);
+  let result: any;
+  try {
+    async function* input() {
+      yield head;
+      for (let at = 0; at < size; at += chunk.length) yield chunk;
+    }
+    result = await assets.uploadStream(note.id, 'bounded.wav', 'audio/wav', input(), randomUUID());
+    expect(assets.inspect(result.relativePath).sizeBytes).toBe(size + 44);
+    expect(largest).toBeLessThanOrEqual(65536);
+  } finally {
+    a.mockRestore();
+    b.mockRestore();
+  }
 });
