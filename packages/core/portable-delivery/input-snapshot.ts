@@ -68,6 +68,8 @@ export function portableInputSnapshot(
       return directory;
     });
     await mkdir(join(directory, 'assets'), { recursive: true, mode: 0o700 });
+    // Confirm ownership before exposing a filename to any payload writer.
+    stage.confirmLocation(directory);
     const name = 'assets/' + randomUUID() + extname(path),
       absolute = join(directory, name);
     entries.set(path, { path: absolute, root: directory, name });

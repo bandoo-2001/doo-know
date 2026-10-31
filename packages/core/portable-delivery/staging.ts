@@ -10,18 +10,34 @@ import { fail } from '../knowledge/errors.js';
 
 export async function portableStaging(config: AppConfig, db: AppDatabase, bytes = 0) {
   db.exec(
-    'CREATE TABLE IF NOT EXISTS portable_staging_runs(id TEXT PRIMARY KEY,bytes INTEGER NOT NULL,expires INTEGER NOT NULL); CREATE TABLE IF NOT EXISTS portable_staging_locations(run_id TEXT NOT NULL,directory TEXT NOT NULL,PRIMARY KEY(run_id,directory)); CREATE TABLE IF NOT EXISTS portable_staging_parents(run_id TEXT NOT NULL,directory TEXT NOT NULL,PRIMARY KEY(run_id,directory));',
+    'CREATE TABLE IF NOT EXISTS portable_staging_runs(id TEXT PRIMARY KEY,bytes INTEGER NOT NULL,expires INTEGER NOT NULL); CREATE TABLE IF NOT EXISTS portable_staging_locations(run_id TEXT NOT NULL,directory TEXT NOT NULL,created INTEGER NOT NULL DEFAULT 1,PRIMARY KEY(run_id,directory)); CREATE TABLE IF NOT EXISTS portable_staging_parents(run_id TEXT NOT NULL,directory TEXT NOT NULL,PRIMARY KEY(run_id,directory));',
   );
+  // Older locators have unknown creation history, so retain their fail-closed semantics.
+  if (
+    !(db.prepare('PRAGMA table_info(portable_staging_locations)').all() as { name: string }[]).some(
+      (column) => column.name === 'created',
+    )
+  )
+    db.exec('ALTER TABLE portable_staging_locations ADD COLUMN created INTEGER NOT NULL DEFAULT 1');
   const root = join(config.dataRoot, 'portable-staging');
   async function removeLocations(id: string) {
     const missing = new Map<string, string>();
     for (const row of db
-      .prepare('SELECT directory FROM portable_staging_locations WHERE run_id=?')
-      .all(id) as { directory: string }[]) {
+      .prepare('SELECT directory,created FROM portable_staging_locations WHERE run_id=?')
+      .all(id) as { directory: string; created: number }[]) {
       const parent = relative(config.knowledgeRoot, dirname(row.directory));
       if (parent.startsWith('..') || !basename(row.directory).startsWith('.portable-' + id + '-'))
         fail(409, 'PORTABLE_STAGING_CONFLICT');
       if (!existsSync(row.directory)) {
+        // A planned allocation has not returned to its caller, so no payload can have
+        // been written. A crash before/inside mkdir must not poison all future staging.
+        if (!row.created) {
+          db.prepare('DELETE FROM portable_staging_locations WHERE run_id=? AND directory=?').run(
+            id,
+            row.directory,
+          );
+          continue;
+        }
         missing.set(basename(row.directory), row.directory);
         continue;
       }
@@ -126,7 +142,17 @@ export async function portableStaging(config: AppConfig, db: AppDatabase, bytes 
     addParent: (directory: string) =>
       db.prepare('INSERT OR IGNORE INTO portable_staging_parents VALUES(?,?)').run(id, directory),
     addLocation: (directory: string) =>
-      db.prepare('INSERT INTO portable_staging_locations VALUES(?,?)').run(id, directory),
+      db
+        .prepare('INSERT INTO portable_staging_locations(run_id,directory,created) VALUES(?,?,0)')
+        .run(id, directory),
+    confirmLocation: (directory: string) => {
+      if (
+        db
+          .prepare('UPDATE portable_staging_locations SET created=1 WHERE run_id=? AND directory=?')
+          .run(id, directory).changes !== 1
+      )
+        fail(409, 'PORTABLE_STAGING_CONFLICT');
+    },
     resize,
     release: async () => {
       await removeLocations(id);

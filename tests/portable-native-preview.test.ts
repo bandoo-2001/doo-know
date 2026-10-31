@@ -305,3 +305,108 @@ it('review: reclaims an owned input shard after its target parent moved during u
   const { readdir } = await import('node:fs/promises');
   expect(await readdir(join(f.config.knowledgeRoot, 'moved/notes'))).toEqual([]);
 });
+it('review: real permission-denied input allocation leaves no locator that can poison later staging', async () => {
+  const f = setup(),
+    { portableStaging } = await import('../packages/core/portable-delivery/staging'),
+    { portableInputSnapshot } = await import('../packages/core/portable-delivery/input-snapshot'),
+    { noteService } = await import('../packages/core/notes'),
+    { mkdir, chmod } = await import('node:fs/promises'),
+    target = join(f.config.knowledgeRoot, 'target');
+  await mkdir(target);
+  const stage = await portableStaging(f.config, f.db),
+    snapshot = portableInputSnapshot(
+      f.config,
+      f.db,
+      noteService(f.config, f.db),
+      { ...f.p, scopes: ['knowledge:read', 'knowledge:write'] },
+      'target',
+      stage,
+    );
+  await chmod(target, 0o500);
+  try {
+    await expect(snapshot.allocate('note.md')).rejects.toMatchObject({ code: 'EACCES' });
+  } finally {
+    await chmod(target, 0o700);
+  }
+  await expect(stage.release()).resolves.toBeUndefined();
+  expect(f.db.prepare('SELECT count(*) n FROM portable_staging_locations').get()).toMatchObject({
+    n: 0,
+  });
+  const next = await portableStaging(f.config, f.db);
+  await next.release();
+});
+it.each([false, true])(
+  'review: expiry reclaims a planned allocation after a crash before confirmation (directory exists: %s)',
+  async (created) => {
+    const f = setup(),
+      { portableStaging } = await import('../packages/core/portable-delivery/staging'),
+      { mkdir } = await import('node:fs/promises'),
+      stage = await portableStaging(f.config, f.db),
+      location = join(f.config.knowledgeRoot, '.portable-' + stage.id + '-planned');
+    stage.addLocation(location);
+    if (created) await mkdir(join(location, 'assets'), { recursive: true, mode: 0o700 });
+    f.db.prepare('UPDATE portable_staging_runs SET expires=0 WHERE id=?').run(stage.id);
+    const next = await portableStaging(f.config, f.db);
+    expect(f.db.prepare('SELECT count(*) n FROM portable_staging_locations').get()).toMatchObject({
+      n: 0,
+    });
+    expect(
+      await import('node:fs/promises').then((fs) => fs.stat(location)).catch(() => undefined),
+    ).toBeUndefined();
+    await next.release();
+    expect(f.db.prepare('SELECT count(*) n FROM portable_staging_runs').get()).toMatchObject({
+      n: 0,
+    });
+  },
+);
+it('review: a confirmed created shard moved outside the knowledge root retains its unknown bytes and locator', async () => {
+  const f = setup(),
+    { portableStaging } = await import('../packages/core/portable-delivery/staging'),
+    { portableInputSnapshot } = await import('../packages/core/portable-delivery/input-snapshot'),
+    { noteService } = await import('../packages/core/notes'),
+    { rename } = await import('node:fs/promises'),
+    stage = await portableStaging(f.config, f.db),
+    snapshot = portableInputSnapshot(
+      f.config,
+      f.db,
+      noteService(f.config, f.db),
+      { ...f.p, scopes: ['knowledge:read', 'knowledge:write'] },
+      'target',
+      stage,
+    ),
+    file = await snapshot.allocate('note.md');
+  writeFileSync(file, 'data');
+  stage.resize(4);
+  await rename(join(f.config.knowledgeRoot, 'target'), join(f.config.dataRoot, 'moved-outside'));
+  await expect(stage.release()).rejects.toMatchObject({ code: 'PORTABLE_STAGING_CONFLICT' });
+  expect(
+    f.db.prepare('SELECT bytes FROM portable_staging_runs WHERE id=?').get(stage.id),
+  ).toMatchObject({ bytes: 4 });
+  expect(f.db.prepare('SELECT count(*) n FROM portable_staging_locations').get()).toMatchObject({
+    n: 1,
+  });
+  f.db.prepare('UPDATE portable_staging_runs SET expires=0 WHERE id=?').run(stage.id);
+  await expect(portableStaging(f.config, f.db)).rejects.toMatchObject({
+    code: 'PORTABLE_STAGING_CONFLICT',
+  });
+});
+it('review: migration keeps unknown historical locators fail-closed instead of treating them as uncreated', async () => {
+  const f = setup(),
+    { portableStaging } = await import('../packages/core/portable-delivery/staging'),
+    id = randomUUID(),
+    location = join(f.config.knowledgeRoot, '.portable-' + id + '-legacy');
+  f.db.exec(
+    'CREATE TABLE portable_staging_locations(run_id TEXT NOT NULL,directory TEXT NOT NULL,PRIMARY KEY(run_id,directory))',
+  );
+  f.db.prepare('INSERT INTO portable_staging_runs VALUES(?,?,?)').run(id, 4, 0);
+  f.db.prepare('INSERT INTO portable_staging_locations VALUES(?,?)').run(id, location);
+  await expect(portableStaging(f.config, f.db)).rejects.toMatchObject({
+    code: 'PORTABLE_STAGING_CONFLICT',
+  });
+  expect(
+    f.db.prepare('SELECT created FROM portable_staging_locations WHERE run_id=?').get(id),
+  ).toMatchObject({ created: 1 });
+  expect(f.db.prepare('SELECT bytes FROM portable_staging_runs WHERE id=?').get(id)).toMatchObject({
+    bytes: 4,
+  });
+});
