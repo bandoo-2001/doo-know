@@ -1,15 +1,19 @@
+import { withPortablePreviews } from './portable-previews';
 import { api } from '../api';
 /** Download the frozen delivery named by the server; Markdown and archives retain their real formats. */
 export async function downloadPortableDocument(noteId: string) {
-  const result = await api<{
-    fileName: string;
-    downloadUrl: string;
-    kind: 'markdown' | 'archive';
-    mime: string;
-  }>('/api/portable-deliveries', 'POST', {
-    selection: { kind: 'single', noteId },
-    requestId: crypto.randomUUID(),
-  });
+  const requestId = crypto.randomUUID();
+  const result = await withPortablePreviews(() =>
+    api<{
+      fileName: string;
+      downloadUrl: string;
+      kind: 'markdown' | 'archive';
+      mime: string;
+    }>('/api/portable-deliveries', 'POST', {
+      selection: { kind: 'single', noteId },
+      requestId,
+    }),
+  );
   const response = await fetch(result.downloadUrl, {
     cache: 'no-store',
     credentials: 'same-origin',

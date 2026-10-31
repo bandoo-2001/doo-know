@@ -1,3 +1,5 @@
+import { rewriteDestinations } from './paths.js';
+import { renderPortableFigure } from '../../../shared/portable-figure.js';
 import { posix } from 'node:path';
 import {
   boundDiagramSources,
@@ -41,5 +43,52 @@ export function portableBoundWhiteboards(
       prefix + lines[0] + '\n' + indentation + code + '\n' + lines.at(-1) + (trailing ? '\n' : '');
     content = content.slice(0, group.prefixFrom) + replacement + content.slice(group.to);
   }
+  return content;
+}
+
+/** Update a complete recognized native snapshot group as one source/PNG binding. */
+export function replacePortableNativeGroup(
+  content: string,
+  document: string,
+  oldSource: string,
+  pair: { sourcePath: string; previewPath: string; sourceHash: string },
+) {
+  const groups = boundDiagramSources(content)
+    .filter(
+      (group) =>
+        group.kind === 'excalidraw' && localReference(document, group.sourcePath) === oldSource,
+    )
+    .reverse();
+  const sourcePath = posix.relative(posix.dirname(document), pair.sourcePath),
+    previewPath = posix.relative(posix.dirname(document), pair.previewPath),
+    code = sourcePath;
+  const replacement = (binding: ReturnType<typeof boundDiagramSources>[number]['binding']) =>
+    renderPortableFigure({
+      alt: 'EXCALIDRAW 预览',
+      previewPath,
+      source: { type: 'file', path: sourcePath },
+    }) +
+    '\n' +
+    serializeDiagramBinding({
+      ...binding,
+      sourceHash: pair.sourceHash,
+      codeHash: sha256(normalizeDiagramCode(code)),
+    }) +
+    '\n\n```excalidraw\n' +
+    code +
+    '\n```\n';
+  if (!groups.length)
+    return (
+      rewriteDestinations(content, document, document, new Map([[oldSource, pair.sourcePath]])) +
+      '\n\n' +
+      replacement({
+        kind: 'excalidraw',
+        sourceHash: pair.sourceHash,
+        codeHash: sha256(normalizeDiagramCode(code)),
+      })
+    );
+  for (const group of groups)
+    content =
+      content.slice(0, group.prefixFrom) + replacement(group.binding) + content.slice(group.to);
   return content;
 }

@@ -48,6 +48,36 @@ export function registerPortableDeliveryRoutes(
     if (typeof owner !== 'string') fail(401, 'UNAUTHORIZED');
     return { ...webPrincipal, id: owner, clientId: 'portable-owner' };
   };
+  app.get<{ Params: { id: string } }>('/api/portable-previews/:id', async (req) => {
+    checkOwner?.(req);
+    return service().previews.get(principal(req), {
+      previewId: z.string().uuid().parse(req.params.id),
+    });
+  });
+  app.post<{ Params: { id: string } }>(
+    '/api/portable-previews/:id/prepare',
+    { bodyLimit: 15 * 1024 * 1024 },
+    async (req) => {
+      checkOwner?.(req);
+      const input = z
+        .object({
+          sourceHash: z.string().regex(/^[a-f0-9]{64}$/),
+          pngBase64: z.string().max(Math.ceil((10 * 1024 ** 2) / 3) * 4),
+          requestId: z.string().regex(/^[A-Za-z0-9_-]{1,128}$/),
+        })
+        .strict()
+        .parse(req.body);
+      return service().previews.prepare(principal(req), {
+        ...input,
+        previewId: z.string().uuid().parse(req.params.id),
+      });
+    },
+  );
+  app.post<{ Params: { id: string } }>('/api/portable-previews/:id/cancel', async (req) => {
+    checkOwner?.(req);
+    z.object({}).strict().parse(req.body);
+    return service().previews.cancel(principal(req), z.string().uuid().parse(req.params.id));
+  });
   app.post('/api/portable-deliveries', async (req, reply) => {
     const controller = new AbortController();
     const cancel = () => {
@@ -244,7 +274,14 @@ export function registerPortableDeliveryRoutes(
   });
   app.post<{ Params: { id: string } }>('/api/portable-jobs/:id/cancel', async (req) => {
     checkOwner?.(req);
-    return jobs.cancel(principal(req).id, req.params.id);
+    const p = principal(req),
+      job = jobs.read(p.id, req.params.id),
+      cancelled = jobs.cancel(p.id, req.params.id);
+    service().previews.cancelRequest(p, {
+      requestId: job.requestId,
+      direction: job.kind === 'export' ? 'export' : 'import',
+    });
+    return cancelled;
   });
   app.post<{ Params: { id: string } }>('/api/portable-jobs/:id/retry', async (req, reply) => {
     checkOwner?.(req);

@@ -56,21 +56,22 @@ async function fixture() {
     assetService(config, db, notes),
     webPrincipal,
   );
-  function diagram(type: 'whiteboard' | 'mindmap' | 'flowchart') {
+  function diagram(type: 'whiteboard' | 'mindmap' | 'flowchart', override?: string, name?: string) {
     const intent = diagramCreationService(config, db, webPrincipal).reserve({
-      path: `00-Inbox/${type}.md`,
+      path: `00-Inbox/${name ?? type}.md`,
       type,
       requestId: randomUUID(),
     });
     const source =
-      type === 'whiteboard'
+      override ??
+      (type === 'whiteboard'
         ? JSON.stringify({
             ...emptyWhiteboard(),
             elements: [{ id: 'label', type: 'text', text: '离线节点' }],
           })
         : type === 'mindmap'
           ? '- 节点甲\n  - 节点乙\n'
-          : 'flowchart LR\n A[开始] --> B[完成]\n';
+          : 'flowchart LR\n A[开始] --> B[完成]\n');
     const prepared = primary.prepare({
       target: { kind: 'creation', intentId: intent.id },
       type,
@@ -303,7 +304,7 @@ it('protects owner HTTP delivery, streams the actual filename and supports compl
   expect(imported.json().notes[0].noteId).not.toBe(created.json().id);
 });
 
-it('rejects source-native relocation before exporting a changed source with an old PNG', async () => {
+it('rejects missing native closure targets before requesting any preview', async () => {
   const f = await fixture(),
     graph = f.diagram('whiteboard');
   const source = JSON.stringify({
@@ -337,8 +338,10 @@ it('rejects source-native relocation before exporting a changed source with an o
       requestId: randomUUID(),
     }),
   ).rejects.toMatchObject({
-    code: 'DIAGRAM_PREVIEW_REQUIRED',
-    details: { reason: 'native-link-relocation' },
+    code: 'PORTABLE_DEPENDENCY_UNAVAILABLE',
+    details: {
+      diagnostics: [{ document: '00-Inbox/whiteboard.md', resource: '../../another.md' }],
+    },
   });
 });
 
@@ -982,7 +985,7 @@ it('exports and reimports all four real media formats with HTML sources, poster 
   const md = await readFile(join(extracted, '00-Inbox/media.md'), 'utf8');
   expect(md).toContain('[媒体文件]');
   expect(md).not.toContain('/api/');
-  expect(md).not.toContain('assets/a.');
+  expect(md).toContain('assets/a.mp4');
   const target = await fixture();
   const result = await target.service.importDirectory(webPrincipal, {
     directoryPath: extracted,
@@ -990,7 +993,9 @@ it('exports and reimports all four real media formats with HTML sources, poster 
     requestId: randomUUID(),
   });
   expect(result.assets).toBe(5);
-  expect(target.notes.getNote(result.notes[0].noteId).content).toContain('poster="../assets/');
+  expect(target.notes.getNote(result.notes[0].noteId).content).toContain(
+    'poster="assets/poster.png',
+  );
   const again = await target.service.create(webPrincipal, {
     selection: { kind: 'single', noteId: result.notes[0].noteId },
     requestId: randomUUID(),
@@ -1328,3 +1333,405 @@ it.each(['svg', 'mermaid', 'excalidraw'] as const)(
     });
   },
 );
+
+it('preserves native relative source base and collects its authorized offline document closure', async () => {
+  const f = await fixture(),
+    child = f.create('native-child.md', '# Native child');
+  const source = JSON.stringify({
+    ...emptyWhiteboard(),
+    elements: [{ id: 'link', type: 'rectangle', link: '../native-child.md#anchor' }],
+  });
+  const graph = f.diagram('whiteboard', source);
+  const delivery = await f.service.create(
+    { ...webPrincipal, scopes: ['knowledge:read'] },
+    { selection: { kind: 'single', noteId: graph.note.id }, requestId: randomUUID() },
+  );
+  const archive = join(f.root, 'native.tar.gz'),
+    out = join(f.root, 'native-out');
+  await writeFile(archive, await deliveryBytes(f, delivery.id));
+  await mkdir(out);
+  await extractArchive(archive, out);
+  const doc = (await import('../shared/diagram-document')).parseDiagramDocument(
+    await readFile(join(out, graph.note.relativePath), 'utf8'),
+  );
+  expect(doc.status).toBe('diagram');
+  if (doc.status !== 'diagram' || doc.primary.source.format !== 'excalidraw') throw Error('native');
+  const { localReference } = await import('../packages/core/render');
+  const path = localReference(graph.note.relativePath, doc.primary.source.path)!;
+  expect(await readFile(join(out, path), 'utf8')).toBe(source);
+  expect(await readFile(join(out, child.relativePath), 'utf8')).toBe('# Native child');
+});
+it('returns a fixed read-only source plan for native UUID links and resumes same request with a new matching PNG', async () => {
+  const f = await fixture(),
+    child = f.create('native-uuid.md', '# Native UUID'),
+    source = JSON.stringify({
+      ...emptyWhiteboard(),
+      elements: [
+        { id: 'link', type: 'rectangle', link: f.config.origin + '/?note=' + child.id + '#part' },
+      ],
+    }),
+    graph = f.diagram('whiteboard', source),
+    p = { ...webPrincipal, scopes: ['knowledge:read'] },
+    input = {
+      selection: { kind: 'single' as const, noteId: graph.note.id },
+      requestId: randomUUID(),
+    };
+  const error = await f.service.create(p, input).catch((e) => e);
+  expect(error.code).toBe('DIAGRAM_PREVIEW_REQUIRED');
+  const need = error.details.portablePreviews[0];
+  const fixed = f.service.previews.get(p, { previewId: need.previewId });
+  expect(fixed.source).not.toBe(source);
+  expect(fixed.source).not.toContain(child.id);
+  expect(JSON.parse(fixed.source).elements[0].link).toContain('native-uuid.md#part');
+  f.service.previews.prepare(p, {
+    previewId: need.previewId,
+    sourceHash: need.sourceHash,
+    pngBase64: png.toString('base64'),
+    requestId: 'portable-render',
+  });
+  const delivery = await f.service.create(p, input);
+  expect(delivery.kind).toBe('archive');
+  expect(
+    await readFile(join(f.config.knowledgeRoot, graph.prepared.source!.relativePath), 'utf8'),
+  ).toBe(source);
+  const archive = join(f.root, 'uuid.tar.gz'),
+    out = join(f.root, 'uuid-out');
+  await writeFile(archive, await deliveryBytes(f, delivery.id));
+  await mkdir(out);
+  await extractArchive(archive, out);
+  const target = await fixture();
+  await mkdir(join(target.config.knowledgeRoot, '00-Inbox/again'));
+  const imported = await target.service.importDirectory(webPrincipal, {
+    directoryPath: out,
+    folderPath: '00-Inbox/again',
+    requestId: randomUUID(),
+  });
+  const main = imported.notes.find((n) => n.sourcePath === graph.note.relativePath)!;
+  const parsed = (await import('../shared/diagram-document')).parseDiagramDocument(
+    await readFile(join(target.config.knowledgeRoot, main.relativePath), 'utf8'),
+  );
+  expect(parsed.status).toBe('diagram');
+  if (parsed.status !== 'diagram' || parsed.primary.source.format !== 'excalidraw')
+    throw Error('native');
+  const { localReference } = await import('../packages/core/render');
+  const finalPath = localReference(main.relativePath, parsed.primary.source.path)!;
+  expect(await readFile(join(target.config.knowledgeRoot, finalPath), 'utf8')).toBe(fixed.source);
+  expect(
+    await target.service.create(webPrincipal, {
+      selection: { kind: 'single', noteId: main.noteId },
+      requestId: randomUUID(),
+    }),
+  ).toMatchObject({ kind: 'archive' });
+});
+it('rebases a legacy self-reference to its renamed Markdown target before preview planning and updates the full render tuple', async () => {
+  const f = await fixture(),
+    source = JSON.stringify({
+      ...emptyWhiteboard(),
+      elements: [{ id: 'self', type: 'rectangle', link: 'legacy-self.excalidraw#self' }],
+    }),
+    board = f.create('legacy-self.excalidraw', source),
+    state = f.primary.resolve(board.id);
+  legacyDiagramPreviewService(
+    f.config,
+    f.db,
+    f.notes,
+    assetService(f.config, f.db, f.notes),
+    webPrincipal,
+  ).prepare(board.id, {
+    expectedDocumentHash: state.documentHash,
+    expectedSourceHash: state.source.hash,
+    renderer: diagramRendererVersions.whiteboard,
+    config: {},
+    pngBase64: png.toString('base64'),
+    requestId: randomUUID(),
+  });
+  const parent = f.create('legacy-self-parent.md', '```excalidraw\n' + board.id + '\n```\n');
+  const input = {
+      selection: { kind: 'single' as const, noteId: parent.id },
+      requestId: randomUUID(),
+    },
+    error = await f.service.create(webPrincipal, input).catch((e) => e),
+    need = error.details.portablePreviews[0],
+    fixed = f.service.previews.get(webPrincipal, need.previewId);
+  expect(JSON.parse(fixed.source).elements[0].link).toBe('../00-Inbox/legacy-self.md#self');
+  const changed = Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
+    'base64',
+  );
+  f.service.previews.prepare(webPrincipal, {
+    previewId: need.previewId,
+    sourceHash: need.sourceHash,
+    pngBase64: changed.toString('base64'),
+    requestId: 'legacy-fixed',
+  });
+  const out = await f.service.create(webPrincipal, input),
+    archive = join(f.root, 'self.tar.gz'),
+    directory = join(f.root, 'self-out');
+  await writeFile(archive, await deliveryBytes(f, out.id));
+  await mkdir(directory);
+  await extractArchive(archive, directory);
+  const parsed = (await import('../shared/diagram-document')).parseDiagramDocument(
+    await readFile(join(directory, '00-Inbox/legacy-self.md'), 'utf8'),
+  );
+  expect(parsed.status).toBe('diagram');
+  if (parsed.status !== 'diagram') throw Error('diagram');
+  expect(parsed.primary.binding).toMatchObject({
+    sourceHash: sha256(fixed.source),
+    previewHash: sha256(changed),
+    renderHash: need.renderHash,
+  });
+  expect(parsed.primary.binding.previewHash).not.toBe(sha256(png));
+  const manifest = JSON.parse(await readFile(join(directory, 'dooknow-portable.json'), 'utf8'));
+  expect(manifest.files.filter((file: any) => file.kind === 'asset')).toHaveLength(2);
+  expect(await readFile(join(f.config.knowledgeRoot, board.relativePath), 'utf8')).toBe(
+    state.source.content,
+  );
+});
+it('rejects an incoming native dependency absent from the fixed manifest before publishing any main document', async () => {
+  const f = await fixture(),
+    graph = f.diagram('whiteboard'),
+    input = {
+      selection: { kind: 'single' as const, noteId: graph.note.id },
+      requestId: randomUUID(),
+    },
+    out = await f.service.create(webPrincipal, input),
+    archive = join(f.root, 'bad-native.tar.gz'),
+    directory = join(f.root, 'bad-native');
+  await writeFile(archive, await deliveryBytes(f, out.id));
+  await mkdir(directory);
+  await extractArchive(archive, directory);
+  const { parseDiagramDocument } = await import('../shared/diagram-document'),
+    { localReference } = await import('../packages/core/render'),
+    { serializePrimaryBinding } = await import('../shared/diagram-document-binding');
+  const mainPath = join(directory, graph.note.relativePath),
+    content = await readFile(mainPath, 'utf8'),
+    parsed = parseDiagramDocument(content);
+  if (parsed.status !== 'diagram' || parsed.primary.source.format !== 'excalidraw')
+    throw Error('diagram');
+  const sourcePath = localReference(graph.note.relativePath, parsed.primary.source.path)!,
+    source = JSON.stringify({
+      ...emptyWhiteboard(),
+      elements: [{ id: 'bad', type: 'rectangle', link: '../missing.md' }],
+    }),
+    binding = { ...parsed.primary.binding, sourceHash: sha256(source) };
+  const { serializeDiagramRenderInput } = await import('../shared/diagram-document-binding');
+  binding.renderHash = sha256(
+    serializeDiagramRenderInput({
+      type: 'whiteboard',
+      sourceHash: binding.sourceHash,
+      title: parsed.title,
+      renderer: graph.prepared.renderer,
+      config: {},
+    }),
+  );
+  await writeFile(join(directory, sourcePath), source);
+  const final = content.replace(
+    serializePrimaryBinding(parsed.primary.binding),
+    serializePrimaryBinding(binding),
+  );
+  await writeFile(mainPath, final);
+  const manifestPath = join(directory, 'dooknow-portable.json'),
+    manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+  for (const file of manifest.files) {
+    const bytes = await readFile(join(directory, file.path));
+    file.sha256 = sha256(bytes);
+    file.sizeBytes = bytes.length;
+  }
+  await writeFile(manifestPath, JSON.stringify(manifest));
+  const target = await fixture();
+  await expect(
+    target.service.importDirectory(webPrincipal, {
+      directoryPath: directory,
+      folderPath: '00-Inbox/missing',
+      requestId: randomUUID(),
+    }),
+  ).rejects.toMatchObject({ code: 'PORTABLE_DEPENDENCY_UNAVAILABLE' });
+  expect(target.db.prepare('SELECT count(*) n FROM notes WHERE active=1').get()).toMatchObject({
+    n: 0,
+  });
+});
+it('plans the complete nested native asset closure before rendering its final per-document sources', async () => {
+  const f = await fixture(),
+    child = f.create('nested-target.md', '# Nested'),
+    nested = JSON.stringify({
+      ...emptyWhiteboard(),
+      elements: [{ id: 'nested', type: 'rectangle', link: f.config.origin + '/?note=' + child.id }],
+    }),
+    source = JSON.stringify({
+      ...emptyWhiteboard(),
+      elements: [{ id: 'outer', type: 'rectangle', link: 'nested.EXCALIDRAW' }],
+    });
+  await writeFile(join(f.config.knowledgeRoot, '00-Inbox/assets/nested.EXCALIDRAW'), nested);
+  const graph = f.diagram('whiteboard', source),
+    input = {
+      selection: { kind: 'single' as const, noteId: graph.note.id },
+      requestId: randomUUID(),
+    },
+    error = await f.service.create(webPrincipal, input).catch((e) => e);
+  expect(error.code).toBe('DIAGRAM_PREVIEW_REQUIRED');
+  expect(error.details.portablePreviews).toHaveLength(2);
+  for (const need of error.details.portablePreviews)
+    f.service.previews.prepare(webPrincipal, {
+      previewId: need.previewId,
+      sourceHash: need.sourceHash,
+      pngBase64: png.toString('base64'),
+      requestId: 'nested-' + need.previewId,
+    });
+  const out = await f.service.create(webPrincipal, input),
+    archive = join(f.root, 'nested.tar.gz'),
+    directory = join(f.root, 'nested-out');
+  await writeFile(archive, await deliveryBytes(f, out.id));
+  await mkdir(directory);
+  await extractArchive(archive, directory);
+  const manifest = JSON.parse(await readFile(join(directory, 'dooknow-portable.json'), 'utf8'));
+  for (const file of manifest.files.filter((file: any) => file.path.endsWith('.excalidraw')))
+    expect(await readFile(join(directory, file.path), 'utf8')).not.toContain(child.id);
+  const target = await fixture();
+  expect(
+    await target.service.importDirectory(webPrincipal, {
+      directoryPath: directory,
+      folderPath: '00-Inbox/nested',
+      requestId: randomUUID(),
+    }),
+  ).toMatchObject({
+    notes: expect.arrayContaining([expect.objectContaining({ sourcePath: child.relativePath })]),
+  });
+});
+it('keeps a shared immutable native source unchanged and stages independent per-document export snapshots', async () => {
+  const f = await fixture(),
+    child = f.create('shared-target.md', '# Shared'),
+    source = JSON.stringify({
+      ...emptyWhiteboard(),
+      elements: [{ id: 'shared', type: 'rectangle', link: f.config.origin + '/?note=' + child.id }],
+    }),
+    a = f.diagram('whiteboard', source, 'shared-a');
+  const intent = diagramCreationService(f.config, f.db, webPrincipal).reserve({
+      path: '00-Inbox/shared-b.md',
+      type: 'whiteboard',
+      requestId: randomUUID(),
+    }),
+    prepared = f.primary.prepareImported(
+      {
+        target: { kind: 'creation', intentId: intent.id },
+        type: 'whiteboard',
+        source,
+        sourceHash: sha256(source),
+        title: a.prepared.title,
+        renderer: diagramRendererVersions.whiteboard,
+        config: {},
+        pngBase64: png.toString('base64'),
+        requestId: randomUUID(),
+      },
+      { sourcePath: a.prepared.source!.relativePath, previewPath: a.prepared.preview.relativePath },
+    ),
+    markdown = renderPreparedDiagramDocument({ prepared, title: prepared.title, source }),
+    b = {
+      note: f.primary.commit({ preparedId: prepared.id, markdown, requestId: randomUUID() }),
+      markdown,
+      prepared,
+    };
+  expect(a.prepared.source!.relativePath).toBe(b.prepared.source!.relativePath);
+  const input = {
+      selection: { kind: 'multiple' as const, noteIds: [a.note.id, b.note.id] },
+      requestId: randomUUID(),
+    },
+    p = { ...webPrincipal, scopes: ['knowledge:read'] },
+    error = await f.service.create(p, input).catch((e) => e),
+    needs = error.details.portablePreviews;
+  expect(needs).toHaveLength(2);
+  expect(needs[0].previewId).not.toBe(needs[1].previewId);
+  for (const need of needs)
+    f.service.previews.prepare(p, {
+      previewId: need.previewId,
+      sourceHash: need.sourceHash,
+      pngBase64: png.toString('base64'),
+      requestId: 'shared-' + need.previewId,
+    });
+  const out = await f.service.create(p, input);
+  expect(out.kind).toBe('archive');
+  expect(
+    await readFile(join(f.config.knowledgeRoot, a.prepared.source!.relativePath), 'utf8'),
+  ).toBe(source);
+  expect(f.notes.getNote(a.note.id).content).toBe(a.markdown);
+  expect(f.notes.getNote(b.note.id).content).toBe(b.markdown);
+});
+it('authorizes native UUID targets before returning any private final-source plan', async () => {
+  const f = await fixture(),
+    child = f.create('private-native-target.md', '# Private'),
+    source = JSON.stringify({
+      ...emptyWhiteboard(),
+      elements: [
+        { id: 'private', type: 'rectangle', link: f.config.origin + '/?note=' + child.id },
+      ],
+    }),
+    graph = f.diagram('whiteboard', source),
+    p = {
+      ...webPrincipal,
+      scopes: ['knowledge:read'],
+      knowledgeAll: false,
+      allowedPrefixes: [graph.note.relativePath],
+    };
+  await expect(
+    f.service.create(p, {
+      selection: { kind: 'single', noteId: graph.note.id },
+      requestId: randomUUID(),
+    }),
+  ).rejects.toMatchObject({ code: 'FORBIDDEN' });
+  expect(f.db.prepare('SELECT count(*) n FROM portable_native_previews').get()).toMatchObject({
+    n: 0,
+  });
+  expect(f.db.prepare('SELECT count(*) n FROM portable_deliveries').get()).toMatchObject({ n: 0 });
+});
+it('applies the 256 MiB package bound to final files while counting superseded native snapshots only against staging', async () => {
+  const f = await fixture(),
+    child = f.create('large-native-child.md', '# Large target'),
+    source = JSON.stringify({
+      ...emptyWhiteboard(),
+      padding: 'x'.repeat(6 * 1024 ** 2),
+      elements: [{ id: 'large', type: 'rectangle', link: f.config.origin + '/?note=' + child.id }],
+    }),
+    graph = f.diagram('whiteboard', source);
+  const { open } = await import('node:fs/promises');
+  for (const [name, total] of [
+    ['large-a.wav', 128 * 1024 ** 2],
+    ['large-b.wav', 118 * 1024 ** 2],
+  ] as const) {
+    const header = Buffer.alloc(44);
+    header.write('RIFF');
+    header.writeUInt32LE(total - 8, 4);
+    header.write('WAVEfmt ', 8);
+    header.writeUInt32LE(16, 16);
+    header.writeUInt16LE(1, 20);
+    header.writeUInt16LE(1, 22);
+    header.writeUInt32LE(8000, 24);
+    header.writeUInt32LE(8000, 28);
+    header.writeUInt16LE(1, 32);
+    header.writeUInt16LE(8, 34);
+    header.write('data', 36);
+    header.writeUInt32LE(total - 44, 40);
+    const file = await open(join(f.config.knowledgeRoot, '00-Inbox/assets', name), 'wx');
+    try {
+      await file.write(header);
+      await file.truncate(total);
+    } finally {
+      await file.close();
+    }
+  }
+  const parent = f.create(
+    'large-native-parent.md',
+    `[graph](whiteboard.md)\n[a](assets/large-a.wav)\n[b](assets/large-b.wav)\n`,
+  );
+  const input = {
+      selection: { kind: 'single' as const, noteId: parent.id },
+      requestId: randomUUID(),
+    },
+    error = await f.service.create(webPrincipal, input).catch((e) => e),
+    need = error.details.portablePreviews[0];
+  f.service.previews.prepare(webPrincipal, {
+    previewId: need.previewId,
+    sourceHash: need.sourceHash,
+    pngBase64: png.toString('base64'),
+    requestId: 'large-fixed',
+  });
+  expect(await f.service.create(webPrincipal, input)).toMatchObject({ kind: 'archive' });
+}, 30000);

@@ -43,6 +43,7 @@ import {
 } from './manifest.js';
 import {
   checkNativeLinks,
+  nativeLinks,
   destinations,
   rewriteDestinations,
   internalNoteNavigation,
@@ -186,6 +187,15 @@ export async function importPortableDirectory(
     result: PortableImportResult = previous
       ? JSON.parse(previous.result)
       : { id, notes: [], assets: 0 };
+  if (!previous)
+    db.prepare('INSERT INTO portable_import_jobs VALUES(?,?,?,?,?,?,0)').run(
+      id,
+      p.id,
+      p.clientId,
+      input.requestId,
+      fingerprint,
+      JSON.stringify(result),
+    );
   const mapping = new Map(
       manifest.files.map((file) => [file.path, posix.join(input.folderPath, file.path)]),
     ),
@@ -213,6 +223,17 @@ export async function importPortableDirectory(
         result.notes.push({ sourcePath: file.path, relativePath: row.path, noteId: row.id });
       }
     }
+  const checkIncomingNative = (source: string, sourcePath: string) => {
+    checkNativeLinks(source, sourcePath, config.origin);
+    for (const link of nativeLinks(source)) {
+      if (!link || link.startsWith('#')) continue;
+      const local = localReference(sourcePath, link);
+      if (local && !fileMap.has(local))
+        fail(400, 'PORTABLE_DEPENDENCY_UNAVAILABLE', '原生场景引用不在固定整包清单内', false, {
+          diagnostics: [{ document: sourcePath, resource: link }],
+        });
+    }
+  };
   for (const file of manifest.files) {
     refresh();
     const target = mapping.get(file.path)!;
@@ -228,6 +249,11 @@ export async function importPortableDirectory(
       fail(409, 'PORTABLE_IMPORT_COLLISION');
     if (file.kind === 'asset') {
       validatedAssets.inspect(file.path);
+      if (/\.excalidraw$/i.test(file.path))
+        checkIncomingNative(
+          await readFile(join(input.directoryPath, file.path), 'utf8'),
+          file.path,
+        );
       continue;
     }
     if (
@@ -292,7 +318,7 @@ export async function importPortableDirectory(
           : normalizeDiagramCode(source) !== normalizeDiagramCode(group.code))
       )
         fail(409, 'DIAGRAM_PREVIEW_REQUIRED');
-      if (group.kind === 'excalidraw') checkNativeLinks(source, sourcePath, config.origin);
+      if (group.kind === 'excalidraw') checkIncomingNative(source, sourcePath);
     }
     if (parsed.status === 'diagram') {
       const source =
@@ -307,7 +333,7 @@ export async function importPortableDirectory(
           : parsed.primary.source.content;
       if (parsed.primary.source.format === 'excalidraw') {
         validateDiagramSource('excalidraw', Buffer.from(source));
-        checkNativeLinks(source, file.path, config.origin);
+        checkIncomingNative(source, localReference(file.path, parsed.primary.source.path)!);
       }
       const previewPath = localReference(file.path, parsed.primary.previewPath),
         previewEntry = previewPath && fileMap.get(previewPath);
@@ -334,15 +360,6 @@ export async function importPortableDirectory(
       documents.add(file.path);
     } else documents.add(file.path);
   }
-  if (!previous)
-    db.prepare('INSERT INTO portable_import_jobs VALUES(?,?,?,?,?,?,0)').run(
-      id,
-      p.id,
-      p.clientId,
-      input.requestId,
-      fingerprint,
-      JSON.stringify(result),
-    );
   const persist = () =>
     db
       .prepare('UPDATE portable_import_jobs SET result=? WHERE id=?')
@@ -450,16 +467,24 @@ export async function importPortableDirectory(
       )
         fail(409, 'PORTABLE_DIGEST_MISMATCH');
       const descriptor = primaryRenderDescriptor(parsed),
-        prepared = primary.prepare({
-          target: { kind: 'creation', intentId: creation.id },
-          type: parsed.type,
-          source,
-          sourceHash: sha256(source),
-          title: parsed.title,
-          ...descriptor,
-          pngBase64: preview.toString('base64'),
-          requestId: 'portable-prepare-' + id + '-' + sha256(path).slice(0, 16),
-        });
+        prepared = primary.prepareImported(
+          {
+            target: { kind: 'creation', intentId: creation.id },
+            type: parsed.type,
+            source,
+            sourceHash: sha256(source),
+            title: parsed.title,
+            ...descriptor,
+            pngBase64: preview.toString('base64'),
+            requestId: 'portable-prepare-' + id + '-' + sha256(path).slice(0, 16),
+          },
+          {
+            previewPath: mapping.get(localReference(path, before.primary.previewPath)!)!,
+            ...(before.primary.source.format === 'excalidraw'
+              ? { sourcePath: mapping.get(localReference(path, before.primary.source.path)!)! }
+              : {}),
+          },
+        );
       // Source/render/PNG bytes are unchanged. Rewrite just the immutable asset paths,
       // preserving unknown metadata, binding fields and all source/prose spelling.
       const replacements = new Map<string, string>();

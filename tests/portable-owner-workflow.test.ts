@@ -242,7 +242,7 @@ it('recovers completed and interrupted owner receipts after reopening the server
   ).run(exportJob.id);
   const interruptedId = randomUUID();
   db.prepare(
-    "INSERT INTO portable_owner_jobs SELECT ?,owner,?,'import-directory',input,'running',NULL,NULL,?,0,'' FROM portable_owner_jobs WHERE id=?",
+    "INSERT INTO portable_owner_jobs SELECT ?,owner,?,'import-directory',input,'running',NULL,NULL,?,0,'',NULL FROM portable_owner_jobs WHERE id=?",
   ).run(interruptedId, randomUUID(), Date.now(), job.id);
   db.close();
   const { createApp } = await import('../apps/server/app');
@@ -262,4 +262,64 @@ it('recovers completed and interrupted owner receipts after reopening the server
     needsSource: true,
     error: 'PORTABLE_INTERRUPTED',
   });
+});
+it('serves only the actual owner fixed portable source and prepares its private matching preview without editing notes', async () => {
+  const f = await createFixture();
+  closes.push(f.close);
+  const headers = await loginFixtureOwner(f);
+  const { portablePreviewRegistry } = await import('../packages/core/portable-delivery/previews');
+  const { webPrincipal } = await import('../packages/core/knowledge/core');
+  const { openDatabase } = await import('../packages/core/db'),
+    db = openDatabase(f.dataRoot);
+  closes.push(async () => {
+    db.close();
+  });
+  const owner = db.prepare('SELECT id FROM user LIMIT 1').get() as { id: string },
+    p = { ...webPrincipal, id: owner.id, clientId: 'portable-owner' },
+    registry = portablePreviewRegistry(f.config, db),
+    source = '{"type":"excalidraw","elements":[]}',
+    hash = createHash('sha256').update(source).digest('hex');
+  const need = registry.fix(p, {
+    direction: 'export',
+    requestId: 'owner-native',
+    contextHash: hash,
+    document: '00-Inbox/board.md',
+    role: 'primary',
+    source,
+    type: 'whiteboard',
+    title: 'board',
+    renderer: 'excalidraw@0.18.1+dooknow@1',
+    config: {},
+    permissions: ['00-Inbox/board.md'],
+    proofs: [],
+  });
+  const response = await f.app.inject({ url: '/api/portable-previews/' + need.previewId, headers });
+  expect(response.statusCode).toBe(200);
+  expect(response.json()).toMatchObject({ source, sourceHash: hash });
+  expect(response.body).not.toContain(f.config.dataRoot);
+  const png =
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a7i8AAAAASUVORK5CYII=';
+  const prepare = await f.app.inject({
+    method: 'POST',
+    url: '/api/portable-previews/' + need.previewId + '/prepare',
+    headers,
+    payload: { sourceHash: hash, pngBase64: png, requestId: 'owner-render' },
+  });
+  expect(prepare.statusCode).toBe(200);
+  expect(registry.prepared(p, need.previewId)).toBeDefined();
+  const injected = await f.app.inject({
+    method: 'POST',
+    url: '/api/portable-previews/' + need.previewId + '/prepare',
+    headers,
+    payload: {
+      sourceHash: hash,
+      pngBase64: png,
+      requestId: 'owner-render',
+      source: 'client-chosen',
+    },
+  });
+  expect(injected.statusCode).toBe(400);
+  expect(
+    db.prepare('SELECT count(*) n FROM notes WHERE path=?').get('00-Inbox/board.md'),
+  ).toMatchObject({ n: 0 });
 });

@@ -2,6 +2,7 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { Button as AButton, Alert as AAlert } from 'ant-design-vue';
 import { api } from '../../api';
+import { withPortablePreviews } from '../../diagrams/portable-previews';
 import type {
   PortableOwnerJob,
   PortableImportResult,
@@ -39,9 +40,19 @@ async function refresh() {
 async function action(job: PortableOwnerJob, kind: 'cancel' | 'retry') {
   busy.value = true;
   try {
-    await api('/api/portable-jobs/' + job.id + '/' + kind, 'POST', {});
+    await withPortablePreviews(() => api('/api/portable-jobs/' + job.id + '/' + kind, 'POST', {}));
     await refresh();
     emit('changed');
+  } catch (e) {
+    error.value = (e as Error).message;
+  } finally {
+    busy.value = false;
+  }
+}
+async function resumeWithPreviews(job: PortableOwnerJob) {
+  busy.value = true;
+  try {
+    emit('resume', job);
   } catch (e) {
     error.value = (e as Error).message;
   } finally {
@@ -74,6 +85,20 @@ defineExpose({ refresh });
         · {{ labels[job.state] }}
       </p>
       <p v-if="job.error" role="status">{{ job.error }}</p>
+      <p v-if="job.portablePreviews?.length" role="status">
+        待生成 {{ job.portablePreviews.length }} 张便携图形预览，原任务尚未完成。
+      </p>
+      <ul v-if="job.portablePreviews?.length">
+        <li v-for="need in job.portablePreviews" :key="need.previewId">
+          {{ need.document }} · {{ need.role === 'primary' ? '主图' : '内嵌图形' }}
+        </li>
+      </ul>
+      <AButton
+        v-if="job.portablePreviews?.length && job.state !== 'running'"
+        :disabled="busy"
+        @click="action(job, 'cancel')"
+        >取消预览准备</AButton
+      >
       <p v-if="job.needsSource" class="settings-muted">
         重新选择原始完整资料后继续。已创建的笔记保留，使用原请求继续不会重复创建。
       </p>
@@ -92,9 +117,9 @@ defineExpose({ refresh });
         v-else-if="job.state !== 'completed' && job.kind === 'export'"
         :disabled="busy"
         @click="action(job, 'retry')"
-        >重试导出</AButton
+        >{{ job.portablePreviews?.length ? '生成预览并继续导出' : '重试导出' }}</AButton
       >
-      <AButton v-else-if="job.needsSource" :disabled="busy" @click="emit('resume', job)"
+      <AButton v-else-if="job.needsSource" :disabled="busy" @click="resumeWithPreviews(job)"
         >选择原资料继续</AButton
       >
     </article>

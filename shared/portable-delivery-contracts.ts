@@ -28,4 +28,20 @@ export type PortableOwnerJob = {
   folderPath?: string;
   result?: PortableDelivery | PortableImportResult;
   error?: string;
+  portablePreviews?: PortablePreviewNeed[];
+};
+
+export type PortablePreviewNeed = {
+  previewId: string;
+  document: string;
+  role: 'primary' | 'embedded';
+  sourceHash: string;
+  renderHash: string;
+  type: 'whiteboard';
+  title: string;
+  renderer: string;
+  config: Record<string, unknown>;
+  expiresAt: number;
+  direction: 'export' | 'import';
+  sourceBytes: number;
 };

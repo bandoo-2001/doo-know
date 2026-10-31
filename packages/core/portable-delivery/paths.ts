@@ -145,18 +145,96 @@ export function unresolvedInternalNavigation(markdown: string, origin: string): 
   }
   return visit(navigationParser.parse(markdown, {}));
 }
-/** Native source bytes are authoritative. Never silently rebind an old PNG after relocation. */
-export function checkNativeLinks(source: string, document: string, origin?: string) {
+/** Enumerate only Excalidraw element navigation, never text, appState or embedded file data. */
+export function nativeLinks(source: string): string[] {
   const scene = JSON.parse(source);
-  for (const element of scene.elements || [])
-    if (
-      typeof element.link === 'string' &&
-      element.link &&
-      (!/^https?:\/\//i.test(element.link) ||
-        !!(origin && internalNoteNavigation(element.link, origin)))
-    )
-      fail(409, 'DIAGRAM_PREVIEW_REQUIRED', '原生场景链接重定位需要新的匹配预览', false, {
-        documents: [{ document, role: 'primary' }],
-        reason: 'native-link-relocation',
-      });
+  return (scene.elements ?? []).flatMap((element: any) =>
+    typeof element.link === 'string' && element.link ? [element.link] : [],
+  );
+}
+/** Edit JSON string token ranges, retaining every unrelated source byte. */
+export function rewriteNativeLinks(source: string, rewrite: (link: string) => string) {
+  JSON.parse(source);
+  let at = 0;
+  const edits: { start: number; end: number; text: string }[] = [];
+  const ws = () => {
+    while (at < source.length && /\s/.test(source[at])) at++;
+  };
+  const string = () => {
+    const start = at++;
+    while (at < source.length) {
+      if (source[at] === '\\') {
+        at += 2;
+        continue;
+      }
+      if (source[at++] === '"')
+        return { start, end: at, value: JSON.parse(source.slice(start, at)) as string };
+    }
+    return fail(400, 'INVALID_DIAGRAM_SOURCE');
+  };
+  const value = (path: (string | number)[]) => {
+    if (path.length > 64) fail(422, 'PORTABLE_RESOURCE_UNSUPPORTED', '原生场景 JSON 嵌套超限');
+    ws();
+    if (source[at] === '"') {
+      const token = string();
+      if (
+        path.length === 3 &&
+        path[0] === 'elements' &&
+        typeof path[1] === 'number' &&
+        path[2] === 'link'
+      ) {
+        const next = rewrite(token.value);
+        if (next !== token.value) edits.push({ ...token, text: JSON.stringify(next) });
+      }
+    } else if (source[at] === '{') {
+      at++;
+      ws();
+      while (source[at] !== '}') {
+        const key = string().value;
+        ws();
+        at++;
+        value([...path, key]);
+        ws();
+        if (source[at] !== ',') break;
+        at++;
+        ws();
+      }
+      at++;
+    } else if (source[at] === '[') {
+      at++;
+      ws();
+      let i = 0;
+      while (source[at] !== ']') {
+        value([...path, i++]);
+        ws();
+        if (source[at] !== ',') break;
+        at++;
+        ws();
+      }
+      at++;
+    } else while (at < source.length && !/[\s,\]}]/.test(source[at])) at++;
+  };
+  value([]);
+  for (const edit of edits.reverse())
+    source = source.slice(0, edit.start) + edit.text + source.slice(edit.end);
+  return source;
+}
+/** A preserved package tree needs no new PNG when all relative native links retain their meaning. */
+export function checkNativeLinks(source: string, document: string, origin?: string) {
+  for (const link of nativeLinks(source)) {
+    if (!link || link.startsWith('#')) continue;
+    let appApi = false;
+    if (origin)
+      try {
+        const url = new URL(link, origin);
+        appApi = url.origin === new URL(origin).origin && /^\/api(?:\/|$)/i.test(url.pathname);
+      } catch {}
+    if (/^https?:\/\//i.test(link) && !appApi && !(origin && internalNoteNavigation(link, origin)))
+      continue;
+    const local = localReference(document, link);
+    if (local && !appApi) continue;
+    fail(409, 'PORTABLE_DEPENDENCY_UNAVAILABLE', '原生场景引用需要完整的包内目标', false, {
+      diagnostics: [{ document, resource: link }],
+    });
+  }
 }

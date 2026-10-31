@@ -16,6 +16,7 @@ type Row = {
   updated: number;
   pid: number;
   process_start: string;
+  pending: string | null;
 };
 const active = new WeakMap<AppDatabase, Map<string, AbortController>>();
 /** Durable owner receipts; uploaded source bytes are deliberately not retained after a request. */
@@ -23,6 +24,12 @@ export function portableOwnerJobs(db: AppDatabase) {
   db.exec(
     `CREATE TABLE IF NOT EXISTS portable_owner_jobs(id TEXT PRIMARY KEY,owner TEXT NOT NULL,request_id TEXT NOT NULL,kind TEXT NOT NULL,input TEXT NOT NULL,state TEXT NOT NULL,result TEXT,error TEXT,updated INTEGER NOT NULL,pid INTEGER NOT NULL,process_start TEXT NOT NULL,UNIQUE(owner,request_id));`,
   );
+  if (
+    !(db.prepare('PRAGMA table_info(portable_owner_jobs)').all() as { name: string }[]).some(
+      (column) => column.name === 'pending',
+    )
+  )
+    db.exec('ALTER TABLE portable_owner_jobs ADD COLUMN pending TEXT');
   let controllers = active.get(db);
   if (!controllers) active.set(db, (controllers = new Map()));
   const recover = () => {
@@ -107,6 +114,9 @@ export function portableOwnerJobs(db: AppDatabase) {
       needsSource: row.kind !== 'export' && row.state !== 'completed',
       ...(result ? { result } : {}),
       ...(row.error ? { error: row.error } : {}),
+      ...(row.pending && row.state !== 'completed'
+        ? { portablePreviews: JSON.parse(row.pending) }
+        : {}),
     };
   };
   return {
@@ -128,9 +138,9 @@ export function portableOwnerJobs(db: AppDatabase) {
     },
     cancel(owner: string, id: string) {
       const row = own(owner, id);
-      if (row.state !== 'running') fail(409, 'PORTABLE_JOB_NOT_RUNNING');
+      if (row.state === 'completed') fail(409, 'PORTABLE_JOB_ALREADY_COMPLETED');
       db.prepare(
-        "UPDATE portable_owner_jobs SET state='cancelled',error='PORTABLE_CANCELLED',updated=? WHERE id=?",
+        "UPDATE portable_owner_jobs SET state='cancelled',error='PORTABLE_CANCELLED',pending=NULL,updated=? WHERE id=?",
       ).run(Date.now(), id);
       controllers!.get(id)?.abort(Error('PORTABLE_CANCELLED'));
       return view(own(owner, id));
@@ -159,7 +169,7 @@ export function portableOwnerJobs(db: AppDatabase) {
       outerSignal?.addEventListener('abort', abort, { once: true });
       if (outerSignal?.aborted) abort();
       db.prepare(
-        `INSERT INTO portable_owner_jobs VALUES(?,?,?,?,?,'running',NULL,NULL,?,?,?) ON CONFLICT(id) DO UPDATE SET state='running',error=NULL,updated=excluded.updated,pid=excluded.pid,process_start=excluded.process_start`,
+        `INSERT INTO portable_owner_jobs(id,owner,request_id,kind,input,state,result,error,updated,pid,process_start) VALUES(?,?,?,?,?,'running',NULL,NULL,?,?,?) ON CONFLICT(id) DO UPDATE SET state='running',error=NULL,pending=NULL,updated=excluded.updated,pid=excluded.pid,process_start=excluded.process_start`,
       ).run(id, owner, requestId, kind, serialized, Date.now(), process.pid, process.start);
       controllers!.set(id, controller);
       const check = () => {
@@ -171,15 +181,21 @@ export function portableOwnerJobs(db: AppDatabase) {
         const result = await operation(controller.signal, check);
         check();
         db.prepare(
-          "UPDATE portable_owner_jobs SET state='completed',result=?,error=NULL,updated=? WHERE id=?",
+          "UPDATE portable_owner_jobs SET state='completed',result=?,error=NULL,pending=NULL,updated=? WHERE id=?",
         ).run(JSON.stringify(result), Date.now(), id);
         return result;
       } catch (error) {
         const cancelled = controller.signal.aborted || (error as any).code === 'PORTABLE_CANCELLED';
-        db.prepare('UPDATE portable_owner_jobs SET state=?,error=?,updated=? WHERE id=?').run(
+        db.prepare(
+          'UPDATE portable_owner_jobs SET state=?,error=?,updated=?,pending=? WHERE id=?',
+        ).run(
           cancelled ? 'cancelled' : 'failed',
           cancelled ? 'PORTABLE_CANCELLED' : (error as any).code || 'PORTABLE_OPERATION_FAILED',
           Date.now(),
+          (error as any).code === 'DIAGRAM_PREVIEW_REQUIRED' &&
+            Array.isArray((error as any).details?.portablePreviews)
+            ? JSON.stringify((error as any).details.portablePreviews)
+            : null,
           id,
         );
         throw error;

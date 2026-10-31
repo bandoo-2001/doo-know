@@ -1,3 +1,4 @@
+import { posix } from 'node:path';
 import {
   diagramPreparationSchema as inputSchema,
   type DiagramPreparationInput,
@@ -21,7 +22,7 @@ import { parseMindmapOutline } from '../../../shared/mindmap-outline.js';
 import type { AppDatabase } from '../db.js';
 import type { NoteService } from '../notes.js';
 import type { assetService } from '../assets.js';
-import { authorizePath } from '../agent/auth.js';
+import { authorizePath, canAccessPath, requireScope } from '../agent/auth.js';
 import { isSharePrincipal } from '../share-policy.js';
 import { workspaceWriteSync } from '../workspace/gate.js';
 import { diagramCreationService, DIAGRAM_CREATION_LEASE_MS } from './diagram-creation.js';
@@ -91,7 +92,10 @@ export function primaryDiagramService(
     }
     return result;
   }
-  function prepare(value: unknown): PreparedDiagramPrimary {
+  function prepare(
+    value: unknown,
+    imported?: { sourcePath?: string; previewPath: string },
+  ): PreparedDiagramPrimary {
     const parsed = inputSchema.safeParse(value);
     if (!parsed.success) fail(400, 'INVALID_INPUT', '主图准备请求格式不正确');
     const input = parsed.data;
@@ -186,6 +190,7 @@ export function primaryDiagramService(
         config: input.config,
         renderHash,
         previewHash,
+        ...(imported ? { imported } : {}),
       };
       const { operation } = db
         .transaction(() =>
@@ -202,23 +207,42 @@ export function primaryDiagramService(
       }
       if (destination.creationIntentId && destination.status === 'published')
         fail(409, 'CREATION_ALREADY_PUBLISHED');
+      const importedAsset = (path: string, hash: string, mime: string) => {
+        requireScope(principal, 'knowledge:write');
+        if (!canAccessPath(principal, path)) fail(403, 'FORBIDDEN');
+        const file = assets.file(path);
+        if (sha256(file.sourceBytes || file.bytes) !== hash) fail(409, 'DIAGRAM_ARTIFACT_CONFLICT');
+        const asset = assets.register(path);
+        return {
+          id: asset.id,
+          relativePath: path,
+          markdownPath: posix.relative(posix.dirname(destination.path), path),
+          mime,
+        };
+      };
       const upload = (name: string, mime: string, bytes: Buffer, suffix: string) =>
-        destination.creationIntentId
-          ? assets.uploadForDiagramCreation(
-              principal,
-              destination.creationIntentId,
-              name,
+        imported
+          ? importedAsset(
+              suffix === 'source' ? imported.sourcePath! : imported.previewPath,
+              sha256(bytes),
               mime,
-              bytes,
-              'diagram-' + operation.id + '-' + suffix,
             )
-          : assets.upload(
-              destination.noteId,
-              name,
-              mime,
-              bytes,
-              'diagram-' + operation.id + '-' + suffix,
-            );
+          : destination.creationIntentId
+            ? assets.uploadForDiagramCreation(
+                principal,
+                destination.creationIntentId,
+                name,
+                mime,
+                bytes,
+                'diagram-' + operation.id + '-' + suffix,
+              )
+            : assets.upload(
+                destination.noteId,
+                name,
+                mime,
+                bytes,
+                'diagram-' + operation.id + '-' + suffix,
+              );
       const source =
         input.type === 'whiteboard'
           ? upload(
@@ -298,16 +322,24 @@ export function primaryDiagramService(
       if (row.principal !== principal.id || row.client_id !== principal.clientId)
         fail(403, 'FORBIDDEN');
       const prepared = JSON.parse(row.result) as PreparedDiagramPrimary;
-      const prior = db.prepare("SELECT * FROM operations WHERE principal=? AND client_id=? AND kind='diagram-primary.commit' AND request_id=?").get(principal.id,principal.clientId,value.requestId) as OperationRow|undefined;
-      if(prior?.status==='succeeded') {
+      const prior = db
+        .prepare(
+          "SELECT * FROM operations WHERE principal=? AND client_id=? AND kind='diagram-primary.commit' AND request_id=?",
+        )
+        .get(principal.id, principal.clientId, value.requestId) as OperationRow | undefined;
+      if (prior?.status === 'succeeded') {
         // Validate the original request before exposing the current identity. A consumed
         // receipt never rewrites the file or returns stale Markdown in a new path context.
-        beginOperation(db,principal,'diagram-primary.commit',value.requestId,{preparedId:value.preparedId,markdown:value.markdown});
-        const recorded=existingResult(prior),current=notes.row(recorded.id);
-        authorizePath(principal,current.path,'knowledge:write');
-        authorizePath(principal,current.path,'knowledge:read');
-        const result=notes.getNote(current.id);
-        if(!Object.hasOwn(recorded,'shared'))delete result.shared;
+        beginOperation(db, principal, 'diagram-primary.commit', value.requestId, {
+          preparedId: value.preparedId,
+          markdown: value.markdown,
+        });
+        const recorded = existingResult(prior),
+          current = notes.row(recorded.id);
+        authorizePath(principal, current.path, 'knowledge:write');
+        authorizePath(principal, current.path, 'knowledge:read');
+        const result = notes.getNote(current.id);
+        if (!Object.hasOwn(recorded, 'shared')) delete result.shared;
         return result;
       }
       if (prepared.creationIntentId) creations.get(prepared.creationIntentId);
@@ -474,7 +506,9 @@ export function primaryDiagramService(
     getCommitMetadata,
     validateTarget: target,
     getPreparation,
-    prepare,
+    prepare: (value: unknown) => prepare(value),
+    prepareImported: (value: unknown, paths: { sourcePath?: string; previewPath: string }) =>
+      prepare(value, paths),
     commit,
     resolve: (noteId: string, options?: DiagramResolveOptions) =>
       resolvePrimaryDiagram(config, db, notes, principal, noteId, options),

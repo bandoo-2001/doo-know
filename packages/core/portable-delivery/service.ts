@@ -1,4 +1,6 @@
+import { portablePreviewRegistry, type PortablePreviewNeed } from './previews.js';
 import { boundWhiteboardLines, portableBoundWhiteboards } from './embedded.js';
+import { replacePortableNativeGroup } from './embedded.js';
 import { hasDiagramBindingProof } from '../knowledge/diagram-publications.js';
 import { assertRoot } from '../indexing/reconcile.js';
 import { mediaMime } from '../../../shared/media.js';
@@ -36,7 +38,11 @@ import type {
 import { portableResourceLimits as limits } from '../../../shared/portable-resource-limits.js';
 import { parseDiagramDocument } from '../../../shared/diagram-document.js';
 import { isWhiteboard, whiteboardId } from '../../../shared/whiteboard.js';
-import { renderPreparedDiagramDocument } from '../../../shared/diagram-primary.js';
+import {
+  diagramRendererVersions,
+  applyPreparedDiagramDocument,
+  renderPreparedDiagramDocument,
+} from '../../../shared/diagram-primary.js';
 import { renderPortableImage, encodePortablePathSegment } from '../../../shared/portable-figure.js';
 import { boundDiagramSources, normalizeDiagramCode } from '../../../shared/diagram-portability.js';
 import type { AppDatabase } from '../db.js';
@@ -58,7 +64,8 @@ import { manifestName, hashFile, portablePath, type PortableManifest } from './m
 import {
   destinations,
   rewriteDestinations,
-  checkNativeLinks,
+  nativeLinks,
+  rewriteNativeLinks,
   internalNoteNavigation,
   unresolvedInternalNavigation,
 } from './paths.js';
@@ -132,7 +139,8 @@ export function portableDeliveryService(
   if (!columns.some((column) => column.name === 'process_start'))
     db.exec("ALTER TABLE portable_deliveries ADD COLUMN process_start TEXT NOT NULL DEFAULT ''");
   const root = join(config.dataRoot, 'portable-deliveries'),
-    assets = assetService(config, db, notes);
+    assets = assetService(config, db, notes),
+    previews = portablePreviewRegistry(config, db);
   function adjust(id: string, bytes: number) {
     db.transaction(() => {
       const total = (
@@ -284,6 +292,18 @@ export function portableDeliveryService(
         if (selected.length > limits.documents) fail(413, 'PORTABLE_BUDGET_EXCEEDED');
         const capture = join(directory, 'capture');
         mkdirSync(capture, { mode: 0o700 });
+        const legacyEmbeds: { document: string; linked: string; previewPath: string }[] = [];
+        const nativeScenes: {
+          document: string;
+          sourcePath: string;
+          source: string;
+          role: 'primary' | 'embedded';
+          title: string;
+          renderer: string;
+          config: Record<string, unknown>;
+          previewPath: string;
+          exportSourcePath?: string;
+        }[] = [];
         const queue = [...selected],
           docs = new Map<string, { noteId: string; snapshot: string; target: string }>(),
           resources = new Map<
@@ -301,10 +321,10 @@ export function portableDeliveryService(
           notePaths = new Map<string, string>(),
           captures = new Map<string, string>();
         let total = 0,
-          capturedBytes = 0;
+          capturedBytes = 0,
+          inputBytes = 0;
         const captureBytes = (bytes: Buffer) => {
           capturedBytes += bytes.length;
-          if (capturedBytes > limits.packageBytes) fail(413, 'PORTABLE_BUDGET_EXCEEDED');
           adjust(id, capturedBytes + total);
           const file = join(capture, randomUUID());
           writeFileSync(file, bytes, { flag: 'wx', mode: 0o600 });
@@ -312,6 +332,8 @@ export function portableDeliveryService(
         };
         const addProof = (path: string, bytes: Buffer, noteId?: string) => {
           if (captures.has(path)) return captures.get(path)!;
+          inputBytes += bytes.length;
+          if (inputBytes > limits.packageBytes) fail(413, 'PORTABLE_BUDGET_EXCEEDED');
           if (proofs.length >= limits.files) fail(413, 'PORTABLE_BUDGET_EXCEEDED');
           proofs.push({
             path,
@@ -323,6 +345,47 @@ export function portableDeliveryService(
           captures.set(path, snapshot);
           return snapshot;
         };
+        const nativeTarget = (link: string, sourcePath: string, document: string) => {
+          if (!link || link.startsWith('#')) return;
+          const own = internalNoteNavigation(link, config.origin),
+            uuid = whiteboardId(link) ? link : undefined;
+          if (own || uuid) {
+            const linked = currentNote(own?.noteId ?? uuid!);
+            authorizePath(p, linked.path);
+            notePaths.set(linked.id, linked.path);
+            if (!queue.includes(linked.id)) queue.push(linked.id);
+            return { path: linked.path, suffix: own?.fragment ?? '' };
+          }
+          const local = localReference(sourcePath, link);
+          if (local) {
+            const linked = active.find((note) => note.path === local);
+            if (linked) {
+              authorizePath(p, linked.path);
+              if (!queue.includes(linked.id)) queue.push(linked.id);
+            } else addAsset(local, document, link);
+            return { path: local, suffix: link.match(/[?#].*$/)?.[0] ?? '' };
+          }
+          try {
+            const url = new URL(link, config.origin),
+              assetId =
+                url.origin === new URL(config.origin).origin &&
+                /^\/api\/assets\/([A-Za-z0-9-]+)$/.exec(url.pathname)?.[1];
+            if (assetId) {
+              const asset = assets.inspectById(assetId);
+              addAsset(asset.path, document, link);
+              return { path: asset.path, suffix: url.hash };
+            }
+            if (/^https?:$/.test(url.protocol) && !/^\/api(?:\/|$)/i.test(url.pathname)) return;
+          } catch (error) {
+            if ((error as any).code) throw error;
+          }
+          fail(409, 'PORTABLE_DEPENDENCY_UNAVAILABLE', '原生场景引用无法完整导出', false, {
+            diagnostics: [{ document, resource: resourceDiagnostic(link) }],
+          });
+        };
+        const discoverNative = (source: string, sourcePath: string, document: string) => {
+          for (const link of nativeLinks(source)) nativeTarget(link, sourcePath, document);
+        };
         const addAsset = (path: string, document: string, url: string) => {
           if (resources.has(path)) return;
           try {
@@ -330,21 +393,22 @@ export function portableDeliveryService(
               const descriptor = assets.inspect(path),
                 snapshot = join(capture, randomUUID() + extname(path));
               capturedBytes += descriptor.sizeBytes;
-              if (capturedBytes > limits.packageBytes || proofs.length >= limits.files)
+              inputBytes += descriptor.sizeBytes;
+              if (inputBytes > limits.packageBytes || proofs.length >= limits.files)
                 fail(413, 'PORTABLE_BUDGET_EXCEEDED');
               adjust(id, capturedBytes);
               proofs.push({ path, hash: '', stamp: descriptor.stamp });
-              resources.set(path, { path: '', snapshot, descriptor });
+              resources.set(path, { path, snapshot, descriptor });
               return;
             }
             const asset = assets.file(path),
               bytes = asset.sourceBytes || asset.bytes;
-            if (extname(path).toLowerCase() === '.excalidraw')
-              checkNativeLinks(bytes.toString('utf8'), document, config.origin);
             const snapshot = addProof(path, bytes);
-            const target = 'assets/diagram-' + sha256(bytes) + extname(path).toLowerCase();
+            const target = path;
             resources.set(path, { path: target, snapshot });
             mapping.set(path, target);
+            if (extname(path).toLowerCase() === '.excalidraw')
+              discoverNative(bytes.toString('utf8'), path, document);
           } catch (error) {
             if (
               [
@@ -415,12 +479,44 @@ export function portableDeliveryService(
                   },
                 ],
               });
-            if (resolved.source.format === 'excalidraw')
-              checkNativeLinks(resolved.source.content, row.path, config.origin);
+            if (resolved.source.format === 'excalidraw') {
+              const sourcePath = isWhiteboard(row.path)
+                ? row.path
+                : localReference(
+                    row.path,
+                    parsed.status === 'diagram' && parsed.primary.source.format === 'excalidraw'
+                      ? parsed.primary.source.path
+                      : '',
+                  )!;
+              nativeScenes.push({
+                document: row.path,
+                sourcePath,
+                ...(isWhiteboard(row.path)
+                  ? {
+                      exportSourcePath: posix.join(
+                        posix.dirname(row.path),
+                        'assets',
+                        'legacy-' + row.id + '.excalidraw',
+                      ),
+                    }
+                  : {}),
+                source: resolved.source.content,
+                role: 'primary',
+                title: resolved.title!,
+                renderer: resolved.render!.renderer,
+                config: resolved.render!.config,
+                previewPath: localReference(row.path, resolved.preview.path)!,
+              });
+              discoverNative(resolved.source.content, sourcePath, row.path);
+            }
             if (isWhiteboard(row.path)) {
               target = row.path.replace(/\.excalidraw$/i, '.md');
-              const native = 'assets/diagram-' + sha256(bytes) + '.excalidraw';
-              resources.set(row.path, { path: native, snapshot: captures.get(row.path)! });
+              const native = posix.join(
+                posix.dirname(row.path),
+                'assets',
+                'legacy-' + row.id + '.excalidraw',
+              );
+              resources.set(native, { path: native, snapshot: captures.get(row.path)! });
               const pgPath = localReference(row.path, resolved.preview.path)!;
               addAsset(pgPath, row.path, resolved.preview.path);
               content = renderPreparedDiagramDocument({
@@ -520,7 +616,26 @@ export function portableDeliveryService(
                 )
               )
                 throw Error();
-            } catch {
+              if (group.kind === 'excalidraw') {
+                const source = (sourceAsset.sourceBytes || sourceAsset.bytes).toString('utf8');
+                nativeScenes.push({
+                  document: row.path,
+                  sourcePath: native,
+                  source,
+                  role: 'embedded',
+                  title: 'EXCALIDRAW',
+                  renderer: diagramRendererVersions.whiteboard,
+                  config: {},
+                  previewPath: preview,
+                });
+                discoverNative(source, native, row.path);
+              }
+            } catch (error) {
+              if (
+                (error as any).code === 'FORBIDDEN' ||
+                (error as any).code === 'PORTABLE_DEPENDENCY_UNAVAILABLE'
+              )
+                throw error;
               fail(409, 'DIAGRAM_PREVIEW_REQUIRED', '内嵌图形需要匹配当前源码的固定 PNG', false, {
                 documents: [{ noteId, role: 'embedded' }],
               });
@@ -658,6 +773,7 @@ export function portableDeliveryService(
                 });
               const preview = localReference(linked.path, resource.preview.path)!;
               addAsset(preview, path, resource.preview.path);
+              legacyEmbeds.push({ document: path, linked: linked.path, previewPath: preview });
               const image = posix.relative(posix.dirname(path), preview),
                 noteLink = posix.relative(posix.dirname(path), linked.path);
               lines.splice(
@@ -672,6 +788,248 @@ export function portableDeliveryService(
           const transformed = lines.join('\n');
           if (transformed !== content) doc.snapshot = captureBytes(Buffer.from(transformed));
         }
+        // Bare native source attachments also get a portable snapshot when their links change.
+        for (const [resourcePath, resource] of resources)
+          if (/\.excalidraw$/i.test(resourcePath))
+            for (const [document, doc] of docs) {
+              if (
+                nativeScenes.some(
+                  (scene) =>
+                    scene.document === document &&
+                    (scene.sourcePath === resourcePath || scene.exportSourcePath === resourcePath),
+                )
+              )
+                continue;
+              const content = readFileSync(doc.snapshot, 'utf8');
+              if (
+                destinations(content).some(
+                  (ref) =>
+                    (localReference(document, ref.url) ?? aliases.get(ref.url)) === resourcePath,
+                )
+              )
+                nativeScenes.push({
+                  document,
+                  sourcePath: resourcePath,
+                  source: readFileSync(resource.snapshot, 'utf8'),
+                  role: 'embedded',
+                  title: 'EXCALIDRAW',
+                  renderer: diagramRendererVersions.whiteboard,
+                  config: {},
+                  previewPath: '',
+                });
+            }
+        const targetFor = (scene: (typeof nativeScenes)[number], link: string) => {
+          const own = internalNoteNavigation(link, config.origin),
+            uuid = whiteboardId(link);
+          if (own || uuid)
+            return { path: notePaths.get(own?.noteId ?? uuid!)!, suffix: own?.fragment ?? '' };
+          const local = localReference(scene.sourcePath, link);
+          if (local) return { path: local, suffix: link.match(/[?#].*$/)?.[0] ?? '' };
+          try {
+            const url = new URL(link, config.origin),
+              assetId =
+                url.origin === new URL(config.origin).origin &&
+                /^\/api\/assets\/([A-Za-z0-9-]+)$/.exec(url.pathname)?.[1];
+            if (assetId) return { path: assets.inspectById(assetId).path, suffix: url.hash };
+          } catch {}
+        };
+        const sceneKey = (scene: (typeof nativeScenes)[number]) =>
+          scene.document + '\0' + scene.sourcePath;
+        const uniqueScenes = new Map<string, (typeof nativeScenes)[number]>();
+        for (const scene of nativeScenes)
+          if (!uniqueScenes.has(sceneKey(scene))) uniqueScenes.set(sceneKey(scene), scene);
+        // Follow nested native attachments too: their outgoing links are part of the same
+        // document's authorized closure even if no Markdown destination names them directly.
+        const allScenes = [...uniqueScenes.values()];
+        for (let index = 0; index < allScenes.length; index++) {
+          const scene = allScenes[index];
+          for (const link of nativeLinks(scene.source)) {
+            const ref = targetFor(scene, link),
+              resource = ref && resources.get(ref.path);
+            if (
+              !ref ||
+              !resource ||
+              !/\.excalidraw$/i.test(ref.path) ||
+              uniqueScenes.has(scene.document + '\0' + ref.path)
+            )
+              continue;
+            const nested = {
+              document: scene.document,
+              sourcePath: ref.path,
+              source: readFileSync(resource.snapshot, 'utf8'),
+              role: 'embedded' as const,
+              title: 'EXCALIDRAW',
+              renderer: diagramRendererVersions.whiteboard,
+              config: {},
+              previewPath: '',
+            };
+            uniqueScenes.set(sceneKey(nested), nested);
+            allScenes.push(nested);
+          }
+        }
+        const relocated = new Map<
+          string,
+          { key: string; sourcePath: string; previewPath: string }
+        >();
+        const transform = (scene: (typeof nativeScenes)[number], base: string) =>
+          rewriteNativeLinks(scene.source, (link) => {
+            if (!link || link.startsWith('#')) return link;
+            const ref = targetFor(scene, link);
+            if (!ref) return link;
+            const replacement =
+              !docs.has(ref.path) && relocated.get(scene.document + '\0' + ref.path);
+            const target = replacement
+              ? replacement.sourcePath
+              : (mapping.get(ref.path) ?? ref.path);
+            if (
+              localReference(scene.sourcePath, link) === ref.path &&
+              target === ref.path &&
+              posix.dirname(base) === posix.dirname(scene.sourcePath)
+            )
+              return link;
+            return (
+              posix
+                .relative(posix.dirname(base), target)
+                .split('/')
+                .map(encodePortablePathSegment)
+                .join('/') + ref.suffix
+            );
+          });
+        // Allocate stable per-document paths to a fixed point before rendering any final
+        // source; a changed nested source can itself force all native parents to rebase.
+        let changed = true;
+        while (changed) {
+          changed = false;
+          for (const scene of allScenes) {
+            const identity = sceneKey(scene);
+            if (
+              relocated.has(identity) ||
+              transform(scene, scene.exportSourcePath ?? scene.sourcePath) === scene.source
+            )
+              continue;
+            const key = sha256(identity).slice(0, 32);
+            relocated.set(identity, {
+              key,
+              sourcePath: 'assets/portable-' + key + '.excalidraw',
+              previewPath: 'assets/portable-' + key + '.png',
+            });
+            changed = true;
+          }
+        }
+        // Only now are both the complete closure and every final native source base fixed.
+        const needs: PortablePreviewNeed[] = [];
+        for (const scene of allScenes) {
+          const pair = relocated.get(sceneKey(scene));
+          if (!pair) continue;
+          const { key, sourcePath, previewPath } = pair,
+            source = transform(scene, sourcePath);
+          const need = previews.fix(p, {
+            direction: 'export',
+            requestId: input.requestId,
+            contextHash: fingerprint,
+            document: scene.document,
+            role: scene.role,
+            source,
+            type: 'whiteboard',
+            title: scene.title,
+            renderer: scene.renderer,
+            config: scene.config,
+            permissions: [...docs.keys()],
+            proofs: proofs.map((proof) => ({ ...proof })),
+            key,
+          });
+          const prepared = previews.prepared(p, need.previewId);
+          if (!prepared) {
+            needs.push(need);
+            continue;
+          }
+          const doc = docs.get(scene.document)!;
+          let content = readFileSync(doc.snapshot, 'utf8');
+          if (scene.role === 'primary') {
+            const parsed = parseDiagramDocument(content);
+            if (parsed.status !== 'diagram') fail(409, 'INVALID_DIAGRAM_DOCUMENT');
+            content = applyPreparedDiagramDocument({
+              markdown: content,
+              source: prepared.source,
+              prepared: {
+                id: need.previewId,
+                noteId: doc.noteId,
+                type: 'whiteboard',
+                documentHash: null,
+                baselineSourceHash: null,
+                sourceHash: prepared.sourceHash,
+                renderHash: prepared.renderHash,
+                previewHash: prepared.previewHash,
+                title: scene.title,
+                renderer: scene.renderer,
+                config: scene.config,
+                preview: {
+                  id: 'portable-preview',
+                  relativePath: previewPath,
+                  markdownPath: posix.relative(posix.dirname(scene.document), previewPath),
+                  mime: 'image/png',
+                },
+                source: {
+                  id: 'portable-source',
+                  relativePath: sourcePath,
+                  markdownPath: posix.relative(posix.dirname(scene.document), sourcePath),
+                  mime: 'application/vnd.excalidraw+json',
+                },
+                expiresAt: need.expiresAt,
+              },
+            });
+            if (
+              boundDiagramSources(content).some(
+                (group) =>
+                  group.kind === 'excalidraw' &&
+                  localReference(scene.document, group.sourcePath) === scene.sourcePath,
+              )
+            )
+              content = replacePortableNativeGroup(content, scene.document, scene.sourcePath, {
+                sourcePath,
+                previewPath,
+                sourceHash: prepared.sourceHash,
+              });
+          } else
+            content = replacePortableNativeGroup(content, scene.document, scene.sourcePath, {
+              sourcePath,
+              previewPath,
+              sourceHash: prepared.sourceHash,
+            });
+          doc.snapshot = captureBytes(Buffer.from(content));
+          if (scene.role === 'primary')
+            for (const embed of legacyEmbeds.filter((embed) => embed.linked === scene.document)) {
+              const parent = docs.get(embed.document)!;
+              parent.snapshot = captureBytes(
+                Buffer.from(
+                  rewriteDestinations(
+                    readFileSync(parent.snapshot, 'utf8'),
+                    embed.document,
+                    embed.document,
+                    new Map([[embed.previewPath, previewPath]]),
+                  ),
+                ),
+              );
+            }
+          resources.set(sourcePath, {
+            path: sourcePath,
+            snapshot: captureBytes(Buffer.from(prepared.source)),
+          });
+          mapping.set(sourcePath, sourcePath);
+          resources.set(previewPath, { path: previewPath, snapshot: captureBytes(prepared.png) });
+          mapping.set(previewPath, previewPath);
+        }
+        if (needs.length)
+          fail(409, 'DIAGRAM_PREVIEW_REQUIRED', '请生成便携操作最终源码的匹配预览后继续', false, {
+            reason: 'native-link-relocation',
+            documents: needs.map((need) => ({
+              document: need.document,
+              role: need.role,
+              sourceHash: need.sourceHash,
+              renderHash: need.renderHash,
+            })),
+            portablePreviews: needs,
+          });
         checkBuild(p, proofs);
         return {
           docs,
@@ -682,6 +1040,7 @@ export function portableDeliveryService(
           aliases,
           capture,
           capturedBytes,
+          inputBytes,
           selected: selected.map((noteId) => mapping.get(currentNote(noteId).path)!),
           single: input.selection.kind === 'single' && docs.size === 1 && resources.size === 0,
         };
@@ -703,7 +1062,8 @@ export function portableDeliveryService(
           const temporary = join(plan.capture, randomUUID());
           const onBytes = (bytes: number) => {
             checkBuild(p, plan.proofs);
-            if (capturedBytes + bytes > limits.packageBytes) fail(413, 'PORTABLE_BUDGET_EXCEEDED');
+            if (plan.inputBytes + bytes > limits.packageBytes)
+              fail(413, 'PORTABLE_BUDGET_EXCEEDED');
             adjust(id, capturedBytes + bytes);
           };
           try {
@@ -724,6 +1084,7 @@ export function portableDeliveryService(
               posix.basename(resource.snapshot),
             );
             capturedBytes += result.sizeBytes;
+            plan.inputBytes += result.sizeBytes;
             hash = result.sha256;
           } catch (error) {
             const code = (error as any).code;
@@ -755,10 +1116,58 @@ export function portableDeliveryService(
           hash = await hashFile(resource.snapshot);
           plan.proofs.find((proof) => proof.path === source)!.hash = hash;
         } else hash = await hashFile(resource.snapshot);
-        resource.path = 'assets/diagram-' + hash + extension;
+        resource.path ||= 'assets/diagram-' + hash + extension;
         if (!plan.docs.has(source)) plan.mapping.set(source, resource.path);
       }
       for (const [url, path] of plan.aliases) plan.mapping.set(url, plan.mapping.get(path)!);
+      // Remove superseded private source/PNG pairs; shared sources still referenced by another
+      // exported document remain untouched. No unused old scene containing app URIs is shipped.
+      const byTarget = new Map(
+          [...plan.resources].map(([key, value]) => [value.path, { key, value }]),
+        ),
+        needed = new Set<string>(),
+        pending: string[] = [];
+      for (const [path, doc] of plan.docs) {
+        const content = rewriteDestinations(
+          portableBoundWhiteboards(
+            readFileSync(doc.snapshot, 'utf8'),
+            path,
+            doc.target,
+            plan.mapping,
+          ),
+          path,
+          doc.target,
+          plan.mapping,
+          { origin: config.origin, notePaths: plan.notePaths },
+        );
+        for (const ref of destinations(content)) {
+          const target = localReference(doc.target, ref.url);
+          if (target) pending.push(target);
+        }
+      }
+      for (let at = 0; at < pending.length; at++) {
+        const target = pending[at],
+          entry = byTarget.get(target);
+        if (!entry || needed.has(entry.key)) continue;
+        needed.add(entry.key);
+        if (/\.excalidraw$/i.test(target))
+          for (const link of nativeLinks(readFileSync(entry.value.snapshot, 'utf8'))) {
+            const local = localReference(target, link);
+            if (local) pending.push(local);
+          }
+      }
+      for (const [key, resource] of plan.resources)
+        if (!needed.has(key)) {
+          plan.resources.delete(key);
+          if (
+            ![...plan.resources.values()].some((other) => other.snapshot === resource.snapshot) &&
+            ![...plan.docs.values()].some((doc) => doc.snapshot === resource.snapshot)
+          ) {
+            capturedBytes -= (await stat(resource.snapshot)).size;
+            await rm(resource.snapshot, { force: true });
+          }
+        }
+      adjust(id, capturedBytes);
       const files: PortableManifest['files'] = [],
         seen = new Map<string, string>();
       async function copyFile(
@@ -1015,6 +1424,7 @@ export function portableDeliveryService(
     return JSON.parse(row.result!);
   }
   return {
+    previews,
     create,
     download,
     metadata,

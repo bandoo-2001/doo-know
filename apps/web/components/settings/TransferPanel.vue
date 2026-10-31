@@ -8,6 +8,7 @@ import {
   Select as ASelect,
 } from 'ant-design-vue';
 import { api } from '../../api';
+import { withPortablePreviews } from '../../diagrams/portable-previews';
 import type {
   PortableImportResult,
   PortableOwnerJob,
@@ -109,11 +110,13 @@ async function importArchive() {
         body.append(path, file, file.name);
       }
     }
-    archiveResult.value = await api<PortableImportResult>(
-      archive ? '/api/portable-deliveries/import' : '/api/portable-deliveries/import-directory',
-      'POST',
-      body,
-      { timeoutMs: 180000 },
+    archiveResult.value = await withPortablePreviews(() =>
+      api<PortableImportResult>(
+        archive ? '/api/portable-deliveries/import' : '/api/portable-deliveries/import-directory',
+        'POST',
+        body,
+        { timeoutMs: 180000 },
+      ),
     );
     notice.value = '便携包导入完成，已分配新的笔记标识。';
     emit('changed');
