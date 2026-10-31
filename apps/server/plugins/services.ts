@@ -245,7 +245,7 @@ export function pluginServices(
         if (tool === 'append_mcp_upload') return store.append(p, { transferId: args.transferId, offset: args.offset!, base64: args.base64! });
         if (tool === 'read_mcp_transfer') return store.read(p, { transferId: args.transferId, offset: args.offset!, maxBytes: args.maxBytes });
         if (tool === 'cancel_mcp_transfer') return store.cancel(p, args.transferId);
-        return { ...info, ...(info.direction === 'download' && info.state === 'ready' ? { downloadUrl: runtime.config.origin + '/api/mcp/transfers/' + info.transferId + '/download' } : {}) };
+        return { ...info, ...(info.direction === 'download' && info.state === 'ready' && info.binding.kind !== 'portable-export' && !info.binding.metadata?.assetStamp ? { downloadUrl: runtime.config.origin + '/api/mcp/transfers/' + info.transferId + '/download' } : {}) };
       },
     },
     toDoo: {

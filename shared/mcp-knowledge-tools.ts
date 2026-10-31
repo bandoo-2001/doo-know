@@ -230,7 +230,80 @@ const tool = (
 const readScopes = ['knowledge:read'],
   archiveScopes = ['knowledge:read', 'knowledge:archive'],
   writeScopes = ['knowledge:read', 'knowledge:write'];
+const portableImportSummary = object({
+  importId: id,
+  requestId,
+  state: z.enum(['running', 'failed', 'succeeded']),
+  notesImported: z.number().int().nonnegative(),
+  assetsImported: z.number().int().nonnegative(),
+  error: z.string().max(64).optional(),
+});
 export const knowledgeToolDefinitions: KnowledgeToolDefinition[] = [
+  tool(
+    'export_portable_documents',
+    '严格便携导出；单篇无依赖返回 Markdown，多篇、目录或依赖返回带完整清单的归档。用 read_mcp_transfer 读取，原 requestId 可重试。',
+    readScopes,
+    true,
+    object({
+      selection: z.discriminatedUnion('kind', [
+        object({ kind: z.literal('single'), noteId: id }),
+        object({ kind: z.literal('multiple'), noteIds: z.array(id).min(1).max(1000) }),
+        object({ kind: z.literal('directory'), path }),
+      ]),
+      requestId,
+    }),
+    object({
+      id,
+      kind: z.enum(['markdown', 'archive']),
+      fileName: z.string().max(256),
+      mime: z.enum(['text/markdown', 'application/gzip']),
+      sizeBytes: z.number().int().nonnegative(),
+      sha256: hash,
+      manifestVersion: z.literal(1).optional(),
+      download: mcpTransferInfoSchema,
+    }),
+  ),
+  tool(
+    'begin_portable_import_upload',
+    '创建目标目录绑定的完整便携归档上传，最大256MiB；用 append_mcp_upload 分块上传。',
+    writeScopes,
+    false,
+    object({
+      folderPath: path,
+      name: z.string().min(1).max(256),
+      mime: z.literal('application/gzip'),
+      totalBytes: z
+        .number()
+        .int()
+        .min(1)
+        .max(256 * 1024 * 1024),
+      sha256: hash,
+      requestId,
+    }),
+    mcpTransferInfoSchema,
+  ),
+  tool(
+    'import_portable_archive',
+    '校验并导入完整清单归档，分配新身份；仅返回有界摘要。未知结果用 get_portable_import_result 查询原 requestId，再用相同参数重试。',
+    writeScopes,
+    false,
+    object({ transferId: id, folderPath: path, requestId }),
+    portableImportSummary,
+  ),
+  tool(
+    'get_portable_import_result',
+    '按本人当前客户端 importId 或原 requestId 查询进度并游标分页读取新身份映射。',
+    writeScopes,
+    true,
+    object({ importId: id.optional(), requestId: requestId.optional(), ...page }).refine(
+      (a) => !!a.importId !== !!a.requestId,
+    ),
+    object({
+      import: portableImportSummary,
+      items: z.array(object({ sourcePath: path, relativePath: path, noteId: id })).max(30),
+      nextCursor: cursor.optional(),
+    }),
+  ),
   ...primaryDiagramProtocols.map((p) =>
     tool(
       p.name,
@@ -389,7 +462,15 @@ export const knowledgeToolDefinitions: KnowledgeToolDefinition[] = [
     '为指定笔记版本准备有界附件上传；用 append_mcp_upload 分块上传，再完成。',
     writeScopes,
     false,
-    object({ ...mutation, ...begin }),
+    object({
+      ...mutation,
+      ...begin,
+      totalBytes: z
+        .number()
+        .int()
+        .positive()
+        .max(128 * 1024 * 1024),
+    }),
     knowledgeTransfer,
   ),
   tool(

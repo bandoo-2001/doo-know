@@ -3,13 +3,15 @@ import { closeSync, constants, fstatSync, fsyncSync, ftruncateSync, lstatSync, m
 import { join } from 'node:path';
 import type { AppDatabase } from '../../../packages/core/db.js';
 import { KnowledgeError } from '../../../packages/core/knowledge/errors.js';
+import { workspaceProcess, processIsAlive } from '../../../packages/core/workspace/gate.js';
 import { chargeRate } from '../../../packages/core/agent/budgets.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
-import type { McpDownloadInput, McpTransferBinding, McpTransferInfo, McpTransferStore, McpUploadInput } from '../../../shared/mcp-domain-tools.js';
+import type { McpDownloadInput, McpTransferBinding, McpTransferInfo, McpTransferStore, McpUploadInput, McpStreamDownloadInput } from '../../../shared/mcp-domain-tools.js';
 
 const maximumBytes = 72 * 1024 * 1024, downloadMaximum = 256 * 1024 * 1024, chunkBytes = 8192, uploadChunkBytes = 16384;
 const lifetime = 60 * 60 * 1000, ownerQuota = 512 * 1024 * 1024;
 const maintenance = new WeakMap<AppDatabase, ReturnType<typeof setInterval>>();
+const activeDownloads = new WeakMap<AppDatabase, Map<string, { fingerprint: string; promise: Promise<McpTransferInfo> }>>();
 const sha = (bytes: string | Buffer) => createHash('sha256').update(bytes).digest('hex');
 const canonical = (v: unknown): string => JSON.stringify(sort(v));
 function sort(v: unknown): unknown {
@@ -40,7 +42,8 @@ export function createMcpTransferStore(config: { dataRoot: string }, db: AppData
     name TEXT NOT NULL,mime TEXT NOT NULL,total_bytes INTEGER NOT NULL,received_bytes INTEGER NOT NULL,
     expected_hash TEXT,digest TEXT,expires_at INTEGER NOT NULL,complete_request TEXT,result TEXT,
     UNIQUE(owner,principal,client,workspace,direction,request_id));
-    CREATE TABLE IF NOT EXISTS mcp_transfer_rates(actor TEXT PRIMARY KEY,starts_at INTEGER NOT NULL,bytes INTEGER NOT NULL);`);
+    CREATE TABLE IF NOT EXISTS mcp_transfer_rates(actor TEXT PRIMARY KEY,starts_at INTEGER NOT NULL,bytes INTEGER NOT NULL);
+    CREATE TABLE IF NOT EXISTS mcp_stream_downloads(id TEXT PRIMARY KEY,pid INTEGER NOT NULL,process_start TEXT NOT NULL);`);
   function workspace() { return (db.prepare("SELECT value FROM index_meta WHERE key='root_identity'").get() as { value: string } | undefined)?.value || 'unbound'; }
   function checkParents() {
     for (const path of [join(dataRoot, 'mcp'), directory]) {
@@ -70,6 +73,7 @@ export function createMcpTransferStore(config: { dataRoot: string }, db: AppData
     for (const row of db.prepare('SELECT id FROM mcp_transfers WHERE expires_at<=?').all(Date.now()) as { id: string }[]) {
       remove(row.id); db.prepare('DELETE FROM mcp_transfers WHERE id=?').run(row.id);
     }
+    db.prepare('DELETE FROM mcp_stream_downloads WHERE id NOT IN (SELECT id FROM mcp_transfers)').run();
     db.prepare('DELETE FROM mcp_transfer_rates WHERE starts_at<?').run(Date.now() - 120000);
   }
   function owned(p: Principal, id: string): Row {
@@ -92,7 +96,7 @@ export function createMcpTransferStore(config: { dataRoot: string }, db: AppData
     for (const [key, value] of Object.entries(b.metadata || {})) if (key.length > 64 || /[\x00-\x1f]/.test(key) || ![null, 'string', 'number', 'boolean'].includes(value === null ? null : typeof value) || (typeof value === 'number' && !Number.isFinite(value))) fail('MCP_TRANSFER_INVALID', 400);
   }
   function begin(p: Principal, input: McpUploadInput, direction: Row['direction'], bytes?: Buffer) {
-    validate(input, direction === 'download' ? downloadMaximum : maximumBytes); checkParents(); cleanup();
+    validate(input, direction === 'download' || input.binding?.kind === 'portable-import' ? downloadMaximum : input.binding?.kind === 'asset-upload' ? 128 * 1024 * 1024 : maximumBytes); checkParents(); cleanup();
     const a = actor(p), currentWorkspace = workspace(), fingerprint = sha(canonical(input));
     return db.transaction(() => {
       const existing = db.prepare('SELECT * FROM mcp_transfers WHERE owner=? AND principal=? AND client=? AND workspace=? AND direction=? AND request_id=?').get(a.owner, a.principal, a.client, currentWorkspace, direction, input.requestId) as Row | undefined;
@@ -133,7 +137,7 @@ export function createMcpTransferStore(config: { dataRoot: string }, db: AppData
         ftruncateSync(fd, row.received_bytes);
         writeSync(fd, bytes, 0, bytes.length, input.offset); fsyncSync(fd);
         const received = input.offset + bytes.length, complete = received === row.total_bytes;
-        const digest = complete ? sha(readFileSync(fd)) : null;
+        const digest = complete ? hashFd(fd) : null;
         if (digest && row.expected_hash && digest !== row.expected_hash) {
           ftruncateSync(fd, row.received_bytes); fsyncSync(fd); fail('MCP_TRANSFER_HASH_MISMATCH');
         }
@@ -141,6 +145,137 @@ export function createMcpTransferStore(config: { dataRoot: string }, db: AppData
         return infoOf(owned(p, row.id));
       } finally { closeSync(fd); }
     }).immediate();
+  }
+  // Fixed-size hashing also covers completion of 128/256 MiB uploads.
+  function hashFd(fd: number) {
+    const hash = createHash('sha256'),
+      block = Buffer.allocUnsafe(64 * 1024);
+    let offset = 0,
+      count: number;
+    while ((count = readSync(fd, block, 0, block.length, offset))) {
+      hash.update(block.subarray(0, count));
+      offset += count;
+    }
+    return hash.digest('hex');
+  }
+  function openUpload(
+    p: Principal,
+    id: string,
+    expectedBinding?: McpTransferBinding,
+    completionRequestId?: string,
+  ) {
+    const row = owned(p, id);
+    if (
+      row.direction !== 'upload' ||
+      !['ready', 'completed'].includes(row.state) ||
+      row.received_bytes !== row.total_bytes
+    )
+      fail('MCP_TRANSFER_INCOMPLETE');
+    if (expectedBinding && canonical(expectedBinding) !== row.binding)
+      fail('MCP_TRANSFER_CONFLICT');
+    const fd = openPayload(id, constants.O_RDONLY);
+    try {
+      if (fstatSync(fd).size !== row.total_bytes || hashFd(fd) !== row.digest)
+        fail('MCP_TRANSFER_HASH_MISMATCH');
+      if (completionRequestId !== undefined) {
+        if (!/^[A-Za-z0-9_-]{1,128}$/.test(completionRequestId)) fail('MCP_TRANSFER_INVALID', 400);
+        const latest = owned(p, id);
+        if (latest.complete_request && latest.complete_request !== completionRequestId)
+          fail('MCP_TRANSFER_CONFLICT');
+        db.prepare('UPDATE mcp_transfers SET complete_request=? WHERE id=?').run(
+          completionRequestId,
+          id,
+        );
+      }
+      return {
+        path: payload(id),
+        binding: JSON.parse(row.binding) as McpTransferBinding,
+        name: row.name,
+        mime: row.mime,
+        sha256: row.digest!,
+        totalBytes: row.total_bytes,
+      };
+    } finally {
+      closeSync(fd);
+    }
+  }
+  async function createDownloadStream(p: Principal, input: McpStreamDownloadInput) {
+    const { stream, signal, check, ...metadata } = input;
+    const key = canonical([actor(p), workspace(), input.requestId]), fingerprint = sha(canonical(metadata));
+    let active = activeDownloads.get(db);
+    if (!active) { active = new Map(); activeDownloads.set(db, active); }
+    try {
+      signal?.throwIfAborted(); check?.();
+      const pending = active.get(key);
+      if (pending) {
+        if (pending.fingerprint !== fingerprint) fail('MCP_TRANSFER_CONFLICT');
+        const result = await pending.promise;
+        return info(p, result.transferId);
+      }
+      const promise = streamDownload(p, input);
+      active.set(key, { fingerprint, promise });
+      try { return await promise; } finally { active.delete(key); }
+    } finally { if ('destroy' in stream && typeof stream.destroy === 'function') stream.destroy(); }
+  }
+  async function streamDownload(p: Principal, input: McpStreamDownloadInput): Promise<McpTransferInfo> {
+    const { stream, signal, check, ...metadata } = input;
+    const transfer = begin(p, metadata, 'download'),
+      row = owned(p, transfer.transferId);
+    if (row.received_bytes === row.total_bytes && row.digest === input.sha256) {
+      if ('destroy' in stream && typeof stream.destroy === 'function') stream.destroy();
+      return transfer;
+    }
+    if (row.state === 'cancelled') fail('MCP_TRANSFER_CONFLICT');
+    if (row.state === 'uploading') {
+      const writer = db.prepare('SELECT pid,process_start FROM mcp_stream_downloads WHERE id=?').get(row.id) as { pid: number; process_start: string } | undefined;
+      if (writer && processIsAlive(writer.pid, writer.process_start)) fail('MCP_TRANSFER_IN_PROGRESS');
+      // A process died before publishing a receipt; discard only its opaque partial payload.
+      remove(row.id);
+      db.prepare('DELETE FROM mcp_transfers WHERE id=?').run(row.id);
+      db.prepare('DELETE FROM mcp_stream_downloads WHERE id=?').run(row.id);
+      return streamDownload(p, input);
+    }
+    db.transaction(() => {
+      const process = workspaceProcess();
+      db.prepare("UPDATE mcp_transfers SET state='uploading' WHERE id=?").run(row.id);
+      db.prepare('INSERT INTO mcp_stream_downloads VALUES(?,?,?)').run(row.id, process.pid, process.start);
+    }).immediate();
+    const hash = createHash('sha256');
+    let received = 0, fd: number | undefined;
+    try {
+      fd = openPayload(row.id, constants.O_WRONLY);
+      ftruncateSync(fd, 0);
+      for await (const chunk of stream) {
+        signal?.throwIfAborted(); check?.();
+        if (owned(p, row.id).state !== 'uploading') fail('MCP_TRANSFER_CONFLICT');
+        if (received + chunk.byteLength > input.totalBytes) fail('MCP_TRANSFER_HASH_MISMATCH');
+        // Stream chunks are copied directly into the reserved on-disk payload.
+        let offset = 0;
+        while (offset < chunk.byteLength)
+          offset += writeSync(fd, chunk, offset, chunk.byteLength - offset, received + offset);
+        received += chunk.byteLength;
+        hash.update(chunk);
+      }
+      signal?.throwIfAborted(); check?.();
+      if (owned(p, row.id).state !== 'uploading') fail('MCP_TRANSFER_CONFLICT');
+      if (received !== input.totalBytes || hash.digest('hex') !== input.sha256)
+        fail('MCP_TRANSFER_HASH_MISMATCH');
+      fsyncSync(fd);
+      db.prepare("UPDATE mcp_transfers SET received_bytes=?,digest=?,state='ready' WHERE id=?").run(
+        received,
+        input.sha256,
+        row.id,
+      );
+      return info(p, row.id);
+    } catch (error) {
+      // A failed/cancelled transport is retryable using the original request ID.
+      remove(row.id);
+      db.prepare('DELETE FROM mcp_transfers WHERE id=?').run(row.id);
+      throw error;
+    } finally {
+      if (fd !== undefined) closeSync(fd);
+      db.prepare('DELETE FROM mcp_stream_downloads WHERE id=?').run(row.id);
+    }
   }
   function readUpload(p: Principal, id: string, expectedBinding?: McpTransferBinding, completionRequestId?: string) {
     const row = owned(p, id);
@@ -184,7 +319,7 @@ export function createMcpTransferStore(config: { dataRoot: string }, db: AppData
       return infoOf(row);
     }
     if (row.direction !== 'upload' || row.state !== 'ready') fail('MCP_TRANSFER_INCOMPLETE');
-    readUpload(p, id);
+    openUpload(p, id);
     db.prepare("UPDATE mcp_transfers SET state='completed',complete_request=?,result=? WHERE id=? AND state='ready'").run(requestId, encoded, id);
     return infoOf(owned(p, id));
     }).immediate();
@@ -201,6 +336,9 @@ export function createMcpTransferStore(config: { dataRoot: string }, db: AppData
     validateId(id);
     const row = db.prepare("SELECT * FROM mcp_transfers WHERE id=? AND owner=? AND direction='download' AND state='ready' AND expires_at>?").get(id, ownerId, Date.now()) as Row | undefined;
     if (!row || row.workspace !== workspace()) fail('MCP_TRANSFER_NOT_FOUND', 404);
+    const binding: McpTransferBinding = JSON.parse(row.binding);
+    // Strict closures and streamed media require freshly authorized MCP reads.
+    if (binding.kind === 'portable-export' || binding.metadata?.assetStamp) fail('MCP_TRANSFER_NOT_FOUND', 404);
     const fd = openPayload(id, constants.O_RDONLY);
     try {
       if (fstatSync(fd).size !== row.total_bytes) fail('MCP_TRANSFER_HASH_MISMATCH');
@@ -219,5 +357,5 @@ export function createMcpTransferStore(config: { dataRoot: string }, db: AppData
   }
   return { beginUpload: (p, input) => begin(p, input, 'upload'),
     createDownload: (p: Principal, input: McpDownloadInput) => begin(p, { requestId: input.requestId, binding: input.binding, name: input.name, mime: input.mime, totalBytes: input.bytes.length, sha256: sha(input.bytes) }, 'download', input.bytes),
-    info, append, read, readUpload, complete, cancel, cleanup, downloadForOwner };
+    createDownloadStream, openUpload, info, append, read, readUpload, complete, cancel, cleanup, downloadForOwner };
 }

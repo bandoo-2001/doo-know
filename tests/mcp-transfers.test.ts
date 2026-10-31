@@ -126,3 +126,99 @@ it('cleans expired payloads while the service is idle and stops maintenance afte
   f.db.close();
   expect(() => vi.advanceTimersByTime(60000)).not.toThrow();
 });
+
+it('streams download artifacts and opens large upload payloads without archive-sized reads', async () => {
+  const f = fixture(),
+    bytes = Buffer.alloc(1024 * 1024, 7),
+    digest = createHash('sha256').update(bytes).digest('hex');
+  async function* chunks() {
+    for (let i = 0; i < bytes.length; i += 4096) yield bytes.subarray(i, i + 4096);
+  }
+  const input = {
+    requestId: 'stream',
+    binding: { ...binding, kind: 'portable-export' },
+    name: 'documents.tar.gz',
+    mime: 'application/gzip',
+    totalBytes: bytes.length,
+    sha256: digest,
+    stream: chunks(),
+  };
+  const download = await f.store.createDownloadStream(p, input);
+  expect(download).toMatchObject({ state: 'ready', receivedBytes: bytes.length, sha256: digest });
+  expect(
+    Buffer.from(f.store.read(p, { transferId: download.transferId, offset: 0 }).base64, 'base64'),
+  ).toEqual(bytes.subarray(0, 8192));
+  expect(() => f.store.downloadForOwner(p.id, download.transferId)).toThrow();
+  expect((await f.store.createDownloadStream(p, { ...input, stream: chunks() })).transferId).toBe(
+    download.transferId,
+  );
+  const upload = f.store.beginUpload(p, {
+    requestId: 'large-open',
+    binding: { ...binding, kind: 'portable-import' },
+    name: 'x.tar.gz',
+    mime: 'application/gzip',
+    totalBytes: bytes.length,
+    sha256: digest,
+  });
+  for (let i = 0; i < bytes.length; i += 16384)
+    f.store.append(p, {
+      transferId: upload.transferId,
+      offset: i,
+      base64: bytes.subarray(i, i + 16384).toString('base64'),
+    });
+  const opened = f.store.openUpload(p, upload.transferId, undefined, 'claimed');
+  expect(opened).toMatchObject({ totalBytes: bytes.length, sha256: digest });
+  expect(opened).not.toHaveProperty('bytes');
+  expect(() => f.store.openUpload(p, upload.transferId, undefined, 'another-claim')).toThrow();
+});
+it('cleans failed and cancelled stream staging and allows unknown-outcome retry', async () => {
+  const f = fixture(),
+    controller = new AbortController();
+  async function* aborted() {
+    yield Buffer.from('ab');
+    controller.abort();
+    yield Buffer.from('cd');
+  }
+  const input = {
+    requestId: 'abort-stream',
+    binding: { ...binding, kind: 'portable-export' },
+    name: 'x.md',
+    mime: 'text/markdown',
+    totalBytes: 4,
+    sha256: sha('abcd'),
+  };
+  await expect(
+    f.store.createDownloadStream(p, { ...input, stream: aborted(), signal: controller.signal }),
+  ).rejects.toThrow();
+  expect(
+    f.db.prepare("SELECT count(*) n FROM mcp_transfers WHERE request_id='abort-stream'").get(),
+  ).toMatchObject({ n: 0 });
+  async function* good() {
+    yield Buffer.from('abcd');
+  }
+  const retried = await f.store.createDownloadStream(p, { ...input, stream: good() });
+  expect(retried.state).toBe('ready');
+  f.store.cancel(p, retried.transferId);
+  expect(existsSync(join(f.config.dataRoot, 'mcp/transfers', retried.transferId))).toBe(false);
+});
+
+it('joins concurrent stream retries without publishing another artifact', async () => {
+  const f = fixture();
+  async function* chunks() { yield Buffer.from('ab'); await Promise.resolve(); yield Buffer.from('cd'); }
+  const input = { requestId: 'parallel-stream', binding: { ...binding, kind: 'portable-export' }, name: 'x.md', mime: 'text/markdown', totalBytes: 4, sha256: sha('abcd') };
+  const [a, b] = await Promise.all([f.store.createDownloadStream(p, { ...input, stream: chunks() }), f.store.createDownloadStream(p, { ...input, stream: chunks() })]);
+  expect(a.transferId).toBe(b.transferId);
+  expect(f.db.prepare("SELECT count(*) n FROM mcp_transfers WHERE request_id='parallel-stream'").get()).toMatchObject({ n: 1 });
+});
+
+it('recovers an abandoned stream publication after process loss with the same request ID', async () => {
+  const f = fixture(), metadata = { requestId: 'dead-stream', binding: { ...binding, kind: 'portable-export' }, name: 'x.md', mime: 'text/markdown' };
+  const abandoned = f.store.createDownload(p, { ...metadata, bytes: Buffer.from('abcd') });
+  f.db.prepare("UPDATE mcp_transfers SET state='uploading',received_bytes=0,digest=NULL WHERE id=?").run(abandoned.transferId);
+  f.db.prepare('INSERT INTO mcp_stream_downloads VALUES(?,?,?)').run(abandoned.transferId, 0, 'dead');
+  async function* source() { yield Buffer.from('abcd'); }
+  const recovered = await f.store.createDownloadStream(p, { ...metadata, totalBytes: 4, sha256: sha('abcd'), stream: source() });
+  expect(recovered).toMatchObject({ state: 'ready', receivedBytes: 4, sha256: sha('abcd') });
+  expect(recovered.transferId).not.toBe(abandoned.transferId);
+  expect(existsSync(join(f.config.dataRoot, 'mcp/transfers', abandoned.transferId))).toBe(false);
+});
