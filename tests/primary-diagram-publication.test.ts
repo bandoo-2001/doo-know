@@ -420,3 +420,12 @@ it('releases an abandoned creation claim when recovery proves that the target wa
     intent.noteId,
   );
 });
+
+it('keeps operation status metadata bounded while replaying the exact committed Markdown response',()=>{
+ const {prepared,markdown}=prepare(),s=services(),request={preparedId:prepared.id,markdown,requestId:randomUUID()},saved=s.primary.commit(request);
+ const row=db.prepare("SELECT result FROM operations WHERE kind='diagram-primary.commit' AND request_id=?").get(request.requestId) as {result:string};
+ expect(JSON.parse(row.result)).not.toHaveProperty('content');
+ expect(Buffer.byteLength(row.result)).toBeLessThan(4096);
+ expect(s.primary.commit(request)).toEqual(saved);
+ expect(saved.content).toBe(markdown);
+});

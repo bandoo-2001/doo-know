@@ -21,6 +21,14 @@ export const diagramResourceSchema = z
     documentType: documentTypeSchema,
     role: diagramRoleSchema,
     documentHash: hash,
+    title: z.string().optional(),
+    render: z
+      .object({ renderer: z.string(), config: z.record(z.string(), z.unknown()) })
+      .optional(),
+    publication: z
+      .object({ state: z.enum(['pending', 'conflicted']), operationId: z.string().optional(),code:z.string().optional() })
+      .optional(),
+    issues: z.array(z.object({ code: z.string() })).optional(),
     source: sourceSchema,
     preview: z
       .object({ path, hash, renderHash: hash, state: z.enum(['ready', 'stale', 'missing']) })

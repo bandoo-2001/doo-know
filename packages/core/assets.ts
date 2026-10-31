@@ -196,7 +196,7 @@ export function assetService(config: AppConfig, db: AppDatabase, notes: NoteServ
     if (!allowed[extname(path).toLowerCase()]) throw new HttpError(404, '附件不存在');
     if (
       !(await hasSavedAssetReference(
-        safePath(config.knowledgeRoot, note.path, 'note'),
+        notes.readableSource(noteId).file,
         note.path,
         path,
       ))

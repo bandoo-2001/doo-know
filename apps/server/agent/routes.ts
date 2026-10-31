@@ -40,20 +40,21 @@ export function metadataService(config: AppConfig, db: AppDatabase, notes: NoteS
   return async function getNoteInfo(p: Principal, id: string): Promise<NoteInfo> {
     const row = notes.row(id);
     authorizePath(p, row.path);
-    const s = await stat(safePath(config.knowledgeRoot, row.path, 'note'), { bigint: true });
+    const readable=notes.readableSource(id),s = await stat(readable.file, { bigint: true }),modifiedAt=readable.modifiedAt??s.mtimeNs.toString();
     const state = db.prepare('SELECT * FROM document_state WHERE note_id=?').get(id) as any;
-    const known = state?.mtime_ns === s.mtimeNs.toString() && state?.size_bytes === Number(s.size);
+    const known = state?.mtime_ns === modifiedAt && state?.size_bytes === Number(s.size);
     const ready = known && state?.longest_line_bytes != null;
     return {
       id,
-      ...(isWhiteboard(row.path) ? {documentType: 'whiteboard' as const} : {}),
+      ...(isWhiteboard(row.path) ? {documentType: 'whiteboard' as const} : known && ['whiteboard','mindmap','flowchart'].includes(state.document_type)?{documentType:state.document_type}:{}),
       title: [...(ready && state.title ? state.title : documentTitle(row.path))]
         .slice(0, 256)
         .join(''),
       relativePath: row.path,
       url: `${config.origin}/?note=${encodeURIComponent(id)}`,
       sizeBytes: Number(s.size),
-      modifiedAt: s.mtimeNs.toString(),
+      modifiedAt,
+      ...(readable.publication?{publication:readable.publication}:{}),
       contentHash: known ? state.content_hash : null,
       sourceRevision: known ? state.source_revision : null,
       longestLineBytes: ready ? state.longest_line_bytes : null,

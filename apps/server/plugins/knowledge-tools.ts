@@ -1,3 +1,5 @@
+import { primaryDiagramService } from '../../../packages/core/knowledge/primary-diagrams.js';
+import { hasDiagramResourceProof } from '../../../packages/core/knowledge/diagram-publications.js';
 import { basename, dirname, posix } from 'node:path';
 import { lstatSync } from 'node:fs';
 import { join } from 'node:path';
@@ -214,6 +216,7 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
         'document-create',
         'document-update',
         'document-download',
+        'diagram-source',
       ].includes(binding.kind)
     )
       fail(403, 'FORBIDDEN');
@@ -226,12 +229,35 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
     if (binding.kind === 'document-create') authorizePath(p, binding.id, 'knowledge:write');
     else {
       const n = note(p, binding.id, upload ? 'knowledge:write' : 'knowledge:read');
+      if (!upload && binding.kind === 'diagram-source') {
+        const version = runtime.notes.readableVersion(n.id),
+          metadata = binding.metadata;
+        if (
+          version.contentHash !== metadata?.documentHash ||
+          version.modifiedAt !== binding.revision
+        )
+          fail(409, 'STALE_CURSOR');
+        if (metadata?.format === 'excalidraw' && typeof metadata.sourcePath !== 'string')
+          fail(403, 'FORBIDDEN');
+        if (
+          metadata?.format === 'excalidraw' &&
+          typeof metadata.sourcePath === 'string' &&
+          !canAccessPath(p, metadata.sourcePath) &&
+          !hasDiagramResourceProof(
+            db,
+            n.id,
+            metadata.sourcePath,
+            String(metadata.sourceHash),
+            'source',
+          )
+        )
+          fail(403, 'FORBIDDEN');
+        return p;
+      }
       if (
         !upload &&
         binding.revision &&
-        lstatSync(safePath(config.knowledgeRoot, n.path, 'note'), {
-          bigint: true,
-        }).mtimeNs.toString() !== binding.revision
+        runtime.notes.readableVersion(n.id).modifiedAt !== binding.revision
       )
         fail(409, 'STALE_CURSOR');
     }
@@ -531,6 +557,61 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
         mime: asset.mime,
         bytes: a.source ? asset.sourceBytes || asset.bytes : asset.bytes,
       });
+    } else if (name === 'get_note_diagram') {
+      const primary = primaryDiagramService(config, db, runtime.notes, runtime.assets, p);
+      const sourceHandle = (
+        snapshot: import('../../../packages/core/knowledge/diagram-resource-resolver.js').DiagramSourceSnapshot,
+      ) => {
+        const extension =
+            snapshot.format === 'excalidraw'
+              ? '.excalidraw'
+              : snapshot.format === 'mermaid'
+                ? '.mmd'
+                : '.md',
+          mime =
+            snapshot.format === 'excalidraw'
+              ? 'application/vnd.excalidraw+json'
+              : snapshot.format === 'mermaid'
+                ? 'text/plain'
+                : 'text/markdown';
+        const transfer = transfers.createDownload(p, {
+          requestId:
+            'diagram-source-' +
+            sha256(
+              [p.id, p.clientId, snapshot.noteId, snapshot.documentHash, snapshot.sourceHash].join(
+                '\0',
+              ),
+            ),
+          binding: {
+            domain: 'knowledge',
+            kind: 'diagram-source',
+            id: snapshot.noteId,
+            revision: snapshot.modifiedAt,
+            metadata: {
+              documentHash: snapshot.documentHash,
+              sourceHash: snapshot.sourceHash,
+              format: snapshot.format,
+              ...(snapshot.sourcePath ? { sourcePath: snapshot.sourcePath } : {}),
+            },
+          },
+          name: basename(runtime.notes.row(snapshot.noteId).path, '.md') + extension,
+          mime,
+          bytes: Buffer.from(snapshot.content, 'utf8'),
+        });
+        return transfer.transferId;
+      };
+      let resource = primary.resolve(a.noteId, { maxInlineBytes: 8192, sourceHandle });
+      if (mcpResultFrameSize({ data: resource }) > mcpMaximumFrameBytes) {
+        const { render: _render, ...bounded } = resource;
+        resource = bounded;
+      }
+      if (mcpResultFrameSize({ data: resource }) > mcpMaximumFrameBytes) {
+        resource = primary.resolve(a.noteId, { maxInlineBytes: 0, sourceHandle });
+        const { render: _render, title: _title, ...bounded } = resource;
+        resource = bounded;
+        delete resource.source.path;
+      }
+      result = resource;
     } else if (name === 'prepare_note_diagram') {
       note(p, a.noteId, 'knowledge:write');
       const prior = replay(p, 'diagram', a);
@@ -639,7 +720,9 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
           async () => {
             let content: string;
             try {
-              content = new TextDecoder('utf-8', { fatal: true, ignoreBOM:true }).decode(upload.bytes);
+              content = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(
+                upload.bytes,
+              );
             } catch {
               fail(400, 'INVALID_INPUT');
             }
@@ -819,6 +902,7 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
     if (name === 'list_note_collection')
       for (const item of result.items) authorizePath(fresh, item.path);
     if (name === 'list_note_assets') note(fresh, a.noteId);
+    if(name==='get_note_diagram') {note(fresh,a.noteId);try{requireScope(fresh,'knowledge:write');}catch{result.capabilities.canEdit=false;}}
     const out = def.output.safeParse(result);
     if (!out.success) fail(502, 'INVALID_BACKEND_RESPONSE');
     return out.data as Record<string, unknown>;

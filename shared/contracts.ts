@@ -28,6 +28,7 @@ export interface NoteDocument {
   modifiedAt: string;
   updatedAt: string;
   shared?: boolean;
+  publication?: {state:'pending'|'conflicted';operationId?:string;code?:string};
   html?: string;
 }
 export interface TreeEntry {

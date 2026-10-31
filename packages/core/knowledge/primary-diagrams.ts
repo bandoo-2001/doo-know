@@ -1,9 +1,13 @@
+import {
+  diagramPreparationSchema as inputSchema,
+  type DiagramPreparationInput,
+} from '../../../shared/diagram-document-contracts.js';
+import { resolvePrimaryDiagram, type DiagramResolveOptions } from './diagram-resource-resolver.js';
 import { localReference } from '../render.js';
 import { mutationCore } from './core.js';
 import { parseDiagramDocument } from '../../../shared/diagram-document.js';
 import type { NoteDocument } from '../../../shared/contracts.js';
 import type { OperationRow } from './operations.js';
-import { z } from 'zod';
 import type { AppConfig } from '../../../shared/contracts.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
 import {
@@ -27,36 +31,7 @@ import { sha256, beginOperation, completeOperation, existingResult } from './ope
 import { assertWritable } from './write-lease.js';
 import { fail } from './errors.js';
 
-const hash = z.string().regex(/^[a-f0-9]{64}$/);
-const targetSchema = z.discriminatedUnion('kind', [
-  z.object({ kind: z.literal('creation'), intentId: z.string().min(1) }).strict(),
-  z
-    .object({
-      kind: z.literal('document'),
-      noteId: z.string().min(1),
-      expectedDocumentHash: hash,
-      expectedSourceHash: hash,
-    })
-    .strict(),
-]);
-const inputSchema = z
-  .object({
-    target: targetSchema,
-    type: z.enum(['whiteboard', 'mindmap', 'flowchart']),
-    source: z.string(),
-    sourceHash: hash,
-    title: z.string().min(1).max(2000),
-    renderer: z.string().min(1).max(160),
-    config: z.record(z.string(), z.unknown()),
-    pngBase64: z.string(),
-    requestId: z
-      .string()
-      .min(8)
-      .max(100)
-      .regex(/^[A-Za-z0-9_-]+$/),
-  })
-  .strict();
-type Input = z.infer<typeof inputSchema>;
+type Input = DiagramPreparationInput;
 const maxPng = 10 * 1024 * 1024;
 
 /** Immutable primary preparation. No source-only update or unpublished file is activated here. */
@@ -68,7 +43,7 @@ export function primaryDiagramService(
   principal: Principal,
 ) {
   const creations = diagramCreationService(config, db, principal);
-  function target(input: Input) {
+  function target(input: Pick<Input, 'target' | 'type'>) {
     if (isSharePrincipal(principal)) fail(403, 'SHARE_EDIT_UNSUPPORTED');
     if (input.target.kind === 'creation') {
       const intent = creations.get(input.target.intentId);
@@ -88,6 +63,8 @@ export function primaryDiagramService(
     const row = notes.row(input.target.noteId);
     authorizePath(principal, row.path, 'knowledge:write');
     const state = readPrimaryDiagramState(db, notes, assets, principal, row.id);
+    if (state.note.publication)
+      fail(409, 'OPERATION_OUTCOME_UNKNOWN', '请先核对尚未完成的图形保存', true);
     if (state.documentHash !== input.target.expectedDocumentHash) fail(409, 'VERSION_CONFLICT');
     if (state.sourceHash !== input.target.expectedSourceHash) fail(409, 'DIAGRAM_SOURCE_CONFLICT');
     if (state.parsed.type !== input.type) fail(400, 'DIAGRAM_TYPE_MISMATCH');
@@ -331,7 +308,8 @@ export function primaryDiagramService(
           }),
         )
         .immediate();
-      if (operation.status !== 'prepared') return existingResult(operation) as NoteDocument;
+      if (operation.status !== 'prepared')
+        return { ...existingResult(operation), content: value.markdown } as NoteDocument;
       const candidate = parseDiagramDocument(value.markdown);
       const targetPath = prepared.creationIntentId
         ? creations.get(prepared.creationIntentId).relativePath
@@ -393,9 +371,33 @@ export function primaryDiagramService(
         modifiedAt: receipt.modifiedAt,
         updatedAt: new Date(Number(BigInt(receipt.modifiedAt) / 1000000n)).toISOString(),
       };
-      completeOperation(db, operation.id, result);
+      const { content: _content, ...metadata } = result;
+      completeOperation(db, operation.id, metadata);
       return result;
     });
   }
-  return { prepare, commit };
+  function getPreparation(id: string, options: { fresh?: boolean } = {}) {
+    const row = db
+      .prepare(
+        'SELECT result,principal,client_id,expires_at FROM diagram_prepared_primaries WHERE id=?',
+      )
+      .get(id) as
+      | { result: string; principal: string; client_id: string; expires_at: number }
+      | undefined;
+    if (!row || row.principal !== principal.id || row.client_id !== principal.clientId)
+      fail(404, 'NOT_FOUND');
+    const prepared = JSON.parse(row.result) as PreparedDiagramPrimary;
+    if (prepared.creationIntentId) creations.get(prepared.creationIntentId);
+    else authorizePath(principal, notes.row(prepared.noteId).path, 'knowledge:write');
+    if (options.fresh && row.expires_at <= Date.now()) fail(409, 'DIAGRAM_PREPARATION_EXPIRED');
+    return prepared;
+  }
+  return {
+    validateTarget: target,
+    getPreparation,
+    prepare,
+    commit,
+    resolve: (noteId: string, options?: DiagramResolveOptions) =>
+      resolvePrimaryDiagram(config, db, notes, principal, noteId, options),
+  };
 }

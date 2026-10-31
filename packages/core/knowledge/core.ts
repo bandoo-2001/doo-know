@@ -1,3 +1,4 @@
+import {parseDiagramDocument} from '../../../shared/diagram-document.js';
 import { assertDiagramPublication } from './diagram-publication-policy.js';
 import { recordDiagramPublication,verifyPendingDiagramPublication } from './diagram-publications.js';
 import { assertDiagramRestorePublication } from './diagram-file-publication.js';
@@ -339,7 +340,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     creationIntentId?: string,
   ) {
     if (typeof directory !== 'string') fail(400, 'INVALID_DIRECTORY');
-    if (typeof content !== 'string' || Buffer.byteLength(content) > (isWhiteboard(fileName) ? MAX_WHITEBOARD_BYTES : 1024 * 1024))
+    if (typeof content !== 'string' || Buffer.byteLength(content) > (isWhiteboard(fileName) ? MAX_WHITEBOARD_BYTES : parseDiagramDocument(content).status==='diagram'?limits.file:1024*1024))
       fail(413, 'REQUEST_TOO_LARGE');
     if (isWhiteboard(fileName)) { try { parseWhiteboard(content); } catch(e) { fail(400, 'INVALID_WHITEBOARD', (e as Error).message); } }
     if (!validName(fileName) || !isDocument(fileName)) fail(400, 'INVALID_INPUT');
@@ -396,7 +397,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     assertSharePrincipal(db, p, id, n.path, 'edit');
     authorizePath(p, n.path, 'knowledge:write');
     assertWritable(db, id);
-    if (typeof content !== 'string' || Buffer.byteLength(content) > (isWhiteboard(n.path) ? MAX_WHITEBOARD_BYTES : 1024 * 1024))
+    if (typeof content !== 'string' || Buffer.byteLength(content) > (isWhiteboard(n.path) ? MAX_WHITEBOARD_BYTES : parseDiagramDocument(content).status==='diagram'?limits.file:1024*1024))
       fail(413, 'REQUEST_TOO_LARGE');
     if (isSharePrincipal(p)) {
       if (isWhiteboard(n.path)) fail(403, 'SHARE_EDIT_UNSUPPORTED', '白板分享暂不支持公开编辑');
@@ -417,13 +418,12 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     return runOperation(op.operation, (commit, stage) => {
       const file = safePath(config.knowledgeRoot, n.path, 'note'),
         s = statSync(file, { bigint: true });
-      if (!isWhiteboard(n.path) && s.size > 1024n * 1024n) fail(409, 'LARGE_FILE_MODE_REQUIRED');
-      const current = readDocument(config.knowledgeRoot, n.path);
+      const current = readDocument(config.knowledgeRoot, n.path,{allowDiagramLarge:true});
       if (current.modifiedAt !== expected)
         fail(409, 'VERSION_CONFLICT', '原文件已更新', false, {
           currentModifiedAt: current.modifiedAt,
         });
-      if (!isWhiteboard(n.path) && current.content.split('\n').some((line) => Buffer.byteLength(line) > 32768))
+      if (!isWhiteboard(n.path) && parseDiagramDocument(current.content).status!=='diagram' && current.content.split('\n').some((line) => Buffer.byteLength(line) > 32768))
         fail(409, 'LARGE_FILE_MODE_REQUIRED');
       if (isSharePrincipal(p)) assertShareResources(n.path, current.content, content);
       assertDiagramPublication(config,db,p,{operationId:op.operation.id,noteId:id,path:n.path,markdown:content,currentMarkdown:current.content});
@@ -451,7 +451,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
         op.operation.id,
         historyFile,
       );
-      const latest = readDocument(config.knowledgeRoot, n.path);
+      const latest = readDocument(config.knowledgeRoot, n.path,{allowDiagramLarge:true});
       if (latest.modifiedAt !== expected || sha256(latest.content) !== sha256(current.content))
         fail(409, 'VERSION_CONFLICT', '原文件再次更新', false, {
           currentModifiedAt: latest.modifiedAt,
@@ -866,6 +866,10 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
             .get(intent.id)
         )
           continue;
+        if(db.prepare('SELECT 1 FROM diagram_pending_publications WHERE operation_id=?').get(intent.id)) {
+          const error=e instanceof KnowledgeError?{status:e.statusCode,code:e.code,message:e.message,retryable:true,details:e.details}:{status:409,code:'DIAGRAM_RECONCILIATION_REQUIRED',retryable:true};
+          db.prepare("UPDATE operations SET status='needs_reconciliation',error=?,updated_at=? WHERE id=? AND status IN ('prepared','committing','needs_reconciliation')").run(JSON.stringify(error),Date.now(),intent.id);
+        }
         if (intent.kind === 'move') {
           const changed = db
             .transaction(() => {

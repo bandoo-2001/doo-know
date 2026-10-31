@@ -1,10 +1,15 @@
+import { fileVersionStamp } from './file-reader.js';
 import { openSync, closeSync, fstatSync, readFileSync, constants } from 'node:fs';
 import type { AppConfig } from '../../../shared/contracts.js';
 import { MAX_WHITEBOARD_BYTES } from '../../../shared/whiteboard.js';
 import { safePath } from '../files.js';
 import { fail } from './errors.js';
 
-export function readBoundDiagramAsset(config: AppConfig, path: string, role: 'source' | 'preview') {
+export function readBoundDiagramAssetSnapshot(
+  config: AppConfig,
+  path: string,
+  role: 'source' | 'preview',
+) {
   const fd = openSync(
     safePath(config.knowledgeRoot, path, 'asset'),
     constants.O_RDONLY | constants.O_NOFOLLOW,
@@ -25,8 +30,12 @@ export function readBoundDiagramAsset(config: AppConfig, path: string, role: 'so
       bytes.length !== Number(after.size)
     )
       fail(409, 'DIAGRAM_ARTIFACT_CONFLICT');
-    return bytes;
+    return { bytes, signature: fileVersionStamp(after) };
   } finally {
     closeSync(fd);
   }
+}
+
+export function readBoundDiagramAsset(config: AppConfig, path: string, role: 'source' | 'preview') {
+  return readBoundDiagramAssetSnapshot(config, path, role).bytes;
 }

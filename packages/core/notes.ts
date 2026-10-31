@@ -1,5 +1,18 @@
+import {
+  publishedNoteSource,
+  readPublishedMarkdown,
+  readableSourceVersion,
+} from './knowledge/published-note-source.js';
 import type { DocumentType } from '../../shared/diagram-resource.js';
-import {documentTitle,documentType,isWhiteboard,parseWhiteboard,MAX_WHITEBOARD_BYTES,withWhiteboardId,whiteboardId} from '../../shared/whiteboard.js';
+import {
+  documentTitle,
+  documentType,
+  isWhiteboard,
+  parseWhiteboard,
+  MAX_WHITEBOARD_BYTES,
+  withWhiteboardId,
+  whiteboardId,
+} from '../../shared/whiteboard.js';
 import { hasActiveShare } from './share-policy.js';
 import { assertOrganizationReadable, workspaceWriteSync } from './workspace/gate.js';
 import { randomUUID } from 'node:crypto';
@@ -18,7 +31,14 @@ import { join, dirname, basename } from 'node:path';
 import type { AppConfig, NoteDocument, TreeEntry } from '../../shared/contracts.js';
 import type { AppDatabase } from './db.js';
 import { HttpError, text } from './errors.js';
-import { readDocument, safePath, scanFiles, validName, isMissingSource, sourceErrorCode } from './files.js';
+import {
+  readDocument,
+  safePath,
+  scanFiles,
+  validName,
+  isMissingSource,
+  sourceErrorCode,
+} from './files.js';
 import { mutationCore, webPrincipal } from './knowledge/core.js';
 import { KnowledgeError } from './knowledge/errors.js';
 import { assertRoot } from './indexing/reconcile.js';
@@ -51,7 +71,7 @@ export function noteService(config: AppConfig, db: AppDatabase) {
           !live.has(row.path) &&
           !db
             .prepare(
-              "SELECT 1 FROM write_intents WHERE note_id=? AND kind='move' AND status IN ('prepared','conflicted')",
+              "SELECT 1 FROM write_intents WHERE note_id=? AND status IN ('prepared','conflicted') AND (kind='move' OR EXISTS(SELECT 1 FROM diagram_pending_publications p WHERE p.operation_id=write_intents.id))",
             )
             .get(row.id)
         ) {
@@ -67,15 +87,19 @@ export function noteService(config: AppConfig, db: AppDatabase) {
             .get(path) &&
           !db.prepare('SELECT id FROM notes WHERE path=? AND active=1').get(path)
         ) {
-          let identity:string|undefined;
-          if(isWhiteboard(path))try{identity=whiteboardId(parseWhiteboard(readDocument(config.knowledgeRoot,path).content).dooknow?.id||'');}catch{}
+          let identity: string | undefined;
+          if (isWhiteboard(path))
+            try {
+              identity = whiteboardId(
+                parseWhiteboard(readDocument(config.knowledgeRoot, path).content).dooknow?.id || '',
+              );
+            } catch {}
           identity = library.identity(path, identity);
           if (db.prepare('SELECT 1 FROM notes WHERE id=?').get(identity)) {
             db.prepare('UPDATE notes SET path=?,active=1 WHERE id=?').run(path, identity);
             db.prepare('UPDATE document_state SET active=0 WHERE note_id=?').run(identity);
             db.prepare('UPDATE chunks SET active=0 WHERE note_id=?').run(identity);
-          }
-          else db.prepare('INSERT INTO notes(id,path) VALUES(?,?)').run(identity, path);
+          } else db.prepare('INSERT INTO notes(id,path) VALUES(?,?)').run(identity, path);
         }
     }).immediate();
     library.flush();
@@ -89,52 +113,92 @@ export function noteService(config: AppConfig, db: AppDatabase) {
     if (!note || (!deleted && !note.active)) throw new HttpError(404, '笔记不存在');
     return note;
   }
-  function getNote(id: string): NoteDocument {
+  function getNoteSnapshot(id: string): { note: NoteDocument; file: string; signature: string } {
     const n = row(id);
     try {
-      const doc = readDocument(config.knowledgeRoot, n.path);
-      if (isWhiteboard(n.path)) { try { parseWhiteboard(doc.content); } catch(e) { throw new HttpError(422, (e as Error).message); } }
+      const readable = publishedNoteSource(config, db, id, n.path);
+      const doc = readable.publication
+        ? readPublishedMarkdown(readable)
+        : readDocument(config.knowledgeRoot, n.path, { allowDiagramLarge: true });
+      if (isWhiteboard(n.path)) {
+        try {
+          parseWhiteboard(doc.content);
+        } catch (e) {
+          throw new HttpError(422, (e as Error).message);
+        }
+      }
+      const { signature, ...document } = doc;
       return {
-        id,
-        title: documentTitle(n.path, doc.content),
-        documentType: documentType(n.path,doc.content),
-        relativePath: n.path,
-        ...doc,
-        shared: hasActiveShare(db, id),
+        file: readable.file,
+        signature,
+        note: {
+          id,
+          title: documentTitle(n.path, doc.content),
+          documentType: documentType(n.path, doc.content),
+          relativePath: n.path,
+          ...document,
+          shared: hasActiveShare(db, id),
+        },
       };
     } catch (e) {
       if (isMissingSource(e)) {
-        const confirmedMissing = db.transaction(() => {
-          // A changed root, completed move or reappearing file must not let an
-          // obsolete read failure delete the current identity or its grants.
-          assertRoot(config, db);
-          const current = db.prepare('SELECT * FROM notes WHERE id=?').get(id) as NoteRow | undefined;
-          if (!current || !current.active) return true;
-          if (current.path !== n.path) return false;
-          if (
-            db.prepare("SELECT 1 FROM write_intents WHERE note_id=? AND kind='move' AND status IN ('prepared','conflicted')").get(id)
-          )
-            throw new KnowledgeError(409, 'OPERATION_OUTCOME_UNKNOWN', '移动尚未完成，请核对操作状态', true);
-          if (db.prepare("SELECT 1 FROM sync_runs WHERE status IN ('running','needs_reconciliation')").get())
-            throw new KnowledgeError(503, 'SYNC_IN_PROGRESS', '原文同步中', true);
-          try {
-            safePath(config.knowledgeRoot, current.path, 'note');
-          } catch (confirmation) {
-            if (!isMissingSource(confirmation))
-              throw new KnowledgeError(503, 'SOURCE_UNAVAILABLE', '原文读取不可用', true);
-            db.prepare('UPDATE shares SET enabled=0 WHERE note_id=?').run(id);
-            db.prepare('UPDATE notes SET active=0 WHERE id=?').run(id);
-            return true;
-          }
-          return false;
-        }).immediate();
+        const confirmedMissing = db
+          .transaction(() => {
+            // A changed root, completed move or reappearing file must not let an
+            // obsolete read failure delete the current identity or its grants.
+            assertRoot(config, db);
+            const current = db.prepare('SELECT * FROM notes WHERE id=?').get(id) as
+              | NoteRow
+              | undefined;
+            if (!current || !current.active) return true;
+            if (current.path !== n.path) return false;
+            if (
+              db
+                .prepare(
+                  "SELECT 1 FROM write_intents WHERE note_id=? AND status IN ('prepared','conflicted') AND (kind='move' OR EXISTS(SELECT 1 FROM diagram_pending_publications p WHERE p.operation_id=write_intents.id))",
+                )
+                .get(id)
+            )
+              throw new KnowledgeError(
+                409,
+                'OPERATION_OUTCOME_UNKNOWN',
+                '移动尚未完成，请核对操作状态',
+                true,
+              );
+            if (
+              db
+                .prepare(
+                  "SELECT 1 FROM sync_runs WHERE status IN ('running','needs_reconciliation')",
+                )
+                .get()
+            )
+              throw new KnowledgeError(503, 'SYNC_IN_PROGRESS', '原文同步中', true);
+            try {
+              safePath(config.knowledgeRoot, current.path, 'note');
+            } catch (confirmation) {
+              if (!isMissingSource(confirmation))
+                throw new KnowledgeError(503, 'SOURCE_UNAVAILABLE', '原文读取不可用', true);
+              db.prepare('UPDATE shares SET enabled=0 WHERE note_id=?').run(id);
+              db.prepare('UPDATE notes SET active=0 WHERE id=?').run(id);
+              return true;
+            }
+            return false;
+          })
+          .immediate();
         if (!confirmedMissing)
           throw new KnowledgeError(503, 'SOURCE_UNAVAILABLE', '原文读取期间变化，请重试', true);
       }
-      if (['EACCES', 'EPERM', 'EIO', 'ESTALE', 'EMFILE', 'ENFILE', 'ETIMEDOUT'].includes(sourceErrorCode(e) || ''))
+      if (
+        ['EACCES', 'EPERM', 'EIO', 'ESTALE', 'EMFILE', 'ENFILE', 'ETIMEDOUT'].includes(
+          sourceErrorCode(e) || '',
+        )
+      )
         throw new KnowledgeError(503, 'SOURCE_UNAVAILABLE', '原文读取不可用', true);
       throw e;
     }
+  }
+  function getNote(id: string): NoteDocument {
+    return getNoteSnapshot(id).note;
   }
   function modificationTime(path: string, kind: 'note' | 'folder') {
     try {
@@ -161,13 +225,21 @@ export function noteService(config: AppConfig, db: AppDatabase) {
       children: [],
       updatedAt: modificationTime(path, 'folder'),
     }));
-    for (const n of db.prepare('SELECT n.*,s.document_type FROM notes n LEFT JOIN document_state s ON s.note_id=n.id WHERE n.active=1').all() as (NoteRow & {document_type?:DocumentType})[])
+    for (const n of db
+      .prepare(
+        'SELECT n.*,s.document_type FROM notes n LEFT JOIN document_state s ON s.note_id=n.id WHERE n.active=1',
+      )
+      .all() as (NoteRow & { document_type?: DocumentType })[])
       all.push({
         id: n.id,
         path: n.path,
         name: basename(n.path),
         type: 'note',
-        ...(isWhiteboard(n.path) ? {documentType: 'whiteboard' as const} : n.document_type && n.document_type!=='markdown' ? {documentType:n.document_type} : {}),
+        ...(isWhiteboard(n.path)
+          ? { documentType: 'whiteboard' as const }
+          : n.document_type && n.document_type !== 'markdown'
+            ? { documentType: n.document_type }
+            : {}),
         updatedAt: modificationTime(n.path, 'note'),
         ...(ownerId ? { favorite: favorites.has(n.id) } : {}),
       });
@@ -206,7 +278,7 @@ export function noteService(config: AppConfig, db: AppDatabase) {
   ) {
     const shared = hasActiveShare(db, id);
     const receipt = mutations.update(webPrincipal, id, content, expectedModifiedAt, requestId);
-    if(isWhiteboard(receipt.relativePath))content=withWhiteboardId(content,id);
+    if (isWhiteboard(receipt.relativePath)) content = withWhiteboardId(content, id);
     try {
       const current = getNote(id);
       // A later save may already exist when an old request is replayed. Its
@@ -216,7 +288,7 @@ export function noteService(config: AppConfig, db: AppDatabase) {
         relativePath: receipt.relativePath,
         content,
         title: documentTitle(receipt.relativePath, content),
-        documentType: documentType(receipt.relativePath,content),
+        documentType: documentType(receipt.relativePath, content),
         modifiedAt: receipt.modifiedAt,
         updatedAt: new Date(Number(BigInt(receipt.modifiedAt) / 1000000n)).toISOString(),
         receipt,
@@ -281,13 +353,22 @@ export function noteService(config: AppConfig, db: AppDatabase) {
   }
   const exists = (id: string) => {
     const n = row(id);
-    safePath(config.knowledgeRoot, n.path, 'note');
+    publishedNoteSource(config, db, id, n.path);
     return n;
   };
   return {
+    readableVersion: (id: string) => {
+      const n = row(id);
+      return readableSourceVersion(db, publishedNoteSource(config, db, id, n.path));
+    },
+    readableSource: (id: string) => {
+      const n = row(id);
+      return publishedNoteSource(config, db, id, n.path);
+    },
     scan,
     row,
     getNote,
+    getNoteSnapshot,
     tree,
     createNote,
     saveNote,

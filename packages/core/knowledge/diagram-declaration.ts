@@ -30,7 +30,7 @@ function declarationScanner() {
   };
   const endLine = (lf: boolean): boolean | undefined => {
     if (mode === 'frontmatter') {
-      if (lf && (delimiter === '---' || delimiter === '...') && cleanTail) mode = 'body';
+      if ((delimiter === '---' || delimiter === '...') && cleanTail) mode = 'body';
       reset();
       return;
     }

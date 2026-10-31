@@ -1,3 +1,4 @@
+import {registerDiagramDocumentRoutes} from './knowledge/diagram-routes.js';
 import {isWhiteboard,MAX_WHITEBOARD_BYTES,whiteboardId,whiteboardReference} from '../../shared/whiteboard.js';
 import Fastify from 'fastify';
 import { statSync } from 'node:fs';
@@ -374,6 +375,7 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     const requestId = req.headers['x-dooknow-upload-id'];
     return reply.code(201).send(assets.upload(req.params.id, part.filename, part.mimetype, bytes, requestId));
   });
+  await registerDiagramDocumentRoutes(app,db,()=>platform.get());
   const diagramArtifacts = diagramArtifactService(db, notes, assets, webPrincipal);
   app.post<{ Params: { id: string } }>('/api/notes/:id/diagram-artifacts', { bodyLimit: 32 * 1024 * 1024 }, async (req, reply) =>
     reply.code(201).send(diagramArtifacts.prepare(req.params.id, req.body)),

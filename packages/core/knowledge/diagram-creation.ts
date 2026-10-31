@@ -1,6 +1,6 @@
+import { diagramCreationSchema as inputSchema } from '../../../shared/diagram-document-contracts.js';
 import { randomUUID } from 'node:crypto';
 import { existsSync } from 'node:fs';
-import { z } from 'zod';
 import type { AppConfig } from '../../../shared/contracts.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
 import type { DiagramDocumentType } from '../../../shared/diagram-document.js';
@@ -14,16 +14,6 @@ import { beginOperation, completeOperation, existingResult } from './operations.
 import { fail } from './errors.js';
 
 export const DIAGRAM_CREATION_LEASE_MS = 24 * 60 * 60 * 1000;
-const inputSchema = z
-  .object({
-    path: z
-      .string()
-      .min(1)
-      .refine((path) => /\.md$/i.test(path)),
-    type: z.enum(['whiteboard', 'mindmap', 'flowchart']),
-    requestId: z.string().min(1).max(128),
-  })
-  .strict();
 type CreationStatus =
   | 'reserved'
   | 'prepared'

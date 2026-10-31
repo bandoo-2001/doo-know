@@ -1,3 +1,4 @@
+import { diagramResourceSchema } from './diagram-resource.js';
 import { z } from 'zod';
 import { mcpTransferInfoSchema } from './mcp-transfer-tools.js';
 
@@ -15,7 +16,11 @@ const page = { limit: z.number().int().min(1).max(30).default(10), cursor: curso
 const note = { noteId: id },
   mutation = { ...note, expectedModifiedAt: version, requestId };
 const object = <T extends z.ZodRawShape>(shape: T) => z.object(shape).strict();
-const error = object({ code: z.string().max(64), retryable: z.boolean() });
+const error = object({
+  code: z.string().max(64),
+  retryable: z.boolean(),
+  details: z.record(z.string(), z.unknown()).optional(),
+});
 const fileResult = object({
   id: id.optional(),
   relativePath: path.optional(),
@@ -384,6 +389,14 @@ export const knowledgeToolDefinitions: KnowledgeToolDefinition[] = [
     true,
     object({ ...note, assetId: id, requestId, source: z.boolean().default(true) }),
     knowledgeTransfer,
+  ),
+  tool(
+    'get_note_diagram',
+    '读取专用图形的语义类型、源格式、源/预览版本及编辑能力；大原件用返回的 readHandle 经 read_mcp_transfer 有界读取。',
+    readScopes,
+    true,
+    object({ ...note }),
+    diagramResourceSchema,
   ),
   tool(
     'prepare_note_diagram',

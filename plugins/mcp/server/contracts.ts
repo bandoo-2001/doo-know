@@ -1,3 +1,4 @@
+import {documentTypeSchema} from '../../../shared/diagram-resource.js';
 import { z } from "zod";
 export type Principal = import('../../../shared/knowledge-contracts.js').Principal;
 export type BackendConfig = {
@@ -19,6 +20,8 @@ export const inlineText = z
   .string()
   .refine((s) => Buffer.byteLength(s, "utf8") <= 32768, "正文超过 32 KiB");
 export const noteInfo = z.object({
+  documentType:documentTypeSchema.optional(),
+  publication:z.object({state:z.enum(["pending","conflicted"]),operationId:z.string().optional(),code:z.string().optional()}).optional(),
   id: noteId,
   title: z.string(),
   relativePath: z.string(),

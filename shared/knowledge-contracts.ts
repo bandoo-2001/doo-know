@@ -31,6 +31,7 @@ export type AgentConfig = {
   policies: Principal[];
 };
 export type NoteInfo = {
+  publication?: {state:'pending'|'conflicted';operationId?:string;code?:string};
   documentType?: DocumentType;
   id: string;
   title: string;

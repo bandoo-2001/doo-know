@@ -68,3 +68,9 @@ it('does not mistake an indented or unclosed frontmatter example for a declared 
   writeFileSync(file, ' ---\nfoo: bar\n---\n' + marker);
   expect(await hasDiagramDeclaration(file)).toBe(false);
 });
+
+it.each(['---\n---\r','---\n... \t\r'])('matches shared parser closing delimiters ending at bare CR (%j)',async prefix=>{
+ const source=prefix+marker,file=join(root,'bare-cr.md');writeFileSync(file,source);
+ expect(await hasDiagramDeclaration(file)).toBe(true);
+ expect(hasDiagramDeclarationSync(file)).toBe(true);
+});

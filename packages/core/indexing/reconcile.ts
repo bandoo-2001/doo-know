@@ -98,7 +98,7 @@ export function reconcileService(config: AppConfig, db: AppDatabase) {
     }
     const protectedPath = (path: string) => !!db
           .prepare(
-            "SELECT 1 FROM write_intents WHERE path=? AND status IN ('prepared','conflicted') AND (kind IN ('restore','move') OR (kind='create' AND status='conflicted'))",
+            "SELECT 1 FROM write_intents WHERE path=? AND status IN ('prepared','conflicted') AND (kind IN ('restore','move') OR (kind='create' AND status='conflicted') OR EXISTS(SELECT 1 FROM diagram_pending_publications p WHERE p.operation_id=write_intents.id))",
           )
           .get(path);
     function identity(path: string) {
@@ -200,7 +200,7 @@ export function reconcileService(config: AppConfig, db: AppDatabase) {
         if (
           !db
             .prepare(
-              "SELECT 1 FROM write_intents WHERE note_id=? AND kind='move' AND status IN ('prepared','conflicted')",
+              "SELECT 1 FROM write_intents WHERE note_id=? AND status IN ('prepared','conflicted') AND (kind='move' OR EXISTS(SELECT 1 FROM diagram_pending_publications p WHERE p.operation_id=write_intents.id))",
             )
             .get(row.id) &&
           (!scopes || scopes.some((scope) => underPrefix(row.path, scope))) &&

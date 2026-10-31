@@ -128,6 +128,10 @@ it('rejects a background primary title patch and persists the structured pending
       { type: 'replace_text', before: '# 原图标题', after: '# 没有新预览的标题' },
     ]);
   expect(result.status).toBe('failed');
+  const status = await f.call('get_knowledge_operation', { operationId: result.operationId });
+  expect(status).toMatchObject({
+    error: { details: { documents: [expect.objectContaining({ noteId: f.note.id })] } },
+  });
   expect(result.error).toMatchObject({
     code: 'DIAGRAM_PREVIEW_REQUIRED',
     details: { documents: [expect.objectContaining({ noteId: f.note.id, role: 'primary' })] },
@@ -311,4 +315,42 @@ it('restores a complete small revision without changing the original identity or
     documentType: 'whiteboard',
     content: f.markdown,
   });
+});
+
+it('does not let bare-CR frontmatter bypass the background primary conversion guard', async () => {
+  const f = await fixture(),
+    original = '# 普通来源\n',
+    note = f.runtime.knowledge.core.create(
+      f.principal,
+      '00-Inbox',
+      'cr-boundary.md',
+      original,
+      randomUUID(),
+    );
+  const { readFile: readFixture } = await import('node:fs/promises');
+  const target =
+    '---\n---\r' +
+    (await readFixture(
+      new URL('./fixtures/diagram-documents/flowchart.md', import.meta.url),
+      'utf8',
+    ));
+  let ready = await f.runtime.knowledge.snapshots.read(f.principal, note.id, {});
+  if (ready.kind === 'accepted') {
+    await f.runtime.knowledge.snapshots.drain();
+    ready = await f.runtime.knowledge.snapshots.read(f.principal, note.id, {});
+  }
+  if (ready.kind !== 'ready') throw Error('snapshot not ready');
+  const accepted = await f.runtime.knowledge.files.submit(f.principal, note.id, {
+    snapshotId: ready.data.snapshotId,
+    expectedContentHash: ready.data.sourceHash,
+    expectedModifiedAt: ready.data.modifiedAt,
+    requestId: randomUUID(),
+    edits: [{ type: 'replace_text', before: original, after: target }],
+  });
+  if (accepted.kind !== 'accepted') throw Error('expected accepted');
+  await f.runtime.knowledge.files.drain();
+  expect(
+    f.runtime.knowledge.files.operation(f.principal, accepted.operation.operationId),
+  ).toMatchObject({ status: 'failed', error: { code: 'DIAGRAM_DOCUMENT_CONVERSION_REQUIRED' } });
+  expect(f.runtime.notes.getNote(note.id).content).toBe(original);
 });

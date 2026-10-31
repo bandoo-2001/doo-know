@@ -68,6 +68,7 @@ export function conflictService(
       .all() as any[];
   function eligibility(intent: any, syncBlocked: boolean) {
     if (syncBlocked) return 'GIT_MANUAL_RECONCILIATION_REQUIRED';
+    if(db.prepare('SELECT 1 FROM diagram_pending_publications WHERE operation_id=?').get(intent.id)) return 'DIAGRAM_RECONCILIATION_REQUIRED';
     if (!['create', 'update', 'patch'].includes(intent.kind))
       return 'MULTI_FILE_RECONCILIATION_REQUIRED';
     const note = db.prepare('SELECT * FROM notes WHERE id=?').get(intent.note_id) as any;
