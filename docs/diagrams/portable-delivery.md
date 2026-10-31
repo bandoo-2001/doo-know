@@ -12,6 +12,8 @@ The result contains `id`, `kind` (`markdown` or `archive`), `fileName`, `mime`, 
 
 Local Markdown navigation follows independently authorized document dependencies, with bounded cycle handling. Parsed links, reference definitions, images and wiki links are rewritten using original source ranges; code examples are preserved. Wiki navigation and legacy whiteboard embeds become standard Markdown. Documents retain their logical hierarchy; byte-identical attachments share a content-addressed package `assets/` path. Legacy `.excalidraw` documents become Markdown wrappers plus native source and a verified prepared PNG. Export never updates knowledge files.
 
+Application-owned `/?note=<uuid>` navigation on the configured origin, including root/query-relative forms, resolves the current independently authorized note and becomes an ordinary relative document link with its fragment preserved. Other websites' `note` query parameters remain external hyperlinks. An own-origin autolink without a safe destination source range is rejected explicitly; it cannot become a false dependency-free Markdown delivery. Native scene links to application note URLs require the same relocation/preview plan as other native local navigation.
+
 Primary diagrams require a ready semantic resource with matching source/render/PNG versions. Download creation and later chunks recheck the fixed document and asset closure. Missing local dependencies fail with `PORTABLE_DEPENDENCY_UNAVAILABLE` and authorized source/resource diagnostics; changed inputs fail with `PORTABLE_VERSION_CONFLICT`. Incomplete packages are not returned as successful Markdown downloads.
 
 An archive contains `dooknow-portable.json`:

@@ -827,3 +827,126 @@ it('still refuses a manifest document entry inside assets even with a Markdown e
   ).rejects.toMatchObject({ code: 'INVALID_PORTABLE_DOCUMENT' });
   expect(f.db.prepare('SELECT count(*) n FROM notes WHERE active=1').get()).toEqual({ n: 0 });
 });
+
+it('localizes own-origin note navigation and relative query links into the fixed document closure', async () => {
+  const f = await fixture(),
+    child = f.create('child.md', '# Section\n\nChild body\n');
+  const source = `[absolute](${f.config.origin}/?note=${child.id}#section)\n\n[root-relative](/?note=${child.id}#section)\n\n[query-relative](?note=${child.id}#section)\n\n[escaped-anchor](${f.config.origin}/?note=${child.id}#part\\))\n\n[reference][local]\n\n[local]: ${f.config.origin}/?note=${child.id}#section\n\n[external](https://example.com/?note=${child.id}#section)\n\n\`[example](${f.config.origin}/?note=${child.id})\`\n`;
+  const parent = f.create('navigation.md', source),
+    out = await f.service.create(webPrincipal, {
+      selection: { kind: 'single', noteId: parent.id },
+      requestId: randomUUID(),
+    });
+  expect(out.kind).toBe('archive');
+  const archive = join(f.root, 'navigation.tar.gz'),
+    directory = join(f.root, 'navigation-offline');
+  await writeFile(archive, await deliveryBytes(f, out.id));
+  await mkdir(directory);
+  await extractArchive(archive, directory);
+  const markdown = await readFile(join(directory, '00-Inbox/navigation.md'), 'utf8'),
+    html = new MarkdownIt().render(markdown);
+  expect(html.match(/href="child\.md#section"/g)).toHaveLength(4);
+  expect(html).toContain('href="child.md#part%29"');
+  expect(html).toContain(`href="https://example.com/?note=${child.id}#section"`);
+  expect(html).not.toContain(`href="${f.config.origin}`);
+  expect(markdown).toContain(`\`[example](${f.config.origin}/?note=${child.id})\``);
+  expect(await readFile(join(directory, '00-Inbox/child.md'), 'utf8')).toBe(
+    '# Section\n\nChild body\n',
+  );
+  const target = await fixture(),
+    imported = await target.service.importArchive(webPrincipal, {
+      archivePath: archive,
+      folderPath: '00-Inbox/imported',
+      requestId: randomUUID(),
+    });
+  expect(imported.notes).toHaveLength(2);
+});
+
+it('denies an ungranted own-origin navigation target without exposing its path or content', async () => {
+  const f = await fixture(),
+    child = f.create('private-child.md', 'PRIVATE CHILD CONTENT'),
+    parent = f.create('restricted-root.md', `[child](${f.config.origin}/?note=child-placeholder)`);
+  const note = f.notes.getNote(parent.id);
+  mutationCore(f.config, f.db).update(
+    webPrincipal,
+    parent.id,
+    note.content.replace('child-placeholder', child.id),
+    note.modifiedAt,
+    randomUUID(),
+  );
+  const p = { ...webPrincipal, knowledgeAll: false, allowedPrefixes: [parent.relativePath] };
+  let failure: any;
+  try {
+    await f.service.create(p, {
+      selection: { kind: 'single', noteId: parent.id },
+      requestId: randomUUID(),
+    });
+  } catch (error) {
+    failure = error;
+  }
+  expect(failure).toMatchObject({ code: 'PORTABLE_DEPENDENCY_UNAVAILABLE' });
+  expect(JSON.stringify(failure.details)).not.toContain('private-child.md');
+  expect(JSON.stringify(failure.details)).not.toContain('PRIVATE CHILD CONTENT');
+  const externalSource = `[website](https://other.example/?note=${child.id}#section)`,
+    external = f.create('external-query.md', externalSource);
+  const delivery = await f.service.create(webPrincipal, {
+    selection: { kind: 'single', noteId: external.id },
+    requestId: randomUUID(),
+  });
+  expect(delivery.kind).toBe('markdown');
+  expect(await deliveryBytes(f, delivery.id)).toEqual(Buffer.from(externalSource));
+});
+
+it('requires a matching relocation preview for native own-origin note navigation', async () => {
+  const f = await fixture(),
+    child = f.create('native-child.md', '# Child'),
+    graph = f.diagram('whiteboard');
+  const source = JSON.stringify({
+    ...emptyWhiteboard(),
+    elements: [
+      { id: 'link', type: 'rectangle', link: `${f.config.origin}/?note=${child.id}#section` },
+    ],
+  });
+  const prepared = f.primary.prepare({
+    target: {
+      kind: 'document',
+      noteId: graph.note.id,
+      expectedDocumentHash: sha256(graph.markdown),
+      expectedSourceHash: sha256(graph.source),
+    },
+    type: 'whiteboard',
+    source,
+    sourceHash: sha256(source),
+    title: graph.prepared.title,
+    renderer: diagramRendererVersions.whiteboard,
+    config: {},
+    pngBase64: png.toString('base64'),
+    requestId: randomUUID(),
+  });
+  f.primary.commit({
+    preparedId: prepared.id,
+    markdown: renderPreparedDiagramDocument({ prepared, title: prepared.title, source }),
+    requestId: randomUUID(),
+  });
+  await expect(
+    f.service.create(webPrincipal, {
+      selection: { kind: 'single', noteId: graph.note.id },
+      requestId: randomUUID(),
+    }),
+  ).rejects.toMatchObject({
+    code: 'DIAGRAM_PREVIEW_REQUIRED',
+    details: { reason: 'native-link-relocation' },
+  });
+});
+
+it('rejects unresolved own-origin autolinks instead of reporting dependency-free Markdown', async () => {
+  const f = await fixture(),
+    child = f.create('auto-child.md', '# Child'),
+    parent = f.create('auto-root.md', `See ${f.config.origin}/?note=${child.id}`);
+  await expect(
+    f.service.create(webPrincipal, {
+      selection: { kind: 'single', noteId: parent.id },
+      requestId: randomUUID(),
+    }),
+  ).rejects.toMatchObject({ code: 'PORTABLE_RESOURCE_UNSUPPORTED' });
+});

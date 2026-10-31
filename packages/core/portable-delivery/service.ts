@@ -39,7 +39,13 @@ import { resolvePrimaryDiagram } from '../knowledge/diagram-resource-resolver.js
 import { sha256 } from '../knowledge/operations.js';
 import { fail } from '../knowledge/errors.js';
 import { manifestName, hashFile, portablePath, type PortableManifest } from './manifest.js';
-import { destinations, rewriteDestinations, checkNativeLinks } from './paths.js';
+import {
+  destinations,
+  rewriteDestinations,
+  checkNativeLinks,
+  internalNoteNavigation,
+  unresolvedInternalNavigation,
+} from './paths.js';
 import { importPortableArchive, importPortableDirectory } from './import.js';
 
 type Proof = { noteId?: string; path: string; hash: string; stamp: string };
@@ -239,6 +245,7 @@ export function portableDeliveryService(config: AppConfig, db: AppDatabase, note
           resources = new Map<string, { path: string; snapshot: string }>(),
           proofs: Proof[] = [],
           mapping = new Map<string, string>(),
+          notePaths = new Map<string, string>(),
           captures = new Map<string, string>();
         let total = 0,
           capturedBytes = 0;
@@ -273,7 +280,7 @@ export function portableDeliveryService(config: AppConfig, db: AppDatabase, note
             const asset = assets.file(path),
               bytes = asset.sourceBytes || asset.bytes;
             if (extname(path).toLowerCase() === '.excalidraw')
-              checkNativeLinks(bytes.toString('utf8'), document);
+              checkNativeLinks(bytes.toString('utf8'), document, config.origin);
             const snapshot = addProof(path, bytes);
             const target = 'assets/diagram-' + sha256(bytes) + extname(path).toLowerCase();
             resources.set(path, { path: target, snapshot });
@@ -326,7 +333,7 @@ export function portableDeliveryService(config: AppConfig, db: AppDatabase, note
                 ],
               });
             if (resolved.source.format === 'excalidraw')
-              checkNativeLinks(resolved.source.content, row.path);
+              checkNativeLinks(resolved.source.content, row.path, config.origin);
             if (isWhiteboard(row.path)) {
               target = row.path.replace(/\.excalidraw$/i, '.md');
               const native = 'assets/diagram-' + sha256(bytes) + '.excalidraw';
@@ -423,6 +430,25 @@ export function portableDeliveryService(config: AppConfig, db: AppDatabase, note
           }
           for (const ref of destinations(content)) {
             if (!ref.url || ref.url.startsWith('#')) continue;
+            const own = internalNoteNavigation(ref.url, config.origin);
+            if (own) {
+              if (ref.image)
+                fail(422, 'PORTABLE_RESOURCE_UNSUPPORTED', '文档导航不能作为图片资源', false, {
+                  diagnostics: [{ document: row.path, resource: ref.url }],
+                });
+              let linked: { id: string; path: string };
+              try {
+                linked = notes.row(own.noteId);
+                authorizePath(p, linked.path);
+              } catch {
+                fail(409, 'PORTABLE_DEPENDENCY_UNAVAILABLE', '关联文档不可用', false, {
+                  diagnostics: [{ document: row.path, resource: ref.url }],
+                });
+              }
+              notePaths.set(own.noteId, linked.path);
+              if (!queue.includes(linked.id)) queue.push(linked.id);
+              continue;
+            }
             const local = localReference(row.path, ref.url);
             if (!local) {
               if (
@@ -491,6 +517,7 @@ export function portableDeliveryService(config: AppConfig, db: AppDatabase, note
             path,
             doc.target,
             mapping,
+            { origin: config.origin, notePaths },
           );
           const tokens = markdown.parse(content, {}),
             lines = content.split('\n');
@@ -520,6 +547,15 @@ export function portableDeliveryService(config: AppConfig, db: AppDatabase, note
               );
             }
           content = lines.join('\n');
+          const unresolved = unresolvedInternalNavigation(content, config.origin);
+          if (unresolved)
+            fail(
+              422,
+              'PORTABLE_RESOURCE_UNSUPPORTED',
+              '应用内导航需要可安全改写的标准链接',
+              false,
+              { diagnostics: [{ document: path, resource: unresolved }] },
+            );
           copy(doc.target, Buffer.from(content), 'document');
         }
         for (const resource of resources.values())

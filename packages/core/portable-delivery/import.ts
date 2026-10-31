@@ -32,7 +32,13 @@ import {
   portablePath,
   hashFile,
 } from './manifest.js';
-import { checkNativeLinks, destinations, rewriteDestinations } from './paths.js';
+import {
+  checkNativeLinks,
+  destinations,
+  rewriteDestinations,
+  internalNoteNavigation,
+  unresolvedInternalNavigation,
+} from './paths.js';
 import { portableStaging } from './staging.js';
 
 function request(input: { requestId: string; folderPath: string }) {
@@ -201,8 +207,12 @@ export async function importPortableDirectory(
     }
     const parsed = parseDiagramDocument(content);
     if (parsed.status === 'invalid') fail(400, 'INVALID_DIAGRAM_DOCUMENT');
+    if (unresolvedInternalNavigation(content, config.origin))
+      fail(422, 'PORTABLE_RESOURCE_UNSUPPORTED', '便携包内文档导航必须使用标准相对链接');
     for (const ref of destinations(content)) {
       if (!ref.url || ref.url.startsWith('#')) continue;
+      if (internalNoteNavigation(ref.url, config.origin))
+        fail(422, 'PORTABLE_RESOURCE_UNSUPPORTED', '便携包内文档导航必须使用标准相对链接');
       const local = localReference(file.path, ref.url);
       if (!local) {
         if (
@@ -231,7 +241,7 @@ export async function importPortableDirectory(
           : parsed.primary.source.content;
       if (parsed.primary.source.format === 'excalidraw') {
         validateDiagramSource('excalidraw', Buffer.from(source));
-        checkNativeLinks(source, file.path);
+        checkNativeLinks(source, file.path, config.origin);
       }
       const previewPath = localReference(file.path, parsed.primary.previewPath),
         previewEntry = previewPath && fileMap.get(previewPath);
