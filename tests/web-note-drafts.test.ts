@@ -7,7 +7,8 @@ const storage = vi.hoisted(() => ({
   failure: undefined as Error | undefined,
   removeFailure: undefined as Error | undefined,
 }));
-vi.mock('../apps/web/drafts', () => ({
+vi.mock('../apps/web/drafts', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../apps/web/drafts')>()),
   createDraftStore: () => ({
     async put(input: any) {
       if (storage.failure) throw storage.failure;
@@ -40,12 +41,15 @@ vi.mock('../apps/web/drafts', () => ({
 import { useNoteDraft } from '../apps/web/useNoteDraft';
 
 let app: App, drafts: ReturnType<typeof useNoteDraft>;
+let restoreEffect: ((text: string) => void | boolean | Promise<void | boolean>) | undefined;
 let state: {
   noteId: string;
   baseRevision: string;
   content: string;
   dirty: boolean;
   enabled: boolean;
+  diagramType?: 'whiteboard' | 'mindmap' | 'flowchart';
+  diagram?: import('../apps/web/drafts').DiagramDraftEnvelope;
 };
 const renderer = createRenderer<any, any>({
   insert() {},
@@ -62,6 +66,7 @@ const renderer = createRenderer<any, any>({
 beforeEach(() => {
   vi.stubGlobal('window', new EventTarget());
   vi.stubGlobal('document', Object.assign(new EventTarget(), { visibilityState: 'visible' }));
+  restoreEffect = undefined;
   storage.records.clear();
   storage.sequence = 0;
   storage.gate = undefined;
@@ -79,6 +84,7 @@ beforeEach(() => {
       drafts = useNoteDraft(
         () => state,
         (content) => {
+          if (restoreEffect) return restoreEffect(content);
           state.content = content;
           state.dirty = true;
         },
@@ -338,4 +344,24 @@ describe('note local draft coordination', () => {
     expect(storage.records.get('n')?.content).toBe('local text');
     expect(storage.records.get('n')?.baseRevision).toBe('new-base');
   });
+});
+
+test('persists the captured v2 diagram envelope in the same ordered draft record', async()=>{
+ const payload='{"type":"excalidraw","version":2,"elements":[]}';state.diagramType='whiteboard';state.content=payload;state.dirty=true;state.diagram={version:2,documentType:'whiteboard',payloadFormat:'excalidraw',documentHash:'a'.repeat(64),sourceHash:'b'.repeat(64),payload};
+ const version=await drafts.flush();expect(version).toBeTruthy();expect(storage.records.get('n').diagram).toEqual(state.diagram);
+});
+test('retains legacy JSON recovery instead of handing it to a Markdown restore callback',async()=>{
+ const payload='{"type":"excalidraw","version":2,"elements":[]}';storage.records.set('n',{noteId:'n',kind:'note',content:payload,baseRevision:'base-1',version:'legacy',updatedAt:1});drafts.prepare();await drafts.load('n',state.baseRevision,state.content);drafts.restore();
+ expect(state.content).toBe('original');expect(drafts.recovered.value?.content).toBe(payload);expect(drafts.error.value).toContain('图形');
+ state.diagramType='whiteboard';drafts.restore();expect(state.content).toBe(payload);
+});
+test('preserves an unsupported diagram envelope even when raw text matches the server',async()=>{
+ storage.records.set('n',{noteId:'n',kind:'note',content:'original',baseRevision:'base-1',version:'future',updatedAt:1,diagram:{version:9,documentType:'future',payloadFormat:'future',payload:'original'}});drafts.prepare();await drafts.load('n',state.baseRevision,state.content);
+ expect(drafts.recovered.value?.version).toBe('future');expect(storage.records.get('n')?.version).toBe('future');drafts.restore();expect(drafts.recovered.value?.version).toBe('future');
+});
+
+test.each(['declined','rejected'])('keeps recovery evidence when the diagram handoff is %s',async(mode)=>{
+ storage.records.set('n',{noteId:'n',kind:'note',content:'recover me',baseRevision:'base-1',version:'recovery',updatedAt:1});drafts.prepare();await drafts.load('n',state.baseRevision,state.content);
+ restoreEffect=()=>mode==='declined'?false:Promise.reject(Error('无法解析当前图形'));await drafts.restore();
+ expect(state.content).toBe('original');expect(drafts.recovered.value?.version).toBe('recovery');expect(storage.records.get('n')?.version).toBe('recovery');expect(drafts.busy.value).toBe(false);
 });

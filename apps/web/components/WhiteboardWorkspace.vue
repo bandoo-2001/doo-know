@@ -31,14 +31,14 @@ const dirty = computed(() => ready.value && content.value !== savedContent.value
 const draft = useNoteDraft(
   () => ({
     noteId: props.boardId,
+    diagramType: 'whiteboard' as const,
+    diagramFormats: ['excalidraw'] as const,
     baseRevision: noteDraftBase({ modifiedAt: document.value?.modifiedAt || '' }),
     content: content.value,
     dirty: dirty.value,
     enabled: ready.value && !loading.value,
   }),
-  (text) => {
-    void restore(text, true);
-  },
+  (text) => restore(text, true),
 );
 watch(
   () => props.draftScope,
@@ -103,11 +103,15 @@ async function load() {
 async function restore(text: string, manual = false) {
   pauseAutosave.value = manual;
   try {
-    parseWhiteboard(text);
+    const scene = parseWhiteboard(text);
+    if (scene.version !== 1 && scene.version !== 2)
+      throw Error('此白板草稿版本暂不支持编辑，请先下载原件保留。');
     content.value = text;
     await showCanvas(text, false);
+    return true;
   } catch (e) {
     error.value = (e as Error).message;
+    return false;
   }
 }
 async function save(automatic = false) {

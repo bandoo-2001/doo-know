@@ -2,6 +2,8 @@ import { ref, shallowRef, watch, onBeforeUnmount } from 'vue';
 import {
   createDraftStore,
   clearOwnerDrafts,
+  canRestoreNoteDraft,
+  type DiagramDraftEnvelope,
   type DraftRecord,
   type DraftScope,
   type DraftStore,
@@ -12,8 +14,14 @@ type Context = {
   content: string;
   dirty: boolean;
   enabled: boolean;
+  diagramType?: DiagramDraftEnvelope['documentType'];
+  diagramFormats?: readonly DiagramDraftEnvelope['payloadFormat'][];
+  diagram?: DiagramDraftEnvelope;
 };
-export function useNoteDraft(context: () => Context, restoreContent: (text: string) => void) {
+export function useNoteDraft(
+  context: () => Context,
+  restoreContent: (text: string, record?: DraftRecord) => void | boolean | Promise<void | boolean>,
+) {
   const scope = shallowRef<DraftScope>(),
     recovered = shallowRef<DraftRecord>();
   const loading = ref(false),
@@ -64,6 +72,14 @@ export function useNoteDraft(context: () => Context, restoreContent: (text: stri
       kind: 'note' as const,
       content: snapshot.content,
       baseRevision: snapshot.baseRevision,
+      ...(snapshot.diagram
+        ? {
+            diagram: {
+              ...snapshot.diagram,
+              ...(snapshot.diagram.pending ? { pending: { ...snapshot.diagram.pending } } : {}),
+            },
+          }
+        : {}),
     };
     const write = queue
       .then(async () => {
@@ -125,7 +141,17 @@ export function useNoteDraft(context: () => Context, restoreContent: (text: stri
       if (current !== epoch || context().noteId !== noteId) return;
       if (saved?.kind === 'note' || saved?.kind === 'fragment') {
         versions.set(noteId, saved);
-        if (saved.kind === 'note' && saved.content === original) {
+        const ctx = context();
+        if (
+          saved.kind === 'note' &&
+          saved.content === original &&
+          canRestoreNoteDraft(
+            saved,
+            ctx.diagramType ?? ctx.diagram?.documentType,
+            ctx.diagramFormats,
+          ) &&
+          (!saved.diagram || saved.diagram.payloadFormat === ctx.diagram?.payloadFormat)
+        ) {
           const removed = await target.remove(noteId, saved.version);
           if (current !== epoch || target !== store) return;
           if (!removed) throw new Error('本地草稿已在其他页面变化，请重新打开笔记核对。');
@@ -181,7 +207,7 @@ export function useNoteDraft(context: () => Context, restoreContent: (text: stri
       busy.value = false;
     }
   }
-  function restore() {
+  async function restore() {
     const record = recovered.value;
     if (
       !record ||
@@ -192,8 +218,27 @@ export function useNoteDraft(context: () => Context, restoreContent: (text: stri
       record.noteId !== context().noteId
     )
       return;
-    recovered.value = undefined;
-    restoreContent(record.content);
+    const ctx = context(),
+      current = epoch;
+    if (
+      !canRestoreNoteDraft(record, ctx.diagramType ?? ctx.diagram?.documentType, ctx.diagramFormats)
+    ) {
+      error.value = '这份图形草稿需要对应的图形视图恢复，请先复制保留原文。';
+      return;
+    }
+    busy.value = true;
+    try {
+      const restored = restoreContent(record.content, record);
+      const accepted = restored instanceof Promise ? await restored : restored;
+      if (accepted === false || current !== epoch || record.noteId !== context().noteId) return;
+      recovered.value = undefined;
+      error.value = '';
+    } catch (cause) {
+      report(cause);
+      return;
+    } finally {
+      busy.value = false;
+    }
     void persist();
   }
   async function logout() {
@@ -208,7 +253,16 @@ export function useNoteDraft(context: () => Context, restoreContent: (text: stri
   watch(
     () => {
       const c = context();
-      return [c.noteId, c.content, c.dirty, c.enabled] as const;
+      return [
+        c.noteId,
+        c.content,
+        c.dirty,
+        c.enabled,
+        c.diagramType,
+        c.diagram?.sourceHash,
+        c.diagram?.documentHash,
+        c.diagram?.payloadFormat,
+      ] as const;
     },
     () => {
       clearTimeout(timer);
