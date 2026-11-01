@@ -44,7 +44,7 @@
 | MCP 缺完整便携/原生预览接口，错误丢失需求或撤权后继续读取 | `packages/core/mcp-*`、`plugins/knowledge-tools.ts`、`shared/mcp-*.ts`：有界源/结果分页、用途隔离上传、同 requestId 续跑、每块当前授权、兼容旧需求结构。 |
 | 有效 PNG 中可能携带可恢复原场景而随公开图片泄露 | `shared/png-policy.ts`、`shared/diagram-primary.ts`、公开资源/博客/`apps/web/reading-export.ts`：已知 Excalidraw PNG 文本键拒绝；所有者原件不改字节，不能重绑旧哈希。 |
 
-对应细节及独立复审：[历史资源](diagrams/validation/history-resources-2026-10-31.md)、[原生生命周期](diagrams/validation/native-lifecycle-2026-10-31.md)、[单篇恢复](diagrams/validation/note-trash-restore-2026-10-31.md)、[便携包](diagrams/validation/portable-packages-2026-10-31.md)、[PNG 隐私](diagrams/validation/png-preview-privacy-2026-10-31.md)、[语义索引](diagrams/validation/semantic-index-2026-10-31.md)、[MCP 预览](diagrams/validation/mcp-previews-2026-10-31.md)。
+对应细节及独立复审：[历史资源](diagrams/validation/history-resources-2026-10-31.md)、[原生生命周期](diagrams/validation/native-lifecycle-2026-10-31.md)、[单篇恢复](diagrams/validation/note-trash-restore-2026-10-31.md)、[便携包](diagrams/validation/portable-packages-2026-10-31.md)、[PNG 隐私](diagrams/validation/png-preview-privacy-2026-10-31.md)、[语义索引](diagrams/validation/semantic-index-2026-10-31.md)、[MCP 预览](diagrams/validation/mcp-previews-2026-10-31.md)、[缺源隔离](diagrams/validation/native-source-quarantine-2026-11-01.md)。
 
 ## 实际验证记录
 
