@@ -69,7 +69,9 @@ test('回收站单篇原生笔记恢复前准备最终链接与PNG并保留原�
   await page.goto('/?view=trash');
   const row = page
     .locator('li.trash-item')
-    .filter({ has: page.getByRole('heading', { name, exact: true }) });
+    .filter({
+      has: page.getByRole('heading', { name: board.relativePath.split('/').at(-1)!, exact: true }),
+    });
   await expect(row).toBeVisible();
   await row.getByRole('button', { name: '恢复并打开', exact: true }).click();
   await expect
