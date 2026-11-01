@@ -37,3 +37,7 @@ it('reports host input validation as invalid input before a write, not an unknow
   expect(body).toMatchObject({ error: { code: 'INVALID_INPUT', retryable: false } });
   expect(JSON.stringify(body)).not.toContain('private invalid value');
 });
+
+it('routes unknown portable import outcomes to the bounded portable progress receipt', () => {
+  expect(errorBody(annotateError(new BridgeError('OPERATION_OUTCOME_UNKNOWN', 504, true), 'import_portable_archive', { requestId: 'same-request' }))).toMatchObject({ error: { recovery: { tool: 'get_portable_import_result', requestIdPolicy: 'preserve' } } });
+});

@@ -78,6 +78,7 @@ export function hostClient(services: () => PluginServices, configuration: () => 
       if (typeof code === 'string' && /^[A-Z][A-Z0-9_]{0,63}$/.test(code)) {
         const translated = new BridgeError(code, error.statusCode || 500, !!error.retryable, input?.requestId);
         translated.requiredScope = error.requiredScope;
+        if (code === 'DIAGRAM_PREVIEW_REQUIRED') translated.details = error.details;
         translated.currentModifiedAt = [error.currentModifiedAt, error.details?.currentModifiedAt].find(value => typeof value === 'string' && /^\d{1,30}$/.test(value));
         throw annotateError(translated, tool, input);
       }

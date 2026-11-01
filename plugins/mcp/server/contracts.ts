@@ -1,3 +1,5 @@
+import { operationPreviewNeed } from '../../../shared/mcp-operation-preview-tools.js';
+import {documentTypeSchema} from '../../../shared/diagram-resource.js';
 import { z } from "zod";
 export type Principal = import('../../../shared/knowledge-contracts.js').Principal;
 export type BackendConfig = {
@@ -19,6 +21,8 @@ export const inlineText = z
   .string()
   .refine((s) => Buffer.byteLength(s, "utf8") <= 32768, "正文超过 32 KiB");
 export const noteInfo = z.object({
+  documentType:documentTypeSchema.optional(),
+  publication:z.object({state:z.enum(["pending","conflicted"]),operationId:z.string().optional(),code:z.string().optional()}).optional(),
   id: noteId,
   title: z.string(),
   relativePath: z.string(),
@@ -174,8 +178,10 @@ export const fileOperation = z.object({
     "failed",
     "cancelled",
     "needs_reconciliation",
+    "awaiting_preview",
   ]),
   snapshotId: z.string().optional(),
+  previewRequired:z.object({planId:noteId,operationId:noteId.optional(),totalCount:z.number().int().nonnegative().optional(),nextCursor:z.string().max(8192).optional(),documents:z.array(operationPreviewNeed).max(20)}).strict().optional(),
   result: fileResult.optional(),
   error: z
     .object({

@@ -5,6 +5,11 @@ export type PortableFigure = {
   source: { type: 'file'; path: string } | { type: 'fence'; language: 'svg' | 'mermaid'; code: string };
 };
 
+/** Encode a raw filesystem segment for an unquoted standard Markdown destination. */
+export function encodePortablePathSegment(segment: string) {
+  return encodeURIComponent(segment).replace(/[!'()*]/g, c => '%' + c.charCodeAt(0).toString(16).toUpperCase());
+}
+
 function relativeDestination(path: string) {
   if (!path || /^[\/\\]|^[a-z][a-z\d+.-]*:/i.test(path) || /[\\\u0000-\u001f\u007f]/.test(path))
     throw Error('图形需要可携带的相对附件路径');
@@ -14,7 +19,7 @@ function relativeDestination(path: string) {
     let decoded: string;
     try { decoded = decodeURIComponent(segment); } catch { decoded = segment; }
     if (/[\/\\\u0000-\u001f\u007f]/.test(decoded)) throw Error('附件路径不正确');
-    return encodeURIComponent(decoded).replace(/[!'()*]/g, c => '%' + c.charCodeAt(0).toString(16).toUpperCase());
+    return encodePortablePathSegment(decoded);
   }).join('/');
 }
 

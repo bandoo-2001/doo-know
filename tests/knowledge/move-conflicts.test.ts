@@ -539,7 +539,7 @@ for (const [label, reference] of [
   ['note', '[related](related.md)'],
   ['reference definition', '[related][target]\n\n[target]: ../00-Inbox/related.md'],
 ] as const)
-  it(`refuses a cross-directory move with a relative ${label} reference and preserves the source`, async () => {
+  it(`moves a document with a relative ${label} reference and preserves its resolved target`, async () => {
     const f = await createFixture({ fileTasks: { embedded: false } });
     const db = openDatabase(f.dataRoot);
     try {
@@ -548,26 +548,29 @@ for (const [label, reference] of [
         content = '# source\n\n' + reference,
         n = core.create(webPrincipal, '00-Inbox', 'source.md', content, 'relative-create');
       db.prepare('INSERT INTO shares(note_id,token) VALUES(?,?)').run(n.id, 'relative-test-share');
-      expect(() =>
-        core.move(
-          webPrincipal,
-          n.id,
-          '10-Projects',
-          'destination.md',
-          n.modifiedAt,
-          'relative-move',
-        ),
-      ).toThrowError(
-        expect.objectContaining({ code: 'RELATIVE_REFERENCES_REQUIRE_REVIEW', statusCode: 409 }),
+      const moved = core.move(
+        webPrincipal,
+        n.id,
+        '10-Projects',
+        'destination.md',
+        n.modifiedAt,
+        'relative-move',
       );
-      expect(await readFile(join(f.knowledgeRoot, n.relativePath), 'utf8')).toBe(content);
+      const output = await readFile(join(f.knowledgeRoot, moved.relativePath), 'utf8');
+      expect(output).toContain(
+        reference.includes('assets/')
+          ? '../00-Inbox/assets/'
+          : label === 'reference definition'
+            ? '../00-Inbox/related.md'
+            : '../00-Inbox/related.md',
+      );
       expect(db.prepare('SELECT path FROM notes WHERE id=?').get(n.id)).toMatchObject({
-        path: n.relativePath,
+        path: moved.relativePath,
       });
       expect(db.prepare('SELECT enabled FROM shares WHERE note_id=?').get(n.id)).toMatchObject({
         enabled: 1,
       });
-      expect(await readdir(join(f.knowledgeRoot, '10-Projects'))).toEqual([]);
+      expect(await readdir(join(f.knowledgeRoot, '10-Projects'))).toEqual(['destination.md']);
     } finally {
       db.close();
       await f.close();
@@ -604,11 +607,7 @@ for (const [label, reference] of [
     }
   });
 
-for (const content of [
-  'x'.repeat(2 * 1024 * 1024),
-  'x'.repeat(32769),
-  '![image](assets/image.png)',
-])
+for (const content of ['x'.repeat(2 * 1024 * 1024), 'x'.repeat(32769)])
   it(`supports a same directory rename while refusing an unsafe cross-directory scan (${Buffer.byteLength(content)} bytes)`, async () => {
     const f = await createFixture({ fileTasks: { embedded: false } });
     const db = openDatabase(f.dataRoot);

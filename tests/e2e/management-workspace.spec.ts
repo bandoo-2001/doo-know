@@ -10,7 +10,7 @@ test('settings pages isolate content, show persistent tools, and restore the not
 }, info) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   await page.goto('/?view=settings&section=search');
-  await expect(page.locator('.settings-workspace h1')).toHaveText('搜索');
+  await expect(page.locator('.settings-workspace h1')).toHaveText('搜索与索引');
   await showSidebar(page);
   await expect(page.getByRole('navigation', { name: '设置分类', exact: true })).toBeVisible();
   await showMainMenu(page);
@@ -20,13 +20,13 @@ test('settings pages isolate content, show persistent tools, and restore the not
     'false',
   );
   await expect(page.getByLabel('当前密码', { exact: true })).toHaveCount(0);
-  await expect(page.locator('.settings-workspace h1')).toHaveText('搜索');
+  await expect(page.locator('.settings-workspace h1')).toHaveText('搜索与索引');
   await showSidebar(page);
   const editorSettings = page
     .getByRole('navigation', { name: '设置分类', exact: true })
     .getByRole('button', { name: '通用与编辑', exact: true });
   await editorSettings.click();
-  await expect(page.locator('.settings-workspace h1')).toHaveText('编辑器与外观');
+  await expect(page.locator('.settings-workspace h1')).toHaveText('通用与编辑');
   await expect(page.getByLabel('当前密码', { exact: true })).toHaveCount(0);
   await expect(page.locator('.search-runtime-settings')).toHaveCount(0);
   await showSidebar(page);

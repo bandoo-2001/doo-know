@@ -12,7 +12,7 @@ import type {
 import { frontmatterOpening, frontmatterRange } from '../../../shared/frontmatter-range.js';
 import { boundDiagramSources, normalizeDiagramCode } from '../../../shared/diagram-portability.js';
 import { isDiagramKind } from '../../../shared/diagram-fences.js';
-import { whiteboardId, whiteboardReference, isWhiteboard } from '../../../shared/whiteboard.js';
+import { whiteboardId, whiteboardReference } from '../../../shared/whiteboard.js';
 import { knowledgeMarkdown } from '../../../shared/knowledge-markdown.js';
 import { markdownStyles } from '../../../shared/markdown-styles.js';
 import { markdownTasks } from '../../../shared/markdown-tasks.js';
@@ -22,8 +22,14 @@ import { assetService } from '../assets.js';
 import { localReference } from '../render.js';
 import { HttpError } from '../errors.js';
 import { BlogError } from './errors.js';
-import { validateDiagramSource } from '../knowledge/diagram-artifacts.js';
+import { assertNoEmbeddedDiagramSource, validateDiagramSource } from '../knowledge/diagram-artifacts.js';
 import { authorizeBlogPath, blogHash, publicationPng } from './resources.js';
+import { parseDiagramDocument } from '../../../shared/diagram-document.js';
+import {
+  resolvePrimaryDiagram,
+  resolveWhiteboardResource,
+} from '../knowledge/diagram-resource-resolver.js';
+import { readBoundDiagramAssetSnapshot } from '../knowledge/diagram-resource-files.js';
 
 export type CapturedResource = { hash: string; mime: string; bytes: Buffer };
 export function capturePublication(
@@ -49,6 +55,7 @@ export function capturePublication(
     resources = new Map<string, CapturedResource>();
   const observed = new Map<string, { kind: 'asset' | 'note'; hash: string }>();
   const add = (bytes: Buffer, mime: string) => {
+    assertNoEmbeddedDiagramSource(bytes);
     const hash = blogHash(bytes);
     if (bytes.length > 10 * 1024 ** 2) throw new BlogError(413, '博客单个资源不能超过 10 MiB');
     resources.set(hash, { hash, mime, bytes });
@@ -76,12 +83,14 @@ export function capturePublication(
           (db.prepare('SELECT id,path FROM notes WHERE active=1 AND path=?').get(path) as
             | { id: string; path: string }
             | undefined));
-    if (!row || !isWhiteboard(row.path)) throw new BlogError(404, '白板不存在或已移入回收站');
+    if (!row) throw new BlogError(404, '白板不存在或已移入回收站');
     authorizeBlogPath(p, row.path);
     const board = notes.getNote(row.id);
-    validateDiagramSource('excalidraw', Buffer.from(board.content));
+    const resource = resolveWhiteboardResource(config, db, notes, p, n.relativePath, reference);
+    if (resource.source.content === undefined) throw new BlogError(409, '白板原件不可用');
+    validateDiagramSource('excalidraw', Buffer.from(resource.source.content));
     observed.set(board.relativePath, { kind: 'note', hash: blogHash(board.content) });
-    return board;
+    return { ...board, content: resource.source.content };
   };
   const parser = new MarkdownIt({ html: false, linkify: true }).use(knowledgeMarkdown);
   const tokens = parser.parse(n.content, {}),
@@ -90,6 +99,45 @@ export function capturePublication(
   for (let i = 0; i < n.content.length; i++) if (n.content[i] === '\n') starts.push(i + 1);
   const changes: { from: number; to: number; text: string }[] = [],
     needs: BlogDiagramNeed[] = [];
+  const primary = parseDiagramDocument(n.content);
+  let primaryCheck: ((fresh: Principal) => void) | undefined;
+  if (primary.status === 'diagram') {
+    const resource = resolvePrimaryDiagram(config, db, notes, p, n.id);
+    const required = () =>
+      new BlogError(409, '请准备当前主图的固定 PNG 预览', {
+        code: 'BLOG_PREVIEW_REQUIRED',
+        documents: [
+          {
+            noteId: n.id,
+            role: 'primary',
+            documentHash: resource.documentHash,
+            sourceHash: resource.source.hash,
+            renderHash: resource.preview?.renderHash,
+          },
+        ],
+      });
+    if (resource.preview?.state !== 'ready') throw required();
+    const path = localReference(n.relativePath, resource.preview.path);
+    if (!path) throw required();
+    const bytes = readBoundDiagramAssetSnapshot(config, path, 'preview').bytes;
+    if (blogHash(bytes) !== resource.preview.hash) throw required();
+    const preview = add(publicationPng(bytes.toString('base64')), 'image/png');
+    changes.push(
+      { ...primary.markerRange, text: '' },
+      { ...primary.primary.range, text: `![图形预览](${preview})\n` },
+    );
+    primaryCheck = (fresh) => {
+      const current = resolvePrimaryDiagram(config, db, notes, fresh, n.id);
+      if (
+        current.preview?.state !== 'ready' ||
+        current.documentHash !== resource.documentHash ||
+        current.source.hash !== resource.source.hash ||
+        current.preview.hash !== resource.preview!.hash ||
+        current.preview.renderHash !== resource.preview!.renderHash
+      )
+        throw required();
+    };
+  }
   const supplied = new Set<number>();
   if (!Array.isArray(previews) || previews.length > 64)
     throw new BlogError(400, '图形预览列表格式不正确');
@@ -104,6 +152,12 @@ export function capturePublication(
     if (token.type !== 'fence' || !isDiagramKind(kind) || !token.map) continue;
     const from = starts[token.map[0]],
       to = starts[token.map[1]] ?? n.content.length;
+    if (
+      primary.status === 'diagram' &&
+      from >= primary.primary.range.from &&
+      to <= primary.primary.range.to
+    )
+      continue;
     const code = token.content,
       codeHash = blogHash(normalizeDiagramCode(code));
     const board = kind === 'excalidraw' ? readBoard(code) : undefined;
@@ -302,6 +356,7 @@ export function capturePublication(
     resources: [...resources.values()],
     coverHash,
     revalidate(fresh: Principal) {
+      primaryCheck?.(fresh);
       for (const [path, observation] of observed) {
         authorizeBlogPath(fresh, path, observation.kind === 'asset');
         let current: string;

@@ -1,3 +1,5 @@
+import { folderRestorePending } from '../../packages/core/knowledge/folder-restore-pending.js';
+import { noteTrashRestorePending } from '../../packages/core/knowledge/note-trash-native-restore.js';
 import { mkdir, readdir, lstat, cp, writeFile, readFile } from 'node:fs/promises';
 import { resolve, join, relative } from 'node:path';
 import { createHash } from 'node:crypto';
@@ -59,6 +61,8 @@ export async function backup(config: AppConfig, destination: string) {
   const before = await inventory(config.knowledgeRoot),
     db = new Database(join(config.dataRoot, 'app.sqlite'));
   try {
+    if(folderRestorePending(db))throw new Error('目录恢复尚未恢复一致，请完成恢复后备份');
+    if(noteTrashRestorePending(db))throw new Error('笔记恢复尚未恢复一致，请完成恢复后备份');
     const organizationTable = db
       .prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='organization_jobs'")
       .get();
@@ -71,7 +75,7 @@ export async function backup(config: AppConfig, destination: string) {
         .get()
     )
       throw new Error('知识库整理尚未恢复一致，请完成恢复后备份');
-    const retainedDirectories = ['history', 'reconciliation', 'organization'];
+    const retainedDirectories = ['history','reconciliation','organization','whiteboard-migrations','folder-restores','diagram-operation-previews','note-restores'];
     const retainedBefore = await Promise.all(
       retainedDirectories.map((name) => optionalInventory(join(config.dataRoot, name))),
     );

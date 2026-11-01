@@ -15,12 +15,14 @@ import { indexJobService, type LeasedIndexJob } from './jobs.js';
 import { VectorRuntimeClient } from './vector-store.js';
 import { FlatFileStore } from './flat-file.js';
 import { stageTags } from './tags.js';
+import { upgradeDiagramTextIndexes } from './scan-proof.js';
 export function indexWorker(
   config: AppConfig,
   db: AppDatabase,
   notes: NoteService,
   snapshots: SnapshotService,
 ) {
+  upgradeDiagramTextIndexes(db, config.embeddingSpaceId);
   if (config.embeddingSpaceId)
     db.prepare("INSERT OR IGNORE INTO index_meta VALUES('desired_embedding_space',?)").run(
       config.embeddingSpaceId,
@@ -45,7 +47,8 @@ export function indexWorker(
   const vectors = client
       ? new FlatFileStore(db, join(config.dataRoot, 'indexes'), client, config.embeddingSpaceId!)
       : null,
-    rule = 'bge-320-48-v1:' + (config.embeddingSpaceId || 'jieba-0.42.1-local-bge');
+    rule =
+      'semantic-spans-v2:bge-320-48-v1:' + (config.embeddingSpaceId || 'jieba-0.42.1-local-bge');
   let lastMaintenance = 0;
   let current: Promise<void> | undefined,
     closing = false;

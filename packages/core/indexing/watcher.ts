@@ -1,3 +1,4 @@
+import { isDiagramDependencyPath } from './diagram-dependencies.js';
 import { watch } from 'node:fs';
 import type { AppConfig } from '../../../shared/contracts.js';
 import type { AppDatabase } from '../db.js';
@@ -45,11 +46,14 @@ export function startWatcher(
         if (
           parts[0] === '_data' ||
           parts[0] !== '.git' &&
-          parts.some((p) => p.startsWith('.') || p === 'assets' || p.toLowerCase() === 'agents.md')
+          parts.some((p) => p.startsWith('.') || p.toLowerCase() === 'agents.md')
         )
           return;
+        const asset = parts.includes('assets');
+        if (asset && !isDiagramDependencyPath(db, parts.join('/'))) return;
+        full = full || !asset;
         if (debounce) clearTimeout(debounce);
-        debounce = setTimeout(() => schedule(true), 750);
+        debounce = setTimeout(() => schedule(false), 750);
         debounce.unref();
       });
       watcher.on('error', () => {

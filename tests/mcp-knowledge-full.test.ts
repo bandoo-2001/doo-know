@@ -76,6 +76,7 @@ it('reads a note-bound revision through snapshots and restores using a replayabl
   const changed = k.core.update(f.principal, a.id, '# New', a.modifiedAt, 'history-update');
   const history: any = await f.call('list_note_revisions', { noteId: a.id, limit: 1 });
   expect(history.items).toHaveLength(1);
+  expect(history.items[0]).toMatchObject({documentType:'markdown',payloadFormat:'markdown',logicalPath:'00-Inbox/history.md',contentHash:createHash('sha256').update('# Original').digest('hex')});
   expect(JSON.stringify(history)).not.toContain(f.config.dataRoot);
   const revisionId = history.items[0].id;
   await expect(f.call('read_note_revision', { noteId: b.id, revisionId })).rejects.toMatchObject({

@@ -8,6 +8,11 @@ import {
   Select as ASelect,
 } from 'ant-design-vue';
 import { api } from '../../api';
+import { withPortablePreviews } from '../../diagrams/portable-previews';
+import type {
+  PortableImportResult,
+  PortableOwnerJob,
+} from '../../../../shared/portable-delivery-contracts';
 import type { TreeEntry } from '../../../../shared/contracts';
 import type {
   ImportEntry,
@@ -19,6 +24,8 @@ import { encodeImportFile, importPath } from './transfer-files';
 import SettingsActionCard from './SettingsActionCard.vue';
 import SettingsOverlay from './SettingsOverlay.vue';
 import TransferTasks from './TransferTasks.vue';
+import PortableJobs from './PortableJobs.vue';
+import { portableResourceLimits as portableLimits } from '../../../../shared/portable-resource-limits';
 
 const props = withDefaults(
   defineProps<{ folderPath?: string; showExport?: boolean; inline?: boolean }>(),
@@ -29,6 +36,103 @@ const emit = defineEmits<{
   changed: [];
   busy: [value: boolean];
 }>();
+const archiveOpen = ref(false),
+  archiveFile = ref<File>(),
+  archiveDirectory = ref<File[]>([]),
+  archiveResume = ref<PortableOwnerJob>(),
+  archiveFolder = ref(props.folderPath),
+  archiveBusy = ref(false),
+  archiveError = ref(''),
+  archiveResult = ref<PortableImportResult>();
+let archiveRequest: string = crypto.randomUUID();
+watch(
+  [archiveFile, archiveDirectory, archiveFolder],
+  () => {
+    archiveRequest = archiveResume.value?.requestId ?? crypto.randomUUID();
+    archiveResult.value = undefined;
+    archiveError.value = '';
+  },
+  { flush: 'sync' },
+);
+watch(archiveBusy, (value) => emit('busy', value || busy.value || exportBusy.value));
+function selectArchive(event: Event) {
+  const file = (event.target as HTMLInputElement).files?.[0];
+  archiveDirectory.value = [];
+  archiveFile.value = file;
+}
+function selectPortableDirectory(event: Event) {
+  const input = event.target as HTMLInputElement,
+    files = Array.from(input.files ?? []);
+  archiveError.value = '';
+  if (
+    files.length > portableLimits.files + 1 ||
+    files.reduce((total, file) => total + file.size, 0) > portableLimits.packageBytes
+  ) {
+    archiveError.value = '完整目录超过便携资源配额。';
+    input.value = '';
+    return;
+  }
+  archiveFile.value = undefined;
+  archiveDirectory.value = files;
+}
+function resumePortable(job: PortableOwnerJob) {
+  archiveResume.value = job;
+  archiveFile.value = undefined;
+  archiveDirectory.value = [];
+  archiveFolder.value = job.folderPath ?? props.folderPath;
+  archiveRequest = job.requestId;
+  archiveResult.value = undefined;
+  archiveError.value = '';
+  archiveOpen.value = true;
+}
+const portableJobs = ref<InstanceType<typeof PortableJobs>>();
+async function importArchive() {
+  if (
+    (!archiveFile.value && !archiveDirectory.value.length) ||
+    archiveBusy.value ||
+    archiveResult.value
+  )
+    return;
+  const archive = archiveFile.value,
+    destination = archiveFolder.value,
+    request = archiveRequest;
+  archiveBusy.value = true;
+  archiveError.value = '';
+  try {
+    const body = new FormData();
+    body.append('folderPath', destination);
+    body.append('requestId', request);
+    if (archive) body.append('archive', archive, archive.name);
+    else {
+      for (const file of archiveDirectory.value) {
+        const parts = file.webkitRelativePath.split('/'),
+          path = parts.slice(1).join('/');
+        if (parts.length < 2 || !path) throw Error('请选择完整解压目录。');
+        body.append(path, file, file.name);
+      }
+    }
+    archiveResult.value = await withPortablePreviews(() =>
+      api<PortableImportResult>(
+        archive
+          ? '/api/portable-deliveries/import?folderPath=' +
+              encodeURIComponent(destination) +
+              '&requestId=' +
+              encodeURIComponent(request)
+          : '/api/portable-deliveries/import-directory',
+        'POST',
+        body,
+        { timeoutMs: 180000 },
+      ),
+    );
+    notice.value = '便携包导入完成，已分配新的笔记标识。';
+    emit('changed');
+  } catch (e) {
+    archiveError.value = (e as Error).message;
+  } finally {
+    archiveBusy.value = false;
+    await portableJobs.value?.refresh();
+  }
+}
 const importOpen = ref(false),
   exportOpen = ref(false),
   step = ref<1 | 2 | 3>(1),
@@ -60,7 +164,9 @@ const previewCounts = computed(() => ({
 let requestId = crypto.randomUUID(),
   destinationEpoch = 0;
 
-watch([busy, exportBusy], ([importing, exporting]) => emit('busy', importing || exporting));
+watch([busy, exportBusy], ([importing, exporting]) =>
+  emit('busy', importing || exporting || archiveBusy.value),
+);
 watch(
   () => props.folderPath,
   (value) => {
@@ -287,6 +393,13 @@ const ImportContainer = defineComponent({
         @open="importOpen = true"
       />
       <SettingsActionCard
+        title="导入便携包"
+        description="导入完整便携归档或解压目录，恢复主图、原件和预览。"
+        icon="upload"
+        action-label="导入便携包"
+        @open="archiveOpen = true"
+      />
+      <SettingsActionCard
         v-if="showExport"
         title="导出资料"
         description="将整个知识库或指定目录打包，方便迁移原文。"
@@ -296,6 +409,99 @@ const ImportContainer = defineComponent({
       />
     </div>
 
+    <SettingsOverlay
+      v-model:show="archiveOpen"
+      title="导入便携包"
+      description="选择完整便携归档或解压目录，连同清单、Markdown 和全部所需附件一起导入。"
+      icon="upload"
+      :width="620"
+      :busy="archiveBusy"
+      :dirty="(!!archiveFile || !!archiveDirectory.length) && !archiveResult"
+      @after-leave="
+        archiveResume = undefined;
+        archiveDirectory = [];
+        archiveFile = undefined;
+        archiveResult = undefined;
+        archiveError = '';
+        archiveFolder = props.folderPath;
+      "
+    >
+      <p v-if="archiveResume" role="status">
+        继续原任务：请选择相同的完整资料。已导入的笔记会沿用原标识。
+      </p>
+      <div class="settings-form">
+        <div class="settings-field">
+          <label for="portable-directory">完整解压目录（含 dooknow-portable.json）</label>
+          <input
+            id="portable-directory"
+            type="file"
+            multiple
+            webkitdirectory
+            :disabled="
+              archiveBusy ||
+              !!archiveResult ||
+              (archiveResume && archiveResume.kind !== 'import-directory')
+            "
+            @change="selectPortableDirectory"
+          />
+          <p v-if="archiveDirectory.length" role="status">
+            已选择 {{ archiveDirectory.length }} 个文件，将作为一个完整包校验。
+          </p>
+        </div>
+        <div class="settings-field">
+          <label for="portable-archive-file">便携归档文件</label
+          ><input
+            id="portable-archive-file"
+            type="file"
+            accept=".tar.gz,.tgz,application/gzip"
+            :disabled="
+              archiveBusy ||
+              !!archiveResult ||
+              (!!archiveResume && archiveResume.kind !== 'import-archive')
+            "
+            @change="selectArchive"
+          />
+        </div>
+        <div class="settings-field">
+          <label for="portable-archive-folder">导入目录</label
+          ><AInput
+            id="portable-archive-folder"
+            v-model:value="archiveFolder"
+            placeholder="例如 00-Inbox/Imported"
+            :disabled="archiveBusy || !!archiveResult || !!archiveResume"
+          />
+        </div>
+      </div>
+      <AAlert v-if="archiveError" type="error" :message="archiveError" role="alert" show-icon />
+      <div v-if="archiveResult" role="status">
+        <p>
+          导入完成：{{ archiveResult.notes.length }} 篇笔记，{{ archiveResult.assets }} 个附件。
+        </p>
+        <ul>
+          <li v-for="item in archiveResult.notes" :key="item.noteId">
+            <button
+              type="button"
+              @click="
+                archiveOpen = false;
+                emit('open-note', item.noteId);
+              "
+            >
+              {{ item.relativePath }}
+            </button>
+          </li>
+        </ul>
+      </div>
+      <template #footer="{ close }"
+        ><AButton :disabled="archiveBusy" @click="close">关闭</AButton
+        ><AButton
+          type="primary"
+          :loading="archiveBusy"
+          :disabled="(!archiveFile && !archiveDirectory.length) || !!archiveResult"
+          @click="importArchive"
+          >导入整包</AButton
+        ></template
+      >
+    </SettingsOverlay>
     <ImportContainer>
       <template #default>
         <div v-if="inline || importOpen" class="transfer-import-flow">
@@ -572,6 +778,12 @@ const ImportContainer = defineComponent({
     </SettingsOverlay>
 
     <p v-if="notice" class="settings-success" role="status">{{ notice }}</p>
+    <PortableJobs
+      ref="portableJobs"
+      @open-note="emit('open-note', $event)"
+      @changed="emit('changed')"
+      @resume="resumePortable"
+    />
     <TransferTasks
       ref="tasks"
       :kinds="['import', 'export']"

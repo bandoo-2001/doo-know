@@ -107,7 +107,12 @@ export async function sceneSvg(scene: WhiteboardScene) {
   const svg = await exportToSvg({
     elements: elements.map((element) => ({ ...element, link: null })),
     files: scene.files as any,
-    appState: { ...scene.appState, exportBackground: true, exportWithDarkMode: false },
+    appState: {
+      ...scene.appState,
+      exportEmbedScene: false,
+      exportBackground: true,
+      exportWithDarkMode: false,
+    },
     exportPadding: 24,
     renderEmbeddables: false,
   });
@@ -120,6 +125,7 @@ export async function scenePng(scene: WhiteboardScene) {
     files: scene.files as any,
     appState: {
       ...scene.appState,
+      exportEmbedScene: false,
       exportBackground: true,
       exportWithDarkMode: false,
       exportScale: 1,

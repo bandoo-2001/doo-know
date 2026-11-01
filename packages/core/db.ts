@@ -7,6 +7,8 @@ import { migrateKnowledge } from './indexing/schema.js';
 import { migrateCollections } from './collections/source.js';
 import { migrateBlog } from './blog/schema.js';
 import { migrateOrganization } from './organization/schema.js';
+import { migrateDiagramDocuments } from './knowledge/diagram-document-schema.js';
+import { migrateRevisionContext } from './knowledge/revision-context.js';
 import { CONTENT_MATCH_RANK, filenameMatchRank } from '../../shared/search-matching.js';
 export function openDatabase(
   dataRoot: string,
@@ -45,10 +47,18 @@ export function openDatabase(
     );
   if (!shareColumns.some((column) => column.name === 'expires_at'))
     db.exec('ALTER TABLE shares ADD COLUMN expires_at INTEGER');
+  if (!shareColumns.some((column) => column.name === 'allow_diagram_source'))
+    db.exec(
+      'ALTER TABLE shares ADD COLUMN allow_diagram_source INTEGER NOT NULL DEFAULT 0 CHECK(allow_diagram_source IN (0,1))',
+    );
+  if (!shareColumns.some((column) => column.name === 'policy_revision'))
+    db.exec('ALTER TABLE shares ADD COLUMN policy_revision INTEGER NOT NULL DEFAULT 1');
   migrateKnowledge(db);
   migrateCollections(db);
   migrateBlog(db);
   migrateOrganization(db);
+  migrateDiagramDocuments(db);
+  migrateRevisionContext(db);
   db.exec(
     'CREATE TABLE IF NOT EXISTS database_processes(id TEXT PRIMARY KEY,pid INTEGER NOT NULL,process_start TEXT NOT NULL,role TEXT NOT NULL,started_at INTEGER NOT NULL)',
   );

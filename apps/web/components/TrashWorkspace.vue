@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import {withOperationPreviews} from '../diagrams/operation-previews';
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { Modal as AModal } from 'ant-design-vue';
 import { api, ApiError } from '../api';
@@ -227,11 +228,11 @@ async function sendPending() {
   mutationError.value = '';
   notice.value = '';
   try {
-    const result = await api<ManagementBatchResult>(
+    const result = await withOperationPreviews(()=>api<ManagementBatchResult>(
       `/api/manage/trash/${request.kind === 'restore' ? 'restore' : 'purge'}`,
       'POST',
       request.input,
-    );
+    ));
     const received = new Set(result.results?.map((item) => item.id));
     if (
       !Array.isArray(result.results) ||

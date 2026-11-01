@@ -83,7 +83,7 @@ export function activate(ctx: PluginContext) {
         if (activeRequests.size >= 128) throw new BridgeError('CALL_CONCURRENCY_LIMIT', 429, true);
         activeKey = key; activeRequests.set(key, controller);
       }
-      const server = new McpServer({ name: 'doo-know', version: '1.3.0' }, { instructions: makeAgentInstructions(ctx.config()) + '\n' + toDooAgentGuidance });
+      const server = new McpServer({ name: 'doo-know', version: '1.4.0' }, { instructions: makeAgentInstructions(ctx.config()) + '\n' + toDooAgentGuidance });
       const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined, enableJsonResponse: true, maxRequestBodySize: budgets.request });
       const send = transport.send.bind(transport);
       transport.send = async (message, options) => {

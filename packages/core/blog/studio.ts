@@ -14,6 +14,7 @@ import { authorizeDomainResource } from '../auth/permissions.js';
 import { BlogError } from './errors.js';
 import { blogHash } from './resources.js';
 import { assertWritable } from '../knowledge/write-lease.js';
+import { assertNoEmbeddedDiagramSource } from '../knowledge/diagram-artifacts.js';
 
 const text = (max: number) =>
   z
@@ -342,7 +343,9 @@ export function studioService(
   }
   function publicDesignMedia(h: string) {
     if (!mediaReferences(publicDesign()).includes(h)) throw new BlogError(404, '装修图片不存在');
-    return readMedia(h);
+    const media = readMedia(h);
+    assertNoEmbeddedDiagramSource(media.bytes);
+    return media;
   }
   return {
     designState,

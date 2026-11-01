@@ -10,7 +10,7 @@ import { acquireRead, chargeRate } from '../agent/budgets.js';
 import { readBlocks, sameFile, stableStat } from '../knowledge/file-reader.js';
 import { messageSize } from '../knowledge/limits.js';
 import { fail } from '../knowledge/errors.js';
-import {isWhiteboard,whiteboardText} from '../../../shared/whiteboard.js';
+import { isWhiteboard, whiteboardText } from '../../../shared/whiteboard.js';
 
 export function researchService(config: AppConfig, db: AppDatabase, notes: NoteService) {
   async function fetch(
@@ -65,6 +65,12 @@ export function researchService(config: AppConfig, db: AppDatabase, notes: NoteS
         if (!chunkId) {
           if (bytes > 16384) fail(409, 'RESULT_STALE');
           parts.push(block);
+        } else {
+          const from = Math.max(0, chunk.start_byte - (bytes - block.length));
+          const to = Math.min(block.length, chunk.end_byte - (bytes - block.length));
+          if (to > from) parts.push(block.subarray(from, to));
+          if (parts.reduce((sum, p) => sum + p.length, 0) > 16384)
+            fail(413, 'RESEARCH_OBJECT_TOO_LARGE');
         }
       }
       if (
@@ -76,13 +82,17 @@ export function researchService(config: AppConfig, db: AppDatabase, notes: NoteS
       authorizePath(p, notes.row(noteId).path);
       let text: string;
       try {
-        text = chunk
-          ? chunk.content
-          : new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(Buffer.concat(parts));
+        text = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(
+          Buffer.concat(parts),
+        );
       } catch {
         fail(422, 'INVALID_UTF8');
       }
-      if (!chunk && isWhiteboard(note.path)) text = whiteboardText(text);
+      if (
+        isWhiteboard(note.path) &&
+        (!chunk || !/^semantic-spans-v[12]:/.test(String(chunk.chunker_id)))
+      )
+        text = chunk ? chunk.content : whiteboardText(text);
       const title = [...(state.title || basename(note.path, '.md'))].slice(0, 256).join('');
       const data = {
         id: chunkId || noteId,
@@ -100,7 +110,9 @@ export function researchService(config: AppConfig, db: AppDatabase, notes: NoteS
             ? {
                 chunkId,
                 // Preserve strict types while omitting legacy absent ancestors.
-                headingPath: JSON.parse(chunk.heading_path).filter((title: unknown) => title != null),
+                headingPath: JSON.parse(chunk.heading_path).filter(
+                  (title: unknown) => title != null,
+                ),
                 startLine: chunk.start_line,
                 endLine: chunk.end_line,
                 startByte: chunk.start_byte,

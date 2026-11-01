@@ -17,6 +17,8 @@ it('serves complete downloads to the signed-in owner without bearer tokens or fi
     expect(response.body).toBe('<script>untrusted()</script>');
     expect(response.headers['content-disposition']).toContain('attachment');
     expect(response.headers['content-security-policy']).toContain('sandbox');
+    const strict = store.createDownload({ id: owner, clientId: 'mcp', scopes: ['knowledge:read'], allowedPrefixes: [] }, { requestId: 'strict-export', binding: { domain: 'knowledge', kind: 'portable-export', id: 'delivery' }, name: 'strict.md', mime: 'text/markdown', bytes: Buffer.from('strict') });
+    expect((await f.app.inject({ url: '/api/mcp/transfers/' + strict.transferId + '/download', headers })).statusCode).toBe(404);
     const other = store.createDownload({ id: 'another-owner', clientId: 'mcp', scopes: [], allowedPrefixes: [] }, { requestId: 'other', binding: { domain: 'knowledge', kind: 'document-download', id: 'note' }, name: 'private.txt', mime: 'text/plain', bytes: Buffer.from('private') });
     expect((await f.app.inject({ url: '/api/mcp/transfers/' + other.transferId + '/download', headers })).statusCode).toBe(404);
   } finally { db.close(); await f.close(); }

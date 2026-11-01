@@ -112,6 +112,8 @@ it('exports referenced whiteboards portably and resolves imported renamed whiteb
     });
     expect(resolved.statusCode, resolved.body).toBe(200);
     expect(resolved.json().relativePath).toBe('00-Inbox/docs/移动后.excalidraw');
+    expect(resolved.json()).toMatchObject({id:version.id,noteId:version.id,documentType:'whiteboard',source:{format:'excalidraw'}});
+    expect(resolved.json()).not.toHaveProperty('content');
   } finally {
     await f.close();
   }

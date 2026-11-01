@@ -1,3 +1,4 @@
+import type { DocumentType } from './diagram-resource.js';
 import type { PermissionPolicy } from './permissions.js';
 export type Principal = {
   id: string;
@@ -30,7 +31,8 @@ export type AgentConfig = {
   policies: Principal[];
 };
 export type NoteInfo = {
-  documentType?: 'markdown' | 'whiteboard';
+  publication?: {state:'pending'|'conflicted';operationId?:string;code?:string};
+  documentType?: DocumentType;
   id: string;
   title: string;
   relativePath: string;
@@ -103,7 +105,7 @@ export type FileOperation = {
     | 'needs_reconciliation';
   snapshotId?: string;
   result?: PatchResult;
-  error?: { code: string; retryable: boolean };
+  error?: { code: string; retryable: boolean; details?: Record<string,unknown> };
 };
 export type FileReply<T> =
   | { kind: 'ready'; data: T }

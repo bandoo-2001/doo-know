@@ -1,3 +1,4 @@
+import { folderRestorePending } from '../knowledge/folder-restore-pending.js';
 import { refreshKnowledgeData, flushKnowledgeData } from '../knowledge-data.js';
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { randomUUID } from 'node:crypto';
@@ -178,8 +179,12 @@ function release(db: AppDatabase, token: string) {
 }
 type WorkFailure = { error: unknown };
 function assertPortableParticipantsReady(db: AppDatabase) {
-  if (db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='todo_pending_files'").get()
-    && db.prepare('SELECT 1 FROM todo_pending_files LIMIT 1').get())
+  if (
+    db
+      .prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='todo_pending_files'")
+      .get() &&
+    db.prepare('SELECT 1 FROM todo_pending_files LIMIT 1').get()
+  )
     fail(409, 'RECOVERY_REQUIRED', '应用数据仍有待恢复的文件写入，请先打开 To Doo 核对恢复状态');
 }
 function releasePreservingFailure(db: AppDatabase, token: string, failure?: WorkFailure) {
@@ -205,6 +210,8 @@ function acquireShared(db: AppDatabase, meta: Metadata) {
   const token = randomUUID();
   db.transaction(() => {
     sweep(db);
+    if (folderRestorePending(db))
+      fail(503, 'FOLDER_RECOVERY_REQUIRED', 'FOLDER_RECOVERY_REQUIRED', true);
     if (organizationPending(db))
       fail(503, 'ORGANIZATION_RECOVERY_REQUIRED', 'ORGANIZATION_RECOVERY_REQUIRED', true);
     if (db.prepare("SELECT 1 FROM workspace_gate WHERE mode<>'shared'").get())
@@ -283,6 +290,16 @@ export async function workspaceExclusive<T>(
       const ready = db
         .transaction(() => {
           sweep(db, meta.recovery);
+          const folderRecovery =
+            meta.recovery ||
+            [
+              'folder.restore',
+              'folder.recover',
+              'mcp.folder.restore',
+              'management.restore',
+            ].includes(meta.kind);
+          if (!folderRecovery && folderRestorePending(db))
+            fail(503, 'FOLDER_RECOVERY_REQUIRED', 'FOLDER_RECOVERY_REQUIRED', true);
           if (!meta.recovery && organizationPending(db))
             fail(503, 'ORGANIZATION_RECOVERY_REQUIRED', 'ORGANIZATION_RECOVERY_REQUIRED', true);
           if (!inserted) {
@@ -381,6 +398,8 @@ export function assertOrganizationReadable(db: AppDatabase) {
   if (held.getStore()?.db === db) return;
   initializeWorkspaceGate(db);
   sweep(db);
+  if (folderRestorePending(db))
+    fail(503, 'FOLDER_RECOVERY_REQUIRED', 'FOLDER_RECOVERY_REQUIRED', true);
   if (organizationPending(db))
     fail(503, 'ORGANIZATION_RECOVERY_REQUIRED', 'ORGANIZATION_RECOVERY_REQUIRED', true);
   if (db.prepare("SELECT 1 FROM workspace_gate WHERE mode<>'shared'").get())

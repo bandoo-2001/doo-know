@@ -8,6 +8,7 @@ import { hashFile, writeAll } from '../../packages/core/knowledge/file-reader.js
 import { syntheticFixture, type BenchmarkDocument } from './fixtures.js';
 import { ResourceMonitor } from './support.js';
 import type { AppConfig } from '../../shared/contracts.js';
+import { chunkInventory } from '../../packages/core/indexing/scan-proof.js';
 import type { IndexedChunk } from '../../packages/core/indexing/chunks.js';
 
 export const noise = [
@@ -147,6 +148,19 @@ export async function seedCorpus(
           document.path,
           chunks.slice(i, i + 16),
         );
+      if ((await hashFile(file)) !== sourceHash)
+        throw new Error('Synthetic source scan hash mismatch');
+      const inventory = chunkInventory();
+      for (const chunk of chunks) inventory.add(chunk);
+      const proof = inventory.finish();
+      db.prepare('INSERT OR REPLACE INTO index_scan_proofs VALUES(?,?,?,?,?,?)').run(
+        noteId,
+        sourceHash,
+        'benchmark-synthetic-v1',
+        Number(physical.size),
+        proof.count,
+        proof.digest,
+      );
       if (core.worker.text.publish(version, 'benchmark-synthetic-v1') !== 'published')
         throw new Error('Synthetic text publication failed');
       textStageMs += performance.now() - stageStart;

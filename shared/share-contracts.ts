@@ -2,11 +2,13 @@ export type SharePermission = 'view' | 'edit';
 export type ShareState = 'private' | 'active' | 'expired' | 'revoked';
 
 export interface ShareOptions {
+  allowDiagramSource?: boolean;
   permission?: SharePermission;
   expiresAt?: string | null;
 }
 
 export interface ShareStatus {
+  allowDiagramSource?: boolean;
   enabled: boolean;
   state: ShareState;
   permission: SharePermission;
@@ -18,6 +20,7 @@ export interface ShareStatus {
 }
 
 export interface PublicShareAccess {
+  allowDiagramSource?: boolean;
   permission: SharePermission;
   expiresAt: string | null;
   canEdit: boolean;

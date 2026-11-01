@@ -369,3 +369,61 @@ it('recovers a dead process lease after restart and reports source-budget partia
   expect(g.service.status(webPrincipal).errors[0].code).toBe('PARTIAL_SOURCE_LIMIT');
   expect((await g.service.explore(webPrincipal, {})).index.complete).toBe(false);
 });
+it('sends only primary diagram semantics to the model and rebuilds old projections without losing decisions', async () => {
+  const f = fixture({
+    settings: () => ({
+      version: 1,
+      provider: 'ollama',
+      baseUrl: 'http://localhost:11434',
+      model: 'test',
+      automatic: true,
+      remoteContentAllowed: false,
+      apiKeyConfigured: false,
+      timeoutMs: 1000,
+      maxInputCharacters: 12000,
+    }),
+  });
+  const body =
+    '<!-- dooknow:document {"version":1,"type":"whiteboard","engine":"excalidraw","render":{"renderer":"MACHINE_SENTINEL","config":{}}} -->\r\n\r\n# Actual title\r\n\r\n<!-- dooknow:primary:start -->\r\n\r\n[Source](assets/source.excalidraw)\r\n\r\n```text\r\nSummarySignal connects retrieval. 中文😀\r\n```\r\n\r\n![preview](assets/preview.png)\r\n\r\n<!-- dooknow:primary-binding {"version":1,"sourceHash":"' +
+    'a'.repeat(64) +
+    '","renderHash":"' +
+    'b'.repeat(64) +
+    '","previewHash":"' +
+    'c'.repeat(64) +
+    '"} -->\r\n\r\n<!-- dooknow:primary:end -->\r\n\r\nActual prose.';
+  f.note('diagram', 'diagram.md', body);
+  f.service.start();
+  await complete(f);
+  const inputs = (f.model.extract as any).mock.calls.map((args: any[]) => args[0]).join('');
+  expect(inputs).toContain('SummarySignal');
+  expect(inputs).toContain('Actual prose.');
+  expect(inputs).not.toMatch(/MACHINE_SENTINEL|assets\/|primary-binding|dooknow:|```/);
+  const graph = await f.service.explore(webPrincipal, {});
+  expect(graph.nodes.some((n) => n.title === 'SummarySignal')).toBe(true);
+  await f.service.close();
+  const user = f.db.prepare('SELECT data FROM graph_knowledge_user WHERE id=1').get() as any;
+  const preserved = JSON.stringify({
+    ...JSON.parse(user.data),
+    decisions: { 'stable-relation': { decision: 'accept' } },
+  });
+  f.db.prepare('UPDATE graph_knowledge_user SET data=? WHERE id=1').run(preserved);
+  f.db
+    .prepare(
+      "INSERT OR REPLACE INTO graph_analysis_meta VALUES('projection','diagram-spans-v1')",
+    )
+    .run();
+  const before = (f.model.extract as any).mock.calls.length;
+  const restarted = createKnowledgeGraph(f.config, f.db, {} as NoteService, f.model);
+  cleanup.push(() => restarted.close());
+  restarted.start();
+  await vi.waitFor(
+    () => expect((f.model.extract as any).mock.calls.length).toBeGreaterThan(before),
+    { timeout: 8000 },
+  );
+  await vi.waitFor(() => expect(restarted.status(webPrincipal).completed).toBe(1), {
+    timeout: 8000,
+  });
+  expect(f.db.prepare('SELECT data FROM graph_knowledge_user WHERE id=1').get()).toEqual({
+    data: preserved,
+  });
+});

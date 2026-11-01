@@ -5,6 +5,7 @@ import DirectoryTreeSelect from './DirectoryTreeSelect.vue';
 import { Button as AButton, Input as AInput, Alert as AAlert } from 'ant-design-vue';
 import { api, ApiError } from '../api';
 import type { MoveNoteResult } from '../../../shared/knowledge-contracts';
+import {withOperationPreviews} from '../diagrams/operation-previews';
 const props = defineProps<{
   show: boolean;
   noteId?: string;
@@ -41,12 +42,13 @@ async function move() {
   busy.value = true;
   error.value = '';
   try {
-    const result = await api<MoveNoteResult>(`/api/notes/${props.noteId}/move`, 'POST', {
+    const input = {
       folderPath: folder.value,
       fileName: /\.excalidraw$/i.test(props.relativePath||'') ? (/\.excalidraw$/i.test(name.value) ? name.value : name.value+'.excalidraw') : (name.value.endsWith('.md') ? name.value : name.value + '.md'),
       expectedModifiedAt: props.modifiedAt,
       requestId,
-    });
+    };
+    const result=await withOperationPreviews(()=>api<MoveNoteResult>(`/api/notes/${props.noteId}/move`,'POST',input));
     emit('update:show', false);
     emit('moved', result);
   } catch (cause) {

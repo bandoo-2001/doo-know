@@ -3,39 +3,53 @@ import { join } from 'node:path';
 import type { AppConfig } from '../../shared/contracts.js';
 import type { AppDatabase } from './db.js';
 import type { NoteService } from './notes.js';
-import { HttpError } from './errors.js';
 import { mutationCore, webPrincipal } from './knowledge/core.js';
 import { KnowledgeError } from './knowledge/errors.js';
 import { randomUUID } from 'node:crypto';
+import { revisionRestoreSource } from './knowledge/revision-context.js';
 export function recoveryService(config: AppConfig, db: AppDatabase, notes: NoteService) {
   function history(id: string, before?: string) {
     notes.row(id);
     return (
       db
         .prepare(
-          'SELECT id,file,created_at AS createdAt,modified_at AS modifiedAt FROM revisions WHERE note_id=? AND (? IS NULL OR rowid<(SELECT rowid FROM revisions WHERE id=? AND note_id=?)) ORDER BY rowid DESC LIMIT 51',
+          'SELECT id,file,created_at AS createdAt,modified_at AS modifiedAt,document_type AS documentType,payload_format AS payloadFormat,logical_path AS logicalPath,content_hash AS contentHash FROM revisions WHERE note_id=? AND (? IS NULL OR rowid<(SELECT rowid FROM revisions WHERE id=? AND note_id=?)) ORDER BY rowid DESC LIMIT 51',
         )
         .all(id, before || null, before || null, id) as {
         id: string;
         file: string;
         createdAt: string;
         modifiedAt: string;
+        documentType: string | null;
+        payloadFormat: string | null;
+        logicalPath: string | null;
+        contentHash: string | null;
       }[]
     ).map((r) => ({
       id: r.id,
       createdAt: r.createdAt,
       modifiedAt: r.modifiedAt,
+      documentType: r.documentType,
+      payloadFormat: r.payloadFormat,
+      logicalPath: r.logicalPath,
+      contentHash: r.contentHash,
       sizeBytes: statSync(join(config.dataRoot, 'history', r.file)).size,
     }));
   }
   function restoreRevision(id: string, revisionId: string, expected: string, requestId?: string) {
-    const r = db
-      .prepare('SELECT file FROM revisions WHERE id=? AND note_id=?')
-      .get(revisionId, id) as { file: string } | undefined;
-    if (!r) throw new HttpError(404, '历史版本不存在');
+    const source = revisionRestoreSource(
+      config,
+      db,
+      id,
+      revisionId,
+      notes.row(id).path,
+      webPrincipal,
+    );
+    if (source.edits)
+      throw new KnowledgeError(413, 'HISTORY_BACKGROUND_REQUIRED', '请通过后台作业恢复大文件历史');
     return notes.saveNote(
       id,
-      readFileSync(join(config.dataRoot, 'history', r.file), 'utf8'),
+      source.content ?? readFileSync(source.file, 'utf8'),
       expected,
       requestId,
     );

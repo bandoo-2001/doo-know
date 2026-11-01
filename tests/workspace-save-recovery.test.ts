@@ -5,6 +5,10 @@ import * as Vue from 'vue';
 import MarkdownIt from 'markdown-it';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { ApiError } from '../apps/web/api';
+import * as primaryCreation from '../apps/web/diagrams/primary-creation';
+import * as historyRestore from '../apps/web/diagrams/history-restore';
+import * as media from '../shared/media';
+import * as portableDownload from '../apps/web/diagrams/portable-download';
 import * as appShortcuts from '../apps/web/app-shortcuts';
 import * as workspaceMainMenu from '../apps/web/workspace-main-menu';
 import * as navigation from '../apps/web/navigation';
@@ -40,7 +44,12 @@ import * as frontmatterRange from '../shared/frontmatter-range';
 import * as diagramSavePolicy from '../apps/web/diagrams/save-policy';
 import { useNoteDraft as realNoteDraft } from '../apps/web/useNoteDraft';
 
-const mockApi = vi.fn();
+const mockApi = vi.hoisted(() => vi.fn());
+// The VM and real diagram helpers share the same HTTP boundary; their behavior is not stubbed.
+vi.mock('../apps/web/api', async (importOriginal) => ({
+  ...await importOriginal<typeof import('../apps/web/api')>(),
+  api: (...args: unknown[]) => mockApi(...args),
+}));
 const cleanups: (() => void)[] = [];
 const original = {
   id: 'note-one',
@@ -66,6 +75,10 @@ async function mount(waitForNote = true) {
   new Function('require', 'module', 'exports', source)(
     (id: string) => {
       if (id === 'vue') return Vue;
+      if (id === '../diagrams/primary-creation') return primaryCreation;
+      if (id === '../diagrams/history-restore') return historyRestore;
+      if (id === '../../../shared/media') return media;
+      if (id === '../diagrams/portable-download') return portableDownload;
       if(id.endsWith('.css'))return {};
       if(id==='../../../shared/diagram-fences')return {diagramFences};
       if(id==='../../../shared/knowledge-markdown')return knowledgeMarkdown;

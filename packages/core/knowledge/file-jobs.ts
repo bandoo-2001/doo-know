@@ -1,3 +1,5 @@
+import { assertDiagramFilePublication } from './diagram-file-publication.js';
+import { revisionRestoreSource } from './revision-context.js';
 import {
   workspaceWrite,
   workspaceArtifact,
@@ -115,14 +117,21 @@ export function fileJobService(
         payload = JSON.parse(
           (db.prepare('SELECT payload FROM file_operations WHERE id=?').get(opId) as any).payload,
         );
-      let restoreFile: string | undefined;
+      let restoreFile: string | undefined,
+        restoreContent: string | undefined,
+        restoreEdits: { start: number; end: number; text: string }[] | undefined,
+        restoreRevisionHash: string | undefined;
       if (payload.restoreRevision) {
         const revision = db
           .prepare('SELECT file FROM revisions WHERE id=? AND note_id=?')
           .get(payload.restoreRevision, id) as any;
         if (!revision || !/^[a-zA-Z0-9-]+\.md$/.test(revision.file))
           fail(404, 'REVISION_NOT_FOUND');
-        restoreFile = join(config.dataRoot, 'history', revision.file);
+        const restored = revisionRestoreSource(config, db, id, payload.restoreRevision, n.path, p);
+        restoreFile = restored.file;
+        restoreContent = restored.content;
+        restoreEdits = restored.edits;
+        restoreRevisionHash = restored.context.contentHash;
         let ready = await snapshots.available(p, id, {});
         while ('operation' in ready) {
           signal.throwIfAborted();
@@ -161,7 +170,13 @@ export function fileJobService(
         fail(409, 'VERSION_CONFLICT');
       const edits = restoreFile ? [] : await resolveEdits(snapshot, input.edits, signal),
         size = restoreFile
-          ? Number((await stat(restoreFile)).size)
+          ? restoreContent === undefined
+            ? Number((await stat(restoreFile)).size) +
+              (restoreEdits ?? []).reduce(
+                (sum, edit) => sum + Buffer.byteLength(edit.text) - (edit.end - edit.start),
+                0,
+              )
+            : Buffer.byteLength(restoreContent)
           : snapshot.size_bytes +
             edits.reduce((n, e) => n + e.insert.length - (e.end - e.start), 0);
       if (size > limits.file) fail(413, 'FILE_TOO_LARGE');
@@ -190,7 +205,27 @@ export function fileJobService(
       };
       let offset = 0;
       if (restoreFile) {
-        for await (const bytes of readBlocks(restoreFile, 0, undefined, signal)) await write(bytes);
+        if (restoreEdits) {
+          let from = 0;
+          for (const edit of restoreEdits.sort((a, b) => a.start - b.start)) {
+            for await (const bytes of readBlocks(restoreFile, from, edit.start, signal))
+              await write(bytes);
+            await write(Buffer.from(edit.text));
+            from = edit.end;
+          }
+          for await (const bytes of readBlocks(restoreFile, from, undefined, signal))
+            await write(bytes);
+        } else if (restoreContent === undefined)
+          for await (const bytes of readBlocks(restoreFile, 0, undefined, signal))
+            await write(bytes);
+        else
+          for (let from = 0; from < restoreContent.length; ) {
+            let end = Math.min(from + Math.floor(limits.io / 4), restoreContent.length);
+            if (end < restoreContent.length && /[\uD800-\uDBFF]/.test(restoreContent[end - 1]))
+              end--;
+            await write(Buffer.from(restoreContent.slice(from, end)));
+            from = end;
+          }
         offset = snapshot.size_bytes;
       }
       for (const e of edits) {
@@ -224,6 +259,30 @@ export function fileJobService(
         (
           await stat(safePath(config.knowledgeRoot, n.path, 'note'), { bigint: true })
         ).mtimeNs.toString() !== input.expectedModifiedAt
+      )
+        fail(409, 'VERSION_CONFLICT');
+      await assertDiagramFilePublication(
+        config,
+        db,
+        p,
+        {
+          operationId: opId,
+          noteId: id,
+          path: n.path,
+          beforeFile: snapshot.path,
+          targetFile: temp,
+          beforeHash: input.expectedContentHash,
+          targetHash,
+        },
+        signal,
+      );
+      // The guarded scan yields between bounded reads; recheck external changes immediately before commit.
+      if (restoreFile && (await hashFile(restoreFile, signal)) !== restoreRevisionHash)
+        fail(409, 'REVISION_CONTENT_CONFLICT');
+      authorized(p, id);
+      if (
+        (await hashFile(file, signal)) !== input.expectedContentHash ||
+        (await stat(file, { bigint: true })).mtimeNs.toString() !== input.expectedModifiedAt
       )
         fail(409, 'VERSION_CONFLICT');
       db.transaction(() => {
@@ -283,7 +342,21 @@ export function fileJobService(
           : op.status === 'committing'
             ? 'needs_reconciliation'
             : 'failed';
-      db.prepare('UPDATE operations SET status=?,error=? WHERE id=?').run(status, code, opId);
+      const recordedError =
+        e instanceof KnowledgeError
+          ? JSON.stringify({
+              status: e.statusCode,
+              code: e.code,
+              message: e.message,
+              retryable: e.retryable,
+              details: e.details,
+            })
+          : code;
+      db.prepare('UPDATE operations SET status=?,error=? WHERE id=?').run(
+        status,
+        recordedError,
+        opId,
+      );
       db.prepare('UPDATE file_operations SET status=?,error=? WHERE id=?').run(status, code, opId);
     } finally {
       clearInterval(heartbeat);
@@ -384,6 +457,13 @@ export function fileJobService(
       .prepare('SELECT file FROM revisions WHERE id=? AND note_id=?')
       .get(revisionId, id) as any;
     if (!revision) fail(404, 'REVISION_NOT_FOUND');
+    const previous = db
+      .prepare(
+        "SELECT id FROM operations WHERE principal=? AND client_id=? AND kind='restore_revision' AND request_id=?",
+      )
+      .get(p.id, p.clientId, requestId);
+    // Preview requirements must not create a failed idempotency receipt: prepare and retry this key.
+    if (!previous) revisionRestoreSource(config, db, id, revisionId, notes.row(id).path, p);
     const op = beginOperation(db, p, 'restore_revision', requestId, {
       id,
       revisionId,

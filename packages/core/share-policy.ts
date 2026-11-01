@@ -9,6 +9,7 @@ export type ShareRow = {
   enabled: number;
   permission: SharePermission;
   expires_at: number | null;
+  allow_diagram_source: number;
 };
 export const shareIdentity = (token: string) =>
   `share:${createHash('sha256').update(token).digest('hex')}`;

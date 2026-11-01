@@ -60,7 +60,8 @@ async function mountNoteDraft() {
       // Reuse the exact store module already loaded in this browser context.
       const storeUrl = moduleUrl(
         'export const createDraftStore = window.draftModule.createDraftStore;' +
-          'export const clearOwnerDrafts = window.draftModule.clearOwnerDrafts;',
+          'export const clearOwnerDrafts = window.draftModule.clearOwnerDrafts;' +
+          'export const canRestoreNoteDraft = window.draftModule.canRestoreNoteDraft;',
       );
       const hookUrl = moduleUrl(
         noteDraftSource
@@ -835,4 +836,33 @@ describe('browser local draft recovery', () => {
     expect(result.oversizedRejected).toBe(true);
     expect(result.changed).toBe(true);
   });
+});
+
+test('stores v2 diagram envelopes with real IndexedDB scope and cross-tab CAS protection', async () => {
+  const result = await page.evaluate(async () => {
+    const module = (window as any).draftModule,
+      scope = { ownerId: 'diagram-owner', knowledgeId: 'diagram-kb' },
+      writer = module.createDraftStore({ scope }),
+      contender = module.createDraftStore({ scope }),
+      payload = '{"type":"excalidraw","version":2,"elements":[]}',
+      diagram = { version: 2, documentType: 'whiteboard', payloadFormat: 'excalidraw',
+        documentHash: 'a'.repeat(64), sourceHash: 'b'.repeat(64), baselineSourceHash: 'c'.repeat(64),
+        intentId: 'reserved-intent', payload,
+        pending: { requestId: 'known-request', preparedId: 'prepared', markdown: '# exact main\r\n' } },
+      input = { noteId: 'reserved-note', kind: 'note', baseRevision: 'main-version', content: payload, diagram };
+    await contender.load(input.noteId);
+    const first = await writer.put(input);
+    let concurrentError, invalidError;
+    try { await contender.put(input); } catch (error: any) { concurrentError = error.code; }
+    try { await writer.put({ ...input, diagram: { ...diagram, payloadFormat: 'mermaid' } }); }
+    catch (error: any) { invalidError = error.code; }
+    const saved = await module.createDraftStore({ scope }).load(input.noteId),
+      other = await module.createDraftStore({ scope: { ...scope, knowledgeId: 'other-kb' } }).load(input.noteId);
+    return { saved, sameVersion: first.version === saved.version, concurrentError, invalidError, other,
+      ordinaryRestore: module.canRestoreNoteDraft(saved), canvasRestore: module.canRestoreNoteDraft(saved, 'whiteboard', ['excalidraw']) };
+  });
+  expect(result.concurrentError).toBe('conflict');expect(result.invalidError).toBe('failed');
+  expect(result.sameVersion).toBe(true);expect(result.other).toBeUndefined();
+  expect(result.saved.diagram).toMatchObject({version:2,intentId:'reserved-intent',payload:result.saved.content,pending:{requestId:'known-request',markdown:'# exact main\r\n'}});
+  expect(result.ordinaryRestore).toBe(false);expect(result.canvasRestore).toBe(true);
 });

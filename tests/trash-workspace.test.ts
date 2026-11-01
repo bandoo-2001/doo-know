@@ -5,6 +5,7 @@ import { parse, compileScript } from '@vue/compiler-sfc';
 import ts from 'typescript';
 import * as Vue from 'vue';
 import { ApiError } from '../apps/web/api';
+import * as operationPreviews from '../apps/web/diagrams/operation-previews';
 const nodeRequire = createRequire(import.meta.url);
 const memory = new Map<string, string>();
 const mockApi = vi.fn();
@@ -33,6 +34,8 @@ async function mount() {
     (id: string) =>
       id === 'vue'
         ? Vue
+        : id === '../diagrams/operation-previews'
+          ? operationPreviews
         : id === '../api'
           ? { api: mockApi, ApiError }
           : id === 'ant-design-vue'

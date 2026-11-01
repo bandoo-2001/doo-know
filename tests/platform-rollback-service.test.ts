@@ -10,7 +10,7 @@ import { noteService } from '../packages/core/notes.js';
 
 // Exercise real rollback, database snapshot and candidate execution. Only the host's
 // systemd boundary is substituted; these tests must never control a real unit.
-async function rollbackFixture(active = true) {
+async function rollbackFixture(active = true, generation = 2, previousGeneration = generation) {
   const f = await createFixture();
   const installRoot = join(f.root, 'install'), previous = join(installRoot, 'releases/1.2.2');
   const profileFile = join(f.root, 'profile.json'), stateFile = join(f.root, 'service-state');
@@ -24,9 +24,9 @@ async function rollbackFixture(active = true) {
   await mkdir(bin);
   for (const version of ['1.2.3', '1.2.2'])
     await writeFile(join(installRoot, 'releases', version, 'release.json'),
-      JSON.stringify({ version, databaseCompatibility: 2 }));
+      JSON.stringify({ version, databaseCompatibility: version === '1.2.3' ? generation : previousGeneration }));
   await symlink('releases/1.2.3', join(installRoot, 'current'));
-  const installation = JSON.stringify({ current: '1.2.3', previous: '1.2.2', databaseCompatibility: 2 });
+  const installation = JSON.stringify({ current: '1.2.3', previous: '1.2.2', databaseCompatibility: generation });
   await writeFile(join(installRoot, 'installation.json'), installation);
   await symlink(process.execPath, join(previous, 'runtime/node/bin/node'));
   await writeFile(join(previous, 'dist/server/scripts/manage.js'),
@@ -108,5 +108,15 @@ it.each([true, false])('preserves the prior running state when rollback self-che
     await f.unchanged();
     if (active) expect(await f.actions()).toMatch(/stop[\s\S]*start/);
     else expect(await f.actions()).not.toMatch(/stop|start/);
+  } finally { await f.close(); }
+});
+
+
+it('rejects generation-four diagram data rollback to the generation-three release before stopping or touching data', async () => {
+  const f = await rollbackFixture(true, 4, 3);
+  try {
+    await expect(rollbackPlatform(f.config)).rejects.toThrow('此迁移不支持普通代码回退');
+    expect(await f.actions()).not.toMatch(/stop|start/);
+    await f.unchanged();
   } finally { await f.close(); }
 });

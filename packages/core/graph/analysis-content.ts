@@ -9,6 +9,7 @@ import { readDocumentProperties } from '../../../shared/frontmatter.js';
 import { frontmatterRange } from '../../../shared/frontmatter-range.js';
 import { documentTitle } from '../../../shared/whiteboard.js';
 import { hash } from './analysis-source.js';
+import { diagramAnalysisText } from '../../../shared/diagram-text-projection.js';
 export type Entity = {
   id: string;
   name: string;
@@ -61,7 +62,8 @@ export function terms(text: string) {
   return result;
 }
 export function chunks(text: string, size: number) {
-  const result: { text: string; line: number }[] = [];
+  text = diagramAnalysisText(text);
+  const result: { text: string; line: number; from: number }[] = [];
   let offset = 0,
     line = 1;
   while (offset < text.length && result.length < 256) {
@@ -72,7 +74,7 @@ export function chunks(text: string, size: number) {
       if (/[\uD800-\uDBFF]/.test(text[end - 1])) end--;
     }
     const part = text.slice(offset, end);
-    result.push({ text: part, line });
+    result.push({ text: part, line, from: offset });
     line += (part.match(/\n/g) || []).length;
     offset = end;
   }
@@ -87,7 +89,8 @@ export function analyzer(
 ) {
   const title = documentTitle(path, text).slice(0, 256);
   let clipped = false;
-  const referenceText = text.slice(0, 1024 * 1024),
+  const projected = diagramAnalysisText(text);
+  const referenceText = projected.slice(0, 1024 * 1024),
     links = extractNoteLinks(referenceText, path).slice(0, 512),
     linkEvidence: Record<string, GraphEvidence[]> = {};
   const entities = new Map<string, Entity>(),
@@ -95,13 +98,21 @@ export function analyzer(
     counts = new Map<string, { name: string; count: number }>();
   function evidence(
     quote: string,
-    part: { text: string; line: number },
+    part: { text: string; line: number; from?: number },
     method: 'local' | 'model',
     model?: string,
   ): GraphEvidence | undefined {
     if (!quote || quote.length > 4000) return;
     const offset = part.text.indexOf(quote);
     if (offset < 0) return;
+    let from = part.from ?? 0;
+    if (part.from === undefined)
+      for (let line = 1; line < part.line; line++) {
+        const next = text.indexOf('\n', from);
+        if (next < 0) return;
+        from = next + 1;
+      }
+    if (text.slice(from + offset, from + offset + quote.length) !== quote) return;
     const startLine = part.line + (part.text.slice(0, offset).match(/\n/g) || []).length;
     return {
       id:
@@ -249,7 +260,11 @@ export function analyzer(
         }
     }
   }
-  function enhance(part: { text: string; line: number }, output: GraphExtraction, model: string) {
+  function enhance(
+    part: { text: string; line: number; from?: number },
+    output: GraphExtraction,
+    model: string,
+  ) {
     if (output.entities.length > 80 || output.relations.length > 160) clipped = true;
     const byName = new Map<string, string>();
     for (const item of (output.entities ?? []).slice(0, 80)) {

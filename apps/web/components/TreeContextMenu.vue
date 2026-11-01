@@ -2,10 +2,13 @@
 export type TreeAction =
   | 'open'
   | 'new-whiteboard'
+  | 'new-mindmap'
+  | 'new-flowchart'
   | 'new-note'
   | 'new-folder'
   | 'import'
   | 'copy'
+  | 'duplicate'
   | 'move'
   | 'download'
   | 'favorite'
@@ -36,6 +39,8 @@ const items = computed<{ key: TreeAction; label: string }[]>(() => [
     ? [
         { key: 'new-note' as const, label: '新建笔记' },
         { key: 'new-whiteboard' as const, label: '新建白板' },
+        { key: 'new-mindmap' as const, label: '新建脑图' },
+        { key: 'new-flowchart' as const, label: '新建流程图' },
         { key: 'new-folder' as const, label: '新建子文件夹' },
         { key: 'import' as const, label: '导入 Markdown' },
       ]
@@ -45,6 +50,7 @@ const items = computed<{ key: TreeAction; label: string }[]>(() => [
           label: props.favoriteIds?.includes(entry.value?.id || '') ? '取消收藏' : '收藏',
         },
         { key: 'move' as const, label: '重命名或移动' },
+        { key: 'duplicate' as const, label: '创建副本' },
         {
           key: 'download' as const,
           label: /\.excalidraw$/i.test(entry.value?.path || '')

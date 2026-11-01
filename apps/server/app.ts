@@ -1,4 +1,10 @@
-import {isWhiteboard,MAX_WHITEBOARD_BYTES,whiteboardId,whiteboardReference} from '../../shared/whiteboard.js';
+import { portableResourceLimits } from '../../shared/portable-resource-limits.js';
+import { mediaMime } from '../../shared/media.js';
+import type { AssetDescriptor } from '../../packages/core/assets.js';
+import {registerDiagramDocumentRoutes} from './knowledge/diagram-routes.js';
+import {registerDiagramHistoryRoutes} from './knowledge/diagram-history-routes.js';
+import { registerPortableDeliveryRoutes } from './knowledge/portable-delivery-routes.js';
+import {isWhiteboard,MAX_WHITEBOARD_BYTES} from '../../shared/whiteboard.js';
 import Fastify from 'fastify';
 import { statSync } from 'node:fs';
 import { basename, join, relative, sep } from 'node:path';
@@ -11,6 +17,8 @@ import staticPlugin from '@fastify/static';
 import { fromNodeHeaders } from 'better-auth/node';
 import type { AppConfig } from '../../shared/contracts.js';
 import type { HostConfig } from '../../shared/platform-contracts.js';
+import { publicDiagramProjectionService } from '../../packages/core/public-diagram-projection.js';
+import { resolveWhiteboardResource } from '../../packages/core/knowledge/diagram-resource-resolver.js';
 import { releaseInfo } from './platform/release.js';
 import { searchRuntimeManager } from './platform/search-runtime.js';
 import { platformRuntime, lazyService } from './platform/runtime.js';
@@ -32,7 +40,7 @@ import { createAuth } from './auth.js';
 import { noteService, saveInput } from '../../packages/core/notes.js';
 import { HttpError, text } from '../../packages/core/errors.js';
 import { shareService } from '../../packages/core/shares.js';
-import { renderMarkdown, renderMarkdownReferences, localReference } from '../../packages/core/render.js';
+import { renderMarkdown, localReference } from '../../packages/core/render.js';
 import { recoveryService } from '../../packages/core/recovery.js';
 import { assetService } from '../../packages/core/assets.js';
 import { diagramArtifactService, DIAGRAM_SOURCE_MIMES } from '../../packages/core/knowledge/diagram-artifacts.js';
@@ -45,7 +53,7 @@ import { webPrincipal } from '../../packages/core/knowledge/core.js';
 import { KnowledgeError } from '../../packages/core/knowledge/errors.js';
 import { registerStorageRoutes } from './platform/storage.js';
 import { registerManagementRoutes } from './platform/management.js';
-import { archiveFolder } from '../../packages/core/folders.js';
+import { archiveFolder, recoverFolders } from '../../packages/core/folders.js';
 import { workspaceExclusive } from '../../packages/core/workspace/gate.js';
 import { registerTransferRoutes } from './platform/transfers.js';
 import { gitRemoteService } from './git/service.js';
@@ -141,6 +149,7 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     const session = await auth.api.getSession({ headers: fromNodeHeaders(req.headers) });
     if (!session) return reply.code(401).send({ error: '请登录后访问' });
     (req as any).ownerId = session.user.id;
+    (req as any).ownerSessionToken = session.session.token;
     if (
       (db.prepare('SELECT active FROM maintenance WHERE id=1').get() as { active: number }).active
     )
@@ -212,7 +221,11 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
       return forwardAuthResponse(response, reply);
     },
   });
-  registerKnowledgeReadBarrier(app, db);
+  registerKnowledgeReadBarrier(app, db, async () => {
+    await workspaceExclusive(db, { kind: 'folder.recover', recovery: true }, async () =>
+      recoverFolders(platform.get().config, db),
+    );
+  });
   app.get('/api/security/csrf', async (_req, reply) => ({ token: reply.generateCsrf() }));
   app.get('/api/collections/status', async (req) =>
     platform.get().collections.status((req as any).ownerId, (req.query as any).kind));
@@ -366,23 +379,47 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
   app.get<{ Params: { id: string } }>('/api/notes/:id/assets', async (req) =>
     assets.list(req.params.id),
   );
-  app.post<{ Params: { id: string } }>('/api/notes/:id/assets', async (req, reply) => {
+  const checkOwnerSession=(req:import('fastify').FastifyRequest)=>{
+    const row=db.prepare('SELECT userId,expiresAt FROM session WHERE token=?').get((req as any).ownerSessionToken) as {userId:string;expiresAt:number|string}|undefined;
+    const expiry=row&&(Number.isFinite(Number(row.expiresAt))?Number(row.expiresAt):Date.parse(String(row.expiresAt)));
+    if(!row||row.userId!==(req as any).ownerId||!expiry||expiry<=Date.now())throw new HttpError(401,'登录已失效');
+    if((db.prepare('SELECT active FROM maintenance WHERE id=1').get() as {active:number}).active)throw new HttpError(503,'维护中，请稍后重试');
+  };
+  app.post<{Params:{id:string}}>('/api/notes/:id/assets',{bodyLimit:portableResourceLimits.mediaBytes+16384},async(req,reply)=>{
     notes.exists(req.params.id);
-    const part = await req.file();
-    if (!part) throw new HttpError(400, '请选择附件');
-    const bytes = await part.toBuffer();
-    const requestId = req.headers['x-dooknow-upload-id'];
-    return reply.code(201).send(assets.upload(req.params.id, part.filename, part.mimetype, bytes, requestId));
+    const part=await req.file({limits:{fileSize:portableResourceLimits.mediaBytes+1,files:1,fields:0}});
+    if(!part)throw new HttpError(400,'请选择附件');
+    async function* source(){for await(const chunk of part!.file)yield chunk;if(part!.file.truncated)throw new HttpError(413,'附件超过配置配额');}
+    const result=await assets.uploadStream(req.params.id,part.filename,part.mimetype,source(),req.headers['x-dooknow-upload-id'],{check:()=>checkOwnerSession(req)});
+    return reply.code(201).send(result);
   });
+  await registerDiagramDocumentRoutes(app,db,()=>platform.get());
+  await registerDiagramHistoryRoutes(app,db,()=>platform.get());
+  registerPortableDeliveryRoutes(app,db,()=>platform.get(),checkOwnerSession);
   const diagramArtifacts = diagramArtifactService(db, notes, assets, webPrincipal);
   app.post<{ Params: { id: string } }>('/api/notes/:id/diagram-artifacts', { bodyLimit: 32 * 1024 * 1024 }, async (req, reply) =>
     reply.code(201).send(diagramArtifacts.prepare(req.params.id, req.body)),
   );
   const sendAsset = (
     reply: import('fastify').FastifyReply,
-    a: { bytes: Buffer; sourceBytes?: Buffer; mime: string; path: string },
+    a: { bytes: Buffer; sourceBytes?: Buffer; mime: string; path: string } | (AssetDescriptor & {check?:()=>void}),
     download?: string,
+    range?:string,
+    check?:()=>void,
   ) => {
+    if('absolutePath' in a) {
+      let start=0,end=a.sizeBytes-1;
+      reply.header('Accept-Ranges','bytes');
+      if(range) {
+        const m=/^bytes=(\d*)-(\d*)$/.exec(range);
+        if(!m||(!m[1]&&!m[2])) {reply.header('Content-Range',`bytes */${a.sizeBytes}`);throw new HttpError(416,'附件范围无效');}
+        if(!m[1]){const n=Number(m[2]);if(!Number.isSafeInteger(n)){reply.header('Content-Range',`bytes */${a.sizeBytes}`);throw new HttpError(416,'附件范围无效');}start=Math.max(0,a.sizeBytes-n);if(!n)start=a.sizeBytes;}else{start=Number(m[1]);if(m[2])end=Math.min(end,Number(m[2]));}
+        if(!Number.isSafeInteger(start)||!Number.isSafeInteger(end)||start<0||end<start||start>=a.sizeBytes){reply.header('Content-Range',`bytes */${a.sizeBytes}`);throw new HttpError(416,'附件范围无效');}
+        reply.code(206).header('Content-Range',`bytes ${start}-${end}/${a.sizeBytes}`);
+      }
+      const stream=assets.open(a,{start,end,check:()=>{check?.();a.check?.();}});reply.raw.once('close',()=>stream.destroy());
+      return reply.header('Content-Length',end-start+1).header('Content-Security-Policy',"default-src 'none'; sandbox").header('Content-Disposition',download==='1'?`attachment; filename="${basename(a.path).replace(/[^A-Za-z0-9._-]/g,'_')}"`:'inline').type(a.mime).send(stream);
+    }
     const attachment = download === '1' || Object.values(DIAGRAM_SOURCE_MIMES).some(mime => mime === a.mime);
     return reply
       .header('Content-Security-Policy', "default-src 'none'; sandbox")
@@ -397,7 +434,7 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
   };
   app.get<{ Params: { id: string }; Querystring: { download?: string } }>(
     '/api/assets/:id',
-    async (req, reply) => sendAsset(reply, assets.byId(req.params.id), req.query.download),
+    async (req,reply)=>{const descriptor=assets.inspectById(req.params.id);return sendAsset(reply,mediaMime(descriptor.path)?descriptor:assets.byId(req.params.id),req.query.download,req.headers.range,()=>checkOwnerSession(req));},
   );
   const recovery = lazyService(() => platform.get().recovery);
   app.get<{ Params: { id: string } }>('/api/notes/:id/revisions', async (req) => {
@@ -467,25 +504,38 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     }
   });
   const shares = lazyService(() => platform.get().shares);
-  function resolveBoard(parentPath: string, reference: string) {
-    const ref = whiteboardReference(reference);
-    const id = ref && (whiteboardId(ref) || (db.prepare('SELECT id FROM notes WHERE active=1 AND path=?')
-      .get(localReference(parentPath,ref)) as {id:string}|undefined)?.id);
-    if (!id) throw new HttpError(404, '白板不存在或已移入回收站');
-    const board = notes.getNote(id);
-    if (!isWhiteboard(board.relativePath)) throw new HttpError(404, '白板不存在');
-    return board;
-  }
-  app.get<{ Params: { id: string }; Querystring: { source: string } }>('/api/notes/:id/whiteboards/resolve', async (req) =>
-    resolveBoard(notes.row(req.params.id).path, req.query.source),
+  const publicProjection = publicDiagramProjectionService(
+    businessConfig,
+    db,
+    notes,
+    assets,
+    shares,
   );
-  app.get<{ Params: { token: string; id: string } }>('/api/public/shares/:token/whiteboards/:id', async (req) => {
-    const parent = shares.document(req.params.token);
-    const allowed = isWhiteboard(parent.relativePath) ? parent.id === req.params.id :
-      renderMarkdownReferences(parent.content).includes(req.params.id);
-    if (!allowed) throw new HttpError(404, '白板不存在或未在此分享中引用');
-    return resolveBoard(parent.relativePath,req.params.id);
-  });
+  function resolveBoard(parentPath: string, reference: string) {
+    const resource = resolveWhiteboardResource(
+      businessConfig,
+      db,
+      notes,
+      webPrincipal,
+      parentPath,
+      reference,
+    );
+    // Retain owner-route identity/path metadata while the payload is a semantic resource.
+    return { ...resource, id: resource.noteId, relativePath: notes.row(resource.noteId).path };
+  }
+  app.get<{ Params: { id: string }; Querystring: { source: string } }>(
+    '/api/notes/:id/whiteboards/resolve',
+    async (req) => resolveBoard(notes.row(req.params.id).path, req.query.source),
+  );
+  app.get<{ Params: { token: string; id: string } }>(
+    '/api/public/shares/:token/whiteboards/:id',
+    async (req) => {
+      return publicProjection.resource(req.params.token, req.params.id);
+    },
+  );
+  app.get<{ Params: { token: string } }>('/api/public/shares/:token/diagram', async (req) =>
+    publicProjection.resource(req.params.token),
+  );
   await registerWebKnowledgeRoutes(
     app,
     businessConfig,
@@ -493,6 +543,7 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     knowledge,
     shares,
     async (req) => !!(await auth.api.getSession({ headers: fromNodeHeaders(req.headers) })),
+    publicProjection,
   );
   app.get<{ Params: { id: string } }>('/api/notes/:id/share', async (req) =>
     shares.status(req.params.id),
@@ -507,15 +558,22 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     shares.revoke(req.params.id),
   );
   app.get<{ Params: { token: string } }>('/api/public/shares/:token', async (req, reply) => {
-    const n = shares.document(req.params.token);
+    const projected = publicProjection.project(req.params.token),
+      n = projected.note;
     reply.header('X-Robots-Tag', 'noindex, nofollow');
     return {
       title: n.title,
       updatedAt: n.updatedAt,
       ...shares.access(req.params.token),
-      ...(isWhiteboard(n.relativePath) ? { documentType: 'whiteboard', content: n.content } : {}),
-      ...renderMarkdown(n.content, (url) =>
-        assets.mapUrl(n, url, `/api/public/shares/${req.params.token}/assets/`),
+      ...(projected.resource ? { documentType: projected.resource.documentType } : {}),
+      ...renderMarkdown(projected.content, (url) =>
+        projected.assets.has(localReference(n.relativePath, url) ?? '')
+          ? assets.mapUrl(
+              { ...n, content: projected.content },
+              url,
+              `/api/public/shares/${req.params.token}/assets/`,
+            )
+          : undefined,
       ),
     };
   });
@@ -523,20 +581,22 @@ export async function createApp(config: HostConfig, dependencies: { gitExec?: (d
     '/api/public/shares/:token/assets/:assetId',
     async (req, reply) => {
       const note = shares.lookup(req.params.token);
-      const asset = await assets.publicAsset(note.id, req.params.assetId);
+      const asset = await publicProjection.asset(req.params.token, { id: req.params.assetId });
       if (shares.lookup(req.params.token).id !== note.id)
         throw new HttpError(404, '分享不存在或已取消');
-      return sendAsset(reply, asset, req.query.download);
+      return sendAsset(reply,asset,req.query.download,req.headers.range);
     },
   );
   app.get<{ Params: { token: string }; Querystring: { source?: string; download?: string } }>(
     '/api/public/shares/:token/asset',
     async (req, reply) => {
       const note = shares.lookup(req.params.token);
-      const asset = await assets.publicSource(note.id, text(req.query.source, '附件引用', 8192));
+      const asset = await publicProjection.asset(req.params.token, {
+        source: text(req.query.source, '附件引用', 8192),
+      });
       if (shares.lookup(req.params.token).id !== note.id)
         throw new HttpError(404, '分享不存在或已取消');
-      return sendAsset(reply, asset, req.query.download);
+      return sendAsset(reply,asset,req.query.download,req.headers.range);
     },
   );
   if (config.staticRoot) {

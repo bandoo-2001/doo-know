@@ -4,6 +4,8 @@ import alerts from 'markdown-it-github-alerts';
 import { tex } from '@mdit/plugin-tex';
 import { frontmatterRange } from './frontmatter-range.js';
 import { parseDiagramBinding } from './diagram-binding.js';
+import { parsePrimaryBinding } from './diagram-document-binding.js';
+import { diagramDocumentMetadataSchema } from './diagram-document.js';
 
 export function hasKnowledgeSyntax(raw: string) {
   return /\[\^[^\]\n]+\]|\[\[[^\]\n]+\]\]|(^|\n)\s*>\s*\[!(?:NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]|(?<!\\)\$[^\s$][^\n$]*\$|(^|\n)\s*\$\$/i.test(
@@ -18,20 +20,40 @@ export type KnowledgeMarkdownOptions = {
 /** Syntax only; the expensive math engine is loaded when a math surface mounts. */
 export function knowledgeMarkdown(md: MarkdownItInstance, options: KnowledgeMarkdownOptions = {}) {
   if (!md.options.html) {
-    md.block.ruler.before('paragraph', 'diagram_binding', (state, startLine, _endLine, silent) => {
-      const line = state.src.slice(
-        state.bMarks[startLine] + state.tShift[startLine],
-        state.eMarks[startLine],
-      );
-      if (!parseDiagramBinding(line)) return false;
-      if (!silent) {
-        const token = state.push('diagram_binding', '', 0);
-        token.content = line;
-        token.map = [startLine, startLine + 1];
-        state.line = startLine + 1;
-      }
-      return true;
-    });
+    md.block.ruler.before(
+      'paragraph',
+      'diagram_binding',
+      (state, startLine, _endLine, silent) => {
+        const line = state.src.slice(
+          state.bMarks[startLine] + state.tShift[startLine],
+          state.eMarks[startLine],
+        );
+        if (state.sCount[startLine] - state.blkIndent >= 4) return false;
+        let machine =
+          !!parseDiagramBinding(line) ||
+          !!parsePrimaryBinding(line) ||
+          /^<!-- dooknow:primary:(?:start|end) -->$/.test(line);
+        if (!machine) {
+          const header = /^<!-- dooknow:document (\{[^\r\n]*\}) -->$/.exec(line);
+          if (header) {
+            try {
+              machine = diagramDocumentMetadataSchema.safeParse(JSON.parse(header[1])).success;
+            } catch {
+              /* Unsupported comments remain visible source. */
+            }
+          }
+        }
+        if (!machine) return false;
+        if (!silent) {
+          const token = state.push('diagram_binding', '', 0);
+          token.content = line;
+          token.map = [startLine, startLine + 1];
+          state.line = startLine + 1;
+        }
+        return true;
+      },
+      { alt: ['paragraph', 'reference', 'blockquote', 'list'] },
+    );
     md.renderer.rules.diagram_binding = () => '';
   }
   md.use(footnotes)

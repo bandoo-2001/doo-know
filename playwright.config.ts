@@ -3,6 +3,7 @@ const webPort = Number(process.env.DOOKNOW_E2E_WEB_PORT || 4179);
 const baseURL = `http://127.0.0.1:${webPort}`;
 export default defineConfig({
   testDir: 'tests/e2e',
+  testIgnore: ['mindmap-adapter.spec.ts'], // Runs against its isolated Vite harness via playwright.diagrams.config.ts.
   fullyParallel: false,
   workers: 1,
   timeout: 45000,
