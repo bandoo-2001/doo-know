@@ -17,7 +17,7 @@ import { createPlatformBackup, restorePlatformBackup } from '../apps/server/plat
 import { loadHostConfig } from '../apps/server/platform/config.js';
 import { openDatabase } from '../packages/core/db.js';
 import { resetRestoredState } from '../apps/server/platform/restore-state.js';
-import { backup, restore as restoreBackup } from '../apps/server/backup.js';
+import { backup, checksums, restore as restoreBackup } from '../apps/server/backup.js';
 
 it('restores encrypted folder trash with copied identities while retaining runtime replacement guards and exact contents', async () => {
   const f = await createFixture();
@@ -300,6 +300,10 @@ it.each(['archive-before-move', 'archive-after-move', 'restore-before-move', 're
         expect(result.json().results[0].ok).toBe(true);
       }
       await f.app.close();
+      const snapshot = join(f.root, 'snapshot');
+      // Start with a valid, completed backup. Below, the fixture alone models
+      // an older backup containing an interrupted post-rename restore journal.
+      if (phase === 'restore-after-move') await backup(f.config, snapshot);
       if (phase === 'archive-before-move')
         await rename(
           join(f.knowledgeRoot, '90-Archive/.trash', id, 'tree'),
@@ -315,8 +319,33 @@ it.each(['archive-before-move', 'archive-after-move', 'restore-before-move', 're
       db.prepare(
         "UPDATE operations SET status='prepared',result=NULL WHERE id=(SELECT operation_id FROM folder_trash WHERE id=?)",
       ).run(id);
-      const snapshot = join(f.root, 'snapshot');
-      await backup(f.config, snapshot);
+      const pendingOperation = db
+        .prepare('SELECT operation_id FROM folder_trash WHERE id=?')
+        .get(id) as { operation_id: string };
+      if (phase === 'restore-after-move') {
+        await expect(backup(f.config, join(f.root, 'rejected-snapshot'))).rejects.toThrow(
+          '目录恢复尚未恢复一致，请完成恢复后备份',
+        );
+        expect(
+          db
+            .prepare('SELECT operation_id FROM folder_native_restore_plans WHERE folder_id=?')
+            .get(id),
+        ).toEqual(pendingOperation);
+        // The app is closed and filesystem material has not changed. Replace
+        // only the fixture's SQL snapshot, preserving a consistent WAL view and
+        // its exact owned publication material, then seal the legacy package.
+        await rm(join(snapshot, 'data/app.sqlite'));
+        db.exec('BEGIN');
+        try {
+          db.prepare('SELECT name FROM sqlite_schema LIMIT 1').get();
+          await db.backup(join(snapshot, 'data/app.sqlite'));
+        } finally {
+          db.exec('ROLLBACK');
+        }
+        const files = await checksums(snapshot);
+        delete files['manifest.json'];
+        await writeFile(join(snapshot, 'manifest.json'), JSON.stringify({ version: 1, files }));
+      } else await backup(f.config, snapshot);
       const config = {
         ...f.config,
         knowledgeRoot: join(f.root, 'copy/knowledge'),
@@ -351,6 +380,26 @@ it.each(['archive-before-move', 'archive-after-move', 'restore-before-move', 're
           ? '00-Inbox/pending/keep.md'
           : `90-Archive/.trash/${id}/tree/keep.md`;
         expect(await readFile(join(config.knowledgeRoot, content), 'utf8')).toBe('# Pending\r\n');
+        if (active) {
+          const ready = await restored.inject({
+            url: '/api/notes/' + note.id,
+            headers: { cookie },
+          });
+          expect(ready.statusCode, ready.body).toBe(200);
+          expect(ready.json()).toMatchObject({ id: note.id, content: '# Pending\r\n' });
+        }
+        if (phase === 'restore-after-move') {
+          expect(
+            check
+              .prepare('SELECT status FROM operations WHERE id=?')
+              .get(pendingOperation.operation_id),
+          ).toEqual({ status: 'succeeded' });
+          expect(
+            check
+              .prepare('SELECT operation_id FROM folder_native_restore_plans WHERE folder_id=?')
+              .get(id),
+          ).toEqual(pendingOperation);
+        }
         expect(check.pragma('foreign_key_check')).toEqual([]);
       } finally {
         check.close();
