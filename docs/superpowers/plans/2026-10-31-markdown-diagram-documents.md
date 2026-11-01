@@ -108,8 +108,8 @@ Files: `packages/core/knowledge/{diagram-creation,diagram-document-schema}.ts`�
 **Files:** 修改 `recovery.ts`、`snapshots.ts`、`file-jobs.ts`、`folders.ts`、`knowledge/move.ts`、`organization/{plan,references,journal,restore}.ts`、备份/恢复；新增资源登记与原生链接重定位模块。
 **Interfaces:** `DiagramOperationPlan` 固定前后路径、最终源摘要及 pendingPreviews；版本资源清单记录 `{path,hash,role}`；源链接基于源附件目录。
 
-- [ ] RED：跨目录/目标改名/整理撤销、旧历史恢复、小/大文件同规则、复制后独立修改、目录外活动/历史/租约引用阻止删除。
-- [ ] 实现不可变新源、预提交预览闸门、历史类型/逻辑路径、保留根和备份清单；缺失原件明确拒绝恢复。
+- [x] RED：跨目录/目标改名/整理撤销、旧历史恢复、小/大文件同规则、复制后独立修改、目录外活动/历史/租约引用阻止删除。
+- [x] 实现不可变新源、预提交预览闸门、历史类型/逻辑路径、保留根和备份清单；缺失原件明确拒绝恢复。
 - [ ] GREEN：所有恢复/移动/备份集成测试和外部 Markdown 阅读；审阅并提交阶段 2。
 
 ## Task 7: 旧白板迁移与引用（阶段 3）
@@ -154,7 +154,7 @@ Files: `packages/core/knowledge/{diagram-creation,diagram-document-schema}.ts`�
 **Interfaces:** `planPortableExport({selection,principal,budget}):PortableExportPlan` 固定版本闭包和边类型；`PortableDelivery` 返回 kind/name/mime/size/hash/manifestVersion；原文及旧 bundle 契约保留。
 
 - [x] RED：单篇无依赖含表格/外链直接 md；缺附件失败；多篇/目录归档；引用式/HTML src/srcset/poster/source；跨目录、循环、代码示例、同名/大小写/中文转义。
-- [ ] 实现范围解析和改写、摘要去重及完整性校验；原生链接重定位按 Task 6 先准备匹配预览；两套任务共用核心。
+- [x] 实现范围解析和改写、摘要去重及完整性校验；原生链接重定位按 Task 6 先准备匹配预览；两套任务共用核心。
 - [ ] GREEN：离开原目录用标准渲染器核对图片/路径且无 API/令牌/UUID 协议；审阅并提交。
 
 ## Task 12: 媒体、远程取回和短锁暂存（阶段 6）
@@ -172,7 +172,7 @@ Files: `packages/core/knowledge/{diagram-creation,diagram-document-schema}.ts`�
 **Interfaces:** `stagePortableImport` 识别版本清单、字节摘要及资源预算，`commitPortableImport` 分配新身份并重写内部路径/源/预览。
 
 - [x] RED：真实便携包和解压目录整体回导、超过旧 20 MiB/200 文件、清单损坏/版本未知、绝对/越界/符号链接/重复文件拒绝。
-- [ ] 实现安全解包和批次暂存，清单不当普通资产；源变化需要匹配预览才提交。
+- [x] 实现安全解包和批次暂存，清单不当普通资产；源变化需要匹配预览才提交。
 - [ ] GREEN：导出→移位→回导→重开三类型和媒体；旧小 JSON API 限制不变；审阅并提交阶段 6。
 
 ## Task 14: 外部资源变化、分享博客与备份贯通（阶段 7）
@@ -236,3 +236,6 @@ Task5A 后端与旧资源适配已完成审阅：公开投影/分页、原件能
 
 
 2026-10-31 稳定性收尾更新：以上分项勾选补录已实际实现并经专项测试/审阅的工作；验证明细及提交见 `docs/markdown-diagram-stability-progress-2026-10-31.md`。它们不等于最后统一验收。Task 6 跨目录历史资源身份、回收站改名恢复，Task 11/13 最大完整资源包回导的暂存配额修复仍在收口；Task 14 最终冻结 typecheck/build/Vitest 全分片、桌面集成及原项目安全回集尚未完成。常驻服务、真实知识库未迁移或部署。
+
+
+2026-11-01 统一验收：Task 6/11/13 的实现与独立专项均已完成，历史资源/单篇及文件夹回收站/共享保留/真实252 MiB回导报告位于 `docs/diagrams/validation/`。冻结单元451文件、3446项通过及16项环境跳过，type/build退出0。最终桌面联合发现无关主图缺源阻塞全库操作，正在修复、补正反回归并复审；最终GREEN及原项目回集仍保持待完成，以统一验收报告为准。
