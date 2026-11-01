@@ -1,5 +1,7 @@
 # Markdown 图形文档验收与稳定性收尾
 
+后续已按新的发布授权完成 rc.59 公开发行与本地升级，实际发行基线、门禁及数据保全见[发布记录](验收记录/2026-11-01-markdown-diagrams-rc59-release.md)。下文保留开发验收当时的范围与结果。
+
 验收日期：2026-10-31 至 2026-11-01（UTC）。依据：[总体方案](superpowers/specs/2026-10-31-markdown-diagram-documents-design.md)、[主实施计划](superpowers/plans/2026-10-31-markdown-diagram-documents.md)、[补齐计划](superpowers/plans/2026-10-31-markdown-diagram-completion.md)。本页替代首轮的阶段性结论；历史证据保留在 Git 记录及[进展记录](markdown-diagram-stability-progress-2026-10-31.md)。
 
 **结论：本轮开发与验收范围内的缺陷已修复，可进入真实数据迁移准备和发布准备。** 正式迁移/发布前仍需真实资料副本演练、备份恢复及发行物门禁补证；这些生产操作另行处理。 手机端、App、PWA、桌面小组件不在本轮范围。真实知识库迁移、生产部署、服务重启均未执行。
