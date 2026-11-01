@@ -12,6 +12,7 @@ import {
 } from '../../shared/diagram-primary';
 import { parseDiagramDocument } from '../../shared/diagram-document';
 import { extractArchive } from '../../apps/server/platform/archive';
+import { exportOwnerWhiteboardPng } from '../support/owner-whiteboard-png';
 const hash = (bytes: string | Buffer) => createHash('sha256').update(bytes).digest('hex');
 test.setTimeout(120000);
 test('owner resumes a persisted native portable preview, reads it offline without DooKnow, and reimports the complete directory', async ({
@@ -74,20 +75,18 @@ test('owner resumes a persisted native portable preview, reads it offline withou
       },
     ],
   });
-  const pngBase64 = await page.evaluate(async (source) => {
-    const path = '/diagrams/primary-api.ts',
-      module = await import(path),
-      png = await module.renderPrimaryPng('whiteboard', {
-        source,
-        title: 'Native portable',
-        markdown: '',
-      }),
-      bytes = new Uint8Array(await png.arrayBuffer());
-    let binary = '';
-    for (let i = 0; i < bytes.length; i += 8192)
-      binary += String.fromCharCode(...bytes.subarray(i, i + 8192));
-    return btoa(binary);
-  }, source);
+  const renderBoard = await post('/api/notes', {
+    folderPath: '00-Inbox',
+    fileName: name + '-render.excalidraw',
+    content: source,
+    requestId: randomUUID(),
+  });
+  const pngBase64 = (await exportOwnerWhiteboardPng(page, renderBoard.id)).toString('base64');
+  const removed = await page.request.delete('/api/notes/' + renderBoard.id, {
+    headers,
+    data: { expectedModifiedAt: renderBoard.modifiedAt, requestId: randomUUID() },
+  });
+  expect(removed.ok(), await removed.text()).toBe(true);
   const prepared = await post('/api/diagram-documents/prepare', {
       target: { kind: 'creation', intentId: intent.id },
       type: 'whiteboard',
