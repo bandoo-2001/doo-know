@@ -30,6 +30,7 @@ import { relocatePath } from './diagram-relocation.js';
 import { sha256 } from './operations.js';
 import { fail } from './errors.js';
 import type { DiagramArtifacts } from './diagram-artifacts.js';
+import { hasUnaffectedPublishedNativeLinks } from './native-link-proof.js';
 export type NativePreviewNeed = {
   noteId: string;
   role: 'primary' | 'embedded';
@@ -208,20 +209,45 @@ export function collectNativeLinkChanges(
     if (parsed.status === 'diagram' && parsed.primary.source.format === 'excalidraw') {
       const sourcePath = localReference(note.path, parsed.primary.source.path);
       if (!sourcePath) fail(409, 'DIAGRAM_ARTIFACT_CONFLICT');
-      const source = readAsset(sourcePath).toString('utf8');
-      if (sha256(source) !== parsed.primary.binding.sourceHash)
-        fail(409, 'DIAGRAM_SOURCE_CONFLICT');
+      let source: string | undefined;
+      try {
+        source = readAsset(sourcePath).toString('utf8');
+        if (sha256(source) !== parsed.primary.binding.sourceHash) source = undefined;
+      } catch {
+        // An unavailable source remains quarantined. Only a complete published
+        // proof can establish that this operation cannot affect its native links.
+      }
+      if (source === undefined) {
+        const unaffected =
+          content === original &&
+          !options.archive &&
+          !options.noteTrash &&
+          !options.referenceMapping &&
+          hasUnaffectedPublishedNativeLinks(db, {
+            noteId: note.id,
+            documentHash,
+            documentPath: note.path,
+            sourcePath,
+            sourceHash: parsed.primary.binding.sourceHash,
+            moves,
+          });
+        if (!unaffected)
+          fail(409, 'DIAGRAM_SOURCE_CONFLICT', '受影响的图形源不可用或缺少完整依赖证明');
+      }
       const render = primaryRenderDescriptor(parsed),
-        result = prepare(
-          source,
-          sourcePath,
-          parsed.primary.binding.sourceHash,
-          'primary',
-          parsed.title,
-          render.renderer,
-          render.config,
-          'primary',
-        );
+        result =
+          source === undefined
+            ? undefined
+            : prepare(
+                source,
+                sourcePath,
+                parsed.primary.binding.sourceHash,
+                'primary',
+                parsed.title,
+                render.renderer,
+                render.config,
+                'primary',
+              );
       if (result) {
         primary = result.prepared;
         content = applyPreparedDiagramDocument({

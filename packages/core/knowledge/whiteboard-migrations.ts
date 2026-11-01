@@ -44,6 +44,7 @@ import { acquireNoteWrite, releaseNoteWrite, assertWritable } from './write-leas
 import { mutationCore } from './core.js';
 import { validatePng, DIAGRAM_SOURCE_MIMES } from './diagram-artifacts.js';
 import { portableLibrary } from '../portable-library.js';
+import { captureNativeLinkProof } from './native-link-proof.js';
 
 export function whiteboardMigrationService(
   config: AppConfig,
@@ -320,6 +321,11 @@ export function whiteboardMigrationService(
           );
           const manifest = {
             type: 'whiteboard',
+            nativeLinks: captureNativeLinkProof(
+              prepared.source!.relativePath,
+              prepared.sourceHash,
+              fixed.source,
+            ),
             sourceHash: prepared.sourceHash,
             renderHash: prepared.renderHash,
             previewHash: prepared.previewHash,

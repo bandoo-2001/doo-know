@@ -15,6 +15,7 @@ import { readBoundDiagramAsset } from './diagram-resource-files.js';
 import { validateDiagramSource } from './diagram-artifacts.js';
 import { sha256 } from './operations.js';
 import { fail } from './errors.js';
+import { hasUnaffectedPublishedNativeLinks } from './native-link-proof.js';
 
 export function preflightWhiteboardMigration(
   config: AppConfig,
@@ -124,7 +125,8 @@ export function preflightWhiteboardMigration(
     try {
       const doc = readDocument(config.knowledgeRoot, other.path, { allowDiagramLarge: true });
       let native = false,
-        found = false;
+        found = false,
+        quarantined = false;
       if (isWhiteboard(other.path)) {
         native = true;
         found = parseWhiteboard(doc.content).elements.some(
@@ -135,13 +137,30 @@ export function preflightWhiteboardMigration(
         if (parsed.status === 'diagram' && parsed.primary.source.format === 'excalidraw') {
           const sourcePath = localReference(other.path, parsed.primary.source.path);
           if (sourcePath) {
-            const source = parseWhiteboard(
-              readBoundDiagramAsset(config, sourcePath, 'source').toString('utf8'),
-            );
-            found = source.elements.some(
-              (e) => typeof e.link === 'string' && localReference(sourcePath, e.link) === row.path,
-            );
-            native = found;
+            try {
+              const bytes = readBoundDiagramAsset(config, sourcePath, 'source');
+              if (sha256(bytes) !== parsed.primary.binding.sourceHash)
+                throw Error('Source changed');
+              const source = parseWhiteboard(bytes.toString('utf8'));
+              found = source.elements.some(
+                (e) =>
+                  typeof e.link === 'string' && localReference(sourcePath, e.link) === row.path,
+              );
+              native = found;
+            } catch (error) {
+              if (
+                !hasUnaffectedPublishedNativeLinks(db, {
+                  noteId: other.id,
+                  documentHash: sha256(doc.content),
+                  documentPath: other.path,
+                  sourcePath,
+                  sourceHash: parsed.primary.binding.sourceHash,
+                  moves: [{ from: row.path, to: newPath }],
+                })
+              )
+                throw error;
+              quarantined = true;
+            }
           }
         }
         found ||=
@@ -151,6 +170,7 @@ export function preflightWhiteboardMigration(
           renderMarkdownReferences(doc.content).some(
             (ref) => ref === id || localReference(other.path, ref) === row.path,
           );
+        if (found && quarantined) throw Error('Unavailable source in affected document');
       }
       if (found)
         result.inbound.push({

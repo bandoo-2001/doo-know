@@ -5,6 +5,7 @@ import { fail } from './errors.js';
 import type { AppDatabase } from '../db.js';
 import type { DiagramDocumentType } from '../../../shared/diagram-document.js';
 import type { PreparedDiagramPrimary } from '../../../shared/diagram-primary.js';
+import type { NativeLinkProof } from './native-link-proof.js';
 
 export type DiagramVersionResource = { role: 'source' | 'preview'; path: string; hash: string };
 export type DiagramVersionManifest = {
@@ -13,6 +14,7 @@ export type DiagramVersionManifest = {
   renderHash: string;
   previewHash: string;
   resources: DiagramVersionResource[];
+  nativeLinks?: NativeLinkProof;
 };
 /** A resource belongs to a note by a fixed version/lease, never merely by an arbitrary new link. */
 export function hasDiagramResourceProof(

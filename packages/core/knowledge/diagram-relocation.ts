@@ -13,6 +13,7 @@ import { rewriteLibraryReferences } from '../organization/references.js';
 import { readBoundDiagramAsset } from './diagram-resource-files.js';
 import { hasDiagramDeclarationSync } from './diagram-declaration.js';
 import type { DiagramVersionManifest } from './diagram-publications.js';
+import { captureNativeLinkProof } from './native-link-proof.js';
 import { sha256 } from './operations.js';
 import { fail } from './errors.js';
 import type { DiagramArtifacts } from './diagram-artifacts.js';
@@ -132,6 +133,7 @@ export function planDiagramRelocation(
     fail(409, 'DIAGRAM_PREPARATION_MISMATCH');
   const resources: DiagramVersionManifest['resources'] = [],
     oldResources: DiagramVersionManifest['resources'] = [];
+  let nativeLinks: DiagramVersionManifest['nativeLinks'];
   const resource = (
     role: 'source' | 'preview',
     oldRelative: string,
@@ -183,9 +185,11 @@ export function planDiagramRelocation(
         path,
         moves.map((m) => ({ from: m.to, to: m.from })),
       );
-      if (sha256(readAsset(config, existingPath, role)) !== nextHash)
-        fail(409, 'DIAGRAM_ARTIFACT_CONFLICT');
+      bytes = readAsset(config, existingPath, role);
+      if (sha256(bytes) !== nextHash) fail(409, 'DIAGRAM_ARTIFACT_CONFLICT');
     }
+    if (role === 'source')
+      nativeLinks = captureNativeLinkProof(path, nextHash, bytes.toString('utf8'));
     resources.push({ role, path, hash: nextHash });
     oldResources.push({ role, path: oldPath, hash });
   };
@@ -232,6 +236,7 @@ export function planDiagramRelocation(
       renderHash: parsed.primary.binding.renderHash,
       previewHash: parsed.primary.binding.previewHash,
       resources,
+      ...(nativeLinks ? { nativeLinks } : {}),
     },
   };
 }

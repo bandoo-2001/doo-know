@@ -54,6 +54,7 @@ export function rewriteLibraryReferences(
   targetPath: string,
   moves: Move[],
   whiteboard = false,
+  observeNativeLink?: (url: string) => void,
 ): { content: string; changed: boolean } {
   const ordered = [...moves].sort((a, b) => b.from.length - a.from.length);
   const edits: Edit[] = [];
@@ -123,6 +124,7 @@ export function rewriteLibraryReferences(
           typeof path[1] === 'number' &&
           path[2] === 'link'
         ) {
+          observeNativeLink?.(token.value);
           const next = rewrite(token.value);
           if (next !== token.value)
             edits.push({ start: token.start, end: token.end, text: JSON.stringify(next) });

@@ -413,18 +413,23 @@ export function prepareOrganization(
     if (native.get(n.id)?.legacy)
       legacyPreviews.push({ noteId: n.id, manifest: native.get(n.id)!.legacy });
     try {
-      const diagram = planDiagramRelocation(
-        config,
-        db,
-        n.id,
-        body.content,
-        rewrite.content,
-        n.path,
-        target,
-        referenceMoves,
-        undefined,
-        native.get(n.id)?.primary,
-      );
+      // An unchanged primary is covered by the fixed main-file inventory and
+      // native dependency enumeration; it is not a new publication to activate.
+      const diagram =
+        target !== n.path || rewrite.changed
+          ? planDiagramRelocation(
+              config,
+              db,
+              n.id,
+              body.content,
+              rewrite.content,
+              n.path,
+              target,
+              referenceMoves,
+              undefined,
+              native.get(n.id)?.primary,
+            )
+          : undefined;
       if (diagram) diagrams.push(diagram);
     } catch (error) {
       if (!canAccessPath(p, n.path)) fail(403, 'DEPENDENCY_FORBIDDEN');

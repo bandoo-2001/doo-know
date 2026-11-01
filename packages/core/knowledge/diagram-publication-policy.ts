@@ -18,6 +18,7 @@ import { diagramCreationService } from './diagram-creation.js';
 import { hasDiagramResourceProof, type DiagramVersionManifest } from './diagram-publications.js';
 import { sha256 } from './operations.js';
 import { fail } from './errors.js';
+import { captureNativeLinkProof } from './native-link-proof.js';
 
 type Parsed = Extract<ReturnType<typeof parseDiagramDocument>, { status: 'diagram' }>;
 function assetPath(
@@ -231,6 +232,9 @@ export function assertDiagramPublication(
         ? [{ role: 'source' as const, path: source.path, hash: binding.sourceHash }]
         : []),
     ],
+    ...(source.path
+      ? { nativeLinks: captureNativeLinkProof(source.path, source.hash, source.content) }
+      : {}),
   };
   db.prepare(
     'INSERT INTO diagram_pending_publications(operation_id,note_id,path,document_hash,creation_intent_id,manifest) VALUES(?,?,?,?,?,?) ON CONFLICT(operation_id) DO UPDATE SET manifest=excluded.manifest',

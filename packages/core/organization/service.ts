@@ -607,18 +607,21 @@ export function organizationService(config: AppConfig, db: AppDatabase, notes: N
       }
       const finalContent =
         change && change.kind === 'file' ? (change.afterContent ?? b.content) : b.content;
-      const diagram = planDiagramRelocation(
-        config,
-        db,
-        n.id,
-        b.content,
-        finalContent,
-        n.path,
-        destination,
-        inverseMoves,
-        undefined,
-        native.get(n.id)?.primary,
-      );
+      const diagram =
+        destination !== n.path || finalContent !== b.content
+          ? planDiagramRelocation(
+              config,
+              db,
+              n.id,
+              b.content,
+              finalContent,
+              n.path,
+              destination,
+              inverseMoves,
+              undefined,
+              native.get(n.id)?.primary,
+            )
+          : undefined;
       if (diagram) diagrams.push(diagram);
       if (rewritten.changed && !objects.some((o) => o.kind === 'file' && o.id === n.id))
         fail(409, 'UNDO_CONFLICT');
