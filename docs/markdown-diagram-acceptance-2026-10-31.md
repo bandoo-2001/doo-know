@@ -23,7 +23,7 @@
 | 5 | 移动/复制/改名/整理/撤销/回收站/恢复 | 发现联合缺陷，修复中 | 通用原生预览计划；源内链接和附件相对路径；复制新身份、共享资源保留、跨目录历史、单篇及文件夹恢复、真实进程退出恢复。最终联合发现：不相关主图缺源阻塞全库操作，正在修复。 |
 | 6 | 单篇 `.md`、依赖/批量归档、完整性与缺失报告 | 专项通过 | 无依赖含普通外链直接 `.md`；有依赖或批量返回清单归档；循环引用、本地/远程/data/blob/HTML 媒体、视频封面、MP4/WebM/MP3/WAV、缺失/越权/变化/超限明确失败。 |
 | 7 | 外部普通 Markdown 阅读及完整包回导 | 专项通过，最终联合复验中 | 三类真实编辑器 PNG 离线换目录；普通 markdown-it/Chromium，无 DooKnow/API/插件请求；原生链接最终 PNG；真实 SDK 闭环；归档及解压目录整体回导、持久作业重试。 |
-| 8 | 分享/公开/博客/HTML/打印权限 | 专项通过，最终联合复验中 | 默认只读投影，原件能力独立且不赋予编辑权；逐块当前授权；PNG 内嵌可恢复场景防泄露；博客缓存/设计头像同闸门；HTML 和打印正文共用已验证输出，未连接实机打印机。 |
+| 8 | 分享/公开/博客/HTML/打印权限 | 专项通过，最终联合复验中 | 默认只读投影，原件能力独立且不赋予编辑权；逐块当前授权；PNG 内嵌可恢复场景防泄露；博客缓存/设计头像同闸门；HTML 和打印正文共用已验证输出，未连接实机打印机；10000 文件阈值有边界测试，未生成10000个真实媒体文件的满配负载。 |
 | 9 | 检索/AI 引用/图谱/Git/MCP/备份/ToDoo | 专项与完整单元通过 | 语义投影使用真实原文 UTF-8 行字节，完整 raw 扫描及缺块证明独立；旧 JSON 标签解码；索引/图谱版本重建保留人工决策；源/PNG/Git 冲突失效；MCP 有界预览/传输、备份恢复及稳定 noteRefs。 |
 
 实际桌面截图：[白板](diagrams/acceptance-desktop-whiteboard.png)、[脑图](diagrams/acceptance-desktop-mindmap.png)、[流程图](diagrams/acceptance-desktop-flowchart.png)。三类实际编辑器离线产物：[白板 PNG](diagrams/acceptance-offline-whiteboard.png)、[脑图 PNG](diagrams/acceptance-offline-mindmap.png)、[流程图 PNG](diagrams/acceptance-offline-flowchart.png)。均来自临时测试资料。
@@ -36,12 +36,12 @@
 | 离开恢复提示删除草稿；混合读取覆盖他人说明；派生替换破坏撤销 | `document-read.ts`、`document-session.ts`、`document-draft.ts`、`apps/web/editor/external-markdown.ts`：一致版本读取、held recovery、CAS、精确无历史差异。 |
 | 仅凭 PNG 摘要冒认 source/render 绑定 | `packages/core/knowledge/diagram-publications.ts`、便携/MCP 消费者：固定完整元组及实际物理路径的准备证明。 |
 | 旧迁移缺少稳定身份、入站图形预览、崩溃续跑与编辑保护 | `packages/core/knowledge/whiteboard-migration*.ts`、`WhiteboardMigrations.vue`：迁移日志、受控原件、别名、固定最终源预览；原生入站引用、回执重建及回滚冲突保护。 |
-| 旧草稿/历史被当作新 Markdown；跨路径恢复使用错误资源基准 | `apps/web/diagrams/legacy-draft.ts`、`packages/core/knowledge/revision-context.ts`、`history-restore*.ts`、`recovery/`：保留原始类型、逻辑路径、摘要和资源 ID；核对后转换并重新 prepare；小/大恢复共用策略。 |
+| 旧草稿/历史被当作新 Markdown；跨路径恢复使用错误资源基准 | `apps/web/diagrams/legacy-draft.ts`、`packages/core/knowledge/revision-context.ts`、`diagram-history-restore.ts`、`packages/core/recovery.ts`：保留原始类型、逻辑路径、摘要和资源 ID；核对后转换并重新 prepare；小/大恢复共用策略。 |
 | 移动/复制/撤销/恢复只能拒绝原生链接改写，或预览与最终源不匹配 | `native-link-plans.ts`、`diagram-operation-previews.ts`、`organization/`、`folders.ts`、`knowledge/move.ts`、`knowledge/note-trash-native-restore.ts`：持久操作计划、每组源和预览、提交前最终文件/权限/身份/模式检查。 |
 | 文件夹移动删除共享资源或恢复占用新文件 | `diagram-relocation.ts`、`archived-*-context.ts`：保留证明固定的共享资源及原物理基准；只允许受控资源目录撤销，后加文件冲突；历史/备份/崩溃恢复保持身份。 |
 | 图形机器字段进入搜索，排除后完整扫描和引用坐标不可靠 | `shared/diagram-text-projection.ts`、`indexing/`、`graph/`：真实原文范围、旧 JSON 转义标签解码、完整扫描/块清单证明、缓存升级；相关附件变化撤下旧语义结果。 |
-| 交付遗漏媒体、远程资源、原生最终 PNG；自导出大包无法回导 | `packages/core/portable-delivery/`、`assets/`、`shared/portable-resource-limits.ts`：严格闭包、流式媒体、固定公共 DNS/重定向、最终原生预览、目标文件系统暂存和受跟踪 promotion；保留原配额。 |
-| MCP 缺完整便携/原生预览接口，错误丢失需求或撤权后继续读取 | `packages/core/mcp-*`、`plugins/knowledge-tools.ts`、`shared/mcp-*.ts`：有界源/结果分页、用途隔离上传、同 requestId 续跑、每块当前授权、兼容旧需求结构。 |
+| 交付遗漏媒体、远程资源、原生最终 PNG；自导出大包无法回导 | `packages/core/portable-delivery/`、`packages/core/assets.ts`、`asset-stream.ts`、`shared/portable-resource-limits.ts`：严格闭包、流式媒体、固定公共 DNS/重定向、最终原生预览、目标文件系统暂存和受跟踪 promotion；保留原配额。 |
+| MCP 缺完整便携/原生预览接口，错误丢失需求或撤权后继续读取 | `apps/server/plugins/portable*.ts`、`mcp-transfers.ts`、`plugins/mcp/server/knowledge-tools.ts`、`shared/mcp-*.ts`：有界源/结果分页、用途隔离上传、同 requestId 续跑、每块当前授权、兼容旧需求结构。 |
 | 有效 PNG 中可能携带可恢复原场景而随公开图片泄露 | `shared/png-policy.ts`、`shared/diagram-primary.ts`、公开资源/博客/`apps/web/reading-export.ts`：已知 Excalidraw PNG 文本键拒绝；所有者原件不改字节，不能重绑旧哈希。 |
 
 对应细节及独立复审：[历史资源](diagrams/validation/history-resources-2026-10-31.md)、[原生生命周期](diagrams/validation/native-lifecycle-2026-10-31.md)、[单篇恢复](diagrams/validation/note-trash-restore-2026-10-31.md)、[便携包](diagrams/validation/portable-packages-2026-10-31.md)、[PNG 隐私](diagrams/validation/png-preview-privacy-2026-10-31.md)、[语义索引](diagrams/validation/semantic-index-2026-10-31.md)、[MCP 预览](diagrams/validation/mcp-previews-2026-10-31.md)、[缺源隔离](diagrams/validation/native-source-quarantine-2026-11-01.md)。
