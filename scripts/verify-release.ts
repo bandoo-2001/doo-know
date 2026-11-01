@@ -8,7 +8,7 @@ import { parseArgs } from 'node:util';
 import { releaseArtifactSnapshot, REQUIRED_RELEASE_CHECKS } from './release-verification.js';
 
 const { values } = parseArgs({
-  options: { directory: { type: 'string' }, output: { type: 'string' }, 'legacy-archive': { type: 'string' } },
+  options: { directory: { type: 'string' }, output: { type: 'string' }, 'legacy-archive': { type: 'string' }, 'rollback-archive': { type: 'string' }, 'rollback-version': { type: 'string' }, 'rollback-sha256': { type: 'string' } },
 });
 if (!values.directory || !values.output)
   throw Error('用法：npm run verify:release -- --directory <制品目录> --output <目录外的证据文件>');
@@ -43,6 +43,36 @@ const info = JSON.parse(await readFile(join(directory, 'release.json'), 'utf8'))
 if (info.sourceCommit !== commit || info.dirty !== false) throw Error('制品必须由当前干净提交构建');
 if (typeof info.file !== 'string' || !/^dooknow-[A-Za-z0-9.+-]+-linux-x64\.tar\.gz$/.test(info.file))
   throw Error('应用制品名称不正确');
+// Generation four cannot legitimately roll back to published generation-three code.
+// Exercise recovery with a separately built clean, same-commit/same-generation package.
+const rollbackInput = values['rollback-archive'] || process.env.DOOKNOW_RECOVERY_ROLLBACK_ARCHIVE;
+const rollbackVersion = values['rollback-version'] || process.env.DOOKNOW_RECOVERY_ROLLBACK_VERSION;
+const rollbackSha256 = values['rollback-sha256'] || process.env.DOOKNOW_RECOVERY_ROLLBACK_SHA256;
+const rollbackArchive = rollbackInput ? resolve(rollbackInput) : undefined;
+async function rollbackSnapshot() {
+  if (!rollbackArchive && info.databaseCompatibility < 4) return undefined;
+  if (!rollbackArchive || !rollbackVersion || !rollbackSha256)
+    throw Error('同代次恢复验证需要 --rollback-archive、--rollback-version 和 --rollback-sha256');
+  try {
+    const inside = relative(directory, rollbackArchive);
+    if (!inside || (!inside.startsWith('..' + sep) && inside !== '..')) throw Error('RECOVERY_INPUT_MUST_BE_EXTERNAL');
+    if (!/^[0-9][A-Za-z0-9.+-]{0,79}$/.test(rollbackVersion) || rollbackVersion === info.version ||
+        !/^[a-f0-9]{64}$/.test(rollbackSha256)) throw Error('INVALID_RECOVERY_INPUT');
+    const st = await lstat(rollbackArchive);
+    if (!st.isFile() || st.isSymbolicLink() || st.nlink !== 1 || st.size === 0) throw Error('INVALID_RECOVERY_FILE');
+    const hash = createHash('sha256');
+    for await (const bytes of createReadStream(rollbackArchive)) hash.update(bytes);
+    const sha256 = hash.digest('hex');
+    if (sha256 !== rollbackSha256) throw Error('INVALID_RECOVERY_DIGEST');
+    const metadata = JSON.parse(execFileSync('tar', ['-xOzf', rollbackArchive, './release.json'], { encoding: 'utf8', maxBuffer: 65536 }));
+    if (metadata.version !== rollbackVersion || metadata.databaseCompatibility !== info.databaseCompatibility ||
+        metadata.sourceCommit !== commit || metadata.dirty !== false) throw Error('INVALID_RECOVERY_METADATA');
+    return { version: rollbackVersion, bytes: st.size, sha256, databaseCompatibility: metadata.databaseCompatibility, sourceCommit: metadata.sourceCommit };
+  } catch {
+    throw Error('同代次恢复制品校验失败；请提供固定摘要、版本及当前干净提交构建的同代次原生包');
+  }
+}
+const rollbackArtifact = await rollbackSnapshot();
 const legacyInput = values['legacy-archive'] || process.env.DOOKNOW_RECOVERY_LEGACY_ARCHIVE;
 if (!legacyInput)
   throw Error('跨版本回滚验证需要 --legacy-archive 或 DOOKNOW_RECOVERY_LEGACY_ARCHIVE 指向已发布的 rc.48 主程序包');
@@ -178,6 +208,9 @@ try {
         DOOKNOW_RECOVERY_LEGACY_ARCHIVE: legacyArchive,
         DOOKNOW_RECOVERY_CANDIDATE_ARCHIVE: candidateArchive,
         DOOKNOW_RECOVERY_CANDIDATE_VERSION: info.version,
+        DOOKNOW_RECOVERY_ROLLBACK_ARCHIVE: rollbackArchive || '',
+        DOOKNOW_RECOVERY_ROLLBACK_VERSION: rollbackArtifact?.version || '',
+        DOOKNOW_RECOVERY_ROLLBACK_SHA256: rollbackArtifact?.sha256 || '',
       },
     });
     checks.push({
@@ -190,6 +223,7 @@ try {
   await rm(isolatedBin, { recursive: true, force: true });
 }
 if (
+  JSON.stringify(await rollbackSnapshot()) !== JSON.stringify(rollbackArtifact) ||
   git('rev-parse', 'HEAD') !== commit ||
   git('status', '--porcelain') ||
   JSON.stringify(await releaseArtifactSnapshot(directory)) !== JSON.stringify(before)
@@ -204,6 +238,7 @@ await writeFile(
       sourceCommit: commit,
       verifiedAt: new Date().toISOString(),
       legacyArtifact: legacyExpected,
+      ...(rollbackArtifact ? { rollbackArtifact } : {}),
       artifacts: before,
       checks,
     },

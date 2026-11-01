@@ -14,18 +14,32 @@ import { acquireInstance } from '../apps/server/platform/instance.js';
 const exec = promisify(execFile);
 const legacyArchive = resolve(process.env.DOOKNOW_RECOVERY_LEGACY_ARCHIVE || '.local/share-release-20261026/artifacts-rc48/dooknow-1.1.0-rc.48-linux-x64.tar.gz');
 const candidateArchive = resolve(process.env.DOOKNOW_RECOVERY_CANDIDATE_ARCHIVE || '.local/optimization-fixes-20261026/artifacts-rc49/dooknow-1.1.0-rc.49-linux-x64.tar.gz');
-const oldVersion = '1.1.0-rc.48', newVersion = process.env.DOOKNOW_RECOVERY_CANDIDATE_VERSION || '1.1.0-rc.49';
+const legacyVersion = '1.1.0-rc.48';
+const rollbackArchive = process.env.DOOKNOW_RECOVERY_ROLLBACK_ARCHIVE;
+const oldVersion = process.env.DOOKNOW_RECOVERY_ROLLBACK_VERSION || legacyVersion, newVersion = process.env.DOOKNOW_RECOVERY_CANDIDATE_VERSION || '1.1.0-rc.49';
 const nativeRequested = !!(process.env.DOOKNOW_RECOVERY_LEGACY_ARCHIVE || process.env.DOOKNOW_RECOVERY_CANDIDATE_ARCHIVE);
 // The published prior-version artifact is deliberately external to Git. Release
-// verification supplies both archives; ordinary source-only CI skips this native gate.
+// verification supplies the candidate, a same-generation recovery package and rc48; source-only CI skips it.
 describe.skipIf(!nativeRequested && (!existsSync(legacyArchive) || !existsSync(candidateArchive)))('native legacy CLI recovery', () => {
- let staging: string;
+ let staging: string, currentGeneration: number;
  beforeAll(async () => {
   staging = await mkdtemp(join(tmpdir(), 'dooknow-native-recovery-artifacts-'));
-  for (const [version, archive] of [[oldVersion, legacyArchive], [newVersion, candidateArchive]]) {
+  const inputs = new Map([[legacyVersion, legacyArchive], [newVersion, candidateArchive], [oldVersion, rollbackArchive ? resolve(rollbackArchive) : legacyArchive]]);
+  for (const [version, archive] of inputs) {
    const release = join(staging, version); await mkdir(release);
    await exec('tar', ['-xzf', archive, '-C', release, './package.json', './release.json', './dist/server', './node_modules', './runtime/node/bin/node'], { maxBuffer: 1024 * 1024 });
    await writeFile(join(release, 'package.sha256'), createHash('sha256').update(await readFile(archive)).digest('hex') + '\n');
+  }
+  const metadata = async (version: string) => JSON.parse(await readFile(join(staging, version, 'release.json'), 'utf8'));
+  const current = await metadata(newVersion), previous = await metadata(oldVersion), legacy = await metadata(legacyVersion);
+  if (legacy.version !== legacyVersion || legacy.databaseCompatibility !== 3) throw Error('Native recovery requires the actual generation-three rc48 release');
+  currentGeneration = current.databaseCompatibility;
+  if (current.version !== newVersion || previous.version !== oldVersion || currentGeneration !== previous.databaseCompatibility)
+    throw Error('Native recovery requires independently built same-generation archives with matching declared versions');
+  if (rollbackArchive) {
+    const digest = createHash('sha256').update(await readFile(rollbackArchive)).digest('hex');
+    if (digest !== process.env.DOOKNOW_RECOVERY_ROLLBACK_SHA256 || current.sourceCommit !== previous.sourceCommit || current.dirty !== false || previous.dirty !== false)
+      throw Error('Native recovery archive digest or clean source provenance does not match');
   }
   // Compile only the changed manager modules into this disposable unpublished
   // candidate fixture. Explicit release-gate archives run their shipped bytes
@@ -37,14 +51,14 @@ describe.skipIf(!nativeRequested && (!existsSync(legacyArchive) || !existsSync(c
   }
  }, 90000);
  afterAll(async () => { if (staging) await rm(staging, { recursive: true, force: true }); });
- async function fixture() {
+ async function fixture(previousVersion = oldVersion) {
   const root = await mkdtemp(join(tmpdir(), "native recovery ' spaces-"));
   const installRoot = join(root, 'installed app'), binDir = join(root, 'command bin'), configHome = join(root, 'config home');
   const profileFile = join(configHome, 'profile file.json'), dataRoot = join(root, 'data'), knowledgeRoot = join(root, 'knowledge'), secretFile = join(configHome, 'auth.key');
   await mkdir(join(installRoot, 'releases'), { recursive: true }); await mkdir(binDir); await symlink('/bin/bash', join(binDir, 'bash')); await symlink('/usr/bin/readlink', join(binDir, 'readlink')); await mkdir(join(configHome, 'systemd/user'), { recursive: true });
-  for (const version of [oldVersion, newVersion]) await exec('cp', ['-al', join(staging, version), join(installRoot, 'releases', version)]);
+  for (const version of [previousVersion, newVersion]) await exec('cp', ['-al', join(staging, version), join(installRoot, 'releases', version)]);
   await symlink('releases/' + newVersion, join(installRoot, 'current'));
-  await writeFile(join(installRoot, 'installation.json'), JSON.stringify({ current: newVersion, previous: oldVersion, databaseCompatibility: 3 }));
+  await writeFile(join(installRoot, 'installation.json'), JSON.stringify({ current: newVersion, previous: previousVersion, databaseCompatibility: currentGeneration }));
   await writeFile(join(installRoot, 'profile.path'), profileFile + '\n', { mode: 0o600 });
   await writeFile(secretFile, 'disposable-native-recovery-secret-at-least-thirty-two', { mode: 0o600 });
   const stateFile = join(root, 'service-state'), triggerFile = join(root, 'kill-action'), killedFile = join(root, 'killed.json');
@@ -116,7 +130,7 @@ describe.skipIf(!nativeRequested && (!existsSync(legacyArchive) || !existsSync(c
    await writeFile(f.triggerFile, 'daemon-reload');
    expect((await f.run('rollback')).signal).toBe('SIGKILL');
    const source = join(f.root, 'release source'); await mkdir(source);
-   await writeFile(join(source, 'release.json'), JSON.stringify({ version: newVersion, databaseCompatibility: 3, platform: 'linux-x64', file: `dooknow-${newVersion}-linux-x64.tar.gz`, sha256: '0'.repeat(64) }));
+   await writeFile(join(source, 'release.json'), JSON.stringify({ version: newVersion, databaseCompatibility: currentGeneration, platform: 'linux-x64', file: `dooknow-${newVersion}-linux-x64.tar.gz`, sha256: '0'.repeat(64) }));
    const { pathToFileURL } = await import('node:url');
    const recovered = await f.run('--source', pathToFileURL(source + '/').href, '--profile', f.config.profileFile, 'update');
    expect(recovered.code, recovered.stderr).toBe(0);
@@ -133,7 +147,7 @@ describe.skipIf(!nativeRequested && (!existsSync(legacyArchive) || !existsSync(c
    const killed = await f.run('rollback'); expect(killed.signal, killed.stderr).toBe('SIGKILL');
    const state = JSON.parse(await readFile(f.journal, 'utf8'));
    await writeFile(f.journal, JSON.stringify({ ...state, phase }));
-   if (phase === 'accepted') await writeFile(join(f.config.installRoot, 'installation.json'), JSON.stringify({ current: oldVersion, previous: newVersion, databaseCompatibility: 3 }));
+   if (phase === 'accepted') await writeFile(join(f.config.installRoot, 'installation.json'), JSON.stringify({ current: oldVersion, previous: newVersion, databaseCompatibility: currentGeneration }));
    const started = await f.run('start'); expect(started.code, started.stderr).toBe(0);
    const db = openDatabase(f.config.dataRoot); db.prepare('UPDATE maintenance SET active=0').run(); db.prepare('INSERT INTO notes(id,path) VALUES(?,?)').run('accepted', '00-Inbox/accepted.md'); db.close();
    const completed = await f.run('--profile', f.config.profileFile, 'rollback');
@@ -164,6 +178,26 @@ describe.skipIf(!nativeRequested && (!existsSync(legacyArchive) || !existsSync(c
   } finally { await f.close(); }
  }, 60000);
 
+ it.skipIf(!rollbackArchive)('refuses the actual generation-three rc48 release before changing the legacy wrapper, data or service', async () => {
+  const f = await fixture(legacyVersion);
+  try {
+   const retained = join(f.config.knowledgeRoot, '00-Inbox/latest.md');
+   await mkdir(dirname(retained), { recursive: true }); await writeFile(retained, '# Latest diagram-era data\n');
+   const files = [f.launcher, join(f.config.installRoot, 'installation.json'), retained, join(f.config.dataRoot, 'app.sqlite'),
+    join(f.config.installRoot, 'releases', legacyVersion, 'dist/server/apps/server/platform/updates.js'),
+    join(f.config.installRoot, 'releases', legacyVersion, 'release.json'),
+    join(f.config.installRoot, 'releases', newVersion, 'release.json')];
+   const before = await Promise.all(files.map(file => readFile(file)));
+   const result = await f.run('rollback');
+   expect(result.code, result.stderr).toBe(1); expect(result.stderr).toMatch(/不支持普通代码回退/);
+   expect(await readlink(join(f.config.installRoot, 'current'))).toBe('releases/' + newVersion);
+   expect(await readFile(f.stateFile, 'utf8')).toBe('active');
+   expect(existsSync(join(f.root, 'service-actions'))).toBe(false);
+   expect(existsSync(f.journal)).toBe(false);
+   for (const [index, file] of files.entries()) expect(await readFile(file), file).toEqual(before[index]);
+  } finally { await f.close(); }
+ }, 60000);
+
  it('refuses an unbound native installation even when invoked without launcher environment', async () => {
   const f = await fixture();
   try {
@@ -186,12 +220,12 @@ describe.skipIf(!nativeRequested && (!existsSync(legacyArchive) || !existsSync(c
   } finally { await f.close(); }
  }, 60000);
 
- it('refuses generation three to two rollback before bootstrap and service disruption', async () => {
+ it('refuses rollback to generation two before bootstrap and service disruption', async () => {
   const f = await fixture();
   try {
    const unsupported = join(f.config.installRoot, 'releases/1.0.0-fixture'); await mkdir(unsupported);
    await writeFile(join(unsupported, 'release.json'), JSON.stringify({ version: '1.0.0-fixture', databaseCompatibility: 2 }));
-   await writeFile(join(f.config.installRoot, 'installation.json'), JSON.stringify({ current: newVersion, previous: '1.0.0-fixture', databaseCompatibility: 3 }));
+   await writeFile(join(f.config.installRoot, 'installation.json'), JSON.stringify({ current: newVersion, previous: '1.0.0-fixture', databaseCompatibility: currentGeneration }));
    const result = await f.run('rollback'); expect(result.code).toBe(1); expect(result.stderr).toMatch(/不支持普通代码回退/);
    expect(await readFile(f.launcher, 'utf8')).toBe(f.wrapper);
    expect(await readFile(f.stateFile, 'utf8')).toBe('active');
