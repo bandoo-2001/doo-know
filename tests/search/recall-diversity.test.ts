@@ -1,6 +1,7 @@
 import { it, expect } from 'vitest';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { createHash } from 'node:crypto';
 import { createFixture } from '../support/fixture.js';
 import { agentConfig, agentHeaders } from '../support/agent.js';
 import { openDatabase } from '../../packages/core/db.js';
@@ -12,7 +13,58 @@ import { sha256 } from '../../packages/core/knowledge/operations.js';
 import { noteService } from '../../packages/core/notes.js';
 import { searchService } from '../../packages/core/search/service.js';
 import { indexWorker } from '../../packages/core/indexing/worker.js';
-import type { SearchOutput } from '../../shared/knowledge-contracts.js';
+import type { SearchOutput, SourceVersion } from '../../shared/knowledge-contracts.js';
+import type { IndexedChunk } from '../../packages/core/indexing/chunks.js';
+import { readBlocks } from '../../packages/core/knowledge/file-reader.js';
+import { chunkInventory } from '../../packages/core/indexing/scan-proof.js';
+
+/** Keep deliberate ranking fixture chunks, but prove them against the complete physical source. */
+async function recordFixtureScan(
+  db: ReturnType<typeof openDatabase>,
+  file: string,
+  version: SourceVersion,
+  chunks: IndexedChunk[],
+) {
+  const hash = createHash('sha256'),
+    parts: Buffer[] = [];
+  let scanned = 0;
+  for await (const bytes of readBlocks(file)) {
+    hash.update(bytes);
+    scanned += bytes.length;
+    parts.push(bytes);
+  }
+  expect(hash.digest('hex')).toBe(version.contentHash);
+  const original = Buffer.concat(parts),
+    inventory = chunkInventory(),
+    chunkerId = chunks[0].chunkerId;
+  let end = 0;
+  for (const [ordinal, chunk] of chunks.entries()) {
+    expect(chunk.noteId).toBe(version.noteId);
+    expect(chunk.sourceHash).toBe(version.contentHash);
+    expect(chunk.chunkerId).toBe(chunkerId);
+    expect(chunk.ordinal).toBe(ordinal);
+    expect(chunk.startByte).toBe(end);
+    const bytes = original.subarray(chunk.startByte, chunk.endByte);
+    expect(bytes).toEqual(Buffer.from(chunk.content));
+    const line = 1 + original.subarray(0, chunk.startByte).filter((byte) => byte === 10).length;
+    expect(chunk.startLine).toBe(line);
+    expect(chunk.endLine).toBe(
+      line + bytes.filter((byte) => byte === 10).length - (bytes.at(-1) === 10 ? 1 : 0),
+    );
+    end = chunk.endByte;
+    inventory.add(chunk);
+  }
+  expect(end).toBe(scanned);
+  const proof = inventory.finish();
+  db.prepare('INSERT OR REPLACE INTO index_scan_proofs VALUES(?,?,?,?,?,?)').run(
+    version.noteId,
+    version.contentHash,
+    chunkerId,
+    scanned,
+    proof.count,
+    proof.digest,
+  );
+}
 
 it('pages other indexed notes when an exact filename has 550 matching chunks', async () => {
   const directory = '00-Inbox/allowed';
@@ -126,28 +178,25 @@ it('traverses every hybrid result once when notes have multiple matching chunks'
       const id = path.slice(-6, -3);
       const bytes = Buffer.byteLength(body);
       const count = (await tokenizer.count([body]))[0];
-      await writer.stage(
-        job,
-        '',
-        path,
-        Array.from({ length: 3 }, (_, ordinal) => ({
-          chunkId: `${id}-${ordinal}`,
-          noteId: job.noteId,
-          sourceHash: job.contentHash,
-          chunkerId: 'hybrid-page-fixture',
-          ordinal,
-          headingPath: [],
-          startLine: ordinal + 1,
-          endLine: ordinal + 1,
-          content: body,
-          startByte: ordinal * bytes,
-          endByte: (ordinal + 1) * bytes,
-          tokenCount: count,
-          embeddingInput: body,
-          embeddingInputHash: sha256(body),
-          embeddingTokenCount: count,
-        })),
-      );
+      const chunks: IndexedChunk[] = Array.from({ length: 3 }, (_, ordinal) => ({
+        chunkId: `${id}-${ordinal}`,
+        noteId: job.noteId,
+        sourceHash: job.contentHash,
+        chunkerId: 'hybrid-page-fixture',
+        ordinal,
+        headingPath: [],
+        startLine: ordinal + 1,
+        endLine: ordinal + 1,
+        content: body,
+        startByte: ordinal * bytes,
+        endByte: (ordinal + 1) * bytes,
+        tokenCount: count,
+        embeddingInput: body,
+        embeddingInputHash: sha256(body),
+        embeddingTokenCount: count,
+      }));
+      await writer.stage(job, '', path, chunks);
+      await recordFixtureScan(db, join(f.knowledgeRoot, path), job, chunks);
       expect(writer.publish(job, 'hybrid-page-fixture')).toBe('published');
       jobs.complete(job);
     }
@@ -238,10 +287,10 @@ it('reports bounded recall exhaustion instead of presenting a partial final page
     const count = (await tokenizer.count([content]))[0];
     let job;
     // Stage these tiny, whole-file chunks through the actual SQL publisher.
-    // Snapshot scheduling is independently covered; this case targets pool exhaustion.
+    // Verify the whole physical source and inventory; snapshot scheduling is independently covered.
     while ((job = jobs.claim('recall-test', ['text']))) {
       const path = (db.prepare('SELECT path FROM notes WHERE id=?').get(job.noteId) as any).path;
-      await writer.stage(job, 'Bounded search', path, [
+      const chunks: IndexedChunk[] = [
         {
           chunkId: sha256(job.noteId),
           noteId: job.noteId,
@@ -259,7 +308,9 @@ it('reports bounded recall exhaustion instead of presenting a partial final page
           embeddingInputHash: sha256(content),
           embeddingTokenCount: count,
         },
-      ]);
+      ];
+      await writer.stage(job, 'Bounded search', path, chunks);
+      await recordFixtureScan(db, join(f.knowledgeRoot, path), job, chunks);
       expect(writer.publish(job, 'recall-fixture')).toBe('published');
       jobs.complete(job);
     }
