@@ -1,97 +1,84 @@
 # Markdown 图形文档验收与稳定性收尾
 
-日期：2026-10-31。此页保留首轮验收的冻结结果；后续已继续实施并修复遗漏，见[稳定性收尾进展](markdown-diagram-stability-progress-2026-10-31.md)。**最终统一验收及回集尚在进行，暂不放行真实知识库迁移或完整发布准备。** 手机端、App、PWA、桌面小组件不在本轮范围。
+验收日期：2026-10-31 至 2026-11-01（UTC）。依据：[总体方案](superpowers/specs/2026-10-31-markdown-diagram-documents-design.md)、[主实施计划](superpowers/plans/2026-10-31-markdown-diagram-documents.md)、[补齐计划](superpowers/plans/2026-10-31-markdown-diagram-completion.md)。本页替代首轮的阶段性结论；历史证据保留在 Git 记录及[进展记录](markdown-diagram-stability-progress-2026-10-31.md)。
 
-## 工作基线与用户改动
+**当前状态：最终桌面联合回归正在修复、复验，尚未放行。** 手机端、App、PWA、桌面小组件不在本轮范围。真实知识库迁移、生产部署、服务重启均未执行。
 
-原项目为 `/home/bandoo/workspace/projects/doo-know`，分支 `txj/release-rc58`，HEAD `393979a`。此前图形改造在隔离工作树，验收起点 `0bb1b26`，不是原目录已经实现的功能。本轮先读取了全局 AGENTS、总体设计/接手说明、主实施计划、四个子计划及实际进度，然后对照代码和临时环境运行结果。
+## 工作基线与用户工作保护
 
-用户原有 ToDoo 工作按 427 份文件摘要保护。已将任务差异回集原项目：424 份保护文件完全不变；Workspace.vue、package.json、package-lock.json 三份重叠文件按原基线合并，未清空、覆盖用户工作或改变暂存区。原项目依赖仅新增 Mind Elixir 与 SnapDOM 两包，未更新或移除已有包。功能差异以 `5cd82ce..本轮交付提交` 为准，`5cd82ce` 仅为兼容保护快照，不作为功能交付提交。
+原项目 `/home/bandoo/workspace/projects/doo-know`，分支 `txj/release-rc58`，HEAD `393979a664142dcef981abbfe6422fa70715a4fa`。开发和验收在隔离工作树 `/home/bandoo/.codex/worktrees/markdown-diagram-documents/doo-know` 进行，测试使用临时知识库及合成资料。
 
-## 验收清单
+原项目既有 ToDoo 未提交工作按 427 个文件摘要保护。原目录此前仅回集到 `fe24474`；最新回集尚待最终验证。424 个保护文件保持原字节；`Workspace.vue`、`package.json`、`package-lock.json` 为已知三处交叠，按兼容基线合并。原分支、HEAD、暂存区保持不变。仅新增 Mind Elixir 和 SnapDOM 两个项目依赖。任务差异从 `5cd82ce` 兼容快照计算，该快照包含用户工作，不能整体当成功能提交发布。
 
-“通过”只表示下述已运行范围；“部分通过”包含明确未实施的子项；“未验证”不算通过。文档和计划的完成标记不作为产品证据。
+## 可追踪验收清单
 
-| # | 验收项目 | 结论 | 实际结果与边界 |
-|---|---|---|---|
-| 1 | 三类图形创建、编辑、保存、刷新重开及源码切换 | 桌面核心通过 | 实际 Excalidraw/Mind Elixir/Mermaid 入口均创建 `.md`，完成 PNG 后才激活；原生修改、根标题、说明、Markdown/阅读/PNG 切换、刷新重开和旧白板嵌入均有真实桌面浏览器证据。 |
-| 2 | 标记、受管区、正文与普通笔记兼容 | 通过专项验证 | 保留 BOM/frontmatter、未知 document/render/binding 字段、说明与无关标题；受管区保护；派生更新使用精确无历史差异，真实 CodeMirror undo/redo 验证。普通笔记原保存/导航/草稿断言保留，旧 VM 夹具同步实际依赖。 |
-| 3 | 草稿、并发、离线、重试、渲染与首次创建 | 通过已测故障场景 | 原生数据先落草稿，完整提交前保存 exact pending 正文/ID；失败刷新恢复、同 UUID 创建续跑/取消、未知结果与后续输入、无效源码保留、并发冲突均测试。独立审阅发现的未决恢复删除和混合读取覆盖正文已真实复现并修复。 |
-| 4 | 旧白板迁移、UUID、旧引用、旧草稿与历史 | 部分通过；迁移未完成 | 新旧双读、UUID/md 路径引用、旧 JSON 草稿隔离、备份 UUID/字节保留已测；旧 JSON 历史写入新 `.md` 被安全拒绝。**专用原 UUID 迁移/续跑/回滚、旧路径迁移别名、完整旧历史转换仍未实现**，拒绝危险恢复不等于转换能力已完成。 |
-| 5 | 移动、复制、改名、回收站及恢复 | 部分通过 | 修复当前资源上下文、恢复前主文件/源/PNG 校验、资产 ID 冻结及跨目录原生入站依赖检查；真实崩溃恢复/撤销、授权隔离和保留根回归。需要重写原生链接或旧路径正文却无最终 PNG 时，提交前拒绝；完整复制、类型化跨路径历史、通用重定位与保留规划仍不完整。 |
-| 6 | 无依赖 `.md`、依赖/批量归档、完整与缺失诊断 | 本地支持集通过；媒体等未完成 | 新默认交付支持单篇无依赖原文、显式多篇/目录归档、本地链接闭包与引用式图片、循环/权限/摘要校验；缺失或不支持资源不降级为“完整”。修复大普通 Markdown 回导、括号、扩展名大小写和同源应用导航依赖遗漏。音视频、远程/data/blob 与 HTML 媒体尚不能完整交付，明确失败。 |
-| 7 | 移目录、普通 Markdown 离线阅读及完整包回导 | 本地支持集通过 | 三类文档的真实交付包（该独立用例使用固定小 PNG 验证路径/加载）解压换目录，移离原测试库，普通 markdown-it + 独立静态服务/Chromium 载入正文和 PNG，无 DooKnow/插件请求；另补实际编辑/保存后导出的三图包，以独立普通 Markdown 浏览器验证图片加载及 SHA 与最新资源一致，源应用/API 请求为 0；整包含清单回导新 UUID 并能编辑。201 文件、24 MiB、1.12 MiB 普通单文档跨旧限制回归；浏览器解压目录整体上传和极限负载未完成。 |
-| 8 | 分享、公开读取、博客、HTML 导出与打印 | 已实现范围通过；实机打印未验证 | 公开正文/分页/两附件入口/旧资源接口仅授予显式能力，图形默认只读；原件开关不赋予编辑权。主图 HTML/打印使用新鲜资源证明及实际 PNG 摘要，省略原件、自动摘要和机器字段。打印内容复用同一已测 HTML；未连接真实打印机验证。 |
-| 9 | 检索、引用、图谱、Git、MCP、备份及 ToDoo | 部分通过 | 已发布图形的源/PNG 变化、丢失及 Git 冲突使索引/图谱失效，精确资源恢复后可重索引，人工决策保留。MCP 主图/有界源码/重试与权限、完整备份/恢复及 ToDoo noteRefs 稳定身份有证据。**语义索引投影、真实行字节引用和完整扫描分离仍未实施**；新 MCP 便携包装也未接入。 |
+“通过”以实际执行为依据；专项互有交集，不相加冒充全套总数。环境跳过和未验证项目不算通过。
 
-桌面实测截图：[白板](diagrams/acceptance-desktop-whiteboard.png)、[脑图](diagrams/acceptance-desktop-mindmap.png)、[流程图](diagrams/acceptance-desktop-flowchart.png)。截图来自临时测试知识库，不是真实资料。
+| # | 验收项目 | 状态 | 证据及实际边界 |
+| --- | --- | --- | --- |
+| 1 | 白板、脑图、流程图创建/编辑/保存/刷新/视图切换 | 专项通过，最终联合复验中 | 真实 Excalidraw、Mind Elixir、Mermaid；首次固定 source/render/PNG 后激活 `.md`；源码与专用工作区互切、刷新重开、标题/说明及原生链接。 |
+| 2 | 标记、受管区、说明正文、普通编辑兼容 | 专项通过，最终联合复验中 | BOM/frontmatter、未知字段、代码示例伪标记、CRLF、非受管正文；CodeMirror 实际 undo/redo；普通笔记导航、草稿、树菜单、设置往返。 |
+| 3 | 草稿/并发/断网/重试/渲染失败/首次创建完整性 | 专项通过，最终联合复验中 | 未决定恢复前保留唯一草稿；一致读快照；同 UUID 创建续跑；未知结果、请求丢失、CAS、配额不足、下载原草稿、失败源码和过期 PNG。 |
+| 4 | 旧白板迁移、稳定 UUID、引用、旧草稿、历史 | 专项通过，最终联合复验中 | 专用 preflight/prepare/commit/resume/rollback；旧路径别名、两扫描器防重复身份；旧 JSON 草稿核对后转换；历史保留原始格式/逻辑路径/资源，重新生成匹配 PNG，禁止 JSON 直接写入新 Markdown。 |
+| 5 | 移动/复制/改名/整理/撤销/回收站/恢复 | 发现联合缺陷，修复中 | 通用原生预览计划；源内链接和附件相对路径；复制新身份、共享资源保留、跨目录历史、单篇及文件夹恢复、真实进程退出恢复。最终联合发现：不相关主图缺源阻塞全库操作，正在修复。 |
+| 6 | 单篇 `.md`、依赖/批量归档、完整性与缺失报告 | 专项通过 | 无依赖含普通外链直接 `.md`；有依赖或批量返回清单归档；循环引用、本地/远程/data/blob/HTML 媒体、视频封面、MP4/WebM/MP3/WAV、缺失/越权/变化/超限明确失败。 |
+| 7 | 外部普通 Markdown 阅读及完整包回导 | 专项通过，最终联合复验中 | 三类真实编辑器 PNG 离线换目录；普通 markdown-it/Chromium，无 DooKnow/API/插件请求；原生链接最终 PNG；真实 SDK 闭环；归档及解压目录整体回导、持久作业重试。 |
+| 8 | 分享/公开/博客/HTML/打印权限 | 专项通过，最终联合复验中 | 默认只读投影，原件能力独立且不赋予编辑权；逐块当前授权；PNG 内嵌可恢复场景防泄露；博客缓存/设计头像同闸门；HTML 和打印正文共用已验证输出，未连接实机打印机。 |
+| 9 | 检索/AI 引用/图谱/Git/MCP/备份/ToDoo | 专项与完整单元通过 | 语义投影使用真实原文 UTF-8 行字节，完整 raw 扫描及缺块证明独立；旧 JSON 标签解码；索引/图谱版本重建保留人工决策；源/PNG/Git 冲突失效；MCP 有界预览/传输、备份恢复及稳定 noteRefs。 |
 
-实际编辑器离线产物：[白板 PNG](diagrams/acceptance-offline-whiteboard.png)、[脑图 PNG](diagrams/acceptance-offline-mindmap.png)、[流程图 PNG](diagrams/acceptance-offline-flowchart.png)。
+实际桌面截图：[白板](diagrams/acceptance-desktop-whiteboard.png)、[脑图](diagrams/acceptance-desktop-mindmap.png)、[流程图](diagrams/acceptance-desktop-flowchart.png)。三类实际编辑器离线产物：[白板 PNG](diagrams/acceptance-offline-whiteboard.png)、[脑图 PNG](diagrams/acceptance-offline-mindmap.png)、[流程图 PNG](diagrams/acceptance-offline-flowchart.png)。均来自临时测试资料。
 
-## 已修复问题及涉及文件
+## 已修复问题及主要文件
 
-| 问题/缺口 | 根因与修复 | 主要文件 |
-|---|---|---|
-| 新图界面仍创建旧 JSON，脑图/流程图无独立工作区 | 新增桌面共用会话及原生编辑入口，复用已有 reserve/prepare/commit；按语义类型路由，停止普通编辑器重复写草稿 | `apps/web/components/{Workspace,DiagramDocumentWorkspace,DiagramPreview}.vue`，`apps/web/diagrams/{document-session,document-draft,document-read,primary-api,primary-creation}.ts`，`apps/web/drafts.ts` |
-| 未回答恢复提示就离开会删除唯一草稿（P1） | 清洁会话的卸载持久化误删 held recovery；恢复/明确丢弃前保持同一版本/正文/pending | `DiagramDocumentWorkspace.vue`，桌面恢复回归 |
-| 并行读取旧正文和新资源可覆盖他人说明（P1） | 创建会话前校验正文和原生源双摘要，有限重读一致快照，持续不一致拒绝编辑 | `apps/web/diagrams/document-read.ts`，`DiagramDocumentWorkspace.vue` |
-| 保存后源码撤销历史消失（P2） | 全量替换文档的无历史事务仍会映射掉旧操作；改为粒度差异且保留未触及用户范围 | `apps/web/editor/external-markdown.ts`，`MarkdownEditor.vue` |
-| 移动后授权资源证明与后续保存失效 | 版本主键补入逻辑路径，保留原上下文并登记当前位置，日志恢复/撤销同步 | `packages/core/knowledge/{diagram-document-schema,diagram-relocation,move}.ts`，`organization/{plan,journal,service}.ts` |
-| 文件夹恢复激活篡改源/PNG，或夺用新建目录资产 | 恢复前及恢复重试固定校验主文件/源/PNG；冻结被归档资产 ID，只搬迁该集合 | `packages/core/folders.ts`，`diagram-relocation.ts` |
-| 目标目录移动遗漏目录外旧场景中的原生链接 | 全局检查相关当前/保留原生依赖，正常/逆向整理及最终复核统一；无权读取的受影响所有者只返回不泄漏路径的拒绝 | `diagram-relocation.ts`，`organization/{plan,service}.ts` |
-| 图形源或 PNG 单独变化，旧搜索/图谱仍被当成当前 | 对固定当前资源检查实际摘要/Git 状态，撤下旧 chunks 和索引摘要；监听相关资产，正文全扫描请求不被后来的资产事件降级 | `packages/core/indexing/{diagram-dependencies,reconcile,watcher}.ts` |
-| 新默认交付、整包回导原来不存在 | 共享严格本地依赖规划、磁盘快照/流式交付、带摘要清单、安全归档和新身份回导；UI 使用真实文件名/MIME | `packages/core/portable-delivery/*`，`shared/{portable-delivery-contracts,markdown-destinations}.ts`，`apps/server/knowledge/portable-delivery-routes.ts`，`TransferPanel.vue` |
-| 普通大文档自导出无法回导 | 单独内部可信便携 Markdown 创建入口支持 20 MiB；公开普通创建仍为 1 MiB | `packages/core/knowledge/core.ts`，`portable-delivery/import.ts` |
-| 括号、字面百分号、`.MD` 大小写破坏往返 | 使用 Markdown 敏感路径段转义与共享不区分大小写的文档识别；保留目标名和锚点 | `shared/portable-figure.ts`，`portable-delivery/{paths,service,import}.ts` |
-| 应用内导航误当外站，漏收关联文档 | 同源 `?note=UUID` 独立鉴权后纳入闭包并改相对链接，外站不跟随；无安全源码范围的应用自动链接明确拒绝 | `portable-delivery/{paths,service,import}.ts` |
-| 阅读导出泄露主图原件/自动摘要，或使用过期 PNG | 主图改为只读投影，检查源/渲染绑定和实际 PNG SHA；普通笔记原嵌入源码功能保持 | `apps/web/reading-export.ts`，主图 HTML/打印调用 |
-| 旧所有者解析元数据丢失及原件文件名重复后缀 | owner-only 保留 id/relativePath 元数据而不伪装 Markdown 为 JSON；源码句柄文件名按真实扩展名处理 | `apps/server/app.ts`，`plugins/knowledge-tools.ts` |
+| 问题及根因 | 修复与主要位置 |
+| --- | --- |
+| 新入口仍创建旧 JSON；缺少共用完整保存会话 | `apps/web/components/DiagramDocumentWorkspace.vue`、`Workspace.vue`、`apps/web/diagrams/`：三类原生工作区，复用 reserve/prepare/commit，图形主文档单一草稿协调者。 |
+| 离开恢复提示删除草稿；混合读取覆盖他人说明；派生替换破坏撤销 | `document-read.ts`、`document-session.ts`、`document-draft.ts`、`apps/web/editor/external-markdown.ts`：一致版本读取、held recovery、CAS、精确无历史差异。 |
+| 仅凭 PNG 摘要冒认 source/render 绑定 | `packages/core/knowledge/diagram-publications.ts`、便携/MCP 消费者：固定完整元组及实际物理路径的准备证明。 |
+| 旧迁移缺少稳定身份、入站图形预览、崩溃续跑与编辑保护 | `packages/core/knowledge/whiteboard-migration*.ts`、`WhiteboardMigrations.vue`：迁移日志、受控原件、别名、固定最终源预览；原生入站引用、回执重建及回滚冲突保护。 |
+| 旧草稿/历史被当作新 Markdown；跨路径恢复使用错误资源基准 | `apps/web/diagrams/legacy-draft.ts`、`packages/core/knowledge/revision-context.ts`、`history-restore*.ts`、`recovery/`：保留原始类型、逻辑路径、摘要和资源 ID；核对后转换并重新 prepare；小/大恢复共用策略。 |
+| 移动/复制/撤销/恢复只能拒绝原生链接改写，或预览与最终源不匹配 | `native-link-plans.ts`、`diagram-operation-previews.ts`、`organization/`、`folders.ts`、`knowledge/move.ts`、`knowledge/note-trash-native-restore.ts`：持久操作计划、每组源和预览、提交前最终文件/权限/身份/模式检查。 |
+| 文件夹移动删除共享资源或恢复占用新文件 | `diagram-relocation.ts`、`archived-*-context.ts`：保留证明固定的共享资源及原物理基准；只允许受控资源目录撤销，后加文件冲突；历史/备份/崩溃恢复保持身份。 |
+| 图形机器字段进入搜索，排除后完整扫描和引用坐标不可靠 | `shared/diagram-text-projection.ts`、`indexing/`、`graph/`：真实原文范围、旧 JSON 转义标签解码、完整扫描/块清单证明、缓存升级；相关附件变化撤下旧语义结果。 |
+| 交付遗漏媒体、远程资源、原生最终 PNG；自导出大包无法回导 | `packages/core/portable-delivery/`、`assets/`、`shared/portable-resource-limits.ts`：严格闭包、流式媒体、固定公共 DNS/重定向、最终原生预览、目标文件系统暂存和受跟踪 promotion；保留原配额。 |
+| MCP 缺完整便携/原生预览接口，错误丢失需求或撤权后继续读取 | `packages/core/mcp-*`、`plugins/knowledge-tools.ts`、`shared/mcp-*.ts`：有界源/结果分页、用途隔离上传、同 requestId 续跑、每块当前授权、兼容旧需求结构。 |
+| 有效 PNG 中可能携带可恢复原场景而随公开图片泄露 | `shared/png-policy.ts`、`shared/diagram-primary.ts`、公开资源/博客/`apps/web/reading-export.ts`：已知 Excalidraw PNG 文本键拒绝；所有者原件不改字节，不能重绑旧哈希。 |
 
-此外，统一测试发现了夹具适配问题：结构化错误需解码成实际 code、读竞争调度钩子需匹配当前 move guard、Workspace VM 需接入实际新增模块。仅调整夹具及依赖映射，未放宽原并发、身份/授权和普通编辑断言。
+对应细节及独立复审：[历史资源](diagrams/validation/history-resources-2026-10-31.md)、[原生生命周期](diagrams/validation/native-lifecycle-2026-10-31.md)、[单篇恢复](diagrams/validation/note-trash-restore-2026-10-31.md)、[便携包](diagrams/validation/portable-packages-2026-10-31.md)、[PNG 隐私](diagrams/validation/png-preview-privacy-2026-10-31.md)、[语义索引](diagrams/validation/semantic-index-2026-10-31.md)、[MCP 预览](diagrams/validation/mcp-previews-2026-10-31.md)。
 
 ## 实际验证记录
 
-所有知识库、迁移/恢复和故障测试均为临时数据；未迁移真实资料。下面专项有重叠，不能相加当作一个总数。
+### 完整单元、类型与构建
 
-| 命令/范围 | 结果 |
-|---|---|
-| 桌面主图/旧白板/整包导入导出专项 | 22/22；最终兼容/审阅修复后额外 6/6（均 `--project=desktop`） |
-| Mind Elixir 独立适配专项 | 4/4（中文、整图 PNG、格式限制、根编辑） |
-| 会话/草稿/编辑器等专项 | 首轮 77/77；审阅修复后相关 88/88 |
-| 生命周期新回归及旧整理/恢复/附件回归 | 最终 124/124，包含 35 项新生命周期场景 |
-| 便携本地交付/导入和旧 transfer 回归 | 69/69；大小写追加测试所在文件 23/23；同源导航修复后相关 56/56 |
-| 资源失效/监听/已有调和与图谱回归 | 48/48；防抖追加复验 10/10 |
-| 主图及普通阅读导出 | 9/9 |
-| 主图 MCP 与原件句柄 | 28/28 |
-| owner 旧解析/公开投影/owner route | 22/22 |
-| 真包换目录、原库离线、普通浏览器 | 固定 PNG 路径夹具 1/1；另实际三类编辑器导出离线验证 3/3：PNG 为158×133、999×255、168×138，包内图片 SHA 与新鲜资源一致，正文保留、无应用/API请求 |
-| 冻结源码 `npm run typecheck` / `npm run build` | 均退出 0；原项目依赖安装后类型检查亦退出 0 |
-| 首次冻结 `npm test` | 419 文件：413 通过、4 失败、2 跳过；3126 测试：3053 通过、57 失败、16 跳过，1258.74 秒。失败根因及复验见下一节。 |
-| 失败的 4 文件完整复验 | 83/83 通过，所有原断言保留。第二次完整汇总为417文件/3114测试通过、2文件/16测试跳过，但外层进程收到SIGTERM（退出143），未记为命令成功；同冻结源码按两个固定路径哈希分片复验：第1片210文件，209通过/1跳过、1486测试通过/15跳过，704.24秒，退出0；第2片209文件，208通过/1跳过、1628测试通过/1跳过，546.94秒，退出0。两片合计覆盖419文件且无重复，417文件/3114测试通过、2文件/16测试跳过；这是最终单元命令验收记录。 |
+- `npm run typecheck`、`npm run build`：冻结运行时代码 `02ede20` 均退出 0（类型与构建输出无错误）。
+- `npm test -- --shard=1/2`：226 文件，225 通过、1 跳过；1672 测试通过、15 跳过；退出 0，1019.56 秒。
+- `npm test -- --shard=2/2` 最终复验：225 文件，224 通过、1 跳过；1774 测试通过、1 跳过；退出 0，586.78 秒。
+- 两个确定分片无重复、并集覆盖 **451 文件，449 通过、2 环境跳过；3446 测试通过、16 跳过、0 失败**。第一片之后只修改第二片的四个测试夹具，未修改运行时代码或第一片测试；文件集合和哈希保存在本地验收材料中。
+- 首轮全套发现 1 个实际兼容问题：MCP 错误过滤丢失旧预览需求，已修复。其余为夹具未提供历史资源路径/完整扫描证明、新模块 VM 映射缺失、旧 revision 列数及新备份策略；分别核对根因并保留原行为断言修正。WAL 仍验证自身租约立即释放及后台任务最终归零。原 pending-folder 历史快照恢复覆盖保留，不把不安全备份改成成功。
 
-首次完整执行的失败分类：
+### 浏览器与边界专项
 
-- `0bb1b26` 独立基线也失败：并发夹具 3 项把完整 JSON 当错误码、读权限夹具 1 项未命中调度钩子。
-- 本轮新增导入依赖导致两套自建 VM 拒绝挂载：保存/恢复 39 项、导航 14 项（另 1 项原本通过）；基线 39+15 均通过。接入真实模块并与 VM 共用原 mockApi 后，54/54 通过。
-- 修复后四个失败文件 83/83 通过，没有删除、跳过失败断言或加大超时来掩盖问题；最终以两个无重复分片均退出0为准；不将收到SIGTERM的单进程命令记为退出0。
+- 首轮最终桌面核心 22/22，审阅后追加 6/6；Mind Elixir 独立真实适配 4/4。
+- 后续新增：迁移 2/2、图形历史故障恢复 1/1、复制/批量整理/旧树菜单 11/11、目录整体上传 1/1、实际原生链接离线交付及目录回导 1/1。以上为不同阶段专项，有重叠，不替代最终联合运行。
+- PNG 隐私独立浏览器 1/1，真实 Excalidraw 输出不含原场景，输入不变；公开/博客/HTML/打印相关服务回归及独立复审通过。原渲染器此前已过滤 `exportEmbedScene`，不把这一防御补强描述成“原编辑器曾泄露”。
+- 1000 文档/分页，20 MiB 普通文档，128 MiB 随机媒体，约 252 MiB 两媒体包实际自导出回导均通过。252 MiB 真实 owner HTTP 流式回导在 dataRoot/knowledgeRoot 不同文件系统验证，保留原导出回执，暂存峰值不超过 512 MiB，结束前清空账目。未执行真实嵌套挂载。
+- 只读真实 MCP SDK：40 KiB 原生源分块→准备最终 PNG→同 requestId 重试导出→换目录普通阅读→不同写授权整包回导，1/1 通过。
+- 最终首轮 67 项桌面联合运行：47 通过、20 失败。未启用 `VITE_DOCUMENT_EDITOR_ENABLED=1` 导致普通富文档相关入口失败；另发现缺源主图阻塞其他操作的实际缺陷；设置标题为原基线已过时期望。正在分别修复/以正确配置复验，不能将该轮记为通过。
 
-独立后端及前端审阅确认的重要问题均已由原实现者复现修复并通过针对性复审。额外大小写/内部导航等完整性边界另行取证，以下仍保留最终范围结论。
+### 环境跳过与未验证
 
-## 尚未解决的阻断项及影响
+- `tests/native-rollback-entrypoint.test.ts` 15 项：缺少既有 rc48/rc49 原生发行物。
+- `tests/search-runtime-install.test.ts` 1 项：未提供 `DOOKNOW_SEARCH_ARTIFACT`。
+- 本轮源码构建不等于正式平台发行包验证；上述门禁需在发行构建环境补证。实际本地向量/分词模型测试已运行，不属于这些跳过项。
+- 实机打印机、独立设备、真实嵌套挂载未验证。离线换目录及两个实际文件系统之间的完整回导已验证。
 
-1. **旧白板稳定 UUID 的专用迁移/续跑/回滚及路径别名未完成。** 不能在真实知识库批量把旧 JSON 改后缀；现有安全拒绝旧 JSON 历史写回不能代替转换恢复。
-2. **类型化历史逻辑路径/固定资源恢复、直接复制及通用重定位规划不完整。** 对需要重写主文或原生链接的操作会明确阻断；这能保护数据，但不是“所有移动恢复场景均可用”。
-3. **语义索引与精确 AI 引用仍未完成。** 当前 generic chunker 会包含机器字段/预览路径；图谱可能遗漏 fenced 白板标签。已实现资源失效隔离不等于语义投影和完整扫描证明已完成，不能把这些结果当成最终正确的图形语义检索。
-4. **音视频、远程/data/blob/HTML 媒体本地化及最终原生源改写后的 PNG 准备计划未完成。** 当前严格本地交付会明确拒绝这些有效依赖，不能承诺包含它们的完整离线包。
-5. **新 MCP 便携交付/整体回导包装、浏览器解压目录整体上传未接入。** 旧 raw/bundle 契约保留，不能当成新严格默认流程的验收替代；当前 GUI 完整回导用压缩包入口。
-6. **旧 inline v1 回导后的 durable preview receipt 未重建。** 文件/PNG/源完整导入，但再次严格导出需要重新生成相应预览；已消费旧回执的物理路径重放在资源目录迁移后也有限制。
-7. **整包导入不是一次全回滚的原子事务。** 先做包/资源校验，再逐份激活完整文档；中途故障可能保留已导入的笔记和资源，API 使用同一请求 ID 续跑。不能承诺失败后目标库零变化；跨浏览器重启的导入作业管理未完整验收。
-8. 跳过的2个文件/16项为缺少对应发行物的原生旧版本恢复与搜索运行时安装门禁，不算通过；本轮没有补做发行包部署测试。另未做最大 1000 文档/10000 文件极限负载、独立实机/真实打印机验证。手机端等排除范围没有开展，不因此判定通过。
+## 操作限制与发布准备
 
-## 迁移与发布准备结论
+1. 真实知识库迁移、生产部署、服务重启另行处理。原目录既有 Vite 预览进程未重启，不能将源码回集当作旧后端已经升级；本轮不重建其在用 `dist`。
+2. 缺少可信原始路径/身份/摘要/日志的旧历史明确拒绝推断。源缺失或已变化、未知格式、超限原子引用单元等场景保留原件并明确失败，不能通过改哈希冒充恢复。
+3. 整包导入先校验完整包，再逐篇激活完整文档；中断可能保留已成功导入的文档，通过同 requestId 续跑，不能承诺失败后目标库零变化。
+4. 当前单媒体 128 MiB、便携包 256 MiB、最多 10000 文件、便携核心暂存 512 MiB；MCP 传输存储为独立额度。官方大归档上传在文件流前提供目标目录/requestId；旧式无提前上下文的小包兼容不等于满预算大包协议。
+5. 仍被历史、回收站、共享副本引用的资产可能保留在原目录；没有历史附件自动清理功能，不应删除这些资源目录。
+6. 仅拦截已知 Excalidraw PNG 文本场景元数据，不承诺清除所有图片元数据。公开原件必须显式授权；授权原件不赋予编辑权。
 
-**否。** 桌面核心和本地支持资源集已取得实际功能与故障回归证据，本轮还修复了真实数据丢失和权限/完整性边界问题；但上述迁移、历史、语义索引和交付能力仍是明确阻断项。应先补齐并验收，再另行授权真实数据迁移、发布和服务重启。本轮没有执行这些生产操作。
-
-原目录有既有 Vite 预览进程，未被本任务重启；源码回集可能触发前端热更新，不能将该旧后端进程视作已切换的新发布。本轮浏览器验收使用独立临时服务，未重建原目录的在用预览产物。
-
-相关计划：`docs/superpowers/plans/2026-10-31-markdown-diagram-acceptance.md`。完整原始日志及独立审阅记录保存在隔离工作树 `.local/markdown-diagrams/acceptance-*`；它们是测试材料，不包含生产知识库副本。
+当前放行结论：**待最终联合缺陷修复、复验及安全回集后更新。** 发布准备步骤见[迁移与发布准备说明](diagrams/migration-release-preparation.md)；上述环境门禁、用户已有工作发布范围和生产操作边界仍须保留。
