@@ -115,7 +115,13 @@ it.each(['missing', 'unverified'])('refuses %s legacy input before issuing a nat
     await run('git', ['-C', repository, '-c', 'user.name=Release fixture', '-c', 'user.email=fixture@example.invalid', '-c', 'core.hooksPath=/dev/null', 'commit', '--quiet', '--allow-empty', '--no-gpg-sign', '-m', 'fixture']);
     const commit = (await run('git', ['-C', repository, 'rev-parse', 'HEAD'])).stdout.trim();
     await writeFile(join(directory, 'release.json'), JSON.stringify({sourceCommit:commit,dirty:false,databaseCompatibility:3,version:'1.1.0-rc.49',file:'dooknow-1.1.0-rc.49-linux-x64.tar.gz'}));
-    const { DOOKNOW_RECOVERY_LEGACY_ARCHIVE: _legacy, ...env } = process.env;
+    const {
+      DOOKNOW_RECOVERY_LEGACY_ARCHIVE: _legacy,
+      DOOKNOW_RECOVERY_ROLLBACK_ARCHIVE: _rollback,
+      DOOKNOW_RECOVERY_ROLLBACK_VERSION: _rollbackVersion,
+      DOOKNOW_RECOVERY_ROLLBACK_SHA256: _rollbackHash,
+      ...env
+    } = process.env;
     const args = ['--import', resolve('node_modules/tsx/dist/loader.mjs'), resolve('scripts/verify-release.ts'), '--directory', directory, '--output', output];
     if (kind === 'unverified') {
       const file = join(root, 'wrong-archive.tar.gz');
