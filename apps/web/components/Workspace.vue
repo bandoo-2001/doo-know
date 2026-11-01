@@ -1212,6 +1212,7 @@ async function guard(fn: () => Promise<void>, intent = navigationIntent) {
   if (panel.value === 'apps' && !await confirmAppLeave(intent)) return;
   if(embeddedPrimaryId.value){await embeddedPrimaryRef.value?.requestClose();return;}
   if(embeddedBoardId.value){await embeddedBoardRef.value?.requestClose();return;}
+  if(primaryDiagram.value) await diagramRef.value?.settleSave();
   if(noteInfo.value?.editorMode === 'full') {try {await editorRef.value?.flush();}catch(cause){showError(cause);if(!dirty.value)return;}}
   if (!currentIntent(intent)) return;
   const apply = async () => { if (currentIntent(intent)) await fn(); };
@@ -3043,7 +3044,7 @@ onBeforeUnmount(() => {
       </div>
       <CollectionWorkspace v-if="panel === 'collection' && collection !== 'notes'" :kind="collection" :feed="collectionFeed" :favorite-busy="favoriteBusy" :menu-path="treeMenuPath" @select="select" @menu="showTreeMenu" @favorite="favoriteCard" @create="createFromCollection" />
       <WhiteboardWorkspace v-if="note && isWhiteboard(note.relativePath)" v-show="panel==='note'" ref="boardRef" :key="note.id" :board-id="note.id" :draft-scope="draftScope" @dirty="boardDirty=$event" @saved="onBoardSaved" @close="select({type:'folder',name:folder,path:folder})"/>
-      <DiagramDocumentWorkspace v-if="note && primaryDiagram" v-show="panel==='note'" ref="diagramRef" :key="'primary-'+note.id" :note-id="note.id" :draft-scope="draftScope" @dirty="boardDirty=$event" @saved="onBoardSaved" @history="history()" @close="select({type:'folder',name:folder,path:folder})"/>
+      <DiagramDocumentWorkspace v-if="note && primaryDiagram" v-show="panel==='note'" ref="diagramRef" :key="'primary-'+note.id" :note-id="note.id" :draft-scope="draftScope" :autosave-paused="revisionsOpen || leaveOpen" @dirty="boardDirty=$event" @saved="onBoardSaved" @history="history()" @close="select({type:'folder',name:folder,path:folder})"/>
       <section v-if="note && !primaryDiagram && !isWhiteboard(note.relativePath)" v-show="panel === 'note'" class="note-workspace">
         <header class="note-header">
           <div class="note-topline">
@@ -3810,7 +3811,7 @@ onBeforeUnmount(() => {
       :save-pending="!!pendingSave" :save-pending-restore="!!pendingSave?.revisionId"
       :baseline-stale="staleHistoryBase?.noteId === note.id && staleHistoryBase?.modifiedAt === note.modifiedAt"
       @check-save="run(async () => { await checkSave(); })" @restore="restoreRevision" />
-    <DiagramDocumentWorkspace ref="embeddedPrimaryRef" v-if="embeddedPrimaryId" :key="'embedded-primary-'+embeddedPrimaryId" :note-id="embeddedPrimaryId" embedded :draft-scope="draftScope" @close="embeddedPrimaryId=undefined"/>
+    <DiagramDocumentWorkspace ref="embeddedPrimaryRef" v-if="embeddedPrimaryId" :key="'embedded-primary-'+embeddedPrimaryId" :note-id="embeddedPrimaryId" embedded :draft-scope="draftScope" :autosave-paused="revisionsOpen || leaveOpen" @close="embeddedPrimaryId=undefined"/>
     <WhiteboardWorkspace ref="embeddedBoardRef" v-if="embeddedBoardId" :key="'embedded-'+embeddedBoardId" :board-id="embeddedBoardId" embedded :draft-scope="draftScope" @close="embeddedBoardId=undefined"/>
     <SettingsOverlay v-model:show="boardPickerOpen" title="插入白板" description="引用已有白板，或创建一块新的画布。" icon="whiteboard" :busy="boardCreating" :width="560">
       <div class="whiteboard-picker"><button v-for="board in flat.filter(item=>item.documentType==='whiteboard'||isWhiteboard(item.path))" :key="board.id" type="button" @click="insertBoard(board.id!)"><Icon name="whiteboard" :size="18"/><span>{{board.name}}<small>{{board.path}}</small></span><Icon name="chevron" :size="15"/></button><p v-if="!flat.some(item=>item.documentType==='whiteboard'||isWhiteboard(item.path))" class="muted">还没有白板，可以先创建一个。</p></div>

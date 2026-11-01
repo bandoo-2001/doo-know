@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, nextTick, onMounted, onBeforeUnmount } from 'vue';
+import { ref, computed, nextTick, onMounted, onBeforeUnmount, watch } from 'vue';
 import MarkdownIt from 'markdown-it';
 import DOMPurify from 'dompurify';
 import { knowledgeMarkdown } from '../../../shared/knowledge-markdown';
@@ -27,7 +27,7 @@ import { markdownDestination } from '../markdown-links';
 import { downloadBlob } from '../whiteboards/download';
 import MarkdownEditor from './MarkdownEditor.vue';
 import DraftRecovery from './DraftRecovery.vue';
-const props = defineProps<{ noteId: string; draftScope?: DraftScope; embedded?: boolean }>();
+const props = defineProps<{ noteId: string; draftScope?: DraftScope; embedded?: boolean; autosavePaused?: boolean }>();
 const emit = defineEmits<{ dirty: [value: boolean]; saved: [document: NoteDocument]; close: []; history:[] }>();
 const mount = ref<HTMLElement>(),
   root = ref<HTMLElement>(),
@@ -41,13 +41,15 @@ const mount = ref<HTMLElement>(),
   recovered = ref<DraftRecord>(),
   preview = ref(''),
   attachmentSources = ref<Record<string, string>>({}),
-  closing = ref(false);
+  closing = ref(false),
+  discarding = ref(false);
 let doc: NoteDocument | undefined,
   resource: DiagramResource | undefined,
   session: ReturnType<typeof createDocumentSession> | undefined,
   store: ReturnType<typeof createDraftStore> | undefined,
   record: DraftRecord | undefined,
   writeQueue = Promise.resolve(),
+  saveJob: Promise<void> | undefined,
   timer: ReturnType<typeof setTimeout> | undefined,
   draftTimer: ReturnType<typeof setTimeout> | undefined,
   disposed = false,
@@ -99,6 +101,22 @@ const readingHtml = computed(() => {
   return DOMPurify.sanitize(md.render(main.slice(frontmatterRange(main)?.end ?? 0)));
 });
 const labels = { whiteboard: '白板', mindmap: '脑图', flowchart: '流程图' };
+const automaticSavePaused = computed(
+  () => !!props.autosavePaused || closing.value || discarding.value,
+);
+function scheduleAutomaticSave(delay = 1200) {
+  clearTimeout(timer);
+  timer = undefined;
+  if (
+    !disposed && !loading.value && !recovered.value && !automaticSavePaused.value &&
+    !saving.value && !error.value && session?.dirty()
+  ) timer = setTimeout(() => void save(), delay);
+}
+watch(automaticSavePaused, (paused) => {
+  clearTimeout(timer);
+  timer = undefined;
+  if (!paused) scheduleAutomaticSave();
+}, { flush: 'sync' });
 function changed() {
   if (disposed) return;
   revision.value++;
@@ -107,8 +125,7 @@ function changed() {
   clearTimeout(draftTimer);
   if (!disposed && !loading.value && !recovered.value) {
     draftTimer = setTimeout(() => void session?.persist().catch(report), 150);
-    if (!saving.value && !error.value && session?.dirty())
-      timer = setTimeout(() => void save(), 1200);
+    scheduleAutomaticSave();
   }
 }
 function report(cause: unknown) {
@@ -197,17 +214,19 @@ async function mountEditor() {
     mode.value = 'source';
   }
 }
-async function loadPreview() {
-  if (!resource?.preview || !doc) return;
+async function loadPreview(current = () => !disposed) {
+  const snapshotResource = resource, snapshotDocument = doc;
+  if (!snapshotResource?.preview || !snapshotDocument) return;
   const assets = await api<any[]>('/api/notes/' + props.noteId + '/assets');
+  if (!current() || resource !== snapshotResource || doc !== snapshotDocument) return;
   attachmentSources.value = Object.fromEntries(
     assets.map((a) => [a.relativePath, '/api/assets/' + a.id]),
   );
-  const target = markdownDestination(resource.preview.path, doc.relativePath);
+  const target = markdownDestination(snapshotResource.preview.path, snapshotDocument.relativePath);
   const asset = assets.find(
-    (a) => a.relativePath === (target?.kind === 'local' ? target.path : resource!.preview!.path),
+    (a) => a.relativePath === (target?.kind === 'local' ? target.path : snapshotResource.preview!.path),
   );
-  preview.value = asset ? '/api/assets/' + asset.id + '?v=' + resource.preview.hash : '';
+  preview.value = asset ? '/api/assets/' + asset.id + '?v=' + snapshotResource.preview.hash : '';
 }
 async function load() {
   clearTimeout(timer);
@@ -274,32 +293,44 @@ async function load() {
     loading.value = false;
   }
 }
-async function save() {
-  if (!session || saving.value || !editable.value) return;
+function save(): Promise<void> {
+  if (saveJob) return saveJob;
+  if (!session || !editable.value) return Promise.resolve();
+  const activeSession = session;
+  const current = () => !disposed && session === activeSession;
   clearTimeout(timer);
   clearTimeout(draftTimer);
   saving.value = true;
   error.value = '';
-  try {
-    await session.save();
-    if (disposed) return;
-    const fresh = await api<NoteDocument>('/api/notes/' + props.noteId);
-    doc = fresh;
-    resource = await readDiagram(props.noteId);
-    emit('saved', fresh);
-    window.dispatchEvent(
-      new CustomEvent('dooknow-whiteboard-saved', { detail: { id: props.noteId } }),
-    );
-    await loadPreview();
-  } catch (e) {
-    report(e);
-  } finally {
-    saving.value = false;
-    if (disposed) return;
-    revision.value++;
-    emit('dirty', session.dirty());
-    if (session.dirty() && !error.value) timer = setTimeout(() => void save(), 300);
-  }
+  saveJob = (async () => {
+    try {
+      await activeSession.save();
+      if (!current()) return;
+      const fresh = await api<NoteDocument>('/api/notes/' + props.noteId);
+      if (!current()) return;
+      const freshResource = await readDiagram(props.noteId);
+      if (!current()) return;
+      doc = fresh;
+      resource = freshResource;
+      emit('saved', fresh);
+      window.dispatchEvent(
+        new CustomEvent('dooknow-whiteboard-saved', { detail: { id: props.noteId } }),
+      );
+      await loadPreview(current);
+    } catch (e) {
+      if (current()) report(e);
+    } finally {
+      saving.value = false;
+      if (current()) {
+        revision.value++;
+        emit('dirty', activeSession.dirty());
+      }
+    }
+  })().finally(() => {
+    saveJob = undefined;
+    if (current()) scheduleAutomaticSave(300);
+  });
+  return saveJob;
 }
 async function switchMode(next: 'design' | 'source' | 'preview' | 'reading') {
   if (!session || next === mode.value) return;
@@ -372,23 +403,29 @@ async function restore() {
   }
 }
 async function discard() {
-  if (saving.value) throw Error('正在保存，请完成后再放弃修改');
-  if (session?.state.pending) {
-    await save();
-    if (session.state.pending) throw Error('提交结果尚未核对，请先重试或下载草稿');
-  }
+  discarding.value = true;
   clearTimeout(timer);
-  clearTimeout(draftTimer);
-  await writeQueue;
-  if (record && store) {
-    if (!(await store.remove(props.noteId, record.version)))
-      throw Error('本地草稿已在其他页面变化');
-    record = undefined;
+  try {
+    // A save owns commit evidence and fresh server baselines until its full refresh settles.
+    await saveJob;
+    if (session?.state.pending) {
+      await save();
+      if (session.state.pending) throw Error('提交结果尚未核对，请先重试或下载草稿');
+    }
+    clearTimeout(draftTimer);
+    await writeQueue;
+    if (record && store) {
+      if (!(await store.remove(props.noteId, record.version)))
+        throw Error('本地草稿已在其他页面变化');
+      record = undefined;
+    }
+    recovered.value = undefined;
+    session?.discard();
+    error.value = '';
+    await mountEditor();
+  } finally {
+    discarding.value = false;
   }
-  recovered.value = undefined;
-  session?.discard();
-  error.value = '';
-  await mountEditor();
 }
 async function png() {
   if (!session || exporting.value) return;
@@ -528,7 +565,7 @@ onBeforeUnmount(() => {
   window.removeEventListener('beforeunload', unload);
   emit('dirty', false);
 });
-defineExpose({ save, discard, reload:load, requestClose: close, flush: () => session?.persist() });
+defineExpose({ save, discard, settleSave: () => saveJob, reload:load, requestClose: close, flush: () => session?.persist() });
 </script>
 <template>
   <section
