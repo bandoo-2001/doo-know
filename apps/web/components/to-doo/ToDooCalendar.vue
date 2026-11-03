@@ -378,20 +378,61 @@ function weekEvents(day: string) {
     if (!segment?.time || !('from' in segment)) continue;
     entries.push({ ...segment, id: event.id, title: event.title, event });
   }
-  return toDooConflictLanes(entries);
+  const actual = toDooConflictLanes(entries);
+  // Pack painted rectangles independently: minimum readable height is not a time conflict.
+  return toDooConflictLanes(
+    actual.map((entry) => {
+      const drawing = eventDrawing(entry);
+      return { entry, from: drawing.top, to: drawing.top + drawing.height };
+    }),
+  ).map(({ entry, lane, lanes }) => ({ ...entry, displayLane: lane, displayLanes: lanes }));
 }
-function slotStyle(event: ReturnType<typeof weekEvents>[number]) {
+function eventDrawing(event: { time: string; duration: number }) {
   const minute = Number(event.time.slice(0, 2)) * 60 + Number(event.time.slice(3));
   return {
-    top: (minute / 60) * 46 + 'px',
-    height: (Math.min(1440 - minute, Math.max(30, event.duration)) / 60) * 46 + 'px',
-    minHeight: '60px',
-    left: 'calc(' + (event.lane / event.lanes) * 100 + '% + 2px)',
-    right: 'auto',
-    width: 'calc(' + 100 / event.lanes + '% - 4px)',
+    top: (minute / 60) * 46,
+    height: Math.max(72, (Math.min(1440 - minute, Math.max(30, event.duration)) / 60) * 46),
   };
 }
-const readableEvent = ref<ReturnType<typeof weekEvents>[number]>();
+function slotStyle(event: ReturnType<typeof weekEvents>[number]) {
+  const drawing = eventDrawing(event);
+  return {
+    top: drawing.top + 'px',
+    height: drawing.height + 'px',
+    left: 'calc(' + (event.displayLane / event.displayLanes) * 100 + '% + 2px)',
+    right: 'auto',
+    width: 'calc(' + 100 / event.displayLanes + '% - 4px)',
+  };
+}
+const readableEventIdentity = ref<{ id: string; day: string; external: boolean }>();
+const readableEvent = computed(() => {
+  const identity = readableEventIdentity.value;
+  if (
+    !identity ||
+    props.timeline ||
+    props.view !== 'week' ||
+    !weekDays.value.includes(identity.day)
+  )
+    return undefined;
+  return weekEvents(identity.day).find(
+    (event) => event.id === identity.id && !!event.event === identity.external,
+  );
+});
+function inspectWeekEvent(event: ReturnType<typeof weekEvents>[number], day: string) {
+  readableEventIdentity.value = { id: event.id, day, external: !!event.event };
+}
+watch([anchor, () => props.view, () => props.timeline], () => {
+  readableEventIdentity.value = undefined;
+});
+const weekLayout = computed(() => {
+  const minimums = weekDays.value.map((day) =>
+    Math.max(110, Math.max(1, ...weekEvents(day).map((event) => event.displayLanes)) * 90),
+  );
+  return {
+    minimumWidth: Math.max(980, 42 + minimums.reduce((total, width) => total + width, 0)),
+    gridTemplateColumns: '42px ' + minimums.map((width) => `minmax(${width}px, 1fr)`).join(' '),
+  };
+});
 const weekViewport = ref<HTMLElement>();
 const hasWeekAllDay = computed(() =>
   weekDays.value.some(
@@ -789,7 +830,7 @@ watch(
           >
         </div>
       </div>
-      <div v-else class="todo-week">
+      <div v-else class="todo-week" :style="{ minWidth: weekLayout.minimumWidth + 'px' }">
         <div
           ref="weekViewport"
           class="todo-week-viewport"
@@ -803,7 +844,10 @@ watch(
           @scroll.passive="cancelWeekPosition"
         >
           <div class="todo-week-head">
-            <div class="todo-week-labels">
+            <div
+              class="todo-week-labels"
+              :style="{ gridTemplateColumns: weekLayout.gridTemplateColumns }"
+            >
               <span></span>
               <div v-for="day in weekDays" :key="day" :class="{ 'is-today': day === today }">
                 {{ label(day) }}
@@ -816,7 +860,10 @@ watch(
               aria-label="全天安排与截止"
               tabindex="0"
             >
-              <div class="todo-week-all-day-grid">
+              <div
+                class="todo-week-all-day-grid"
+                :style="{ gridTemplateColumns: weekLayout.gridTemplateColumns }"
+              >
                 <span></span>
                 <div v-for="day in weekDays" :key="day" :class="{ 'is-today': day === today }">
                   <button
@@ -858,7 +905,10 @@ watch(
               </div>
             </div>
           </div>
-          <div class="todo-week-body">
+          <div
+            class="todo-week-body"
+            :style="{ gridTemplateColumns: weekLayout.gridTemplateColumns }"
+          >
             <div class="todo-hour-labels">
               <span v-for="hour in hours" :key="hour">{{ String(hour).padStart(2, '0') }}:00</span>
             </div>
@@ -889,8 +939,8 @@ watch(
                   event.duration +
                   ' 分钟'
                 "
-                @focus="readableEvent = event"
-                @mouseenter="readableEvent = event"
+                @focus="inspectWeekEvent(event, day)"
+                @mouseenter="inspectWeekEvent(event, day)"
                 @dragstart="event.block && drag($event, event.block.id)"
                 @click="
                   event.block
@@ -1091,7 +1141,7 @@ watch(
   outline-offset: -2px;
 }
 .todo-week-lane {
-  padding-bottom: 60px;
+  padding-bottom: 72px;
 }
 .todo-week-event:hover,
 .todo-week-event:focus-visible {

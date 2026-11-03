@@ -234,3 +234,14 @@ test('ordinary segments follow real spring and fall midnight boundaries', () => 
     duration: 150,
   });
 });
+
+test('adjacent short blocks keep independent actual intervals and receive distinct readable display lanes', () => {
+  const view = calendar(null, 'UTC', [
+    block('first-short', '09:00', 5),
+    block('second-short', '09:05', 5),
+  ]);
+  const entries = view.weekEvents('2026-11-02');
+  expect(entries.map((entry: any) => entry.lanes)).toEqual([1, 1]);
+  expect(entries.map((entry: any) => entry.displayLanes)).toEqual([2, 2]);
+  expect(entries[0].displayLane).not.toBe(entries[1].displayLane);
+});

@@ -489,3 +489,29 @@ test('timeline labels each date so intermediate scroll positions retain date con
   expect(dates).toHaveLength(28);
   expect(dates).toContain('11-03');
 });
+
+test.each(['date', 'view', 'delete', 'edit', 'snapshot'] as const)(
+  'week detail never retains stale content after %s changes',
+  async (change) => {
+    const value = model();
+    const calendar = mount('ToDooCalendar', { model: value, date: '2026-11-04', view: 'week' });
+    calendar.byClass('todo-week-event')[0]!.props.onFocus();
+    await tick();
+    expect(calendar.byClass('todo-calendar-event-detail').map(calendar.text).join('')).toContain(
+      '上午安排',
+    );
+    if (change === 'date') calendar.props.date = '2026-11-11';
+    if (change === 'view') calendar.props.view = 'month';
+    if (change === 'delete') value.state.snapshot!.timeBlocks = [];
+    if (change === 'edit') value.state.snapshot!.timeBlocks[0]!.title = '更新后的安排';
+    if (change === 'snapshot') {
+      const fresh = JSON.parse(JSON.stringify(value.state.snapshot!));
+      fresh.timeBlocks[0].title = '刷新后的安排';
+      value.state.snapshot = fresh;
+    }
+    await tick();
+    expect(
+      calendar.byClass('todo-calendar-event-detail').map(calendar.text).join(''),
+    ).not.toContain('上午安排');
+  },
+);

@@ -259,3 +259,76 @@ test('phone timeline keeps day width and sticky task titles while scrolling', as
     await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
   ).toBeLessThanOrEqual(1);
 });
+
+test('adjacent short events keep readable title and time targets without painting over one another', async ({
+  page,
+}, info) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  const initial = await (await page.request.get('/api/to-doo/state')).json();
+  const csrf = await (await page.request.get('/api/security/csrf')).json();
+  const headers = { origin: String(info.project.use.baseURL), 'x-csrf-token': csrf.token };
+  const settings = await page.request.post('/api/to-doo/commands', {
+    headers,
+    data: {
+      requestId: crypto.randomUUID(),
+      action: 'save_entity',
+      payload: {
+        kind: 'settings',
+        expectedRevision: initial.settings.revision,
+        entity: { ...initial.settings, timeZone: 'UTC' },
+      },
+    },
+  });
+  expect(settings.ok()).toBe(true);
+  const id = 'adjacent-short-' + crypto.randomUUID();
+  const imported = await page.request.post('/api/to-doo/commands', {
+    headers,
+    data: {
+      requestId: crypto.randomUUID(),
+      action: 'import_entities',
+      payload: {
+        entities: Array.from({ length: 10 }, (_, index) => ({
+          kind: 'timeBlock',
+          entity: {
+            ...stamp,
+            id: id + '-' + index,
+            title: `相邻短事件 ${index + 1}`,
+            start: {
+              date: '2032-05-10',
+              time: '09:' + String(index * 5).padStart(2, '0'),
+              timeZone: 'UTC',
+            },
+            durationMinutes: 5,
+          },
+        })),
+      },
+    },
+  });
+  expect(imported.ok()).toBe(true);
+  await page.goto('/?view=apps&app=to-doo&appSection=calendar&calendarView=week&date=2032-05-10');
+  const events = page.locator('.todo-week-event').filter({ hasText: '相邻短事件' });
+  await expect(events).toHaveCount(10);
+  for (let index = 0; index < 10; index++) {
+    const button = events.nth(index);
+    await button.scrollIntoViewIfNeeded();
+    const targets = await button.evaluate((element) =>
+      ['.todo-week-event-title', 'small'].map((selector) => {
+        const text = element.querySelector(selector)!;
+        const box = text.getBoundingClientRect();
+        const x = box.left + box.width / 2,
+          y = box.top + box.height / 2;
+        return document.elementFromPoint(x, y)?.closest('.todo-week-event') === element;
+      }),
+    );
+    expect(targets, `title/time targets for adjacent event ${index + 1}`).toEqual([true, true]);
+    await expect(button).toContainText('5 分钟');
+  }
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
+  ).toBeLessThanOrEqual(1);
+  await events.nth(0).scrollIntoViewIfNeeded();
+  await page.screenshot({
+    path: `docs/design/to-doo/audit-fixes-2026-11-03/calendar/${info.project.name}-adjacent-short-events.png`,
+    fullPage: true,
+  });
+});
