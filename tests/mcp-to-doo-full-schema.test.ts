@@ -32,3 +32,16 @@ it('publishes every command and entity schema with precise create and optional p
     expect(Buffer.byteLength(JSON.stringify(z.toJSONSchema(schema)))).toBeLessThan(30000);
   }
 });
+
+it('accepts restore-unread with the same strict revision and request identity requirements as other reminder actions', () => {
+  const schema = toDooFullToolSchemas.act_on_to_doo_reminder;
+  const action = {
+    id: 'rem-1',
+    requestId: 'restore-1',
+    expectedRevision: 'revision-1',
+    action: 'unread',
+  };
+  expect(schema.parse(action)).toMatchObject(action);
+  expect(schema.safeParse({ ...action, expectedRevision: undefined }).success).toBe(false);
+  expect(schema.safeParse({ ...action, action: 'complete' }).success).toBe(false);
+});

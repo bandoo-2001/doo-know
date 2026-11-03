@@ -24,6 +24,7 @@ const props = defineProps<{ model: ToDooWorkbench; section: 'stats' | 'notificat
 const emit = defineEmits<{
   edit: [kind: ToDooEntityKind, entity?: Record<string, any>, seed?: Record<string, any>];
   task: [id: string, occurrenceId?: string];
+  source: [context: ToDooReminderSource];
 }>();
 const { now } = useToDooClock();
 const state = props.model.state,
@@ -59,17 +60,24 @@ const ATabPane = ATabs.TabPane,
   AMenuItem = AMenu.Item;
 const reminderController = createToDooReminderController(props.model.request);
 const actingReminder = computed(() => reminderController.state.busy);
-onUnmounted(reminderController.dispose);
+onUnmounted(() => {
+  ++sourceRequest;
+  reminderController.dispose();
+});
 type ReminderState = ToDooEntityMap['reminderEvent']['userState'];
 const notificationTabs: { value: ReminderState | 'all'; label: string }[] = [
   { value: 'all', label: '全部' },
   { value: 'unread', label: '未读' },
   { value: 'read', label: '已读' },
-  { value: 'acknowledged', label: '已处理' },
+  { value: 'acknowledged', label: '已确认' },
   { value: 'snoozed', label: '稍后' },
   { value: 'dismissed', label: '忽略' },
 ];
 const notificationFilter = computed(() => state.query.reminderStates?.[0] ?? 'all');
+const isHistorySummary = (event: ToDooEntityMap['reminderEvent']) =>
+  event.sourceType === 'habit' &&
+  event.occurrenceKey?.startsWith('history:') &&
+  event.ruleId?.startsWith('history_');
 const markingAll = ref(false);
 const reminders = computed(() =>
   (state.snapshot?.reminderEvents ?? [])
@@ -120,7 +128,7 @@ async function openReminder(event: ToDooEntityMap['reminderEvent']) {
     if (ticket !== sourceRequest || (state.query.view && state.query.view !== 'notifications'))
       return;
     if (card.taskId) emit('task', card.taskId, card.occurrenceId);
-    else state.error = '这条提醒没有可打开的任务执行记录';
+    else emit('source', card);
   } catch (cause) {
     state.error = cause instanceof Error ? cause.message : String(cause);
   }
@@ -188,14 +196,19 @@ function notifyReminderChange() {
       new CustomEvent('dooknow-to-doo-changed', { detail: { workspaceAlreadyLoaded: true } }),
     );
 }
-async function reminder(id: string, action: 'read' | 'acknowledge' | 'dismiss' | 'snooze') {
+const snoozeMinutes = [5, 15, 30, 60];
+async function reminder(
+  id: string,
+  action: 'read' | 'unread' | 'acknowledge' | 'dismiss' | 'snooze',
+  minutes = 15,
+) {
   const event = state.snapshot?.reminderEvents.find((row) => row.id === id);
   if (!event || actingReminder.value || markingAll.value || state.busy) return;
   state.error = '';
   const saved = await reminderController.act(
     { event, section: 'notifications', completion: 'open' },
     action,
-    { minutes: 15 },
+    { minutes },
   );
   if (!saved) {
     state.error = reminderController.state.error;
@@ -329,7 +342,9 @@ defineExpose({ createReview, markAll, markingAll, actingReminder });
     </div>
     <p class="todo-form-help">
       {{ appliedFrom }} — {{ appliedTo }} ·
-      {{ bucketDays > 1 ? '每 ' + bucketDays + ' 天汇总' : '按天统计' }} · 目标进展为累计完成情况
+      {{ bucketDays > 1 ? '每 ' + bucketDays + ' 天汇总' : '按天统计' }}
+      · 历史完成保留归档行动的已完成记录；目标进展为当前未归档行动的累计执行次数，
+      不含父行动、取消和跳过的执行。已保存复盘保留保存时的指标。
     </p>
     <div class="todo-review-grid">
       <section class="todo-panel todo-review-trend">
@@ -340,13 +355,13 @@ defineExpose({ createReview, markAll, markingAll, actingReminder });
             :key="d.date"
             :title="d.date + (d.end === d.date ? '' : ' — ' + d.end) + '：' + d.total + '项'"
           >
-            <span>{{ d.total || '' }}</span
+            <span>{{ d.total }}</span
             ><i
               :style="{
                 height:
                   (d.total
                     ? Math.max(6, (d.total / Math.max(1, ...daily.map((v) => v.total))) * 100)
-                    : 2) + 'px',
+                    : 0) + 'px',
               }"
             ></i
             ><small>{{
@@ -442,6 +457,9 @@ defineExpose({ createReview, markAll, markingAll, actingReminder });
           :disabled="markingAll || state.loading || !!actingReminder"
       /></ATabs>
     </ToDooPageToolbar>
+    <p class="todo-form-help">
+      确认提醒只更新通知状态，不会自动完成任务或习惯；完成事项请查看来源。误操作可在更多提醒操作中恢复未读。
+    </p>
     <section class="todo-panel">
       <section
         v-for="group in notificationGroups"
@@ -467,7 +485,7 @@ defineExpose({ createReview, markAll, markingAll, actingReminder });
                   {
                     unread: '未读',
                     read: '已读',
-                    acknowledged: '已处理',
+                    acknowledged: '已确认',
                     dismissed: '已忽略',
                     snoozed: '稍后提醒',
                   }[r.userState]
@@ -479,7 +497,9 @@ defineExpose({ createReview, markAll, markingAll, actingReminder });
             </p>
             <small class="todo-muted"
               >{{
-                { task: '任务提醒', habit: '习惯提醒', anniversary: '纪念日提醒' }[r.sourceType]
+                isHistorySummary(r)
+                  ? '历史汇总提醒'
+                  : { task: '任务提醒', habit: '习惯提醒', anniversary: '纪念日提醒' }[r.sourceType]
               }}
               ·
               {{
@@ -497,12 +517,14 @@ defineExpose({ createReview, markAll, markingAll, actingReminder });
             >
             <div class="todo-actions todo-top-gap">
               <AButton
-                v-if="r.sourceType === 'task'"
+                v-if="!isHistorySummary(r)"
                 type="link"
                 class="todo-link"
                 :disabled="markingAll || !!actingReminder"
                 @click="openReminder(r)"
-                >查看任务</AButton
+                >{{
+                  { task: '查看任务', habit: '查看习惯', anniversary: '查看纪念日' }[r.sourceType]
+                }}</AButton
               >
               <AButton
                 v-if="r.userState === 'unread' || r.userState === 'read'"
@@ -510,7 +532,7 @@ defineExpose({ createReview, markAll, markingAll, actingReminder });
                 class="todo-link"
                 :disabled="state.loading || markingAll || !!actingReminder"
                 @click="reminder(r.id, 'acknowledge')"
-                >已处理</AButton
+                >确认提醒</AButton
               >
               <ADropdown :trigger="['click']" overlay-class-name="todo-ant-popup"
                 ><AButton
@@ -523,7 +545,13 @@ defineExpose({ createReview, markAll, markingAll, actingReminder });
                   ><AMenu
                     ><AMenuItem v-if="r.userState === 'unread'" @click="reminder(r.id, 'read')"
                       >标为已读</AMenuItem
-                    ><AMenuItem @click="reminder(r.id, 'snooze')">15 分钟后提醒</AMenuItem
+                    ><AMenuItem v-if="r.userState !== 'unread'" @click="reminder(r.id, 'unread')"
+                      >恢复未读</AMenuItem
+                    ><AMenuItem
+                      v-for="minutes in snoozeMinutes"
+                      :key="minutes"
+                      @click="reminder(r.id, 'snooze', minutes)"
+                      >{{ minutes }} 分钟后提醒</AMenuItem
                     ><AMenuItem @click="reminder(r.id, 'dismiss')">忽略提醒</AMenuItem></AMenu
                   ></template
                 ></ADropdown

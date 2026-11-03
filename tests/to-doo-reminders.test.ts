@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import Fastify from 'fastify';
-import { createECDH, randomUUID } from 'node:crypto';
+import { createECDH, createHash, randomUUID } from 'node:crypto';
 import { mkdtemp, mkdir, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -32,6 +32,7 @@ async function fixture() {
   const db = openDatabase(config.dataRoot);
   const service = createToDooService(config, db, noteService(config, db));
   let clock = new Date('2026-10-30T09:00:00Z');
+  let sent = 0;
   const runtime = createToDooNotifications(service, {
     db,
     dataRoot: config.dataRoot,
@@ -40,7 +41,10 @@ async function fixture() {
     now: () => clock,
     network: createToDooNetwork({
       resolve: async () => [{ address: '8.8.8.8', family: 4 }],
-      send: async () => ({ status: 201, headers: {}, body: Buffer.alloc(0) }),
+      send: async () => {
+        sent++;
+        return { status: 201, headers: {}, body: Buffer.alloc(0) };
+      },
     }),
   });
   const app = Fastify();
@@ -92,6 +96,9 @@ async function fixture() {
     db,
     service,
     runtime,
+    get sent() {
+      return sent;
+    },
     save,
     task,
     events,
@@ -488,6 +495,188 @@ describe('actionable reminder context', () => {
     expect(
       f.service.snapshot({ all: true }).occurrences.find((o) => o.taskId === task.id)?.status,
     ).toBe('todo');
+  });
+
+  it('does not apply a prior dataset restore memo after adoption retains the same event ID, generation and revision', async () => {
+    const f = await fixture();
+    await f.runtime.configure({ enabled: true });
+    const key = createECDH('prime256v1');
+    key.generateKeys();
+    const subscription = {
+      endpoint: 'https://push.example/old-dataset',
+      keys: {
+        p256dh: key.getPublicKey().toString('base64url'),
+        auth: Buffer.alloc(16, 1).toString('base64url'),
+      },
+    };
+    await f.runtime.subscribe({ subscription, deviceName: 'Original' });
+    const fields = {
+      id: 'same-habit-source',
+      name: 'Same source ID',
+      startDate: '2026-10-30',
+      reminders: [{ id: 'same-rule', allDayTime: '09:00' }],
+    };
+    f.save('habit', fields);
+    await f.runtime.process();
+    const old = f
+      .events()
+      .find((row) => row.sourceId === fields.id && !row.ruleId.startsWith('history_'))!;
+    const handled = f.runtime.action(old.id, {
+      action: 'dismiss',
+      requestId: 'old-dismiss',
+      expectedRevision: old.revision,
+    });
+    const restored = f.runtime.action(old.id, {
+      action: 'unread',
+      requestId: 'old-restore',
+      expectedRevision: handled.revision,
+    });
+    const deliveredBefore = f.sent;
+    f.adoptDataset();
+    await f.runtime.subscribe({
+      subscription: { ...subscription, endpoint: 'https://push.example/new-dataset' },
+      deviceName: 'New dataset',
+    });
+    await f.runtime.process();
+    const current = f
+      .events()
+      .find((row) => row.sourceId === fields.id && !row.ruleId.startsWith('history_'))!;
+    expect(current.id).toBe(old.id);
+    expect(current.revision).toBe(restored.revision);
+    expect(current.deliveryGeneration).toBe(restored.deliveryGeneration);
+    expect(current.userState).toBe('unread');
+    expect(f.sent).toBe(deliveredBefore + 1);
+  });
+
+  it.each(['completed', 'pending'] as const)(
+    'replays a legacy %s action memo without reapplying the domain save and rejects a changed action',
+    async (state) => {
+      const f = await fixture();
+      f.task();
+      await f.runtime.process();
+      const event = f.events()[0];
+      const rawRequest = 'legacy-action';
+      const hash = (value: unknown) =>
+        createHash('sha256').update(JSON.stringify(value)).digest('hex');
+      const legacyKey =
+        'rem_event_' + hash([f.service.snapshot().datasetId, rawRequest]).slice(0, 40);
+      const entity = { ...event, userState: 'dismissed', snoozedUntil: null };
+      const fingerprint = hash([event.id, 'dismiss', null, event.revision]);
+      f.service.command({
+        requestId: legacyKey,
+        action: 'save_entity',
+        payload: { kind: 'reminderEvent', entity, expectedRevision: event.revision },
+      });
+      const saved = f.events().find((row) => row.id === event.id)!;
+      f.db
+        .prepare(
+          'INSERT INTO to_doo_reminder_event_actions(request_id,fingerprint,entity,expected_revision,response) VALUES(?,?,?,?,?)',
+        )
+        .run(
+          legacyKey,
+          fingerprint,
+          JSON.stringify(entity),
+          event.revision,
+          state === 'completed' ? JSON.stringify(saved) : null,
+        );
+      const input = {
+        action: 'dismiss' as const,
+        requestId: rawRequest,
+        expectedRevision: event.revision,
+      };
+      expect(f.runtime.action(event.id, input)).toEqual(saved);
+      expect(f.runtime.action(event.id, input)).toEqual(saved);
+      expect(f.events().find((row) => row.id === event.id)!.revision).toBe(saved.revision);
+      expect(() => f.runtime.action(event.id, { ...input, action: 'unread' })).toThrow(/请求标识/);
+      expect(f.events().find((row) => row.id === event.id)!.userState).toBe('dismissed');
+    },
+  );
+
+  it('HTTP acknowledges and restores unread without completing a task or reverting a completed occurrence', async () => {
+    const f = await fixture();
+    const task = f.task();
+    await f.runtime.process();
+    const event = f.events().find((e) => e.sourceId === task.id)!;
+    const action = (event: ToDooEntityMap['reminderEvent'], value: string, requestId: string) =>
+      f.app.inject({
+        method: 'POST',
+        url: `/api/to-doo/reminders/${event.id}/action`,
+        payload: { action: value, requestId, expectedRevision: event.revision },
+      });
+    const acknowledged = await action(event, 'acknowledge', 'confirm-only');
+    expect(acknowledged.statusCode, acknowledged.body).toBe(200);
+    const occurrence = f.service
+      .snapshot({ all: true })
+      .occurrences.find((o) => o.taskId === task.id)!;
+    expect(occurrence.status).toBe('todo');
+    f.service.command({
+      requestId: 'business-done',
+      action: 'set_occurrence_status',
+      payload: { id: occurrence.id, expectedRevision: occurrence.revision, status: 'done' },
+    });
+    const restored = await action(acknowledged.json(), 'unread', 'restore-only');
+    expect(restored.statusCode, restored.body).toBe(200);
+    expect(restored.json()).toMatchObject({
+      userState: 'unread',
+      deliveryGeneration: 0,
+      snoozedUntil: null,
+    });
+    expect(
+      f.service.snapshot({ all: true }).occurrences.find((row) => row.id === occurrence.id)!.status,
+    ).toBe('done');
+    expect((await action(acknowledged.json(), 'unread', 'restore-only')).json()).toEqual(
+      restored.json(),
+    );
+    const completed = f.service.getEntity('occurrence', occurrence.id)!;
+    expect((await f.complete(restored.json(), 'cannot-complete-again')).statusCode).toBe(200);
+    expect(f.service.getEntity('occurrence', occurrence.id)!.revision).toBe(completed.revision);
+    const currentTask = f.service.getEntity('task', task.id)!;
+    f.save('task', { ...currentTask, archivedAt: '2026-10-30T09:00:00Z' }, currentTask.revision);
+    expect(
+      (await f.complete(f.events().find((row) => row.id === event.id)!, 'archived-source'))
+        .statusCode,
+    ).toBe(410);
+  });
+
+  it('keeps habit entries intact when acknowledging and then restoring its reminder', async () => {
+    const f = await fixture();
+    const habit = f.save('habit', {
+      name: 'Quantity',
+      goalMode: 'quantity',
+      target: 10,
+      startDate: '2026-10-30',
+      reminders: [{ id: 'habit-rule', allDayTime: '09:00' }],
+    });
+    await f.runtime.process();
+    const event = f
+      .events()
+      .find((row) => row.sourceId === habit.id && !row.ruleId.startsWith('history_'))!;
+    const acknowledged = f.runtime.action(event.id, {
+      action: 'acknowledge',
+      requestId: 'confirm-habit',
+      expectedRevision: event.revision,
+    });
+    expect(f.service.snapshot({ all: true }).habitEntries).toHaveLength(0);
+    f.service.command({
+      requestId: 'actual-habit-entry',
+      action: 'checkin_habit',
+      payload: { habitId: habit.id, localDate: '2026-10-30', amount: 10 },
+    });
+    const entries = f.service.snapshot({ all: true }).habitEntries;
+    const restored = f.runtime.action(event.id, {
+      action: 'unread',
+      requestId: 'restore-habit',
+      expectedRevision: acknowledged.revision,
+    });
+    expect(restored.userState).toBe('unread');
+    expect(f.service.snapshot({ all: true }).habitEntries).toEqual(entries);
+    const context = await f.app.inject('/api/to-doo/reminders/' + event.id + '/source');
+    expect(context.statusCode).toBe(200);
+    expect(context.json()).toMatchObject({
+      section: 'habits',
+      sourceId: habit.id,
+      date: '2026-10-30',
+    });
   });
 
   it('treats a retried snooze as one generation and preserves a closed card across polling', async () => {

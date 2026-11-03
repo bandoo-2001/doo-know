@@ -83,7 +83,12 @@ function component(name: string): Vue.Component {
   );
   return output.exports.default;
 }
-function mount(name: string, model: any, section?: string) {
+function mount(
+  name: string,
+  model: any,
+  section?: string,
+  listeners: Record<string, unknown> = {},
+) {
   const node = (tag: string, text = ''): Node => ({
     tag,
     text,
@@ -126,7 +131,11 @@ function mount(name: string, model: any, section?: string) {
       child.parent?.children[child.parent.children.indexOf(child) + 1] || null,
   });
   const root = node('root');
-  const app = renderer.createApp(component(name), { model, ...(section ? { section } : {}) });
+  const app = renderer.createApp(component(name), {
+    model,
+    ...(section ? { section } : {}),
+    ...listeners,
+  });
   const instance = app.mount(root);
   cleanup.push(() => app.unmount());
   const all = (parent = root): Node[] => [parent, ...parent.children.flatMap(all)];
@@ -240,8 +249,112 @@ test('filtered notifications keep primary actions while secondary read stays rea
     descendants(row).filter((child) => String(child.props.class).includes('todo-badge')),
   ).toHaveLength(0);
   expect(view.button('查看任务')).toBeDefined();
-  expect(view.button('已处理')).toBeDefined();
+  expect(view.button('确认提醒')).toBeDefined();
+  expect(view.text()).toContain('不会自动完成');
   expect(view.button('标为已读')?.props.role).toBe('menuitem');
+});
+
+test.each([
+  ['habit', 'habits', '查看习惯'],
+  ['anniversary', 'anniversaries', '查看纪念日'],
+])(
+  'notification opens its %s source with its section and original date',
+  async (sourceType, section, label) => {
+    const value = model();
+    const source = { sourceId: 'source-1', sourceType, section, date: '2026-10-29' };
+    value.state.query = { view: 'notifications' };
+    value.state.snapshot.reminderEvents = [
+      {
+        id: 'source-reminder',
+        revision: 'r1',
+        sourceType,
+        sourceId: 'source-1',
+        scheduledAt: value.state.snapshot.now,
+        userState: 'read',
+        title: '原事项',
+      },
+    ];
+    value.request.mockResolvedValue(source);
+    const opened: unknown[] = [];
+    const view = mount('ToDooReview', value, 'notifications', {
+      onSource: (context: unknown) => opened.push(context),
+    });
+    const button = view.button(label);
+    expect(button).toBeDefined();
+    await button.props.onClick();
+    expect(opened).toEqual([source]);
+  },
+);
+
+test('reserved habit history summaries identify themselves and retain notification handling without a misleading habit link', () => {
+  const value = model();
+  value.state.snapshot.reminderEvents = [
+    {
+      id: 'habit-history-summary',
+      revision: 'r1',
+      sourceType: 'habit',
+      sourceId: 'habit-1',
+      occurrenceKey: 'history:2026-10-01:2026-10-28',
+      ruleId: 'history_missed',
+      scheduledAt: value.state.snapshot.now,
+      userState: 'unread',
+      title: '错过的历史周期',
+    },
+  ];
+  const view = mount('ToDooReview', value, 'notifications');
+  expect(view.button('查看习惯')).toBeUndefined();
+  expect(view.text()).toContain('历史汇总提醒');
+  expect(view.button('确认提醒')).toBeDefined();
+  expect(view.button('标为已读')).toBeDefined();
+  expect(view.button('忽略提醒')).toBeDefined();
+});
+
+test('notification history can restore a handled reminder and explicitly choose a 30-minute snooze', async () => {
+  vi.stubGlobal('window', { dispatchEvent() {} });
+  const value = model();
+  value.state.snapshot.reminderEvents = [
+    {
+      id: 'handled-reminder',
+      revision: 'r1',
+      sourceType: 'task',
+      sourceId: 'source-1',
+      scheduledAt: value.state.snapshot.now,
+      userState: 'dismissed',
+      title: '误忽略',
+    },
+  ];
+  const writes: any[] = [];
+  value.request.mockImplementation(async (_url: string, method?: string, body?: unknown) => {
+    if (method === 'POST') writes.push(body);
+    return {};
+  });
+  const view = mount('ToDooReview', value, 'notifications');
+  expect(view.button('恢复未读')).toBeDefined();
+  await view.button('恢复未读').props.onClick();
+  expect(writes[0]).toMatchObject({ action: 'unread', expectedRevision: 'r1' });
+  expect(writes[0]).not.toHaveProperty('until');
+  await Vue.nextTick();
+  for (const minutes of [5, 15, 30, 60]) expect(view.button(minutes + ' 分钟后提醒')).toBeDefined();
+  await view.button('30 分钟后提醒').props.onClick();
+  expect(writes[1]).toMatchObject({ action: 'snooze', expectedRevision: 'r1' });
+  expect(Date.parse(writes[1].until) - Date.now()).toBeGreaterThan(29.9 * 60000);
+  expect(Date.parse(writes[1].until) - Date.now()).toBeLessThanOrEqual(30 * 60000);
+});
+
+test('zero completion days render the number zero without a positive bar', () => {
+  const value = model();
+  value.state.snapshot.statistics = {
+    from: '2026-10-29',
+    to: '2026-10-30',
+    completedByDay: { '2026-10-30': 2 },
+    byList: {},
+  };
+  const view = mount('ToDooReview', value, 'stats');
+  const zero = view.all().find((row) => row.props.title === '2026-10-29：0项')!;
+  expect(zero).toBeDefined();
+  expect(zero.children.find((row) => row.tag === 'span')?.text).toBe('0');
+  expect(zero.children.find((row) => row.tag === 'i')?.props.style.height).toBe('0px');
+  expect(view.text()).toContain('归档');
 });
 
 test('date preferences are folded and invalid timezone reveals them before saving', async () => {

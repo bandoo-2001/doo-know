@@ -82,7 +82,7 @@ export function registerToDooPushRoutes(
       id.parse(req.params.id),
       z
         .object({
-          action: z.enum(['read', 'acknowledge', 'dismiss', 'snooze']),
+          action: z.enum(['read', 'unread', 'acknowledge', 'dismiss', 'snooze']),
           until: z.string().datetime().optional(),
           requestId: id,
           expectedRevision: id,

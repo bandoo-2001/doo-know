@@ -155,6 +155,127 @@ describe('persistent notification outbox', () => {
     expect(f.sent).toBe(2);
     f.runtime.close();
   });
+  it.each(['acknowledge', 'dismiss', 'snooze'] as const)(
+    'restores %s to unread without a new delivery generation or replaying its delivery',
+    async (action) => {
+      const f = fixture();
+      await f.runtime.configure({ enabled: true });
+      await f.runtime.subscribe({ subscription: f.subscription, deviceName: 'Device' });
+      await f.runtime.process();
+      const original = Object.values(f.events)[0];
+      const handled = f.runtime.action(original.id, {
+        action,
+        ...(action === 'snooze' ? { until: '2026-10-29T09:30:00.000Z' } : {}),
+        requestId: 'handle-once',
+        expectedRevision: original.revision,
+      });
+      const input = {
+        action: 'unread' as const,
+        requestId: 'restore-once',
+        expectedRevision: handled.revision,
+      };
+      const restored = f.runtime.action(original.id, input);
+      expect(restored).toMatchObject({
+        userState: 'unread',
+        snoozedUntil: null,
+        deliveryGeneration: handled.deliveryGeneration,
+      });
+      expect(f.runtime.action(original.id, input)).toEqual(restored);
+      expect(() => f.runtime.action(original.id, { ...input, action: 'dismiss' })).toThrow(
+        /请求标识/,
+      );
+      await f.runtime.process();
+      const sentAfterRestore = f.sent;
+      await f.runtime.process();
+      expect(f.sent).toBe(sentAfterRestore);
+      expect(f.sent).toBe(1);
+      await f.runtime.close();
+    },
+  );
+  it('restores an invalid source to unread history without permitting execution or delivery', async () => {
+    const f = fixture();
+    await f.runtime.configure({ enabled: true });
+    await f.runtime.subscribe({ subscription: f.subscription, deviceName: 'Device' });
+    await f.runtime.process();
+    const event = Object.values(f.events)[0];
+    const ignored = f.runtime.action(event.id, {
+      action: 'dismiss',
+      requestId: 'ignore-invalid',
+      expectedRevision: event.revision,
+    });
+    f.cancel();
+    const restored = f.runtime.action(event.id, {
+      action: 'unread',
+      requestId: 'restore-invalid',
+      expectedRevision: ignored.revision,
+    });
+    expect(restored.userState).toBe('unread');
+    expect(() =>
+      f.runtime.action(event.id, {
+        action: 'snooze',
+        until: '2026-10-29T09:30:00.000Z',
+        requestId: 'invalid-snooze',
+        expectedRevision: restored.revision,
+      }),
+    ).toThrow(/来源/);
+    await f.runtime.process();
+    expect(f.sent).toBe(1);
+    await f.runtime.close();
+  });
+  it('still delivers an ordinary due event to a new device and drains an existing send retry', async () => {
+    const f = fixture();
+    await f.runtime.configure({ enabled: true });
+    await f.runtime.subscribe({ subscription: f.subscription, deviceName: 'First' });
+    f.setResponse(503);
+    await f.runtime.process();
+    expect(f.sent).toBe(1);
+    f.setResponse(201);
+    f.advance(1);
+    await f.runtime.process();
+    expect(f.sent).toBe(2);
+    await f.runtime.subscribe({
+      subscription: { ...f.subscription, endpoint: 'https://push.example/second-device' },
+      deviceName: 'Second',
+    });
+    await f.runtime.process();
+    expect(f.sent).toBe(3);
+    await f.runtime.process();
+    expect(f.sent).toBe(3);
+    await f.runtime.close();
+  });
+  it('allows a new explicit snooze generation after restoring an undelivered snooze', async () => {
+    const f = fixture();
+    await f.runtime.configure({ enabled: true });
+    await f.runtime.subscribe({ subscription: f.subscription, deviceName: 'Device' });
+    await f.runtime.process();
+    const event = Object.values(f.events)[0];
+    const snoozed = f.runtime.action(event.id, {
+      action: 'snooze',
+      until: '2026-10-29T09:30:00.000Z',
+      requestId: 'later-first',
+      expectedRevision: event.revision,
+    });
+    const restored = f.runtime.action(event.id, {
+      action: 'unread',
+      requestId: 'restore-first',
+      expectedRevision: snoozed.revision,
+    });
+    await f.runtime.process();
+    expect(f.sent).toBe(1);
+    const later = f.runtime.action(event.id, {
+      action: 'snooze',
+      until: '2026-10-29T09:05:00.000Z',
+      requestId: 'later-second',
+      expectedRevision: restored.revision,
+    });
+    expect(later.deliveryGeneration).toBe(2);
+    f.advance(6);
+    await f.runtime.process();
+    expect(f.sent).toBe(2);
+    await f.runtime.process();
+    expect(f.sent).toBe(2);
+    await f.runtime.close();
+  });
   it('rejects snoozing when the source is already invalid rather than promising an undeliverable reminder', async () => {
     const f = fixture();
     await f.runtime.configure({ enabled: true });

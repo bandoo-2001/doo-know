@@ -1,4 +1,9 @@
-import type { ToDooCollections, ToDooQuery, ToDooStatistics, ToDooStatisticsAuthorization } from '../../../shared/to-doo-contracts.js';
+import type {
+  ToDooCollections,
+  ToDooQuery,
+  ToDooStatistics,
+  ToDooStatisticsAuthorization,
+} from '../../../shared/to-doo-contracts.js';
 import { addDays, dateTimeInstant, localDate } from './recurrence.js';
 
 type StatisticsData = Pick<
@@ -48,15 +53,21 @@ export function aggregateToDooStatistics(
     ? dateTimeInstant({ date: addDays(to, 1), time: '00:00', timeZone: scope.timeZone }).getTime()
     : Infinity;
   const within = (day: string | null | undefined) => !period || (!!day && day >= from && day <= to);
-  const tasks = data.tasks.filter(
-    (row) => !row.deletedAt && !row.archivedAt && scope.canRead('task', row),
+  const tasks = data.tasks.filter((row) => !row.deletedAt && scope.canRead('task', row));
+  const historicalParents = new Set(tasks.map((row) => row.parentTaskId).filter(Boolean));
+  const historicalLeafTasks = new Set(
+    tasks.filter((row) => !historicalParents.has(row.id)).map((row) => row.id),
   );
-  const parents = new Set(tasks.map((row) => row.parentTaskId).filter(Boolean));
+  const currentTasks = tasks.filter((row) => !row.archivedAt);
+  const currentParents = new Set(currentTasks.map((row) => row.parentTaskId).filter(Boolean));
   const leafTasks = new Map(
-    tasks.filter((row) => !parents.has(row.id)).map((row) => [row.id, row]),
+    currentTasks.filter((row) => !currentParents.has(row.id)).map((row) => [row.id, row]),
   );
   const occurrences = data.occurrences.filter(
-    (row) => !row.deletedAt && leafTasks.has(row.taskId) && scope.canRead('occurrence', row),
+    (row) =>
+      !row.deletedAt &&
+      (historicalLeafTasks.has(row.taskId) || leafTasks.has(row.taskId)) &&
+      scope.canRead('occurrence', row),
   );
   const completedByDay: Record<string, number> = Object.create(null);
   const result: ToDooStatistics = {
@@ -72,19 +83,19 @@ export function aggregateToDooStatistics(
     ...(period ? { completedByDay } : {}),
   };
   for (const row of occurrences) {
-    if (!['cancelled', 'skipped'].includes(row.status)) {
+    if (leafTasks.has(row.taskId) && !['cancelled', 'skipped'].includes(row.status)) {
       const listId = leafTasks.get(row.taskId)!.listId ?? 'inbox';
       const progress = (result.byList[listId] ??= { total: 0, completed: 0 });
       progress.total++;
       if (row.status === 'done') progress.completed++;
     }
-    if (row.status === 'done' && row.completedAt) {
+    if (row.status === 'done' && row.completedAt && historicalLeafTasks.has(row.taskId)) {
       const day = localDate(new Date(row.completedAt), scope.timeZone);
       if (within(day)) {
         result.completed++;
         if (period) completedByDay[day] = (completedByDay[day] ?? 0) + 1;
       }
-    } else if (['todo', 'doing', 'blocked'].includes(row.status)) {
+    } else if (leafTasks.has(row.taskId) && ['todo', 'doing', 'blocked'].includes(row.status)) {
       const day = row.due
         ? row.due.time === null
           ? row.due.date

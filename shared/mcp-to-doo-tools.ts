@@ -184,7 +184,7 @@ export const toDooFullToolSchemas = {
       ...write,
       id: toDooId,
       ...version,
-      action: z.enum(['read', 'acknowledge', 'dismiss', 'snooze']),
+      action: z.enum(['read', 'unread', 'acknowledge', 'dismiss', 'snooze']),
       until: z.string().datetime().optional(),
     })
     .strict(),
@@ -338,7 +338,7 @@ export const toDooFullToolMetadata: Record<
     additionalScopes: ['to-doo:read'],
     readOnly: false,
     description:
-      'Read, acknowledge, dismiss or snooze an authorized reminder with expected revision and stable request identity.',
+      'Mark read, restore unread, acknowledge, dismiss or snooze an authorized reminder with expected revision and stable request identity. Acknowledging only confirms the reminder; it does not complete the source task or habit. Restoring unread clears snooze without a new delivery generation or reversing source completion.',
   },
   begin_to_doo_attachment: {
     scope: 'to-doo:write',

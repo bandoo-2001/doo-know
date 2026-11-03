@@ -342,3 +342,68 @@ it('MCP review capture requires statistics rights and applies its live list reso
     metrics: { completed: 1, focusMinutes: 0, outcomes: 0 },
   });
 });
+
+it('preserves archived historical leaf completions while current pending and list denominators exclude them', async () => {
+  command('save_entity', {
+    kind: 'list',
+    entity: { id: 'history-goal', name: 'History', kind: 'goal' },
+  });
+  command('create_task', { id: 'history-parent', title: 'Parent', listId: 'history-goal' });
+  for (const [id, done] of [
+    ['archived-done', true],
+    ['archived-pending', false],
+  ] as const) {
+    command('create_task', {
+      id,
+      title: id,
+      parentTaskId: 'history-parent',
+      listId: 'history-goal',
+      due: { date: '2026-10-29', time: null, timeZone: 'UTC' },
+    });
+    if (done) {
+      const row = service.snapshot({ all: true }).occurrences.find((o) => o.taskId === id)!;
+      command('set_occurrence_status', {
+        id: row.id,
+        expectedRevision: row.revision,
+        status: 'done',
+        at: '2026-10-29T10:00:00Z',
+      });
+    }
+  }
+  const range = { from: '2026-10-29', to: '2026-10-30' };
+  const saved = command('save_entity', {
+    kind: 'review',
+    captureMetrics: true,
+    entity: { name: 'Saved', ...range, capturedAt: '2026-10-30T12:00:00Z' },
+  });
+  const savedMetrics = structuredClone(
+    service.snapshot({ all: true }).reviews.find((row) => row.id === saved.ids[0])!.metrics,
+  );
+  expect(service.snapshot(range).statistics).toMatchObject({
+    completed: 1,
+    pending: 1,
+    overdue: 1,
+  });
+  for (const id of ['history-parent', 'archived-done', 'archived-pending']) {
+    const row = service.getEntity('task', id)!;
+    command('save_entity', {
+      kind: 'task',
+      entity: { ...row, archivedAt: '2026-10-30T12:00:00Z' },
+      expectedRevision: row.revision,
+    });
+  }
+  for (const stats of [
+    service.snapshot({ ...range, limit: 1 }).statistics,
+    (await port().query({ kind: 'statistics', ...range })).items[0].entity,
+  ]) {
+    expect(stats).toMatchObject({ completed: 1, pending: 0, overdue: 0 });
+  }
+  expect(service.snapshot(range).statistics.completedByDay).toEqual({ '2026-10-29': 1 });
+  expect(service.snapshot(range).statistics.byList['history-goal']).toBeUndefined();
+  expect(service.snapshot().statistics.completed).toBe(1);
+  expect(
+    service.snapshot({ all: true }).reviews.find((row) => row.id === saved.ids[0])!.metrics,
+  ).toEqual(savedMetrics);
+  access.resourceListIds = [];
+  expect((await port().query({ kind: 'statistics', ...range })).items[0].entity.completed).toBe(0);
+});

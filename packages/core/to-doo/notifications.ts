@@ -87,6 +87,8 @@ export class ToDooNotificationError extends Error {
   }
 }
 const digest = (value: unknown) => createHash('sha256').update(JSON.stringify(value)).digest('hex');
+const reminderActionPrefix = (datasetId: string) =>
+  'rem_event_' + digest(datasetId).slice(0, 32) + '_';
 export const reminderEventId = (plan: ReminderPlan) =>
   'rem_' +
   digest([
@@ -371,7 +373,7 @@ export function createToDooNotifications(
   function action(
     id: string,
     input: {
-      action: 'read' | 'acknowledge' | 'dismiss' | 'snooze';
+      action: 'read' | 'unread' | 'acknowledge' | 'dismiss' | 'snooze';
       until?: string;
       requestId: string;
       expectedRevision: string;
@@ -379,13 +381,14 @@ export function createToDooNotifications(
   ) {
     const datasetId =
       'snapshot' in serviceOrPort ? serviceOrPort.snapshot().datasetId : options.installationId;
-    const requestKey = 'rem_event_' + digest([datasetId, input.requestId]).slice(0, 40);
+    const scopedRequestKey = reminderActionPrefix(datasetId) + digest(input.requestId).slice(0, 40);
+    const legacyRequestKey = 'rem_event_' + digest([datasetId, input.requestId]).slice(0, 40);
+    let requestKey = scopedRequestKey;
     const fingerprint = digest([id, input.action, input.until ?? null, input.expectedRevision]);
-    const previous = db
-      .prepare(
-        'SELECT fingerprint,entity,expected_revision,response FROM to_doo_reminder_event_actions WHERE request_id=?',
-      )
-      .get(requestKey) as
+    const lookup = db.prepare(
+      'SELECT fingerprint,entity,expected_revision,response FROM to_doo_reminder_event_actions WHERE request_id=?',
+    );
+    let previous = lookup.get(requestKey) as
       | {
           fingerprint: string;
           entity: string;
@@ -393,20 +396,54 @@ export function createToDooNotifications(
           response: string | null;
         }
       | undefined;
+    if (!previous) {
+      previous = lookup.get(legacyRequestKey) as typeof previous;
+      if (previous) requestKey = legacyRequestKey;
+    }
+    const rememberResponse = (event: ReminderEvent, entity: string, expectedRevision: string) => {
+      const response = JSON.stringify(event);
+      db.transaction(() => {
+        db.prepare('UPDATE to_doo_reminder_event_actions SET response=? WHERE request_id=?').run(
+          response,
+          requestKey,
+        );
+        // Alias legacy receipts without changing the domain command identity used for recovery.
+        if (requestKey !== scopedRequestKey)
+          db.prepare(
+            'INSERT OR IGNORE INTO to_doo_reminder_event_actions(request_id,fingerprint,entity,expected_revision,response) VALUES(?,?,?,?,?)',
+          ).run(scopedRequestKey, fingerprint, entity, expectedRevision, response);
+      })();
+    };
+    const finishUnread = (event: ReminderEvent) => {
+      if (input.action !== 'unread') return;
+      // Restoring history visibility must not schedule another delivery.
+      db.transaction(() => {
+        db.prepare('INSERT OR IGNORE INTO to_doo_push_seen VALUES(?,?)').run(
+          event.id,
+          event.deliveryGeneration,
+        );
+        db.prepare(
+          "UPDATE to_doo_push_outbox SET state='cancelled',lease_until=0 WHERE event_id=? AND state IN ('pending','sending')",
+        ).run(event.id);
+      })();
+    };
     if (previous) {
       if (previous.fingerprint !== fingerprint)
         throw new ToDooNotificationError('相同请求标识携带不同内容，请刷新后重试', 409);
-      if (previous.response) return JSON.parse(previous.response) as ReminderEvent;
+      if (previous.response) {
+        const saved = JSON.parse(previous.response) as ReminderEvent;
+        if (requestKey !== scopedRequestKey)
+          rememberResponse(saved, previous.entity, previous.expected_revision);
+        return saved;
+      }
       const saved = port.save(JSON.parse(previous.entity), requestKey, previous.expected_revision);
-      db.prepare('UPDATE to_doo_reminder_event_actions SET response=? WHERE request_id=?').run(
-        JSON.stringify(saved),
-        requestKey,
-      );
+      finishUnread(saved);
+      rememberResponse(saved, previous.entity, previous.expected_revision);
       return saved;
     }
     const event = port.events().find((e) => e.id === id);
     if (!event) throw new ToDooNotificationError('Reminder not found', 404);
-    if (!['read', 'acknowledge', 'dismiss', 'snooze'].includes(input.action))
+    if (!['read', 'unread', 'acknowledge', 'dismiss', 'snooze'].includes(input.action))
       throw new ToDooNotificationError('Unknown reminder action');
     if (
       input.action === 'snooze' &&
@@ -425,7 +462,9 @@ export function createToDooNotifications(
           ? 'dismissed'
           : input.action === 'snooze'
             ? 'snoozed'
-            : 'read';
+            : input.action === 'unread'
+              ? 'unread'
+              : 'read';
     const entity = {
       ...event,
       userState,
@@ -437,10 +476,8 @@ export function createToDooNotifications(
       'INSERT INTO to_doo_reminder_event_actions(request_id,fingerprint,entity,expected_revision) VALUES(?,?,?,?)',
     ).run(requestKey, fingerprint, JSON.stringify(entity), input.expectedRevision);
     const saved = port.save(entity, requestKey, input.expectedRevision);
-    db.prepare('UPDATE to_doo_reminder_event_actions SET response=? WHERE request_id=?').run(
-      JSON.stringify(saved),
-      requestKey,
-    );
+    finishUnread(saved);
+    rememberResponse(saved, JSON.stringify(entity), input.expectedRevision);
     return saved;
   }
   async function run() {
@@ -469,6 +506,17 @@ export function createToDooNotifications(
       }
     }
     const events = port.events();
+    const datasetId =
+      'snapshot' in serviceOrPort ? serviceOrPort.snapshot().datasetId : options.installationId;
+    const restoredGenerations = new Set(
+      (
+        db
+          .prepare(
+            "SELECT json_extract(response,'$.id') AS id,json_extract(response,'$.deliveryGeneration') AS generation FROM to_doo_reminder_event_actions WHERE request_id GLOB ? AND response IS NOT NULL AND json_extract(entity,'$.userState')='unread'",
+          )
+          .all(reminderActionPrefix(datasetId) + '*') as { id: string; generation: number }[]
+      ).map((row) => JSON.stringify([row.id, row.generation])),
+    );
     let missed: ReminderEvent[] = [];
     for (const event of events) {
       if (isHabitHistory(event)) continue;
@@ -508,6 +556,9 @@ export function createToDooNotifications(
         event.firstRaisedAt < config.activatedAt &&
         event.deliveryGeneration === 0
       )
+        continue;
+      // A restored notification stays visible in history without replaying that generation.
+      if (seen && restoredGenerations.has(JSON.stringify([event.id, event.deliveryGeneration])))
         continue;
       const deferred = quietHoursEnd(at, port.quietHours())?.getTime() ?? atMs;
       for (const device of db
