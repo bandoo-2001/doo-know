@@ -54,10 +54,18 @@ test.beforeEach(async ({ context, page }) => {
   await authenticateVisualContext(context);
   await page.clock.install({ time: new Date(VISUAL_NOW) });
 });
-const devices = [
+const baselineDevices = [
   { id: 'desktop', width: 1440, height: 1000, theme: 'light' },
   { id: 'phone', width: 390, height: 844, theme: 'dark' },
 ] as const;
+const devices =
+  phase === 'after'
+    ? [
+        ...baselineDevices,
+        { id: 'desktop-dark', width: 1440, height: 1000, theme: 'dark' as const },
+        { id: 'phone-light', width: 390, height: 844, theme: 'light' as const },
+      ]
+    : baselineDevices;
 for (const device of devices) {
   for (const [id, section] of scenes)
     test(`audit ${phase} ${device.id} ${id}`, async ({ page }) => {

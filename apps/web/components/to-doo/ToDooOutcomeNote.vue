@@ -148,7 +148,7 @@ defineExpose({ hasUnsavedChanges: () => dirty.value || busy.value });
       >×</AButton
     >
     <p class="todo-form-help">
-      正文保存在知识库，并作为这次行动的成果证据。收起窗口会保留本次输入。
+      创建后正文保存在知识库，并关联这次行动。收起后在当前工作空间保留输入，刷新或离开工作空间前请保存。
     </p>
     <p>
       关联任务：{{ task.title
