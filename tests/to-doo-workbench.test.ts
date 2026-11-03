@@ -1483,3 +1483,34 @@ test('a plan-clearing choice made during creation survives the response even whe
   expect(model.newTaskDraft()).toBe(draft);
   expect(draft.planDateCleared).toBe(true);
 });
+
+test('a recovered untouched composer placeholder still accepts its first explicit column context', async () => {
+  const storage = new Map<string, string>();
+  vi.stubGlobal('localStorage', {
+    getItem: (key: string) => storage.get(key) || null,
+    setItem: (key: string, value: string) => storage.set(key, value),
+  });
+  try {
+    const data = snapshot();
+    const first = createToDooWorkbench(async () => data);
+    first.acceptSnapshot(data);
+    first.newTaskDraft();
+    await import('vue').then((v) => v.nextTick());
+    const restored = createToDooWorkbench(async () => data);
+    restored.acceptSnapshot(data);
+    const placeholder = restored.newTaskDraft(undefined, undefined, {
+      initialStatus: 'doing',
+      priority: 'high',
+      planDate: '2026-10-30',
+    });
+    expect(placeholder).toMatchObject({
+      title: '',
+      initialStatus: 'doing',
+      priority: 'high',
+      planDate: '2026-10-30',
+    });
+    expect(restored.hasNewTaskDraft()).toBe(false);
+  } finally {
+    vi.unstubAllGlobals();
+  }
+});

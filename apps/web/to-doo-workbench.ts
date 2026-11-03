@@ -571,7 +571,6 @@ export function createToDooWorkbench(request: ToDooRequest) {
   });
   const saved = new Map<string, string>();
   const newSaved = new Map<string, string>();
-  const restoredNewDrafts = new Set<string>();
   const newDefaults = (parentTaskId: string | null, listId: string | null): ToDooNewTaskDraft => ({
     title: '',
     description: '',
@@ -631,7 +630,6 @@ export function createToDooWorkbench(request: ToDooRequest) {
         base.recurrenceId = typeof d.recurrenceId === 'string' ? d.recurrenceId : base.recurrenceId;
         newSaved.set(key, fingerprint(base));
         state.newTaskDrafts[key] = { ...base, ...d };
-        restoredNewDrafts.add(key);
       }
     } catch {
       state.localWarning = '本地恢复信息无法读取，当前服务器内容仍可正常访问。';
@@ -647,7 +645,6 @@ export function createToDooWorkbench(request: ToDooRequest) {
       state.newTaskDrafts[key] = value;
     } else if (
       seed &&
-      !restoredNewDrafts.has(key) &&
       newSaved.get(key) === fingerprint(state.newTaskDrafts[key]) &&
       Object.entries(seed).some(
         ([field, value]) =>
@@ -667,7 +664,6 @@ export function createToDooWorkbench(request: ToDooRequest) {
       key = (parent || '') + '@' + (listId || '');
     delete state.newTaskDrafts[key];
     newSaved.delete(key);
-    restoredNewDrafts.delete(key);
     persistRecovery();
   }
   watch(() => [state.newTaskDrafts, state.pendingMutation], persistRecovery, { deep: true });
@@ -761,7 +757,6 @@ export function createToDooWorkbench(request: ToDooRequest) {
       state.newTaskDrafts = {};
       saved.clear();
       newSaved.clear();
-      restoredNewDrafts.clear();
       state.selectedTaskId = '';
       state.selectedOccurrenceId = '';
       state.selectedIds = [];
@@ -1141,7 +1136,6 @@ export function createToDooWorkbench(request: ToDooRequest) {
         ) {
           delete state.newTaskDrafts[key];
           newSaved.delete(key);
-          restoredNewDrafts.delete(key);
         }
       }
       persistRecovery();
