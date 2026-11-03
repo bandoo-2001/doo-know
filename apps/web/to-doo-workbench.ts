@@ -635,9 +635,13 @@ export function createToDooWorkbench(request: ToDooRequest) {
       state.localWarning = '本地恢复信息无法读取，当前服务器内容仍可正常访问。';
     }
   }
-  function newTaskDraft(parent?: string, list?: string, seed?: ToDooCreateSeed) {
+  function newTaskDraft(parent?: string, list?: string | null, seed?: ToDooCreateSeed) {
     const listId =
-        list || seed?.listId || state.snapshot?.tasks.find((t) => t.id === parent)?.listId || null,
+        list !== undefined
+          ? list || null
+          : seed?.listId !== undefined
+            ? seed.listId
+            : state.snapshot?.tasks.find((t) => t.id === parent)?.listId || null,
       key = (parent || '') + '@' + (listId || '');
     if (!state.newTaskDrafts[key]) {
       const value = { ...newDefaults(parent || null, listId), ...clone(seed || {}), listId };
@@ -659,8 +663,11 @@ export function createToDooWorkbench(request: ToDooRequest) {
     }
     return state.newTaskDrafts[key]!;
   }
-  function clearNewTaskDraft(parent?: string, list?: string) {
-    const listId = list || state.snapshot?.tasks.find((t) => t.id === parent)?.listId || null,
+  function clearNewTaskDraft(parent?: string, list?: string | null) {
+    const listId =
+        list !== undefined
+          ? list || null
+          : state.snapshot?.tasks.find((t) => t.id === parent)?.listId || null,
       key = (parent || '') + '@' + (listId || '');
     delete state.newTaskDrafts[key];
     newSaved.delete(key);
@@ -1623,10 +1630,17 @@ export function createToDooWorkbench(request: ToDooRequest) {
     nextPage,
     loadPendingOperations,
     newTaskDraft,
-    retainedNewTaskDraft: () =>
-      Object.entries(state.newTaskDrafts).find(
+    retainedNewTaskDraft: () => {
+      const retained = Object.entries(state.newTaskDrafts).find(
         ([key, value]) => newSaved.get(key) !== fingerprint(value),
-      )?.[1],
+      );
+      if (!retained) return undefined;
+      const [storageKey, draft] = retained;
+      // Editable destination fields are payload, never the storage identity.
+      // IDs cannot contain @; keep the existing parent@list recovery format.
+      const [parentTaskId, listId] = storageKey.split('@');
+      return { key: storageKey, draft, parentTaskId: parentTaskId || null, listId: listId || null };
+    },
     clearNewTaskDraft,
     hasNewTaskDraft: () =>
       Object.entries(state.newTaskDrafts).some(

@@ -29,6 +29,7 @@ import type {
   ToDooEntityMap,
   ToDooSnapshot,
   ToDooQuery,
+  ToDooReminderSource,
 } from '../../../shared/to-doo-contracts';
 import { api } from '../api';
 import type { ToDooAppSection } from '../navigation';
@@ -637,8 +638,14 @@ async function selectTask(id: string, occurrence?: string) {
 }
 function continueNewDraft() {
   const retained = model.retainedNewTaskDraft();
-  if (retained) create(retained.parentTaskId || undefined, undefined, { listId: retained.listId });
-  else create();
+  if (!retained) return create();
+  creating.value = true;
+  parentId.value = retained.parentTaskId || undefined;
+  // Empty string explicitly identifies the original inbox draft, even if the
+  // current route or the parent task now belongs to another list.
+  creatingListId.value = retained.listId || '';
+  creationNotice.value = '已继续保留的新建草稿；标题、目标清单和其他输入保持原样。';
+  detailOpen.value = true;
 }
 function closeDetail() {
   if (creating.value && model.hasNewTaskDraft())
@@ -650,6 +657,13 @@ function closeDetail() {
   creating.value = false;
   detailOpen.value = false;
   navigate(props.section, { ...props.selection, task: undefined, occurrence: undefined });
+}
+function openReminderSource(source: ToDooReminderSource) {
+  navigate(source.section, {
+    task: source.taskId,
+    occurrence: source.occurrenceId,
+    date: source.date,
+  });
 }
 let reviewViewBeforeEditor: ToDooSnapshot | undefined;
 function edit(kind: ToDooEntityKind, entity?: Record<string, any>, seed?: Record<string, any>) {
@@ -1331,7 +1345,8 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
               :model="model"
               :section="section"
               @edit="edit"
-              @task="selectTask" /><ToDooSettings
+              @task="selectTask"
+              @source="openReminderSource" /><ToDooSettings
               v-else-if="section === 'settings'"
               :key="'settings-' + settingsVersion + ':' + pageAttempts.settings"
               ref="settingsRef"

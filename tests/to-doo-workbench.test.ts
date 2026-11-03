@@ -1455,10 +1455,11 @@ test('resuming new task drafting identifies the retained parent and list rather 
   model.newTaskDraft();
   const child = model.newTaskDraft('parent-a', 'work');
   child.title = '尚未创建的子任务';
-  expect((model as any).retainedNewTaskDraft?.()).toMatchObject({
+  expect(model.retainedNewTaskDraft()).toMatchObject({
+    key: 'parent-a@work',
     parentTaskId: 'parent-a',
     listId: 'work',
-    title: child.title,
+    draft: { title: child.title },
   });
 });
 
@@ -1514,3 +1515,58 @@ test('a recovered untouched composer placeholder still accepts its first explici
     vi.unstubAllGlobals();
   }
 });
+
+for (const recovered of [false, true]) {
+  test.each([
+    [undefined, 'A', 'B', false],
+    [undefined, 'A', null, false],
+    [undefined, 'A', 'B', true],
+    ['task-a', 'A', 'B', true],
+    ['task-a', null, 'B', true],
+  ] as const)(
+    'resume keeps storage identity parent=%s origin=%s destination=%s otherDraft=%s recovered=' +
+      recovered,
+    async (parent, originalList, destination, otherDraft) => {
+      const storage = new Map<string, string>();
+      vi.stubGlobal('localStorage', {
+        getItem: (key: string) => storage.get(key) || null,
+        setItem: (key: string, value: string) => storage.set(key, value),
+      });
+      try {
+        const data = snapshot();
+        data.tasks[0].listId = originalList;
+        const first = createToDooWorkbench(async () => data);
+        first.acceptSnapshot(data);
+        const draft = first.newTaskDraft(parent, originalList || '');
+        Object.assign(draft, {
+          title: '保留原始草稿',
+          description: '不能定位到另一个草稿',
+          listId: destination,
+        });
+        if (otherDraft) first.newTaskDraft(parent, 'B').title = 'B清单另一份草稿';
+        if (parent) data.tasks[0].listId = destination;
+        await import('vue').then((v) => v.nextTick());
+        const model = recovered ? createToDooWorkbench(async () => data) : first;
+        if (recovered) model.acceptSnapshot(data);
+        const retained = model.retainedNewTaskDraft();
+        expect(retained).toMatchObject({
+          key: (parent || '') + '@' + (originalList || ''),
+          parentTaskId: parent || null,
+          listId: originalList,
+          draft: { title: '保留原始草稿', listId: destination },
+        });
+        const resumed = model.newTaskDraft(
+          retained!.parentTaskId || undefined,
+          retained!.listId || '',
+        );
+        expect(resumed).toBe(retained!.draft);
+        expect(resumed.title).toBe('保留原始草稿');
+        expect(toDooDraftPayload(resumed, 'UTC').listId).toBe(destination);
+        if (otherDraft)
+          expect(model.state.newTaskDrafts[(parent || '') + '@B'].title).toBe('B清单另一份草稿');
+      } finally {
+        vi.unstubAllGlobals();
+      }
+    },
+  );
+}
