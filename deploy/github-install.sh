@@ -91,8 +91,8 @@ github_fetch() (
   work="$(mktemp -d "${TMPDIR:-/tmp}/dooknow-bootstrap.XXXXXXXX")"
   printf -v cleanup_path '%q' "$work"
   trap "rm -rf -- $cleanup_path" EXIT
-  github_fetch 'bandoo-2001/doo-know' '704845317' "$work/install.sh" "" 'https://github.com/bandoo-2001/doo-know/releases/download/v1.1.0-rc.60/install.sh'
-  printf '%s  %s\n' '851804fb1590fd7d42949556493e5e48270a69dac3cf1935b113f9168473d57c' "$work/install.sh" | sha256sum -c - >/dev/null
+  github_fetch 'bandoo-2001/doo-know' '705087042' "$work/install.sh" "" 'https://github.com/bandoo-2001/doo-know/releases/download/v1.1.0-rc.61/install.sh'
+  printf '%s  %s\n' '09123b1badf3a019f9aacf49d403a60c70cdf28f6a29c5f923548f6d7423bfb6' "$work/install.sh" | sha256sum -c - >/dev/null
   bash "$work/install.sh" "$@"
 }
 main "$@"
