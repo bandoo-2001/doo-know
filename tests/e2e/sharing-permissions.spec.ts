@@ -1,8 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
-import { createHash } from 'node:crypto';
-import { diagramRendererVersions } from '../../shared/diagram-primary';
-import { exportOwnerWhiteboardPng } from '../support/owner-whiteboard-png';
 const cookiesPath = process.env.DOOKNOW_SHARE_E2E_COOKIES || '.local/e2e-cookies.json';
 async function seed(page: Page, content = '# 分享权限验收\n\n原始正文。') {
   await page.context().addCookies(JSON.parse(await readFile(cookiesPath, 'utf8')));
@@ -368,67 +365,29 @@ for (const authenticated of [false, true])
     browser,
   }) => {
     const { headers, origin } = await seed(page);
-    const boardResponse = await page.request.post('/api/notes', {
-      headers,
-      data: {
-        folderPath: '00-Inbox',
-        fileName: `share-board-${crypto.randomUUID()}.excalidraw`,
-        content: JSON.stringify({
-          type: 'excalidraw',
-          version: 2,
-          elements: [
-            {
-              id: 'shared-rectangle',
-              type: 'rectangle',
-              x: 20,
-              y: 20,
-              width: 200,
-              height: 90,
-              angle: 0,
-              strokeColor: '#1e1e1e',
-              backgroundColor: '#dbeafe',
-              fillStyle: 'solid',
-              strokeWidth: 2,
-              strokeStyle: 'solid',
-              roughness: 1,
-              opacity: 100,
-              groupIds: [],
-              frameId: null,
-              index: 'a0',
-              roundness: { type: 3 },
-              seed: 1,
-              version: 1,
-              versionNonce: 1,
-              isDeleted: false,
-              boundElements: null,
-              updated: 1,
-              link: null,
-              locked: false,
-            },
-          ],
-          appState: { viewBackgroundColor: '#ffffff' },
-          files: {},
-        }),
-        requestId: crypto.randomUUID(),
-      },
-    });
-    expect(boardResponse.status()).toBe(201);
-    const board = await boardResponse.json();
-    // A legacy JSON scene has no public rendition until its owner fixes a real PNG.
-    const png = await exportOwnerWhiteboardPng(page, board.id);
-    const sourceHash = createHash('sha256').update(board.content).digest('hex');
-    const prepared = await page.request.post(`/api/notes/${board.id}/diagram/legacy-preview`, {
-      headers,
-      data: {
-        expectedDocumentHash: sourceHash,
-        expectedSourceHash: sourceHash,
-        pngBase64: png.toString('base64'),
-        renderer: diagramRendererVersions.whiteboard,
-        config: {},
-        requestId: crypto.randomUUID(),
-      },
-    });
-    expect(prepared.status(), await prepared.text()).toBe(200);
+    await page.goto('/');
+    await page.getByRole('button',{name:'创建与导入',exact:true}).click();
+    await page.getByRole('button',{name:'新建白板',exact:true}).click();
+    const dialog=page.getByRole('dialog',{name:'新建白板',exact:true});
+    await dialog.getByLabel('文件名',{exact:true}).fill('share-board-'+crypto.randomUUID());
+    await dialog.getByRole('button',{name:'创建',exact:true}).click();
+    const workspace=page.getByTestId('diagram-document-workspace');
+    await expect(workspace).toBeVisible({timeout:45000});
+    const canvas=workspace.locator('canvas.interactive');
+    await expect(canvas).toBeVisible({timeout:30000});
+    const box=(await canvas.boundingBox())!;
+    await canvas.click({position:{x:box.width*0.25,y:box.height*0.25}});
+    await page.keyboard.press('r');
+    await page.mouse.move(box.x+box.width*0.3,box.y+box.height*0.3);
+    await page.mouse.down();
+    await page.mouse.move(box.x+box.width*0.65,box.y+box.height*0.55,{steps:8});
+    await page.mouse.up();
+    await workspace.getByRole('button',{name:'保存图形',exact:true}).click();
+    await expect(workspace.getByRole('status')).toContainText('已保存');
+    const board={id:new URL(page.url()).searchParams.get('note')!};
+    const ownerResource=(await (await page.request.get('/api/notes/'+board.id+'/diagram')).json());
+    expect(ownerResource.preview.state).toBe('ready');
+    expect(JSON.parse(ownerResource.source.content).elements.length).toBeGreaterThan(0);
     const { note } = await seed(
       page,
       `# 含引用白板的分享\n\n\`\`\`excalidraw\n${board.id}\n\`\`\`\n\n父笔记正文。`,
@@ -441,7 +400,7 @@ for (const authenticated of [false, true])
     ).json();
     const status = await (await page.request.get(`/api/notes/${board.id}/share`)).json();
     expect(status.editSupported).toBe(false);
-    expect(status.editUnavailableReason).toContain('白板');
+    expect(status.editUnavailableReason).toBe('图形分享暂不支持公开编辑');
     const guest = await browser.newContext();
     if (authenticated) await guest.addCookies(JSON.parse(await readFile(cookiesPath, 'utf8')));
     const reader = await guest.newPage();
