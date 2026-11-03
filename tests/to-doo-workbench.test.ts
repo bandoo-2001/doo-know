@@ -1366,3 +1366,120 @@ describe('To Doo workbench', () => {
     expect(deriveToDooItems(data, { statuses: ['done'] })).toHaveLength(0);
   });
 });
+
+test.each(['priority', 'initialStatus', 'reminders'] as const)(
+  'saving new task retains a concurrent %s edit',
+  async (field) => {
+    const data = snapshot();
+    let release!: () => void;
+    const wait = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const model = createToDooWorkbench(async (_url, method = 'GET') => {
+      if (method === 'GET') return data;
+      await wait;
+      return { snapshot: data, ids: [], changed: [] };
+    });
+    model.acceptSnapshot(data);
+    const draft = model.newTaskDraft(undefined, undefined, {
+      priority: 'high',
+      initialStatus: 'doing',
+    } as any);
+    draft.title = '保留并发输入';
+    const saving = model.createTask(toDooDraftPayload(draft, 'UTC'));
+    Object.assign(
+      draft,
+      field === 'priority'
+        ? { priority: 'low' }
+        : field === 'initialStatus'
+          ? { initialStatus: 'todo' }
+          : {
+              reminders: [
+                { id: 'new-reminder', anchor: 'due', offsetMinutes: -30, allDayTime: '08:00' },
+              ],
+            },
+    );
+    release();
+    await saving;
+    expect(model.newTaskDraft()).toBe(draft);
+    expect(draft.title).toBe('保留并发输入');
+  },
+);
+
+test('recovered creation fields survive a new column seed without changing the parent/list key', async () => {
+  const saved = new Map<string, string>();
+  vi.stubGlobal('localStorage', {
+    getItem: (key: string) => saved.get(key) || null,
+    setItem: (key: string, value: string) => saved.set(key, value),
+  });
+  try {
+    const data = snapshot();
+    const first = createToDooWorkbench(async () => data);
+    first.acceptSnapshot(data);
+    const draft = first.newTaskDraft(undefined, 'work', {
+      initialStatus: 'doing',
+      priority: 'high',
+    } as any);
+    Object.assign(draft, {
+      title: '恢复中的任务',
+      planDate: '',
+      planDateCleared: true,
+      reminders: [
+        { id: 'persisted-reminder', anchor: 'due', offsetMinutes: -30, allDayTime: '08:00' },
+      ],
+    });
+    await import('vue').then((v) => v.nextTick());
+    const restored = createToDooWorkbench(async () => data);
+    restored.acceptSnapshot(data);
+    const retained = restored.newTaskDraft(undefined, 'work', {
+      initialStatus: 'done',
+      priority: 'low',
+      planDate: '2026-10-30',
+    } as any);
+    expect(Object.keys(restored.state.newTaskDrafts)).toEqual(['@work']);
+    expect(retained).toMatchObject({
+      title: '恢复中的任务',
+      initialStatus: 'doing',
+      priority: 'high',
+      planDate: '',
+      planDateCleared: true,
+      reminders: [{ id: 'persisted-reminder', anchor: 'due' }],
+    });
+  } finally {
+    vi.unstubAllGlobals();
+  }
+});
+
+test('resuming new task drafting identifies the retained parent and list rather than opening a root draft', () => {
+  const model = createToDooWorkbench(async () => undefined);
+  model.newTaskDraft();
+  const child = model.newTaskDraft('parent-a', 'work');
+  child.title = '尚未创建的子任务';
+  expect((model as any).retainedNewTaskDraft?.()).toMatchObject({
+    parentTaskId: 'parent-a',
+    listId: 'work',
+    title: child.title,
+  });
+});
+
+test('a plan-clearing choice made during creation survives the response even when the submitted plan was empty', async () => {
+  const data = snapshot();
+  let release!: () => void;
+  const wait = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const model = createToDooWorkbench(async (_url, method = 'GET') => {
+    if (method === 'GET') return data;
+    await wait;
+    return { snapshot: data, ids: [], changed: [] };
+  });
+  model.acceptSnapshot(data);
+  const draft = model.newTaskDraft();
+  draft.title = '创建期间明确清空计划';
+  const saving = model.createTask(toDooDraftPayload(draft, 'UTC'));
+  draft.planDateCleared = true;
+  release();
+  await saving;
+  expect(model.newTaskDraft()).toBe(draft);
+  expect(draft.planDateCleared).toBe(true);
+});

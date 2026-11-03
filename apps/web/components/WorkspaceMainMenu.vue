@@ -190,11 +190,11 @@ function menuKeydown(event: KeyboardEvent) {
         :aria-controls="panelId"
         :aria-expanded="moreOpen"
         :aria-current="overflowSelection ? 'page' : undefined"
-        :title="overflowSelection?.label || '更多导航'"
+        title="更多导航"
         @click="toggleMenu"
       >
         <Icon :name="overflowSelection?.icon || 'more'" :size="22" />
-        <span>{{ overflowSelection?.label || '更多' }}</span
+        <span>更多</span
         ><small v-if="overflowBadge" class="workspace-menu-badge">{{ overflowBadge }}</small>
       </button>
     </nav>

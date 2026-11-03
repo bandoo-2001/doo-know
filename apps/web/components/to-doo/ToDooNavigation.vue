@@ -128,9 +128,18 @@ function calendarDateChanged(date: string) {
             :key="view.id"
             type="text"
             block
-            :class="{ active: section === 'tasks' && !listId && quickView === view.id }"
+            :class="{
+              active:
+                ['tasks', 'board', 'matrix', 'timeline'].includes(section) &&
+                !listId &&
+                quickView === view.id,
+            }"
             :aria-current="
-              section === 'tasks' && !listId && quickView === view.id ? 'page' : undefined
+              ['tasks', 'board', 'matrix', 'timeline'].includes(section) &&
+              !listId &&
+              quickView === view.id
+                ? 'page'
+                : undefined
             "
             @click="emit('quick', view.id)"
             ><ToDooIcon :name="view.icon" :size="16" /><span>{{ view.name }}</span></AButton

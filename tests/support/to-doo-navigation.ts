@@ -81,3 +81,10 @@ export async function goToToDooSection(page: Page, section: string) {
   }
   await expect.poll(() => new URL(page.url()).searchParams.get('appSection')).toBe(section);
 }
+
+/** Expand the task search/management row when the compact phone toolbar is used. */
+export async function openToDooTaskTools(page: Page) {
+  const toggle = page.getByRole('button', { name: '搜索与管理', exact: true });
+  if ((await toggle.isVisible()) && (await toggle.getAttribute('aria-expanded')) !== 'true')
+    await toggle.click();
+}

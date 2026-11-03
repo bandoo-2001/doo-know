@@ -55,7 +55,7 @@ test('saved default view applies to a fresh opening while explicit navigation an
     const latest = (await (await page.request.get('/api/to-doo/state')).json()).settings;
     const csrf = await (await page.request.get('/api/security/csrf')).json();
     const restored = await page.request.post('/api/to-doo/commands', {
-      headers: { origin: 'http://127.0.0.1:4179', 'x-csrf-token': csrf.token },
+      headers: { origin: String(test.info().project.use.baseURL), 'x-csrf-token': csrf.token },
       data: {
         requestId: crypto.randomUUID(),
         action: 'save_entity',

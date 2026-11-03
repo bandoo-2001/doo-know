@@ -393,7 +393,9 @@ it('includes verified app assets in a checkpoint and restores their bytes', asyn
   connections.push(database);
   const restored = createToDooService(dest, database, noteService(dest, database));
   restored.importCheckpoint(checkpoint, 'asset-import');
-  expect(await readFile(join(dest.knowledgeRoot, '_doo-data/apps/to-doo/assets', hash))).toEqual(bytes);
+  expect(await readFile(join(dest.knowledgeRoot, '_doo-data/apps/to-doo/assets', hash))).toEqual(
+    bytes,
+  );
   restored.close();
 });
 it('replays attachment commands after later task edits but rejects a changed attachment body', async () => {
@@ -527,4 +529,54 @@ it('makes every related occurrence reachable when a detail collection exceeds it
   }
   expect(seen.size).toBe(546);
   expect(page?.nextCursor).toBeNull();
+});
+
+it('creates a board task with its initial status in the same idempotent transaction', () => {
+  const requestId = randomUUID();
+  const created = cmd(
+    'create_task',
+    { title: 'Already started', initialStatus: 'doing', priority: 'high' },
+    requestId,
+  );
+  const current = service.snapshot({ all: true });
+  expect(current.occurrences.find((o) => o.taskId === created.ids[0])).toMatchObject({
+    status: 'doing',
+  });
+  expect(service.getEntity('task', created.ids[0])).toMatchObject({ priority: 'high' });
+  expect(
+    cmd(
+      'create_task',
+      { title: 'Already started', initialStatus: 'doing', priority: 'high' },
+      requestId,
+    ),
+  ).toMatchObject({ replayed: true });
+  expect(service.snapshot({ all: true }).tasks).toHaveLength(1);
+});
+
+it('initial active status reopens a completed parent under the normal status rules', () => {
+  const parent = task('Parent');
+  const occurrence = service.snapshot({ all: true }).occurrences.find((o) => o.taskId === parent)!;
+  cmd('set_occurrence_status', {
+    id: occurrence.id,
+    expectedRevision: occurrence.revision,
+    status: 'done',
+  });
+  const child = task('Started child', { parentTaskId: parent, initialStatus: 'doing' });
+  const data = service.snapshot({ all: true });
+  expect(data.occurrences.find((o) => o.taskId === child)?.status).toBe('doing');
+  expect(data.occurrences.find((o) => o.taskId === parent)?.status).toBe('todo');
+});
+
+it('an explicitly selected initial Todo status also reopens a completed parent', () => {
+  const parent = task('Completed parent');
+  const occurrence = service.snapshot({ all: true }).occurrences.find((o) => o.taskId === parent)!;
+  cmd('set_occurrence_status', {
+    id: occurrence.id,
+    expectedRevision: occurrence.revision,
+    status: 'done',
+  });
+  task('New pending child', { parentTaskId: parent, initialStatus: 'todo' });
+  expect(service.snapshot({ all: true }).occurrences.find((o) => o.taskId === parent)?.status).toBe(
+    'todo',
+  );
 });

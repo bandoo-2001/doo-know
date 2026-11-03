@@ -1,3 +1,4 @@
+import { openToDooTaskTools } from '../support/to-doo-navigation';
 import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
@@ -61,6 +62,7 @@ test('the opened recurring occurrence is active independently of batch selection
     occurrences.last().getByRole('button', { name: title, exact: true }),
   ).toHaveAttribute('aria-current', 'true');
   await detail.getByRole('button', { name: '关闭任务详情', exact: true }).click();
+  await openToDooTaskTools(page);
   await app.getByRole('button', { name: '任务管理', exact: true }).click();
   await page.getByRole('menuitem', { name: '多选', exact: true }).click();
   const other = app.locator('.todo-task-row').filter({

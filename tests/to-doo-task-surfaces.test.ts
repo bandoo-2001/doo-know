@@ -521,7 +521,7 @@ describe('task surface controls', () => {
         .all()
         .find((item) => item.tag === 'button' && detail.text(item).trim() === action)!;
       const pending = button.props.onClick();
-      expect(detail.confirmation.current.value).not.toBeNull();
+      await vi.waitFor(() => expect(detail.confirmation.current.value).not.toBeNull());
       expect(writes).toEqual([]);
 
       value.selectTask('task-b', 'occ-b');
@@ -568,7 +568,7 @@ describe('task surface controls', () => {
         .all()
         .find((item) => item.tag === 'button' && detail.text(item).trim() === action)!;
       const pending = button.props.onClick();
-      expect(detail.confirmation.current.value).not.toBeNull();
+      await vi.waitFor(() => expect(detail.confirmation.current.value).not.toBeNull());
       detail.confirmation.finish(true);
       await pending;
 
@@ -591,3 +591,313 @@ describe('task surface controls', () => {
     },
   );
 });
+
+describe('task audit context regressions', () => {
+  test('overview today agrees with the Today range when yesterday plan has today deadline', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-10-30T12:00:00Z'));
+    try {
+      const value = model();
+      value.state.snapshot!.settings.timeZone = 'UTC';
+      value.state.snapshot!.timeBlocks.push(
+        toDooEntitySchemas.timeBlock.parse({
+          id: 'old-plan',
+          revision: 'r1',
+          createdAt: '2026-10-29T08:00:00Z',
+          updatedAt: '2026-10-29T08:00:00Z',
+          occurrenceId: 'occ-a',
+          start: { date: '2026-10-29', time: '10:00', timeZone: 'UTC' },
+          durationMinutes: 30,
+        }),
+      );
+      const overview = mount('ToDooTaskViews', { model: value, section: 'overview', tree: [] });
+      const todayTitles = overview.byClass('todo-task-name').map(overview.text);
+      value.state.filter = presentation.toDooQuickFilter({}, 'today', '2026-10-30');
+      expect(value.items().map((i) => i.title)).toEqual(['准备报告']);
+      expect(todayTitles).toEqual(['准备报告']);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  test('Today add explicitly carries the displayed date', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-10-30T12:00:00Z'));
+    try {
+      const value = model(),
+        create = vi.fn();
+      value.state.snapshot!.settings.timeZone = 'UTC';
+      const overview = mount('ToDooTaskViews', {
+        model: value,
+        section: 'overview',
+        tree: [],
+        onCreate: create,
+      });
+      overview
+        .all()
+        .find((n) => n.props['aria-label'] === '新建今日行动')!
+        .props.onClick();
+      expect(create).toHaveBeenCalledWith(
+        undefined,
+        undefined,
+        expect.objectContaining({ planDate: '2026-10-30' }),
+      );
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  test('board column add carries its initial status', () => {
+    const value = model(),
+      create = vi.fn();
+    const board = mount('ToDooTaskViews', {
+      model: value,
+      section: 'board',
+      tree: [],
+      creating: true,
+      onCreate: create,
+    });
+    const doing = board
+      .byClass('todo-board-column')
+      .find((n) => board.text(n).startsWith('进行中'))!;
+    const add = board
+      .all(doing)
+      .find((n) => n.tag === 'button' && board.text(n).trim() === '＋ 添加任务')!;
+    add.props.onClick();
+    expect(create).toHaveBeenCalledWith(
+      undefined,
+      undefined,
+      expect.objectContaining({ initialStatus: 'doing' }),
+    );
+  });
+
+  test('cancelled and skipped remain visible as terminal states outside pending count', () => {
+    const value = model(),
+      data = value.state.snapshot!;
+    for (const status of ['cancelled', 'skipped'] as const) {
+      data.tasks.push({ ...data.tasks[0], id: status, title: status });
+      data.occurrences.push({
+        ...data.occurrences[0],
+        id: 'occ-' + status,
+        taskId: status,
+        status,
+      });
+    }
+    const view = mount('ToDooTaskViews', {
+      model: value,
+      section: 'tasks',
+      tree: [],
+      creating: true,
+    });
+    expect(view.text(view.byClass('todo-task-list-heading')[0])).toContain('1 项');
+    expect(view.text(view.root)).toContain('已取消');
+    expect(view.text(view.root)).toContain('已跳过');
+  });
+
+  test('an earlier time today is overdue in the row and detail', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-10-30T12:00:00Z'));
+    try {
+      const value = model();
+      value.state.snapshot!.occurrences[0].due = {
+        date: '2026-10-30',
+        time: '08:00',
+        timeZone: 'UTC',
+      };
+      value.selectTask('task-a', 'occ-a');
+      const row = mount('ToDooTaskRow', {
+        item: value.items()[0],
+        today: '2026-10-30',
+        timeZone: 'UTC',
+      });
+      expect(
+        row.all().some((n) => n.props['aria-label'] === '截止 2026-10-30 08:00（已逾期）'),
+      ).toBe(true);
+      const detail = mount('ToDooTaskDetail', { model: value, tree: [] });
+      expect(detail.byClass('is-overdue').length).toBeGreaterThan(0);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});
+
+test('task menu parent completion asks and uses the version guarded cascade', async () => {
+  const { value, writes } = confirmationModel();
+  const menu = mount('ToDooTaskMenu', {
+    model: value,
+    item: value.items().find((i) => i.task.id === 'task-a'),
+  });
+  const done = menu.all().find((n) => n.tag === 'button' && menu.text(n).trim() === '已完成')!;
+  const pending = done.props.onClick();
+  await vi.waitFor(() => expect(menu.confirmation.current.value).not.toBeNull());
+  expect(writes).toEqual([]);
+  menu.confirmation.finish(true);
+  await pending;
+  expect(writes[0]).toMatchObject({
+    action: 'set_occurrence_status',
+    payload: {
+      id: 'occ-a',
+      status: 'done',
+      cascade: true,
+      expectedOccurrenceIds: expect.arrayContaining(['occ-a', 'occ-child-a']),
+      expectedRevisions: { 'task-a': 'r1', 'child-a': 'r1', 'occ-a': 'r1', 'occ-child-a': 'r1' },
+    },
+  });
+});
+
+test('matrix offers direct classification and manual override reset independently of priority', async () => {
+  const value = model(),
+    execute = vi.spyOn(value, 'execute').mockResolvedValue(undefined);
+  const matrix = mount('ToDooTaskViews', {
+    model: value,
+    section: 'matrix',
+    tree: [],
+    creating: true,
+  });
+  expect(matrix.text(matrix.root)).toContain('手动不紧急');
+  const select = matrix
+    .all()
+    .find((n) => n.tag === 'select' && n.props['aria-label'] === '设置象限 准备报告')!;
+  expect(select).toBeDefined();
+  select.props.onChange({ target: { value: '2' } });
+  await Vue.nextTick();
+  expect(execute).toHaveBeenCalledWith(
+    expect.objectContaining({
+      action: 'update_task',
+      payload: {
+        id: 'task-a',
+        expectedRevision: 'r1',
+        patch: { importance: 'normal', urgentOverride: true },
+      },
+    }),
+  );
+  const reset = matrix.all().find((n) => n.props['aria-label'] === '恢复自动紧急判断 准备报告')!;
+  await reset.props.onClick();
+  expect(execute).toHaveBeenLastCalledWith(
+    expect.objectContaining({
+      action: 'update_task',
+      payload: { id: 'task-a', expectedRevision: 'r1', patch: { urgentOverride: null } },
+    }),
+  );
+});
+
+test('task reader explains immediate status actions and the lifetime of unsaved text', () => {
+  const value = model();
+  value.draft()!.task.title = '当前页面的输入';
+  const closed = vi.fn();
+  const detail = mount('ToDooTaskDetail', { model: value, tree: [], onClose: closed });
+  expect(detail.text(detail.root)).toContain('执行状态和菜单操作立即生效');
+  expect(detail.text(detail.root)).toContain('刷新前请保存');
+  detail
+    .all()
+    .find((n) => n.props['aria-label'] === '关闭任务详情')!
+    .props.onClick();
+  expect(closed).toHaveBeenCalledOnce();
+  expect(value.draft()!.task.title).toBe('当前页面的输入');
+  expect(value.dirty()).toBe(true);
+});
+
+test.each([
+  ['list', 'client', { listId: 'client' }],
+  ['priority', 'high', { priority: 'high' }],
+  ['tag', 'urgent', { tagIds: ['urgent'] }],
+] as const)(
+  'board %s column creation passes the actual column value',
+  async (grouping, column, seed) => {
+    const value = model(),
+      create = vi.fn(),
+      data = value.state.snapshot!;
+    data.lists.push(
+      toDooEntitySchemas.list.parse({
+        id: 'client',
+        revision: 'r1',
+        createdAt: data.now,
+        updatedAt: data.now,
+        name: '客户事项',
+      }),
+    );
+    data.tags.push(
+      toDooEntitySchemas.tag.parse({
+        id: 'urgent',
+        revision: 'r1',
+        createdAt: data.now,
+        updatedAt: data.now,
+        name: '紧要',
+      }),
+    );
+    const board = mount('ToDooTaskViews', {
+      model: value,
+      section: 'board',
+      tree: [],
+      creating: true,
+      onCreate: create,
+    });
+    board
+      .all()
+      .find((n) => n.tag === 'select' && n.props['aria-label'] === '看板分组')!
+      .props.onChange({ target: { value: grouping } });
+    await Vue.nextTick();
+    const target = board
+      .byClass('todo-board-column')
+      .find((n) => n.props.id === 'todo-board-' + grouping + '-' + column);
+    // Locate by visible heading before stable jump targets exist so the pre-fix test
+    // still reaches its missing-context assertion.
+    const label = grouping === 'list' ? '客户事项' : grouping === 'priority' ? '高' : '紧要';
+    const section =
+      target || board.byClass('todo-board-column').find((n) => board.text(n).startsWith(label))!;
+    board
+      .all(section)
+      .find((n) => n.tag === 'button' && board.text(n).trim() === '＋ 添加任务')!
+      .props.onClick();
+    expect(create).toHaveBeenCalledWith(undefined, undefined, expect.objectContaining(seed));
+  },
+);
+
+test.each(['menu', 'tasks', 'board', 'detail'] as const)(
+  'the %s completion entry discovers an unloaded child before confirming',
+  async (entry) => {
+    const { value, writes } = confirmationModel();
+    const visible = structuredClone(Vue.toRaw(value.state.snapshot!));
+    visible.tasks = visible.tasks.filter((task) => task.id === 'task-a');
+    visible.occurrences = visible.occurrences.filter((occurrence) => occurrence.id === 'occ-a');
+    value.acceptSnapshot(visible);
+    value.selectTask('task-a', 'occ-a');
+    const view =
+      entry === 'menu'
+        ? mount('ToDooTaskMenu', { model: value, item: value.items()[0] })
+        : entry === 'detail'
+          ? mount('ToDooTaskDetail', { model: value, tree: [] })
+          : mount('ToDooTaskViews', { model: value, section: entry, tree: [], creating: true });
+    const button =
+      entry === 'menu'
+        ? view.all().find((n) => n.tag === 'button' && view.text(n).trim() === '已完成')!
+        : view
+            .all()
+            .find(
+              (n) =>
+                n.tag === 'button' &&
+                n.props['aria-label'] === (entry === 'detail' ? '标记完成' : '完成 准备报告'),
+            )!;
+    const pending = button.props.onClick();
+    await vi.waitFor(() => expect(view.confirmation.current.value).not.toBeNull());
+    expect(writes).toEqual([]);
+    view.confirmation.finish(false);
+    await pending;
+    expect(writes).toEqual([]);
+    const confirmed = button.props.onClick();
+    await vi.waitFor(() => expect(view.confirmation.current.value).not.toBeNull());
+    view.confirmation.finish(true);
+    await confirmed;
+    await vi.waitFor(() =>
+      expect(writes[0]).toMatchObject({
+        action: 'set_occurrence_status',
+        payload: {
+          id: 'occ-a',
+          status: 'done',
+          cascade: true,
+          expectedOccurrenceIds: expect.arrayContaining(['occ-a', 'occ-child-a']),
+        },
+      }),
+    );
+  },
+);

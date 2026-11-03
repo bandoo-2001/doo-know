@@ -1,8 +1,19 @@
 <script setup lang="ts">
 import { computed, useSlots } from 'vue';
-import { Button as AButton, Dropdown as ADropdown, Menu as AMenu, MenuItem as AMenuItem, SubMenu as ASubMenu } from 'ant-design-vue';
+import {
+  Button as AButton,
+  Dropdown as ADropdown,
+  Menu as AMenu,
+  MenuItem as AMenuItem,
+  SubMenu as ASubMenu,
+} from 'ant-design-vue';
 import type { ToDooEntityKind } from '../../../../shared/to-doo-contracts';
-import { toDooPriorityLabels, toDooStatusLabels, type ToDooItem, type ToDooWorkbench } from '../../to-doo-workbench';
+import {
+  toDooPriorityLabels,
+  toDooStatusLabels,
+  type ToDooItem,
+  type ToDooWorkbench,
+} from '../../to-doo-workbench';
 import { useToDooConfirm } from '../../to-doo-controls';
 import { useToDooMenu } from '../../to-doo-menu';
 import ToDooIcon from './ToDooIcon.vue';
@@ -48,6 +59,19 @@ async function run(operation: 'copy' | 'move' | 'archive' | 'delete', listId?: s
         ? { patch: { archivedAt: new Date().toISOString() } }
         : {},
   );
+}
+async function status(value: keyof typeof toDooStatusLabels) {
+  if (blocked.value || !props.item.occurrence) return;
+  const target = props.item;
+  const children = value === 'done' ? await props.model.statusChildCount(target.task.id) : 0;
+  if (children === null) return;
+  if (
+    value === 'done' &&
+    children &&
+    !(await confirm(`这个任务有 ${children} 个子任务，是否一并完成？`))
+  )
+    return;
+  await props.model.setStatus(target.occurrence!.id, value, value === 'done' && children > 0);
 }
 async function priority(value: string) {
   if (blocked.value) return;
@@ -123,10 +147,7 @@ async function priority(value: string) {
           popup-class-name="todo-task-menu-popup todo-ant-popup"
           :disabled="blocked || !item.occurrence"
         >
-          <AMenuItem
-            v-for="(name, value) in toDooStatusLabels"
-            :key="value"
-            @click="item.occurrence && model.setStatus(item.occurrence.id, value)"
+          <AMenuItem v-for="(name, value) in toDooStatusLabels" :key="value" @click="status(value)"
             >{{ name
             }}<span v-if="item.status === value" class="todo-menu-current">✓</span></AMenuItem
           >

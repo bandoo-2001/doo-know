@@ -318,7 +318,7 @@ export function createToDooService(
       );
     }
     function createTask(value: Record<string, unknown>): ToDooTask {
-      const { due, plan, ...fields } = value;
+      const { due, plan, initialStatus, ...fields } = value;
       const task = put('task', fields, null);
       const rule = effectiveRule(task);
       let occurrenceId: string;
@@ -334,6 +334,10 @@ export function createToDooService(
           durationMinutes:
             task.estimateMinutes ?? state.settings.get('settings')?.defaultDurationMinutes ?? 30,
         });
+      // Creation and the first execution status share one transaction and the normal
+      // status guards, including reopening a completed parent when a child starts.
+      if (occurrenceId && initialStatus)
+        setStatus(occurrenceId, initialStatus as ToDooOccurrence['status'], false);
       return task;
     }
     function statusSelection(input: ToDooStatusSelectionInput) {

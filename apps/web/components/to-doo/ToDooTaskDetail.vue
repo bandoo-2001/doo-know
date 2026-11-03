@@ -24,6 +24,7 @@ import {
   toDooStatusLabels,
   toDooPriorityLabels,
   toDooDependencies,
+  toDooDeadlineOverdue,
   type ToDooWorkbench,
   type ToDooItem,
 } from '../../to-doo-workbench';
@@ -32,12 +33,13 @@ import ToDooReminders from './ToDooReminders.vue';
 import ToDooDateExceptions from './ToDooDateExceptions.vue';
 import ToDooIcon from './ToDooIcon.vue';
 import ToDooTaskMenu from './ToDooTaskMenu.vue';
-import { toDooDateLabel } from '../../to-doo-presentation';
+import { toDooDateLabel, toDooDraftPayload } from '../../to-doo-presentation';
 const confirmAction = useToDooConfirm();
 const props = defineProps<{
   model: ToDooWorkbench;
   tree: TreeEntry[];
   creating?: boolean;
+  creationNotice?: string;
   parentTaskId?: string;
   listId?: string;
   createdNoteId?: string;
@@ -223,15 +225,17 @@ function adoptQuick() {
       local.dueTime = value.time || '';
     } else {
       local.planDate = value.date;
-      local.planTime = value.time || '09:00';
+      local.planTime = value.time || '';
     }
   } else if (value.time) {
     local.planDate = toDooLocalDate(new Date(), zone.value);
     local.planTime = value.time;
   }
-  local.tagIds = value.tagIds;
-  local.frequency = value.frequency;
-  local.weekdays = value.weekdays;
+  local.tagIds = [...new Set([...local.tagIds, ...value.tagIds])];
+  if (value.frequency) {
+    local.frequency = value.frequency;
+    local.weekdays = value.weekdays;
+  }
 }
 const scope = ref<'all' | 'future'>('all'),
   previewAsset = ref('');
@@ -255,11 +259,12 @@ function displaySchedule(value: ToDooDateTime) {
 const deadlineSummary = computed(() =>
   form.value?.occurrence?.due ? displaySchedule(form.value.occurrence.due) : '设置截止日期',
 );
-const deadlineOverdue = computed(
-  () =>
-    !!form.value?.occurrence?.due &&
-    toDooDisplayTime(form.value.occurrence.due, zone.value).date < today.value &&
-    !['done', 'cancelled', 'skipped'].includes(form.value.occurrence.status),
+const deadlineOverdue = computed(() =>
+  toDooDeadlineOverdue(
+    form.value?.occurrence?.due,
+    form.value?.occurrence?.status || 'unavailable',
+    today.value,
+  ),
 );
 const currentListName = computed(() =>
   form.value?.task.listId
@@ -371,40 +376,7 @@ async function create() {
     validationError.value = '请填写任务标题';
     return;
   }
-  const result = await props.model.createTask({
-    title: local.title.trim(),
-    description: local.description,
-    criteria: local.criteria,
-    listId: local.listId,
-    parentTaskId: local.parentTaskId,
-    ...(local.sectionId !== undefined ? { sectionId: local.sectionId } : {}),
-    estimateMinutes: local.estimate === '' ? null : local.estimate,
-    tagIds: local.tagIds,
-    recurrence: local.frequency
-      ? {
-          id: local.recurrenceId,
-          frequency: local.frequency,
-          interval: 1,
-          anchorDate: local.planDate || local.dueDate || toDooLocalDate(new Date(), zone.value),
-          time: local.planTime || null,
-          timeZone: zone.value,
-          weekdays: local.weekdays,
-          until: null,
-          count: null,
-          shortMonth: 'last_day',
-          excludedDates: [],
-          additionalDates: [],
-          endedAt: null,
-          completionUnit: 'day',
-        }
-      : null,
-    due: local.dueDate
-      ? { date: local.dueDate, time: local.dueTime || null, timeZone: zone.value }
-      : null,
-    plan: local.planDate
-      ? { date: local.planDate, time: local.planTime || null, timeZone: zone.value }
-      : null,
-  });
+  const result = await props.model.createTask(toDooDraftPayload(local, zone.value));
   if (result) emit('created', state.selectedTaskId);
 }
 async function status(value: string) {
@@ -412,7 +384,8 @@ async function status(value: string) {
   const taskId = state.selectedTaskId,
     occurrenceId = state.selectedOccurrenceId;
   const targetOccurrence = form.value.occurrence.id;
-  const descendants = children.value.length;
+  const descendants = value === 'done' ? await props.model.statusChildCount(taskId) : 0;
+  if (descendants === null || !currentDetail(taskId, occurrenceId)) return;
   let cascade = false;
   if (value === 'done' && descendants) {
     if (
@@ -571,6 +544,16 @@ defineExpose({
     <p v-if="validationError" class="todo-detail-validation todo-danger" role="alert">
       {{ validationError }}
     </p>
+    <p v-if="creating && creationNotice" class="todo-detail-save-help todo-warning" role="status">
+      {{ creationNotice }}
+    </p>
+    <p class="todo-detail-save-help todo-muted todo-small">
+      {{
+        creating
+          ? '点击“创建任务”后生效。关闭会保留新建草稿，保存范围为当前浏览器。'
+          : '标题、日期、优先级、重复和提醒需点击“保存任务”；完成、执行状态和菜单操作立即生效。关闭保留当前页面输入，刷新前请保存。'
+      }}
+    </p>
     <form v-if="creating" class="todo-form todo-detail-body" @submit.prevent="create">
       <fieldset class="todo-create-fields" :disabled="state.busy">
         <label
@@ -596,11 +579,6 @@ defineExpose({
             >采用识别结果</AButton
           ><small>采用后仍可调整日期和时间。</small>
         </div>
-        <p v-if="local.frequency" class="todo-muted todo-small">
-          已采用{{
-            local.frequency === 'daily' ? '每天' : '每周'
-          }}重复，可在创建后的详情中继续调整。
-        </p>
         <label>任务说明<ATextarea v-model:value="local.description" :rows="3"></ATextarea></label
         ><label
           >目标或清单<ToDooSelect
@@ -614,7 +592,35 @@ defineExpose({
             </option>
           </ToDooSelect></label
         >
+        <div class="todo-form-grid">
+          <label
+            >优先级<ToDooSelect v-model="local.priority" aria-label="优先级"
+              ><option v-for="(label, value) in toDooPriorityLabels" :key="value" :value="value">
+                {{ label }}{{ value === 'none' ? '' : '优先级' }}
+              </option></ToDooSelect
+            ></label
+          >
+          <label
+            >初始状态<ToDooSelect v-model="local.initialStatus" aria-label="初始状态"
+              ><option v-for="(label, value) in toDooStatusLabels" :key="value" :value="value">
+                {{ label }}
+              </option></ToDooSelect
+            ></label
+          >
+        </div>
         <label>计划日期<ToDooDateField v-model="local.planDate" type="date" /></label>
+        <small class="todo-muted"
+          >{{
+            local.planDate
+              ? local.planTime
+                ? '按指定时刻安排'
+                : '仅设置日期，不指定开始时刻'
+              : '尚未安排日期'
+          }}
+          · 默认安排时长
+          {{ state.snapshot?.settings.defaultDurationMinutes || 30 }}
+          分钟（可用预计分钟调整）</small
+        >
         <label
           v-if="
             local.listId &&
@@ -649,6 +655,26 @@ defineExpose({
                   :min="0"
               /></label>
             </div>
+            <label
+              >重复<ToDooSelect v-model="local.frequency" aria-label="重复"
+                ><option :value="null">不重复</option>
+                <option value="daily">每天</option>
+                <option value="weekly">每周</option></ToDooSelect
+              ></label
+            >
+            <div v-if="local.frequency === 'weekly'" class="todo-actions" aria-label="重复星期">
+              <label v-for="(day, index) in ['日', '一', '二', '三', '四', '五', '六']" :key="index"
+                ><ACheckbox
+                  :checked="local.weekdays.includes(index)"
+                  @change="
+                    local.weekdays = local.weekdays.includes(index)
+                      ? local.weekdays.filter((value) => value !== index)
+                      : [...local.weekdays, index]
+                  "
+                />周{{ day }}</label
+              >
+            </div>
+            <ToDooReminders v-model="local.reminders" :date-based="false" />
             <label>完成标准<ATextarea v-model:value="local.criteria" :rows="3"></ATextarea></label>
             <p class="todo-muted todo-small">
               创建任务后，可以在详情中上传附件、关联资料和记录成果。

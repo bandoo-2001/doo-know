@@ -1,3 +1,4 @@
+import { openToDooTaskTools } from '../support/to-doo-navigation';
 import { readFile, mkdir } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
@@ -107,6 +108,7 @@ test('quick add inherits the selected list and clearing filters restores tasks a
   await app.getByRole('button', { name: /^筛选与排序/ }).click();
   await selectToDooOption(app, '筛选目标清单', '全部目标与清单');
   await expect(app.getByRole('button', { name: outsideTitle, exact: true })).toBeVisible();
+  await openToDooTaskTools(page);
   const search = app.getByRole('textbox', { name: '搜索任务', exact: true });
   await search.fill(title);
   await app.getByRole('button', { name: '执行搜索', exact: true }).click();

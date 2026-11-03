@@ -119,7 +119,12 @@ function component(path: string): Vue.Component {
 }
 
 const Workspace = component('ToDooWorkspace');
-function mount(section: ToDooAppSection, hostedNavigation?: boolean) {
+function mount(
+  section: ToDooAppSection,
+  hostedNavigation?: boolean,
+  subject = Workspace,
+  extra: Record<string, any> = {},
+) {
   const node = (tag: string, text = ''): Node => ({ tag, text, props: {}, children: [] });
   const renderer = Vue.createRenderer<Node, Node>({
     insertStaticContent(content, parent, anchor) {
@@ -130,7 +135,13 @@ function mount(section: ToDooAppSection, hostedNavigation?: boolean) {
       else parent.children.splice(index, 0, child);
       return [child, child];
     },
-    createElement: (tag) => Object.assign(node(tag), { style: {}, querySelector: () => null }),
+    createElement: (tag) =>
+      Object.assign(node(tag), {
+        style: {},
+        querySelector: () => null,
+        contains: () => false,
+        querySelectorAll: () => [],
+      }),
     createText: (text) => node('#text', text),
     createComment: () => node('#comment'),
     insert(child, parent, anchor) {
@@ -167,7 +178,12 @@ function mount(section: ToDooAppSection, hostedNavigation?: boolean) {
   const root = node('root');
   const app = renderer.createApp({
     render: () =>
-      Vue.h(Workspace, { ...props, ref, onNavigate: (...args: unknown[]) => events.push(args) }),
+      Vue.h(subject, {
+        ...props,
+        ...extra,
+        ref,
+        onNavigate: (...args: unknown[]) => events.push(args),
+      }),
   });
   app.mount(root);
   cleanups.push(() => app.unmount());
@@ -253,7 +269,10 @@ describe('To Doo hosted secondary navigation', () => {
       expect(view.text(sidebar)).not.toContain('四象限');
       expect(view.text(sidebar)).not.toContain('通知中心');
       view.button('工作清单').props.onClick();
-      expect(view.events.at(-1)).toEqual(['tasks', { list: 'work', taskFilter: 'all' }]);
+      expect(view.events.at(-1)).toEqual([
+        section === 'board' ? 'board' : 'tasks',
+        { list: 'work', taskFilter: 'all' },
+      ]);
     },
   );
 
@@ -315,4 +334,62 @@ describe('To Doo hosted secondary navigation', () => {
     await settled();
     expect(view.ref.value.hasUnsavedChanges()).toBe(false);
   });
+});
+
+it('selecting Today in a board retains the board view', async () => {
+  const view = mount('board', true);
+  await settled();
+  view.button('今天').props.onClick();
+  expect(view.events.at(-1)).toEqual(['board', { taskFilter: 'today' }]);
+});
+
+it('phone overflow navigation keeps a stable More label when an overflow function is active', async () => {
+  vi.stubGlobal('document', {
+    addEventListener() {},
+    removeEventListener() {},
+    querySelector: () => null,
+    querySelectorAll: () => [],
+  });
+  vi.stubGlobal('window', {
+    addEventListener() {},
+    removeEventListener() {},
+    matchMedia: () => ({ matches: true, addEventListener() {}, removeEventListener() {} }),
+  });
+  const definition = Vue.reactive({
+    id: 'to-doo',
+    label: 'To Doo',
+    activeId: 'habits',
+    items: [
+      { id: 'tasks', label: '任务', icon: 'task' },
+      { id: 'calendar', label: '日历', icon: 'calendar' },
+      { id: 'matrix', label: '四象限', icon: 'matrix' },
+      { id: 'focus', label: '专注', icon: 'focus' },
+      { id: 'habits', label: '习惯', icon: 'habits' },
+    ],
+    utilities: [],
+    onSelect() {},
+  });
+  const view = mount('habits', true, component('WorkspaceMainMenu'), { definition });
+  await settled();
+  const more = view.all().find((n) => n.tag === 'button' && n.props['aria-label'] === '更多导航')!;
+  expect(view.text(more)).toBe('更多');
+  expect(more.props.title).toBe('更多导航');
+  expect(more.props['aria-current']).toBe('page');
+  definition.activeId = 'tasks';
+  await settled();
+  expect(view.text(more)).toBe('更多');
+});
+
+it('compact matrix offers its retained task scope without restoring the duplicate directory', async () => {
+  const view = mount('matrix', true);
+  await settled();
+  const scope = view.all().find((n) => n.props['aria-label'] === '当前任务范围');
+  expect(scope).toBeDefined();
+  expect(view.text(scope!)).toContain('所有任务');
+  expect(view.byClass('todo-sidebar')).toHaveLength(0);
+  const range = view
+    .all()
+    .find((n) => n.tag === 'select' && n.props['aria-label'] === '切换任务范围')!;
+  range.props.onChange({ target: { value: 'quick:today' } });
+  expect(view.events.at(-1)).toEqual(['matrix', { taskFilter: 'today' }]);
 });

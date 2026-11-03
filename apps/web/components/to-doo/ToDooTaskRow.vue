@@ -2,7 +2,12 @@
 import { computed } from 'vue';
 import { Button as AButton, Checkbox as ACheckbox, Tag as ATag } from 'ant-design-vue';
 import type { ToDooItem } from '../../to-doo-workbench';
-import { toDooDisplayTime, toDooLocalDate, toDooPriorityLabels } from '../../to-doo-workbench';
+import {
+  toDooDisplayTime,
+  toDooLocalDate,
+  toDooPriorityLabels,
+  toDooDeadlineOverdue,
+} from '../../to-doo-workbench';
 import { toDooDateLabel } from '../../to-doo-presentation';
 const props = withDefaults(
   defineProps<{
@@ -29,7 +34,7 @@ const hasMetadata = computed(() => {
     (!!item.list && !hideList) ||
     item.task.noteRefs.length > 0 ||
     !!item.task.recurrence ||
-    item.status === 'blocked' ||
+    ['blocked', 'cancelled', 'skipped'].includes(item.status) ||
     item.status === 'unavailable'
   );
 });
@@ -43,8 +48,7 @@ const dates = computed(() => {
   const due = item.occurrence?.due
     ? toDooDisplayTime(item.occurrence.due, timeZone || item.occurrence.due.timeZone)
     : null;
-  const overdue =
-    !!due && due.date < today && !['done', 'cancelled', 'skipped'].includes(item.status);
+  const overdue = toDooDeadlineOverdue(item.occurrence?.due, item.status, today);
   const same = plan && due && plan.date === due.date && plan.time === due.time;
   const values = same
     ? [{ kind: 'both', label: '计划 / 截止', value: due, overdue }]
@@ -112,6 +116,8 @@ const dates = computed(() => {
         <span v-if="item.task.noteRefs.length">▤ {{ item.task.noteRefs.length }}</span>
         <span v-if="item.task.recurrence" title="重复任务">↻</span>
         <span v-if="item.status === 'blocked'">受阻</span>
+        <span v-if="item.status === 'cancelled'">已取消</span>
+        <span v-if="item.status === 'skipped'">已跳过</span>
         <span v-if="item.status === 'unavailable'">执行记录尚未载入</span>
       </small>
     </AButton>

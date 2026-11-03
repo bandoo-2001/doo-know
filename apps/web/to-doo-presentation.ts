@@ -93,6 +93,9 @@ export function toDooDraftPayload(
 ): Extract<ToDooCommand, { action: 'create_task' }>['payload'] {
   return {
     title: draft.title.trim(),
+    initialStatus: draft.initialStatus,
+    priority: draft.priority,
+    reminders: draft.reminders,
     description: draft.description,
     criteria: draft.criteria,
     listId: draft.listId,

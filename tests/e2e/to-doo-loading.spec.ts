@@ -1,3 +1,4 @@
+import { openToDooTaskTools } from '../support/to-doo-navigation';
 import type { Locator, Page } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import { test, expect } from '../support/browser-test';
@@ -77,6 +78,7 @@ test('an initial task request shows Ant skeletons until the usable task list arr
     await expect(page.getByText('暂时无法载入工作空间。', { exact: true })).toHaveCount(0);
     pending.release();
     await expect(workspace(page).locator('.todo-tree')).toBeVisible();
+    await openToDooTaskTools(page);
     await expect(
       workspace(page).getByRole('textbox', { name: '搜索任务', exact: true }),
     ).toBeVisible();
@@ -97,6 +99,7 @@ test('a failed refresh retains the task DOM, search focus and content position',
     tree = app.locator('.todo-tree');
   await expect(tree).toBeVisible();
   await expect(main).toHaveAttribute('aria-busy', 'false');
+  await openToDooTaskTools(page);
   await search.focus();
   const originalSearch = await search.elementHandle(),
     originalTree = await tree.elementHandle(),

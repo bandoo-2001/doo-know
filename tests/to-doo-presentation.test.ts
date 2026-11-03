@@ -117,3 +117,58 @@ test('date labels are short and use the supplied user-local day', () => {
   expect(toDooDateLabel('2026-10-30', '2026-10-29')).toBe('明天');
   expect(toDooDateLabel('2027-01-01', '2026-10-29')).toBe('2027年1月1日');
 });
+
+test('new task seed is applied only to a fresh parent/list draft and payloads retain creation fields', () => {
+  const model = createToDooWorkbench(async () => undefined);
+  const seed = {
+    initialStatus: 'doing',
+    priority: 'high',
+    planDate: '2026-10-30',
+    tagIds: ['work'],
+  } as const;
+  const draft = model.newTaskDraft(undefined, 'work', seed as any);
+  expect(draft).toMatchObject(seed);
+  expect(draft.planTime).toBe('');
+  expect(draft.estimate).toBe('');
+  Object.assign(draft, {
+    title: '我的草稿',
+    priority: 'low',
+    planDate: '',
+    planDateCleared: true,
+    reminders: [{ id: 'reminder', anchor: 'due', offsetMinutes: -15, allDayTime: '08:00' }],
+    frequency: 'daily',
+  });
+  expect(
+    model.newTaskDraft(undefined, 'work', { priority: 'high', planDate: '2026-10-31' } as any),
+  ).toBe(draft);
+  expect(draft).toMatchObject({
+    title: '我的草稿',
+    priority: 'low',
+    planDate: '',
+    planDateCleared: true,
+  });
+  expect(toDooDraftPayload(draft, 'UTC')).toMatchObject({
+    priority: 'low',
+    initialStatus: 'doing',
+    reminders: [{ id: 'reminder', anchor: 'due', offsetMinutes: -15 }],
+    recurrence: { frequency: 'daily' },
+    plan: null,
+  });
+});
+
+test('a pristine composer placeholder accepts the explicit context when opened from a board column', () => {
+  const model = createToDooWorkbench(async () => undefined);
+  const placeholder = model.newTaskDraft();
+  const seeded = model.newTaskDraft(undefined, undefined, {
+    initialStatus: 'doing',
+    priority: 'high',
+    planDate: '2026-10-30',
+  } as any);
+  expect(seeded).toBe(placeholder);
+  expect(seeded).toMatchObject({
+    initialStatus: 'doing',
+    priority: 'high',
+    planDate: '2026-10-30',
+  });
+  expect(model.hasNewTaskDraft()).toBe(false);
+});

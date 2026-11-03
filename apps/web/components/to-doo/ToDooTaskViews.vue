@@ -25,6 +25,9 @@ import {
   shiftToDooDate,
   toDooStatusLabels,
   toDooPriorityLabels,
+  toDooItemMatchesDateRange,
+  toDooPending,
+  type ToDooCreateSeed,
   type ToDooItem,
   type ToDooWorkbench,
 } from '../../to-doo-workbench';
@@ -48,7 +51,7 @@ const props = withDefaults(
 );
 const emit = defineEmits<{
   open: [item: ToDooItem];
-  create: [parentTaskId?: string, sectionId?: string | null];
+  create: [parentTaskId?: string, sectionId?: string | null, seed?: ToDooCreateSeed];
   list: [id: string];
   edit: [kind: ToDooEntityKind, entity?: Record<string, any>, seed?: Record<string, any>];
   navigate: [section: ToDooAppSection];
@@ -82,6 +85,7 @@ const quadrants = [
   },
 ];
 const advancedFilters = ref(false);
+const toolsOpen = ref(false);
 const filterOpen = ref(false),
   showCompleted = ref(false);
 const builtin = computed({
@@ -190,7 +194,9 @@ function newSection() {
 }
 const todayItems = computed(() =>
   items.value.filter(
-    (i) => i.date === today.value && !['done', 'cancelled', 'skipped'].includes(i.status),
+    (i) =>
+      toDooItemMatchesDateRange(i, today.value, today.value, state.snapshot?.settings.timeZone) &&
+      toDooPending(i.status),
   ),
 );
 const materials = computed(() => {
@@ -251,21 +257,52 @@ function active(item: ToDooItem) {
     (item.occurrence?.id || '') === state.selectedOccurrenceId
   );
 }
-async function complete(item: ToDooItem) {
+async function changeStatus(
+  item: ToDooItem,
+  status: NonNullable<ToDooItem['occurrence']>['status'],
+) {
   if (!item.occurrence) return;
-  const children =
-    state.snapshot?.tasks.filter((t) => !t.deletedAt && t.parentTaskId === item.task.id) || [];
+  const children = status === 'done' ? await props.model.statusChildCount(item.task.id) : 0;
+  if (children === null) return;
   if (
-    item.status !== 'done' &&
-    children.length &&
-    !(await confirmAction(`这个任务有 ${children.length} 个子任务，是否一并完成？`))
+    status === 'done' &&
+    children &&
+    !(await confirmAction(`这个任务有 ${children} 个子任务，是否一并完成？`))
   )
     return;
-  await props.model.setStatus(
-    item.occurrence.id,
-    item.status === 'done' ? 'todo' : 'done',
-    children.length > 0,
+  await props.model.setStatus(item.occurrence.id, status, status === 'done' && children > 0);
+}
+async function complete(item: ToDooItem) {
+  return changeStatus(item, item.status === 'done' ? 'todo' : 'done');
+}
+const createContext = computed<ToDooCreateSeed>(() => ({
+  initialStatus: 'todo',
+  priority: 'none',
+  tagIds: [],
+  planDate: '',
+  ...(activeListId.value ? { listId: activeListId.value } : {}),
+  ...(builtin.value === 'today' ? { planDate: today.value } : {}),
+  ...(state.filter.tagIds?.length ? { tagIds: [...state.filter.tagIds] } : {}),
+  ...(state.filter.priorities?.length === 1 ? { priority: state.filter.priorities[0] } : {}),
+}));
+function createInColumn(id: string) {
+  const seed: ToDooCreateSeed = { ...createContext.value };
+  if (boardBy.value === 'status')
+    seed.initialStatus = id as NonNullable<ToDooItem['occurrence']>['status'];
+  if (boardBy.value === 'list') seed.listId = id || null;
+  if (boardBy.value === 'priority') seed.priority = id as ToDooItem['task']['priority'];
+  if (boardBy.value === 'tag') seed.tagIds = id ? [...new Set([...(seed.tagIds || []), id])] : [];
+  emit(
+    'create',
+    undefined,
+    boardBy.value === 'section' && activeListId.value ? id || null : undefined,
+    seed,
   );
+}
+function jumpTo(id: string) {
+  document
+    .getElementById(id)
+    ?.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'center' });
 }
 async function filterChanged() {
   await props.model.load({ ...state.query, cursor: undefined, filter: { ...state.filter } });
@@ -285,7 +322,7 @@ async function drop(event: DragEvent, column: string) {
   );
   if (!item) return;
   if (boardBy.value === 'status') {
-    if (item.occurrence) await props.model.setStatus(item.occurrence.id, column as any);
+    await changeStatus(item, column as any);
   } else {
     const patch =
       boardBy.value === 'priority'
@@ -328,15 +365,17 @@ async function dropQuadrant(event: DragEvent, index: number) {
   const item = items.value.find(
     (i) => i.key === event.dataTransfer?.getData('application/x-to-doo-item'),
   );
-  if (item)
-    await props.model.execute({
-      action: 'update_task',
-      payload: {
-        id: item.task.id,
-        expectedRevision: item.task.revision,
-        patch: { importance: index < 2 ? 'important' : 'normal', urgentOverride: index % 2 === 0 },
-      },
-    });
+  if (item) await setQuadrant(item, index);
+}
+async function setQuadrant(item: ToDooItem, index: number) {
+  await props.model.execute({
+    action: 'update_task',
+    payload: {
+      id: item.task.id,
+      expectedRevision: item.task.revision,
+      patch: { importance: index < 2 ? 'important' : 'normal', urgentOverride: index % 2 === 0 },
+    },
+  });
 }
 async function bulk(
   operation:
@@ -526,7 +565,7 @@ function saveView() {
             class="todo-icon-button"
             html-type="button"
             aria-label="新建今日行动"
-            @click="emit('create')"
+            @click="emit('create', undefined, undefined, { ...createContext, planDate: today })"
             type="text"
           >
             ＋
@@ -552,7 +591,11 @@ function saveView() {
         ></ToDooTaskRow>
         <div v-if="!todayItems.length" class="todo-empty">
           <p>今天还没有安排，留一点时间给重要的事。</p>
-          <AButton class="todo-button" html-type="button" @click="emit('create')" type="default"
+          <AButton
+            class="todo-button"
+            html-type="button"
+            @click="emit('create', undefined, undefined, { ...createContext, planDate: today })"
+            type="default"
             >添加一个行动</AButton
           >
         </div>
@@ -608,6 +651,9 @@ function saveView() {
                   }}</span
                 >
               </div>
+              <small class="todo-muted"
+                >进度按未归档叶子行动的执行次数计算；重复行动每次分别计数，取消和跳过不计。</small
+              >
               <div
                 v-if="goal.goalDate || goal.noteRefs.length"
                 class="todo-between todo-muted todo-small todo-goal-details"
@@ -711,6 +757,7 @@ function saveView() {
       :model="model"
       :list-id="state.filter.listIds?.[0]"
       :default-date="builtin === 'today' || builtin === 'upcoming' ? today : undefined"
+      :seed="createContext"
       @expand="emit('create')"
     />
     <div class="todo-task-toolbar">
@@ -721,7 +768,20 @@ function saveView() {
         :options="viewOptions"
         @change="chooseView"
       />
-      <form class="todo-toolbar-search" role="search" @submit.prevent="filterChanged">
+      <AButton
+        type="text"
+        class="todo-task-tools-toggle"
+        aria-label="搜索与管理"
+        :aria-expanded="toolsOpen"
+        @click="toolsOpen = !toolsOpen"
+        >搜索与管理</AButton
+      >
+      <form
+        class="todo-toolbar-search todo-task-secondary-tools"
+        :class="{ 'is-open': toolsOpen }"
+        role="search"
+        @submit.prevent="filterChanged"
+      >
         <label class="todo-search"
           ><AInput
             v-model:value="state.filter.query"
@@ -743,7 +803,11 @@ function saveView() {
         }}</small>
       </AButton>
       <ADropdown :trigger="['click']" placement="bottomRight">
-        <AButton type="text" aria-label="任务管理"
+        <AButton
+          type="text"
+          aria-label="任务管理"
+          class="todo-task-secondary-tools"
+          :class="{ 'is-open': toolsOpen }"
           ><ToDooIcon name="more" :size="16" />任务管理</AButton
         >
         <template #overlay
@@ -1029,7 +1093,7 @@ function saveView() {
       <div class="todo-panel-header todo-task-list-heading">
         <h2>
           {{ state.filter.query ? '搜索结果' : '待办任务' }}
-          <small>{{ items.filter((i) => i.status !== 'done').length }} 项</small>
+          <small>{{ items.filter((i) => toDooPending(i.status)).length }} 项待办</small>
         </h2>
         <AButton
           v-if="state.filter.listIds?.[0]"
@@ -1229,11 +1293,21 @@ function saveView() {
           <option value="tag">按标签</option>
         </ToDooSelect>
       </div>
+      <nav class="todo-task-jumps" aria-label="看板列概览">
+        <AButton
+          v-for="column in columns"
+          :key="column.id"
+          type="text"
+          @click="jumpTo('todo-board-' + boardBy + '-' + column.id)"
+          >{{ column.name }} {{ items.filter((i) => inColumn(i, column.id)).length }}</AButton
+        >
+      </nav>
       <div class="todo-board">
         <section
           v-for="column in columns"
           :key="column.id"
           class="todo-board-column"
+          :id="'todo-board-' + boardBy + '-' + column.id"
           :class="boardBy === 'priority' ? 'todo-priority-' + column.id : undefined"
           @dragover.prevent
           @drop="drop($event, column.id)"
@@ -1352,11 +1426,7 @@ function saveView() {
           <AButton
             class="todo-link"
             html-type="button"
-            @click="
-              boardBy === 'section' && activeListId
-                ? emit('create', undefined, column.id || null)
-                : emit('create')
-            "
+            @click="createInColumn(column.id)"
             type="link"
             >＋ 添加任务</AButton
           >
@@ -1379,11 +1449,24 @@ function saveView() {
           <small>{{ items.filter((item) => item.status === 'done').length }}</small>
         </AButton>
       </div>
+      <p class="todo-muted todo-small">
+        象限按重要程度与截止时间判断紧急性，和优先级分别设置；拖动或选择象限会手动覆盖紧急判断。
+      </p>
+      <nav class="todo-task-jumps" aria-label="象限概览">
+        <AButton
+          v-for="(zone, index) in quadrants"
+          :key="zone.tone"
+          type="text"
+          @click="jumpTo('todo-quadrant-' + zone.tone)"
+          >{{ zone.name }} {{ matrixItems.filter((i) => quadrant(i, index)).length }}</AButton
+        >
+      </nav>
       <div class="todo-quadrants">
         <section
           v-for="(zone, index) in quadrants"
           :key="index"
           class="todo-panel todo-quadrant"
+          :id="'todo-quadrant-' + zone.tone"
           :class="'todo-quadrant-' + zone.tone"
           @dragover.prevent
           @drop="dropQuadrant($event, index)"
@@ -1401,6 +1484,7 @@ function saveView() {
             <div
               v-for="item in matrixItems.filter((i) => quadrant(i, index))"
               :key="item.key"
+              class="todo-quadrant-item"
               draggable="true"
               @dragstart="drag($event, item)"
             >
@@ -1423,6 +1507,41 @@ function saveView() {
                     @child="emit('create', $event)"
                     @edit="(kind, entity, seed) => emit('edit', kind, entity, seed)" /></template
               ></ToDooTaskRow>
+              <div class="todo-matrix-classification">
+                <ToDooSelect
+                  :value="String(index)"
+                  :aria-label="'设置象限 ' + item.title"
+                  :disabled="state.busy || !!state.pendingMutation"
+                  @change="setQuadrant(item, Number($event))"
+                  ><option
+                    v-for="(target, targetIndex) in quadrants"
+                    :key="target.tone"
+                    :value="String(targetIndex)"
+                  >
+                    {{ target.name }}
+                  </option></ToDooSelect
+                >
+                <template v-if="item.task.urgentOverride !== null"
+                  ><ATag>{{ item.task.urgentOverride ? '手动紧急' : '手动不紧急' }}</ATag
+                  ><AButton
+                    type="link"
+                    :aria-label="'恢复自动紧急判断 ' + item.title"
+                    :disabled="state.busy || !!state.pendingMutation"
+                    @click="
+                      model.execute({
+                        action: 'update_task',
+                        payload: {
+                          id: item.task.id,
+                          expectedRevision: item.task.revision,
+                          patch: { urgentOverride: null },
+                        },
+                      })
+                    "
+                    >恢复自动</AButton
+                  ></template
+                >
+                <span v-else class="todo-muted todo-small">自动判断紧急性</span>
+              </div>
             </div>
             <div v-if="!matrixItems.some((i) => quadrant(i, index))" class="todo-empty">
               <p>{{ zone.empty }}</p>

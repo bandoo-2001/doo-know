@@ -1082,6 +1082,7 @@ const taskDraft = z
     id: toDooId.optional(),
     due: toDooDateTimeSchema.nullable().optional(),
     plan: toDooDateTimeSchema.nullable().optional(),
+    initialStatus: toDooStatusSchema.optional(),
     reminders: z.array(reminderRule).max(20).optional(),
   })
   .strict();

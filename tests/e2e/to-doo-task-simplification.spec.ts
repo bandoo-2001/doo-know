@@ -1,3 +1,4 @@
+import { openToDooTaskTools } from '../support/to-doo-navigation';
 import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
@@ -143,6 +144,7 @@ test('context menu copy, priority and subtree move leave multi-selection untouch
     entity: { name: '工作 ' + f.suffix },
   });
   await page.reload();
+  await openToDooTaskTools(page);
   await page.getByRole('button', { name: '任务管理', exact: true }).click();
   await page.getByRole('menuitem', { name: '多选', exact: true }).click();
   const selected = page.getByRole('checkbox', { name: '选择 ' + otherTitle, exact: true });
@@ -260,6 +262,7 @@ test('switching a new task to another list clears its original group', async ({ 
 
 test('searching only a child preserves its inherited group', async ({ page }) => {
   const f = await fixture(page);
+  await openToDooTaskTools(page);
   await page.getByRole('textbox', { name: '搜索任务', exact: true }).fill(f.childTitle);
   await page.getByRole('button', { name: '执行搜索', exact: true }).click();
   await expect(

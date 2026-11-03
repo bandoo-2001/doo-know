@@ -3,7 +3,7 @@ import ToDooDateField from './ToDooDateField.vue';
 import { Button as AButton, Input as AInput } from 'ant-design-vue';
 
 import { computed, nextTick, onMounted, onBeforeUnmount, ref } from 'vue';
-import type { ToDooWorkbench } from '../../to-doo-workbench';
+import type { ToDooWorkbench, ToDooCreateSeed } from '../../to-doo-workbench';
 import { shiftToDooDate, toDooLocalDate } from '../../to-doo-workbench';
 import {
   prepareToDooQuickDraft,
@@ -11,7 +11,12 @@ import {
   toDooDraftPayload,
 } from '../../to-doo-presentation';
 import ToDooIcon from './ToDooIcon.vue';
-const props = defineProps<{ model: ToDooWorkbench; listId?: string; defaultDate?: string }>();
+const props = defineProps<{
+  model: ToDooWorkbench;
+  listId?: string;
+  defaultDate?: string;
+  seed?: ToDooCreateSeed;
+}>();
 const emit = defineEmits<{ expand: [] }>();
 const captureForm = ref<HTMLFormElement>();
 function captureInput() {
@@ -22,7 +27,7 @@ let pointerDown = false,
   pendingBlur = false;
 let blurTimer: ReturnType<typeof setTimeout> | undefined;
 const state = props.model.state;
-const draft = computed(() => props.model.newTaskDraft(undefined, props.listId));
+const draft = computed(() => props.model.newTaskDraft(undefined, props.listId, props.seed));
 const today = computed(() => toDooLocalDate(new Date(), state.snapshot?.settings.timeZone));
 const prepared = computed(() =>
   prepareToDooQuickDraft(

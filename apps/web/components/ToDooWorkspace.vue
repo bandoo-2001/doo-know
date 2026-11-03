@@ -37,6 +37,7 @@ import {
   shiftToDooDate,
   toDooLocalDate,
   type ToDooItem,
+  type ToDooCreateSeed,
   type ToDooSelection,
 } from '../to-doo-workbench';
 import ToDooTaskViews from './to-doo/ToDooTaskViews.vue';
@@ -101,6 +102,7 @@ const model = createToDooWorkbench(api),
   creating = ref(false),
   parentId = ref<string>(),
   creatingListId = ref<string>(),
+  creationNotice = ref(''),
   detailOpen = ref(false),
   focusOccurrence = ref(''),
   density = ref('comfortable');
@@ -420,20 +422,38 @@ async function chooseQuickView(value: ToDooQuickFilter) {
     value,
     toDooLocalDate(new Date(), state.snapshot?.settings.timeZone),
   );
-  if (props.section === 'tasks' && !props.selection.list && props.selection.taskFilter === value)
+  const section = ['tasks', 'board', 'matrix', 'timeline'].includes(props.section)
+    ? props.section
+    : 'tasks';
+  if (!props.selection.list && props.selection.taskFilter === value)
     await model.load({
       ...state.query,
-      view: 'tasks',
+      view: section,
       listIds: value === 'inbox' ? ['inbox'] : undefined,
       filter: { ...state.filter },
       cursor: undefined,
     });
-  else navigate('tasks', { taskFilter: value });
+  else
+    navigate(section, {
+      ...(section === 'timeline'
+        ? { date: props.selection.date, calendarView: props.selection.calendarView }
+        : {}),
+      taskFilter: value,
+    });
 }
 function chooseList(id: string) {
   navigationOpen.value = false;
   state.filter = { listIds: [id] };
-  navigate('tasks', { list: id, taskFilter: 'all' });
+  const section = ['tasks', 'board', 'matrix', 'timeline'].includes(props.section)
+    ? props.section
+    : 'tasks';
+  navigate(section, {
+    ...(section === 'timeline'
+      ? { date: props.selection.date, calendarView: props.selection.calendarView }
+      : {}),
+    list: id,
+    taskFilter: 'all',
+  });
 }
 function changeTaskView(section: ToDooAppSection) {
   navigate(section, { ...props.selection });
@@ -475,6 +495,43 @@ const unread = computed(
     0,
 );
 const taskSections = ['overview', 'tasks', 'board', 'matrix'];
+const showTaskScope = computed(() =>
+  ['tasks', 'board', 'matrix', 'timeline'].includes(props.section),
+);
+const scopeSelection = computed(() =>
+  props.selection.list ? 'list:' + props.selection.list : 'quick:' + quickView.value,
+);
+const scopeSummary = computed(() => {
+  const label = props.selection.list
+    ? lists.value.find((l) => l.id === props.selection.list)?.name || '当前清单'
+    : toDooQuickViews.find((v) => v.id === quickView.value)?.name ||
+      (
+        {
+          done: '已完成',
+          overdue: '逾期',
+          blocked: '受阻',
+          unscheduled: '未安排',
+          archived: '已归档',
+          trash: '回收站',
+        } as Record<string, string>
+      )[quickView.value] ||
+      '所有任务';
+  return [
+    label,
+    state.filter.from || state.filter.to
+      ? [state.filter.from, state.filter.to].filter(Boolean).join(' 至 ')
+      : '',
+    state.filter.tagIds?.length ? state.filter.tagIds.length + ' 个标签' : '',
+    state.filter.query ? '搜索：' + state.filter.query : '',
+    state.filter.group?.conditions.length ? '自定义筛选' : '',
+  ]
+    .filter(Boolean)
+    .join(' · ');
+});
+function changeScope(value: string) {
+  if (value.startsWith('list:')) chooseList(value.slice(5));
+  else void chooseQuickView(value.slice(6) as ToDooQuickFilter);
+}
 const collectionLabels: Partial<Record<ToDooEntityKind, string>> = {
   task: '任务',
   occurrence: '执行实例',
@@ -530,12 +587,31 @@ function navigate(section: ToDooAppSection, selection: ToDooSelection = {}) {
     });
   } else emit('navigate', section, selection);
 }
-function create(parent?: string, sectionId?: string | null) {
+function create(parent?: string, sectionId?: string | null, seed?: ToDooCreateSeed) {
+  const context: ToDooCreateSeed = {
+    initialStatus: 'todo',
+    priority: 'none',
+    tagIds: [],
+    planDate: '',
+    ...(quickView.value === 'today'
+      ? { planDate: toDooLocalDate(new Date(), state.snapshot?.settings.timeZone) }
+      : {}),
+    ...(state.filter.tagIds?.length ? { tagIds: [...state.filter.tagIds] } : {}),
+    ...(state.filter.priorities?.length === 1 ? { priority: state.filter.priorities[0] } : {}),
+    ...seed,
+    ...(sectionId !== undefined ? { sectionId } : {}),
+  };
+  const list = seed?.listId !== undefined ? seed.listId || undefined : props.selection.list;
+  const draft = model.newTaskDraft(parent, list, context);
+  creationNotice.value = Object.entries(context).some(
+    ([key, value]) => JSON.stringify(draft[key as keyof typeof draft]) !== JSON.stringify(value),
+  )
+    ? '已继续保留的新建草稿；当前列或日期的默认值未覆盖你的输入，请核对后创建。'
+    : '';
+  if (creationNotice.value) state.notice = creationNotice.value;
   creating.value = true;
   parentId.value = parent;
-  creatingListId.value = props.selection.list;
-  if (sectionId !== undefined)
-    model.newTaskDraft(parent, props.selection.list).sectionId = sectionId;
+  creatingListId.value = list;
   detailOpen.value = true;
 }
 function open(item: ToDooItem) {
@@ -559,7 +635,18 @@ async function selectTask(id: string, occurrence?: string) {
     occurrence: model.state.selectedOccurrenceId || undefined,
   });
 }
+function continueNewDraft() {
+  const retained = model.retainedNewTaskDraft();
+  if (retained) create(retained.parentTaskId || undefined, undefined, { listId: retained.listId });
+  else create();
+}
 function closeDetail() {
+  if (creating.value && model.hasNewTaskDraft())
+    state.notice = state.localWarning
+      ? '新建草稿保留在当前页面，尚未创建任务；本浏览器的恢复信息暂不可用。'
+      : '新建草稿已保留在本浏览器，尚未创建任务。可点击“继续新建任务草稿”。';
+  else if (!creating.value && model.dirty())
+    state.notice = '更改保留在当前页面，重新打开任务可继续编辑；刷新或离开页面前请保存。';
   creating.value = false;
   detailOpen.value = false;
   navigate(props.section, { ...props.selection, task: undefined, occurrence: undefined });
@@ -1113,6 +1200,29 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
             >
           </template>
         </ToDooPageHeader>
+        <div v-if="showTaskScope" class="todo-task-scope" aria-label="当前任务范围">
+          <span class="todo-scope-summary">任务范围：{{ scopeSummary }}</span>
+          <ToDooSelect :value="scopeSelection" aria-label="切换任务范围" @change="changeScope">
+            <option v-for="view in toDooQuickViews" :key="view.id" :value="'quick:' + view.id">
+              {{ view.name }}
+            </option>
+            <option value="quick:overdue">逾期</option>
+            <option value="quick:unscheduled">未安排</option>
+            <option value="quick:blocked">受阻</option>
+            <option value="quick:done">已完成</option>
+            <option value="quick:archived">已归档</option>
+            <option value="quick:trash">回收站</option>
+            <option v-for="list in lists" :key="list.id" :value="'list:' + list.id">
+              {{ list.name }}
+            </option>
+          </ToDooSelect>
+          <AButton
+            v-if="['matrix', 'timeline'].includes(section)"
+            type="link"
+            @click="changeTaskView('tasks')"
+            >返回任务列表</AButton
+          >
+        </div>
         <nav v-if="section === 'tasks'" class="todo-mobile-quick-nav" aria-label="常用任务入口">
           <AButton
             v-for="view in toDooQuickViews"
@@ -1166,7 +1276,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
           v-if="model.hasNewTaskDraft() && !creating"
           html-type="button"
           class="todo-link"
-          @click="create()"
+          @click="continueNewDraft()"
           type="link"
         >
           继续新建任务草稿
@@ -1277,6 +1387,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
         :model="model"
         :tree="tree"
         :creating="creating"
+        :creation-notice="creationNotice"
         :parent-task-id="parentId"
         :list-id="creating ? creatingListId : selection.list"
         :created-note-id="state.selectedTaskId === createdNoteTaskId ? createdNoteId : undefined"

@@ -36,7 +36,18 @@ export type ToDooTaskDraft = {
   occurrence: ToDooOccurrence | null;
   blocks: ToDooEntityMap['timeBlock'][];
 };
+export type ToDooCreateSeed = {
+  listId?: string | null;
+  sectionId?: string | null;
+  initialStatus?: ToDooOccurrence['status'];
+  priority?: ToDooTask['priority'];
+  tagIds?: string[];
+  planDate?: string;
+};
 export type ToDooNewTaskDraft = {
+  initialStatus: ToDooOccurrence['status'];
+  priority: ToDooTask['priority'];
+  reminders: ToDooTask['reminders'];
   title: string;
   description: string;
   criteria: string;
@@ -287,6 +298,37 @@ export function shiftToDooDate(date: string, days: number) {
   d.setUTCDate(d.getUTCDate() + days);
   return d.toISOString().slice(0, 10);
 }
+export function toDooPending(status: ToDooItem['status']) {
+  return ['todo', 'doing', 'blocked'].includes(status);
+}
+
+/** Plans, deadlines and recurrence dates use the same scope rule in every task view. */
+export function toDooItemMatchesDateRange(
+  item: ToDooItem,
+  from?: string,
+  to?: string,
+  timeZone = 'UTC',
+) {
+  const dates = [
+    ...item.blocks.map((block) => block.start.date),
+    item.occurrence?.due ? toDooDisplayTime(item.occurrence.due, timeZone).date : undefined,
+    item.occurrence?.scheduledDate,
+  ];
+  return dates.some((date) => date && (!from || date >= from) && (!to || date <= to));
+}
+
+export function toDooDeadlineOverdue(
+  due: ToDooOccurrence['due'] | undefined,
+  status: ToDooItem['status'],
+  today: string,
+  now = Date.now(),
+) {
+  if (!due || !toDooPending(status)) return false;
+  if (!due.time) return due.date < today;
+  const utc = toDooDisplayTime(due, 'UTC');
+  return Date.parse(utc.date + 'T' + utc.time + ':00Z') < now;
+}
+
 export function deriveToDooItems(
   data: ToDooSnapshot,
   filter: ToDooFilter = {},
@@ -368,14 +410,9 @@ export function deriveToDooItems(
       if (filter.importance && filter.importance !== t.importance) return false;
       if (filter.unscheduled && row.blocks.length) return false;
       if (filter.leafOnly && tasks.some((child) => child.parentTaskId === t.id)) return false;
-      const dates = [
-        ...row.blocks.map((b) => b.start.date),
-        o?.due ? toDooDisplayTime(o.due, data.settings.timeZone).date : undefined,
-        o?.scheduledDate,
-      ].filter((d): d is string => !!d);
       if (
         (filter.from || filter.to) &&
-        !dates.some((d) => (!filter.from || d >= filter.from) && (!filter.to || d <= filter.to))
+        !toDooItemMatchesDateRange(row, filter.from, filter.to, data.settings.timeZone)
       )
         return false;
       if (
@@ -534,6 +571,7 @@ export function createToDooWorkbench(request: ToDooRequest) {
   });
   const saved = new Map<string, string>();
   const newSaved = new Map<string, string>();
+  const restoredNewDrafts = new Set<string>();
   const newDefaults = (parentTaskId: string | null, listId: string | null): ToDooNewTaskDraft => ({
     title: '',
     description: '',
@@ -543,8 +581,11 @@ export function createToDooWorkbench(request: ToDooRequest) {
     dueDate: '',
     dueTime: '',
     planDate: '',
-    planTime: '09:00',
-    estimate: 30,
+    planTime: '',
+    estimate: '',
+    initialStatus: 'todo',
+    priority: 'none',
+    reminders: [],
     tagIds: [],
     frequency: null,
     weekdays: [],
@@ -590,18 +631,34 @@ export function createToDooWorkbench(request: ToDooRequest) {
         base.recurrenceId = typeof d.recurrenceId === 'string' ? d.recurrenceId : base.recurrenceId;
         newSaved.set(key, fingerprint(base));
         state.newTaskDrafts[key] = { ...base, ...d };
+        restoredNewDrafts.add(key);
       }
     } catch {
       state.localWarning = '本地恢复信息无法读取，当前服务器内容仍可正常访问。';
     }
   }
-  function newTaskDraft(parent?: string, list?: string) {
-    const listId = list || state.snapshot?.tasks.find((t) => t.id === parent)?.listId || null,
+  function newTaskDraft(parent?: string, list?: string, seed?: ToDooCreateSeed) {
+    const listId =
+        list || seed?.listId || state.snapshot?.tasks.find((t) => t.id === parent)?.listId || null,
       key = (parent || '') + '@' + (listId || '');
     if (!state.newTaskDrafts[key]) {
-      const value = newDefaults(parent || null, listId);
+      const value = { ...newDefaults(parent || null, listId), ...clone(seed || {}), listId };
       newSaved.set(key, fingerprint(value));
       state.newTaskDrafts[key] = value;
+    } else if (
+      seed &&
+      !restoredNewDrafts.has(key) &&
+      newSaved.get(key) === fingerprint(state.newTaskDrafts[key]) &&
+      Object.entries(seed).some(
+        ([field, value]) =>
+          fingerprint(state.newTaskDrafts[key][field as keyof ToDooNewTaskDraft]) !==
+          fingerprint(value),
+      )
+    ) {
+      // Quick capture eagerly creates an untouched placeholder. Context may seed that
+      // placeholder, while edited and recovered drafts keep every user choice.
+      Object.assign(state.newTaskDrafts[key], clone(seed), { listId });
+      newSaved.set(key, fingerprint(state.newTaskDrafts[key]));
     }
     return state.newTaskDrafts[key]!;
   }
@@ -610,6 +667,7 @@ export function createToDooWorkbench(request: ToDooRequest) {
       key = (parent || '') + '@' + (listId || '');
     delete state.newTaskDrafts[key];
     newSaved.delete(key);
+    restoredNewDrafts.delete(key);
     persistRecovery();
   }
   watch(() => [state.newTaskDrafts, state.pendingMutation], persistRecovery, { deep: true });
@@ -703,6 +761,7 @@ export function createToDooWorkbench(request: ToDooRequest) {
       state.newTaskDrafts = {};
       saved.clear();
       newSaved.clear();
+      restoredNewDrafts.clear();
       state.selectedTaskId = '';
       state.selectedOccurrenceId = '';
       state.selectedIds = [];
@@ -1050,12 +1109,16 @@ export function createToDooWorkbench(request: ToDooRequest) {
     }
   }
   async function createTask(payload: Extract<ToDooCommand, { action: 'create_task' }>['payload']) {
+    const submittedDrafts = new Map(
+      Object.entries(state.newTaskDrafts).map(([key, draft]) => [key, fingerprint(draft)]),
+    );
     const result = await execute({ action: 'create_task', payload }, '任务已创建');
     const taskId = result?.ids.find((id) => state.snapshot?.tasks.some((t) => t.id === id));
     if (taskId) selectTask(taskId);
     if (result) {
       for (const [key, d] of Object.entries(state.newTaskDrafts)) {
         if (
+          submittedDrafts.get(key) === fingerprint(d) &&
           d.title.trim() === payload.title &&
           d.description === (payload.description || '') &&
           d.criteria === (payload.criteria || '') &&
@@ -1065,6 +1128,9 @@ export function createToDooWorkbench(request: ToDooRequest) {
           d.dueDate === (payload.due?.date || '') &&
           d.planDate === (payload.plan?.date || '') &&
           fingerprint(d.tagIds) === fingerprint(payload.tagIds || []) &&
+          d.priority === (payload.priority || 'none') &&
+          d.initialStatus === (payload.initialStatus || 'todo') &&
+          fingerprint(d.reminders) === fingerprint(payload.reminders || []) &&
           d.frequency === (payload.recurrence?.frequency || null) &&
           (d.estimate === '' ? null : d.estimate) === (payload.estimateMinutes ?? null) &&
           (!d.dueDate || (d.dueTime || null) === (payload.due?.time || null)) &&
@@ -1075,6 +1141,7 @@ export function createToDooWorkbench(request: ToDooRequest) {
         ) {
           delete state.newTaskDrafts[key];
           newSaved.delete(key);
+          restoredNewDrafts.delete(key);
         }
       }
       persistRecovery();
@@ -1229,6 +1296,15 @@ export function createToDooWorkbench(request: ToDooRequest) {
       }
     }
     return { tasks: [...tasks.values()], occurrences: [...occurrences.values()] };
+  }
+  async function statusChildCount(taskId: string) {
+    try {
+      const graph = await readStatusGraph([taskId]);
+      return graph.tasks.filter((task) => !task.deletedAt && task.parentTaskId === taskId).length;
+    } catch (cause) {
+      state.error = cause instanceof Error ? cause.message : String(cause);
+      return null;
+    }
   }
   async function setStatus(id: string, status: ToDooOccurrence['status'], cascade = false) {
     const pending = state.pendingMutation;
@@ -1553,6 +1629,10 @@ export function createToDooWorkbench(request: ToDooRequest) {
     nextPage,
     loadPendingOperations,
     newTaskDraft,
+    retainedNewTaskDraft: () =>
+      Object.entries(state.newTaskDrafts).find(
+        ([key, value]) => newSaved.get(key) !== fingerprint(value),
+      )?.[1],
     clearNewTaskDraft,
     hasNewTaskDraft: () =>
       Object.entries(state.newTaskDrafts).some(
@@ -1576,6 +1656,7 @@ export function createToDooWorkbench(request: ToDooRequest) {
     hasUnsavedChanges,
     saveTask,
     setStatus,
+    statusChildCount,
     saveEntity,
     removeEntity,
     batch,

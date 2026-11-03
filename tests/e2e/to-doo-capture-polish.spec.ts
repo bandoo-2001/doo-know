@@ -1,3 +1,4 @@
+import { openToDooTaskTools } from '../support/to-doo-navigation';
 import { fillToDooDate } from '../support/to-doo-ant-controls';
 import { readFile } from 'node:fs/promises';
 import { test, expect } from '../support/browser-test';
@@ -39,6 +40,7 @@ test('Q focuses capture without stealing keys from text entry', async ({ page, c
   await input.blur();
   await page.keyboard.press('q');
   await expect(input).toBeFocused();
+  await openToDooTaskTools(page);
   const search = page.getByRole('textbox', { name: '搜索任务', exact: true });
   await search.fill('查找');
   await search.press('q');

@@ -19,7 +19,7 @@ async function expectSelectedEntry(page: Page, name: string) {
 async function createList(page: Page, name: string) {
   const csrf = await (await page.request.get('/api/security/csrf')).json();
   const response = await page.request.post('/api/to-doo/commands', {
-    headers: { origin: 'http://127.0.0.1:4179', 'x-csrf-token': csrf.token },
+    headers: { origin: String(test.info().project.use.baseURL), 'x-csrf-token': csrf.token },
     data: {
       requestId: crypto.randomUUID(),
       action: 'save_entity',
