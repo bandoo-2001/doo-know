@@ -99,7 +99,7 @@ test.describe('authenticated feature acceptance', () => {
   });
   async function headers(page: any) {
     const csrf = await page.request.get('/api/security/csrf');
-    return { origin: 'http://127.0.0.1:4179', 'x-csrf-token': (await csrf.json()).token };
+    return { origin: new URL(csrf.url()).origin, 'x-csrf-token': (await csrf.json()).token };
   }
   async function newNote(page: any, title: string) {
     const h = await headers(page);
@@ -201,7 +201,7 @@ test.describe('authenticated feature acceptance', () => {
       await page.getByRole('button', { name: '复制链接' }).click();
       expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(shareUrl);
     }
-    await page.getByRole('button', { name: '完成', exact: true }).click();
+    await page.getByRole('dialog').filter({ hasText: '分享笔记' }).getByRole('button', { name: '完成', exact: true }).click();
     await expect(page.getByText('已分享，保存后的修改将同步公开')).toBeVisible();
     const guest = await browser.newContext();
     const reader = await guest.newPage();
@@ -213,7 +213,7 @@ test.describe('authenticated feature acceptance', () => {
       fullPage: true,
       animations: 'disabled',
     });
-    expect((await guest.request.get('http://127.0.0.1:4179/api/tree')).status()).toBe(401);
+    expect((await guest.request.get(new URL('/api/tree', page.url()).href)).status()).toBe(401);
     await page.locator('.cm-content').fill('# 网页保存实时更新\n\n新的内容');
     await reader.reload();
     await expect(reader.locator('.reader-title')).not.toContainText('网页保存实时更新');
@@ -279,6 +279,8 @@ test.describe('authenticated feature acceptance', () => {
     await expect(page.locator('.save-state')).toContainText('已保存');
     await clickNoteAction(page, '历史版本');
     await page.getByRole('button', { name: '恢复此版本' }).first().click();
+    await expect(page.locator('.cm-content')).toContainText('尚未保存的想法');
+    await page.getByRole('button', { name: '确认恢复', exact: true }).click();
     await expect(page.locator('.cm-content')).toContainText('整理方法');
     if (info.project.name === 'mobile')
       await page.getByRole('button', { name: '打开侧栏' }).click();
@@ -384,7 +386,7 @@ test('late save and open responses never replace another note', async ({ page, c
   await page.goto('/');
   await expect(page.locator('.sidebar .brand')).toContainText('DooKnow');
   const csrf = await page.request.get('/api/security/csrf'),
-    h = { origin: 'http://127.0.0.1:4179', 'x-csrf-token': (await csrf.json()).token };
+    h = { origin: new URL(csrf.url()).origin, 'x-csrf-token': (await csrf.json()).token };
   const create = async (label: string) => {
     const r = await page.request.post('/api/notes', {
       headers: h,

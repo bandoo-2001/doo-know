@@ -1,0 +1,15 @@
+{
+  "phase": "after",
+  "fixedTime": "2026-10-30T09:00:00.000Z",
+  "screenshots": [
+    {
+      "id": "05-matrix",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "label": "四象限",
+      "file": "desktop-05-matrix.png",
+      "overflow": 0
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "phase": "before",
+  "fixedTime": "2026-10-30T09:00:00.000Z",
+  "screenshots": [
+    {
+      "id": "01-overview",
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "label": "目标总览",
+      "file": "phone-01-overview.png",
+      "overflow": 0
+    }
+  ]
+}

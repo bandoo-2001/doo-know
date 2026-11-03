@@ -6,9 +6,10 @@ export async function openDocumentNote(
   content = '# 标题\n\n原文段落。\n',
 ) {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
-  const csrf = await (await page.request.get('/api/security/csrf')).json();
+  const csrfResponse = await page.request.get('/api/security/csrf');
+  const csrf = await csrfResponse.json();
   const response = await page.request.post('/api/notes', {
-    headers: { origin: 'http://127.0.0.1:4179', 'x-csrf-token': csrf.token },
+    headers: { origin: new URL(csrfResponse.url()).origin, 'x-csrf-token': csrf.token },
     data: { folderPath: '00-Inbox', fileName: `doc-${crypto.randomUUID()}.md`, content },
   });
   expect(response.status()).toBe(201);

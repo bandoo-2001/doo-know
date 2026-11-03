@@ -189,7 +189,7 @@ it('supports attachments for root README and denies other note assets to guests'
       payload: m.body,
     });
     expect(up.statusCode).toBe(201);
-    expect(up.json().markdownPath).toMatch(/^assets\//);
+    expect(up.json().markdownPath).toMatch(/^_doo-assets\//);
     const other = (
       await f.app.inject({
         method: 'POST',

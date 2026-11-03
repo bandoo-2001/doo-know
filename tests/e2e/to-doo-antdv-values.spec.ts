@@ -11,7 +11,7 @@ import {
 async function command(page: Page, action: string, payload: Record<string, unknown>) {
   const csrf = await (await page.request.get('/api/security/csrf')).json();
   const response = await page.request.post('/api/to-doo/commands', {
-    headers: { origin: 'http://127.0.0.1:4179', 'x-csrf-token': csrf.token },
+    headers: { origin: String(test.info().project.use.baseURL), 'x-csrf-token': csrf.token },
     data: { requestId: crypto.randomUUID(), action, payload },
   });
   expect(response.ok()).toBe(true);
@@ -85,6 +85,7 @@ test('real Ant Select saves null, false, two tag identifiers and numeric zero', 
   await expectToDooSelection(detail, '所属目标或清单', listName);
   await selectToDooOption(detail, '所属目标或清单', '收集箱');
   await expectToDooSelection(detail, '所属目标或清单', '收集箱');
+  await expandToDooGroup(detail, '四象限归类');
   await selectToDooOption(detail, '紧急程度', '设为不紧急');
   await expectToDooSelection(detail, '紧急程度', '设为不紧急');
   await expandToDooGroup(detail, '更多选项：标签、提醒、依赖与来源');

@@ -1,0 +1,40 @@
+
+> doo-know@1.0.0 test:e2e
+> tsx scripts/e2e.ts tests/e2e/to-doo-reminders.spec.ts tests/e2e/to-doo-unified-shell.spec.ts tests/e2e/to-doo-ux.spec.ts --project=desktop --max-failures=1 --output=.local/to-doo-followup/final-desktop
+
+[WebServer] (node:2667310) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2667330) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2667345) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2667345) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 21 tests using 1 worker
+
+(node:2667490) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/e2e/to-doo-reminders.spec.ts:61:1 › older reminder summaries use the app badge and live cards stay below edit dialogs (6.2s)
+  ✓   2 [desktop] › tests/e2e/to-doo-reminders.spec.ts:99:1 › workspace reminder card completes a real task and fits the viewport (2.6s)
+  ✓   3 [desktop] › tests/e2e/to-doo-reminders.spec.ts:120:1 › activating a desktop notification keeps the current unsaved note and opens its reminder (2.0s)
+  ✓   4 [desktop] › tests/e2e/to-doo-reminders.spec.ts:169:1 › cold notification links open the right habit and record the entered amount once (1.7s)
+  ✓   5 [desktop] › tests/e2e/to-doo-reminders.spec.ts:189:1 › closing a cold notification card prevents that generation from reopening on refresh (2.8s)
+  ✓   6 [desktop] › tests/e2e/to-doo-reminders.spec.ts:202:1 › switching from an exact reminder occurrence to another task clears the old occurrence (3.1s)
+  ✓   7 [desktop] › tests/e2e/to-doo-unified-shell.spec.ts:6:1 › a long page title leaves the main action visible on a narrow screen (1.6s)
+  ✓   8 [desktop] › tests/e2e/to-doo-unified-shell.spec.ts:32:1 › the shared header keeps save visible while a long settings form scrolls (2.1s)
+  ✓   9 [desktop] › tests/e2e/to-doo-unified-shell.spec.ts:55:1 › desktop pages share the global header and contextual layout boundaries (4.5s)
+  ✓  10 [desktop] › tests/e2e/to-doo-unified-shell.spec.ts:126:3 › the light shell and task detail fit all supported widths and the host navigation (2.1s)
+  ✓  11 [desktop] › tests/e2e/to-doo-unified-shell.spec.ts:126:3 › the dark shell and task detail fit all supported widths and the host navigation (2.1s)
+  ✓  12 [desktop] › tests/e2e/to-doo-ux.spec.ts:20:1 › quick add today persists its plan without opening details and keeps completed tasks folded (1.9s)
+  ✓  13 [desktop] › tests/e2e/to-doo-ux.spec.ts:80:1 › quick add inherits the selected list and clearing filters restores tasks across views (2.3s)
+  ✓  14 [desktop] › tests/e2e/to-doo-ux.spec.ts:129:1 › quick add keeps its draft after a failed POST and retries into real server data (1.6s)
+  ✓  15 [desktop] › tests/e2e/to-doo-ux.spec.ts:166:1 › today and inbox quick navigation survive reload and browser history (2.5s)
+  ✓  16 [desktop] › tests/e2e/to-doo-ux.spec.ts:192:1 › wide task details continue the quick draft and submit exactly one real task (1.8s)
+  ✓  17 [desktop] › tests/e2e/to-doo-ux.spec.ts:227:1 › discarding a wide new-task detail clears its original list draft and preserves another list (2.2s)
+  ✓  18 [desktop] › tests/e2e/to-doo-ux.spec.ts:274:1 › quick entry stays usable in a 320px dark workspace (1.6s)
+  ✓  19 [desktop] › tests/e2e/to-doo-ux.spec.ts:297:1 › deleting a list immediately removes it from the sidebar catalog (2.5s)
+  ✓  20 [desktop] › tests/e2e/to-doo-ux.spec.ts:319:1 › retrying a deleted list refreshes the sidebar after its editor was closed (2.9s)
+  ✓  21 [desktop] › tests/e2e/to-doo-ux.spec.ts:351:3 › quick view time zones › initial today quick view uses the loaded workspace time zone across midnight (1.9s)
+
+  21 passed (58.7s)

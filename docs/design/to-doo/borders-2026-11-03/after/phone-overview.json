@@ -1,0 +1,55 @@
+{
+  "device": {
+    "id": "phone",
+    "width": 390,
+    "height": 844,
+    "theme": "dark"
+  },
+  "id": "overview",
+  "fixedTime": "2026-10-30T09:00:00.000Z",
+  "report": [
+    {
+      "tag": "SECTION",
+      "className": "todo-panel todo-overview-today",
+      "text": " 今天的行动 1 项＋整理项目的下一步高优先级工作与创造计划今天09:00截止明天17:0",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "8px",
+      "color": "rgb(50, 55, 70)",
+      "parent": "todo-overview-grid todo-overview-cohesion"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-task-row todo-priority-high",
+      "text": "整理项目的下一步高优先级工作与创造计划今天09:00截止明天17:00",
+      "borders": [
+        "0px",
+        "0px",
+        "1px",
+        "0px"
+      ],
+      "radius": "6px",
+      "color": "rgb(229, 232, 240) rgb(229, 232, 240) rgba(0, 0, 0, 0)",
+      "parent": "todo-panel todo-overview-today"
+    },
+    {
+      "tag": "SECTION",
+      "className": "todo-panel todo-overview-lists",
+      "text": "清单＋工作与创造2 项任务⋯",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "8px",
+      "color": "rgb(50, 55, 70)",
+      "parent": "todo-overview-context"
+    }
+  ],
+  "focus": []
+}

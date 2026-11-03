@@ -1,0 +1,41 @@
+{
+  "device": {
+    "id": "phone",
+    "width": 390,
+    "height": 844,
+    "theme": "dark"
+  },
+  "id": "settings-connections",
+  "fixedTime": "2026-10-30T09:00:00.000Z",
+  "report": [
+    {
+      "tag": "SECTION",
+      "className": "todo-panel",
+      "text": "桌面提醒刷新状态当前设备尚未启用桌面提醒启用当前设备桌面提醒主机与设备管理",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "9px",
+      "color": "rgb(50, 55, 70)",
+      "parent": "todo-settings"
+    },
+    {
+      "tag": "SECTION",
+      "className": "todo-panel",
+      "text": "日历连接与订阅连接外部只读日历创建 To Doo 只读订阅链接",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "9px",
+      "color": "rgb(50, 55, 70)",
+      "parent": "todo-settings"
+    }
+  ],
+  "focus": []
+}

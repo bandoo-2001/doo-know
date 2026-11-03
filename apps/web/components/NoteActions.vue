@@ -15,6 +15,7 @@ const emit = defineEmits<{
   history: [];
   move: [];
   download: [];
+  portable: [];
   upload: [];
   delete: [];
   'update:lineNumbers': [value: boolean];
@@ -47,13 +48,14 @@ watch(open, async (shown) => {
 });
 onMounted(() => window.addEventListener('resize', measureSpace));
 onBeforeUnmount(() => window.removeEventListener('resize', measureSpace));
-function action(kind: 'history' | 'upload' | 'delete' | 'move' | 'download') {
+function action(kind: 'history' | 'upload' | 'delete' | 'move' | 'download' | 'portable') {
   if (kind === 'upload' && props.uploading) return;
   close();
   if (kind === 'history') emit('history');
   else if (kind === 'upload') emit('upload');
   else if (kind === 'move') emit('move');
   else if (kind === 'download') emit('download');
+  else if (kind === 'portable') emit('portable');
   else emit('delete');
 }
 </script>
@@ -84,8 +86,11 @@ function action(kind: 'history' | 'upload' | 'delete' | 'move' | 'download') {
       @keydown.esc.stop="close"
     >
       <button @click="action('move')"><Icon name="folder" />移动或重命名</button>
-      <button v-if="fullEditor" @click="action('download')">
-        <Icon name="file" />下载 Markdown
+      <button v-if="fullEditor" title="下载 Markdown 和实际引用的图片、附件及图形原件" @click="action('portable')">
+        <Icon name="download" />下载完整文档
+      </button>
+      <button v-if="fullEditor" aria-label="下载 Markdown" title="仅下载 Markdown 原文，不包含图片和附件" @click="action('download')">
+        <Icon name="file" />下载 Markdown 原文
       </button>
       <button @click="action('history')"><Icon name="clock" />历史版本</button>
       <button :disabled="uploading" @click="action('upload')">

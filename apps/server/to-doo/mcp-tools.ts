@@ -60,6 +60,7 @@ const entityDomains: Record<ToDooEntityKind, string> = {
   outcome: 'records',
   record: 'records',
   activity: 'records',
+  focusTopic: 'focus',
   focusSession: 'focus',
   habit: 'habits',
   habitEntry: 'habits',
@@ -95,8 +96,11 @@ export function createToDooToolPort(context: McpDomainContext): McpManagedDomain
   // must not initialize an unrelated optional application store.
   const todo: ToDooService = {
     snapshot: (q) => runtime.toDoo.snapshot(q),
+    focusHistory: (q, scope) => runtime.toDoo.focusHistory(q, scope),
+    statistics: (q, scope) => runtime.toDoo.statistics(q, scope),
     command: (input, trusted) => runtime.toDoo.command(input, trusted),
     getEntity: (kind, id) => runtime.toDoo.getEntity(kind, id),
+    reminderSource: (id) => runtime.toDoo.reminderSource(id),
     getReceipt: (id) => runtime.toDoo.getReceipt(id),
     exportCheckpoint: () => runtime.toDoo.exportCheckpoint(),
     importCheckpoint: (checkpoint, id, options) =>
@@ -317,6 +321,7 @@ export function createToDooToolPort(context: McpDomainContext): McpManagedDomain
       ['parentOccurrenceId', 'occurrence'],
       ['habitId', 'habit'],
       ['sourceSessionId', 'focusSession'],
+      ['topicId', 'focusTopic'],
     ] as const) {
       if (typeof value[field] === 'string')
         try {
@@ -415,6 +420,7 @@ export function createToDooToolPort(context: McpDomainContext): McpManagedDomain
         ['occurrenceId', 'occurrence'],
         ['habitId', 'habit'],
         ['sourceSessionId', 'focusSession'],
+        ['topicId', 'focusTopic'],
       ] as const)
         if (value[field]) return entityList(related, entity(related, value[field]), depth + 1);
       return undefined;
@@ -434,6 +440,7 @@ export function createToDooToolPort(context: McpDomainContext): McpManagedDomain
         parentOccurrenceId: 'occurrence',
         habitId: 'habit',
         sourceSessionId: 'focusSession',
+        topicId: 'focusTopic',
         sectionId: 'section',
         blockId: 'timeBlock',
       };

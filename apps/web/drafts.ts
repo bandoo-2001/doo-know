@@ -1,3 +1,4 @@
+import type { DiagramDocumentType } from '../../shared/diagram-document';
 export type DraftScope = { ownerId: string; knowledgeId: string };
 export type DraftRange = {
   startLine: number;
@@ -7,12 +8,33 @@ export type DraftRange = {
   endByte: number;
   rangeHash: string;
 };
+export type DiagramDraftEnvelope = {
+  version: 2;
+  documentType: DiagramDocumentType;
+  payloadFormat: 'markdown' | 'excalidraw' | 'markdown-outline' | 'mermaid';
+  documentHash: string | null;
+  sourceHash: string | null;
+  baselineSourceHash?: string | null;
+  intentId?: string;
+  payload: string;
+  documentMarkdown?: string;
+  title?: string;
+  pending?: {
+    requestId: string;
+    preparedId?: string;
+    markdown?: string;
+    source?: string;
+    title?: string;
+    inputMarkdown?: string;
+  };
+};
 export type DraftInput = {
   noteId: string;
   kind: 'note' | 'fragment';
   content: string;
   baseRevision: string;
   range?: DraftRange;
+  diagram?: DiagramDraftEnvelope;
 };
 export type DraftRecord = DraftInput & {
   scope: DraftScope;
@@ -42,6 +64,75 @@ export class DraftStorageError extends Error {
 }
 export function noteDraftBase(note: { modifiedAt: string; contentHash?: string | null }): string {
   return JSON.stringify([note.modifiedAt, note.contentHash ?? null]);
+}
+
+/** Validate the envelope, while allowing invalid Markdown payloads to remain recoverable drafts. */
+export function validDiagramDraftEnvelope(
+  value: unknown,
+  content: string,
+): value is DiagramDraftEnvelope {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const draft = value as DiagramDraftEnvelope;
+  const hash = (value: unknown) =>
+    value === null || (typeof value === 'string' && /^[a-f0-9]{64}$/.test(value));
+  const formats: Record<string, string[]> = {
+    whiteboard: ['markdown', 'excalidraw'],
+    mindmap: ['markdown', 'markdown-outline'],
+    flowchart: ['markdown', 'mermaid'],
+  };
+  if (
+    draft.version !== 2 ||
+    !Object.hasOwn(formats, draft.documentType) ||
+    !formats[draft.documentType]?.includes(draft.payloadFormat) ||
+    typeof draft.payload !== 'string' ||
+    draft.payload !== content ||
+    (draft.documentMarkdown !== undefined && typeof draft.documentMarkdown !== 'string') ||
+    (draft.title !== undefined && typeof draft.title !== 'string') ||
+    !hash(draft.documentHash) ||
+    !hash(draft.sourceHash) ||
+    (draft.baselineSourceHash !== undefined && !hash(draft.baselineSourceHash)) ||
+    (draft.intentId !== undefined && (typeof draft.intentId !== 'string' || !draft.intentId))
+  )
+    return false;
+  const pending = draft.pending;
+  return (
+    pending === undefined ||
+    (!!pending &&
+      typeof pending === 'object' &&
+      typeof pending.requestId === 'string' &&
+      !!pending.requestId &&
+      (pending.preparedId === undefined ||
+        (typeof pending.preparedId === 'string' && !!pending.preparedId)) &&
+      (pending.markdown === undefined || typeof pending.markdown === 'string') &&
+      ['source', 'title', 'inputMarkdown'].every(
+        (key) => (pending as any)[key] === undefined || typeof (pending as any)[key] === 'string',
+      ))
+  );
+}
+/** A JSON canvas draft must never be handed to the ordinary Markdown restore callback. */
+export function canRestoreNoteDraft(
+  record: DraftRecord,
+  type?: DiagramDocumentType,
+  formats?: readonly DiagramDraftEnvelope['payloadFormat'][],
+): boolean {
+  if (record.diagram !== undefined)
+    return (
+      validDiagramDraftEnvelope(record.diagram, record.content) &&
+      record.diagram.documentType === type &&
+      (!formats || formats.includes(record.diagram.payloadFormat))
+    );
+  try {
+    const value = JSON.parse(record.content);
+    if (
+      value?.type === 'excalidraw' &&
+      Number.isInteger(value.version) &&
+      Array.isArray(value.elements)
+    )
+      return type === 'whiteboard' && (!formats || formats.includes('excalidraw'));
+  } catch {
+    /* Ordinary Markdown is not a scene JSON payload. */
+  }
+  return true;
 }
 
 const databaseName = 'dooknow-local-drafts';
@@ -153,6 +244,11 @@ function validate(input: DraftInput) {
     !input.baseRevision ||
     typeof input.content !== 'string' ||
     !['note', 'fragment'].includes(input.kind)
+  )
+    throw new DraftStorageError('failed');
+  if (
+    input.diagram !== undefined &&
+    (input.kind !== 'note' || !validDiagramDraftEnvelope(input.diagram, input.content))
   )
     throw new DraftStorageError('failed');
   if (input.kind !== 'fragment') return;

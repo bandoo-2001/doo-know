@@ -1,0 +1,125 @@
+{
+  "device": {
+    "id": "phone",
+    "width": 390,
+    "height": 844,
+    "theme": "dark"
+  },
+  "id": "board",
+  "fixedTime": "2026-10-30T09:00:00.000Z",
+  "report": [
+    {
+      "tag": "INPUT",
+      "className": "ant-input css-1phc3w9",
+      "text": "",
+      "borders": [
+        "0px",
+        "0px",
+        "0px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(50, 55, 70)",
+      "parent": "todo-quick-add-line"
+    },
+    {
+      "tag": "INPUT",
+      "className": "ant-input css-1phc3w9",
+      "text": "",
+      "borders": [
+        "0px",
+        "0px",
+        "0px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(50, 55, 70)",
+      "parent": "todo-search"
+    },
+    {
+      "tag": "DIV",
+      "className": "ant-select-selector",
+      "text": "按状态",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "6px",
+      "color": "rgb(50, 55, 70)",
+      "parent": "ant-select css-1phc3w9 todo-ant-select ant-select-single ant-select-show-arrow ant-select-show-search"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-task-row todo-priority-normal",
+      "text": "梳理本周的阅读计划中优先级保持阅读与学习计划昨天14:00",
+      "borders": [
+        "0px",
+        "0px",
+        "0px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(229, 232, 240)",
+      "parent": "todo-board-card todo-priority-normal"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-task-row todo-priority-normal",
+      "text": "回复合作伙伴的反馈中优先级工作与创造",
+      "borders": [
+        "0px",
+        "0px",
+        "0px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(229, 232, 240)",
+      "parent": "todo-board-card todo-priority-normal"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-task-row todo-priority-none",
+      "text": "整理一份读书笔记保持阅读与学习",
+      "borders": [
+        "0px",
+        "0px",
+        "0px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(229, 232, 240)",
+      "parent": "todo-board-card todo-priority-none"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-task-row todo-priority-high",
+      "text": "整理项目的下一步高优先级工作与创造计划今天09:00截止明天17:00",
+      "borders": [
+        "0px",
+        "0px",
+        "0px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(229, 232, 240)",
+      "parent": "todo-board-card todo-priority-high"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-task-row is-done todo-priority-none",
+      "text": "✓完成一章阅读与练习保持阅读与学习",
+      "borders": [
+        "0px",
+        "0px",
+        "0px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(229, 232, 240)",
+      "parent": "todo-board-card todo-priority-none"
+    }
+  ],
+  "focus": []
+}

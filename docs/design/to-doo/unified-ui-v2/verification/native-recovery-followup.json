@@ -1,0 +1,25 @@
+{
+  "status": "passed",
+  "command": "npx vitest run tests/native-rollback-entrypoint.test.ts",
+  "exitCode": 0,
+  "filesPassed": 1,
+  "testsPassed": 15,
+  "durationSeconds": 23.06,
+  "archives": [
+    {
+      "file": "dooknow-1.1.0-rc.48-linux-x64.tar.gz",
+      "path": ".local/share-release-20261026/artifacts-rc48/dooknow-1.1.0-rc.48-linux-x64.tar.gz",
+      "bytes": 228478191,
+      "sha256": "24919355e880729645f46a23bc9aa4b035756fcdbc9dd7ebc29719a11fe035c6"
+    },
+    {
+      "file": "dooknow-1.1.0-rc.49-linux-x64.tar.gz",
+      "path": ".local/optimization-fixes-20261026/artifacts-rc49/dooknow-1.1.0-rc.49-linux-x64.tar.gz",
+      "bytes": 93826957,
+      "sha256": "a65d96be6535f5906a54edce836a67eae83a92d2f5b081cd2b0aabf4097f012d"
+    }
+  ],
+  "isolation": "Disposable installation roots, fake service controller, original legacy wrapper; no live service rollback. Candidate temporary fixture compiles current recovery manager files, as defined by the existing suite.",
+  "correction": "The previous claim that the archives were missing was incorrect. The skipped source-only suite was search-runtime-install.test.ts without DOOKNOW_SEARCH_ARTIFACT.",
+  "log": "logs/native-recovery-followup.log"
+}

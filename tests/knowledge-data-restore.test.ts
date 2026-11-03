@@ -127,7 +127,7 @@ it('replays pending plugin user data after restore without installing or activat
     expect(targetHost.list()).toEqual([]);
     expect(targetHost.contributions()).toEqual([]);
     const persisted = JSON.parse(
-      await readFile(join(f.target.knowledgeRoot, '_data', path), 'utf8'),
+      await readFile(join(f.target.knowledgeRoot, '_doo-data', path), 'utf8'),
     );
     expect(persisted.data.userData).toEqual({ draft: { content: 'Keep this draft' } });
     expect(

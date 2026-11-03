@@ -60,6 +60,7 @@ function snapshot(): ToDooSnapshot {
     outcomes: [],
     records: [],
     activities: [],
+    focusTopics: [],
     focusSessions: [],
     habits: [],
     habitEntries: [],

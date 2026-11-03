@@ -102,7 +102,7 @@ it('rebuilds publications, snapshots, settings and binary assets from the knowle
     true,
   );
   expect(
-    (await readFile(join(config.knowledgeRoot, '_data/apps/blog/assets', resource[3]))).equals(png),
+    (await readFile(join(config.knowledgeRoot, '_doo-data/apps/blog/assets', resource[3]))).equals(png),
   ).toBe(true);
   expect(await readFile(join(config.dataRoot, 'app.sqlite'))).toBeTruthy();
 });
@@ -117,7 +117,7 @@ it('imports synchronized metadata edits, withdrawals and removals into an existi
     requestId: randomUUID(),
   });
   const syncState = () =>
-    cp(join(config.knowledgeRoot, '_data'), join(machine.config.knowledgeRoot, '_data'), {
+    cp(join(config.knowledgeRoot, '_doo-data'), join(machine.config.knowledgeRoot, '_doo-data'), {
       recursive: true,
     });
   await syncState();
@@ -144,7 +144,7 @@ it.each(['truncated', 'missing-asset', 'tampered-asset', 'unsupported'])(
   'rejects %s synchronized data without replacing the existing projection',
   async (failure) => {
     const { blog, published } = publishImage();
-    const file = join(config.knowledgeRoot, '_data/apps/blog/state.json');
+    const file = join(config.knowledgeRoot, '_doo-data/apps/blog/state.json');
     const original = await readFile(file, 'utf8');
     const state = JSON.parse(original);
     if (failure === 'truncated') await writeFile(file, original.slice(0, 30));
@@ -152,7 +152,7 @@ it.each(['truncated', 'missing-asset', 'tampered-asset', 'unsupported'])(
       state.data.version = 999;
       await writeFile(file, JSON.stringify(state));
     } else {
-      const asset = join(config.knowledgeRoot, '_data/apps/blog/assets', state.data.blobs[0].hash);
+      const asset = join(config.knowledgeRoot, '_doo-data/apps/blog/assets', state.data.blobs[0].hash);
       if (failure === 'missing-asset') await rm(asset);
       else await writeFile(asset, 'corrupted image');
       // Changed envelope revision forces validation of the synchronized state.
@@ -171,13 +171,13 @@ it.each(['truncated', 'missing-asset', 'tampered-asset', 'unsupported'])(
 it('sanitizes untrusted synchronized snapshot HTML before returning it publicly', async () => {
   const { published } = publishImage();
   const machine = await freshMachine();
-  const file = join(config.knowledgeRoot, '_data/apps/blog/state.json');
+  const file = join(config.knowledgeRoot, '_doo-data/apps/blog/state.json');
   const state = JSON.parse(await readFile(file, 'utf8'));
   state.data.versions[0].html +=
     '<script>alert(1)</script><img src="/api/private" onerror="alert(1)"><a href="javascript:alert(1)">bad</a><a href="/blog/../api/private">Traversal</a>';
   state.revision = randomUUID();
   await writeFile(
-    join(machine.config.knowledgeRoot, '_data/apps/blog/state.json'),
+    join(machine.config.knowledgeRoot, '_doo-data/apps/blog/state.json'),
     JSON.stringify(state),
   );
   const html = machine.blog.publicPost(published.slug).html;
@@ -246,7 +246,7 @@ it('migrates legacy database publications on first use without changing their id
 
 it('keeps a local pending edit and the synchronized file when both sides change settings', async () => {
   const { blog } = publishImage();
-  const file = join(config.knowledgeRoot, '_data/apps/blog/state.json');
+  const file = join(config.knowledgeRoot, '_doo-data/apps/blog/state.json');
   const remote = JSON.parse(await readFile(file, 'utf8'));
   db.prepare(
     "UPDATE blog_settings SET settings_json=json_set(settings_json,'$.title','Local pending journal')",
@@ -274,7 +274,7 @@ it('imports source removal and its publication withdrawal together without creat
   await rm(join(config.knowledgeRoot, note.relativePath));
   notes.scan();
   expect(blog.settings().enabled).toBe(true);
-  await cp(join(config.knowledgeRoot, '_data'), join(machine.config.knowledgeRoot, '_data'), {
+  await cp(join(config.knowledgeRoot, '_doo-data'), join(machine.config.knowledgeRoot, '_doo-data'), {
     recursive: true,
   });
   expect(() => machine.blog.settings()).not.toThrow();

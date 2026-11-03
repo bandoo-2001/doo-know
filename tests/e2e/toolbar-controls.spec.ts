@@ -387,7 +387,7 @@ test('top navigation, share and more-actions preserve drafts and expose all buil
   await button(page, '生成分享链接').click();
   await expect(page.getByRole('textbox', { name: '公开链接', exact: true })).not.toHaveValue('');
   await button(page, '取消分享').click();
-  await button(page, '完成').click();
+  await page.getByRole('dialog').filter({ hasText: '分享笔记' }).getByRole('button', { name: '完成', exact: true }).click();
   await button(page, '更多操作').click();
   for (const name of ['移动或重命名', '下载 Markdown', '历史版本', '插入图片或 PDF', '删除笔记'])
     await expect(

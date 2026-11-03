@@ -1,0 +1,15 @@
+{
+  "phase": "before",
+  "fixedTime": "2026-10-30T09:00:00.000Z",
+  "screenshots": [
+    {
+      "id": "05-matrix",
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "label": "四象限",
+      "file": "phone-05-matrix.png",
+      "overflow": 0
+    }
+  ]
+}

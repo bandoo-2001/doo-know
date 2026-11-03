@@ -122,7 +122,14 @@ test('moving and importing use the selected directory path from the same tree', 
   await moveDialog.locator('[aria-label="目标目录"]').click();
   await directory.fill('30-Knowledge/个人知识管理/方法');
   await page.locator('.directory-tree-popup:visible').getByTitle('方法', { exact: true }).click();
+  const moved = page.waitForResponse(
+    (reply) =>
+      reply.request().method() === 'POST' &&
+      new URL(reply.url()).pathname === '/api/notes/' + note.id + '/move',
+    { timeout: 30000 },
+  );
   await moveDialog.getByRole('button', { name: '确认移动', exact: true }).click();
+  expect((await moved).ok()).toBe(true);
   await expect(page.getByText('笔记已整理，历史和分享链接保持关联', { exact: true })).toBeVisible();
   expect((await (await page.request.get('/api/notes/' + note.id)).json()).relativePath).toBe(
     '30-Knowledge/个人知识管理/方法/' + fileName,

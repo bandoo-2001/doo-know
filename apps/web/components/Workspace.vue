@@ -1,5 +1,9 @@
 <script setup lang="ts">
+import { attachmentAccept } from '../../../shared/media';
+import { restoreHistory } from '../diagrams/history-restore';
+import NoteCopyDialog from './NoteCopyDialog.vue';
 import '../whiteboards/whiteboards.css';
+import {createPrimaryDocument,pendingCreation,cancelCreation,type PendingCreation} from '../diagrams/primary-creation';
 import {diagramFences} from '../../../shared/diagram-fences';
 import {createEditorSnippet, type EditorSnippet} from '../../../shared/editor-snippets';
 import {findDiagramRange,withDiagramPreview} from '../editor/diagram-edits';
@@ -46,6 +50,7 @@ import { handleSaveShortcut } from '../editor/keyboard-shortcuts';
 import {captureAssetTarget,resolveAssetTarget,type AssetTarget} from '../editor/asset-bookmark';
 import EditorToolbar from './EditorToolbar.vue';
 import DocumentBreadcrumb from './DocumentBreadcrumb.vue';
+import DocumentNavigation from './DocumentNavigation.vue';
 import { emptyToolbarState, type MarkdownAction } from '../editor/toolbar-state';
 import DocumentOutline from './DocumentOutline.vue';
 import { outlineFromTokens, type OutlineHeading } from '../document-outline';
@@ -87,6 +92,7 @@ import { clearPluginDrafts } from '../plugin-drafts';
 import {
   createWorkspaceNavigation,
   readWorkspaceRoute,
+  toDooSections,
   type WorkspaceRoute,
   type WorkspaceNavigationState,
   type ToDooAppSection,
@@ -142,6 +148,12 @@ async function finishDiagramSave(generate:boolean){
     if(currentView(target.id,target.epoch))diagramSaveError.value=cause instanceof Error?cause.message:String(cause);
   }finally{diagramSaveBusy.value=false;}
 }
+const DiagramDocumentWorkspace=defineAsyncComponent(()=>import('./DiagramDocumentWorkspace.vue'));
+const diagramRef=ref<InstanceType<typeof DiagramDocumentWorkspace>>();
+const embeddedPrimaryId=ref<string>();
+const embeddedPrimaryRef=ref<InstanceType<typeof DiagramDocumentWorkspace>>();
+const primaryDiagram=computed(()=>note.value?.documentType&&note.value.documentType!=='markdown'&&!isWhiteboard(note.value.relativePath));
+const unfinishedCreation=ref<PendingCreation>();
 const WhiteboardWorkspace=defineAsyncComponent(()=>import('./WhiteboardWorkspace.vue'));
 const embeddedBoardRef=ref<InstanceType<typeof WhiteboardWorkspace>>();
 const boardRef=ref<InstanceType<typeof WhiteboardWorkspace>>(), boardDirty=ref(false), embeddedBoardId=ref<string>(),
@@ -281,7 +293,17 @@ async function openBlogNote(id: string, line?: number) {
     } else await openNote(id, line);
   });
 }
-async function navigateApp(app: WorkspaceRoute['app'], section: BlogSection | ToDooAppSection = app === 'to-doo' ? 'tasks' : 'overview', selection: ToDooSelection = {}) {
+async function resolveAppSection(app: WorkspaceRoute['app'], section?: BlogSection | ToDooAppSection, selection: ToDooSelection = {}): Promise<BlogSection | ToDooAppSection> {
+  if (section) return section;
+  if (app !== 'to-doo') return 'overview';
+  if ((['task', 'occurrence', 'list', 'date', 'calendarView', 'taskFilter'] as const).some(key => selection[key] !== undefined)) return 'tasks';
+  try {
+    const preferences = await api<{ defaultView: string }>('/api/to-doo/settings');
+    if (toDooSections.includes(preferences.defaultView as ToDooAppSection)) return preferences.defaultView as ToDooAppSection;
+  } catch { /* Keep the app accessible if its preferences cannot be read. */ }
+  return 'tasks';
+}
+async function navigateApp(app: WorkspaceRoute['app'], section?: BlogSection | ToDooAppSection, selection: ToDooSelection = {}) {
   if (historyWriteLocked.value) return;
   const intent = ++navigationIntent;
   drawer.value = false;
@@ -292,15 +314,17 @@ async function navigateApp(app: WorkspaceRoute['app'], section: BlogSection | To
       selection = { task: remembered.task, occurrence: remembered.occurrence, list: remembered.list, date: remembered.date, calendarView: remembered.calendarView, taskFilter: remembered.taskFilter };
     }
   }
+  const nextSection = await resolveAppSection(app, section, selection);
+  if (!currentIntent(intent)) return;
   if (panel.value === 'apps' && appsApp.value !== app && !await confirmAppLeave(intent)) return;
-  if (panel.value === 'apps' && appsApp.value === 'to-doo' && app === 'to-doo' && section !== appsSection.value &&
-      (await appsRef.value?.requestSectionLeave(section as ToDooAppSection)) === false) return;
+  if (panel.value === 'apps' && appsApp.value === 'to-doo' && app === 'to-doo' && nextSection !== appsSection.value &&
+      (await appsRef.value?.requestSectionLeave(nextSection as ToDooAppSection)) === false) return;
   if (!currentIntent(intent)) return;
   appNavigationMemory.remember(navigation.currentRoute());
-  appsApp.value = app; appsSection.value = section;
+  appsApp.value = app; appsSection.value = nextSection;
   toDooSelection.value = selection;
   drawer.value = false;
-  const route: WorkspaceRoute = { view: 'apps', ...(app ? {app, appSection:section, ...(app === 'to-doo' ? selection : {})} : {}) };
+  const route: WorkspaceRoute = { view: 'apps', ...(app ? {app, appSection:nextSection, ...(app === 'to-doo' ? selection : {})} : {}) };
   navigation.commit(route);
   appNavigationMemory.remember(route);
 }
@@ -339,6 +363,12 @@ const noteOpening = ref(false),
   editorGeneration = ref(0),
   editorTransfer = ref(false);
 const moveTarget = ref<NoteDocument>();
+const copyTarget=ref<TreeEntry>(),copyOpen=ref(false);
+let copyIntent=0;
+async function copied(result:{id:string;relativePath:string}){
+  const intent=copyIntent;
+  await run(async()=>{await refresh();if(currentIntent(intent))await openNote(result.id);tell('已创建文档副本');});
+}
 const moveOpen = ref(false),
   importOpen = ref(false),
   quickBusy = ref(false);
@@ -466,8 +496,10 @@ async function treeAction(entry: TreeEntry, action: TreeAction) {
     } else if (action === 'copy') {
       await navigator.clipboard.writeText(entry.path);
       tell('路径已复制');
-    } else if (action === 'new-note' || action === 'new-folder' || action === 'new-whiteboard') {
-      create(action === 'new-whiteboard'?'whiteboard':action === 'new-note' ? 'note' : 'folder', entry.path);
+    } else if(action==='duplicate'&&entry.id){
+      copyTarget.value=entry;copyIntent=navigationIntent;copyOpen.value=true;
+    } else if (action === 'new-note' || action === 'new-folder' || action === 'new-whiteboard' || action === 'new-mindmap' || action === 'new-flowchart') {
+      create(action === 'new-whiteboard'?'whiteboard':action === 'new-mindmap'?'mindmap':action === 'new-flowchart'?'flowchart':action === 'new-note' ? 'note' : 'folder', entry.path);
     } else if (action === 'import') {
       importFolder.value = entry.path;
       importOpen.value = true;
@@ -562,6 +594,8 @@ const query = ref(''),
   searchCursor = ref<string>(),
   results = ref<any[]>([]),
   assets = ref<any[]>([]);
+let sidebarRevision = 0;
+watch([query, drawer], () => { sidebarRevision++; }, { flush: 'sync' });
 let viewEpoch = 0;
 let alive = true, navigationIntent = 0;
 const currentIntent = (intent: number) => alive && intent === navigationIntent;
@@ -594,7 +628,7 @@ const localDrafts = useNoteDraft(
     baseRevision: currentDraftBase(),
     content: draft.value,
     dirty: dirty.value,
-    enabled: noteInfo.value?.editorMode === 'full' && !isWhiteboard(note.value?.relativePath||'') && !editorComposing.value,
+    enabled: noteInfo.value?.editorMode === 'full' && !isWhiteboard(note.value?.relativePath||'') && !primaryDiagram.value && !editorComposing.value,
   }),
   (text) => {
     draft.value = text;
@@ -642,8 +676,8 @@ async function browseRoot() {
   );
 }
 const navigation = createWorkspaceNavigation({
-  dirty: () => historyWriteLocked.value || dirty.value || !!embeddedBoardId.value || !!appsRef.value?.hasUnsavedChanges(),
-  canPreserveDraft: (route) => !historyWriteLocked.value && !embeddedBoardId.value && (
+  dirty: () => historyWriteLocked.value || dirty.value || !!embeddedPrimaryId.value || !!embeddedBoardId.value || !!appsRef.value?.hasUnsavedChanges(),
+  canPreserveDraft: (route) => !historyWriteLocked.value && !embeddedPrimaryId.value && !embeddedBoardId.value && (
     (route.view === 'apps' && route.app === 'to-doo' && panel.value === 'apps' && appsApp.value === 'to-doo') ||
     (!appsRef.value?.hasUnsavedChanges() && (!!route.view || (!!route.note && note.value?.id === route.note)))),
   guard,
@@ -705,7 +739,8 @@ async function applyRoute(route: WorkspaceRoute, intent = ++navigationIntent) {
   if (historyWriteLocked.value) return false;
   if (!currentIntent(intent)) return false;
   if (panel.value === 'apps' && !(route.view === 'apps' && route.app === appsApp.value) && !await confirmAppLeave(intent)) return false;
-  const nextAppSection = route.appSection || (route.app === 'to-doo' ? 'tasks' : 'overview');
+  const nextAppSection = route.view === 'apps' ? await resolveAppSection(route.app, route.appSection, route) : 'overview';
+  if (!currentIntent(intent)) return false;
   if (panel.value === 'apps' && appsApp.value === 'to-doo' && route.view === 'apps' && route.app === 'to-doo' && nextAppSection !== appsSection.value &&
       (await appsRef.value?.requestSectionLeave(nextAppSection as ToDooAppSection)) === false) return false;
   if (!currentIntent(intent)) return false;
@@ -732,7 +767,7 @@ async function applyRoute(route: WorkspaceRoute, intent = ++navigationIntent) {
   if (route.view === 'recent' || route.view === 'favorites') return showCollection(route.view, false, intent);
   if (route.view === 'apps') {
     appNavigationMemory.remember(route);
-    appsApp.value = route.app; appsSection.value = route.appSection || (route.app === 'to-doo' ? 'tasks' : 'overview');
+    appsApp.value = route.app; appsSection.value = nextAppSection;
     toDooSelection.value = { task: route.task, occurrence: route.occurrence, list: route.list, date: route.date, calendarView: route.calendarView, taskFilter: route.taskFilter };
     return openApps(false, intent);
   }
@@ -842,6 +877,10 @@ function openEditorLink(url: string) {
     const target = notesByPath.value.get(destination.path), asset = assetsByPath.value.get(destination.path);
     if (target?.id) { void run(() => openMarkdownNote(target.id!, destination.fragment)); return; }
     if (asset) { window.open(`/api/assets/${asset.id}`,'_blank','noopener,noreferrer'); return; }
+    if (/\.excalidraw$/i.test(destination.path)) {
+      void run(async () => { const alias=await api<{noteId:string}>('/api/note-path-alias?path='+encodeURIComponent(destination.path)); await openMarkdownNote(alias.noteId,destination.fragment); });
+      return;
+    }
   }
   tell('未找到此链接对应的笔记或附件，可在链接设置中核对地址');
 }
@@ -907,21 +946,19 @@ async function newBoard(content=JSON.stringify(emptyWhiteboard())){
     await refresh();
   }
   const stem=[...(note.value?.title||'未命名').replace(/[\u0000-\u001f/\\:]/g,' ').trim()].slice(0,35).join('')+'白板';
-  const paths=new Set(flat.value.map(item=>item.path));
-  let count=1;
-  while(paths.has(parent+'/'+stem+(count===1?'':' ('+count+')')+'.excalidraw'))count++;
-  const created=await api<NoteDocument>('/api/notes','POST',{folderPath:parent,
-    fileName:stem+(count===1?'':' ('+count+')')+'.excalidraw',content,requestId:crypto.randomUUID()});
+  const paths=new Set(flat.value.map(item=>item.path));let count=1;
+  while(paths.has(parent+'/'+stem+(count===1?'':' ('+count+')')+'.md'))count++;
+  const created=await createPrimaryDocument(draftScope.value!,{path:parent+'/'+stem+(count===1?'':' ('+count+')')+'.md',type:'whiteboard',title:stem,requestId:crypto.randomUUID(),source:content});
   await refresh();return created;
 }
 async function createInlineBoard(){
   if(boardCreating.value)return;boardCreating.value=true;
-  try{const created=await newBoard();insertBoard(created.id);if(!boardPickerOpen.value)embeddedBoardId.value=created.id;}
+  try{const created=await newBoard();insertBoard(created.id);if(!boardPickerOpen.value)embeddedPrimaryId.value=created.id;}
   catch(cause){showError(cause);}finally{boardCreating.value=false;}
 }
 async function openDiagramEvent(event:Event){
   const detail=(event as CustomEvent).detail,originId=note.value?.id,originEpoch=viewEpoch;
-  if(embeddedBoardId.value||boardCreating.value)return;
+  if(embeddedPrimaryId.value||embeddedBoardId.value||boardCreating.value)return;
   try{
     await editorRef.value?.flush();
     if(detail?.mermaid){
@@ -929,9 +966,9 @@ async function openDiagramEvent(event:Event){
       const scene=await (await import('../whiteboards/canvas')).mermaidScene(detail.mermaid);
       if(note.value?.id!==originId||viewEpoch!==originEpoch)return;
       const created=await newBoard(JSON.stringify(scene));
-      if(note.value?.id===originId&&viewEpoch===originEpoch)embeddedBoardId.value=created.id;
+      if(note.value?.id===originId&&viewEpoch===originEpoch)embeddedPrimaryId.value=created.id;
       notice.value='';
-    }else if(typeof detail?.id==='string'&&whiteboardId(detail.id))embeddedBoardId.value=detail.id;
+    }else if(typeof detail?.id==='string'&&whiteboardId(detail.id)){const target=await api<NoteDocument>('/api/notes/'+detail.id);if(note.value?.id!==originId||viewEpoch!==originEpoch)return;if(target.documentType==='whiteboard'&&!isWhiteboard(target.relativePath)&&note.value?.id===target.id)return;if(target.documentType==='whiteboard'&&!isWhiteboard(target.relativePath))embeddedPrimaryId.value=detail.id;else embeddedBoardId.value=detail.id;}
   }catch(cause){showError(cause);}finally{boardCreating.value=false;}
 }
 const portableBusy=ref(false);
@@ -1059,6 +1096,7 @@ async function refreshCollection() {
   }
 }
 async function openNote(id: string, location?: number | { line: number; query: string }, syncUrl = true, preserveDraft = false, intent = ++navigationIntent, fragment?: string, linkedMode?: 'edit' | 'preview' | 'split') {
+  const sidebarAtOpen = sidebarRevision;
   const line = typeof location === 'number' ? location : location?.line;
   const matchQuery = typeof location === 'object' ? location.query : undefined;
   if (!currentIntent(intent) || !await initializeDrafts() || !currentIntent(intent)) return;
@@ -1110,7 +1148,7 @@ async function openNote(id: string, location?: number | { line: number; query: s
         tell('原文已更新，当前未保存草稿会保留，请重新核对版本');
         return;
       }
-      if (meta.editorMode === 'full' && !isWhiteboard(meta.relativePath)) localDrafts.prepare();
+      if (meta.editorMode === 'full' && !isWhiteboard(meta.relativePath) && (!meta.documentType||meta.documentType==='markdown')) localDrafts.prepare();
       // Keep the current editor and its undo history while a different note is loading.
       editorGeneration.value = epoch;
       note.value = n;
@@ -1125,22 +1163,27 @@ async function openNote(id: string, location?: number | { line: number; query: s
         ? n.relativePath.split('/').slice(0, -1).join('/')
         : '';
       assets.value = attachments;
+      const preserveSidebar = sidebarRevision !== sidebarAtOpen;
       if (!preserveDraft) {
-        drawer.value = false;
+        // Finishing this read must preserve a newer search or reopened sidebar.
+        if (!preserveSidebar) drawer.value = false;
         panel.value = 'note';
       }
       if (useDefaultMode) mode.value = linkedMode ?? editorPreferences.mode;
-      noteLine.value = line;
+      noteLine.value = preserveSidebar ? undefined : line;
       if (syncUrl) navigation.commit({ note: id, line, fragment });
-      if (meta.editorMode === 'full' && !isWhiteboard(meta.relativePath)) await localDrafts.load(id, currentDraftBase(), n.content);
+      const sidebarBeforeDraftLoad = sidebarRevision;
+      if (meta.editorMode === 'full' && !isWhiteboard(meta.relativePath) && (!meta.documentType||meta.documentType==='markdown')) await localDrafts.load(id, currentDraftBase(), n.content);
       if (epoch !== viewEpoch || !currentIntent(intent)) return;
+      if (sidebarRevision !== sidebarBeforeDraftLoad) noteLine.value = undefined;
       // A mounted read-only editor can accept a model selection but cannot
       // establish DOM focus. Apply its editable state before revealing a target.
       noteOpening.value = false;
       await nextTick();
       if (epoch !== viewEpoch || !currentIntent(intent)) return;
-      if (line) revealLine(line, true, matchQuery);
-      if (fragment) await revealFragment(fragment);
+      const navigateEditor = !preserveSidebar && sidebarRevision === sidebarBeforeDraftLoad && !drawer.value;
+      if (line) revealLine(line, navigateEditor, matchQuery);
+      if (fragment && navigateEditor) await revealFragment(fragment);
     } finally {
       if (epoch === viewEpoch) noteOpening.value = false;
     }
@@ -1176,7 +1219,9 @@ let pendingNavigation: (() => Promise<void>) | undefined;
 async function guard(fn: () => Promise<void>, intent = navigationIntent) {
   if (historyWriteLocked.value) return;
   if (panel.value === 'apps' && !await confirmAppLeave(intent)) return;
+  if(embeddedPrimaryId.value){await embeddedPrimaryRef.value?.requestClose();return;}
   if(embeddedBoardId.value){await embeddedBoardRef.value?.requestClose();return;}
+  if(primaryDiagram.value) await diagramRef.value?.settleSave();
   if(noteInfo.value?.editorMode === 'full') {try {await editorRef.value?.flush();}catch(cause){showError(cause);if(!dirty.value)return;}}
   if (!currentIntent(intent)) return;
   const apply = async () => { if (currentIntent(intent)) await fn(); };
@@ -1199,6 +1244,7 @@ async function leave(action: 'save' | 'discard' | 'cancel') {
       await localDrafts.discard();
       await largeRef.value?.discard();
       await boardRef.value?.discard();
+      await diagramRef.value?.discard();
     } catch (cause) {
       showError(cause);
       return;
@@ -1257,6 +1303,11 @@ async function checkSave(): Promise<'succeeded' | 'failed' | undefined> {
   const pending = pendingSave.value,
     epoch = viewEpoch;
   if (!pending || busy.value) return;
+  if(pending.revisionId&&primaryDiagram.value){
+    if(!currentView(pending.noteId,epoch))throw new Error('请返回原图形文档后核对恢复结果');
+    await save(pending.expected,pending.content,pending.revisionId,pending);
+    return !pendingSave.value&&!error.value&&!dialogError.value&&!conflict.value?'succeeded':undefined;
+  }
   busy.value = true;
   try {
     let op: FileOperation & { result?: { modifiedAt: string } };
@@ -1294,6 +1345,7 @@ async function checkSave(): Promise<'succeeded' | 'failed' | undefined> {
             note.value = document;
             draft.value = note.value.content;
             savedContent.value = note.value.content;
+            if(primaryDiagram.value)await diagramRef.value?.reload();
           } else {
             note.value.modifiedAt = op.result?.modifiedAt || note.value.modifiedAt;
             savedContent.value = pending.content;
@@ -1355,6 +1407,7 @@ async function performSave(
   retry?: NonNullable<typeof pendingSave.value>,
 ) {
   if (!note.value || (busy.value && !retry) || (!retry&&content===undefined&&diagramSaveBusy.value) || props.serviceUnavailable) return;
+  if(primaryDiagram.value&&!revisionId){await diagramRef.value?.save();return;}
   if (isWhiteboard(note.value.relativePath) && !revisionId) { await boardRef.value?.save(); return; }
   if(!retry && content === undefined && noteInfo.value?.editorMode === 'full'){
     const targetId=note.value.id,targetEpoch=viewEpoch;
@@ -1411,10 +1464,7 @@ async function performSave(
       revisionId,
     };
     let n: any = revisionId
-      ? await api<NoteDocument>(`/api/notes/${target.id}/revisions/${revisionId}/restore`, 'POST', {
-          expectedModifiedAt: expected || target.modifiedAt,
-          requestId,
-        })
+      ? await restoreHistory(api, target, revisionId, expected || target.modifiedAt, requestId)
       : await api<NoteDocument>(`/api/notes/${target.id}`, 'PUT', {
           content: text,
           expectedModifiedAt: expected || target.modifiedAt,
@@ -1466,6 +1516,7 @@ async function performSave(
     if (revisionId) draft.value = n.content;
     conflict.value = undefined;
     if (revisionId || draft.value === text) await localDrafts.clearSaved(target.id, localVersion);
+    if(revisionId&&primaryDiagram.value)await diagramRef.value?.reload();
     tell(revisionId ? '历史版本已恢复' : '笔记已保存');
     await refresh();
   } catch (e) {
@@ -1569,7 +1620,7 @@ async function shareAction(action: 'create' | 'reset' | 'revoke', options?: Shar
 const createBusy = ref(false),
   inboxBusy = ref(false);
 const createOpen = ref(false),
-  createKind = ref<'note' | 'folder' | 'whiteboard'>('note'),
+  createKind = ref<'note' | 'folder' | 'whiteboard' | 'mindmap' | 'flowchart'>('note'),
   newName = ref(''),
   newFolder = ref('');
 const rootFolderPurposes = [
@@ -1587,7 +1638,7 @@ const inboxAvailable = computed(() =>
 );
 const rootNoteNeedsFolder = computed(
   () =>
-    !newFolder.value && (createKind.value === 'whiteboard' ||
+    !newFolder.value && (['whiteboard','mindmap','flowchart'].includes(createKind.value) ||
     (createKind.value === 'note' && (newName.value.endsWith('.md') ? newName.value : newName.value + '.md') !== 'README.md')),
 );
 const rootFolderNeedsPurpose = computed(
@@ -1597,9 +1648,10 @@ const rootFolderNeedsPurpose = computed(
     !rootFolderPurposes.some((purpose) => purpose.value === newName.value),
 );
 let createRequestId = crypto.randomUUID();
-function create(kind: 'note' | 'folder' | 'whiteboard', parent?: string, intent = navigationIntent) {
+function create(kind: 'note' | 'folder' | 'whiteboard' | 'mindmap' | 'flowchart', parent?: string, intent = navigationIntent) {
   if (!currentIntent(intent) || !treeLoaded.value || !draftIdentityReady.value) return;
   dialogError.value = '';
+  if(draftScope.value)unfinishedCreation.value=pendingCreation(draftScope.value);
   createRequestId = crypto.randomUUID();
   createKind.value = kind;
   newFolder.value =
@@ -1608,6 +1660,8 @@ function create(kind: 'note' | 'folder' | 'whiteboard', parent?: string, intent 
   newName.value = kind === 'note' && !newFolder.value ? 'README.md' : '';
   createOpen.value = true;
 }
+async function resumeCreation(){if(!draftScope.value||!unfinishedCreation.value||createBusy.value)return;createBusy.value=true;try{const n=await createPrimaryDocument(draftScope.value,unfinishedCreation.value);createOpen.value=false;unfinishedCreation.value=undefined;await refresh();await openNote(n.id);}catch(e){showError(e);}finally{createBusy.value=false;}}
+async function cancelUnfinishedCreation(){if(!draftScope.value)return;try{await cancelCreation(draftScope.value);unfinishedCreation.value=undefined;}catch(e){showError(e);}}
 async function prepareInbox() {
   if (inboxBusy.value || createBusy.value || quickBusy.value) return;
   inboxBusy.value = true;
@@ -1651,18 +1705,19 @@ async function submitCreate() {
         tell('文件夹已创建');
       } else {
         await guard(async () => {
-          const name = createKind.value === 'whiteboard' ? (/\.excalidraw$/i.test(newName.value)?newName.value:newName.value+'.excalidraw') : newName.value.endsWith('.md') ? newName.value : newName.value + '.md';
+          const name = newName.value.endsWith('.md') ? newName.value : newName.value + '.md';
           const epoch = viewEpoch;
           let n: NoteDocument;
           try {
-            n = await api<NoteDocument>('/api/notes', 'POST', {
+            n = createKind.value !== 'note' ? await createPrimaryDocument(draftScope.value!,{path:(newFolder.value?newFolder.value+'/':'')+name,type:createKind.value as 'whiteboard'|'mindmap'|'flowchart',title:newName.value.replace(/\.md$/,''),requestId:createRequestId}) : await api<NoteDocument>('/api/notes', 'POST', {
               folderPath: newFolder.value,
               fileName: name,
-              content: createKind.value === 'whiteboard' ? JSON.stringify(emptyWhiteboard()) : `# ${newName.value.replace(/\.md$/, '')}\n\n`,
+              content: `# ${newName.value.replace(/\.md$/, '')}\n\n`,
               requestId: createRequestId,
             });
           } catch (e) {
-            if (e instanceof ApiError && e.status >= 400 && e.status < 500)
+            if(draftScope.value)unfinishedCreation.value=pendingCreation(draftScope.value);
+            if (createKind.value==='note' && e instanceof ApiError && e.status >= 400 && e.status < 500)
               createRequestId = crypto.randomUUID();
             throw e;
           }
@@ -1809,9 +1864,12 @@ async function openAppShortcut(id: WorkspaceAppId) {
     if (await retainNoteContext(intent) === false || !currentIntent(intent)) return;
     rememberAppReturnRoute();
     appNavigationMemory.remember(navigation.currentRoute());
-    const destination = appNavigationMemory.recall(id) || { view: 'apps' as const, app: id, appSection: id === 'to-doo' ? 'tasks' as const : 'overview' as const };
+    const destination = appNavigationMemory.recall(id) || { view: 'apps' as const, app: id };
+    const section = await resolveAppSection(id, destination.appSection, destination);
+    if (!currentIntent(intent)) return;
+    destination.appSection = section;
     appsApp.value = id;
-    appsSection.value = destination.appSection || (id === 'to-doo' ? 'tasks' : 'overview');
+    appsSection.value = section;
     toDooSelection.value = { task: destination.task, occurrence: destination.occurrence, list: destination.list, date: destination.date, calendarView: destination.calendarView, taskFilter: destination.taskFilter };
     panel.value = 'apps';
     drawer.value = false;
@@ -2064,6 +2122,42 @@ async function imported(value: { id: string; relativePath: string }) {
   await run(refresh);
   tell('Markdown 已导入，可在目录中打开');
 }
+const browserMediaPersistence=ref<{noteId:string;epoch:number}>();
+const browserMediaBusy=ref(false);
+async function persistPortableBrowserMedia(){
+ const target=browserMediaPersistence.value;if(!target||!currentView(target.noteId,target.epoch)||browserMediaBusy.value)return;
+ browserMediaBusy.value=true;
+ try{
+   await editorRef.value?.flush();
+   if(dirty.value)throw Error('请先保存当前正文，再保存临时媒体');
+   const previous=savedContent.value;
+   const next=await(await import('../diagrams/persist-browser-media')).persistBrowserMedia(target.noteId,previous);
+   if(!currentView(target.noteId,target.epoch)||savedContent.value!==previous||dirty.value)throw Error('正文已变化，附件已保留，请核对后重试');
+   if(!editorRef.value?.replaceMarkdown(next,previous))throw Error('编辑器已变化，请核对后重试');
+   draft.value=next;await save(undefined,next);
+   if(savedContent.value!==next)throw Error('媒体已上传，请先完成正文保存再导出');
+   browserMediaPersistence.value=undefined;await exportPortableNote();
+ }catch(cause){showError(cause);}finally{browserMediaBusy.value=false;}
+}
+async function exportPortableNote() {
+  if (!note.value || downloading.value) return;
+  const id = note.value.id, epoch = viewEpoch;
+  downloading.value = true;
+  try {
+    await save();
+    if (!currentView(id, epoch)) return;
+    if (busy.value || dirty.value || pendingSave.value?.noteId === id)
+      throw Error('请先完成保存或核对保存结果，再下载完整文档');
+    await (await import('../diagrams/portable-download')).downloadPortableDocument(id);
+    if (currentView(id, epoch)) tell('完整文档已下载');
+  } catch (e) {
+    if (!currentView(id, epoch)) return;
+    if ((e as any)?.data?.code === 'PORTABLE_REQUIRES_PERSISTENCE')
+      browserMediaPersistence.value = { noteId: id, epoch };
+    else showError(e);
+  } finally { downloading.value = false; }
+}
+
 async function downloadNote(
   target: Pick<NoteDocument, 'id' | 'relativePath'> | undefined = note.value,
 ) {
@@ -2226,7 +2320,7 @@ async function prepareUpload(replacement?: ImageReplacementTarget) {
     if (uploadInput.value)
       uploadInput.value.accept = replacement
         ? 'image/png,image/jpeg,image/gif,image/webp,image/svg+xml'
-        : 'image/png,image/jpeg,image/gif,image/webp,image/svg+xml,application/pdf';
+        : attachmentAccept;
     uploadInput.value?.click();
   } catch (cause) {
     showError(cause);
@@ -2706,6 +2800,8 @@ onBeforeUnmount(() => {
                     <Icon name="file" />新建笔记
                   </button>
                   <button :disabled="!treeLoaded" @click="createMenuOpen=false;create('whiteboard')"><Icon name="whiteboard"/>新建白板</button>
+                  <button :disabled="!treeLoaded" @click="createMenuOpen=false;create('mindmap')"><Icon name="graph"/>新建脑图</button>
+                  <button :disabled="!treeLoaded" @click="createMenuOpen=false;create('flowchart')"><Icon name="code"/>新建流程图</button>
                   <button
                     :disabled="!treeLoaded"
                     @click="
@@ -2934,7 +3030,7 @@ onBeforeUnmount(() => {
       :aria-busy="noteOpening || (!treeLoaded && treeRefreshing)"
       :tabindex="['settings', 'trash', 'apps'].includes(panel) ? 0 : undefined"
     >
-      <div class="mobile-bar">
+      <div v-if="activeAppMenu?.id !== 'to-doo'" class="mobile-bar">
         <button v-if="activeAppMenu" type="button" class="icon-button mobile-app-return" aria-label="返回 DooKnow" @click="returnFromApp"><Icon name="back" /></button>
         <button v-if="!activeAppMenu" class="icon-button" aria-label="打开侧栏" @click="drawer = true">
           <Icon name="menu" /></button
@@ -2974,42 +3070,29 @@ onBeforeUnmount(() => {
       </div>
       <CollectionWorkspace v-if="panel === 'collection' && collection !== 'notes'" :kind="collection" :feed="collectionFeed" :favorite-busy="favoriteBusy" :menu-path="treeMenuPath" @select="select" @menu="showTreeMenu" @favorite="favoriteCard" @create="createFromCollection" />
       <WhiteboardWorkspace v-if="note && isWhiteboard(note.relativePath)" v-show="panel==='note'" ref="boardRef" :key="note.id" :board-id="note.id" :draft-scope="draftScope" @dirty="boardDirty=$event" @saved="onBoardSaved" @close="select({type:'folder',name:folder,path:folder})"/>
-      <section v-if="note && !isWhiteboard(note.relativePath)" v-show="panel === 'note'" class="note-workspace">
+      <DiagramDocumentWorkspace v-if="note && primaryDiagram" v-show="panel==='note'" ref="diagramRef" :key="'primary-'+note.id" :note-id="note.id" :relative-path="note.relativePath" :draft-scope="draftScope" :shared="note.shared" :share-busy="shareBusy" :autosave-paused="revisionsOpen || leaveOpen" @share="manageShare" @dirty="boardDirty=$event" @saved="onBoardSaved" @history="history()" @root="browseRoot" @folder="select" @close="select({type:'folder',name:folder,path:folder})">
+        <template #navigation>
+          <DocumentNavigation
+            :sidebar-collapsed="sidebarCollapsed"
+            :can-back="navigationState.canBack"
+            :can-forward="navigationState.canForward"
+            @toggle-sidebar="sidebarCollapsed = !sidebarCollapsed"
+            @back="navigation.back()"
+            @forward="navigation.forward()"
+          />
+        </template>
+      </DiagramDocumentWorkspace>
+      <section v-if="note && !primaryDiagram && !isWhiteboard(note.relativePath)" v-show="panel === 'note'" class="note-workspace">
         <header class="note-header">
           <div class="note-topline">
-            <div class="document-navigation">
-              <button
-                class="icon-button desktop-sidebar-toggle"
-                type="button"
-                :aria-label="sidebarCollapsed ? '展开侧栏' : '收起侧栏'"
-                :title="sidebarCollapsed ? '展开侧栏' : '收起侧栏'"
-                :aria-expanded="!sidebarCollapsed"
-                aria-controls="notebook-navigation"
-                @click="sidebarCollapsed = !sidebarCollapsed"
-              >
-                <Icon name="sidebar" :size="18" />
-              </button>
-              <button
-                class="icon-button"
-                type="button"
-                aria-label="后退"
-                title="后退"
-                :disabled="!navigationState.canBack"
-                @click="navigation.back()"
-              >
-                <Icon name="back" :size="18" />
-              </button>
-              <button
-                class="icon-button"
-                type="button"
-                aria-label="前进"
-                title="前进"
-                :disabled="!navigationState.canForward"
-                @click="navigation.forward()"
-              >
-                <Icon name="forward" :size="18" />
-              </button>
-            </div>
+            <DocumentNavigation
+              :sidebar-collapsed="sidebarCollapsed"
+              :can-back="navigationState.canBack"
+              :can-forward="navigationState.canForward"
+              @toggle-sidebar="sidebarCollapsed = !sidebarCollapsed"
+              @back="navigation.back()"
+              @forward="navigation.forward()"
+            />
             <DocumentBreadcrumb
               :relative-path="note.relativePath"
               :title="note.title"
@@ -3102,6 +3185,7 @@ onBeforeUnmount(() => {
                 :uploading="uploadBusy || uploadPreparing"
                 @move="showMove"
                 @download="downloadNote"
+                @portable="exportPortableNote"
                 @history="history()"
                 @upload="prepareUpload"
               @search="editorRef?.openSearch()"
@@ -3313,7 +3397,7 @@ onBeforeUnmount(() => {
         <input
           ref="uploadInput"
           type="file"
-          accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml,application/pdf" multiple
+          :accept="attachmentAccept" multiple
           :disabled="uploadBusy"
           hidden
           @change="upload"
@@ -3384,12 +3468,12 @@ onBeforeUnmount(() => {
             >
               <td>
                 <button type="button" class="folder-entry-open" @click="select(entry)">
-                  <Icon :name="entry.type === 'folder' ? 'folder' : isWhiteboard(entry.path)?'whiteboard':'file'" :size="23" /><span>{{
+                  <Icon :name="entry.type === 'folder' ? 'folder' : entry.documentType==='mindmap'?'graph':entry.documentType==='flowchart'?'code':entry.documentType==='whiteboard'||isWhiteboard(entry.path)?'whiteboard':'file'" :size="23" /><span>{{
                     entry.name
                   }}</span>
                 </button>
               </td>
-              <td>{{ entry.type === 'folder' ? '文件夹' : isWhiteboard(entry.path)?'白板':'Markdown' }}</td>
+              <td>{{ entry.type === 'folder' ? '文件夹' : entry.documentType==='mindmap'?'脑图':entry.documentType==='flowchart'?'流程图':entry.documentType==='whiteboard'||isWhiteboard(entry.path)?'白板':'Markdown' }}</td>
               <td :title="entry.path">
                 {{
                   entry.updatedAt
@@ -3472,6 +3556,7 @@ onBeforeUnmount(() => {
       :folders="folders"
       @moved="moved"
     />
+    <NoteCopyDialog v-model:show="copyOpen" :note-id="copyTarget?.id" :relative-path="copyTarget?.path" :folders="folders" @copied="copied" />
     <NModal v-model:show="toDooCaptureOpen" preset="card" class="dialog-card" title="从资料创建任务" :mask-closable="!toDooCaptureBusy" :close-on-esc="!toDooCaptureBusy" :closable="!toDooCaptureBusy">
       <form v-if="capturedTask" class="to-doo-capture-form" @submit.prevent="saveCapturedTask">
         <label>任务标题<AInput v-model:value="capturedTask.title" aria-label="任务标题" :maxlength="256" :disabled="toDooCaptureBusy" /></label>
@@ -3529,7 +3614,11 @@ onBeforeUnmount(() => {
       </div>
     </NModal>
     <PluginPanel />
-    <ToDooReminderCards @open="openReminderTarget" @consume-link="consumeReminderLink" />
+    <ToDooReminderCards
+      :show-missed-summary="activeAppMenu?.id !== 'to-doo'"
+      @open="openReminderTarget"
+      @consume-link="consumeReminderLink"
+    />
     <Transition name="toast">
       <div v-if="notice" class="toast" role="status">
         <Icon name="check" :size="18" />{{ notice }}
@@ -3569,8 +3658,8 @@ onBeforeUnmount(() => {
       v-model:show="createOpen"
       preset="card"
       class="dialog-card"
-      :title="createKind === 'whiteboard' ? '新建白板' : createKind === 'note' ? '新建笔记' : '新建文件夹'"
-      :aria-label="createKind === 'whiteboard' ? '新建白板' : createKind === 'note' ? '新建笔记' : '新建文件夹'"
+      :title="createKind === 'whiteboard' ? '新建白板' : createKind === 'mindmap' ? '新建脑图' : createKind === 'flowchart' ? '新建流程图' : createKind === 'note' ? '新建笔记' : '新建文件夹'"
+      :aria-label="createKind === 'whiteboard' ? '新建白板' : createKind === 'mindmap' ? '新建脑图' : createKind === 'flowchart' ? '新建流程图' : createKind === 'note' ? '新建笔记' : '新建文件夹'"
       :mask-closable="!createBusy && !inboxBusy"
       :close-on-esc="!createBusy && !inboxBusy"
       :closable="!createBusy && !inboxBusy"
@@ -3615,13 +3704,14 @@ onBeforeUnmount(() => {
           :aria-label="createKind !== 'folder' ? '文件名' : '文件夹名'"
           :placeholder="
             createKind !== 'folder'
-              ? (createKind === 'whiteboard'?'例如：系统架构.excalidraw':'例如：新的想法.md')
+              ? '例如：新的想法.md'
               : !newFolder
                 ? '选择上方用途后自动填写'
                 : '例如：读书笔记'
           "
         />
-        <p v-if="createKind==='whiteboard'" class="muted">创建后保存为 .excalidraw 白板文件，默认私有。</p>
+        <p v-if="['whiteboard','mindmap','flowchart'].includes(createKind)" class="muted">源与 PNG 预览完整保存后创建 Markdown 图形文档，默认私有。</p>
+        <div v-if="unfinishedCreation" role="status">未完成的图形：{{unfinishedCreation.path}} <button @click="resumeCreation">恢复未完成图形</button><button @click="cancelUnfinishedCreation">取消未完成图形</button></div>
         <p v-else class="muted">
           {{
             !newFolder
@@ -3733,12 +3823,18 @@ onBeforeUnmount(() => {
       :save-pending="!!pendingSave" :save-pending-restore="!!pendingSave?.revisionId"
       :baseline-stale="staleHistoryBase?.noteId === note.id && staleHistoryBase?.modifiedAt === note.modifiedAt"
       @check-save="run(async () => { await checkSave(); })" @restore="restoreRevision" />
+    <DiagramDocumentWorkspace ref="embeddedPrimaryRef" v-if="embeddedPrimaryId" :key="'embedded-primary-'+embeddedPrimaryId" :note-id="embeddedPrimaryId" embedded :draft-scope="draftScope" :autosave-paused="revisionsOpen || leaveOpen" @close="embeddedPrimaryId=undefined"/>
     <WhiteboardWorkspace ref="embeddedBoardRef" v-if="embeddedBoardId" :key="'embedded-'+embeddedBoardId" :board-id="embeddedBoardId" embedded :draft-scope="draftScope" @close="embeddedBoardId=undefined"/>
     <SettingsOverlay v-model:show="boardPickerOpen" title="插入白板" description="引用已有白板，或创建一块新的画布。" icon="whiteboard" :busy="boardCreating" :width="560">
-      <div class="whiteboard-picker"><button v-for="board in flat.filter(item=>isWhiteboard(item.path))" :key="board.id" type="button" @click="insertBoard(board.id!)"><Icon name="whiteboard" :size="18"/><span>{{board.name}}<small>{{board.path}}</small></span><Icon name="chevron" :size="15"/></button><p v-if="!flat.some(item=>isWhiteboard(item.path))" class="muted">还没有白板，可以先创建一个。</p></div>
+      <div class="whiteboard-picker"><button v-for="board in flat.filter(item=>item.documentType==='whiteboard'||isWhiteboard(item.path))" :key="board.id" type="button" @click="insertBoard(board.id!)"><Icon name="whiteboard" :size="18"/><span>{{board.name}}<small>{{board.path}}</small></span><Icon name="chevron" :size="15"/></button><p v-if="!flat.some(item=>item.documentType==='whiteboard'||isWhiteboard(item.path))" class="muted">还没有白板，可以先创建一个。</p></div>
       <template #footer="{close}"><AButton :disabled="boardCreating" @click="close">取消</AButton><AButton type="primary" :loading="boardCreating" @click="createInlineBoard">新建并插入白板</AButton></template>
     </SettingsOverlay>
   </div>
+  <NModal :show="!!browserMediaPersistence" preset="card" class="dialog-card" title="保存临时媒体后导出" :mask-closable="!browserMediaBusy" :close-on-esc="!browserMediaBusy" :closable="!browserMediaBusy" @update:show="browserMediaPersistence=undefined">
+      <p>正文包含仅当前浏览器可读取的临时媒体。保存媒体会上传附件、更新正文链接并保存笔记，然后重新导出。</p>
+      <p v-if="dirty">请先保存当前正文，再继续此操作。</p>
+      <div class="dialog-actions"><AButton :disabled="browserMediaBusy" @click="browserMediaPersistence=undefined">取消</AButton><AButton type="primary" :loading="browserMediaBusy" :disabled="dirty" @click="persistPortableBrowserMedia">保存媒体并导出</AButton></div>
+  </NModal>
 </template>
 <style scoped>
 .main-content {

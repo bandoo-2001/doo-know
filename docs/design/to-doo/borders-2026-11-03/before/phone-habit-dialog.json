@@ -1,0 +1,156 @@
+{
+  "device": {
+    "id": "phone",
+    "width": 390,
+    "height": 844,
+    "theme": "dark"
+  },
+  "id": "habit-dialog",
+  "fixedTime": "2026-10-30T09:00:00.000Z",
+  "report": [
+    {
+      "tag": "ARTICLE",
+      "className": "todo-habit-card todo-panel",
+      "text": "阅读每天 · 20 页⋯ 今天 10 / 20 页本次新增页记录",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "9px",
+      "color": "rgb(50, 55, 70)",
+      "parent": "todo-habit-cards"
+    },
+    {
+      "tag": "ARTICLE",
+      "className": "todo-habit-card todo-panel",
+      "text": "运动每周累计 3 次⋯ 今天 0 次本周累计 2 / 3 次本次新增次记录",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "9px",
+      "color": "rgb(50, 55, 70)",
+      "parent": "todo-habit-cards"
+    },
+    {
+      "tag": "ARTICLE",
+      "className": "todo-habit-card todo-panel",
+      "text": "练习英语每天 · 15 分钟⋯ 今天 15 / 15 分钟今日达标本次新增分钟追加记录",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "9px",
+      "color": "rgb(50, 55, 70)",
+      "parent": "todo-habit-cards"
+    },
+    {
+      "tag": "INPUT",
+      "className": "ant-input css-1phc3w9",
+      "text": "",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "6px",
+      "color": "rgb(50, 55, 70)",
+      "parent": ""
+    },
+    {
+      "tag": "DIV",
+      "className": "ant-select-selector",
+      "text": "完成后打卡",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "6px",
+      "color": "rgb(50, 55, 70)",
+      "parent": "ant-select css-1phc3w9 todo-ant-select ant-select-single ant-select-show-arrow"
+    },
+    {
+      "tag": "DIV",
+      "className": "ant-select-selector",
+      "text": "每天",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "6px",
+      "color": "rgb(50, 55, 70)",
+      "parent": "ant-select css-1phc3w9 todo-ant-select ant-select-single ant-select-show-arrow"
+    },
+    {
+      "tag": "DIV",
+      "className": "ant-picker todo-ant-date css-1phc3w9",
+      "text": "",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "6px",
+      "color": "rgb(50, 55, 70)",
+      "parent": ""
+    }
+  ],
+  "focus": [
+    {
+      "className": "ant-input-number-input",
+      "label": "记录数量 阅读",
+      "focusVisible": true,
+      "outline": "rgb(206, 215, 244) solid 1px",
+      "boxShadow": "none",
+      "outerClass": "ant-input-number css-1phc3w9 ant-input-number-focused",
+      "outerBorder": "1px solid rgb(50, 55, 70)",
+      "outerShadow": "rgba(66, 25, 1, 0.06) 0px 0px 0px 0.818478px",
+      "outerOutline": "rgb(229, 232, 240) none 1px"
+    },
+    {
+      "className": "ant-input-number-input",
+      "label": "记录数量 运动",
+      "focusVisible": true,
+      "outline": "rgb(214, 221, 242) solid 1px",
+      "boxShadow": "none",
+      "outerClass": "ant-input-number css-1phc3w9 ant-input-number-focused",
+      "outerBorder": "1px solid rgb(50, 55, 70)",
+      "outerShadow": "rgba(66, 25, 1, 0.03) 0px 0px 0px 0.441319px",
+      "outerOutline": "rgb(229, 232, 240) none 2px"
+    },
+    {
+      "className": "ant-input-number-input",
+      "label": "记录数量 练习英语",
+      "focusVisible": true,
+      "outline": "rgb(222, 226, 241) solid 1px",
+      "boxShadow": "none",
+      "outerClass": "ant-input-number css-1phc3w9 ant-input-number-focused",
+      "outerBorder": "1px solid rgb(50, 55, 70)",
+      "outerShadow": "rgba(66, 25, 1, 0.01) 0px 0px 0px 0.141603px",
+      "outerOutline": "rgb(229, 232, 240) none 2px"
+    },
+    {
+      "className": "ant-select-selection-search-input",
+      "label": "目标",
+      "focusVisible": true,
+      "outline": "rgb(255, 255, 255) none 3px",
+      "boxShadow": "none",
+      "outerClass": "ant-select css-1phc3w9 todo-ant-select ant-select-focused ant-select-single ant-select-show-arrow",
+      "outerBorder": "1px solid rgb(50, 55, 70)",
+      "outerShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+      "outerOutline": "rgb(229, 232, 240) none 3px"
+    }
+  ]
+}

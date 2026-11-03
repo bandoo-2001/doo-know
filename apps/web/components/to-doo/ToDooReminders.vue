@@ -8,6 +8,12 @@ const props = withDefaults(defineProps<{ modelValue: Rule[]; dateBased?: boolean
   dateBased: true,
 });
 const emit = defineEmits<{ 'update:modelValue': [value: Rule[]] }>();
+function absoluteTime(at: string | undefined) {
+  if (!at) return '';
+  const date = new Date(at);
+  if (!Number.isFinite(date.getTime())) return '';
+  return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+}
 function update(index: number, patch: Partial<Rule>) {
   emit(
     'update:modelValue',
@@ -70,13 +76,7 @@ function add() {
         ><label v-else
           >指定日期与时间<ToDooDateField
             type="datetime-local"
-            :value="
-              rule.at
-                ? new Date(Date.parse(rule.at) - new Date().getTimezoneOffset() * 60000)
-                    .toISOString()
-                    .slice(0, 16)
-                : ''
-            "
+            :value="absoluteTime(rule.at)"
             @change="update(i, { at: $event ? new Date($event).toISOString() : undefined })"
         /></label>
       </div>

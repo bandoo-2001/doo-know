@@ -195,7 +195,7 @@ test('saved display preferences change the actual editor and survive reload with
     '# Display fixture\n\n' + 'A long unchanged paragraph. '.repeat(50) + '\n\nLast line.\n';
   const item = await note(page, fileName, source);
   await page.goto('/?view=settings&section=editor');
-  await expect(page.getByRole('heading', { name: '编辑器与外观', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '编辑与阅读', exact: true })).toBeVisible();
   await choose(page, '默认打开方式', '编辑');
   await choose(page, '默认编辑方式', 'Markdown 源码');
   await page.getByRole('switch', { name: '自动换行', exact: true }).click();

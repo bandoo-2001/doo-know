@@ -6,6 +6,7 @@ import {
   goToToDooSection,
   openToDooDirectory,
 } from '../support/to-doo-navigation';
+import { expandToDooGroup } from '../support/to-doo-ant-controls';
 
 async function command(
   page: import('@playwright/test').Page,
@@ -14,7 +15,7 @@ async function command(
 ) {
   const csrf = await (await page.request.get('/api/security/csrf')).json();
   const response = await page.request.post('/api/to-doo/commands', {
-    headers: { origin: 'http://127.0.0.1:4179', 'x-csrf-token': csrf.token },
+    headers: { origin: String(test.info().project.use.baseURL), 'x-csrf-token': csrf.token },
     data: { requestId: crypto.randomUUID(), action, payload },
   });
   expect(response.ok()).toBe(true);
@@ -28,7 +29,10 @@ test.beforeEach(async ({ context }) => {
 test('primary tools and contextual task directories are discoverable without expanding hidden groups', async ({
   page,
 }, info) => {
+  const initialTree = page.waitForResponse((response) => new URL(response.url()).pathname === '/api/tree');
   await page.goto('/?view=apps&app=to-doo&appSection=tasks');
+  expect((await initialTree).ok()).toBe(true);
+  await expect(page.locator('.workspace-main-menu')).toHaveAttribute('data-menu-id', 'to-doo');
   await showMainMenu(page);
   const main = page.getByRole('navigation', { name: 'To Doo 主菜单', exact: true });
   for (const label of ['任务', '日历', '四象限', '专注', '习惯', '纪念日', '复盘'])
@@ -116,7 +120,14 @@ test('mobile navigation keeps keyboard focus inside and restores the opener on E
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
+  const taskState = page.waitForResponse((response) => {
+    const url = new URL(response.url());
+    return url.pathname === '/api/to-doo/state' && url.searchParams.get('view') === 'tasks';
+  });
   await page.goto('/?view=apps&app=to-doo&appSection=tasks');
+  expect((await taskState).ok()).toBe(true);
+  const quickAdd = page.getByRole('textbox', { name: '快速添加任务', exact: true });
+  await expect(quickAdd).toBeVisible();
   const trigger = page.getByRole('button', { name: '功能导航', exact: true });
   await trigger.focus();
   await page.keyboard.press('Enter');
@@ -136,7 +147,7 @@ test('mobile navigation keeps keyboard focus inside and restores the opener on E
   await expect(dialog).not.toBeVisible();
   await expect(trigger).toBeFocused();
   await page.keyboard.press('q');
-  await expect(page.getByRole('textbox', { name: '快速添加任务', exact: true })).toBeFocused();
+  await expect(quickAdd).toBeFocused();
 });
 
 test('leaving from navigation keeps focus on the unsaved confirmation and retains a cancelled draft', async ({
@@ -207,7 +218,8 @@ test('priority edits persist independently from visible matrix classification an
     const row = quadrants.nth(index).locator('.todo-task-row').filter({ hasText: title });
     await expect(row).toBeVisible();
     await expect(row.locator('.todo-task-deadline')).toBeVisible();
-    await expect(row.locator('.todo-priority-label')).toBeVisible();
+    if (index === 3) await expect(row.locator('.todo-priority-label')).toHaveCount(0);
+    else await expect(row.locator('.todo-priority-label')).toBeVisible();
   }
   await page.screenshot({
     path: `.local/to-doo-visible-workspace/${info.project.name}-matrix-populated.png`,
@@ -215,6 +227,7 @@ test('priority edits persist independently from visible matrix classification an
   });
   await quadrants.first().getByRole('button', { name: '提交产品方案', exact: true }).click();
   const detail = page.getByRole('complementary', { name: '任务详情', exact: true });
+  await expandToDooGroup(detail, '四象限归类');
   await expect(detail.getByLabel('重要程度', { exact: true })).toBeVisible();
   await expect(detail.getByLabel('紧急程度', { exact: true })).toBeVisible();
   await detail.locator('.todo-priority-select').click();

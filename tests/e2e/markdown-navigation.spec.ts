@@ -3,7 +3,8 @@ import { openDocumentNote } from '../support/document-editor';
 import type { Page } from '@playwright/test';
 import { showMainMenu } from '../support/settings-navigation';
 
-const origin = 'http://127.0.0.1:4179';
+let origin: string;
+test.beforeEach(async ({ baseURL }) => { origin = new URL(baseURL!).origin; });
 const fragment = '#%E7%AB%A0%E8%8A%82';
 const gap = Array.from({ length: 35 }, (_, i) => `间隔段落 ${i}。\n\n`).join('');
 async function createNote(page: Page, content: string) {
@@ -14,6 +15,12 @@ async function createNote(page: Page, content: string) {
   });
   expect(response.status()).toBe(201);
   return response.json();
+}
+// CodeMirror's DOM contains spacer nodes for offscreen text. Its Select All
+// command selects the complete logical document before native text insertion.
+async function replaceMarkdownSource(page: Page, content: string) {
+  await page.getByRole('textbox', { name: 'Markdown 正文', exact: true }).press('ControlOrMeta+A');
+  await page.keyboard.insertText(content);
 }
 async function externalPopup(page: Page, label: string, url: string) {
   const pending = page.waitForEvent('popup');
@@ -180,7 +187,7 @@ test('未保存源码切换阅读与分屏立即更新，图片代码图形正�
   });
   await page.getByRole('button', { name: 'Markdown 源码', exact: true }).click();
   const source = page.locator('.cm-content');
-  await source.fill(raw);
+  await replaceMarkdownSource(page, raw);
   await expect(page.locator('.preview-panel')).toHaveCount(0);
   await page.getByRole('button', { name: '阅读', exact: true }).click();
   const article = page.locator('.preview-panel .markdown');
@@ -194,7 +201,7 @@ test('未保存源码切换阅读与分屏立即更新，图片代码图形正�
   await expect(page.getByRole('dialog', { name: '未保存的修改' })).toBeHidden();
   await page.getByRole('button', { name: 'Markdown 源码', exact: true }).click();
   await expect(source).toContainText('unsaved-marker');
-  await source.fill(raw + '-latest');
+  await replaceMarkdownSource(page, raw + '-latest');
   await page.getByRole('checkbox', { name: '同时预览', exact: true }).check();
   await expect(article).toContainText('unsaved-marker-latest');
   await page.screenshot({
@@ -244,8 +251,16 @@ test('纯章节链接保留刷新历史，设置返回未保存草稿仍定位�
   await expect(page).toHaveURL(origin + '/?note=' + note.id);
   await page.getByRole('button', { name: 'Markdown 源码', exact: true }).click();
   const draft = original + '\nunsaved-round1';
-  await page.locator('.cm-content').fill(draft);
+  const source = page.getByRole('textbox', { name: 'Markdown 正文', exact: true });
+  await expect(source.locator('.cm-gap')).not.toHaveCount(0);
+  await replaceMarkdownSource(page, draft);
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin });
+  await source.press('ControlOrMeta+A');
+  await source.press('ControlOrMeta+C');
+  await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe(draft);
   await page.getByRole('button', { name: '阅读', exact: true }).click();
+  await expect(article).toContainText('unsaved-round1');
+  await expect(article.getByRole('link', { name: '当前章节', exact: true })).toHaveCount(1);
   await article.getByRole('link', { name: '当前章节', exact: true }).click();
   await expect(page).toHaveURL(origin + '/?note=' + note.id + fragment);
   await expect(page.getByRole('dialog', { name: '当前笔记尚未保存', exact: true })).toBeHidden();

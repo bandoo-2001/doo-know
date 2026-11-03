@@ -12,7 +12,7 @@ type FixtureNote = { id: string; relativePath: string; content: string };
 async function createNote(page: Page, fileName: string, content: string): Promise<FixtureNote> {
   const csrf = await (await page.request.get('/api/security/csrf')).json();
   const response = await page.request.post('/api/notes', {
-    headers: { origin: 'http://127.0.0.1:4179', 'x-csrf-token': csrf.token },
+    headers: { origin: JSON.parse(await readFile('.local/e2e-config.json', 'utf8')).origin, 'x-csrf-token': csrf.token },
     data: { folderPath: '00-Inbox', fileName, content, requestId: crypto.randomUUID() },
   });
   expect(response.status()).toBe(201);
@@ -128,7 +128,7 @@ test('a refused account logout keeps the owner signed in and local drafts writab
   if (!(await accountSettings.isVisible()))
     await page.getByRole('button', { name: '个人账户', exact: true }).click();
   await accountSettings.click();
-  await expect(page.getByRole('heading', { name: '账户与安全', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '账号与安全', exact: true })).toBeVisible();
   await page.route('**/api/auth/sign-out', (route) =>
     route.fulfill({
       status: 503,
@@ -138,7 +138,7 @@ test('a refused account logout keeps the owner signed in and local drafts writab
   const refused = page.waitForResponse((response) => response.url().endsWith('/api/auth/sign-out'));
   await page.getByRole('button', { name: '退出当前设备', exact: true }).click();
   expect((await refused).status()).toBe(503);
-  await expect(page.getByRole('heading', { name: '账户与安全', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '账号与安全', exact: true })).toBeVisible();
   await expect(page.getByLabel('用户名', { exact: true })).toHaveCount(0);
   expect((await (await page.request.get('/api/auth/get-session')).json()).user.id).toBeTruthy();
   // Reopen within the existing workspace: a page reload would recreate the

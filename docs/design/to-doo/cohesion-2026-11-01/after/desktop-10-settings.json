@@ -1,0 +1,15 @@
+{
+  "phase": "after",
+  "fixedTime": "2026-10-30T09:00:00.000Z",
+  "screenshots": [
+    {
+      "id": "10-settings",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "label": "设置",
+      "file": "desktop-10-settings.png",
+      "overflow": 0
+    }
+  ]
+}

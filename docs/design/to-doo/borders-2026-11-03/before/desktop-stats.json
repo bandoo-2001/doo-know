@@ -1,0 +1,97 @@
+{
+  "device": {
+    "id": "desktop",
+    "width": 1440,
+    "height": 1000,
+    "theme": "light"
+  },
+  "id": "stats",
+  "fixedTime": "2026-10-30T09:00:00.000Z",
+  "report": [
+    {
+      "tag": "SECTION",
+      "className": "todo-panel todo-review-trend",
+      "text": "完成趋势单位：项10-24 10-26 10-28 110-30",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "9px",
+      "color": "rgb(230, 233, 241)",
+      "parent": "todo-review-grid"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-panel-header todo-section-header",
+      "text": "完成趋势单位：项",
+      "borders": [
+        "0px",
+        "0px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(39, 43, 58) rgb(230, 233, 241)",
+      "parent": "todo-panel todo-review-trend"
+    },
+    {
+      "tag": "SECTION",
+      "className": "todo-panel todo-review-goals",
+      "text": "目标进展累计保持阅读与学习1/3",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "9px",
+      "color": "rgb(230, 233, 241)",
+      "parent": "todo-review-grid"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-panel-header todo-section-header",
+      "text": "目标进展累计",
+      "borders": [
+        "0px",
+        "0px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(39, 43, 58) rgb(230, 233, 241)",
+      "parent": "todo-panel todo-review-goals"
+    },
+    {
+      "tag": "SECTION",
+      "className": "todo-panel todo-review-records",
+      "text": "复盘与成果本周复盘2026-10-24 — 2026-10-30持续阅读，减少分心。下周为",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "9px",
+      "color": "rgb(230, 233, 241)",
+      "parent": "todo-review-grid"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-panel-header todo-section-header",
+      "text": "复盘与成果",
+      "borders": [
+        "0px",
+        "0px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(39, 43, 58) rgb(230, 233, 241)",
+      "parent": "todo-panel todo-review-records"
+    }
+  ],
+  "focus": []
+}

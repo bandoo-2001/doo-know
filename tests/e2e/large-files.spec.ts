@@ -1,5 +1,7 @@
 import { clickNoteAction, selectHistoryVersion } from '../support/note-actions';
 import { test, expect } from '../support/browser-test';
+import type { APIResponse } from '@playwright/test';
+import { completeFileSave } from '../support/file-operations';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
@@ -27,7 +29,13 @@ test('resends an undelivered patch with its original ID and immutable payload', 
   await page.route(/\/api\/notes\/[^/]+\/patch$/, (route) => route.abort('failed'), { times: 1 });
   await page.getByRole('button', { name: '保存片段', exact: true }).click();
   await expect(page.getByRole('button', { name: '核对保存结果', exact: true })).toBeVisible();
+  const acceptedPatch = page.waitForResponse(
+    (response) =>
+      response.request().method() === 'POST' &&
+      /\/api\/notes\/[^/]+\/patch$/.test(new URL(response.url()).pathname),
+  );
   await page.getByRole('button', { name: '核对保存结果', exact: true }).click();
+  await completeFileSave(page, await acceptedPatch);
   await expect(page.getByText('片段已保存', { exact: true })).toBeVisible();
   expect(payloads).toHaveLength(2);
   expect(payloads[1]).toEqual(payloads[0]);
@@ -39,6 +47,8 @@ test('large document loads a fragment and saving preserves the unloaded tail', a
   page,
   context,
 }, info) => {
+  // Two PATCH operations and history recovery share this explicit multi-stage scenario budget.
+  test.setTimeout(120000);
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   const config = JSON.parse(await readFile('.local/e2e-config.json', 'utf8')),
     name = `大文件-${info.project.name}.md`,
@@ -60,7 +70,12 @@ test('large document loads a fragment and saving preserves the unloaded tail', a
   await expect(page.locator('.large-preview')).toContainText('CHANGED');
   await expect(page.locator('.large-preview')).not.toContainText('UNLOADED_SENTINEL');
   await page.getByRole('button', { name: '关闭片段预览', exact: true }).click();
+  const firstPatch = page.waitForResponse(
+    (response) => response.request().method() === 'POST' &&
+      /\/api\/notes\/[^/]+\/patch$/.test(new URL(response.url()).pathname),
+  );
   await page.getByRole('button', { name: '保存片段', exact: true }).click();
+  await completeFileSave(page, await firstPatch);
   await expect(page.getByText('片段已保存', { exact: true })).toBeVisible();
   const updated = await readFile(path, 'utf8');
   expect(updated).toContain('CHANGED');
@@ -77,10 +92,13 @@ test('large document loads a fragment and saving preserves the unloaded tail', a
   const line = Number(beforeRange.match(/^第 (\d+)/)![1]);
   expect(line).toBeGreaterThan(1);
   await page.locator('.large-workspace .cm-content').fill('SECOND_PAGE_EDIT\n');
+  let receivedPatch!: (response: APIResponse) => void;
+  const deliveredPatch = new Promise<APIResponse>((resolve) => { receivedPatch = resolve; });
   await page.route(
     /\/api\/notes\/[^/]+\/patch$/,
     async (route) => {
-      await route.fetch();
+      const response = await route.fetch();
+      receivedPatch(response);
       await route.abort('failed');
     },
     { times: 1 },
@@ -92,6 +110,7 @@ test('large document loads a fragment and saving preserves the unloaded tail', a
     'false',
   );
   await page.getByRole('button', { name: '核对保存结果', exact: true }).click();
+  await completeFileSave(page, await deliveredPatch);
   await expect(page.getByText('片段已保存', { exact: true })).toBeVisible();
   await expect(page.locator('.large-workspace p').filter({ hasText: /第 \d+/ })).toContainText(
     '第 ' + line + '–',
@@ -101,7 +120,15 @@ test('large document loads a fragment and saving preserves the unloaded tail', a
   const history = page.locator('.note-history-dialog');
   await selectHistoryVersion(page, -1);
   await history.getByRole('button', { name: '恢复此版本', exact: true }).click();
+  const restoring = page.waitForResponse(
+    (response) => response.request().method() === 'POST' &&
+      /\/api\/notes\/[^/]+\/revisions\/[^/]+\/restore$/.test(new URL(response.url()).pathname),
+  );
   await history.getByRole('button', { name: '确认恢复', exact: true }).click();
+  await completeFileSave(page, await restoring, {
+    saved: page.locator('.large-workspace .cm-content').filter({ hasText: 'FIRST' }),
+    recheck: history.getByRole('button', { name: '核对恢复结果', exact: true }),
+  });
   await expect(page.locator('.large-workspace .cm-content')).toContainText('FIRST');
   expect((await readFile(path, 'utf8')).endsWith('UNLOADED_SENTINEL')).toBe(true);
 });

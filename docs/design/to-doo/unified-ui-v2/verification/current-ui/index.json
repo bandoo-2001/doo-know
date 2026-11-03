@@ -1,0 +1,3862 @@
+{
+  "status": "passed",
+  "fixedTime": "2026-10-30T09:00:00.000Z",
+  "browser": "156.0.8078.4",
+  "source": {
+    "sha256": "a63b7f3133e6f154744f6d405e98fcb59beb3f18bacc3820b2f1312448152619",
+    "files": 1096,
+    "head": "393979a664142dcef981abbfe6422fa70715a4fa"
+  },
+  "datasetId": "532c6b87-5d27-470d-8e2d-0b8a07026f8e",
+  "fonts": "DejaVu Sans | /usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+  "geometry": [
+    {
+      "id": "01-tasks",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": true,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1366,
+        "height": 56
+      },
+      "heading": {
+        "x": 268,
+        "y": 80,
+        "width": 132,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "02-board",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": true,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1366,
+        "height": 56
+      },
+      "heading": {
+        "x": 268,
+        "y": 80,
+        "width": 168,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "03-goals",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": true,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1366,
+        "height": 56
+      },
+      "heading": {
+        "x": 268,
+        "y": 80,
+        "width": 252,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "04-calendar-week",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": true,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1366,
+        "height": 56
+      },
+      "heading": {
+        "x": 268,
+        "y": 80,
+        "width": 180,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "05-calendar-month",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": true,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1366,
+        "height": 56
+      },
+      "heading": {
+        "x": 268,
+        "y": 80,
+        "width": 180,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "06-timeline",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": true,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1366,
+        "height": 56
+      },
+      "heading": {
+        "x": 268,
+        "y": 80,
+        "width": 240,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "07-matrix",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1366,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 192,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "08-focus",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1366,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 156,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "09-habits",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1366,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 192,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "10-anniversaries",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1366,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 180,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "11-review",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1366,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 240,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "12-notifications",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1366,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 108,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "13-settings",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1366,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 204,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "01-tasks",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": true,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1366,
+        "height": 56
+      },
+      "heading": {
+        "x": 268,
+        "y": 80,
+        "width": 132,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "02-board",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": true,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1366,
+        "height": 56
+      },
+      "heading": {
+        "x": 268,
+        "y": 80,
+        "width": 168,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "03-goals",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": true,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1366,
+        "height": 56
+      },
+      "heading": {
+        "x": 268,
+        "y": 80,
+        "width": 252,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "04-calendar-week",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": true,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1366,
+        "height": 56
+      },
+      "heading": {
+        "x": 268,
+        "y": 80,
+        "width": 180,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "05-calendar-month",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": true,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1366,
+        "height": 56
+      },
+      "heading": {
+        "x": 268,
+        "y": 80,
+        "width": 180,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "06-timeline",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": true,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1366,
+        "height": 56
+      },
+      "heading": {
+        "x": 268,
+        "y": 80,
+        "width": 240,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "07-matrix",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1366,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 192,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "08-focus",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1366,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 156,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "09-habits",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1366,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 192,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "10-anniversaries",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1366,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 180,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "11-review",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1366,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 240,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "12-notifications",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1366,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 108,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "13-settings",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1366,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 204,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "01-tasks",
+      "theme": "light",
+      "width": 1873,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": true,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1799,
+        "height": 56
+      },
+      "heading": {
+        "x": 268,
+        "y": 80,
+        "width": 132,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "02-board",
+      "theme": "light",
+      "width": 1873,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": true,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1799,
+        "height": 56
+      },
+      "heading": {
+        "x": 268,
+        "y": 80,
+        "width": 168,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "03-goals",
+      "theme": "light",
+      "width": 1873,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": true,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1799,
+        "height": 56
+      },
+      "heading": {
+        "x": 268,
+        "y": 80,
+        "width": 252,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "04-calendar-week",
+      "theme": "light",
+      "width": 1873,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": true,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1799,
+        "height": 56
+      },
+      "heading": {
+        "x": 268,
+        "y": 80,
+        "width": 180,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "05-calendar-month",
+      "theme": "light",
+      "width": 1873,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": true,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1799,
+        "height": 56
+      },
+      "heading": {
+        "x": 268,
+        "y": 80,
+        "width": 180,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "06-timeline",
+      "theme": "light",
+      "width": 1873,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": true,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1799,
+        "height": 56
+      },
+      "heading": {
+        "x": 268,
+        "y": 80,
+        "width": 240,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "07-matrix",
+      "theme": "light",
+      "width": 1873,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1799,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 192,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "08-focus",
+      "theme": "light",
+      "width": 1873,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1799,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 156,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "09-habits",
+      "theme": "light",
+      "width": 1873,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1799,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 192,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "10-anniversaries",
+      "theme": "light",
+      "width": 1873,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1799,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 180,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "11-review",
+      "theme": "light",
+      "width": 1873,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1799,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 240,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "12-notifications",
+      "theme": "light",
+      "width": 1873,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1799,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 108,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "13-settings",
+      "theme": "light",
+      "width": 1873,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1799,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 204,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "01-tasks",
+      "theme": "dark",
+      "width": 1873,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": true,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1799,
+        "height": 56
+      },
+      "heading": {
+        "x": 268,
+        "y": 80,
+        "width": 132,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "02-board",
+      "theme": "dark",
+      "width": 1873,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": true,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1799,
+        "height": 56
+      },
+      "heading": {
+        "x": 268,
+        "y": 80,
+        "width": 168,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "03-goals",
+      "theme": "dark",
+      "width": 1873,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": true,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1799,
+        "height": 56
+      },
+      "heading": {
+        "x": 268,
+        "y": 80,
+        "width": 252,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "04-calendar-week",
+      "theme": "dark",
+      "width": 1873,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": true,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1799,
+        "height": 56
+      },
+      "heading": {
+        "x": 268,
+        "y": 80,
+        "width": 180,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "05-calendar-month",
+      "theme": "dark",
+      "width": 1873,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": true,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1799,
+        "height": 56
+      },
+      "heading": {
+        "x": 268,
+        "y": 80,
+        "width": 180,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "06-timeline",
+      "theme": "dark",
+      "width": 1873,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": true,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1799,
+        "height": 56
+      },
+      "heading": {
+        "x": 268,
+        "y": 80,
+        "width": 240,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "07-matrix",
+      "theme": "dark",
+      "width": 1873,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1799,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 192,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "08-focus",
+      "theme": "dark",
+      "width": 1873,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1799,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 156,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "09-habits",
+      "theme": "dark",
+      "width": 1873,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1799,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 192,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "10-anniversaries",
+      "theme": "dark",
+      "width": 1873,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1799,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 180,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "11-review",
+      "theme": "dark",
+      "width": 1873,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1799,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 240,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "12-notifications",
+      "theme": "dark",
+      "width": 1873,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1799,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 108,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "13-settings",
+      "theme": "dark",
+      "width": 1873,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 1799,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 204,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "01-tasks",
+      "theme": "light",
+      "width": 1024,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": true,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 950,
+        "height": 56
+      },
+      "heading": {
+        "x": 268,
+        "y": 80,
+        "width": 132,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "02-board",
+      "theme": "light",
+      "width": 1024,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": true,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 950,
+        "height": 56
+      },
+      "heading": {
+        "x": 268,
+        "y": 80,
+        "width": 168,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "03-goals",
+      "theme": "light",
+      "width": 1024,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": true,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 950,
+        "height": 56
+      },
+      "heading": {
+        "x": 268,
+        "y": 80,
+        "width": 252,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "04-calendar-week",
+      "theme": "light",
+      "width": 1024,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": true,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 950,
+        "height": 56
+      },
+      "heading": {
+        "x": 268,
+        "y": 80,
+        "width": 180,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "05-calendar-month",
+      "theme": "light",
+      "width": 1024,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": true,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 950,
+        "height": 56
+      },
+      "heading": {
+        "x": 268,
+        "y": 80,
+        "width": 180,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "06-timeline",
+      "theme": "light",
+      "width": 1024,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": true,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 950,
+        "height": 56
+      },
+      "heading": {
+        "x": 268,
+        "y": 80,
+        "width": 240,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "07-matrix",
+      "theme": "light",
+      "width": 1024,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 950,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 192,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "08-focus",
+      "theme": "light",
+      "width": 1024,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 950,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 156,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "09-habits",
+      "theme": "light",
+      "width": 1024,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 950,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 192,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "10-anniversaries",
+      "theme": "light",
+      "width": 1024,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 950,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 180,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "11-review",
+      "theme": "light",
+      "width": 1024,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 950,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 240,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "12-notifications",
+      "theme": "light",
+      "width": 1024,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 950,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 108,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "13-settings",
+      "theme": "light",
+      "width": 1024,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 950,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 204,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "01-tasks",
+      "theme": "dark",
+      "width": 1024,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": true,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 950,
+        "height": 56
+      },
+      "heading": {
+        "x": 268,
+        "y": 80,
+        "width": 132,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "02-board",
+      "theme": "dark",
+      "width": 1024,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": true,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 950,
+        "height": 56
+      },
+      "heading": {
+        "x": 268,
+        "y": 80,
+        "width": 168,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "03-goals",
+      "theme": "dark",
+      "width": 1024,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": true,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 950,
+        "height": 56
+      },
+      "heading": {
+        "x": 268,
+        "y": 80,
+        "width": 252,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "04-calendar-week",
+      "theme": "dark",
+      "width": 1024,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": true,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 950,
+        "height": 56
+      },
+      "heading": {
+        "x": 268,
+        "y": 80,
+        "width": 180,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "05-calendar-month",
+      "theme": "dark",
+      "width": 1024,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": true,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 950,
+        "height": 56
+      },
+      "heading": {
+        "x": 268,
+        "y": 80,
+        "width": 180,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "06-timeline",
+      "theme": "dark",
+      "width": 1024,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": true,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 950,
+        "height": 56
+      },
+      "heading": {
+        "x": 268,
+        "y": 80,
+        "width": 240,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "07-matrix",
+      "theme": "dark",
+      "width": 1024,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 950,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 192,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "08-focus",
+      "theme": "dark",
+      "width": 1024,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 950,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 156,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "09-habits",
+      "theme": "dark",
+      "width": 1024,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 950,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 192,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "10-anniversaries",
+      "theme": "dark",
+      "width": 1024,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 950,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 180,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "11-review",
+      "theme": "dark",
+      "width": 1024,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 950,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 240,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "12-notifications",
+      "theme": "dark",
+      "width": 1024,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 950,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 108,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "13-settings",
+      "theme": "dark",
+      "width": 1024,
+      "height": 1000,
+      "railVisible": true,
+      "sidebarVisible": false,
+      "header": {
+        "x": 64,
+        "y": 0,
+        "width": 950,
+        "height": 56
+      },
+      "heading": {
+        "x": 88,
+        "y": 80,
+        "width": 204,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "01-tasks",
+      "theme": "light",
+      "width": 768,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 758,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 132,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "02-board",
+      "theme": "light",
+      "width": 768,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 758,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 168,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "03-goals",
+      "theme": "light",
+      "width": 768,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 758,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 252,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "04-calendar-week",
+      "theme": "light",
+      "width": 768,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 758,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 180,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "05-calendar-month",
+      "theme": "light",
+      "width": 768,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 758,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 180,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "06-timeline",
+      "theme": "light",
+      "width": 768,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 758,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 240,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "07-matrix",
+      "theme": "light",
+      "width": 768,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 758,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 192,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "08-focus",
+      "theme": "light",
+      "width": 768,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 758,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 156,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "09-habits",
+      "theme": "light",
+      "width": 768,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 758,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 192,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "10-anniversaries",
+      "theme": "light",
+      "width": 768,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 758,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 180,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "11-review",
+      "theme": "light",
+      "width": 768,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 758,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 240,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "12-notifications",
+      "theme": "light",
+      "width": 768,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 758,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 108,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "13-settings",
+      "theme": "light",
+      "width": 768,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 758,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 204,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "01-tasks",
+      "theme": "dark",
+      "width": 768,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 758,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 132,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "02-board",
+      "theme": "dark",
+      "width": 768,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 758,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 168,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "03-goals",
+      "theme": "dark",
+      "width": 768,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 758,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 252,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "04-calendar-week",
+      "theme": "dark",
+      "width": 768,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 758,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 180,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "05-calendar-month",
+      "theme": "dark",
+      "width": 768,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 758,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 180,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "06-timeline",
+      "theme": "dark",
+      "width": 768,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 758,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 240,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "07-matrix",
+      "theme": "dark",
+      "width": 768,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 758,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 192,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "08-focus",
+      "theme": "dark",
+      "width": 768,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 758,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 156,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "09-habits",
+      "theme": "dark",
+      "width": 768,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 758,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 192,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "10-anniversaries",
+      "theme": "dark",
+      "width": 768,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 758,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 180,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "11-review",
+      "theme": "dark",
+      "width": 768,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 758,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 240,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "12-notifications",
+      "theme": "dark",
+      "width": 768,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 758,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 108,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "13-settings",
+      "theme": "dark",
+      "width": 768,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 758,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 204,
+        "height": 33.59375
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "01-tasks",
+      "theme": "light",
+      "width": 390,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 380,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 84.484375,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "02-board",
+      "theme": "light",
+      "width": 390,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 380,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 42.25,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "03-goals",
+      "theme": "light",
+      "width": 390,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 380,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 84.484375,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "04-calendar-week",
+      "theme": "light",
+      "width": 390,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 380,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 42.25,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "05-calendar-month",
+      "theme": "light",
+      "width": 390,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 380,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 42.25,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "06-timeline",
+      "theme": "light",
+      "width": 390,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 380,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 63.375,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "07-matrix",
+      "theme": "light",
+      "width": 390,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 380,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 63.375,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "08-focus",
+      "theme": "light",
+      "width": 390,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 380,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 42.25,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "09-habits",
+      "theme": "light",
+      "width": 390,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 380,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 42.25,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "10-anniversaries",
+      "theme": "light",
+      "width": 390,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 380,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 63.375,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "11-review",
+      "theme": "light",
+      "width": 390,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 380,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 105.609375,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "12-notifications",
+      "theme": "light",
+      "width": 390,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 380,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 84.484375,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "13-settings",
+      "theme": "light",
+      "width": 390,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 380,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 42.25,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "01-tasks",
+      "theme": "dark",
+      "width": 390,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 380,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 84.484375,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "02-board",
+      "theme": "dark",
+      "width": 390,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 380,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 42.25,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "03-goals",
+      "theme": "dark",
+      "width": 390,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 380,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 84.484375,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "04-calendar-week",
+      "theme": "dark",
+      "width": 390,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 380,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 42.25,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "05-calendar-month",
+      "theme": "dark",
+      "width": 390,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 380,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 42.25,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "06-timeline",
+      "theme": "dark",
+      "width": 390,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 380,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 63.375,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "07-matrix",
+      "theme": "dark",
+      "width": 390,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 380,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 63.375,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "08-focus",
+      "theme": "dark",
+      "width": 390,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 380,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 42.25,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "09-habits",
+      "theme": "dark",
+      "width": 390,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 380,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 42.25,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "10-anniversaries",
+      "theme": "dark",
+      "width": 390,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 380,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 63.375,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "11-review",
+      "theme": "dark",
+      "width": 390,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 380,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 105.609375,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "12-notifications",
+      "theme": "dark",
+      "width": 390,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 380,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 84.484375,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "13-settings",
+      "theme": "dark",
+      "width": 390,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 380,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 42.25,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "01-tasks",
+      "theme": "light",
+      "width": 320,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 310,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 84.484375,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "02-board",
+      "theme": "light",
+      "width": 320,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 310,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 42.25,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "03-goals",
+      "theme": "light",
+      "width": 320,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 310,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 84.484375,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "04-calendar-week",
+      "theme": "light",
+      "width": 320,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 310,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 42.25,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "05-calendar-month",
+      "theme": "light",
+      "width": 320,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 310,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 42.25,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "06-timeline",
+      "theme": "light",
+      "width": 320,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 310,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 63.375,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "07-matrix",
+      "theme": "light",
+      "width": 320,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 310,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 63.375,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "08-focus",
+      "theme": "light",
+      "width": 320,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 310,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 42.25,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "09-habits",
+      "theme": "light",
+      "width": 320,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 310,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 42.25,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "10-anniversaries",
+      "theme": "light",
+      "width": 320,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 310,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 63.375,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "11-review",
+      "theme": "light",
+      "width": 320,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 310,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 105.609375,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "12-notifications",
+      "theme": "light",
+      "width": 320,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 310,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 84.484375,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "13-settings",
+      "theme": "light",
+      "width": 320,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 310,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 42.25,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "01-tasks",
+      "theme": "dark",
+      "width": 320,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 310,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 84.484375,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "02-board",
+      "theme": "dark",
+      "width": 320,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 310,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 42.25,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "03-goals",
+      "theme": "dark",
+      "width": 320,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 310,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 84.484375,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "04-calendar-week",
+      "theme": "dark",
+      "width": 320,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 310,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 42.25,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "05-calendar-month",
+      "theme": "dark",
+      "width": 320,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 310,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 42.25,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "06-timeline",
+      "theme": "dark",
+      "width": 320,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 310,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 63.375,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "07-matrix",
+      "theme": "dark",
+      "width": 320,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 310,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 63.375,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "08-focus",
+      "theme": "dark",
+      "width": 320,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 310,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 42.25,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "09-habits",
+      "theme": "dark",
+      "width": 320,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 310,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 42.25,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "10-anniversaries",
+      "theme": "dark",
+      "width": 320,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 310,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 63.375,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "11-review",
+      "theme": "dark",
+      "width": 320,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 310,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 105.609375,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "12-notifications",
+      "theme": "dark",
+      "width": 320,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 310,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 84.484375,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    },
+    {
+      "id": "13-settings",
+      "theme": "dark",
+      "width": 320,
+      "height": 1000,
+      "railVisible": false,
+      "sidebarVisible": false,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 310,
+        "height": 56
+      },
+      "heading": {
+        "x": 16,
+        "y": 72,
+        "width": 42.25,
+        "height": 30.796875
+      },
+      "overflow": 0,
+      "font": "v-sans, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\""
+    }
+  ],
+  "images": [
+    {
+      "id": "01-tasks",
+      "label": "所有任务与详情",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "file": "desktop-01-tasks-light.png",
+      "category": "desktop"
+    },
+    {
+      "id": "02-board",
+      "label": "任务看板",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "file": "desktop-02-board-light.png",
+      "category": "desktop"
+    },
+    {
+      "id": "03-goals",
+      "label": "目标总览",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "file": "desktop-03-goals-light.png",
+      "category": "desktop"
+    },
+    {
+      "id": "04-calendar-week",
+      "label": "日历周视图",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "file": "desktop-04-calendar-week-light.png",
+      "category": "desktop"
+    },
+    {
+      "id": "05-calendar-month",
+      "label": "日历月视图",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "file": "desktop-05-calendar-month-light.png",
+      "category": "desktop"
+    },
+    {
+      "id": "06-timeline",
+      "label": "时间线",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "file": "desktop-06-timeline-light.png",
+      "category": "desktop"
+    },
+    {
+      "id": "07-matrix",
+      "label": "四象限",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "file": "desktop-07-matrix-light.png",
+      "category": "desktop"
+    },
+    {
+      "id": "08-focus",
+      "label": "专注与历史",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "file": "desktop-08-focus-light.png",
+      "category": "desktop"
+    },
+    {
+      "id": "09-habits",
+      "label": "习惯数量记录",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "file": "desktop-09-habits-light.png",
+      "category": "desktop"
+    },
+    {
+      "id": "10-anniversaries",
+      "label": "纪念日",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "file": "desktop-10-anniversaries-light.png",
+      "category": "desktop"
+    },
+    {
+      "id": "11-review",
+      "label": "统计与复盘",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "file": "desktop-11-review-light.png",
+      "category": "desktop"
+    },
+    {
+      "id": "12-notifications",
+      "label": "通知",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "file": "desktop-12-notifications-light.png",
+      "category": "desktop"
+    },
+    {
+      "id": "13-settings",
+      "label": "设置",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "file": "desktop-13-settings-light.png",
+      "category": "desktop"
+    },
+    {
+      "id": "01-tasks",
+      "label": "所有任务与详情",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "file": "desktop-01-tasks-dark.png",
+      "category": "desktop"
+    },
+    {
+      "id": "02-board",
+      "label": "任务看板",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "file": "desktop-02-board-dark.png",
+      "category": "desktop"
+    },
+    {
+      "id": "03-goals",
+      "label": "目标总览",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "file": "desktop-03-goals-dark.png",
+      "category": "desktop"
+    },
+    {
+      "id": "04-calendar-week",
+      "label": "日历周视图",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "file": "desktop-04-calendar-week-dark.png",
+      "category": "desktop"
+    },
+    {
+      "id": "05-calendar-month",
+      "label": "日历月视图",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "file": "desktop-05-calendar-month-dark.png",
+      "category": "desktop"
+    },
+    {
+      "id": "06-timeline",
+      "label": "时间线",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "file": "desktop-06-timeline-dark.png",
+      "category": "desktop"
+    },
+    {
+      "id": "07-matrix",
+      "label": "四象限",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "file": "desktop-07-matrix-dark.png",
+      "category": "desktop"
+    },
+    {
+      "id": "08-focus",
+      "label": "专注与历史",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "file": "desktop-08-focus-dark.png",
+      "category": "desktop"
+    },
+    {
+      "id": "09-habits",
+      "label": "习惯数量记录",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "file": "desktop-09-habits-dark.png",
+      "category": "desktop"
+    },
+    {
+      "id": "10-anniversaries",
+      "label": "纪念日",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "file": "desktop-10-anniversaries-dark.png",
+      "category": "desktop"
+    },
+    {
+      "id": "11-review",
+      "label": "统计与复盘",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "file": "desktop-11-review-dark.png",
+      "category": "desktop"
+    },
+    {
+      "id": "12-notifications",
+      "label": "通知",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "file": "desktop-12-notifications-dark.png",
+      "category": "desktop"
+    },
+    {
+      "id": "13-settings",
+      "label": "设置",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "file": "desktop-13-settings-dark.png",
+      "category": "desktop"
+    },
+    {
+      "id": "01-tasks",
+      "label": "所有任务与详情",
+      "theme": "light",
+      "width": 390,
+      "height": 844,
+      "file": "phone-01-tasks-light.png",
+      "category": "phone"
+    },
+    {
+      "id": "task-detail",
+      "label": "手机任务详情",
+      "theme": "light",
+      "width": 390,
+      "height": 844,
+      "file": "phone-task-detail-light.png",
+      "category": "phone"
+    },
+    {
+      "id": "08-focus",
+      "label": "专注与历史",
+      "theme": "light",
+      "width": 390,
+      "height": 844,
+      "file": "phone-08-focus-light.png",
+      "category": "phone"
+    },
+    {
+      "id": "09-habits",
+      "label": "习惯数量记录",
+      "theme": "light",
+      "width": 390,
+      "height": 844,
+      "file": "phone-09-habits-light.png",
+      "category": "phone"
+    },
+    {
+      "id": "01-tasks",
+      "label": "所有任务与详情",
+      "theme": "dark",
+      "width": 390,
+      "height": 844,
+      "file": "phone-01-tasks-dark.png",
+      "category": "phone"
+    },
+    {
+      "id": "task-detail",
+      "label": "手机任务详情",
+      "theme": "dark",
+      "width": 390,
+      "height": 844,
+      "file": "phone-task-detail-dark.png",
+      "category": "phone"
+    },
+    {
+      "id": "08-focus",
+      "label": "专注与历史",
+      "theme": "dark",
+      "width": 390,
+      "height": 844,
+      "file": "phone-08-focus-dark.png",
+      "category": "phone"
+    },
+    {
+      "id": "09-habits",
+      "label": "习惯数量记录",
+      "theme": "dark",
+      "width": 390,
+      "height": 844,
+      "file": "phone-09-habits-dark.png",
+      "category": "phone"
+    },
+    {
+      "id": "task",
+      "label": "任务编辑",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "file": "editor-task-light.png",
+      "category": "editor"
+    },
+    {
+      "id": "habit",
+      "label": "习惯编辑",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "file": "editor-habit-light.png",
+      "category": "editor"
+    },
+    {
+      "id": "anniversary",
+      "label": "纪念日编辑",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "file": "editor-anniversary-light.png",
+      "category": "editor"
+    },
+    {
+      "id": "schedule",
+      "label": "时间安排",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "file": "editor-schedule-light.png",
+      "category": "editor"
+    },
+    {
+      "id": "outcome",
+      "label": "成果笔记",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "file": "editor-outcome-light.png",
+      "category": "editor"
+    },
+    {
+      "id": "review",
+      "label": "复盘编辑",
+      "theme": "light",
+      "width": 1440,
+      "height": 1000,
+      "file": "editor-review-light.png",
+      "category": "editor"
+    },
+    {
+      "id": "task",
+      "label": "任务编辑",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "file": "editor-task-dark.png",
+      "category": "editor"
+    },
+    {
+      "id": "habit",
+      "label": "习惯编辑",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "file": "editor-habit-dark.png",
+      "category": "editor"
+    },
+    {
+      "id": "anniversary",
+      "label": "纪念日编辑",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "file": "editor-anniversary-dark.png",
+      "category": "editor"
+    },
+    {
+      "id": "schedule",
+      "label": "时间安排",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "file": "editor-schedule-dark.png",
+      "category": "editor"
+    },
+    {
+      "id": "outcome",
+      "label": "成果笔记",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "file": "editor-outcome-dark.png",
+      "category": "editor"
+    },
+    {
+      "id": "review",
+      "label": "复盘编辑",
+      "theme": "dark",
+      "width": 1440,
+      "height": 1000,
+      "file": "editor-review-dark.png",
+      "category": "editor"
+    }
+  ]
+}

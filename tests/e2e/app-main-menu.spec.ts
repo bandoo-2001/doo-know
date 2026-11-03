@@ -3,6 +3,7 @@ import { test, expect } from '../support/browser-test';
 import { showMainMenu, closeSidebar } from '../support/settings-navigation';
 import { openDocumentNote } from '../support/document-editor';
 import { showSource } from '../support/editor-navigation';
+import { expandToDooGroup } from '../support/to-doo-ant-controls';
 
 test.beforeEach(async ({ context }) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
@@ -38,7 +39,9 @@ test('app rail owns main functions and settings while only contextual pages have
     .click();
   await closeSidebar(page);
   await expect(page).toHaveURL(/view=apps.*app=to-doo.*appSection=settings/);
-  await expect(page.getByLabel('显示时区', { exact: true })).toBeVisible();
+  const app = page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
+  await expandToDooGroup(app, '日期与提醒');
+  await expect(app.getByLabel('显示时区', { exact: true })).toBeVisible();
   await expect(page.locator('aside.todo-sidebar')).not.toBeVisible();
   await showMainMenu(page);
   await page
@@ -109,7 +112,9 @@ test('cancelled app settings navigation and return retain both the route and the
   page,
 }) => {
   await page.goto('/?view=apps&app=to-doo&appSection=settings');
-  const zone = page.getByLabel('显示时区', { exact: true });
+  const app = page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
+  await expandToDooGroup(app, '日期与提醒');
+  const zone = app.getByLabel('显示时区', { exact: true });
   await zone.fill('Etc/GMT+5');
   const original = page.url();
   for (const target of ['任务', '返回 DooKnow']) {
@@ -143,7 +148,9 @@ test('cancelling browser back from unsaved app settings restores its URL and per
     .getByRole('button', { name: '设置', exact: true })
     .click();
   await closeSidebar(page);
-  const zone = page.getByLabel('显示时区', { exact: true });
+  const app = page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
+  await expandToDooGroup(app, '日期与提醒');
+  const zone = app.getByLabel('显示时区', { exact: true });
   await zone.fill('Etc/GMT+6');
   const original = page.url();
   await page.goBack();

@@ -129,7 +129,13 @@ test('moves a note through the UI while preserving its identity, history and pub
   await directory.fill('30-Knowledge/个人知识管理/方法');
   await page.locator('.directory-tree-popup:visible').getByTitle('方法', { exact: true }).click();
   await dialog.getByRole('textbox', { name: '文件名', exact: true }).fill('整理后的知识.md');
+  const moved = page.waitForResponse(
+    (response) => response.request().method() === 'POST' &&
+      new URL(response.url()).pathname === '/api/notes/' + note.id + '/move',
+    { timeout: 30000 },
+  );
   await dialog.getByRole('button', { name: '确认移动', exact: true }).click();
+  expect((await moved).ok()).toBe(true);
   await expect(page.locator('.document-title')).toHaveText('整理后的知识');
   await expect(page).toHaveURL(new RegExp('note=' + note.id));
   const current = await (await page.request.get(`/api/notes/${note.id}`)).json();
@@ -163,7 +169,7 @@ test('imports a Markdown note from the daily workspace and downloads the saved s
   await page
     .getByLabel('选择 Markdown 文件', { exact: true })
     .setInputFiles({ name, mimeType: 'text/markdown', buffer: Buffer.from(content) });
-  await expect(page.locator('.n-modal .directory-select .ant-select-selection-item')).toHaveText(
+  await expect(page.locator('.n-modal .directory-select:visible .ant-select-selection-item')).toHaveText(
     '00-Inbox',
   );
   const created = page.waitForResponse(

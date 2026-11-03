@@ -33,10 +33,13 @@ const emit = defineEmits<{
   back: [];
 }>();
 const calendarNavigation = computed(
-  () => props.hostedNavigation && ['calendar', 'timeline'].includes(props.section),
+  () => props.hostedNavigation && ['calendar', 'timeline'].includes(props.section) && !props.listId,
 );
 const taskNavigation = computed(
-  () => !props.hostedNavigation || ['tasks', 'board', 'overview'].includes(props.section),
+  () =>
+    !props.hostedNavigation ||
+    ['tasks', 'board', 'overview'].includes(props.section) ||
+    (!!props.listId && ['matrix', 'timeline', 'calendar'].includes(props.section)),
 );
 const groups = computed(() =>
   (props.hostedNavigation
@@ -164,8 +167,8 @@ function calendarDateChanged(date: string) {
               :key="list.id"
               type="text"
               block
-              :class="{ active: section === 'tasks' && listId === list.id }"
-              :aria-current="section === 'tasks' && listId === list.id ? 'page' : undefined"
+              :class="{ active: listId === list.id }"
+              :aria-current="listId === list.id ? 'page' : undefined"
               @click="emit('list', list.id)"
               ><span
                 class="todo-list-dot"

@@ -1,3 +1,4 @@
+import { isKnowledgeDataPath } from '../../shared/storage-paths.js';
 import { randomUUID } from 'node:crypto';
 import type { AppDatabase } from './db.js';
 import { validateRelative } from './files.js';
@@ -12,7 +13,7 @@ type NoteIdentity = { id: string; path: string; active: number; trash_path: stri
 const libraries = new WeakMap<AppDatabase, { root: string; library: ReturnType<typeof createLibrary> }>();
 const label = (value: unknown): value is string =>
   typeof value === 'string' && value.length > 0 && value.length <= 256 && !/[\x00-\x1f]/.test(value);
-const reservedDataNote = (path: string) => path.startsWith('_data/');
+const reservedDataNote = (path: string) => isKnowledgeDataPath(path);
 
 function validateState(value: unknown): LibraryState {
   const state = value as LibraryState;
@@ -71,7 +72,7 @@ function createLibrary(config: { knowledgeRoot: string }, db: AppDatabase) {
     }
   }
   function retireReservedNotes() {
-    const reserved = db.prepare("SELECT id,path FROM notes WHERE substr(path,1,6)='_data/'").all() as { id: string; path: string }[];
+    const reserved = db.prepare("SELECT id,path FROM notes WHERE substr(path,1,6)='_data/' OR substr(path,1,10)='_doo-data/'").all() as { id: string; path: string }[];
     if (!reserved.length) return;
     db.transaction(() => {
       for (const note of reserved) {
@@ -127,7 +128,7 @@ function createLibrary(config: { knowledgeRoot: string }, db: AppDatabase) {
         } else if (current.path !== next.path) {
           // Release unique active paths inside the import transaction without
           // withdrawing a published source merely because its path moved.
-          db.prepare('UPDATE notes SET path=? WHERE id=?').run('_data/import/' + current.id, current.id);
+          db.prepare('UPDATE notes SET path=? WHERE id=?').run('_doo-data/import/' + current.id, current.id);
         }
       }
       for (const note of state.notes) {

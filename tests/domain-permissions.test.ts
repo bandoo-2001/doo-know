@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import { pluginHost } from '../apps/server/plugins/host.js';
 import { oauthGrantStore } from '../apps/server/platform/oauth-grants.js';
 import { platformPolicy } from '../packages/core/auth/grants.js';
-import { tunnelPrincipal } from '../apps/server/platform/tunnel-identity.js';
 import { requireScope } from '../packages/core/agent/auth.js';
 import * as policies from '../packages/core/auth/permissions.js';
 import type { PermissionPolicy } from '../shared/permissions.js';
@@ -143,31 +142,7 @@ it('legacy write retains archive but never organize only for persisted grants', 
     await f.close();
   }
 });
-it('tunnel policy expansion preserves old grant', async () => {
-  const { pluginRuntimeFixture } = await import('./support/plugin-runtime.js');
-  const f = await pluginRuntimeFixture();
-  pluginHost(f.config, f.db);
-  try {
-    const set = (readOnly: boolean) =>
-      f.db
-        .prepare("UPDATE platform_plugins SET config_json=? WHERE id='mcp'")
-        .run(JSON.stringify({ readOnly, allowedPrefixes: ['00-Inbox'] }));
-    f.db
-      .prepare(
-        "INSERT INTO platform_plugins(id,installed_version,installed,manifest_json,files_json,state,config_json) VALUES('mcp','1.1.0',1,'{}','{}','enabled','{}')",
-      )
-      .run();
-    set(true);
-    const info = { reference: 'test-only', createdAt: Date.now(), authGeneration: 0 };
-    const first = tunnelPrincipal(f.db, f.principal.id, info);
-    set(false);
-    const second = tunnelPrincipal(f.db, f.principal.id, info);
-    expect(second.grantVersion).toBe(first.grantVersion);
-    expect(second.scopes).toEqual(['knowledge:read']);
-  } finally {
-    await f.close();
-  }
-});
+
 it('explicit v2 grants revoke old token versions and do not infer archive', async () => {
   const { pluginRuntimeFixture } = await import('./support/plugin-runtime.js');
   const f = await pluginRuntimeFixture();
@@ -298,47 +273,7 @@ it('owner narrowing cannot widen resources and invalidates the old grant version
     await f.close();
   }
 });
-it('Tunnel expansion requires an explicit owner authorization action', async () => {
-  const { pluginRuntimeFixture } = await import('./support/plugin-runtime.js');
-  const f = await pluginRuntimeFixture();
-  pluginHost(f.config, f.db);
-  try {
-    const { authorizeMcpTunnel } =
-      await import('../apps/server/platform/mcp-client-permissions.js');
-    const { syncDirectoryCatalog } = await import('../packages/core/organization/catalog.js');
-    const owner = f.principal.id,
-      { libraryId } = syncDirectoryCatalog(f.config, f.db);
-    const ceiling = policy(['read']);
-    ceiling.domains.knowledge.ownerId = owner;
-    ceiling.domains.knowledge.instanceId = libraryId;
-    f.db
-      .prepare(
-        "INSERT INTO platform_plugins(id,installed_version,installed,manifest_json,files_json,state,config_json) VALUES('mcp','1.2.0',1,'{}','{}','enabled',?)",
-      )
-      .run(JSON.stringify({ permissionPolicy: ceiling }));
-    const credential = {
-      reference: 'explicit-owner',
-      createdAt: Date.now() - 120000,
-      authGeneration: 0,
-    };
-    const old = tunnelPrincipal(f.db, owner, credential);
-    ceiling.domains.knowledge.actions.push('write', 'organize');
-    f.db
-      .prepare("UPDATE platform_plugins SET config_json=? WHERE id='mcp'")
-      .run(JSON.stringify({ permissionPolicy: ceiling }));
-    expect(tunnelPrincipal(f.db, owner, credential).scopes).toEqual(['knowledge:read']);
-    const authorized = authorizeMcpTunnel(f.db, owner, { expectedGrantVersion: old.grantVersion });
-    expect(authorized.version).toBe(old.grantVersion! + 1);
-    expect(tunnelPrincipal(f.db, owner, credential).scopes).toEqual([
-      'knowledge:read',
-      'knowledge:write',
-      'knowledge:organize',
-    ]);
-    expect(() => authorizeMcpTunnel(f.db, 'other-owner', {})).toThrow();
-  } finally {
-    await f.close();
-  }
-});
+
 it('a v2 plugin ceiling can remove legacy archive and blog-read aliases', async () => {
   const { pluginRuntimeFixture } = await import('./support/plugin-runtime.js');
   const f = await pluginRuntimeFixture();
@@ -692,53 +627,6 @@ it.each(['owner', 'instance'] as const)(
   },
 );
 
-it('Tunnel key rotation preserves the bound identities of a v1 grant after settings migrate', async () => {
-  const { pluginRuntimeFixture } = await import('./support/plugin-runtime.js');
-  const { syncDirectoryCatalog } = await import('../packages/core/organization/catalog.js');
-  const { rename, mkdir } = await import('node:fs/promises');
-  const { join } = await import('node:path');
-  const f = await pluginRuntimeFixture();
-  pluginHost(f.config, f.db);
-  try {
-    const owner = f.principal.id,
-      { libraryId } = syncDirectoryCatalog(f.config, f.db);
-    f.db
-      .prepare(
-        "INSERT INTO platform_plugins(id,installed_version,installed,manifest_json,files_json,state,config_json) VALUES('mcp','1.1.0',1,'{}','{}','enabled',?)",
-      )
-      .run(JSON.stringify({ readOnly: false, allowedPrefixes: ['00-Inbox'] }));
-    const oldCredential = {
-      reference: 'rotation-old',
-      createdAt: Date.now() - 120000,
-      authGeneration: 0,
-    };
-    const original = tunnelPrincipal(f.db, owner, oldCredential);
-    await rename(join(f.config.knowledgeRoot, '00-Inbox'), join(f.config.knowledgeRoot, 'Renamed'));
-    await mkdir(join(f.config.knowledgeRoot, '00-Inbox'));
-    syncDirectoryCatalog(f.config, f.db);
-    const ceiling = policy(['read', 'write'], { mode: 'all' }, libraryId);
-    ceiling.domains.knowledge.ownerId = owner;
-    f.db
-      .prepare("UPDATE platform_plugins SET config_json=? WHERE id='mcp'")
-      .run(JSON.stringify({ permissionPolicy: ceiling }));
-    const admitted = tunnelPrincipal(f.db, owner, oldCredential);
-    expect(admitted.allowedPrefixes).toEqual(['Renamed']);
-    expect(() => requireScope(admitted, 'knowledge:archive')).toThrow();
-    const rotated = tunnelPrincipal(f.db, owner, {
-      reference: 'rotation-new',
-      createdAt: Date.now(),
-      authGeneration: 0,
-    });
-    expect(rotated.allowedPrefixes).toEqual(['Renamed']);
-    expect(rotated.grantVersion).toBe(original.grantVersion);
-    expect(policies.canAccessPath(rotated, '00-Inbox/replacement.md')).toBe(false);
-    expect(() => requireScope(rotated, 'knowledge:archive')).toThrow();
-    expect(rotated.scopes).not.toContain('knowledge:organize');
-    expect(rotated.knowledgeAll).toBe(false);
-  } finally {
-    await f.close();
-  }
-});
 
 it.each(['archive', 'restore'] as const)(
   'v1 %s cannot bypass a v2 ceiling that removed archive',
@@ -794,43 +682,6 @@ it.each(['archive', 'restore'] as const)(
   },
 );
 
-it('revoked Tunnel grants require explicit owner authorization even after key rotation', async () => {
-  const { pluginRuntimeFixture } = await import('./support/plugin-runtime.js');
-  const { syncDirectoryCatalog } = await import('../packages/core/organization/catalog.js');
-  const { authorizeMcpTunnel } = await import('../apps/server/platform/mcp-client-permissions.js');
-  const f = await pluginRuntimeFixture();
-  pluginHost(f.config, f.db);
-  try {
-    const owner = f.principal.id,
-      { libraryId } = syncDirectoryCatalog(f.config, f.db);
-    const ceiling = policy(['read'], { mode: 'all' }, libraryId);
-    ceiling.domains.knowledge.ownerId = owner;
-    f.db
-      .prepare(
-        "INSERT INTO platform_plugins(id,installed_version,installed,manifest_json,files_json,state,config_json) VALUES('mcp','1.2.0',1,'{}','{}','enabled',?)",
-      )
-      .run(JSON.stringify({ permissionPolicy: ceiling }));
-    const initial = tunnelPrincipal(f.db, owner, {
-      reference: 'revoked-old',
-      createdAt: Date.now() - 120000,
-      authGeneration: 0,
-    });
-    const grants = oauthGrantStore(f.db);
-    grants.revoke(owner, initial.clientId);
-    const rotated = { reference: 'revoked-rotated', createdAt: Date.now(), authGeneration: 0 };
-    expect(() => tunnelPrincipal(f.db, owner, rotated)).toThrow();
-    const revoked = grants.list(owner).find((g) => g.clientId === initial.clientId)!;
-    const next = authorizeMcpTunnel(f.db, owner, { expectedGrantVersion: revoked.version });
-    expect(next.version).toBe(revoked.version + 1);
-    expect(tunnelPrincipal(f.db, owner, rotated)).toMatchObject({
-      clientId: initial.clientId,
-      grantVersion: next.version,
-      scopes: ['knowledge:read'],
-    });
-  } finally {
-    await f.close();
-  }
-});
 
 it('trusted legacy machine policies follow directory identity after rename and replacement', async () => {
   const { pluginRuntimeFixture } = await import('./support/plugin-runtime.js');
@@ -968,10 +819,10 @@ it('a read-only legacy grant under a v2 ceiling can search without manual index 
 
 it('keeps root application data outside both full-library and legacy path access', () => {
   const all = { id: 'owner', clientId: 'owner-client', scopes: ['knowledge:read'], allowedPrefixes: [], knowledgeAll: true };
-  const legacy = { ...all, knowledgeAll: false, allowedPrefixes: ['_data', 'Topic'] };
+  const legacy = { ...all, knowledgeAll: false, allowedPrefixes: ['_doo-data', 'Topic'] };
   for (const p of [all, legacy]) {
-    expect(policies.canAccessPath(p, '_data')).toBe(false);
-    expect(policies.canAccessPath(p, '_data/private.md')).toBe(false);
-    expect(policies.canAccessPath(p, 'Topic/_data/readme.md')).toBe(true);
+    expect(policies.canAccessPath(p, '_doo-data')).toBe(false);
+    expect(policies.canAccessPath(p, '_doo-data/private.md')).toBe(false);
+    expect(policies.canAccessPath(p, 'Topic/_doo-data/readme.md')).toBe(true);
   }
 });

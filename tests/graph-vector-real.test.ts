@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { existsSync, mkdirSync, mkdtempSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -190,11 +190,13 @@ describe.skipIf(!realModelAvailable && !realModelRequested)(
           ),
         ).toBe('published');
       }
-      graph.start();
-      await vi.waitFor(() => expect(graph.status(webPrincipal).completed).toBe(corpus.length), {
-        timeout: 8000,
-        interval: 50,
+      // This accepts published vector similarity independently of the extraction worker.
+      // Starting that worker would introduce unrelated writes during the offline read fence.
+      expect(graph.status(webPrincipal).similarity).toMatchObject({
+        state: 'ready',
+        readyNotes: corpus.length,
       });
+      expect(db.prepare('SELECT count(*) AS n FROM graph_analysis_sources').get()).toEqual({ n: 0 });
       // No graph similarity request has been made yet; the first one must read the published cache offline.
       await runtime.close();
       await expect(

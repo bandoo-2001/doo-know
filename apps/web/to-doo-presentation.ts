@@ -8,6 +8,17 @@ import {
 } from './to-doo-workbench';
 
 export type ToDooQuickFilter = ToDooTaskFilter;
+export function toDooCalendarRange(
+  anchor: string,
+  view: 'month' | 'week' | 'timeline',
+  weekStartsOn = 1,
+) {
+  if (view === 'timeline') return { from: anchor, to: shiftToDooDate(anchor, 27) };
+  const first = view === 'month' ? anchor.slice(0, 7) + '-01' : anchor;
+  const weekday = new Date(first + 'T12:00:00Z').getUTCDay();
+  const from = shiftToDooDate(first, -((weekday - weekStartsOn + 7) % 7));
+  return { from, to: shiftToDooDate(from, view === 'month' ? 41 : 6) };
+}
 export const toDooQuickViews = [
   { id: 'inbox', name: '收集箱', icon: 'inbox' },
   { id: 'today', name: '今天', icon: 'today' },
@@ -67,7 +78,8 @@ export function prepareToDooQuickDraft(
     value.planDate = quick.date || draft.planDate || today;
     value.planTime = quick.time || draft.planTime;
     value.planDateCleared = false;
-  } else if (!draft.planDate && draft.planDateCleared !== true && defaultDate) value.planDate = defaultDate;
+  } else if (!draft.planDate && draft.planDateCleared !== true && defaultDate)
+    value.planDate = defaultDate;
   if (quick.frequency) {
     value.frequency = quick.frequency;
     value.weekdays = quick.weekdays;
@@ -85,6 +97,7 @@ export function toDooDraftPayload(
     criteria: draft.criteria,
     listId: draft.listId,
     parentTaskId: draft.parentTaskId,
+    ...(draft.sectionId !== undefined ? { sectionId: draft.sectionId } : {}),
     estimateMinutes: draft.estimate === '' ? null : draft.estimate,
     tagIds: draft.tagIds,
     due: draft.dueDate ? { date: draft.dueDate, time: draft.dueTime || null, timeZone } : null,

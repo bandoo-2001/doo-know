@@ -1,0 +1,103 @@
+{
+  "device": {
+    "id": "phone",
+    "width": 390,
+    "height": 844,
+    "theme": "dark"
+  },
+  "id": "settings",
+  "fixedTime": "2026-10-30T09:00:00.000Z",
+  "report": [
+    {
+      "tag": "SECTION",
+      "className": "todo-panel",
+      "text": "日常偏好日常使用默认视图任务列表默认安排分钟日期与提醒显示时区一周开始于星期一开启免打扰时",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "9px",
+      "color": "rgb(50, 55, 70)",
+      "parent": "todo-settings"
+    },
+    {
+      "tag": "DIV",
+      "className": "ant-select-selector",
+      "text": "任务列表",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "6px",
+      "color": "rgb(50, 55, 70)",
+      "parent": "ant-select css-1phc3w9 todo-ant-select ant-select-single ant-select-show-arrow ant-select-show-search"
+    },
+    {
+      "tag": "INPUT",
+      "className": "ant-input css-1phc3w9",
+      "text": "",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "6px",
+      "color": "rgb(50, 55, 70)",
+      "parent": ""
+    },
+    {
+      "tag": "DIV",
+      "className": "ant-select-selector",
+      "text": "星期一",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "6px",
+      "color": "rgb(50, 55, 70)",
+      "parent": "ant-select css-1phc3w9 todo-ant-select ant-select-single ant-select-show-arrow ant-select-show-search"
+    }
+  ],
+  "focus": [
+    {
+      "className": "ant-select-selection-search-input",
+      "label": "默认视图",
+      "focusVisible": true,
+      "outline": "rgb(229, 232, 240) none 3px",
+      "boxShadow": "none",
+      "outerClass": "ant-select css-1phc3w9 todo-ant-select ant-select-focused ant-select-single ant-select-show-arrow ant-select-show-search",
+      "outerBorder": "1px solid rgb(165, 182, 232)",
+      "outerShadow": "rgba(66, 25, 1, 0.14) 0px 0px 0px 2px",
+      "outerOutline": "rgb(229, 232, 240) none 0px"
+    },
+    {
+      "className": "ant-input-number-input",
+      "label": "默认安排分钟",
+      "focusVisible": true,
+      "outline": "rgb(139, 164, 255) solid 2px",
+      "boxShadow": "none",
+      "outerClass": "ant-input-number css-1phc3w9 ant-input-number-focused",
+      "outerBorder": "1px solid rgb(50, 55, 70)",
+      "outerShadow": "rgba(66, 25, 1, 0.14) 0px 0px 0px 2px",
+      "outerOutline": "rgb(229, 232, 240) none 0px"
+    },
+    {
+      "className": "ant-select-selection-search-input",
+      "label": "一周开始于",
+      "focusVisible": true,
+      "outline": "rgb(229, 232, 240) none 3px",
+      "boxShadow": "none",
+      "outerClass": "ant-select css-1phc3w9 todo-ant-select ant-select-focused ant-select-single ant-select-show-arrow ant-select-show-search",
+      "outerBorder": "1px solid rgb(165, 182, 232)",
+      "outerShadow": "rgba(66, 25, 1, 0.14) 0px 0px 0px 2px",
+      "outerOutline": "rgb(229, 232, 240) none 0px"
+    }
+  ]
+}

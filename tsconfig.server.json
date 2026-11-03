@@ -20,8 +20,8 @@
     "scripts/index-maintain.ts",
     "packages/core/**/*.ts",
     "scripts/rebind-root.ts",
-    "scripts/adopt-bridge.ts",
-    "scripts/serve-artifacts.ts"
+    "scripts/serve-artifacts.ts",
+    "scripts/migrate-storage.ts"
   ],
   "exclude": [
     "apps/web",

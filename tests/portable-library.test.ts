@@ -41,7 +41,7 @@ it('retains note IDs and favorites when a knowledge directory is copied to a new
     expect(flatten(copied.tree('owner')).find((entry) => entry.type === 'note')).toMatchObject({
       id: created.id, path: '00-Inbox/favorite.md', favorite: true,
     });
-    const portable = await readFile(join(config.knowledgeRoot, '_data/library/state.json'), 'utf8');
+    const portable = await readFile(join(config.knowledgeRoot, '_doo-data/library/state.json'), 'utf8');
     expect(portable).not.toContain(root);
     expect(portable).not.toContain(config.secret);
   } finally {
@@ -77,13 +77,13 @@ it('uses portable IDs when indexing discovers notes before the note tree', async
 it('does not count application records as knowledge notes or attachments', async () => {
   const root = await mkdtemp(join(tmpdir(), 'portable-storage-'));
   try {
-    await mkdir(join(root, '_data/app'), { recursive: true });
-    await mkdir(join(root, '00-Inbox/_data'), { recursive: true });
+    await mkdir(join(root, '_doo-data/app'), { recursive: true });
+    await mkdir(join(root, '00-Inbox/_doo-data'), { recursive: true });
     await writeFile(join(root, '00-Inbox/visible.md'), 'hello');
-    await writeFile(join(root, '00-Inbox/_data/ordinary.md'), 'yes');
-    await writeFile(join(root, '00-Inbox/_data/ordinary.txt'), 'text');
-    await writeFile(join(root, '_data/app/private.md'), 'private application record');
-    await writeFile(join(root, '_data/app/state.json'), '{"application":true}');
+    await writeFile(join(root, '00-Inbox/_doo-data/ordinary.md'), 'yes');
+    await writeFile(join(root, '00-Inbox/_doo-data/ordinary.txt'), 'text');
+    await writeFile(join(root, '_doo-data/app/private.md'), 'private application record');
+    await writeFile(join(root, '_doo-data/app/state.json'), '{"application":true}');
     const usage = await managementStorage({ dataRoot: join(root, 'runtime') } as any, root);
     expect(usage.categories.notes).toMatchObject({ count: 2, bytes: 8 });
     expect(usage.categories.assets).toMatchObject({ count: 1, bytes: 4 });
@@ -198,7 +198,7 @@ it('imports identities before collection discovery and keeps application records
     const original = notes.createNote('00-Inbox', 'collected.md', '# Collected');
     notes.setFavorite('owner', original.id, true);
     portableLibrary(config, first).flush();
-    await writeFile(join(config.knowledgeRoot, '_data/private.md'), '# Private record');
+    await writeFile(join(config.knowledgeRoot, '_doo-data/private.md'), '# Private record');
     const fresh = { ...config, knowledgeRoot: join(root, 'copied'), dataRoot: join(root, 'fresh') };
     await cp(config.knowledgeRoot, fresh.knowledgeRoot, { recursive: true });
     second = openDatabase(fresh.dataRoot);
@@ -241,7 +241,7 @@ it('exposes synced favorites through the authenticated API with a newly created 
   } finally { await second?.close(); await first.close(); }
 });
 
-it.each(['../private.md', '_data/../private.md', '_data/not-a-note.txt'])('rejects invalid synchronized registry path %s without changing local identities or replacing the file', async (path) => {
+it.each(['../private.md', '_doo-data/../private.md', '_doo-data/not-a-note.txt'])('rejects invalid synchronized registry path %s without changing local identities or replacing the file', async (path) => {
   const root = await mkdtemp(join(tmpdir(), 'portable-invalid-'));
   const config = {
     knowledgeRoot: join(root, 'knowledge'), dataRoot: join(root, 'data'),
@@ -322,7 +322,7 @@ it('ignores application-data writes while still indexing ordinary source-file ch
   const indexing = reconcileService(config, db);
   const stop = startWatcher(config, db, indexing);
   try {
-    await writeFile(join(config.knowledgeRoot, '_data/library/unrelated.json'), '{}');
+    await writeFile(join(config.knowledgeRoot, '_doo-data/library/unrelated.json'), '{}');
     await new Promise((resolve) => setTimeout(resolve, 1100));
     expect(db.prepare("SELECT value FROM index_meta WHERE key='root'").get()).toBeUndefined();
     await writeFile(join(config.knowledgeRoot, '00-Inbox/watched.md'), '# Watched');

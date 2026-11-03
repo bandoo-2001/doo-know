@@ -128,11 +128,59 @@ test('complete, partial, Chinese, English and path filename searches open the co
     const row = page.locator('.search-result').filter({ hasText: note.path });
     await expect(row).toHaveCount(1);
     await expect(row).toContainText('文件名与目录位置匹配');
+    const read = page.waitForResponse((response) =>
+      new URL(response.url()).pathname === '/api/notes/' + note.id &&
+      response.request().method() === 'GET',
+    );
     await row.click();
+    expect((await read).ok()).toBe(true);
+    // Repeated hits can already have this URL/title while the new read is pending.
+    await expect(page.locator('.main-content')).toHaveAttribute('aria-busy', 'false');
     await expect(page).toHaveURL(new RegExp(`note=${note.id}(?:#L1)?$`));
     await expect(page.locator('.note-topline')).toContainText(basename(note.path, '.md'));
     await showSidebar(page);
   }
+});
+
+test('a newer filename query stays available when an earlier note finishes opening', async ({ page }, info) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const [a, b] = await seed(page, [
+    { path: `00-Inbox/pending-query-a-${info.project.name}.md`, content: '# First destination\n' },
+    { path: `00-Inbox/pending-query-b-${info.project.name}.md`, content: '# Second destination\n' },
+  ]);
+  await page.route('**/api/search/advanced', unavailable);
+  let release!: () => void;
+  const pending = new Promise<void>((resolve) => { release = resolve; });
+  let held = false;
+  await page.route('**/api/notes/' + a.id + '/meta', async (route) => {
+    held = true;
+    await pending;
+    await route.continue().catch(() => {});
+  });
+  await page.goto('/');
+  await showSidebar(page);
+  const firstRead = page.waitForResponse((response) => new URL(response.url()).pathname === '/api/notes/' + a.id);
+  const newer = page.locator('.search-result').filter({ hasText: b.path });
+  try {
+    await query(page, basename(a.path));
+    await page.locator('.search-result').filter({ hasText: a.path }).click();
+    await expect.poll(() => held).toBe(true);
+    await expect(page.locator('.main-content')).toHaveAttribute('aria-busy', 'true');
+    await query(page, basename(b.path));
+    await expect(newer).toHaveCount(1);
+  } finally { release(); }
+  expect((await firstRead).ok()).toBe(true);
+  await expect(page.locator('.main-content')).toHaveAttribute('aria-busy', 'false');
+  await expect(page.locator('.sidebar')).toHaveClass(/open/);
+  await expect(page.getByRole('textbox', { name: '文档正文', exact: true })).toBeEditable();
+  await expect(page.getByRole('textbox', { name: '搜索笔记与目录', exact: true })).toBeFocused();
+  await expect(newer).toBeInViewport();
+  const secondRead = page.waitForResponse((response) => new URL(response.url()).pathname === '/api/notes/' + b.id);
+  await newer.click();
+  expect((await secondRead).ok()).toBe(true);
+  await expect(page.locator('.main-content')).toHaveAttribute('aria-busy', 'false');
+  await expect(page).toHaveURL(new RegExp('note=' + b.id));
+  await expect(page.locator('.sidebar')).not.toHaveClass(/open/);
 });
 
 test('exact filename is prioritized over a semantic-only content result', async ({

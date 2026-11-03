@@ -1,0 +1,69 @@
+{
+  "device": {
+    "id": "phone",
+    "width": 390,
+    "height": 844,
+    "theme": "dark"
+  },
+  "id": "anniversaries",
+  "fixedTime": "2026-10-30T09:00:00.000Z",
+  "report": [
+    {
+      "tag": "DIV",
+      "className": "todo-panel-header todo-section-header",
+      "text": "未来 30 天",
+      "borders": [
+        "0px",
+        "0px",
+        "0px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(229, 232, 240)",
+      "parent": "todo-anniversary-group"
+    },
+    {
+      "tag": "ARTICLE",
+      "className": "todo-anniversary todo-panel",
+      "text": "生日⋯家人的生日还有1天下次公历：2026-10-31查看详情 公历原日期：2000-10",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "8px",
+      "color": "rgb(50, 55, 70)",
+      "parent": "todo-anniversaries"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-panel-header todo-section-header",
+      "text": "更远的日子",
+      "borders": [
+        "0px",
+        "0px",
+        "0px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(229, 232, 240)",
+      "parent": "todo-anniversary-group"
+    },
+    {
+      "tag": "ARTICLE",
+      "className": "todo-anniversary todo-panel",
+      "text": "传统节日⋯中秋团圆还有320天 农历原日期：2000-08-15下次公历：2027-09-",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "8px",
+      "color": "rgb(50, 55, 70)",
+      "parent": "todo-anniversaries"
+    }
+  ],
+  "focus": []
+}

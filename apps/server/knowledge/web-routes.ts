@@ -1,3 +1,4 @@
+import { registerOrganizationOperationRoutes } from './organization-operation-routes.js';
 import { Readable } from 'node:stream';
 import { isWhiteboard } from '../../../shared/whiteboard.js';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
@@ -15,7 +16,12 @@ import { conflictService } from '../../../packages/core/knowledge/conflicts.js';
 import { assertSharePrincipal, shareIdentity } from '../../../packages/core/share-policy.js';
 import { saveInput } from '../../../packages/core/notes.js';
 import type { PublicShareSource, ShareSaveReply } from '../../../shared/share-contracts.js';
-import { readOrganizationSettings, updateOrganizationSettings } from '../../../packages/core/organization/settings.js';
+import {
+  readOrganizationSettings,
+  updateOrganizationSettings,
+} from '../../../packages/core/organization/settings.js';
+import type { publicDiagramProjectionService } from '../../../packages/core/public-diagram-projection.js';
+import { readPublicProjection } from '../../../packages/core/public-projection-read.js';
 export async function registerWebKnowledgeRoutes(
   app: FastifyInstance,
   config: AppConfig,
@@ -23,8 +29,10 @@ export async function registerWebKnowledgeRoutes(
   knowledge: Awaited<ReturnType<typeof registerAgentRoutes>>,
   shares: ReturnType<typeof shareService>,
   verifySession: (req: FastifyRequest) => Promise<boolean>,
+  publicProjection: ReturnType<typeof publicDiagramProjectionService>,
 ) {
   const conflicts = conflictService(config, db);
+  await registerOrganizationOperationRoutes(app,()=>knowledge.organization);
   app.post<{ Params: { id: string } }>('/api/notes/:id/move', async (req) => {
     const b = req.body as any;
     return knowledge.core.move(
@@ -38,7 +46,9 @@ export async function registerWebKnowledgeRoutes(
   });
   app.get('/api/maintenance/conflicts', async () => conflicts.list());
   app.get('/api/maintenance/organization-settings', async () => readOrganizationSettings(db));
-  app.put('/api/maintenance/organization-settings', async (req) => updateOrganizationSettings(db, req.body as any));
+  app.put('/api/maintenance/organization-settings', async (req) =>
+    updateOrganizationSettings(db, req.body as any),
+  );
   app.post<{ Params: { id: string } }>('/api/maintenance/conflicts/:id/resolve', async (req) =>
     conflicts.resolve(req.params.id, req.body),
   );
@@ -264,7 +274,18 @@ export async function registerWebKnowledgeRoutes(
     async (req, reply) => {
       const { n, p } = publicPrincipal(req.params.token);
       reply.header('X-Robots-Tag', 'noindex, nofollow');
-      return knowledge.snapshots.read(p, n.id, (req.body || {}) as any, 'public');
+      try {
+        return readPublicProjection(
+          config,
+          db,
+          p,
+          publicProjection.project(req.params.token),
+          (req.body || {}) as any,
+        );
+      } catch (error) {
+        if ((error as any)?.code !== 'LARGE_FILE_MODE_REQUIRED') throw error;
+        return knowledge.snapshots.read(p, n.id, (req.body || {}) as any, 'public');
+      }
     },
   );
 }

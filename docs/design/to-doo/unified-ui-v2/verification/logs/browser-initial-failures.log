@@ -1,0 +1,993 @@
+
+> doo-know@1.0.0 test:e2e
+> tsx scripts/e2e.ts tests/e2e/to-doo tests/e2e/app-main-menu.spec.ts tests/e2e/app-shortcuts.spec.ts tests/e2e/responsive-tabbar.spec.ts tests/e2e/responsive-layout.spec.ts tests/e2e/notes-first.spec.ts tests/e2e/blog.spec.ts
+
+[WebServer] (node:2568496) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2568542) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2568560) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2568560) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 116 tests using 1 worker
+
+(node:2568846) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓    1 [desktop] › tests/e2e/app-main-menu.spec.ts:11:1 › app rail owns main functions and settings while only contextual pages have a secondary directory (3.4s)
+  ✓    2 [desktop] › tests/e2e/app-main-menu.spec.ts:62:1 › returning to DooKnow preserves the mounted note draft and reentering an app restores its location (3.4s)
+  ✓    3 [desktop] › tests/e2e/app-main-menu.spec.ts:108:1 › cancelled app settings navigation and return retain both the route and the unsaved form (2.7s)
+  ✓    4 [desktop] › tests/e2e/app-main-menu.spec.ts:136:1 › cancelling browser back from unsaved app settings restores its URL and permits a later confirmed back (2.2s)
+  ✓    5 [desktop] › tests/e2e/app-main-menu.spec.ts:162:1 › the default app hub remains reachable and unpinned app cards restore the last app page (1.6s)
+  ✓    6 [desktop] › tests/e2e/app-main-menu.spec.ts:197:1 › app return restores a DooKnow collection instead of losing its last location (1.6s)
+  ✓    7 [desktop] › tests/e2e/app-shortcuts.spec.ts:7:1 › pins apps without opening them, retains shortcuts after reload and removes them (4.5s)
+  ✓    8 [desktop] › tests/e2e/app-shortcuts.spec.ts:37:1 › opening a pinned app retains the mounted unsaved note (3.0s)
+  ✓    9 [desktop] › tests/e2e/app-shortcuts.spec.ts:59:1 › returning to the default menu respects the unsaved To Doo confirmation before opening a pinned app (4.0s)
+  ✓   10 [desktop] › tests/e2e/blog.spec.ts:14:1 › blog manual publication keeps the original and public snapshots independent (5.0s)
+  ✓   11 [desktop] › tests/e2e/blog.spec.ts:196:1 › blog preserves per-article edits through delayed reads and real version conflicts (2.3s)
+  ✓   12 [desktop] › tests/e2e/blog.spec.ts:336:1 › a failed post-save preview refresh cannot publish an unreviewed source in the next click (1.9s)
+  ✓   13 [desktop] › tests/e2e/notes-first.spec.ts:7:1 › keeps note identity, secondary actions and editor preferences usable without losing the draft (4.0s)
+  ✓   14 [desktop] › tests/e2e/notes-first.spec.ts:83:1 › allows keyboard and pointer resizing of the desktop directory and remembers the width (2.4s)
+  ✓   15 [desktop] › tests/e2e/notes-first.spec.ts:117:1 › explains invalid plugin input and confirms a successful save without sending invalid data (2.8s)
+  ✓   16 [desktop] › tests/e2e/responsive-layout.spec.ts:10:1 › keeps navigation reachable and content scrolling inside the window with a long directory (12.5s)
+  ✓   17 [desktop] › tests/e2e/responsive-tabbar.spec.ts:37:1 › phone tabs switch pages directly and keep a selected overflow page identifiable (2.0s)
+  ✓   18 [desktop] › tests/e2e/responsive-tabbar.spec.ts:88:1 › tab navigation preserves the unsaved settings leave confirmation (2.4s)
+  ✓   19 [desktop] › tests/e2e/responsive-tabbar.spec.ts:115:1 › More and account menus keep keyboard focus inside and close one level at a time (2.3s)
+  ✘   20 [desktop] › tests/e2e/responsive-tabbar.spec.ts:158:1 › tablet rotation switches between bottom tabs and the left rail and closes overflow (1.7s)
+(node:2573103) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   21 [desktop] › tests/e2e/responsive-tabbar.spec.ts:197:1 › rotating with the account popup open closes both menus and restores a visible focus target (1.4s)
+  -   22 [desktop] › tests/e2e/responsive-tabbar.spec.ts:224:1 › large touch tablet portrait keeps bottom tabs
+  ✓   23 [desktop] › tests/e2e/responsive-tabbar.spec.ts:232:1 › blog labels fit the phone tabbar and site settings remain reachable (1.7s)
+  ✓   24 [desktop] › tests/e2e/responsive-tabbar.spec.ts:283:1 › short phone landscape keeps overflow controls above the bottom tabs (1.8s)
+  ✓   25 [desktop] › tests/e2e/responsive-tabbar.spec.ts:309:1 › desktop keeps the full left rail and its direct navigation (1.6s)
+  ✓   26 [desktop] › tests/e2e/to-doo-antdv-values.spec.ts:61:1 › real Ant Select saves null, false, two tag identifiers and numeric zero (4.2s)
+  ✓   27 [desktop] › tests/e2e/to-doo-antdv-values.spec.ts:121:1 › closing the portaled outcome Modal hides it and reopening preserves the unsaved draft (3.6s)
+  ✓   28 [desktop] › tests/e2e/to-doo-antdv.spec.ts:84:1 › period statistics and progress follow real seven-day, thirty-day and custom date requests (2.5s)
+  ✓   29 [desktop] › tests/e2e/to-doo-antdv.spec.ts:167:1 › Ant review modal preserves a canceled discard and saves a fresh local-date review once (5.5s)
+  ✘   30 [desktop] › tests/e2e/to-doo-antdv.spec.ts:232:1 › focus and habit quantity modals cancel without writes and persist explicit numeric receipts (1.0m)
+(node:2576206) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   31 [desktop] › tests/e2e/to-doo-antdv.spec.ts:330:1 › 320px dark Ant calendar popup and review modal keep their controls inside the viewport (4.5s)
+  ✓   32 [desktop] › tests/e2e/to-doo-calendar-range.spec.ts:9:1 › a month query includes the entire displayed grid rather than only the anchor week (1.7s)
+  ✓   33 [desktop] › tests/e2e/to-doo-calendar-range.spec.ts:43:1 › the initial review interval uses dataset time rather than a different browser day (1.7s)
+  ✓   34 [desktop] › tests/e2e/to-doo-capture-polish.spec.ts:5:1 › quick capture schedules explicitly after recognizing a date and retains the chosen plan (1.9s)
+  ✓   35 [desktop] › tests/e2e/to-doo-capture-polish.spec.ts:34:1 › Q focuses capture without stealing keys from text entry (1.6s)
+  ✓   36 [desktop] › tests/e2e/to-doo-capture-polish.spec.ts:50:1 › clearing the contextual plan in Today survives a browser reload (3.1s)
+  ✓   37 [desktop] › tests/e2e/to-doo-default-view.spec.ts:7:1 › saved default view applies to a fresh opening while explicit navigation and return memory win (6.1s)
+  ✓   38 [desktop] › tests/e2e/to-doo-detail-audit.spec.ts:20:1 › moving a task to another list clears its old section and saves successfully (2.2s)
+  ✓   39 [desktop] › tests/e2e/to-doo-detail-audit.spec.ts:55:1 › invalid typed deadline prevents saving an unrelated title change (2.6s)
+  ✓   40 [desktop] › tests/e2e/to-doo-detail-audit.spec.ts:82:1 › input composition does not submit a task through the save shortcut (1.7s)
+  ✓   41 [desktop] › tests/e2e/to-doo-detail-audit.spec.ts:110:1 › optional detail fields stay folded and remain editable when requested (3.1s)
+  ✓   42 [desktop] › tests/e2e/to-doo-detail-audit.spec.ts:145:1 › 320px dark detail keeps its fields and footer inside the screen (1.9s)
+  ✓   43 [desktop] › tests/e2e/to-doo-detail-audit.spec.ts:193:1 › narrow task detail contains keyboard focus and Escape keeps its draft (2.0s)
+  ✓   44 [desktop] › tests/e2e/to-doo-focus-history.spec.ts:6:1 › leaving focus stops polling and returning reloads the kept page (1.9s)
+  ✓   45 [desktop] › tests/e2e/to-doo-focus-history.spec.ts:32:1 › break defaults follow the configured rhythm and zero skips without creating a session (3.2s)
+  ✓   46 [desktop] › tests/e2e/to-doo-focus-history.spec.ts:108:1 › phone focus keeps one header and a compact timer with optional settings (2.8s)
+  ✓   47 [desktop] › tests/e2e/to-doo-focus-history.spec.ts:124:1 › a focus project saves records, survives refresh and archives without changing its linked task (7.1s)
+  ✓   48 [desktop] › tests/e2e/to-doo-focus-history.spec.ts:196:1 › 1205 older records do not hide the current timer and history filters use real paging (22.5s)
+  ✓   49 [desktop] › tests/e2e/to-doo-focus-history.spec.ts:269:1 › another window can finish the timer while a local note survives read and save failures (4.9s)
+  ✓   50 [desktop] › tests/e2e/to-doo-focus-history.spec.ts:314:1 › typing while finish is pending keeps the newer note after the receipt arrives (3.5s)
+  ✓   51 [desktop] › tests/e2e/to-doo-focus-history.spec.ts:359:1 › saving a retained note detects another window text and can preserve both versions (6.2s)
+  ✓   52 [desktop] › tests/e2e/to-doo-focus-history.spec.ts:404:1 › an interrupted session resumes from history and active note conflicts preserve both versions (4.0s)
+  ✓   53 [desktop] › tests/e2e/to-doo-forms.spec.ts:31:1 › a short habit form saves its optional settings and retains them when reopened (2.8s)
+  ✓   54 [desktop] › tests/e2e/to-doo-forms.spec.ts:78:1 › an entity form locks the submitted fields while saving and restores them after failure (2.2s)
+  ✓   55 [desktop] › tests/e2e/to-doo-forms.spec.ts:121:1 › a valid lunar day outside the Gregorian month can be saved and reopened as its original date (6.2s)
+  ✓   56 [desktop] › tests/e2e/to-doo-forms.spec.ts:164:1 › invalid Gregorian input stays visible and cannot silently save the previous date (2.5s)
+  ✓   57 [desktop] › tests/e2e/to-doo-forms.spec.ts:194:1 › all-day schedule hides irrelevant controls, restores the timed draft and persists a valid day (2.6s)
+  ✓   58 [desktop] › tests/e2e/to-doo-forms.spec.ts:234:1 › changing list type does not erase its hidden goal fields (2.4s)
+  ✓   59 [desktop] › tests/e2e/to-doo-forms.spec.ts:265:1 › invalid required settings inside a closed group are revealed on save (2.8s)
+  ✓   60 [desktop] › tests/e2e/to-doo-forms.spec.ts:281:1 › task settings shortcuts open the existing editors with one click (2.3s)
+  ✓   61 [desktop] › tests/e2e/to-doo-forms.spec.ts:295:1 › preference groups preserve folded values while saving a common setting (2.0s)
+  ✓   62 [desktop] › tests/e2e/to-doo-forms.spec.ts:317:1 › settings tabs preserve drafts and keep unrelated forms out of preferences (1.8s)
+  ✓   63 [desktop] › tests/e2e/to-doo-forms.spec.ts:342:1 › header save reveals a folded invalid preference and accepts a zero break (2.2s)
+  ✓   64 [desktop] › tests/e2e/to-doo-forms.spec.ts:369:3 › preferences typed while a save is pending remain as the next draft: new value (2.2s)
+  ✓   65 [desktop] › tests/e2e/to-doo-forms.spec.ts:369:3 › preferences typed while a save is pending remain as the next draft: return to original value (2.1s)
+  ✓   66 [desktop] › tests/e2e/to-doo-habit-cards.spec.ts:4:1 › a failed quantity write retains the input and retries the same request once (2.0s)
+  ✓   67 [desktop] › tests/e2e/to-doo-habit-cards.spec.ts:50:1 › habit cards distinguish today from weekly achievement and include all pages before recording, skipping and pausing (9.9s)
+[WebServer] 12:33:33 AM [vite] (client) [console.error] TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:4179/components/to-doo/ToDooSettings.vue
+  ✓   68 [desktop] › tests/e2e/to-doo-lazy-pages.spec.ts:5:1 › task entry skips other page modules and a failed page can retry without losing the task draft (2.0s)
+  ✓   69 [desktop] › tests/e2e/to-doo-lazy-pages.spec.ts:38:1 › page-header actions wait for a delayed review module (1.8s)
+  ✓   70 [desktop] › tests/e2e/to-doo-light-sidebar.spec.ts:39:1 › a clean narrow dark task shows its content and date summary without edit controls (1.8s)
+  ✓   71 [desktop] › tests/e2e/to-doo-light-sidebar.spec.ts:72:1 › explicit save preserves failed title and description edits and retries the same submission (4.3s)
+  ✓   72 [desktop] › tests/e2e/to-doo-light-sidebar.spec.ts:133:1 › deadline editing updates the summary and stays closed after reopening or changing tasks (3.4s)
+  ✓   73 [desktop] › tests/e2e/to-doo-light-sidebar.spec.ts:192:1 › title completion preserves an unsaved description and saving it keeps the task completed (3.1s)
+  ✓   74 [desktop] › tests/e2e/to-doo-loading.spec.ts:60:1 › an initial task request shows Ant skeletons until the usable task list arrives (1.7s)
+  ✓   75 [desktop] › tests/e2e/to-doo-loading.spec.ts:90:1 › a failed refresh retains the task DOM, search focus and content position (1.7s)
+  ✓   76 [desktop] › tests/e2e/to-doo-loading.spec.ts:143:1 › reduced motion keeps the loading placeholder static and an initial failure can retry (1.8s)
+  ✓   77 [desktop] › tests/e2e/to-doo-loading.spec.ts:179:1 › a cold To Doo component download has the same branded loading feedback (2.0s)
+  ✓   78 [desktop] › tests/e2e/to-doo-loading.spec.ts:208:1 › returning during a cold To Doo download is safe and its late completion preserves the destination (1.7s)
+  ✓   79 [desktop] › tests/e2e/to-doo-mcp-roundtrip.spec.ts:9:1 › browser writes and SDK writes share the actual dataset and live resource grants (5.6s)
+  ✓   80 [desktop] › tests/e2e/to-doo-mobile-lists.spec.ts:38:1 › mobile navigation opens personal lists and quick capture inherits the selected list (18.7s)
+  ✓   81 [desktop] › tests/e2e/to-doo-mobile-lists.spec.ts:100:1 › closing mobile new-list creation keeps the current list selected (4.4s)
+  ✓   82 [desktop] › tests/e2e/to-doo-notification-history.spec.ts:22:1 › recent notifications and mark-all include unread records beyond the first 200 (7.4s)
+  ✓   83 [desktop] › tests/e2e/to-doo-notification-history.spec.ts:97:1 › a recurring task notification opens its own execution rather than the first task execution (2.9s)
+  ✓   84 [desktop] › tests/e2e/to-doo-reminders.spec.ts:61:1 › workspace reminder card completes a real task and fits the viewport (3.6s)
+  ✓   85 [desktop] › tests/e2e/to-doo-reminders.spec.ts:82:1 › activating a desktop notification keeps the current unsaved note and opens its reminder (9.1s)
+  ✓   86 [desktop] › tests/e2e/to-doo-reminders.spec.ts:131:1 › cold notification links open the right habit and record the entered amount once (2.7s)
+  ✘   87 [desktop] › tests/e2e/to-doo-reminders.spec.ts:151:1 › closing a cold notification card prevents that generation from reopening on refresh (8.2s)
+(node:2584901) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   88 [desktop] › tests/e2e/to-doo-reminders.spec.ts:164:1 › switching from an exact reminder occurrence to another task clears the old occurrence (4.3s)
+  ✓   89 [desktop] › tests/e2e/to-doo-review-period.spec.ts:9:1 › saving a review retains the applied interval when the following refresh fails (3.7s)
+  ✓   90 [desktop] › tests/e2e/to-doo-task-row-clarity.spec.ts:26:1 › the opened recurring occurrence is active independently of batch selection (8.5s)
+  ✓   91 [desktop] › tests/e2e/to-doo-task-row-clarity.spec.ts:75:1 › plan and deadline labels keep an overdue deadline separate from tomorrow’s plan (3.1s)
+  ✓   92 [desktop] › tests/e2e/to-doo-unified-shell.spec.ts:6:1 › a long page title leaves the main action visible on a narrow screen (2.2s)
+  ✘   93 [desktop] › tests/e2e/to-doo-unified-shell.spec.ts:32:1 › the shared header keeps save visible while a long settings form scrolls (45.1s)
+(node:2586922) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   94 [desktop] › tests/e2e/to-doo-unified-shell.spec.ts:55:1 › desktop pages share the global header and contextual layout boundaries (13.7s)
+  ✓   95 [desktop] › tests/e2e/to-doo-unified-shell.spec.ts:126:3 › the light shell and task detail fit all supported widths and the host navigation (2.6s)
+  ✓   96 [desktop] › tests/e2e/to-doo-unified-shell.spec.ts:126:3 › the dark shell and task detail fit all supported widths and the host navigation (7.9s)
+  ✓   97 [desktop] › tests/e2e/to-doo-ux.spec.ts:20:1 › quick add today persists its plan without opening details and keeps completed tasks folded (2.7s)
+  ✓   98 [desktop] › tests/e2e/to-doo-ux.spec.ts:80:1 › quick add inherits the selected list and clearing filters restores tasks across views (4.0s)
+  ✓   99 [desktop] › tests/e2e/to-doo-ux.spec.ts:129:1 › quick add keeps its draft after a failed POST and retries into real server data (7.9s)
+  ✓  100 [desktop] › tests/e2e/to-doo-ux.spec.ts:166:1 › today and inbox quick navigation survive reload and browser history (3.1s)
+  ✓  101 [desktop] › tests/e2e/to-doo-ux.spec.ts:192:1 › wide task details continue the quick draft and submit exactly one real task (2.6s)
+  ✘  102 [desktop] › tests/e2e/to-doo-ux.spec.ts:227:1 › discarding a wide new-task detail clears its original list draft and preserves another list (6.4s)
+(node:2587903) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  103 [desktop] › tests/e2e/to-doo-ux.spec.ts:274:1 › quick entry stays usable in a 320px dark workspace (2.7s)
+  ✓  104 [desktop] › tests/e2e/to-doo-ux.spec.ts:297:1 › deleting a list immediately removes it from the sidebar catalog (3.4s)
+  ✘  105 [desktop] › tests/e2e/to-doo-ux.spec.ts:319:1 › retrying a deleted list refreshes the sidebar after its editor was closed (8.6s)
+(node:2588807) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  106 [desktop] › tests/e2e/to-doo-ux.spec.ts:351:3 › quick view time zones › initial today quick view uses the loaded workspace time zone across midnight (2.3s)
+  ✓  107 [desktop] › tests/e2e/to-doo-visible-workspace.spec.ts:29:1 › primary tools and contextual task directories are discoverable without expanding hidden groups (2.1s)
+  ✓  108 [desktop] › tests/e2e/to-doo-visible-workspace.spec.ts:63:1 › matrix uses four distinguishable surfaces and explains each action without wasting the viewport (2.1s)
+  ✓  109 [desktop] › tests/e2e/to-doo-visible-workspace.spec.ts:116:1 › mobile navigation keeps keyboard focus inside and restores the opener on Escape (1.8s)
+  ✓  110 [desktop] › tests/e2e/to-doo-visible-workspace.spec.ts:143:1 › leaving from navigation keeps focus on the unsaved confirmation and retains a cancelled draft (8.4s)
+  ✓  111 [desktop] › tests/e2e/to-doo-visible-workspace.spec.ts:169:1 › priority edits persist independently from visible matrix classification and dates (6.1s)
+  ✘  112 [desktop] › tests/e2e/to-doo.spec.ts:18:1 › To Doo creates a real goal and task, preserves edits, completes and survives refresh (6.2s)
+(node:2589998) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  113 [desktop] › tests/e2e/to-doo.spec.ts:97:1 › all To Doo sections are reachable on narrow and dark workspaces without overflow (15.1s)
+(node:2591105) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  114 [desktop] › tests/e2e/to-doo.spec.ts:169:1 › focus, habit check-ins, anniversary and real CSV import/export use durable server data (23.0s)
+  ✘  115 [desktop] › tests/e2e/to-doo.spec.ts:259:3 › To Doo source and evidence › an unsaved note can create a linked action and a real outcome note without overwriting its source (20.8s)
+(node:2591917) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  116 [desktop] › tests/e2e/to-doo.spec.ts:413:1 › bulk and cascade completion freeze execution membership and persist their actual states (7.5s)
+
+
+  1) [desktop] › tests/e2e/responsive-tabbar.spec.ts:158:1 › tablet rotation switches between bottom tabs and the left rail and closes overflow 
+
+    Error: expect(received).toBeCloseTo(expected, precision)
+
+    Expected: 60
+    Received: 64
+
+    Expected precision:    0
+    Expected difference: < 0.5
+    Received difference:   4
+
+      179 |   const railBox = await rail.boundingBox();
+      180 |   expect(railBox!.x).toBeCloseTo(0, 0);
+    > 181 |   expect(railBox!.width).toBeCloseTo(60, 0);
+          |                          ^
+      182 |   expect(railBox!.height).toBeCloseTo(820, 0);
+      183 |   await page
+      184 |     .getByRole('navigation', { name: 'To Doo 主菜单', exact: true })
+        at /home/bandoo/workspace/projects/doo-know/tests/e2e/responsive-tabbar.spec.ts:181:26
+
+    Error Context: test-results/desktop/responsive-tabbar-tablet-r-09949-ft-rail-and-closes-overflow-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/desktop/responsive-tabbar-tablet-r-09949-ft-rail-and-closes-overflow-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/desktop/responsive-tabbar-tablet-r-09949-ft-rail-and-closes-overflow-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [desktop] › tests/e2e/to-doo-antdv.spec.ts:232:1 › focus and habit quantity modals cancel without writes and persist explicit numeric receipts 
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for getByRole('region', { name: 'To Doo 行动工作空间', exact: true }).getByRole('button', { name: 'Ant 数字记录 desktop-b182de5a-ac10-408e-b2df-88a4a1ed2d55 2026-10-31 打卡，当前 0 页', exact: true })
+
+
+      292 |     exact: true,
+      293 |   });
+    > 294 |   await cell.click();
+          |              ^
+      295 |   const checkin = page.getByRole('dialog', { name: '记录习惯数量', exact: true });
+      296 |   await checkin.getByRole('spinbutton', { name: '习惯数量', exact: true }).fill('2.5');
+      297 |   await checkin.getByRole('button', { name: '取消', exact: true }).click();
+        at /home/bandoo/workspace/projects/doo-know/tests/e2e/to-doo-antdv.spec.ts:294:14
+
+    Error Context: test-results/desktop/to-doo-antdv-focus-and-hab-9d74a-t-explicit-numeric-receipts-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/desktop/to-doo-antdv-focus-and-hab-9d74a-t-explicit-numeric-receipts-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/desktop/to-doo-antdv-focus-and-hab-9d74a-t-explicit-numeric-receipts-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [desktop] › tests/e2e/to-doo-reminders.spec.ts:151:1 › closing a cold notification card prevents that generation from reopening on refresh 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: '通知中心', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: '通知中心', exact: true }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: '通知中心', exact: true })
+
+
+      158 |   await expect(cards(page).getByRole('heading', { name: reminder.title })).not.toBeVisible();
+      159 |   await page.reload();
+    > 160 |   await expect(page.getByRole('heading', { name: '通知中心', exact: true })).toBeVisible();
+          |                                                                          ^
+      161 |   await expect(cards(page).getByRole('heading', { name: reminder.title })).not.toBeVisible();
+      162 | });
+      163 |
+        at /home/bandoo/workspace/projects/doo-know/tests/e2e/to-doo-reminders.spec.ts:160:74
+
+    Error Context: test-results/desktop/to-doo-reminders-closing-a-0c5ef-n-from-reopening-on-refresh-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/desktop/to-doo-reminders-closing-a-0c5ef-n-from-reopening-on-refresh-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/desktop/to-doo-reminders-closing-a-0c5ef-n-from-reopening-on-refresh-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [desktop] › tests/e2e/to-doo-unified-shell.spec.ts:32:1 › the shared header keeps save visible while a long settings form scrolls 
+
+    Test timeout of 45000ms exceeded.
+
+    Error Context: test-results/desktop/to-doo-unified-shell-the-s-96731--long-settings-form-scrolls-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/desktop/to-doo-unified-shell-the-s-96731--long-settings-form-scrolls-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/desktop/to-doo-unified-shell-the-s-96731--long-settings-form-scrolls-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [desktop] › tests/e2e/to-doo-ux.spec.ts:227:1 › discarding a wide new-task detail clears its original list draft and preserves another list 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('region', { name: 'To Doo 行动工作空间' }).getByRole('heading', { name: '草稿清单 B desktop-1793407012779', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('region', { name: 'To Doo 行动工作空间' }).getByRole('heading', { name: '草稿清单 B desktop-1793407012779', exact: true }) with timeout 5000ms
+      - waiting for getByRole('region', { name: 'To Doo 行动工作空间' }).getByRole('heading', { name: '草稿清单 B desktop-1793407012779', exact: true })
+
+
+      248 |   const titleA = '放弃 A 中的草稿 ' + suffix;
+      249 |   const titleB = '保留 B 中的草稿 ' + suffix;
+    > 250 |   await expect(app.getByRole('heading', { name: listBName, exact: true })).toBeVisible();
+          |                                                                            ^
+      251 |   await input.fill(titleB);
+      252 |   await sidebar.getByRole('button', { name: listAName, exact: true }).click();
+      253 |   await expect(app.getByRole('heading', { name: listAName, exact: true })).toBeVisible();
+        at /home/bandoo/workspace/projects/doo-know/tests/e2e/to-doo-ux.spec.ts:250:76
+
+    Error Context: test-results/desktop/to-doo-ux-discarding-a-wid-0a9b8--and-preserves-another-list-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/desktop/to-doo-ux-discarding-a-wid-0a9b8--and-preserves-another-list-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/desktop/to-doo-ux-discarding-a-wid-0a9b8--and-preserves-another-list-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [desktop] › tests/e2e/to-doo-ux.spec.ts:319:1 › retrying a deleted list refreshes the sidebar after its editor was closed 
+
+    Error: expect(locator).not.toBeVisible() failed
+
+    Locator:  getByRole('region', { name: 'To Doo 行动工作空间' }).locator('.todo-sidebar nav').getByRole('button', { name: '待重试移除清单 desktop-1793407026030', exact: true })
+    Expected: not visible
+    Received: visible
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "not toBeVisible" getByRole('region', { name: 'To Doo 行动工作空间' }).locator('.todo-sidebar nav').getByRole('button', { name: '待重试移除清单 desktop-1793407026030', exact: true }) with timeout 5000ms
+      - waiting for getByRole('region', { name: 'To Doo 行动工作空间' }).locator('.todo-sidebar nav').getByRole('button', { name: '待重试移除清单 desktop-1793407026030', exact: true })
+        14 × locator resolved to <button type="button" aria-current="page" class="css-xjeq ant-btn ant-btn-text ant-btn-block active">…</button>
+           - unexpected value "visible"
+
+
+      343 |   await expect(entry).toBeVisible();
+      344 |   await app.getByRole('button', { name: '重试原操作', exact: true }).click();
+    > 345 |   await expect(entry).not.toBeVisible();
+          |                           ^
+      346 | });
+      347 |
+      348 | test.describe('quick view time zones', () => {
+        at /home/bandoo/workspace/projects/doo-know/tests/e2e/to-doo-ux.spec.ts:345:27
+
+    Error Context: test-results/desktop/to-doo-ux-retrying-a-delet-1c984-after-its-editor-was-closed-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/desktop/to-doo-ux-retrying-a-delet-1c984-after-its-editor-was-closed-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/desktop/to-doo-ux-retrying-a-delet-1c984-after-its-editor-was-closed-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [desktop] › tests/e2e/to-doo.spec.ts:18:1 › To Doo creates a real goal and task, preserves edits, completes and survives refresh 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('region', { name: 'To Doo 行动工作空间' }).getByRole('heading', { name: '目标总览', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('region', { name: 'To Doo 行动工作空间' }).getByRole('heading', { name: '目标总览', exact: true }) with timeout 5000ms
+      - waiting for getByRole('region', { name: 'To Doo 行动工作空间' }).getByRole('heading', { name: '目标总览', exact: true })
+
+
+      23 |   await page.goto('/?view=apps&app=to-doo&appSection=overview');
+      24 |   const app = page.getByRole('region', { name: 'To Doo 行动工作空间' });
+    > 25 |   await expect(app.getByRole('heading', { name: '目标总览', exact: true })).toBeVisible();
+         |                                                                         ^
+      26 |   await app.getByRole('button', { name: '新建目标', exact: true }).click();
+      27 |   const editor = page.getByRole('dialog');
+      28 |   const name = '浏览器目标 ' + info.project.name + '-' + Date.now();
+        at /home/bandoo/workspace/projects/doo-know/tests/e2e/to-doo.spec.ts:25:73
+
+    Error Context: test-results/desktop/to-doo-To-Doo-creates-a-re-52489-pletes-and-survives-refresh-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/desktop/to-doo-To-Doo-creates-a-re-52489-pletes-and-survives-refresh-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/desktop/to-doo-To-Doo-creates-a-re-52489-pletes-and-survives-refresh-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [desktop] › tests/e2e/to-doo.spec.ts:97:1 › all To Doo sections are reachable on narrow and dark workspaces without overflow 
+
+    Error: expect(locator).not.toBeVisible() failed
+
+    Locator:  getByText('正在载入…', { exact: true })
+    Expected: not visible
+    Received: visible
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "not toBeVisible" getByText('正在载入…', { exact: true }) with timeout 5000ms
+      - waiting for getByText('正在载入…', { exact: true })
+        14 × locator resolved to <span class="todo-loading-sr-only">正在载入…</span>
+           - unexpected value "visible"
+
+
+      156 |     await goToToDooSection(page, section);
+      157 |     await expect(page.locator('.todo-page h1')).toHaveText(labels[index]!);
+    > 158 |     await expect(page.getByText('正在载入…', { exact: true })).not.toBeVisible();
+          |                                                                ^
+      159 |     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      160 |       true,
+      161 |     );
+        at /home/bandoo/workspace/projects/doo-know/tests/e2e/to-doo.spec.ts:158:64
+
+    Error Context: test-results/desktop/to-doo-all-To-Doo-sections-ace91-workspaces-without-overflow-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/desktop/to-doo-all-To-Doo-sections-ace91-workspaces-without-overflow-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/desktop/to-doo-all-To-Doo-sections-ace91-workspaces-without-overflow-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) [desktop] › tests/e2e/to-doo.spec.ts:259:3 › To Doo source and evidence › an unsaved note can create a linked action and a real outcome note without overwriting its source 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator: getByRole('dialog', { name: '创建成果笔记', exact: true }).getByLabel('成果正文（Markdown）', { exact: true })
+    Expected: "# 原正文保持不变·
+    准备状态也能恢复。"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveValue" getByRole('dialog', { name: '创建成果笔记', exact: true }).getByLabel('成果正文（Markdown）', { exact: true }) with timeout 5000ms
+      - waiting for getByRole('dialog', { name: '创建成果笔记', exact: true }).getByLabel('成果正文（Markdown）', { exact: true })
+
+
+      396 |     await expect(recovery).toBeVisible();
+      397 |     await recovery.getByRole('button', { name: '核对并继续', exact: true }).click();
+    > 398 |     await expect(outcome.getByLabel('成果正文（Markdown）', { exact: true })).toHaveValue(
+          |                                                                         ^
+      399 |       '# 原正文保持不变\n\n准备状态也能恢复。',
+      400 |     );
+      401 |     await outcome.getByRole('button', { name: '核对当前任务版本后继续', exact: true }).click();
+        at /home/bandoo/workspace/projects/doo-know/tests/e2e/to-doo.spec.ts:398:73
+
+    Error Context: test-results/desktop/to-doo-To-Doo-source-and-e-1505b-hout-overwriting-its-source-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/desktop/to-doo-To-Doo-source-and-e-1505b-hout-overwriting-its-source-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/desktop/to-doo-To-Doo-source-and-e-1505b-hout-overwriting-its-source-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9 failed
+    [desktop] › tests/e2e/responsive-tabbar.spec.ts:158:1 › tablet rotation switches between bottom tabs and the left rail and closes overflow 
+    [desktop] › tests/e2e/to-doo-antdv.spec.ts:232:1 › focus and habit quantity modals cancel without writes and persist explicit numeric receipts 
+    [desktop] › tests/e2e/to-doo-reminders.spec.ts:151:1 › closing a cold notification card prevents that generation from reopening on refresh 
+    [desktop] › tests/e2e/to-doo-unified-shell.spec.ts:32:1 › the shared header keeps save visible while a long settings form scrolls 
+    [desktop] › tests/e2e/to-doo-ux.spec.ts:227:1 › discarding a wide new-task detail clears its original list draft and preserves another list 
+    [desktop] › tests/e2e/to-doo-ux.spec.ts:319:1 › retrying a deleted list refreshes the sidebar after its editor was closed 
+    [desktop] › tests/e2e/to-doo.spec.ts:18:1 › To Doo creates a real goal and task, preserves edits, completes and survives refresh 
+    [desktop] › tests/e2e/to-doo.spec.ts:97:1 › all To Doo sections are reachable on narrow and dark workspaces without overflow 
+    [desktop] › tests/e2e/to-doo.spec.ts:259:3 › To Doo source and evidence › an unsaved note can create a linked action and a real outcome note without overwriting its source 
+  1 skipped
+  106 passed (10.2m)
+[WebServer] (node:2592217) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2592235) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2592247) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2592247) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 116 tests using 1 worker
+
+(node:2592454) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓    1 [mobile] › tests/e2e/app-main-menu.spec.ts:11:1 › app rail owns main functions and settings while only contextual pages have a secondary directory (3.7s)
+  ✓    2 [mobile] › tests/e2e/app-main-menu.spec.ts:62:1 › returning to DooKnow preserves the mounted note draft and reentering an app restores its location (3.8s)
+  ✓    3 [mobile] › tests/e2e/app-main-menu.spec.ts:108:1 › cancelled app settings navigation and return retain both the route and the unsaved form (2.8s)
+  ✓    4 [mobile] › tests/e2e/app-main-menu.spec.ts:136:1 › cancelling browser back from unsaved app settings restores its URL and permits a later confirmed back (2.6s)
+  ✓    5 [mobile] › tests/e2e/app-main-menu.spec.ts:162:1 › the default app hub remains reachable and unpinned app cards restore the last app page (1.8s)
+  ✓    6 [mobile] › tests/e2e/app-main-menu.spec.ts:197:1 › app return restores a DooKnow collection instead of losing its last location (1.7s)
+  ✓    7 [mobile] › tests/e2e/app-shortcuts.spec.ts:7:1 › pins apps without opening them, retains shortcuts after reload and removes them (4.8s)
+  ✓    8 [mobile] › tests/e2e/app-shortcuts.spec.ts:37:1 › opening a pinned app retains the mounted unsaved note (3.1s)
+  ✓    9 [mobile] › tests/e2e/app-shortcuts.spec.ts:59:1 › returning to the default menu respects the unsaved To Doo confirmation before opening a pinned app (4.1s)
+  ✓   10 [mobile] › tests/e2e/blog.spec.ts:14:1 › blog manual publication keeps the original and public snapshots independent (8.7s)
+  ✓   11 [mobile] › tests/e2e/blog.spec.ts:196:1 › blog preserves per-article edits through delayed reads and real version conflicts (2.5s)
+  ✓   12 [mobile] › tests/e2e/blog.spec.ts:336:1 › a failed post-save preview refresh cannot publish an unreviewed source in the next click (1.7s)
+  ✓   13 [mobile] › tests/e2e/notes-first.spec.ts:7:1 › keeps note identity, secondary actions and editor preferences usable without losing the draft (4.3s)
+  -   14 [mobile] › tests/e2e/notes-first.spec.ts:83:1 › allows keyboard and pointer resizing of the desktop directory and remembers the width
+  ✓   15 [mobile] › tests/e2e/notes-first.spec.ts:117:1 › explains invalid plugin input and confirms a successful save without sending invalid data (3.1s)
+  ✓   16 [mobile] › tests/e2e/responsive-layout.spec.ts:10:1 › keeps navigation reachable and content scrolling inside the window with a long directory (11.1s)
+  ✓   17 [mobile] › tests/e2e/responsive-tabbar.spec.ts:37:1 › phone tabs switch pages directly and keep a selected overflow page identifiable (2.3s)
+  ✓   18 [mobile] › tests/e2e/responsive-tabbar.spec.ts:88:1 › tab navigation preserves the unsaved settings leave confirmation (2.4s)
+  ✓   19 [mobile] › tests/e2e/responsive-tabbar.spec.ts:115:1 › More and account menus keep keyboard focus inside and close one level at a time (2.4s)
+  ✓   20 [mobile] › tests/e2e/responsive-tabbar.spec.ts:158:1 › tablet rotation switches between bottom tabs and the left rail and closes overflow (2.3s)
+  ✓   21 [mobile] › tests/e2e/responsive-tabbar.spec.ts:197:1 › rotating with the account popup open closes both menus and restores a visible focus target (2.2s)
+  ✓   22 [mobile] › tests/e2e/responsive-tabbar.spec.ts:224:1 › large touch tablet portrait keeps bottom tabs (1.9s)
+  ✓   23 [mobile] › tests/e2e/responsive-tabbar.spec.ts:232:1 › blog labels fit the phone tabbar and site settings remain reachable (1.8s)
+  ✓   24 [mobile] › tests/e2e/responsive-tabbar.spec.ts:283:1 › short phone landscape keeps overflow controls above the bottom tabs (1.9s)
+  ✓   25 [mobile] › tests/e2e/responsive-tabbar.spec.ts:309:1 › desktop keeps the full left rail and its direct navigation (1.9s)
+  ✓   26 [mobile] › tests/e2e/to-doo-antdv-values.spec.ts:61:1 › real Ant Select saves null, false, two tag identifiers and numeric zero (4.1s)
+  ✓   27 [mobile] › tests/e2e/to-doo-antdv-values.spec.ts:121:1 › closing the portaled outcome Modal hides it and reopening preserves the unsaved draft (4.0s)
+  ✓   28 [mobile] › tests/e2e/to-doo-antdv.spec.ts:84:1 › period statistics and progress follow real seven-day, thirty-day and custom date requests (2.3s)
+  ✓   29 [mobile] › tests/e2e/to-doo-antdv.spec.ts:167:1 › Ant review modal preserves a canceled discard and saves a fresh local-date review once (5.1s)
+  ✓   30 [mobile] › tests/e2e/to-doo-antdv.spec.ts:232:1 › focus and habit quantity modals cancel without writes and persist explicit numeric receipts (6.3s)
+  ✓   31 [mobile] › tests/e2e/to-doo-antdv.spec.ts:334:1 › 320px dark Ant calendar popup and review modal keep their controls inside the viewport (4.4s)
+  ✓   32 [mobile] › tests/e2e/to-doo-calendar-range.spec.ts:9:1 › a month query includes the entire displayed grid rather than only the anchor week (1.6s)
+  ✓   33 [mobile] › tests/e2e/to-doo-calendar-range.spec.ts:43:1 › the initial review interval uses dataset time rather than a different browser day (1.7s)
+  ✓   34 [mobile] › tests/e2e/to-doo-capture-polish.spec.ts:5:1 › quick capture schedules explicitly after recognizing a date and retains the chosen plan (1.9s)
+  ✓   35 [mobile] › tests/e2e/to-doo-capture-polish.spec.ts:34:1 › Q focuses capture without stealing keys from text entry (1.6s)
+  ✓   36 [mobile] › tests/e2e/to-doo-capture-polish.spec.ts:50:1 › clearing the contextual plan in Today survives a browser reload (3.2s)
+  ✓   37 [mobile] › tests/e2e/to-doo-default-view.spec.ts:7:1 › saved default view applies to a fresh opening while explicit navigation and return memory win (5.9s)
+  ✓   38 [mobile] › tests/e2e/to-doo-detail-audit.spec.ts:20:1 › moving a task to another list clears its old section and saves successfully (2.2s)
+  ✓   39 [mobile] › tests/e2e/to-doo-detail-audit.spec.ts:55:1 › invalid typed deadline prevents saving an unrelated title change (2.1s)
+  ✓   40 [mobile] › tests/e2e/to-doo-detail-audit.spec.ts:82:1 › input composition does not submit a task through the save shortcut (1.6s)
+  ✓   41 [mobile] › tests/e2e/to-doo-detail-audit.spec.ts:110:1 › optional detail fields stay folded and remain editable when requested (3.0s)
+  ✓   42 [mobile] › tests/e2e/to-doo-detail-audit.spec.ts:145:1 › 320px dark detail keeps its fields and footer inside the screen (2.0s)
+  ✓   43 [mobile] › tests/e2e/to-doo-detail-audit.spec.ts:193:1 › narrow task detail contains keyboard focus and Escape keeps its draft (1.9s)
+  ✓   44 [mobile] › tests/e2e/to-doo-focus-history.spec.ts:6:1 › leaving focus stops polling and returning reloads the kept page (2.0s)
+  ✓   45 [mobile] › tests/e2e/to-doo-focus-history.spec.ts:32:1 › break defaults follow the configured rhythm and zero skips without creating a session (4.3s)
+  ✓   46 [mobile] › tests/e2e/to-doo-focus-history.spec.ts:108:1 › phone focus keeps one header and a compact timer with optional settings (2.8s)
+  ✓   47 [mobile] › tests/e2e/to-doo-focus-history.spec.ts:124:1 › a focus project saves records, survives refresh and archives without changing its linked task (8.9s)
+  ✓   48 [mobile] › tests/e2e/to-doo-focus-history.spec.ts:196:1 › 1205 older records do not hide the current timer and history filters use real paging (22.7s)
+  ✓   49 [mobile] › tests/e2e/to-doo-focus-history.spec.ts:269:1 › another window can finish the timer while a local note survives read and save failures (4.8s)
+  ✓   50 [mobile] › tests/e2e/to-doo-focus-history.spec.ts:314:1 › typing while finish is pending keeps the newer note after the receipt arrives (4.0s)
+  ✓   51 [mobile] › tests/e2e/to-doo-focus-history.spec.ts:359:1 › saving a retained note detects another window text and can preserve both versions (6.5s)
+  ✓   52 [mobile] › tests/e2e/to-doo-focus-history.spec.ts:404:1 › an interrupted session resumes from history and active note conflicts preserve both versions (5.0s)
+  ✓   53 [mobile] › tests/e2e/to-doo-forms.spec.ts:31:1 › a short habit form saves its optional settings and retains them when reopened (3.0s)
+  ✓   54 [mobile] › tests/e2e/to-doo-forms.spec.ts:78:1 › an entity form locks the submitted fields while saving and restores them after failure (2.0s)
+  ✓   55 [mobile] › tests/e2e/to-doo-forms.spec.ts:121:1 › a valid lunar day outside the Gregorian month can be saved and reopened as its original date (6.3s)
+  ✓   56 [mobile] › tests/e2e/to-doo-forms.spec.ts:164:1 › invalid Gregorian input stays visible and cannot silently save the previous date (2.5s)
+  ✓   57 [mobile] › tests/e2e/to-doo-forms.spec.ts:194:1 › all-day schedule hides irrelevant controls, restores the timed draft and persists a valid day (2.7s)
+  ✓   58 [mobile] › tests/e2e/to-doo-forms.spec.ts:234:1 › changing list type does not erase its hidden goal fields (2.8s)
+  ✓   59 [mobile] › tests/e2e/to-doo-forms.spec.ts:265:1 › invalid required settings inside a closed group are revealed on save (3.0s)
+  ✓   60 [mobile] › tests/e2e/to-doo-forms.spec.ts:281:1 › task settings shortcuts open the existing editors with one click (2.4s)
+  ✓   61 [mobile] › tests/e2e/to-doo-forms.spec.ts:295:1 › preference groups preserve folded values while saving a common setting (2.0s)
+  ✓   62 [mobile] › tests/e2e/to-doo-forms.spec.ts:317:1 › settings tabs preserve drafts and keep unrelated forms out of preferences (2.4s)
+  ✓   63 [mobile] › tests/e2e/to-doo-forms.spec.ts:342:1 › header save reveals a folded invalid preference and accepts a zero break (2.1s)
+  ✓   64 [mobile] › tests/e2e/to-doo-forms.spec.ts:369:3 › preferences typed while a save is pending remain as the next draft: new value (2.2s)
+  ✓   65 [mobile] › tests/e2e/to-doo-forms.spec.ts:369:3 › preferences typed while a save is pending remain as the next draft: return to original value (2.6s)
+  ✓   66 [mobile] › tests/e2e/to-doo-habit-cards.spec.ts:4:1 › a failed quantity write retains the input and retries the same request once (2.5s)
+  ✓   67 [mobile] › tests/e2e/to-doo-habit-cards.spec.ts:50:1 › habit cards distinguish today from weekly achievement and include all pages before recording, skipping and pausing (10.5s)
+[WebServer] 12:43:07 AM [vite] (client) [console.error] TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:4179/components/to-doo/ToDooSettings.vue
+  ✓   68 [mobile] › tests/e2e/to-doo-lazy-pages.spec.ts:5:1 › task entry skips other page modules and a failed page can retry without losing the task draft (2.3s)
+  ✓   69 [mobile] › tests/e2e/to-doo-lazy-pages.spec.ts:38:1 › page-header actions wait for a delayed review module (2.0s)
+  ✓   70 [mobile] › tests/e2e/to-doo-light-sidebar.spec.ts:39:1 › a clean narrow dark task shows its content and date summary without edit controls (1.9s)
+  ✓   71 [mobile] › tests/e2e/to-doo-light-sidebar.spec.ts:72:1 › explicit save preserves failed title and description edits and retries the same submission (4.3s)
+  ✓   72 [mobile] › tests/e2e/to-doo-light-sidebar.spec.ts:133:1 › deadline editing updates the summary and stays closed after reopening or changing tasks (3.6s)
+  ✓   73 [mobile] › tests/e2e/to-doo-light-sidebar.spec.ts:192:1 › title completion preserves an unsaved description and saving it keeps the task completed (3.2s)
+  ✓   74 [mobile] › tests/e2e/to-doo-loading.spec.ts:60:1 › an initial task request shows Ant skeletons until the usable task list arrives (1.7s)
+  ✓   75 [mobile] › tests/e2e/to-doo-loading.spec.ts:90:1 › a failed refresh retains the task DOM, search focus and content position (1.7s)
+  ✓   76 [mobile] › tests/e2e/to-doo-loading.spec.ts:143:1 › reduced motion keeps the loading placeholder static and an initial failure can retry (1.8s)
+  ✓   77 [mobile] › tests/e2e/to-doo-loading.spec.ts:179:1 › a cold To Doo component download has the same branded loading feedback (1.9s)
+  ✓   78 [mobile] › tests/e2e/to-doo-loading.spec.ts:208:1 › returning during a cold To Doo download is safe and its late completion preserves the destination (1.9s)
+  ✓   79 [mobile] › tests/e2e/to-doo-mcp-roundtrip.spec.ts:9:1 › browser writes and SDK writes share the actual dataset and live resource grants (5.6s)
+  ✓   80 [mobile] › tests/e2e/to-doo-mobile-lists.spec.ts:38:1 › mobile navigation opens personal lists and quick capture inherits the selected list (18.8s)
+  ✓   81 [mobile] › tests/e2e/to-doo-mobile-lists.spec.ts:100:1 › closing mobile new-list creation keeps the current list selected (4.1s)
+  ✓   82 [mobile] › tests/e2e/to-doo-notification-history.spec.ts:22:1 › recent notifications and mark-all include unread records beyond the first 200 (12.2s)
+  ✓   83 [mobile] › tests/e2e/to-doo-notification-history.spec.ts:97:1 › a recurring task notification opens its own execution rather than the first task execution (2.9s)
+  ✓   84 [mobile] › tests/e2e/to-doo-reminders.spec.ts:61:1 › workspace reminder card completes a real task and fits the viewport (3.7s)
+  ✘   85 [mobile] › tests/e2e/to-doo-reminders.spec.ts:82:1 › activating a desktop notification keeps the current unsaved note and opens its reminder (8.0s)
+(node:2599444) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   86 [mobile] › tests/e2e/to-doo-reminders.spec.ts:131:1 › cold notification links open the right habit and record the entered amount once (2.8s)
+  ✓   87 [mobile] › tests/e2e/to-doo-reminders.spec.ts:151:1 › closing a cold notification card prevents that generation from reopening on refresh (3.4s)
+  ✓   88 [mobile] › tests/e2e/to-doo-reminders.spec.ts:164:1 › switching from an exact reminder occurrence to another task clears the old occurrence (9.6s)
+  ✓   89 [mobile] › tests/e2e/to-doo-review-period.spec.ts:9:1 › saving a review retains the applied interval when the following refresh fails (3.6s)
+  ✓   90 [mobile] › tests/e2e/to-doo-task-row-clarity.spec.ts:26:1 › the opened recurring occurrence is active independently of batch selection (3.0s)
+  ✘   91 [mobile] › tests/e2e/to-doo-task-row-clarity.spec.ts:75:1 › plan and deadline labels keep an overdue deadline separate from tomorrow’s plan (6.8s)
+(node:2599905) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   92 [mobile] › tests/e2e/to-doo-unified-shell.spec.ts:6:1 › a long page title leaves the main action visible on a narrow screen (2.9s)
+  ✘   93 [mobile] › tests/e2e/to-doo-unified-shell.spec.ts:32:1 › the shared header keeps save visible while a long settings form scrolls (45.1s)
+(node:2600781) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   94 [mobile] › tests/e2e/to-doo-unified-shell.spec.ts:55:1 › desktop pages share the global header and contextual layout boundaries (9.3s)
+  ✓   95 [mobile] › tests/e2e/to-doo-unified-shell.spec.ts:126:3 › the light shell and task detail fit all supported widths and the host navigation (6.5s)
+  ✓   96 [mobile] › tests/e2e/to-doo-unified-shell.spec.ts:126:3 › the dark shell and task detail fit all supported widths and the host navigation (4.1s)
+  ✘   97 [mobile] › tests/e2e/to-doo-ux.spec.ts:20:1 › quick add today persists its plan without opening details and keeps completed tasks folded (45.2s)
+(node:2602059) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   98 [mobile] › tests/e2e/to-doo-ux.spec.ts:80:1 › quick add inherits the selected list and clearing filters restores tasks across views (9.1s)
+  ✓   99 [mobile] › tests/e2e/to-doo-ux.spec.ts:129:1 › quick add keeps its draft after a failed POST and retries into real server data (2.1s)
+  ✓  100 [mobile] › tests/e2e/to-doo-ux.spec.ts:166:1 › today and inbox quick navigation survive reload and browser history (3.2s)
+  ✓  101 [mobile] › tests/e2e/to-doo-ux.spec.ts:192:1 › wide task details continue the quick draft and submit exactly one real task (8.3s)
+  ✓  102 [mobile] › tests/e2e/to-doo-ux.spec.ts:227:1 › discarding a wide new-task detail clears its original list draft and preserves another list (3.5s)
+  ✓  103 [mobile] › tests/e2e/to-doo-ux.spec.ts:274:1 › quick entry stays usable in a 320px dark workspace (2.0s)
+  ✓  104 [mobile] › tests/e2e/to-doo-ux.spec.ts:297:1 › deleting a list immediately removes it from the sidebar catalog (9.5s)
+  ✓  105 [mobile] › tests/e2e/to-doo-ux.spec.ts:319:1 › retrying a deleted list refreshes the sidebar after its editor was closed (3.7s)
+  ✓  106 [mobile] › tests/e2e/to-doo-ux.spec.ts:351:3 › quick view time zones › initial today quick view uses the loaded workspace time zone across midnight (2.0s)
+  ✘  107 [mobile] › tests/e2e/to-doo-visible-workspace.spec.ts:29:1 › primary tools and contextual task directories are discoverable without expanding hidden groups (6.1s)
+(node:2603552) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  108 [mobile] › tests/e2e/to-doo-visible-workspace.spec.ts:63:1 › matrix uses four distinguishable surfaces and explains each action without wasting the viewport (2.5s)
+  ✓  109 [mobile] › tests/e2e/to-doo-visible-workspace.spec.ts:116:1 › mobile navigation keeps keyboard focus inside and restores the opener on Escape (1.8s)
+  ✓  110 [mobile] › tests/e2e/to-doo-visible-workspace.spec.ts:143:1 › leaving from navigation keeps focus on the unsaved confirmation and retains a cancelled draft (2.4s)
+  ✘  111 [mobile] › tests/e2e/to-doo-visible-workspace.spec.ts:169:1 › priority edits persist independently from visible matrix classification and dates (45.2s)
+(node:2603907) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  112 [mobile] › tests/e2e/to-doo.spec.ts:18:1 › To Doo creates a real goal and task, preserves edits, completes and survives refresh (7.1s)
+(node:2604010) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  113 [mobile] › tests/e2e/to-doo.spec.ts:97:1 › all To Doo sections are reachable on narrow and dark workspaces without overflow (15.4s)
+(node:2604136) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  114 [mobile] › tests/e2e/to-doo.spec.ts:169:1 › focus, habit check-ins, anniversary and real CSV import/export use durable server data (1.0m)
+(node:2604329) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  115 [mobile] › tests/e2e/to-doo.spec.ts:259:3 › To Doo source and evidence › an unsaved note can create a linked action and a real outcome note without overwriting its source (15.1s)
+  ✘  116 [mobile] › tests/e2e/to-doo.spec.ts:413:1 › bulk and cascade completion freeze execution membership and persist their actual states (10.1s)
+
+
+  1) [mobile] › tests/e2e/to-doo-reminders.spec.ts:82:1 › activating a desktop notification keeps the current unsaved note and opens its reminder 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('region', { name: '到点提醒', exact: true }).getByRole('heading', { name: '提醒任务 cedd8c64-1e71-42f7-81a9-28d64ac2366d' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('region', { name: '到点提醒', exact: true }).getByRole('heading', { name: '提醒任务 cedd8c64-1e71-42f7-81a9-28d64ac2366d' }) with timeout 5000ms
+      - waiting for getByRole('region', { name: '到点提醒', exact: true }).getByRole('heading', { name: '提醒任务 cedd8c64-1e71-42f7-81a9-28d64ac2366d' })
+
+
+      116 |     reminder.id,
+      117 |   );
+    > 118 |   await expect(cards(page).getByRole('heading', { name: reminder.title })).toBeVisible();
+          |                                                                            ^
+      119 |   expect(page.url()).toBe(url);
+      120 |   await expect(editor).toContainText('尚未保存的提醒测试草稿');
+      121 |   await cards(page).getByRole('button', { name: '稍后提醒', exact: true }).click();
+        at /home/bandoo/workspace/projects/doo-know/tests/e2e/to-doo-reminders.spec.ts:118:76
+
+    Error Context: test-results/mobile/to-doo-reminders-activatin-69b25-note-and-opens-its-reminder-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/mobile/to-doo-reminders-activatin-69b25-note-and-opens-its-reminder-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/mobile/to-doo-reminders-activatin-69b25-note-and-opens-its-reminder-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [mobile] › tests/e2e/to-doo-task-row-clarity.spec.ts:75:1 › plan and deadline labels keep an overdue deadline separate from tomorrow’s plan 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('region', { name: 'To Doo 行动工作空间' }).locator('.todo-task-row').filter({ has: getByRole('button', { name: '计划与截止不同 mobile-1793407490779', exact: true }) }).locator('.todo-task-plan')
+    Expected substring: "计划"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('region', { name: 'To Doo 行动工作空间' }).locator('.todo-task-row').filter({ has: getByRole('button', { name: '计划与截止不同 mobile-1793407490779', exact: true }) }).locator('.todo-task-plan') with timeout 5000ms
+      - waiting for getByRole('region', { name: 'To Doo 行动工作空间' }).locator('.todo-task-row').filter({ has: getByRole('button', { name: '计划与截止不同 mobile-1793407490779', exact: true }) }).locator('.todo-task-plan')
+
+
+      114 |   const plan = row.locator('.todo-task-plan');
+      115 |   const deadline = row.locator('.todo-task-deadline');
+    > 116 |   await expect(plan).toContainText('计划');
+          |                      ^
+      117 |   await expect(plan).toContainText('明天');
+      118 |   await expect(plan).toContainText('09:00');
+      119 |   await expect(plan).not.toHaveClass(/todo-danger/);
+        at /home/bandoo/workspace/projects/doo-know/tests/e2e/to-doo-task-row-clarity.spec.ts:116:22
+
+    Error Context: test-results/mobile/to-doo-task-row-clarity-pl-3497d-parate-from-tomorrow’s-plan-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/mobile/to-doo-task-row-clarity-pl-3497d-parate-from-tomorrow’s-plan-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/mobile/to-doo-task-row-clarity-pl-3497d-parate-from-tomorrow’s-plan-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [mobile] › tests/e2e/to-doo-unified-shell.spec.ts:32:1 › the shared header keeps save visible while a long settings form scrolls 
+
+    Test timeout of 45000ms exceeded.
+
+    Error Context: test-results/mobile/to-doo-unified-shell-the-s-96731--long-settings-form-scrolls-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/mobile/to-doo-unified-shell-the-s-96731--long-settings-form-scrolls-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/mobile/to-doo-unified-shell-the-s-96731--long-settings-form-scrolls-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [mobile] › tests/e2e/to-doo-ux.spec.ts:20:1 › quick add today persists its plan without opening details and keeps completed tasks folded 
+
+    Test timeout of 45000ms exceeded.
+
+    Error Context: test-results/mobile/to-doo-ux-quick-add-today--ea46d-eeps-completed-tasks-folded-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/mobile/to-doo-ux-quick-add-today--ea46d-eeps-completed-tasks-folded-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/mobile/to-doo-ux-quick-add-today--ea46d-eeps-completed-tasks-folded-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [mobile] › tests/e2e/to-doo-visible-workspace.spec.ts:29:1 › primary tools and contextual task directories are discoverable without expanding hidden groups 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.workspace')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.workspace') with timeout 5000ms
+      - waiting for locator('.workspace')
+
+
+       at ../support/settings-navigation.ts:27
+
+      25 | /** Open the shared app menu; portrait layouts expose the full menu through the bottom tabs. */
+      26 | export async function showMainMenu(page: Page) {
+    > 27 |   await expect(page.locator('.workspace')).toBeVisible();
+         |                                            ^
+      28 |   await closeDirectory(page);
+      29 |   const trigger = page.locator('.workspace-tabbar [aria-label="更多导航"]');
+      30 |   if ((await trigger.isVisible()) && (await trigger.getAttribute('aria-expanded')) !== 'true')
+        at showMainMenu (/home/bandoo/workspace/projects/doo-know/tests/support/settings-navigation.ts:27:44)
+        at /home/bandoo/workspace/projects/doo-know/tests/e2e/to-doo-visible-workspace.spec.ts:33:9
+
+    Error Context: test-results/mobile/to-doo-visible-workspace-p-54d26-out-expanding-hidden-groups-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/mobile/to-doo-visible-workspace-p-54d26-out-expanding-hidden-groups-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/mobile/to-doo-visible-workspace-p-54d26-out-expanding-hidden-groups-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [mobile] › tests/e2e/to-doo-visible-workspace.spec.ts:169:1 › priority edits persist independently from visible matrix classification and dates 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Browser logs:
+
+    <launching> /home/bandoo/.cache/ms-playwright/chromium_headless_shell-1248/chrome-headless-shell-linux64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,NetworkTimeServiceQuerying,AimEnabled,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-QVuW4W --remote-debugging-pipe --no-startup-window
+    <launched> pid=2603585
+    [pid=2603585][err] [1031/004743.228068:WARNING:sandbox/policy/linux/sandbox_linux.cc:405] InitializeSandbox() called with multiple threads in process gpu-process.
+    [pid=2603585][err] [1031/004743.715683:INFO:CONSOLE:935] "[vite] connecting...", source: http://127.0.0.1:4179/@vite/client (935)
+    [pid=2603585][err] [1031/004743.874215:INFO:CONSOLE:1048] "[vite] connected.", source: http://127.0.0.1:4179/@vite/client (1048)
+    [pid=2603585][err] [1031/004745.796431:INFO:CONSOLE:935] "[vite] connecting...", source: http://127.0.0.1:4179/@vite/client (935)
+    [pid=2603585][err] [1031/004745.809086:INFO:CONSOLE:1048] "[vite] connected.", source: http://127.0.0.1:4179/@vite/client (1048)
+    [pid=2603585][err] [1031/004747.572802:INFO:CONSOLE:935] "[vite] connecting...", source: http://127.0.0.1:4179/@vite/client (935)
+    [pid=2603585][err] [1031/004747.728718:INFO:CONSOLE:1048] "[vite] connected.", source: http://127.0.0.1:4179/@vite/client (1048)
+    [pid=2603585][err] [1031/004750.823874:INFO:CONSOLE:935] "[vite] connecting...", source: http://127.0.0.1:4179/@vite/client (935)
+    [pid=2603585][err] [1031/004751.031354:INFO:CONSOLE:1048] "[vite] connected.", source: http://127.0.0.1:4179/@vite/client (1048)
+    [pid=2603585] <gracefully close start>
+    Call log:
+      - waiting for getByRole('complementary', { name: '任务详情', exact: true }).getByRole('button', { name: '保存任务', exact: true })
+        - locator resolved to <button type="button" class="css-xjeq ant-btn ant-btn-primary todo-button todo-primary todo-detail-save">…</button>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <button type="button" data-v-9541284d="" class="css-xjeq ant-btn ant-btn-default reminder-missed">…</button> from <section aria-label="到点提醒" data-v-9541284d="" class="reminder-stack">…</section> subtree intercepts pointer events
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <button type="button" data-v-9541284d="" class="css-xjeq ant-btn ant-btn-default reminder-missed">…</button> from <section aria-label="到点提醒" data-v-9541284d="" class="reminder-stack">…</section> subtree intercepts pointer events
+        - retrying click action
+          - waiting 100ms
+        79 × waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <button type="button" data-v-9541284d="" class="css-xjeq ant-btn ant-btn-default reminder-missed">…</button> from <section aria-label="到点提醒" data-v-9541284d="" class="reminder-stack">…</section> subtree intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+        - waiting for element to be visible, enabled and stable
+
+
+      223 |   await detail.locator('.todo-priority-select').click();
+      224 |   await page.locator('.todo-priority-popup').getByText('低优先级', { exact: true }).click();
+    > 225 |   await detail.getByRole('button', { name: '保存任务', exact: true }).click();
+          |                                                                   ^
+      226 |   await expect(page.getByRole('status')).toContainText('任务已保存');
+      227 |   await page.reload();
+      228 |   await expect(detail.locator('.todo-priority-select')).toContainText('低优先级');
+        at /home/bandoo/workspace/projects/doo-know/tests/e2e/to-doo-visible-workspace.spec.ts:225:67
+
+    Error Context: test-results/mobile/to-doo-visible-workspace-p-7303c-ix-classification-and-dates-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/mobile/to-doo-visible-workspace-p-7303c-ix-classification-and-dates-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/mobile/to-doo-visible-workspace-p-7303c-ix-classification-and-dates-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [mobile] › tests/e2e/to-doo.spec.ts:18:1 › To Doo creates a real goal and task, preserves edits, completes and survives refresh 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('region', { name: 'To Doo 行动工作空间' }).locator('.todo-goals').getByRole('button', { name: '浏览器目标 mobile-1793407717425', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('region', { name: 'To Doo 行动工作空间' }).locator('.todo-goals').getByRole('button', { name: '浏览器目标 mobile-1793407717425', exact: true }) with timeout 5000ms
+      - waiting for getByRole('region', { name: 'To Doo 行动工作空间' }).locator('.todo-goals').getByRole('button', { name: '浏览器目标 mobile-1793407717425', exact: true })
+
+
+      29 |   await editor.getByLabel('名称', { exact: true }).fill(name);
+      30 |   await editor.getByRole('button', { name: '保存', exact: true }).click();
+    > 31 |   await expect(app.locator('.todo-goals').getByRole('button', { name, exact: true })).toBeVisible();
+         |                                                                                       ^
+      32 |   await app.getByRole('button', { name: '新建任务', exact: true }).first().click();
+      33 |   await app.getByLabel('任务标题', { exact: true }).fill('验证真实任务持久保存 ' + name);
+      34 |   await selectToDooOption(app, '目标或清单', name);
+        at /home/bandoo/workspace/projects/doo-know/tests/e2e/to-doo.spec.ts:31:87
+
+    Error Context: test-results/mobile/to-doo-To-Doo-creates-a-re-52489-pletes-and-survives-refresh-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/mobile/to-doo-To-Doo-creates-a-re-52489-pletes-and-survives-refresh-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/mobile/to-doo-To-Doo-creates-a-re-52489-pletes-and-survives-refresh-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [mobile] › tests/e2e/to-doo.spec.ts:97:1 › all To Doo sections are reachable on narrow and dark workspaces without overflow 
+
+    Error: expect(locator).not.toBeVisible() failed
+
+    Locator:  getByText('正在载入…', { exact: true })
+    Expected: not visible
+    Received: visible
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "not toBeVisible" getByText('正在载入…', { exact: true }) with timeout 5000ms
+      - waiting for getByText('正在载入…', { exact: true })
+        14 × locator resolved to <span class="todo-loading-sr-only">正在载入…</span>
+           - unexpected value "visible"
+
+
+      156 |     await goToToDooSection(page, section);
+      157 |     await expect(page.locator('.todo-page h1')).toHaveText(labels[index]!);
+    > 158 |     await expect(page.getByText('正在载入…', { exact: true })).not.toBeVisible();
+          |                                                                ^
+      159 |     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      160 |       true,
+      161 |     );
+        at /home/bandoo/workspace/projects/doo-know/tests/e2e/to-doo.spec.ts:158:64
+
+    Error Context: test-results/mobile/to-doo-all-To-Doo-sections-ace91-workspaces-without-overflow-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/mobile/to-doo-all-To-Doo-sections-ace91-workspaces-without-overflow-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/mobile/to-doo-all-To-Doo-sections-ace91-workspaces-without-overflow-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) [mobile] › tests/e2e/to-doo.spec.ts:169:1 › focus, habit check-ins, anniversary and real CSV import/export use durable server data 
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Browser logs:
+
+    <launching> /home/bandoo/.cache/ms-playwright/chromium_headless_shell-1248/chrome-headless-shell-linux64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,NetworkTimeServiceQuerying,AimEnabled,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-YfxgSK --remote-debugging-pipe --no-startup-window
+    <launched> pid=2604147
+    [pid=2604147][err] [1031/004900.006719:WARNING:sandbox/policy/linux/sandbox_linux.cc:405] InitializeSandbox() called with multiple threads in process gpu-process.
+    [pid=2604147][err] [1031/004900.078067:INFO:CONSOLE:935] "[vite] connecting...", source: http://127.0.0.1:4179/@vite/client (935)
+    [pid=2604147][err] [1031/004900.242438:INFO:CONSOLE:1048] "[vite] connected.", source: http://127.0.0.1:4179/@vite/client (1048)
+    [pid=2604147][err] [1031/004903.242876:INFO:CONSOLE:0] "Autofocus processing was blocked because a document already has a focused element.", source: http://127.0.0.1:4179/?view=apps&app=to-doo&appSection=habits (0)
+    [pid=2604147] <gracefully close start>
+    Call log:
+      - waiting for getByRole('region', { name: 'To Doo 行动工作空间' }).getByRole('button', { name: '预览导入', exact: true })
+        - locator resolved to <button type="button" class="css-xjeq ant-btn ant-btn-default todo-button">…</button>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <button type="button" data-v-9541284d="" class="css-xjeq ant-btn ant-btn-default reminder-missed">…</button> from <section aria-label="到点提醒" data-v-9541284d="" class="reminder-stack">…</section> subtree intercepts pointer events
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <button type="button" data-v-9541284d="" class="css-xjeq ant-btn ant-btn-default reminder-missed">…</button> from <section aria-label="到点提醒" data-v-9541284d="" class="reminder-stack">…</section> subtree intercepts pointer events
+        - retrying click action
+          - waiting 100ms
+        102 × waiting for element to be visible, enabled and stable
+            - element is visible, enabled and stable
+            - scrolling into view if needed
+            - done scrolling
+            - <button type="button" data-v-9541284d="" class="css-xjeq ant-btn ant-btn-default reminder-missed">…</button> from <section aria-label="到点提醒" data-v-9541284d="" class="reminder-stack">…</section> subtree intercepts pointer events
+          - retrying click action
+            - waiting 500ms
+        - waiting for element to be visible, enabled and stable
+
+
+      245 |     .getByLabel('或粘贴文件内容', { exact: true })
+      246 |     .fill('Title,Status\nImported ' + name + ',todo\n');
+    > 247 |   await app.getByRole('button', { name: '预览导入', exact: true }).click();
+          |                                                                ^
+      248 |   await expect(app.locator('.todo-import-preview')).toContainText('Imported ' + name);
+      249 |   await app.getByRole('button', { name: /确认导入 \d+ 项/ }).click();
+      250 |   await expect(app.getByText('导入已保存', { exact: true })).toBeVisible();
+        at /home/bandoo/workspace/projects/doo-know/tests/e2e/to-doo.spec.ts:247:64
+
+    Error Context: test-results/mobile/to-doo-focus-habit-check-i-995e0-ort-use-durable-server-data-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/mobile/to-doo-focus-habit-check-i-995e0-ort-use-durable-server-data-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/mobile/to-doo-focus-habit-check-i-995e0-ort-use-durable-server-data-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) [mobile] › tests/e2e/to-doo.spec.ts:413:1 › bulk and cascade completion freeze execution membership and persist their actual states 
+
+    Test was interrupted.
+
+    Error: locator.click: Test ended.
+    Browser logs:
+
+    <launching> /home/bandoo/.cache/ms-playwright/chromium_headless_shell-1248/chrome-headless-shell-linux64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,NetworkTimeServiceQuerying,AimEnabled,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/tmp/playwright_chromiumdev_profile-bDV7TO --remote-debugging-pipe --no-startup-window
+    <launched> pid=2604340
+    [pid=2604340][err] [1031/005001.820212:WARNING:sandbox/policy/linux/sandbox_linux.cc:405] InitializeSandbox() called with multiple threads in process gpu-process.
+    [pid=2604340][err] [1031/005001.930544:INFO:CONSOLE:935] "[vite] connecting...", source: http://127.0.0.1:4179/@vite/client (935)
+    [pid=2604340][err] [1031/005002.170044:INFO:CONSOLE:1048] "[vite] connected.", source: http://127.0.0.1:4179/@vite/client (1048)
+    [pid=2604340][err] [1031/005014.335177:INFO:CONSOLE:935] "[vite] connecting...", source: http://127.0.0.1:4179/@vite/client (935)
+    [pid=2604340][err] [1031/005014.484178:INFO:CONSOLE:1048] "[vite] connected.", source: http://127.0.0.1:4179/@vite/client (1048)
+    [pid=2604340][err] [1031/005017.876835:INFO:CONSOLE:935] "[vite] connecting...", source: http://127.0.0.1:4179/@vite/client (935)
+    [pid=2604340][err] [1031/005018.035393:INFO:CONSOLE:1048] "[vite] connected.", source: http://127.0.0.1:4179/@vite/client (1048)
+    [pid=2604340] <gracefully close start>
+    Call log:
+      - waiting for getByRole('region', { name: 'To Doo 行动工作空间' }).getByRole('button', { name: '显示已完成任务', exact: true })
+        - locator resolved to <button type="button" aria-label="显示已完成任务" aria-expanded="false" class="css-xjeq ant-btn ant-btn-text todo-completed-toggle">…</button>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <button type="button" data-v-9541284d="" class="css-xjeq ant-btn ant-btn-default reminder-missed">…</button> from <section aria-label="到点提醒" data-v-9541284d="" class="reminder-stack">…</section> subtree intercepts pointer events
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <button type="button" data-v-9541284d="" class="css-xjeq ant-btn ant-btn-default reminder-missed">…</button> from <section aria-label="到点提醒" data-v-9541284d="" class="reminder-stack">…</section> subtree intercepts pointer events
+        - retrying click action
+          - waiting 100ms
+        10 × waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <button type="button" data-v-9541284d="" class="css-xjeq ant-btn ant-btn-default reminder-missed">…</button> from <section aria-label="到点提醒" data-v-9541284d="" class="reminder-stack">…</section> subtree intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+        - waiting for element to be visible, enabled and stable
+
+
+      13 | async function showCompletedTasks(app: Locator) {
+      14 |   const show = app.getByRole('button', { name: '显示已完成任务', exact: true });
+    > 15 |   if (await show.isVisible()) await show.click();
+         |                                          ^
+      16 | }
+      17 |
+      18 | test('To Doo creates a real goal and task, preserves edits, completes and survives refresh', async ({
+        at showCompletedTasks (/home/bandoo/workspace/projects/doo-know/tests/e2e/to-doo.spec.ts:15:42)
+        at /home/bandoo/workspace/projects/doo-know/tests/e2e/to-doo.spec.ts:464:3
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/mobile/to-doo-bulk-and-cascade-co-c937a-persist-their-actual-states-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/mobile/to-doo-bulk-and-cascade-co-c937a-persist-their-actual-states-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9 failed
+    [mobile] › tests/e2e/to-doo-reminders.spec.ts:82:1 › activating a desktop notification keeps the current unsaved note and opens its reminder 
+    [mobile] › tests/e2e/to-doo-task-row-clarity.spec.ts:75:1 › plan and deadline labels keep an overdue deadline separate from tomorrow’s plan 
+    [mobile] › tests/e2e/to-doo-unified-shell.spec.ts:32:1 › the shared header keeps save visible while a long settings form scrolls 
+    [mobile] › tests/e2e/to-doo-ux.spec.ts:20:1 › quick add today persists its plan without opening details and keeps completed tasks folded 
+    [mobile] › tests/e2e/to-doo-visible-workspace.spec.ts:29:1 › primary tools and contextual task directories are discoverable without expanding hidden groups 
+    [mobile] › tests/e2e/to-doo-visible-workspace.spec.ts:169:1 › priority edits persist independently from visible matrix classification and dates 
+    [mobile] › tests/e2e/to-doo.spec.ts:18:1 › To Doo creates a real goal and task, preserves edits, completes and survives refresh 
+    [mobile] › tests/e2e/to-doo.spec.ts:97:1 › all To Doo sections are reachable on narrow and dark workspaces without overflow 
+    [mobile] › tests/e2e/to-doo.spec.ts:169:1 › focus, habit check-ins, anniversary and real CSV import/export use durable server data 
+  1 interrupted
+    [mobile] › tests/e2e/to-doo.spec.ts:413:1 › bulk and cascade completion freeze execution membership and persist their actual states 
+  1 skipped
+  105 passed (11.5m)

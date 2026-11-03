@@ -45,7 +45,7 @@ it('discovers every knowledge capability in bounded SDK pages and invokes lifecy
     .run(
       manifest.version,
       JSON.stringify(manifest),
-      JSON.stringify({ mode: 'oauth', permissionPolicy: policy }),
+      JSON.stringify({ oauthEnabled: true, apiKeyEnabled: false, permissionPolicy: policy }),
     );
   const grant = oauthGrantStore(f.db).approveV2(f.principal.id, 'knowledge-sdk', policy);
   const p = {
@@ -158,4 +158,41 @@ it('discovers every knowledge capability in bounded SDK pages and invokes lifecy
     requestId: 'sdk-asset-complete',
   });
   expect(asset.mime).toBe('application/pdf');
+  const portable = await call('export_portable_documents', {
+    selection: { kind: 'multiple', noteIds: [created.id] },
+    requestId: 'sdk-portable',
+  });
+  expect(portable.kind).toBe('archive');
+  expect(
+    await call('get_mcp_transfer', { transferId: portable.download.transferId }),
+  ).not.toHaveProperty('downloadUrl');
+  const chunk = await call('read_mcp_transfer', {
+    transferId: portable.download.transferId,
+    offset: 0,
+  });
+  expect(chunk.done).toBe(true);
+  const portableUpload = await call('begin_portable_import_upload', {
+    folderPath: '00-Inbox/sdk-imported',
+    name: portable.fileName,
+    mime: portable.mime,
+    totalBytes: portable.sizeBytes,
+    sha256: portable.sha256,
+    requestId: 'sdk-portable-upload',
+  });
+  await call('append_mcp_upload', {
+    transferId: portableUpload.transferId,
+    offset: 0,
+    base64: chunk.base64,
+  });
+  const imported = await call('import_portable_archive', {
+    transferId: portableUpload.transferId,
+    folderPath: '00-Inbox/sdk-imported',
+    requestId: 'sdk-portable-import',
+  });
+  expect(imported).toMatchObject({ state: 'succeeded', notesImported: 1 });
+  const portableResult = await call('get_portable_import_result', {
+    requestId: 'sdk-portable-import',
+  });
+  expect(portableResult.items).toHaveLength(1);
+  expect(portableResult.items[0].noteId).not.toBe(created.id);
 });

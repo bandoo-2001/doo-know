@@ -6,6 +6,8 @@ import * as Vue from 'vue';
 import * as workbench from '../apps/web/to-doo-workbench';
 import * as presentation from '../apps/web/to-doo-presentation';
 import * as controls from '../apps/web/to-doo-controls';
+import * as groups from '../apps/web/to-doo-task-groups';
+import * as menus from '../apps/web/to-doo-menu';
 import { toDooAntStubs, toDooBoundaryStub } from './support/to-doo-ant-stubs';
 import {
   TO_DOO_COLLECTIONS,
@@ -17,6 +19,7 @@ import {
 
 type Node = {
   tag: string;
+  style: Record<string, string>;
   props: Record<string, any>;
   children: Node[];
   text: string;
@@ -39,11 +42,17 @@ function component(name: string): Vue.Component {
       if (id === 'vue') return { ...Vue, vModelText: {}, vModelSelect: {}, vModelCheckbox: {} };
       if (id === '../../to-doo-workbench') return workbench;
       if (id === '../../to-doo-presentation') return presentation;
+      if (id === '../../to-doo-task-groups') return groups;
+      if (id === '../../to-doo-menu') return menus;
       if (id === 'ant-design-vue') return toDooAntStubs;
       if (id.endsWith('/to-doo-controls')) return controls;
+      if (id.endsWith('ToDooDisclosure.vue')) return { default: component('ToDooDisclosure') };
       const boundary = toDooBoundaryStub(id);
       if (boundary) return { default: boundary };
       if (id.endsWith('ToDooTaskRow.vue')) return { default: component('ToDooTaskRow') };
+      if (id.endsWith('ToDooTaskMenu.vue')) return { default: component('ToDooTaskMenu') };
+      if (id.endsWith('ToDooTaskGroupMenu.vue'))
+        return { default: component('ToDooTaskGroupMenu') };
       if (id.endsWith('.vue')) return { default: Vue.defineComponent({ render: () => null }) };
       throw Error(`Unexpected task component dependency: ${id}`);
     },
@@ -53,7 +62,13 @@ function component(name: string): Vue.Component {
   return output.exports.default;
 }
 function mount(name: string, props: Record<string, any>) {
-  const node = (tag: string, text = ''): Node => ({ tag, text, props: {}, children: [] });
+  const node = (tag: string, text = ''): Node => ({
+    tag,
+    style: {},
+    text,
+    props: {},
+    children: [],
+  });
   const renderer = Vue.createRenderer<Node, Node>({
     insertStaticContent(content, parent, anchor) {
       const child = node('#static', content);
@@ -225,6 +240,105 @@ function confirmationModel() {
 }
 
 describe('task surface controls', () => {
+  test('empty optional settings are absent from the main detail while their editors remain reachable', () => {
+    const value = model();
+    value.draft()!.task.priority = 'none';
+    value.draft()!.occurrence!.due = null;
+    const detail = mount('ToDooTaskDetail', { model: value, tree: [] });
+    expect(detail.byClass('todo-detail-shortcuts')).toHaveLength(0);
+    expect(
+      detail.all().some((node) => node.tag === 'button' && node.props['aria-label'] === '添加属性'),
+    ).toBe(true);
+    expect(
+      detail
+        .all()
+        .some((node) => node.tag === 'button' && node.props['aria-label'] === '编辑重复规则'),
+    ).toBe(true);
+  });
+
+  test('existing subtasks appear in primary content without expanding advanced details', () => {
+    const { value } = confirmationModel();
+    const detail = mount('ToDooTaskDetail', { model: value, tree: [] });
+    const primary = detail.byClass('todo-primary-children')[0];
+    expect(primary).toBeDefined();
+    expect(detail.text(primary)).toContain('报告子任务');
+    expect(
+      detail
+        .all()
+        .find((node) => node.tag === 'summary' && detail.text(node).startsWith('更多详情'))!.parent!
+        .parent!.props['active-key'],
+    ).toEqual([]);
+  });
+  test.each([
+    ['编辑重复规则', '重复规则'],
+    ['编辑任务提醒', '更多选项：标签、提醒、依赖与来源'],
+    ['编辑关联资料', '关联资料'],
+  ])('%s reveals the existing editor in one click and can reopen it', async (label, title) => {
+    const value = model();
+    const before = JSON.stringify(value.draft());
+    const detail = mount('ToDooTaskDetail', { model: value, tree: [] });
+    const shortcut = detail
+      .all()
+      .find((node) => node.tag === 'button' && node.props['aria-label'] === label);
+    expect(shortcut).toBeDefined();
+    const collapse = (name: string) =>
+      detail.all().find((node) => node.tag === 'summary' && detail.text(node).startsWith(name))!
+        .parent!.parent!;
+    const active = (name: string) => collapse(name).props['active-key'];
+    expect(active('更多详情')).toEqual([]);
+    expect(active(title)).toEqual([]);
+
+    await shortcut!.props.onClick();
+    await Vue.nextTick();
+    expect(active('更多详情')).toEqual(['content']);
+    expect(active(title)).toEqual(['content']);
+    expect(collapse('更多详情').props['open-animation']).toEqual({ css: false });
+    expect(collapse(title).props['open-animation']).toEqual({ css: false });
+    expect(JSON.stringify(value.draft())).toBe(before);
+    expect(value.dirty()).toBe(false);
+
+    collapse('更多详情').props.onChange([]);
+    collapse(title).props.onChange([]);
+    await Vue.nextTick();
+    expect(collapse('更多详情').props['open-animation']).toBeUndefined();
+    expect(collapse(title).props['open-animation']).toBeUndefined();
+    await shortcut!.props.onClick();
+    await Vue.nextTick();
+    expect(active('更多详情')).toEqual(['content']);
+    expect(active(title)).toEqual(['content']);
+  });
+
+  test('shortcut summaries reflect the current draft without duplicating editors', async () => {
+    const value = model();
+    const detail = mount('ToDooTaskDetail', { model: value, tree: [] });
+    const shortcuts = () => detail.byClass('todo-detail-shortcuts')[0]!;
+    expect(shortcuts()).toBeUndefined();
+    const repeat = detail
+      .all()
+      .filter(
+        (node) =>
+          node.tag === 'select' &&
+          node.parent?.tag === 'label' &&
+          detail.text(node.parent).startsWith('重复'),
+      );
+    expect(repeat).toHaveLength(1);
+    repeat[0].props.onChange({ target: { value: 'weekly' } });
+    value.draft()!.task.reminders.push({
+      id: 'reminder-a',
+      anchor: 'due',
+      offsetMinutes: -30,
+      allDayTime: '09:00',
+    });
+    value.draft()!.task.noteRefs.push({ noteId: 'note-a', role: 'material', title: '报告材料' });
+    await Vue.nextTick();
+    expect(detail.text(shortcuts())).toContain('每周');
+    expect(detail.text(shortcuts())).toContain('1 条提醒');
+    expect(detail.text(shortcuts())).toContain('1 份资料');
+    expect(
+      detail.all().filter((node) => node.tag === 'summary' && detail.text(node) === '关联资料1'),
+    ).toHaveLength(1);
+  });
+
   test('row priority remains readable alongside its separate deadline', () => {
     const value = model();
     const row = mount('ToDooTaskRow', {
@@ -236,16 +350,82 @@ describe('task surface controls', () => {
     expect(row.all().some((n) => n.props['aria-label'] === '截止 2026-10-30')).toBe(true);
   });
 
-  test('importance and urgency are directly editable without opening more options, independently of priority', async () => {
+  test.each([false, true])(
+    'a default-priority row omits empty metadata when its list is hidden: %s',
+    (hideList) => {
+      const item = model().items()[0]!;
+      item.task.priority = 'none';
+      item.list = hideList
+        ? toDooEntitySchemas.list.parse({
+            id: 'work',
+            revision: 'r1',
+            createdAt: item.task.createdAt,
+            updatedAt: item.task.updatedAt,
+            name: '工作',
+          })
+        : undefined;
+      const row = mount('ToDooTaskRow', { item, hideList, today: '2026-10-29' });
+      const body = row.byClass('todo-task-body')[0]!;
+      expect(row.text(body)).toBe('准备报告');
+      expect(body.children.filter((node) => node.tag === 'small')).toHaveLength(0);
+      expect(row.byClass('todo-priority-label')).toHaveLength(0);
+    },
+  );
+
+  test.each([
+    ['list', '工作'],
+    ['references', '▤ 1'],
+    ['recurrence', '↻'],
+    ['blocked', '受阻'],
+    ['unavailable', '执行记录尚未载入'],
+  ])('a default-priority row retains its %s indicator on its own', (indicator, expected) => {
+    const item = model().items()[0]!;
+    item.task = toDooEntitySchemas.task.parse({
+      ...item.task,
+      priority: 'none',
+      noteRefs:
+        indicator === 'references'
+          ? [{ noteId: 'note-a', role: 'material', title: '报告材料' }]
+          : [],
+      recurrence:
+        indicator === 'recurrence'
+          ? { id: 'daily', frequency: 'daily', anchorDate: '2026-10-29' }
+          : null,
+    });
+    item.list =
+      indicator === 'list'
+        ? toDooEntitySchemas.list.parse({
+            id: 'work',
+            revision: 'r1',
+            createdAt: item.task.createdAt,
+            updatedAt: item.task.updatedAt,
+            name: '工作',
+          })
+        : undefined;
+    if (indicator === 'blocked') item.status = 'blocked';
+    if (indicator === 'unavailable') {
+      item.status = 'unavailable';
+      item.occurrence = null;
+    }
+    const row = mount('ToDooTaskRow', { item, today: '2026-10-29' });
+    const body = row.byClass('todo-task-body')[0]!;
+    expect(row.text(body)).toBe('准备报告' + expected);
+    expect(body.children.filter((node) => node.tag === 'small')).toHaveLength(1);
+    expect(row.byClass('todo-priority-label')).toHaveLength(0);
+    if (indicator === 'unavailable')
+      expect(row.byClass('todo-check')[0]!.props.disabled).toBe(true);
+  });
+
+  test('importance and urgency remain editable in their compact group, independently of priority', async () => {
     const value = model();
     const detail = mount('ToDooTaskDetail', { model: value, tree: [] });
     const visibleField = (label: string) =>
       detail.all().find((n) => {
         if (n.tag !== 'label' || !detail.text(n).startsWith(label)) return false;
-        for (let p = n.parent; p; p = p.parent)
-          if (p.tag === 'details' && !p.props.open) return false;
         return true;
       });
+    const classification = detail.byClass('todo-classification')[0]!;
+    expect(classification).toBeDefined();
     expect(visibleField('重要程度')).toBeDefined();
     expect(visibleField('紧急程度')).toBeDefined();
     const priority = detail

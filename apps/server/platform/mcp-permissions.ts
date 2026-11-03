@@ -1,17 +1,15 @@
 import type { FastifyInstance } from 'fastify';
 import type { AppDatabase } from '../../../packages/core/db.js';
 import type { platformRuntime } from './runtime.js';
-import type { PermissionPolicy, ResourceRef } from '../../../shared/permissions.js';
+import type { PermissionPolicy } from '../../../shared/permissions.js';
 import {
-  normalizePermissionPolicy,
   currentBlogInstanceId,
   currentToDooInstanceId,
 } from '../../../packages/core/auth/permissions.js';
 import {
-  directoryByPath,
   syncDirectoryCatalog,
 } from '../../../packages/core/organization/catalog.js';
-import { webPrincipal } from '../../../packages/core/knowledge/core.js';
+import { mcpPermissionCeiling } from '../../../packages/core/auth/grants.js';
 
 /** Owner inventory, separate from MCP caller discovery and its resource filters. */
 export function registerMcpPermissionRoutes(
@@ -42,62 +40,7 @@ export function registerMcpPermissionRoutes(
       taskLists = runtime.toDoo.snapshot({ kind: 'list', limit: 1000 }).lists;
     } catch {}
     const taskInstance = currentToDooInstanceId(db);
-    let policy: PermissionPolicy;
-    if (config.permissionPolicy) policy = normalizePermissionPolicy(config.permissionPolicy);
-    else {
-      const resources: ResourceRef[] = [];
-      for (const path of config.allowedPrefixes || webPrincipal.allowedPrefixes) {
-        const dir = directoryByPath(db, path),
-          note = notes.find((n) => n.path === path);
-        if (dir) resources.push({ kind: 'directory', id: dir.id });
-        else if (note) resources.push({ kind: 'note', id: note.id });
-      }
-      policy = {
-        version: 2,
-        domains: {
-          knowledge: {
-            enabled: true,
-            ownerId,
-            instanceId: identity.libraryId,
-            actions: [
-              'read',
-              ...(config.readOnly === false ? ['write', 'archive'] : []),
-              ...(config.allowIndex === true ? ['index'] : []),
-            ],
-            resources: { mode: 'selected', resources },
-          },
-          'to-doo': {
-            enabled: config.allowToDoo === true,
-            ownerId,
-            instanceId: taskInstance,
-            actions:
-              config.allowToDoo === true
-                ? [
-                    'read',
-                    ...(config.allowToDooWrite === true && config.readOnly === false
-                      ? ['write']
-                      : []),
-                  ]
-                : [],
-            resources:
-              Array.isArray(config.toDooListIds) && config.toDooListIds.length
-                ? {
-                    mode: 'selected',
-                    resources: config.toDooListIds.map((id: string) => ({ kind: 'list', id })),
-                  }
-                : { mode: 'all' },
-          },
-          blog: {
-            enabled: config.allowPublish === true && config.readOnly === false,
-            ownerId,
-            instanceId: blogInstance,
-            actions:
-              config.allowPublish === true && config.readOnly === false ? ['read', 'publish'] : [],
-            resources: { mode: 'all' },
-          },
-        },
-      };
-    }
+    const policy: PermissionPolicy = mcpPermissionCeiling(db, ownerId, config);
     policy.domains['to-doo'] ??= {
       enabled: false,
       ownerId,

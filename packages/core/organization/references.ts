@@ -1,3 +1,4 @@
+import { whiteboardReference, whiteboardId } from '../../../shared/whiteboard.js';
 import { posix } from 'node:path';
 import { markdown } from '../render.js';
 import { frontmatterRange } from '../../../shared/frontmatter-range.js';
@@ -53,7 +54,11 @@ export function rewriteLibraryReferences(
   targetPath: string,
   moves: Move[],
   whiteboard = false,
+  observeNativeLink?: (url: string) => void,
 ): { content: string; changed: boolean } {
+  // Every editable Markdown destination needs a link, HTML or fence delimiter.
+  // Callers still read and validate the whole file before reaching this parser.
+  if (!whiteboard && !/[<\[`~]/.test(content)) return { content, changed: false };
   const ordered = [...moves].sort((a, b) => b.from.length - a.from.length);
   const edits: Edit[] = [];
   const rewrite = (url: string, wiki = false) => {
@@ -122,6 +127,7 @@ export function rewriteLibraryReferences(
           typeof path[1] === 'number' &&
           path[2] === 'link'
         ) {
+          observeNativeLink?.(token.value);
           const next = rewrite(token.value);
           if (next !== token.value)
             edits.push({ start: token.start, end: token.end, text: JSON.stringify(next) });
@@ -164,15 +170,27 @@ export function rewriteLibraryReferences(
     if (front) mark(0, front.end);
     const lineStarts = [0];
     for (let i = 0; i < content.length; i++) if (content[i] === '\n') lineStarts.push(i + 1);
-    const source = content
-      .split('')
-      .map((c, i) => (excluded[i] && c !== '\n' && c !== '\r' ? ' ' : c))
-      .join('');
+    const source = front
+      ? content.slice(0, front.end).replace(/[^\r\n]/g, ' ') + content.slice(front.end)
+      : content;
     const env: { references?: Record<string, { href: string; title: string }> } = {};
     const tokens = markdown.parse(source, env);
     const urls = new Set<string>();
     const visit = (list: typeof tokens) => {
       for (const token of list) {
+        if (token.type === 'fence' && token.info.trim() === 'excalidraw' && token.map) {
+          const ref = whiteboardReference(token.content);
+          if (ref && !whiteboardId(ref)) {
+            const next = rewrite(ref),
+              from = lineStarts[token.map[0] + 1],
+              to = lineStarts[token.map[1] - 1] ?? content.length;
+            const raw = content.slice(from, to),
+              offset = raw.indexOf(ref);
+            if (next !== ref && offset >= 0)
+              edits.push({ start: from + offset, end: from + offset + ref.length, text: next });
+          }
+        }
+
         if (
           ['fence', 'code_block', 'math_block', 'math_block_eqno'].includes(token.type) &&
           token.map

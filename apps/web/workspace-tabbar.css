@@ -301,6 +301,26 @@
     padding-bottom: 8px;
     font-size: 18px;
   }
+  /* Keep installed extension actions from consuming the directory in landscape. */
+  .workspace > .sidebar .sidebar-tools {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: 36px;
+    max-height: 42px;
+    margin-bottom: 6px;
+    padding-top: 4px;
+    gap: 4px;
+    overflow-y: auto;
+  }
+  .workspace > .sidebar .sidebar-tools > .sidebar-section-title {
+    display: none;
+  }
+  .workspace > .sidebar .sidebar-tool-button > span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
   .workspace .blog-workspace.blog-admin .blog-picker {
     padding: 12px;
   }

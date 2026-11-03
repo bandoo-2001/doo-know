@@ -1,0 +1,26 @@
+
+ RUN  v5.0.4 /home/bandoo/workspace/projects/doo-know
+
+ ❯ tests/to-doo-notification-cache.test.ts (5 tests | 1 failed) 4137ms
+   × validates every stale reminder with a bounded number of full snapshots even when desktop push is off 3759ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/to-doo-notification-cache.test.ts > validates every stale reminder with a bounded number of full snapshots even when desktop push is off
+AssertionError: expected 205 to be less than 10
+ ❯ tests/to-doo-notification-cache.test.ts:100:38
+     98|   ).toEqual({ count: 200 });
+     99|   expect(f.service.getEntity('reminderEvent', 'stale-199')).toMatchObj…
+    100|   expect(snapshot.mock.calls.length).toBeLessThan(10);
+       |                                      ^
+    101| });
+    102|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+   Start at  09:07:55
+   Duration  4.57s (tests 94%, import 4%, transform 2%)
+

@@ -33,9 +33,12 @@ export type McpUploadInput = {
   sha256?: string;
 };
 export type McpDownloadInput = Omit<McpUploadInput, 'totalBytes' | 'sha256'> & { bytes: Buffer };
+export type McpStreamDownloadInput = McpUploadInput & { sha256: string; stream: AsyncIterable<Uint8Array>; signal?: AbortSignal; check?: () => void };
 export interface McpTransferStore {
   beginUpload(principal: Principal, input: McpUploadInput): McpTransferInfo;
   createDownload(principal: Principal, input: McpDownloadInput): McpTransferInfo;
+  createDownloadStream(principal: Principal, input: McpStreamDownloadInput): Promise<McpTransferInfo>;
+  openUpload(principal: Principal, transferId: string, expectedBinding?: McpTransferBinding, completionRequestId?: string): { path: string; binding: McpTransferBinding; name: string; mime: string; sha256: string; totalBytes: number };
   info(principal: Principal, transferId: string): McpTransferInfo;
   append(principal: Principal, input: { transferId: string; offset: number; base64: string }): McpTransferInfo;
   read(principal: Principal, input: { transferId: string; offset: number; maxBytes?: number }): {

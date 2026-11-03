@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { test, expect } from '../support/browser-test';
+import { expandToDooGroup } from '../support/to-doo-ant-controls';
 
 test.beforeEach(async ({ context }) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
@@ -93,14 +94,11 @@ test('outcome-note destinations keep the default implicit and send an explicitly
     const task = await created.json();
     await page.goto('/?view=apps&app=to-doo&appSection=tasks&task=' + task.ids[0]);
     const detail = page.getByRole('complementary', { name: '任务详情', exact: true });
-    const summary = detail
-      .locator('summary')
-      .filter({ hasText: '完成标准与成果' })
-      .or(detail.locator('summary[aria-label="完成标准与成果"]'));
-    if (!(await summary.evaluate((element) => (element.parentElement as HTMLDetailsElement).open)))
-      await summary.click();
+    await expect(detail).toBeVisible();
+    await expandToDooGroup(detail, '完成标准与成果');
     await detail.getByRole('button', { name: '创建成果笔记并关联', exact: true }).click();
     const dialog = page.getByRole('dialog', { name: '创建成果笔记', exact: true });
+    await expandToDooGroup(dialog, '更多保存选项');
     const picker = dialog.getByRole('combobox', { name: '保存目录', exact: true });
     await picker.focus();
     await picker.press('ArrowDown');

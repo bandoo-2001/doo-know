@@ -10,7 +10,7 @@ async function seed(context: BrowserContext) {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   const csrf = await (await context.request.get('/api/security/csrf')).json();
   const response = await context.request.post('/api/notes', {
-    headers: { origin: 'http://127.0.0.1:4179', 'x-csrf-token': csrf.token },
+    headers: { origin: JSON.parse(await readFile('.local/e2e-config.json', 'utf8')).origin, 'x-csrf-token': csrf.token },
     data: {
       folderPath: '00-Inbox', fileName: `startup-${crypto.randomUUID()}.md`,
       content: original, requestId: crypto.randomUUID(),
@@ -44,14 +44,26 @@ async function holdSmallPreparation(page: Page, context: BrowserContext, id: str
   const completion = gate();
   let operationId = '', pending = false;
   let accepted: any;
+  const config = JSON.parse(await readFile('.local/e2e-config.json', 'utf8'));
   await page.route('**/api/notes/' + id + '/meta', async (route) => {
-    const response = await route.fetch(), metadata = await response.json();
+    let response = await route.fetch(), metadata = await response.json();
     if (!operationId) {
-      expect(metadata.readState).toBe('unknown');
+      // The indexer may prepare this tiny fixture before the page reaches it.
+      // Publish fresh, identical bytes until we capture a real accepted read;
+      // no worker state or operation response is fabricated.
+      for (let attempt = 0; attempt < 10; attempt++) {
+        if (metadata.readState !== 'ready') {
+          accepted = await (await context.request.get('/api/notes/' + id + '/outline')).json();
+          if (accepted.kind === 'accepted') break;
+        }
+        await writeFile(join(config.knowledgeRoot, metadata.relativePath), original);
+        response = await route.fetch();
+        metadata = await response.json();
+      }
+      expect(['unknown', 'preparing']).toContain(metadata.readState);
       expect(metadata.editorMode).toBe('large');
       expect(metadata.sizeBytes).toBe(Buffer.byteLength(original));
-      accepted = await (await context.request.get('/api/notes/' + id + '/outline')).json();
-      expect(accepted.kind).toBe('accepted');
+      expect(accepted?.kind).toBe('accepted');
       expect(['queued', 'running']).toContain(accepted.operation.status);
       operationId = accepted.operation.operationId;
       await route.fulfill({ response, json: { ...metadata, readState: 'preparing' } });
@@ -106,7 +118,7 @@ test('等待小笔记准备期间进入设置，迟到的任务完成不会重�
     await expect.poll(preparation.pending).toBe(true);
     await showMainMenu(page);
     await page.getByRole('button', { name: '设置', exact: true }).click();
-    await expect(page.getByRole('heading', { name: '编辑器与外观', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '编辑与阅读', exact: true })).toBeVisible();
   } finally { preparation.release(); }
   await (await outline).finished();
   // Cross the existing operation-poll timer after delivering its accepted reply,
@@ -114,7 +126,7 @@ test('等待小笔记准备期间进入设置，迟到的任务完成不会重�
   await page.clock.runFor(1000);
   await expect.poll(async () => (await (await context.request.get('/api/operations/' + preparation.operationId())).json()).status).toBe('succeeded');
   await expect(page).toHaveURL(/view=settings/);
-  await expect(page.getByRole('heading', { name: '编辑器与外观', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '编辑与阅读', exact: true })).toBeVisible();
   await expect(page.locator('.cm-content')).toHaveCount(0);
   await expect(page.getByRole('textbox', { name: '文档正文', exact: true })).toHaveCount(0);
   expect(fullReads).toBe(0);

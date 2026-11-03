@@ -2,6 +2,9 @@ import type { AppDatabase } from '../db.js';
 import type { TokenizerClient } from './tokenizer-client.js';
 import type { SourceVersion, Principal, SearchInput } from '../../../shared/knowledge-contracts.js';
 import type { IndexedChunk } from './chunks.js';
+import { chunkInventory } from './scan-proof.js';
+import { isWhiteboard } from '../../../shared/whiteboard.js';
+import { whiteboardChunkText } from '../../../shared/whiteboard-text-spans.js';
 import { requireScope } from '../agent/auth.js';
 import { fail } from '../knowledge/errors.js';
 import { recallFilter } from '../search/filters.js';
@@ -21,9 +24,13 @@ export function pathFilter(p: Principal, column = 'c.path') {
   const clauses: string[] = [],
     values: string[] = [];
   for (const prefix of p.allowedPrefixes) {
-    if (p.knowledgeResourcePaths?.some(ref => ref.kind === 'note' && ref.path === prefix)
-      && !p.knowledgeResourcePaths.some(ref => ref.kind === 'directory' && ref.path === prefix)) {
-      clauses.push(`${column}=?`); values.push(prefix); continue;
+    if (
+      p.knowledgeResourcePaths?.some((ref) => ref.kind === 'note' && ref.path === prefix) &&
+      !p.knowledgeResourcePaths.some((ref) => ref.kind === 'directory' && ref.path === prefix)
+    ) {
+      clauses.push(`${column}=?`);
+      values.push(prefix);
+      continue;
     }
     clauses.push(`(${column}=? OR ${column} LIKE ? ESCAPE '\\')`);
     values.push(prefix, prefix.replace(/[\\%_]/g, '\\$&') + '/%');
@@ -31,6 +38,15 @@ export function pathFilter(p: Principal, column = 'c.path') {
   return { sql: clauses.join(' OR '), values };
 }
 export function textIndexService(db: AppDatabase, tokenizer: TokenizerClient) {
+  const searchableText = (path: string, content: string) => {
+    if (!isWhiteboard(path)) return content;
+    try {
+      return whiteboardChunkText(content);
+    } catch {
+      return '';
+    }
+  };
+  db.function('dooknow_chunk_text', { deterministic: true }, searchableText);
   async function stage(
     version: SourceVersion,
     title: string,
@@ -39,7 +55,10 @@ export function textIndexService(db: AppDatabase, tokenizer: TokenizerClient) {
     valid: () => boolean = () => true,
   ) {
     if (chunks.length > 16) fail(413, 'INDEX_BATCH_TOO_LARGE');
-    const fields = chunks.flatMap((c) => [title, path, c.headingPath.join(' / '), c.content]),
+    const semantic = chunks.map((c) =>
+        isWhiteboard(path) ? whiteboardChunkText(c.content) : c.content,
+      ),
+      fields = chunks.flatMap((c, i) => [title, path, c.headingPath.join(' / '), semantic[i]]),
       terms = await tokenizer.tokenize(fields);
     db.transaction(() => {
       if (!valid()) fail(409, 'LEASE_LOST');
@@ -74,7 +93,7 @@ export function textIndexService(db: AppDatabase, tokenizer: TokenizerClient) {
           ...terms.slice(i * 4, i * 4 + 4).map((t) => t.join(' ')),
         );
         db.prepare('DELETE FROM chunk_terms WHERE chunk_id=?').run(c.chunkId);
-        const raw = [title, path, ...c.headingPath, c.content].join('\n').toLowerCase(),
+        const raw = [title, path, ...c.headingPath, semantic[i]].join('\n').toLowerCase(),
           characters = [...raw],
           grams = new Set<string>();
         for (let j = 0; j < characters.length; j++) {
@@ -108,10 +127,17 @@ export function textIndexService(db: AppDatabase, tokenizer: TokenizerClient) {
           (db.prepare('SELECT active FROM maintenance WHERE id=1').get() as any).active
         )
           fail(503, 'SYNC_IN_PROGRESS');
-        let end = 0;
+        const proof = db
+          .prepare(
+            'SELECT * FROM index_scan_proofs WHERE note_id=? AND source_hash=? AND chunker_id=?',
+          )
+          .get(version.noteId, version.contentHash, chunkerId) as any;
+        if (!proof) fail(409, 'INDEX_INCOMPLETE');
+        const inventory = chunkInventory();
+        let ordinal = 0;
         for (const row of db
           .prepare(
-            'SELECT start_byte,end_byte FROM chunks WHERE note_id=? AND source_hash=? AND source_revision=? AND chunker_id=? ORDER BY ordinal',
+            'SELECT ordinal,start_byte,end_byte,start_line,end_line,content FROM chunks WHERE note_id=? AND source_hash=? AND source_revision=? AND chunker_id=? ORDER BY ordinal',
           )
           .iterate(
             version.noteId,
@@ -119,10 +145,29 @@ export function textIndexService(db: AppDatabase, tokenizer: TokenizerClient) {
             version.sourceRevision,
             chunkerId,
           ) as Iterable<any>) {
-          if (row.start_byte > end) fail(409, 'INDEX_INCOMPLETE');
-          end = Math.max(end, row.end_byte);
+          if (
+            row.ordinal !== ordinal++ ||
+            row.start_byte < 0 ||
+            row.end_byte > state.size_bytes ||
+            row.end_byte < row.start_byte
+          )
+            fail(409, 'INDEX_INCOMPLETE');
+          inventory.add({
+            ordinal: row.ordinal,
+            startByte: row.start_byte,
+            endByte: row.end_byte,
+            startLine: row.start_line,
+            endLine: row.end_line,
+            content: row.content,
+          });
         }
-        if (end !== state.size_bytes) fail(409, 'INDEX_INCOMPLETE');
+        const actual = inventory.finish();
+        if (
+          proof.size_bytes !== state.size_bytes ||
+          proof.chunk_count !== actual.count ||
+          proof.chunk_digest !== actual.digest
+        )
+          fail(409, 'INDEX_INCOMPLETE');
         db.prepare('UPDATE chunks SET active=0 WHERE note_id=?').run(version.noteId);
         db.prepare(
           'UPDATE chunks SET active=1 WHERE note_id=? AND source_hash=? AND source_revision=? AND chunker_id=?',
@@ -154,7 +199,7 @@ export function textIndexService(db: AppDatabase, tokenizer: TokenizerClient) {
     // Verify literal filenames, paths and phrases before LIMIT. In particular,
     // the common "md" token must not qualify unrelated files by itself.
     const literalSql = literal
-      ? ` AND (dooknow_search_contains(c.title,?) OR dooknow_search_contains(c.path,?) OR dooknow_search_contains((SELECT group_concat(value,' / ') FROM json_each(c.heading_path)),?) OR dooknow_search_contains(c.content,?))`
+      ? ` AND (dooknow_search_contains(c.title,?) OR dooknow_search_contains(c.path,?) OR dooknow_search_contains((SELECT group_concat(value,' / ') FROM json_each(c.heading_path)),?) OR dooknow_search_contains(dooknow_chunk_text(c.path,c.content),?))`
       : '';
     const values = [...allowed.values, ...(literal ? [needle, needle, needle, needle] : [])];
     const base = `FROM chunks c JOIN document_state d ON d.note_id=c.note_id JOIN notes n ON n.id=c.note_id WHERE c.active=1 AND d.active=1 AND n.active=1 AND d.conflict=0 AND c.source_hash=d.content_hash AND c.source_revision=d.source_revision AND (${allowed.sql})${literalSql}`;
@@ -204,9 +249,12 @@ export function textIndexService(db: AppDatabase, tokenizer: TokenizerClient) {
     }
     if (literal)
       candidates = candidates.filter((c) =>
-        [c.title, c.path, JSON.parse(c.heading_path).join(' / '), c.content].some((value) =>
-          String(value).toLowerCase().includes(needle),
-        ),
+        [
+          c.title,
+          c.path,
+          JSON.parse(c.heading_path).join(' / '),
+          searchableText(c.path, c.content),
+        ].some((value) => String(value).toLowerCase().includes(needle)),
       );
     const hasMoreNotes = new Set(candidates.map((c) => c.note_id)).size > budget;
     const compare = (a: any, b: any) =>

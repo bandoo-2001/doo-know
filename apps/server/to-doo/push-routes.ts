@@ -28,6 +28,9 @@ export function registerToDooPushRoutes(
     return getNotifications().deviceStatus(body.endpoint);
   });
   app.get('/api/to-doo/reminders/pending', () => reminders().pending());
+  app.get<{ Params: { id: string } }>('/api/to-doo/reminders/:id/source', (req) =>
+    getService().reminderSource(id.parse(req.params.id)),
+  );
   app.get<{ Params: { id: string } }>('/api/to-doo/reminders/:id', (req) =>
     reminders().get(id.parse(req.params.id)),
   );

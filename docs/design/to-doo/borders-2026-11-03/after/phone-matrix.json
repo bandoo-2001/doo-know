@@ -1,0 +1,153 @@
+{
+  "device": {
+    "id": "phone",
+    "width": 390,
+    "height": 844,
+    "theme": "dark"
+  },
+  "id": "matrix",
+  "fixedTime": "2026-10-30T09:00:00.000Z",
+  "report": [
+    {
+      "tag": "INPUT",
+      "className": "ant-input css-1phc3w9",
+      "text": "",
+      "borders": [
+        "0px",
+        "0px",
+        "0px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(50, 55, 70)",
+      "parent": "todo-quick-add-line"
+    },
+    {
+      "tag": "INPUT",
+      "className": "ant-input css-1phc3w9",
+      "text": "",
+      "borders": [
+        "0px",
+        "0px",
+        "0px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(50, 55, 70)",
+      "parent": "todo-search"
+    },
+    {
+      "tag": "SECTION",
+      "className": "todo-panel todo-quadrant todo-quadrant-do",
+      "text": "重要且紧急立即行动1整理项目的下一步高优先级工作与创造计划今天09:00截止明天17:00",
+      "borders": [
+        "3px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "8px",
+      "color": "rgb(255, 147, 153) rgb(50, 55, 70) rgb(50, 55, 70)",
+      "parent": "todo-quadrants"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-task-row todo-priority-high",
+      "text": "整理项目的下一步高优先级工作与创造计划今天09:00截止明天17:00",
+      "borders": [
+        "0px",
+        "0px",
+        "0px",
+        "0px"
+      ],
+      "radius": "6px",
+      "color": "rgb(229, 232, 240)",
+      "parent": ""
+    },
+    {
+      "tag": "SECTION",
+      "className": "todo-panel todo-quadrant todo-quadrant-plan",
+      "text": "重要不紧急安排计划1梳理本周的阅读计划中优先级保持阅读与学习计划昨天14:00",
+      "borders": [
+        "3px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "8px",
+      "color": "rgb(255, 192, 120) rgb(50, 55, 70) rgb(50, 55, 70)",
+      "parent": "todo-quadrants"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-task-row todo-priority-normal",
+      "text": "梳理本周的阅读计划中优先级保持阅读与学习计划昨天14:00",
+      "borders": [
+        "0px",
+        "0px",
+        "0px",
+        "0px"
+      ],
+      "radius": "6px",
+      "color": "rgb(229, 232, 240)",
+      "parent": ""
+    },
+    {
+      "tag": "SECTION",
+      "className": "todo-panel todo-quadrant todo-quadrant-delegate",
+      "text": "紧急不重要协调处理1回复合作伙伴的反馈中优先级工作与创造",
+      "borders": [
+        "3px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "8px",
+      "color": "rgb(140, 186, 255) rgb(50, 55, 70) rgb(50, 55, 70)",
+      "parent": "todo-quadrants"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-task-row todo-priority-normal",
+      "text": "回复合作伙伴的反馈中优先级工作与创造",
+      "borders": [
+        "0px",
+        "0px",
+        "0px",
+        "0px"
+      ],
+      "radius": "6px",
+      "color": "rgb(229, 232, 240)",
+      "parent": ""
+    },
+    {
+      "tag": "SECTION",
+      "className": "todo-panel todo-quadrant todo-quadrant-later",
+      "text": "不紧急不重要留待以后1整理一份读书笔记保持阅读与学习",
+      "borders": [
+        "3px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "8px",
+      "color": "rgb(123, 215, 172) rgb(50, 55, 70) rgb(50, 55, 70)",
+      "parent": "todo-quadrants"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-task-row todo-priority-none",
+      "text": "整理一份读书笔记保持阅读与学习",
+      "borders": [
+        "0px",
+        "0px",
+        "0px",
+        "0px"
+      ],
+      "radius": "6px",
+      "color": "rgb(229, 232, 240)",
+      "parent": ""
+    }
+  ],
+  "focus": []
+}

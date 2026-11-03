@@ -1,0 +1,55 @@
+{
+  "device": {
+    "id": "desktop",
+    "width": 1440,
+    "height": 1000,
+    "theme": "light"
+  },
+  "id": "notifications",
+  "fixedTime": "2026-10-30T09:00:00.000Z",
+  "report": [
+    {
+      "tag": "SECTION",
+      "className": "todo-panel",
+      "text": "今天整理项目的下一步已处理给今天最重要的事留出时间。任务提醒 · 2026/10/30 0",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "9px",
+      "color": "rgb(230, 233, 241)",
+      "parent": "todo-content"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-panel-header todo-section-header",
+      "text": "今天",
+      "borders": [
+        "0px",
+        "0px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(39, 43, 58) rgb(230, 233, 241)",
+      "parent": "todo-notification-group"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-panel-header todo-section-header",
+      "text": "2026-10-29",
+      "borders": [
+        "0px",
+        "0px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(39, 43, 58) rgb(230, 233, 241)",
+      "parent": "todo-notification-group"
+    }
+  ],
+  "focus": []
+}

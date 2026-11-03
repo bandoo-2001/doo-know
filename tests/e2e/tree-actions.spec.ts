@@ -1,10 +1,20 @@
 import { test, expect } from '../support/browser-test';
+import type { Response } from '@playwright/test';
 import { readFile, writeFile, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { expandFolderPath } from '../support/notebook-tree';
 import { showMainMenu, showSidebar } from '../support/settings-navigation';
 
 test.use({ sourceEditorPreference: true });
+
+async function isFinalMove(response: Response, path?: string) {
+  const pathname = new URL(response.url()).pathname;
+  if (response.request().method() !== 'POST' || !/^\/api\/notes\/[^/]+\/move$/.test(pathname)) return false;
+  if (path && pathname !== path) return false;
+  // The UI prepares required native previews and retries this same operation.
+  if (response.status() === 409 && (await response.json()).code === 'DIAGRAM_PREVIEW_REQUIRED') return false;
+  return true; // Unexpected failures remain terminal and fail the success assertion.
+}
 
 // Catch wrong-target operations, lost drafts, and menus unreachable on touch/keyboard.
 test.beforeEach(async ({ page, context }) => {
@@ -78,7 +88,7 @@ test('folder menus create in the clicked folder without changing the open note',
   await expect(
     page.getByText('menu-import.md 已导入，进入工作区后可以查看。', { exact: true }),
   ).toBeVisible();
-  await page.getByRole('button', { name: '完成', exact: true }).click();
+  await page.getByRole('dialog').filter({ hasText: '导入 Markdown' }).getByRole('button', { name: '完成', exact: true }).click();
   const imported = await (await page.request.get('/api/tree')).json();
   expect(
     imported
@@ -93,7 +103,7 @@ test('note menus preserve drafts and rename or delete the target only after conf
 }) => {
   const csrf = await (await page.request.get('/api/security/csrf')).json();
   const response = await page.request.post('/api/notes', {
-    headers: { origin: 'http://127.0.0.1:4179', 'x-csrf-token': csrf.token },
+    headers: { origin: JSON.parse(await readFile('.local/e2e-config.json', 'utf8')).origin, 'x-csrf-token': csrf.token },
     data: {
       folderPath: '00-Inbox',
       fileName: 'menu-target.md',
@@ -140,7 +150,11 @@ test('note menus preserve drafts and rename or delete the target only after conf
   await page.getByRole('button', { name: '放弃修改', exact: true }).click();
   await expect(page.getByText('移动或重命名笔记', { exact: true })).toBeVisible();
   await page.getByRole('textbox', { name: '文件名', exact: true }).fill('menu-renamed.md');
+  const moveResponse = page.waitForResponse((response) =>
+    isFinalMove(response, `/api/notes/${target.id}/move`),
+  );
   await page.getByRole('button', { name: '确认移动', exact: true }).click();
+  expect((await moveResponse).ok()).toBe(true);
   await expect(page.getByText('笔记已整理，历史和分享链接保持关联', { exact: true })).toBeVisible();
   await expect(page).toHaveURL(new RegExp('note=' + target.id));
   if (
@@ -202,7 +216,7 @@ for (const action of ['delete', 'move', 'open'] as const) {
     const notes: { id: string }[] = [];
     for (const name of [`race-${action}-a.md`, `race-${action}-b.md`]) {
       const response = await page.request.post('/api/notes', {
-        headers: { origin: 'http://127.0.0.1:4179', 'x-csrf-token': csrf.token },
+        headers: { origin: JSON.parse(await readFile('.local/e2e-config.json', 'utf8')).origin, 'x-csrf-token': csrf.token },
         data: {
           folderPath: '00-Inbox',
           fileName: name,
@@ -254,14 +268,16 @@ for (const action of ['delete', 'move', 'open'] as const) {
         (request) => request.method() === 'DELETE' && request.url().includes('/api/notes/'),
       );
       await page.getByRole('button', { name: '移入回收站', exact: true }).click();
-      expect((await deleted).url()).toBe(`http://127.0.0.1:4179/api/notes/${notes[0].id}`);
+      expect((await deleted).url()).toBe(new URL(`/api/notes/${notes[0].id}`, page.url()).href);
     } else if (action === 'move') {
       await page.getByRole('textbox', { name: '文件名', exact: true }).fill('race-move-renamed.md');
-      const moved = page.waitForRequest(
-        (request) => request.method() === 'POST' && request.url().endsWith('/move'),
+      const moved = page.waitForResponse(
+        (response) => isFinalMove(response),
       );
       await page.getByRole('button', { name: '确认移动', exact: true }).click();
-      expect((await moved).url()).toBe(`http://127.0.0.1:4179/api/notes/${notes[0].id}/move`);
+      const response = await moved;
+      expect(response.url()).toBe(new URL(`/api/notes/${notes[0].id}/move`, page.url()).href);
+      expect(response.ok()).toBe(true);
       await expect(page.getByText('移动或重命名笔记', { exact: true })).toBeHidden();
     } else {
       await expect(page).toHaveURL(new RegExp('note=' + notes[0].id));
@@ -332,5 +348,113 @@ test('a queued directory scroll does not dismiss a newly opened menu, but subseq
     await Promise.all(
       names.map((name) => rm(join(knowledgeRoot, '00-Inbox', name), { force: true })),
     );
+  }
+});
+
+
+test('a committed move keeps waiting for its delayed receipt beyond the default request deadline', async ({
+  page,
+}, info) => {
+  // The deliberate 17 s receipt hold is additional to setup and real server work.
+  test.setTimeout(90000);
+  const { origin, knowledgeRoot } = JSON.parse(await readFile('.local/e2e-config.json', 'utf8'));
+  const csrf = await (await page.request.get('/api/security/csrf')).json();
+  const suffix = crypto.randomUUID();
+  const originalName = `delayed-receipt-${suffix}.md`;
+  const movedName = `delayed-receipt-moved-${suffix}.md`;
+  const referenceName = `delayed-receipt-reference-${suffix}.md`;
+  const content = '# Delayed receipt target\n\nKeep this content and identity.\n';
+  const create = async (fileName: string, noteContent: string) => {
+    const response = await page.request.post('/api/notes', {
+      headers: { origin, 'x-csrf-token': csrf.token },
+      data: { folderPath: '00-Inbox', fileName, content: noteContent, requestId: crypto.randomUUID() },
+    });
+    expect(response.status()).toBe(201);
+    return response.json();
+  };
+  const target = await create(originalName, content);
+  // An incoming link makes the real move journal update more than one document.
+  const reference = await create(referenceName, `# Reference\n\n[Target](${originalName})\n`);
+  await page.goto('/?note=' + target.id);
+  await expect(page.locator('.cm-content')).toContainText('Keep this content and identity.');
+  await showSidebar(page);
+  await expandFolderPath(page, '00-Inbox');
+  await page.getByRole('button', { name: `${originalName} 的更多操作`, exact: true }).click();
+  await page.getByRole('menuitem', { name: '重命名或移动', exact: true }).click();
+  const dialog = page.locator('.dialog-card').filter({ hasText: '移动或重命名笔记' });
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole('textbox', { name: '文件名', exact: true }).fill(movedName);
+  const confirm = dialog.getByRole('button', { name: '确认移动', exact: true });
+  let release!: () => void;
+  const gate = new Promise<void>((resolve) => { release = resolve; });
+  let received!: () => void;
+  const receiptReady = new Promise<void>((resolve) => { received = resolve; });
+  const routeErrors: unknown[] = [];
+  let requests = 0, requestedAt = 0;
+  let receipt: any;
+  const waitUntil = async (deadline: number) => {
+    for (;;) {
+      const remaining = deadline - performance.now();
+      if (remaining <= 0) return;
+      await new Promise<void>((resolve) => setTimeout(resolve, Math.ceil(remaining)));
+    }
+  };
+  const releaseReceipt = async () => {
+    if (requestedAt) await waitUntil(requestedAt + 17000);
+    release();
+  };
+  await page.route(`**/api/notes/${target.id}/move`, async (route) => {
+    requests++;
+    requestedAt = performance.now();
+    try {
+      const response = await route.fetch();
+      expect(response.status()).toBe(200);
+      receipt = await response.json();
+      received();
+      await gate;
+      await route.fulfill({ response });
+    } catch (error) {
+      routeErrors.push(error);
+      received();
+    }
+  });
+  try {
+    await confirm.click();
+    await receiptReady;
+    expect(routeErrors).toEqual([]);
+    expect(receipt).toMatchObject({ id: target.id, moved: true, relativePath: `00-Inbox/${movedName}` });
+    // The actual server has committed, although its successful response is held.
+    await expect(readFile(join(knowledgeRoot, '00-Inbox', originalName), 'utf8')).rejects.toMatchObject({ code: 'ENOENT' });
+    expect(await readFile(join(knowledgeRoot, '00-Inbox', movedName), 'utf8')).toBe(content);
+    expect(await readFile(join(knowledgeRoot, '00-Inbox', referenceName), 'utf8')).toBe(`# Reference\n\n[Target](${movedName})\n`);
+    expect(await (await page.request.get('/api/notes/' + target.id)).json()).toMatchObject({ id: target.id, relativePath: `00-Inbox/${movedName}` });
+    expect(await (await page.request.get('/api/notes/' + reference.id)).json()).toMatchObject({ id: reference.id, relativePath: `00-Inbox/${referenceName}` });
+    // Use native elapsed time: replacing JS timers does not advance AbortSignal.timeout.
+    await waitUntil(requestedAt + 16500);
+    const pending = {
+      elapsedMs: performance.now() - requestedAt,
+      confirmDisabled: await confirm.isDisabled(),
+      dialogVisible: await dialog.isVisible(),
+      alerts: await dialog.getByRole('alert').allTextContents(),
+      requests,
+      receipt,
+    };
+    await info.attach('held-move-receipt', { body: JSON.stringify(pending, null, 2), contentType: 'application/json' });
+    expect(pending.elapsedMs).toBeGreaterThanOrEqual(16500);
+    expect(pending.confirmDisabled).toBe(true);
+    expect(pending.dialogVisible).toBe(true);
+    expect(pending.alerts).toEqual([]);
+    expect(requests).toBe(1);
+    await releaseReceipt();
+    await expect(page.getByText('笔记已整理，历史和分享链接保持关联', { exact: true })).toBeVisible();
+    await expect(dialog).toBeHidden();
+    await expect(page).toHaveURL(new RegExp('note=' + target.id));
+    expect(await (await page.request.get('/api/notes/' + target.id)).json()).toMatchObject({ id: target.id, relativePath: `00-Inbox/${movedName}` });
+    expect(await readFile(join(knowledgeRoot, '00-Inbox', movedName), 'utf8')).toBe(content);
+    expect(requests).toBe(1);
+  } finally {
+    await releaseReceipt();
+    await page.unrouteAll({ behavior: 'wait' });
+    expect(routeErrors).toEqual([]);
   }
 });

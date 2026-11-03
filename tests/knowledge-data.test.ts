@@ -49,7 +49,7 @@ function fixture(beforeRead?: () => void) {
     config,
     db,
     domain,
-    file: join(config.knowledgeRoot, '_data/apps/test/state.json'),
+    file: join(config.knowledgeRoot, '_doo-data/apps/test/state.json'),
   };
 }
 it('migrates existing records, flushes changes and hydrates a fresh SQLite projection', () => {
@@ -108,7 +108,7 @@ it('does not rewrite unchanged domains and rejects symlinks and path traversal',
   expect(() => writeKnowledgeDataFile(f.config.knowledgeRoot, '../escape.json', '{}')).toThrow();
   const target = join(f.root, 'outside');
   mkdirSync(target);
-  symlinkSync(target, join(f.config.knowledgeRoot, '_data/link'));
+  symlinkSync(target, join(f.config.knowledgeRoot, '_doo-data/link'));
   expect(() => writeKnowledgeDataFile(f.config.knowledgeRoot, 'link/secret', 'value')).toThrow();
   expect(() => readKnowledgeDataFile(f.config.knowledgeRoot, 'link/secret')).toThrow();
   expect(listKnowledgeDataDirectories(f.config.knowledgeRoot, 'apps')).toEqual(['test']);
@@ -166,7 +166,7 @@ it('preserves a local commit made by another process while synchronized data is 
         f.db.prepare('UPDATE user_content SET value=?').run(value.value);
       },
     });
-    const file = join(f.config.knowledgeRoot, '_data/apps/race/state.json');
+    const file = join(f.config.knowledgeRoot, '_doo-data/apps/race/state.json');
     writeFileSync(
       file,
       JSON.stringify({ format: 1, revision: 'external-change', data: { value: 'remote edit' } }),

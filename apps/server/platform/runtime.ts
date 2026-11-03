@@ -1,3 +1,4 @@
+import { knowledgeDataDirectory } from '../../../packages/core/knowledge-data-path.js';
 import type { AppConfig } from '../../../shared/contracts.js';
 import type { HostConfig } from '../../../shared/platform-contracts.js';
 import type { AppDatabase } from '../../../packages/core/db.js';
@@ -81,7 +82,7 @@ async function createRuntime(config: AppConfig, db: AppDatabase) {
   }
   // Corrupt optional application data must not make notes or the whole host unavailable.
   // Its own endpoints report the actual recovery error, and retry after the files are fixed.
-  if (existsSync(join(config.knowledgeRoot, '_data/apps/to-doo/manifest.json'))) {
+  if (existsSync(join(knowledgeDataDirectory(config.knowledgeRoot), 'apps/to-doo/manifest.json'))) {
     try { toDoo(); } catch { /* Isolated to To Doo; do not replace or remove its data. */ }
   }
   return {

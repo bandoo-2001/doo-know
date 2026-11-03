@@ -22,6 +22,17 @@ const emit = defineEmits<{
   select: [id: string];
   child: [id: string];
 }>();
+const hasMetadata = computed(() => {
+  const { item, hideList } = props;
+  return (
+    item.task.priority !== 'none' ||
+    (!!item.list && !hideList) ||
+    item.task.noteRefs.length > 0 ||
+    !!item.task.recurrence ||
+    item.status === 'blocked' ||
+    item.status === 'unavailable'
+  );
+});
 const dates = computed(() => {
   const { item, today, timeZone } = props;
   const plan =
@@ -89,19 +100,20 @@ const dates = computed(() => {
       @click="emit('open', item)"
       type="text"
     >
-      <span>{{ item.title }}</span
-      ><small
-        ><ATag
+      <span class="todo-task-name">{{ item.title }}</span>
+      <small v-if="hasMetadata" class="todo-task-meta">
+        <ATag
+          v-if="item.task.priority !== 'none'"
           class="todo-priority-label"
           :aria-label="'优先级：' + toDooPriorityLabels[item.task.priority]"
-          >{{ toDooPriorityLabels[item.task.priority]
-          }}{{ item.task.priority === 'none' ? '' : '优先级' }}</ATag
-        ><span v-if="item.list && !hideList" class="todo-row-list">{{ item.list.name }}</span
-        ><span v-if="item.task.noteRefs.length">▤ {{ item.task.noteRefs.length }}</span
-        ><span v-if="item.task.recurrence" title="重复任务">↻</span
-        ><span v-if="item.status === 'blocked'">受阻</span
-        ><span v-if="item.status === 'unavailable'">执行记录尚未载入</span></small
-      >
+          >{{ toDooPriorityLabels[item.task.priority] }}优先级</ATag
+        >
+        <span v-if="item.list && !hideList" class="todo-row-list">{{ item.list.name }}</span>
+        <span v-if="item.task.noteRefs.length">▤ {{ item.task.noteRefs.length }}</span>
+        <span v-if="item.task.recurrence" title="重复任务">↻</span>
+        <span v-if="item.status === 'blocked'">受阻</span>
+        <span v-if="item.status === 'unavailable'">执行记录尚未载入</span>
+      </small>
     </AButton>
     <span v-if="dates.length" class="todo-task-dates">
       <span
@@ -124,14 +136,16 @@ const dates = computed(() => {
         >
       </span>
     </span>
-    <AButton
-      html-type="button"
-      class="todo-icon-button todo-row-add"
-      :aria-label="'添加子任务 ' + item.title"
-      @click="emit('child', item.task.id)"
-      type="text"
+    <slot name="actions"
+      ><AButton
+        html-type="button"
+        class="todo-icon-button todo-row-add"
+        :aria-label="'添加子任务 ' + item.title"
+        @click="emit('child', item.task.id)"
+        type="text"
+      >
+        ＋
+      </AButton></slot
     >
-      ＋
-    </AButton>
   </div>
 </template>

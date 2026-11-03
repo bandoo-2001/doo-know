@@ -100,7 +100,7 @@ async function openPlugin(page: Page, selected: ResourceRef[] = []) {
     ...existing,
     config: {
       ...existing?.config,
-      mode: 'oauth',
+      oauthEnabled: true, apiKeyEnabled: false,
       allowedPrefixes: ['00-Inbox'],
       permissionPolicy: initial,
     },

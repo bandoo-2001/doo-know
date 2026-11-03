@@ -1,3 +1,6 @@
+import { folderRestorePending } from '../../../packages/core/knowledge/folder-restore-pending.js';
+import { recoverFolders } from '../../../packages/core/folders.js';
+import { workspaceExclusive } from '../../../packages/core/workspace/gate.js';
 import {isWhiteboard,documentTitle,MAX_WHITEBOARD_BYTES} from '../../../shared/whiteboard.js';
 import { hasActiveShare } from '../../../packages/core/share-policy.js';
 import { stat } from 'node:fs/promises';
@@ -40,20 +43,22 @@ export function metadataService(config: AppConfig, db: AppDatabase, notes: NoteS
   return async function getNoteInfo(p: Principal, id: string): Promise<NoteInfo> {
     const row = notes.row(id);
     authorizePath(p, row.path);
-    const s = await stat(safePath(config.knowledgeRoot, row.path, 'note'), { bigint: true });
+    const readable=notes.readableSource(id),s = await stat(readable.file, { bigint: true }),modifiedAt=readable.modifiedAt??s.mtimeNs.toString();
     const state = db.prepare('SELECT * FROM document_state WHERE note_id=?').get(id) as any;
-    const known = state?.mtime_ns === s.mtimeNs.toString() && state?.size_bytes === Number(s.size);
+    const known = state?.mtime_ns === modifiedAt && state?.size_bytes === Number(s.size);
     const ready = known && state?.longest_line_bytes != null;
+    const metadata = notes.documentMetadata(id);
     return {
       id,
-      ...(isWhiteboard(row.path) ? {documentType: 'whiteboard' as const} : {}),
-      title: [...(ready && state.title ? state.title : documentTitle(row.path))]
+      ...(metadata.documentType !== 'markdown' ? { documentType: metadata.documentType } : {}),
+      title: [...(metadata.title ?? (ready && state.title ? state.title : documentTitle(row.path)))]
         .slice(0, 256)
         .join(''),
       relativePath: row.path,
       url: `${config.origin}/?note=${encodeURIComponent(id)}`,
       sizeBytes: Number(s.size),
-      modifiedAt: s.mtimeNs.toString(),
+      modifiedAt,
+      ...(readable.publication?{publication:readable.publication}:{}),
       contentHash: known ? state.content_hash : null,
       sourceRevision: known ? state.source_revision : null,
       longestLineBytes: ready ? state.longest_line_bytes : null,
@@ -81,6 +86,7 @@ export async function createKnowledgeRuntime(
   db: AppDatabase,
   notes: NoteService,
 ) {
+  if(folderRestorePending(db))await workspaceExclusive(db,{kind:'folder.recover',recovery:true},async()=>recoverFolders(config,db));
   const organization = organizationService(config, db, notes);
   await organization.recover();
   syncDirectoryCatalog(config, db);

@@ -12,6 +12,13 @@ export const toDooDate = z
     const d = new Date(v + 'T00:00:00Z');
     return Number.isFinite(d.getTime()) && d.toISOString().slice(0, 10) === v;
   }, '无效日期');
+export const toDooReminderStateSchema = z.enum([
+  'unread',
+  'read',
+  'acknowledged',
+  'dismissed',
+  'snoozed',
+]);
 const timestamp = z.string().datetime();
 const text = (n = 65536) =>
   z
@@ -108,11 +115,50 @@ export const toDooRecurrenceSchema = z
   })
   .strict();
 export type ToDooRecurrence = z.infer<typeof toDooRecurrenceSchema>;
+export function getHabitCheckinTargetLimit(rule: { frequency: string; weekdays?: number[] }) {
+  if (rule.frequency === 'daily') return 1;
+  const weekdays = new Set(rule.weekdays?.length ? rule.weekdays : [0, 1, 2, 3, 4, 5, 6]);
+  if (rule.frequency === 'weekly') return weekdays.size;
+  // A 31-day month has four full weeks plus three adjacent weekdays.
+  return (
+    4 * weekdays.size +
+    Math.max(
+      ...Array.from(
+        { length: 7 },
+        (_, start) => [0, 1, 2].filter((offset) => weekdays.has((start + offset) % 7)).length,
+      ),
+    )
+  );
+}
+function validateHabitGoal(
+  rule: {
+    frequency: string;
+    goalMode?: string;
+    target: number;
+    intervalDays?: number;
+    weekdays: number[];
+  },
+  context: z.RefinementCtx,
+) {
+  if (
+    rule.goalMode === 'checkin' &&
+    (!Number.isInteger(rule.target) || rule.target > getHabitCheckinTargetLimit(rule))
+  )
+    context.addIssue({ code: 'custom', path: ['target'], message: '普通打卡请设置有效的打卡天数' });
+  if ((rule.intervalDays ?? 1) > 1 && (rule.frequency !== 'daily' || rule.weekdays.length > 0))
+    context.addIssue({
+      code: 'custom',
+      path: ['intervalDays'],
+      message: '间隔安排不能同时使用累计周期或指定星期',
+    });
+}
 export const toDooHabitRuleSchema = z
   .object({
     id: toDooId,
     effectiveFrom: toDooDate,
     frequency: z.enum(['daily', 'weekly', 'monthly']),
+    goalMode: z.enum(['checkin', 'quantity']).optional(),
+    intervalDays: z.number().int().min(1).max(365).optional(),
     target: z.number().positive().max(1000000),
     unit: text(40),
     timeZone: zone,
@@ -123,7 +169,8 @@ export const toDooHabitRuleSchema = z
     skipPolicy: z.enum(['break', 'exempt']).default('break'),
     estimated: z.boolean().default(false),
   })
-  .strict();
+  .strict()
+  .superRefine(validateHabitGoal);
 export type ToDooHabitRule = z.infer<typeof toDooHabitRuleSchema>;
 export const toDooScheduleChangeSchema = z
   .object({
@@ -445,12 +492,25 @@ const schemas = {
       requestId: toDooId,
     })
     .strict(),
+  focusTopic: z
+    .object({
+      ...base,
+      name: title,
+      description: text().default(''),
+      color: text(40).default('#4566c6'),
+      listId: toDooId.nullable().default(null),
+      archivedAt: timestamp.nullable().default(null),
+    })
+    .strict(),
   focusSession: z
     .object({
       ...base,
       mode: z.enum(['pomodoro', 'stopwatch', 'break']),
       occurrenceId: toDooId.nullable().default(null),
       listId: toDooId.nullable().default(null),
+      topicId: toDooId.nullable().default(null),
+      topicName: text(256).nullable().default(null),
+      taskTitle: text(256).nullable().default(null),
       targetMinutes: z.number().int().positive().max(1440).nullable().default(null),
       status: z.enum(['running', 'paused', 'finished', 'cancelled', 'interrupted']),
       segments: z
@@ -468,6 +528,9 @@ const schemas = {
       listId: toDooId.nullable().default(null),
       timeZone: zone.default('UTC'),
       frequency: z.enum(['daily', 'weekly', 'monthly']).default('daily'),
+      goalMode: z.enum(['checkin', 'quantity']).optional(),
+      intervalDays: z.number().int().min(1).max(365).optional(),
+      icon: text(16).optional(),
       target: z.number().positive().max(1000000).default(1),
       unit: text(40).default('次'),
       weekdays: z.array(z.number().int().min(0).max(6)).default([]),
@@ -494,19 +557,24 @@ const schemas = {
         .nullable()
         .default(null),
     })
-    .strict(),
+    .strict()
+    .superRefine(validateHabitGoal),
   habitEntry: z
     .object({
       ...base,
       habitId: toDooId,
       localDate: toDooDate,
       occurredAt: timestamp,
-      amount: z.number().positive().max(1000000),
+      amount: z.number().nonnegative().max(1000000),
       note: text().default(''),
       skipped: z.boolean().default(false),
       sourceSessionId: toDooId.nullable().default(null),
     })
-    .strict(),
+    .strict()
+    .refine((entry) => entry.skipped || entry.amount > 0, {
+      path: ['amount'],
+      message: '普通记录数量必须大于 0',
+    }),
   anniversary: z
     .object({
       ...base,
@@ -594,9 +662,7 @@ const schemas = {
       scheduleRevision: toDooId,
       scheduledAt: timestamp,
       firstRaisedAt: timestamp.nullable().default(null),
-      userState: z
-        .enum(['unread', 'read', 'acknowledged', 'dismissed', 'snoozed'])
-        .default('unread'),
+      userState: toDooReminderStateSchema.default('unread'),
       snoozedUntil: timestamp.nullable().default(null),
       deliveryGeneration: z.number().int().min(0).default(0),
       title: text(256).default(''),
@@ -704,6 +770,7 @@ export const TO_DOO_COLLECTIONS = {
   outcome: 'outcomes',
   record: 'records',
   activity: 'activities',
+  focusTopic: 'focusTopics',
   focusSession: 'focusSessions',
   habit: 'habits',
   habitEntry: 'habitEntries',
@@ -723,6 +790,9 @@ export type ToDooCollections = {
   -readonly [K in keyof typeof TO_DOO_COLLECTIONS as (typeof TO_DOO_COLLECTIONS)[K]]: ToDooEntityMap[K][];
 };
 export type ToDooStatistics = {
+  asOf?: string;
+  timeZone?: string;
+  revision?: string;
   scope?: 'library' | 'period';
   from?: string;
   to?: string;
@@ -732,7 +802,60 @@ export type ToDooStatistics = {
   focusMinutes: number;
   habitAmount: number;
   outcomes: number;
+  unreadReminders?: number;
   byList: Record<string, { total: number; completed: number }>;
+  /** Sparse local-date totals from the full authorized dataset, independent of row pagination. */
+  completedByDay?: Record<string, number>;
+};
+export type ToDooStatisticsAuthorization = {
+  /** Trusted caller's live scope identity, used to invalidate cursors after authorization changes. */
+  key?: string;
+  canRead(kind: ToDooEntityKind, entity: ToDooEntity): boolean;
+};
+export const toDooFocusQuerySchema = z
+  .object({
+    ids: z.array(toDooId).max(50).optional(),
+    from: toDooDate.optional(),
+    to: toDooDate.optional(),
+    topicId: toDooId.optional(),
+    unassigned: z.boolean().optional(),
+    trendPeriod: z.enum(['week', 'month', 'year']).optional(),
+    trendDate: toDooDate.refine((date) => date >= '0100-01-01' && date <= '9998-12-31', '趋势日期超出范围').optional(),
+    listIds: z.array(toDooId).max(1000).optional(),
+    cursor: z.string().max(2048).optional(),
+    limit: z.number().int().min(1).max(100).default(50),
+  })
+  .strict()
+  .refine((query) => !query.from || !query.to || query.from <= query.to, '日期区间无效')
+  .refine((query) => !(query.topicId && query.unassigned), '请选择一个专注项目筛选')
+  .refine((query) => !query.trendDate || !!query.trendPeriod, '请选择趋势周期');
+export type ToDooFocusQuery = z.input<typeof toDooFocusQuerySchema>;
+export type ToDooFocusTotals = { completed: number; minutes: number };
+export type ToDooFocusTrend = {
+  period: 'week' | 'month' | 'year';
+  from: string;
+  to: string;
+  bucket: 'day' | 'month';
+  totalMinutes: number;
+  points: { date: string; minutes: number }[];
+};
+export type ToDooFocusOverview = {
+  today: ToDooFocusTotals;
+  lifetime: ToDooFocusTotals;
+  filtered: ToDooFocusTotals;
+  byTopic: Record<string, { today: ToDooFocusTotals; lifetime: ToDooFocusTotals }>;
+  nextBreak?: { kind: 'short' | 'long'; minutes: number };
+};
+export type ToDooFocusHistory = {
+  datasetId: string;
+  revision: string;
+  now: string;
+  timeZone: string;
+  items: ToDooEntityMap['focusSession'][];
+  active: ToDooEntityMap['focusSession'] | null;
+  overview: ToDooFocusOverview;
+  trend?: ToDooFocusTrend;
+  page: { total: number; limit: number; hasMore: boolean; nextCursor: string | null };
 };
 export type ToDooQuery = {
   kind?: ToDooEntityKind;
@@ -746,6 +869,9 @@ export type ToDooQuery = {
   to?: string;
   cursor?: string;
   limit?: number;
+  sort?: 'recent';
+  raisedOnly?: boolean;
+  reminderStates?: ToDooEntityMap['reminderEvent']['userState'][];
   filter?: ToDooFilter;
   /** Trusted export/checkpoint consumers only; public query parsing must omit this. */ all?: boolean;
 };
@@ -768,6 +894,16 @@ export type ToDooSnapshot = ToDooCollections & {
   statistics: ToDooStatistics;
   warnings: { code: string; message: string; entityId?: string }[];
   now: string;
+  /** Owner workspace badge, independent of the currently selected task list. */
+  reminderUnreadCount?: number;
+};
+export type ToDooReminderSource = {
+  section: 'tasks' | 'habits' | 'anniversaries' | 'notifications';
+  sourceType: ToDooEntityMap['reminderEvent']['sourceType'];
+  sourceId: string;
+  taskId?: string;
+  occurrenceId?: string;
+  date?: string;
 };
 export type ToDooStatusSelectionInput = {
   taskIds?: readonly string[];
@@ -925,6 +1061,7 @@ const saveEntity = z
         kind: z.enum(Object.keys(schemas) as [ToDooEntityKind, ...ToDooEntityKind[]]),
         entity: z.record(z.string(), z.unknown()),
         expectedRevision: toDooId.optional(),
+        captureMetrics: z.boolean().optional(),
       })
       .strict(),
   })
@@ -950,6 +1087,15 @@ const taskDraft = z
   .strict();
 export const toDooCommandSchema = z.discriminatedUnion('action', [
   saveEntity,
+  z
+    .object({
+      ...common,
+      action: z.literal('read_reminders'),
+      payload: z
+        .object({ ids: z.array(toDooId).min(1).max(500), datasetId: toDooId.optional() })
+        .strict(),
+    })
+    .strict(),
   z
     .object({
       ...common,
@@ -1095,6 +1241,7 @@ export const toDooCommandSchema = z.discriminatedUnion('action', [
           mode: z.enum(['pomodoro', 'stopwatch', 'break']),
           occurrenceId: toDooId.nullable().default(null),
           listId: toDooId.nullable().default(null),
+          topicId: toDooId.nullable().default(null),
           targetMinutes: z.number().int().positive().max(1440).nullable().default(null),
           at: timestamp.optional(),
         })
@@ -1125,13 +1272,17 @@ export const toDooCommandSchema = z.discriminatedUnion('action', [
         .object({
           habitId: toDooId,
           localDate: toDooDate,
-          amount: z.number().positive().max(1000000).default(1),
+          amount: z.number().nonnegative().max(1000000).default(1),
           note: text().default(''),
           skipped: z.boolean().default(false),
           at: timestamp.optional(),
           sourceSessionId: toDooId.nullable().default(null),
         })
-        .strict(),
+        .strict()
+        .refine((entry) => entry.skipped || entry.amount > 0, {
+          path: ['amount'],
+          message: '普通记录数量必须大于 0',
+        }),
     })
     .strict(),
   z
@@ -1218,11 +1369,22 @@ export type ToDooCheckpoint = {
   assets: { hash: string; data: string }[];
   digest: string;
 };
-export type ToDooCommandContext = { allowedTaskIds?: readonly string[] };
+export type ToDooCommandContext = {
+  allowedTaskIds?: readonly string[];
+  statisticsAuthorization?: ToDooStatisticsAuthorization;
+};
 export type ToDooService = {
   snapshot(query?: ToDooQuery): ToDooSnapshot;
+  /** Internal state identity for derived readers; optional for legacy service adapters. */
+  getVersion?(): string;
+  statistics(query?: ToDooQuery, authorization?: ToDooStatisticsAuthorization): ToDooStatistics;
+  focusHistory(
+    query?: ToDooFocusQuery,
+    authorization?: ToDooStatisticsAuthorization,
+  ): ToDooFocusHistory;
   command(input: ToDooCommand | unknown, context?: ToDooCommandContext): ToDooCommandResult;
   getEntity(kind: ToDooEntityKind, id: string): ToDooEntity | undefined;
+  reminderSource(id: string): ToDooReminderSource;
   getReceipt(requestId: string): ToDooPortableReceipt | undefined;
   exportCheckpoint(): ToDooCheckpoint;
   importCheckpoint(

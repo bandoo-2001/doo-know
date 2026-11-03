@@ -1,8 +1,10 @@
+import { previewRequiredDetails, safePreviewRequiredDetails } from '../../../shared/mcp-preview-required.js';
 export class BridgeError extends Error {
   requiredScope?: string;
   currentModifiedAt?: string;
   issues?: SafeIssue[];
   recovery?: Recovery;
+  details?: z.infer<typeof previewRequiredDetails>;
   tool?: string;
   constructor(
     public code: string,
@@ -66,6 +68,10 @@ function recoveryFor(code: string, tool?: typeof tools[number]): Recovery | unde
   if (taskTool && ['TO_DOO_CONFLICT', 'VERSION_CONFLICT', 'IDEMPOTENCY_CONFLICT'].includes(code)) return {
     action: 'read_and_merge', tool: 'query_to_doos', requestIdPolicy: 'new_after_review', message: '重新查询任务、实例及相关实体版本，保留原意图并复核冲突；先核对旧请求回执，不得只替换版本或扩大执行范围。',
   };
+  if (code === 'DIAGRAM_PREVIEW_REQUIRED') return { action: 'check_operation', tool: tool === 'export_portable_documents' || tool === 'import_portable_archive' ? 'list_portable_previews' : 'operation_status', requestIdPolicy: 'preserve', message: '保留原 requestId 和参数；分页读取全部固定预览需求，有界读取原件，上传匹配 PNG 并准备后重试原操作。' };
+  if (code === 'OPERATION_OUTCOME_UNKNOWN' && tool?.includes('preview')) return { action: 'check_operation', tool: tool.startsWith('begin_') || tool.startsWith('prepare_') ? tool : tool.includes('portable') ? 'get_portable_preview' : 'get_operation_diagram_preview', requestIdPolicy: 'preserve', message: '保留原 previewId、sourceHash、transferId 和 requestId；核对当前基线后仅重试相同准备请求。' };
+  if (code === 'OPERATION_OUTCOME_UNKNOWN' && tool === 'import_portable_archive') return { action: 'check_operation', tool: 'get_portable_import_result', requestIdPolicy: 'preserve', message: '用原 requestId 查询便携导入进度和分页身份映射；保留原 transferId、目标目录和参数，结果未完成时仅重试相同请求。' };
+  if (code === 'OPERATION_OUTCOME_UNKNOWN' && (tool === 'begin_portable_import_upload' || tool === 'export_portable_documents')) return { action: 'check_operation', tool, requestIdPolicy: 'preserve', message: '使用原 requestId 和完全相同参数重试，恢复本人当前客户端的同一便携传输；不要另建请求。' };
   if (code === 'OPERATION_OUTCOME_UNKNOWN' && knowledgeToolDefinitions.some(d => d.name === tool)) return { action: 'check_operation', tool: 'get_knowledge_operation', requestIdPolicy: 'preserve', message: '使用原 requestId 查询知识库业务回执；保留原传输和参数，不新建请求重复导入、分享或恢复。' };
   if (code === 'OPERATION_OUTCOME_UNKNOWN' && transferToolDefinitions.some(d => d.name === tool)) return { action: 'check_operation', tool: 'get_mcp_transfer', requestIdPolicy: 'preserve', message: '保留原 transferId 和字节偏移核对传输进度；重复追加必须使用同一偏移和相同字节。' };
   if (code === 'VERSION_CONFLICT' && blogToolDefinitions.some(d => d.name === tool)) return { action: 'review_publication', tool: tool?.includes('blog_design') ? 'get_blog_design' : tool === 'update_blog_settings' ? 'get_blog_settings' : 'get_blog_post', requestIdPolicy: 'new_after_review', message: '读取最新站点或文章版本并复核原编辑意图；保留草稿，确认后才使用新的请求标识，不盲换版本。' };
@@ -102,6 +108,7 @@ export function annotateError(error: unknown, tool: string, input: unknown): Bri
   result.requiredScope = scopes.find(scope => scope === original.requiredScope);
   result.currentModifiedAt = safeVersion(original.currentModifiedAt);
   if (original.issues) result.issues = safeIssues(original.issues);
+  if (original.code === 'DIAGRAM_PREVIEW_REQUIRED') result.details = safePreviewRequiredDetails(original.details);
   result.recovery = recoveryFor(original.code, knownTool);
   return result;
 }
@@ -124,6 +131,7 @@ export const bridgeErrorSchema = {
           message: { type: 'string', maxLength: 128 },
         },
       } },
+      details: z.toJSONSchema(previewRequiredDetails, { io: 'output', unrepresentable: 'any' }),
       recovery: {
         type: 'object', additionalProperties: false, required: ['action', 'requestIdPolicy', 'message'],
         properties: { action: { type: 'string', enum: [...actions] }, tool: { type: 'string', enum: [...tools] }, requestIdPolicy: { type: 'string', enum: [...requestIdPolicies] }, message: { type: 'string', maxLength: 256 } },
@@ -184,6 +192,7 @@ export function errorBody(error: unknown) {
       ...(e.requiredScope ? { requiredScope: e.requiredScope } : {}),
       ...(e.currentModifiedAt ? { currentModifiedAt: e.currentModifiedAt } : {}),
       ...(e.issues ? { issues: e.issues } : {}),
+      ...(e.details ? { details: e.details } : {}),
       ...(e.recovery ? { recovery: e.recovery } : {}),
     },
   };

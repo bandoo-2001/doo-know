@@ -25,7 +25,7 @@ export function observeSource(
     if (changed) {
       db.prepare('UPDATE chunks SET active=0 WHERE note_id=?').run(noteId);
       db.prepare(
-        'UPDATE document_state SET text_indexed_hash=NULL,vector_indexed_hash=NULL,longest_line_bytes=NULL,title=NULL WHERE note_id=?',
+        "UPDATE document_state SET text_indexed_hash=NULL,vector_indexed_hash=NULL,longest_line_bytes=NULL,title=NULL,document_type='markdown' WHERE note_id=?",
       ).run(noteId);
     }
     return { noteId, sourceRevision: revision, contentHash: hash };

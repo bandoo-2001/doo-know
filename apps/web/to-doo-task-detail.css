@@ -1,0 +1,340 @@
+/* The task reader keeps its controls discoverable without a full form outline. */
+.to-doo-workspace .todo-readable-list-content {
+  width: 100%;
+  max-width: 960px;
+}
+.to-doo-workspace .todo-detail {
+  width: var(--todo-detail-width);
+}
+.to-doo-workspace .todo-detail > header {
+  min-height: 54px;
+  padding: 10px 22px;
+  border-bottom-color: transparent;
+}
+.to-doo-workspace .todo-detail > header > .todo-muted:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.to-doo-workspace .todo-detail > header > .todo-small,
+.to-doo-workspace .todo-detail > header > .todo-icon-button {
+  flex-shrink: 0;
+}
+.to-doo-workspace .todo-detail-body {
+  padding: 12px 24px 26px;
+}
+.to-doo-workspace .todo-detail .todo-document-fields {
+  gap: 18px;
+}
+.todo-detail .todo-accessible-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.to-doo-workspace .todo-document-title-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+}
+.to-doo-workspace .todo-document-title-row .todo-title-input {
+  flex: 1;
+  min-width: 0;
+  gap: 0;
+}
+.to-doo-workspace .todo-document-title-row .todo-title-input > input,
+.to-doo-workspace .todo-document-title-row .todo-title-input > textarea.ant-input {
+  min-height: 36px;
+  font-size: 24px !important;
+  font-weight: 500;
+  line-height: 1.5;
+  padding: 0 2px;
+  border-radius: 4px;
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+  resize: none;
+}
+.to-doo-workspace .todo-detail-complete.ant-btn {
+  width: 22px;
+  min-width: 22px;
+  height: 22px;
+  margin-top: 7px;
+  padding: 0;
+  border: 1px solid var(--todo-muted);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--todo-ink);
+  line-height: 1;
+}
+.to-doo-workspace .todo-detail-complete.ant-btn.is-complete {
+  background: var(--todo-green);
+  border-color: var(--todo-green);
+  color: var(--todo-paper);
+}
+.to-doo-workspace .todo-document-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin: -12px 0 0 34px;
+}
+.to-doo-workspace .todo-document-meta > label {
+  gap: 0;
+  min-width: 100px;
+  max-width: 210px;
+}
+.to-doo-workspace .todo-document-meta .ant-select-selector,
+.to-doo-workspace
+  .todo-document-meta
+  .ant-select:not(.ant-select-customize-input)
+  .ant-select-selector {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  color: var(--todo-muted);
+  padding-left: 4px;
+}
+.to-doo-workspace .todo-document-meta .ant-select-arrow {
+  color: var(--todo-muted);
+}
+.to-doo-workspace .todo-document-description > textarea.ant-input {
+  min-height: 36px;
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+  padding: 7px 2px;
+  font-size: 14px;
+  line-height: 1.65;
+  resize: vertical;
+}
+.to-doo-workspace .todo-document-description > textarea.ant-input:focus {
+  border-color: var(--todo-line);
+}
+.to-doo-workspace .todo-document-description > textarea.ant-input::placeholder {
+  color: var(--todo-muted);
+  opacity: 1;
+}
+.to-doo-workspace .todo-document-properties {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+.to-doo-workspace .todo-document-property {
+  display: grid;
+  grid-template-columns: 66px minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+  min-width: 0;
+  min-height: 34px;
+}
+.to-doo-workspace .todo-document-property-name {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 34px;
+  color: var(--todo-muted);
+  font-size: 12px;
+}
+.to-doo-workspace .todo-document-property-name svg {
+  flex-shrink: 0;
+}
+.to-doo-workspace .todo-property-action.ant-btn {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  min-height: 34px;
+  height: auto;
+  width: 100%;
+  padding: 5px 7px;
+  margin-left: -7px;
+  white-space: normal;
+  text-align: left;
+  line-height: 1.55;
+  color: var(--todo-ink);
+  border-radius: 5px;
+}
+.to-doo-workspace .todo-property-action.ant-btn > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.to-doo-workspace .todo-property-action.ant-btn small {
+  color: var(--todo-muted);
+}
+.to-doo-workspace .todo-property-action.ant-btn.is-empty {
+  color: var(--todo-muted);
+}
+.to-doo-workspace .todo-property-action.ant-btn.is-overdue {
+  color: var(--todo-danger);
+}
+.to-doo-workspace .todo-document-plan-items {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.to-doo-workspace .todo-date-editor {
+  padding: 10px 0 8px;
+  min-width: 0;
+}
+.to-doo-workspace .todo-date-editor .todo-form-grid {
+  gap: 10px;
+}
+.to-doo-workspace .todo-document-priority {
+  max-width: 190px;
+}
+.to-doo-workspace .todo-document-priority .ant-select-selector {
+  border-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding-left: 0 !important;
+}
+.to-doo-workspace .todo-document-priority.todo-priority-none .ant-select-selection-item {
+  color: var(--todo-muted);
+}
+.to-doo-workspace .todo-detail .todo-detail-shortcuts {
+  gap: 12px;
+  margin-top: 2px;
+}
+.to-doo-workspace .todo-detail .todo-detail-shortcuts .ant-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  color: var(--todo-muted);
+  padding: 6px 0;
+  min-height: 40px;
+  border-radius: 4px;
+}
+.to-doo-workspace .todo-detail .todo-detail-shortcuts .ant-btn small {
+  font-size: 11px;
+}
+.to-doo-workspace .todo-detail .todo-detail-advanced.ant-collapse {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--todo-line);
+  border-radius: 0;
+}
+.to-doo-workspace .todo-detail-footer {
+  min-height: 64px;
+  padding: 12px 22px;
+  gap: 10px;
+}
+.to-doo-workspace .todo-detail-focus.ant-btn {
+  padding: 5px 0;
+  color: var(--todo-muted);
+}
+.to-doo-workspace .todo-detail-save {
+  margin-left: auto;
+}
+.to-doo-workspace .todo-detail-footer .todo-detail-menu {
+  margin-left: auto;
+}
+.to-doo-workspace .todo-detail-footer.has-unsaved .todo-detail-menu {
+  margin-left: 0;
+}
+.to-doo-workspace .todo-detail-footer > .todo-task-menu-trigger {
+  margin-left: auto;
+}
+.to-doo-workspace .todo-detail-footer.has-unsaved > .todo-task-menu-trigger {
+  margin-left: 0;
+}
+.todo-property-menu {
+  display: grid;
+  min-width: 180px;
+  gap: 2px;
+}
+.todo-property-menu .ant-btn {
+  text-align: left;
+  justify-content: flex-start;
+  color: var(--todo-ink);
+}
+.todo-task-menu-popup .ant-popover-inner {
+  background: var(--todo-paper);
+  color: var(--todo-ink);
+}
+.to-doo-workspace .todo-primary-children,
+.to-doo-workspace .todo-primary-resources {
+  margin-top: 2px;
+}
+.to-doo-workspace .todo-primary-resources {
+  display: grid;
+  gap: 6px;
+}
+.todo-primary-resources h3 {
+  color: var(--todo-muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+.todo-primary-resources .todo-link {
+  white-space: normal;
+  height: auto;
+  justify-content: flex-start;
+}
+.to-doo-workspace .todo-detail .todo-add-property {
+  align-self: flex-start;
+  color: var(--todo-muted) !important;
+}
+.to-doo-workspace .todo-detail .todo-detail-shortcuts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+}
+.todo-plan-disclosure {
+  margin-top: 12px;
+}
+.todo-timeline-group-heading {
+  border-bottom: 1px solid var(--todo-line);
+  background: var(--todo-soft);
+}
+.todo-timeline-group-heading .ant-btn {
+  color: var(--todo-ink);
+}
+.todo-timeline-group-heading small {
+  color: var(--todo-muted);
+  margin-left: 8px;
+}
+@media (min-width: 1280px) {
+  .to-doo-workspace.todo-has-detail {
+    grid-template-columns: var(--todo-context-nav-width) minmax(280px, 1fr) var(--todo-detail-width);
+  }
+  .to-doo-workspace.todo-has-detail.todo-no-sidebar {
+    grid-template-columns: minmax(280px, 1fr) var(--todo-detail-width);
+  }
+  .todo-has-detail .todo-detail {
+    width: var(--todo-detail-width);
+  }
+}
+@media (max-width: 600px) {
+  .to-doo-workspace .todo-detail-body {
+    padding: 12px 18px 22px;
+  }
+  .to-doo-workspace .todo-detail > header,
+  .to-doo-workspace .todo-detail-footer {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+  .to-doo-workspace .todo-document-title-row .todo-title-input > input,
+  .to-doo-workspace .todo-document-title-row .todo-title-input > textarea.ant-input {
+    font-size: 22px !important;
+  }
+  .to-doo-workspace .todo-document-property {
+    grid-template-columns: 58px minmax(0, 1fr);
+    gap: 8px;
+  }
+  .to-doo-workspace .todo-document-meta {
+    margin-left: 0;
+  }
+  .to-doo-workspace .todo-document-meta > label {
+    flex: 1;
+    max-width: 100%;
+  }
+}

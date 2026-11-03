@@ -12,6 +12,10 @@ export type NoteRevision = {
   createdAt: string;
   modifiedAt: string;
   sizeBytes: number;
+  documentType?:'markdown'|'whiteboard'|'mindmap'|'flowchart'|null;
+  payloadFormat?:'markdown'|'excalidraw'|null;
+  logicalPath?:string|null;
+  contentHash?:string|null;
 };
 
 export const HISTORY_COMPARE_MAX_BYTES = 1024 * 1024;

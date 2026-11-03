@@ -1,3 +1,7 @@
+import { DOO_ASSETS_DIRECTORY, isCompatibleAssetPath, isDooAssetPath } from '../../../shared/storage-paths.js';
+import { hasDiagramBindingProof } from '../../../packages/core/knowledge/diagram-publications.js';
+import { parseDiagramDocument } from '../../../shared/diagram-document.js';
+import { resolvePrimaryDiagram } from '../../../packages/core/knowledge/diagram-resource-resolver.js';
 import { existsSync, mkdirSync, writeFileSync, lstatSync, unlinkSync, realpathSync } from 'node:fs';
 import { writeFile, readFile, rm } from 'node:fs/promises';
 import { dirname, join, posix } from 'node:path';
@@ -205,13 +209,13 @@ export function createKnowledgeBundlePort(
       const absolute = targetPath(
         config.knowledgeRoot,
         next,
-        part === 'assets' ? 'asset' : 'folder',
+        (part === DOO_ASSETS_DIRECTORY || part === 'assets') ? 'asset' : 'folder',
       );
       if (!existsSync(absolute)) {
-        if (part === 'assets') mkdirSync(absolute, { mode: 0o700 });
+        if ((part === DOO_ASSETS_DIRECTORY || part === 'assets')) mkdirSync(absolute, { mode: 0o700 });
         else runtime.notes.createFolder(cursor, part);
       }
-      targetPath(config.knowledgeRoot, next, part === 'assets' ? 'asset' : 'folder');
+      targetPath(config.knowledgeRoot, next, (part === DOO_ASSETS_DIRECTORY || part === 'assets') ? 'asset' : 'folder');
       cursor = next;
     }
   }
@@ -407,7 +411,7 @@ export function createKnowledgeBundlePort(
           try {
             for await (const block of readBlocks(ready.path, 0, undefined, options?.signal)) {
               stopped(p, j.id, false, options);
-              await k.snapshots.check(authorized(false, options), item.noteId!, ready.id,j.id);
+              await k.snapshots.check(authorized(false, options), item.noteId!, ready.id, j.id);
               release.renew();
               parts.push(block);
             }
@@ -416,6 +420,33 @@ export function createKnowledgeBundlePort(
           }
           let bytes = Buffer.concat(parts),
             content = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+          // Primary documents carry their source/PNG binding outside old fences.
+          // Preserve the legacy archive format while sharing the semantic integrity gate.
+          if (!isWhiteboard(item.path) && parseDiagramDocument(content).status !== 'ordinary') {
+            const parsed = parseDiagramDocument(content);
+            if (parsed.status === 'diagram') {
+              const resource = resolvePrimaryDiagram(
+                config,
+                db,
+                runtime.notes,
+                authorized(false, options),
+                item.noteId!,
+              );
+              if (
+                resource.preview?.state !== 'ready' ||
+                !hasDiagramBindingProof(db, item.noteId!, {
+                  sourceHash: parsed.primary.binding.sourceHash,
+                  renderHash: parsed.primary.binding.renderHash,
+                  previewHash: parsed.primary.binding.previewHash,
+                  previewPath: localReference(item.path, parsed.primary.previewPath) || '',
+                  ...(parsed.primary.source.format === 'excalidraw'
+                    ? { sourcePath: localReference(item.path, parsed.primary.source.path) || '' }
+                    : {}),
+                })
+              )
+                fail(409, 'DIAGRAM_PREVIEW_REQUIRED');
+            } else if (parsed?.status !== 'ordinary') fail(409, 'DIAGRAM_PREVIEW_REQUIRED');
+          }
           if (!isWhiteboard(item.path)) {
             const all = db.prepare('SELECT id,path FROM notes WHERE active=1').all() as {
               id: string;
@@ -453,7 +484,7 @@ export function createKnowledgeBundlePort(
             }
             payload.assets = [...assets];
           }
-          await k.snapshots.check(authorized(false, options), item.noteId!, ready.id,j.id);
+          await k.snapshots.check(authorized(false, options), item.noteId!, ready.id, j.id);
           await copy(item.path, bytes);
           payload.exported[item.noteId!] = {
             path: item.path,

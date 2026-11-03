@@ -188,7 +188,7 @@ export function createGraphVectorSimilarity(config: AppConfig, db: AppDatabase) 
     return db
       .prepare(
         `SELECT ${metadata} FROM notes n LEFT JOIN document_state d ON d.note_id=n.id
-      WHERE n.active=1 AND lower(substr(n.path,-3))='.md' AND n.path<>'_data' AND instr(n.path,'_data/')<>1
+      WHERE n.active=1 AND lower(substr(n.path,-3))='.md' AND n.path<>'_data' AND instr(n.path,'_data/')<>1 AND instr(n.path,'_doo-data/')<>1
       AND (${filter.sql}) ${id === undefined ? '' : 'AND n.id=?'} ORDER BY n.id LIMIT ?`,
       )
       .all(

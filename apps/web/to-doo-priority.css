@@ -47,6 +47,9 @@
   border-color: var(--todo-priority-color);
   background: color-mix(in srgb, var(--todo-priority-color) 6%, var(--todo-paper));
 }
+.to-doo-workspace .todo-task-row .todo-priority-label {
+  line-height: 16px;
+}
 
 .to-doo-workspace .todo-board-column[class*='todo-priority-'],
 .to-doo-workspace .todo-board-card[class*='todo-priority-'] {
@@ -117,7 +120,7 @@
   grid-template-columns: 18px minmax(0, 1fr);
   align-items: start;
   gap: 7px 9px;
-  padding: 12px;
+  padding: var(--todo-row-padding-block, 7px) 12px;
 }
 
 .to-doo-workspace .todo-quadrant .todo-check,
@@ -132,6 +135,7 @@
 }
 .to-doo-workspace .todo-quadrant .todo-task-date {
   display: flex;
+  justify-content: flex-start;
   text-align: left;
 }
 .to-doo-workspace .todo-quadrant .todo-empty {

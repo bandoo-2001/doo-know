@@ -7,7 +7,7 @@ it('migrates repeatedly without losing legacy note, share or revision identities
     const db = openDatabase(f.dataRoot);
     db.prepare('INSERT INTO notes(id,path) VALUES(?,?)').run('stable-note', '00-Inbox/a.md');
     db.prepare('INSERT INTO shares(note_id,token) VALUES(?,?)').run('stable-note', 'fixture-share');
-    db.prepare('INSERT INTO revisions VALUES(?,?,?,?,?)').run(
+    db.prepare('INSERT INTO revisions(id,note_id,file,created_at,modified_at) VALUES(?,?,?,?,?)').run(
       'stable-revision',
       'stable-note',
       'history.md',

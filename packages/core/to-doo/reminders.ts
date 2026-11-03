@@ -7,8 +7,9 @@ import type {
   ToDooSnapshot,
 } from '../../../shared/to-doo-contracts.js';
 import type { ToDooReminderCard, ToDooReminderFeed } from '../../../shared/to-doo-reminders.js';
-import { summarizeHabitPeriod } from '../../../shared/to-doo-habits.js';
+import { getHabitGoalMode, summarizeHabitPeriod } from '../../../shared/to-doo-habits.js';
 import { quietHoursEnd, reminderSourceValid, ToDooNotificationError } from './notifications.js';
+import { resolveToDooReminderSource } from './reminder-source.js';
 
 type Reminder = ToDooEntityMap['reminderEvent'];
 export type ToDooReminderOptions = { db: AppDatabase; now?: () => Date };
@@ -45,10 +46,9 @@ export function createToDooReminders(service: ToDooService, options: ToDooRemind
     if (!reminderSourceValid(state, event, now(), allowCompleted)) throw gone();
     if (history(event)) return { event, section: 'notifications', completion: 'open' };
     if (event.sourceType === 'task') {
-      const task = state.tasks.find((t) => t.id === event.sourceId)!;
-      const occurrence = state.occurrences.find(
-        (o) => o.taskId === task.id && o.cycleKey === event.occurrenceKey && !o.deletedAt,
-      )!;
+      const source = resolveToDooReminderSource(state, event.id);
+      const task = state.tasks.find((row) => row.id === source.taskId)!;
+      const occurrence = state.occurrences.find((row) => row.id === source.occurrenceId)!;
       const complex =
         !!task.criteria.trim() ||
         state.tasks.some((t) => !t.deletedAt && t.parentTaskId === task.id);
@@ -71,7 +71,24 @@ export function createToDooReminders(service: ToDooService, options: ToDooRemind
         section: 'habits',
         date: event.occurrenceKey,
         completion: 'habit',
-        habit: { amount: summary.amount, target: summary.target, unit: summary.rule.unit },
+        habit: {
+          amount: summary.amount,
+          target: summary.target,
+          unit: summary.rule.unit,
+          ...(getHabitGoalMode(summary.rule) === 'checkin'
+            ? {
+                goalMode: 'checkin' as const,
+                checkedToday: state.habitEntries.some(
+                  (entry) =>
+                    entry.habitId === habit.id &&
+                    entry.localDate === event.occurrenceKey &&
+                    !entry.deletedAt &&
+                    !entry.skipped &&
+                    entry.amount > 0,
+                ),
+              }
+            : {}),
+        },
       };
     }
     return {
@@ -170,8 +187,16 @@ export function createToDooReminders(service: ToDooService, options: ToDooRemind
               cascade: false,
             },
           };
-      } else if (card.completion === 'habit' && card.habit!.amount < card.habit!.target) {
-        if (input.amount === undefined && card.habit!.target !== 1)
+      } else if (
+        card.completion === 'habit' &&
+        !card.habit!.checkedToday &&
+        card.habit!.amount < card.habit!.target
+      ) {
+        if (
+          input.amount === undefined &&
+          card.habit!.target !== 1 &&
+          card.habit!.goalMode !== 'checkin'
+        )
           throw new ToDooNotificationError('请填写本次完成数量');
         command = {
           requestId: requestKey + '_source',
@@ -215,7 +240,7 @@ export function createToDooReminders(service: ToDooService, options: ToDooRemind
           throw new ToDooNotificationError('请打开事项填写完成信息', 409);
         const achieved =
           card.completion === 'habit'
-            ? card.habit!.amount >= card.habit!.target
+            ? card.habit!.checkedToday || card.habit!.amount >= card.habit!.target
             : card.completion === 'task' &&
               state.occurrences.find((o) => o.id === card.occurrenceId)?.status === 'done';
         if (achieved) {

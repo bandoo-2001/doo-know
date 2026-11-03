@@ -1,0 +1,455 @@
+.todo-focus-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+  gap: calc(var(--todo-space) * 3);
+  align-items: start;
+  min-width: 0;
+}
+.todo-focus-mobile-panes {
+  grid-column: 1 / -1;
+}
+.todo-focus-projects,
+.todo-focus-records {
+  min-width: 0;
+}
+.todo-focus-projects > .todo-page-toolbar {
+  margin-bottom: calc(var(--todo-space) * 3);
+}
+.todo-focus-project-head,
+.todo-focus-topic {
+  display: grid;
+  grid-template-columns: minmax(130px, 1fr) 76px 100px 64px;
+  gap: var(--todo-space);
+  align-items: center;
+}
+.todo-focus-project-head {
+  padding: 12px 8px;
+  color: var(--todo-muted);
+  border-bottom: 1px solid var(--todo-line);
+  font-size: 12px;
+}
+.todo-focus-topic {
+  padding: 12px 8px;
+  border-bottom: 1px solid transparent;
+  border-radius: var(--todo-radius);
+  position: relative;
+}
+.todo-focus-topic::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 -1px;
+  border-bottom: inherit;
+  border-bottom-color: var(--todo-line);
+  pointer-events: none;
+}
+.todo-focus-topic.selected {
+  background: var(--todo-tint);
+  box-shadow: inset 2px 0 var(--todo-accent);
+}
+.to-doo-workspace .todo-focus-topic-select.ant-btn {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  height: auto;
+  padding: 8px 0;
+  white-space: normal;
+  text-align: start;
+}
+.todo-focus-topic-select > span:last-child {
+  overflow-wrap: anywhere;
+  font-weight: 500;
+}
+.todo-focus-topic-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 32px;
+}
+.todo-focus-topic-duration {
+  color: var(--todo-muted);
+  font-size: 12px;
+}
+.todo-focus-topic-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+.todo-focus-topic-actions .ant-btn {
+  padding: 4px;
+}
+.todo-focus-empty {
+  margin-block: 48px;
+}
+.todo-focus-records {
+  border-left: 1px solid var(--todo-line);
+  padding-left: calc(var(--todo-space) * 3);
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  min-height: 0;
+}
+.todo-focus-records > * {
+  flex-shrink: 0;
+}
+.todo-focus-history {
+  flex: 1 1 auto;
+  min-height: 136px;
+  max-height: max(200px, calc(100dvh - 470px));
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  scroll-padding-block: 8px;
+}
+.todo-focus-history:focus-visible {
+  outline: 2px solid var(--todo-accent);
+  outline-offset: 2px;
+}
+.todo-focus-history-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  padding-top: 4px;
+}
+.todo-focus-history-footer .todo-focus-count {
+  margin: 0 !important;
+  margin-left: auto !important;
+  font-size: 10px;
+}
+.todo-focus-page-error {
+  padding-top: 4px;
+  color: var(--todo-danger, #c53b42) !important;
+  font-size: 11px;
+}
+.todo-focus-records .todo-section-header {
+  padding: 0 0 8px;
+  gap: 8px;
+  border-bottom: 0;
+}
+.todo-focus-records .todo-section-header h2 {
+  margin-right: auto;
+}
+.todo-focus-records .todo-section-header .todo-ant-select {
+  width: 136px;
+  max-width: 50%;
+}
+.todo-focus-statistics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.todo-focus-statistics .ant-statistic {
+  background: var(--todo-soft);
+  border-radius: var(--todo-radius);
+  padding: 4px 8px;
+}
+.todo-focus-statistics .ant-statistic-title {
+  color: var(--todo-muted);
+  font-size: 11px;
+  margin-bottom: 2px;
+}
+.todo-focus-statistics .ant-statistic-content {
+  color: var(--todo-ink);
+  font-size: 17px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.todo-focus-statistics .ant-statistic-content-suffix {
+  font-size: 10px;
+  margin-left: 2px;
+}
+.todo-focus-day {
+  background: var(--todo-soft);
+  padding: 6px 10px;
+  border-radius: 6px;
+  margin-bottom: 8px !important;
+}
+.todo-focus-history-item {
+  display: flex;
+  gap: 12px;
+  padding: 4px 0;
+}
+.todo-focus-history-item > svg {
+  margin-top: 3px;
+  flex-shrink: 0;
+  color: var(--todo-muted);
+}
+.todo-focus-history-copy {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.todo-focus-history-copy strong {
+  font-weight: 500;
+}
+.todo-focus-history-copy small {
+  display: block;
+  color: var(--todo-muted);
+  margin-block: 2px;
+  font-size: 11px;
+}
+.todo-focus-history-copy p {
+  white-space: pre-wrap;
+  font-size: 12px;
+}
+.todo-focus-history-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+.todo-focus-history-actions .ant-btn {
+  height: auto;
+  padding: 0;
+  font-size: 11px;
+}
+.todo-focus-count {
+  font-size: 11px;
+  margin-top: 12px !important;
+}
+.todo-focus-date-range {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.todo-focus-date-range label {
+  flex: 1 1 120px;
+  display: grid;
+  gap: 4px;
+}
+.todo-focus-timer {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) auto auto auto;
+  align-items: center;
+  gap: 16px;
+  position: sticky;
+  bottom: 0;
+  z-index: 4;
+  padding: 16px 0 8px;
+  border-top: 1px solid var(--todo-line);
+  background: var(--todo-paper);
+}
+.todo-focus-timer-context {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  min-width: 0;
+}
+.todo-focus-timer-context > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.todo-focus-timer-context > svg {
+  color: var(--todo-accent);
+  flex-shrink: 0;
+}
+.todo-focus-timer-context small {
+  display: block;
+  font-size: 12px;
+  color: var(--todo-muted);
+  margin-top: 4px;
+}
+.todo-focus-timer-clock {
+  font-size: 32px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.3;
+}
+.todo-focus-timer-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 8px 16px;
+}
+.todo-focus-timer-fields > .ant-segmented {
+  grid-column: 1 / -1;
+  justify-self: start;
+}
+.todo-focus-target {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  color: var(--todo-muted);
+  font-size: 12px;
+}
+.todo-focus-target .ant-input-number {
+  width: 64px;
+}
+.todo-focus-timer-fields .todo-focus-note {
+  grid-column: 1 / -1;
+}
+.todo-focus-timer-drawer .ant-drawer-content,
+.todo-focus-timer-drawer .ant-drawer-header {
+  background: var(--todo-paper);
+  color: var(--todo-ink);
+  border-color: var(--todo-line);
+}
+.todo-focus-timer-drawer .ant-drawer-title,
+.todo-focus-timer-drawer .ant-drawer-close {
+  color: var(--todo-ink);
+}
+.todo-focus-timer-drawer .ant-drawer-body {
+  max-height: calc(100dvh - var(--workspace-bottom-inset, 0px) - 80px);
+  overflow: auto;
+}
+.todo-focus-settings-close {
+  margin-top: 24px;
+}
+.todo-focus-timer-clock label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--todo-muted);
+}
+.todo-focus-timer-clock .ant-input-number {
+  width: 64px;
+}
+.todo-focus-task-link {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--todo-muted);
+}
+.todo-focus-timer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.todo-focus-note,
+.todo-focus-retained-note {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--todo-muted);
+}
+.todo-focus-retained-note {
+  padding: 16px;
+  border: 1px solid var(--todo-line);
+  border-radius: 8px;
+}
+.todo-focus-retained-note label {
+  display: grid;
+  gap: 8px;
+}
+@container (max-width: 1050px) {
+  .todo-focus-workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .todo-focus-records {
+    border-left: 0;
+    padding-left: 0;
+    height: auto;
+  }
+  .todo-focus-history {
+    flex: none;
+    max-height: max(200px, calc(100dvh - 470px));
+  }
+  .todo-focus-timer {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+  }
+  .todo-focus-timer-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+  }
+}
+@container (max-width: 500px) {
+  .todo-focus-empty {
+    margin-block: 24px;
+  }
+  .todo-focus-empty .ant-empty-image {
+    height: 48px;
+  }
+  .todo-focus-project-head,
+  .todo-focus-topic {
+    grid-template-columns: minmax(0, 1fr) 64px 64px;
+    gap: 6px;
+  }
+  .todo-focus-project-head > span:nth-child(3),
+  .todo-focus-topic > .todo-focus-topic-duration:nth-child(3) {
+    display: none;
+  }
+  .todo-focus-project-head > span:first-child::after {
+    content: ' · 点项目查看累计';
+    font-size: 10px;
+  }
+  .todo-focus-timer {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 8px;
+    padding-top: 12px;
+  }
+  .todo-focus-timer-context {
+    grid-column: 1;
+  }
+  .todo-focus-timer-context > svg {
+    display: none;
+  }
+  .todo-focus-timer-context strong {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 12px;
+  }
+  .todo-focus-timer-context small {
+    font-size: 10px;
+    margin-top: 0;
+  }
+  .todo-focus-timer-clock {
+    grid-column: 2;
+    font-size: 26px;
+  }
+  .todo-focus-settings-toggle {
+    grid-column: 3;
+    padding: 4px;
+    font-size: 11px;
+  }
+  .todo-focus-timer-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+}
+
+.todo-focus-history-more,
+.todo-focus-policy {
+  color: var(--todo-muted);
+  font-size: 11px;
+}
+.todo-focus-history-more summary,
+.todo-focus-policy summary {
+  width: fit-content;
+  cursor: pointer;
+}
+.todo-focus-history-more summary:focus-visible,
+.todo-focus-policy summary:focus-visible {
+  outline: 2px solid var(--todo-accent);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+.todo-focus-history-secondary {
+  display: flex;
+  gap: 14px;
+  padding: 10px 12px;
+  margin-top: 8px;
+  border-radius: var(--todo-radius);
+  background: var(--todo-soft);
+}
+.todo-focus-policy {
+  margin-top: 4px;
+}
+.todo-focus-timer-context .todo-focus-note-status {
+  color: var(--todo-accent);
+}
+.todo-focus-timer-drawer .todo-focus-timer-fields {
+  grid-template-columns: minmax(0, 1fr);
+}
+.todo-focus-settings-toggle {
+  justify-self: end;
+}

@@ -5,6 +5,10 @@ import * as Vue from 'vue';
 import MarkdownIt from 'markdown-it';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { ApiError } from '../apps/web/api';
+import * as primaryCreation from '../apps/web/diagrams/primary-creation';
+import * as historyRestore from '../apps/web/diagrams/history-restore';
+import * as media from '../shared/media';
+import * as portableDownload from '../apps/web/diagrams/portable-download';
 import * as navigation from '../apps/web/navigation';
 import * as markdownLinks from '../apps/web/markdown-links';
 import * as imageRequests from '../apps/web/image-requests';
@@ -40,7 +44,12 @@ import * as frontmatterRange from '../shared/frontmatter-range';
 import * as diagramSavePolicy from '../apps/web/diagrams/save-policy';
 import { useNoteDraft as realNoteDraft } from '../apps/web/useNoteDraft';
 
-const mockApi = vi.fn();
+const mockApi = vi.hoisted(() => vi.fn());
+// The VM and real diagram helpers share the same HTTP boundary; their behavior is not stubbed.
+vi.mock('../apps/web/api', async (importOriginal) => ({
+  ...await importOriginal<typeof import('../apps/web/api')>(),
+  api: (...args: unknown[]) => mockApi(...args),
+}));
 let parseCount = 0;
 let sanitizeCount = 0;
 let parseMs = 0;
@@ -81,6 +90,10 @@ async function mount(waitForNote = true) {
   new Function('require', 'module', 'exports', source)(
     (id: string) => {
       if (id === 'vue') return Vue;
+      if (id === '../diagrams/primary-creation') return primaryCreation;
+      if (id === '../diagrams/history-restore') return historyRestore;
+      if (id === '../../../shared/media') return media;
+      if (id === '../diagrams/portable-download') return portableDownload;
       if (id.endsWith('.css')) return {};
       if (id === '../../../shared/diagram-fences') return { diagramFences };
       if (id === '../../../shared/knowledge-markdown') return knowledgeMarkdown;
@@ -501,4 +514,66 @@ it('applies the editable opening state before focusing a cross-note chapter', as
   };
   await state.openMarkdownNote('note-two', '#%E7%AB%A0%E8%8A%82');
   expect(openingStates).toEqual([false]);
+});
+
+
+it.each(['query', 'reopen', 'unchanged'] as const)(
+  'a pending note open respects a newer sidebar action: %s',
+  async (action) => {
+    await mount();
+    targetNotes();
+    state.draft.value = state.savedContent.value;
+    state.drawer.value = true;
+    const goToLine = vi.fn();
+    state.editorRef.value = { goToLine, flush: async () => {}, cancelPendingFocus() {} };
+    let release!: () => void;
+    const pending = new Promise<void>((resolve) => { release = resolve; });
+    const existing = mockApi.getMockImplementation()!;
+    mockApi.mockImplementation(async (url: string, method?: string) => {
+      if (url === '/api/notes/note-two/meta') await pending;
+      return existing(url, method);
+    });
+    const opening = state.openNote('note-two', 3);
+    try {
+      await vi.waitFor(() => expect(state.noteOpening.value).toBe(true));
+      if (action === 'query') state.query.value = 'a newer filename query';
+      if (action === 'reopen') {
+        state.drawer.value = false;
+        state.drawer.value = true;
+      }
+    } finally { release(); }
+    await opening;
+    expect(state.note.value.id).toBe('note-two');
+    expect(state.draft.value).toContain('Destination');
+    expect(state.drawer.value).toBe(action !== 'unchanged');
+    expect(state.noteLine.value).toBe(action === 'unchanged' ? 3 : undefined);
+    if (action === 'unchanged') expect(goToLine).toHaveBeenCalledWith(3, 'center', undefined);
+    else expect(goToLine).not.toHaveBeenCalled();
+  },
+);
+
+
+it('a late filename query during local draft load keeps focus after the earlier line-target open', async () => {
+  await mount();
+  targetNotes();
+  state.draft.value = state.savedContent.value;
+  state.drawer.value = false;
+  const goToLine = vi.fn();
+  state.editorRef.value = { goToLine, flush: async () => {}, cancelPendingFocus() {} };
+  let release!: () => void;
+  const pending = new Promise<void>((resolve) => { release = resolve; });
+  let held = false;
+  state.localDrafts.load = async () => { held = true; await pending; };
+  const opening = state.openNote('note-two', 3);
+  try {
+    await vi.waitFor(() => expect(held).toBe(true));
+    expect(state.noteOpening.value).toBe(true);
+    state.query.value = 'a newer filename query';
+  } finally { release(); }
+  await opening;
+  expect(state.note.value.id).toBe('note-two');
+  expect(state.draft.value).toContain('Destination');
+  expect(state.query.value).toBe('a newer filename query');
+  expect(goToLine).not.toHaveBeenCalled();
+  expect(state.noteLine.value).toBeUndefined();
 });

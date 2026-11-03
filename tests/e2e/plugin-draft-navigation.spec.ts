@@ -5,7 +5,7 @@ import { test, expect } from '../support/browser-test';
 import { testPassword } from '../support/credentials.js';
 import { configurePlugin, returnToNotes, showSidebar } from '../support/settings-navigation';
 
-// Generated connection keys must stay only in browser/test memory, including on failure.
+// Keep login credentials out of captured artifacts.
 test.use({ trace: 'off', screenshot: 'off', video: 'off' });
 test.afterEach(async ({ page }) => {
   await page
@@ -36,39 +36,29 @@ async function section(page: Page, label: string) {
     .click();
 }
 
-async function tunnelMode(page: Page) {
-  const mode = page.getByRole('combobox', { name: '连接方式', exact: true });
-  await mode.focus();
-  await mode.press('ArrowDown');
-  await page.locator('.ant-select-item-option').filter({ hasText: '本地隧道（Tunnel）' }).click();
-}
-
-test('plugin inputs and a newly generated key survive other settings and a return to notes', async ({
+test('plugin inputs and authentication switches survive other settings and a return to notes', async ({
   page,
   context,
 }) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   await page.goto('/?view=settings&section=plugins');
   await configureCurrentMcp(page);
-  const prefixes = page.getByLabel('允许访问的目录', { exact: true });
-  await prefixes.fill('00-Inbox\n仅在当前会话中的草稿');
-  await tunnelMode(page);
-  await page.getByRole('button', { name: '生成连接密钥', exact: true }).click();
-  const key = page.getByLabel('Tunnel Bearer 密钥', { exact: true });
-  const generated = await key.inputValue();
-  expect(/^[a-f0-9]{64}$/.test(generated)).toBe(true);
+  const externalUrl = page.getByLabel('外部网页地址', { exact: true });
+  await externalUrl.fill('https://draft.example.invalid/session');
+  const apiKey = page.getByRole('switch', { name: '启用 API Key 连接', exact: true });
+  const initial = await apiKey.getAttribute('aria-checked');
+  await apiKey.click();
+  const changed = initial === 'true' ? 'false' : 'true';
   await section(page, '通用与编辑');
-  await expect(page.getByRole('heading', { name: '编辑器与外观', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '编辑与阅读', exact: true })).toBeVisible();
   await section(page, '插件与连接');
   await configureCurrentMcp(page);
-  await expect(prefixes).toHaveValue('00-Inbox\n仅在当前会话中的草稿');
-  expect((await key.inputValue()) === generated).toBe(true);
+  await expect(externalUrl).toHaveValue('https://draft.example.invalid/session');
+  await expect(apiKey).toHaveAttribute('aria-checked', changed);
   await returnToNotes(page);
   await configurePlugin(page, 'MCP 服务');
-  await expect(prefixes).toHaveValue('00-Inbox\n仅在当前会话中的草稿');
-  const preserved = (await key.inputValue()) === generated;
-  await key.fill('');
-  expect(preserved).toBe(true);
+  await expect(externalUrl).toHaveValue('https://draft.example.invalid/session');
+  await expect(apiKey).toHaveAttribute('aria-checked', changed);
 });
 
 test('cancelling refresh keeps an unsaved plugin input even after its settings page is hidden', async ({
@@ -78,9 +68,9 @@ test('cancelling refresh keeps an unsaved plugin input even after its settings p
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   await page.goto('/?view=settings&section=plugins');
   await configureCurrentMcp(page);
-  const prefixes = page.getByLabel('允许访问的目录', { exact: true });
-  await prefixes.click();
-  await prefixes.fill('00-Inbox\n刷新前保留');
+  const externalUrl = page.getByLabel('外部网页地址', { exact: true });
+  await externalUrl.click();
+  await externalUrl.fill('https://draft.example.invalid/refresh');
   await returnToNotes(page);
   let warned = false;
   page.once('dialog', async (dialog) => {
@@ -90,13 +80,13 @@ test('cancelling refresh keeps an unsaved plugin input even after its settings p
   await page.reload({ timeout: 5000 }).catch(() => undefined);
   expect(warned).toBe(true);
   await configurePlugin(page, 'MCP 服务');
-  await expect(prefixes).toHaveValue('00-Inbox\n刷新前保留');
+  await expect(externalUrl).toHaveValue('https://draft.example.invalid/refresh');
 });
 
 test('explicit logout clears plugin drafts before the next authenticated workspace opens', async ({
   page,
 }) => {
-  const prefixes = page.getByLabel('允许访问的目录', { exact: true });
+  const externalUrl = page.getByLabel('外部网页地址', { exact: true });
   let saved = '';
   await test.step('登录并打开 MCP 设置', async () => {
     await page.goto('/');
@@ -105,12 +95,11 @@ test('explicit logout clears plugin drafts before the next authenticated workspa
     await page.getByRole('button', { name: '登录', exact: true }).click();
     await expect(page.locator('.workspace-empty')).toBeVisible();
     await configurePlugin(page, 'MCP 服务');
-    saved = await prefixes.inputValue();
+    saved = await externalUrl.inputValue();
   });
   await test.step('留下插件草稿并退出当前设备', async () => {
-    await prefixes.fill('00-Inbox\n退出后不应保留');
-    await tunnelMode(page);
-    await page.getByRole('button', { name: '生成连接密钥', exact: true }).click();
+    await externalUrl.fill('https://draft.example.invalid/logout');
+    await page.getByRole('switch', { name: '启用 API Key 连接', exact: true }).click();
     await section(page, '账号与安全');
     await page.getByRole('button', { name: '退出当前设备', exact: true }).click();
     await expect(page.getByRole('heading', { name: '登录 DooKnow', exact: true })).toBeVisible();
@@ -122,12 +111,8 @@ test('explicit logout clears plugin drafts before the next authenticated workspa
     await expect(page.locator('.workspace')).toBeVisible();
     await configurePlugin(page, 'MCP 服务');
   });
-  await test.step('核对插件草稿和未保存密钥已清理', async () => {
-    expect((await prefixes.inputValue()) === saved).toBe(true);
-    await tunnelMode(page);
-    expect((await page.getByLabel('Tunnel Bearer 密钥', { exact: true }).inputValue()) === '').toBe(
-      true,
-    );
+  await test.step('核对插件草稿已清理', async () => {
+    expect((await externalUrl.inputValue()) === saved).toBe(true);
   });
 });
 
@@ -218,10 +203,12 @@ test('first-use plugin settings also warn before a refresh and retain input when
   await page.goto('/');
   await expect(page.getByRole('heading', { name: '选择需要的功能', exact: true })).toBeVisible();
   await page.getByRole('button', { name: /^(添加|查看)连接设置$/ }).click();
+  await expect(page.getByRole('heading', { name: 'MCP 服务设置', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: '刷新插件状态', exact: true })).toBeEnabled();
   await openLegacyMcpSettings(page);
-  const prefixes = page.getByLabel('允许访问的目录', { exact: true });
-  await prefixes.click();
-  await prefixes.fill('00-Inbox\n向导中的未保存输入');
+  const externalUrl = page.getByLabel('外部网页地址', { exact: true });
+  await externalUrl.click();
+  await externalUrl.fill('https://draft.example.invalid/onboarding');
   let warned = false;
   page.once('dialog', async (dialog) => {
     warned = dialog.type() === 'beforeunload';
@@ -229,5 +216,5 @@ test('first-use plugin settings also warn before a refresh and retain input when
   });
   await page.reload({ timeout: 5000 }).catch(() => undefined);
   expect(warned).toBe(true);
-  await expect(prefixes).toHaveValue('00-Inbox\n向导中的未保存输入');
+  await expect(externalUrl).toHaveValue('https://draft.example.invalid/onboarding');
 });

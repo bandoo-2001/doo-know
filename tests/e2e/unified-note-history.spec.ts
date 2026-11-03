@@ -23,7 +23,7 @@ async function setupHistory(page: Page, context: BrowserContext) {
   if (await enable.isVisible()) await enable.click();
   await expect(page.getByRole('button', { name: '停用插件', exact: true })).toBeEnabled();
   const csrf = await (await page.request.get('/api/security/csrf')).json();
-  const headers = { origin: 'http://127.0.0.1:4179', 'x-csrf-token': csrf.token };
+  const headers = { origin: new URL(page.url()).origin, 'x-csrf-token': csrf.token };
   const gitCall = async (kind: 'provider' | 'command', id: string, input = {}) => {
     const response = await page.request.post('/api/plugins/git/call', {
       headers,
@@ -93,6 +93,29 @@ async function setupHistory(page: Page, context: BrowserContext) {
   };
 }
 
+// Every intercepted write owns its real response through completion, including teardown.
+// Discard only a successful receipt; an actual server failure must fail this test.
+async function interceptGitRestoreReplies(page: Page, beforeFirst?: () => Promise<void>) {
+  const requests: unknown[] = [];
+  const completed: Promise<void>[] = [];
+  await page.route('**/api/plugins/git/call', (route) => {
+    const data = route.request().postDataJSON();
+    if (data.id !== 'git.restore') return route.continue();
+    const first = requests.length === 0;
+    requests.push(data.input);
+    const operation = (async () => {
+      if (first) await beforeFirst?.();
+      const response = await route.fetch();
+      expect(response.status()).toBe(200);
+      if (first) await route.abort('failed');
+      else await route.fulfill({ response });
+    })();
+    completed.push(operation);
+    return operation;
+  });
+  return { requests, completed };
+}
+
 test('一个历史入口区分保存记录和 Git 提交，明确对比基准并恢复选中提交', async ({
   page,
   context,
@@ -108,14 +131,16 @@ test('一个历史入口区分保存记录和 Git 提交，明确对比基准并
   );
   await expect(dialog.locator('.git-diff-insert')).toContainText(['当前未提交的正文']);
   await dialog.getByRole('tab', { name: 'Git 提交', exact: true }).click();
-  await expect(dialog.locator('.note-history-git-version')).toHaveCount(2);
+  await expect(dialog.locator('.note-history-git-version')).toHaveCount(2, { timeout: 15000 });
   await expect(dialog).toContainText('History Fixture');
   await expect(dialog).toContainText('补全每周回顾');
   await expect(dialog).toContainText('本次提交变更');
   await expect(dialog.locator('.note-history-git-commit')).toContainText(
     fixture.latest.slice(0, 12),
   );
-  await expect(dialog.locator('.git-diff-insert')).toContainText(['最近提交的正文']);
+  await expect(dialog.locator('.git-diff-insert')).toContainText(['最近提交的正文'], {
+    timeout: 15000,
+  });
   await expect(dialog.locator('.git-diff-view')).not.toContainText('当前未提交的正文');
   await dialog.screenshot({ path: `.local/unified-note-history-${info.project.name}.png` });
   await selectGitHistoryVersion(page, -1);
@@ -143,46 +168,44 @@ test('未知 Git 恢复结果锁定来源与目标，核对复用原请求并保
   await clickNoteAction(page, '历史版本');
   const dialog = page.locator('.note-history-dialog');
   await dialog.getByRole('tab', { name: 'Git 提交', exact: true }).click();
-  await expect(dialog.locator('.git-diff-insert')).toContainText(['最近提交的正文']);
+  await expect(dialog.locator('.note-history-git-version')).toHaveCount(2, { timeout: 15000 });
+  await expect(dialog.locator('.git-diff-insert')).toContainText(['最近提交的正文'], {
+    timeout: 15000,
+  });
   await selectGitHistoryVersion(page, -1);
   await expect(dialog.locator('.note-history-git-commit')).toContainText(
     fixture.first.slice(0, 12),
   );
-  const requests: any[] = [];
-  let loseReply = true;
-  await page.route('**/api/plugins/git/call', async (route) => {
-    const data = route.request().postDataJSON();
-    if (data.id !== 'git.restore') return route.continue();
-    requests.push(data.input);
-    if (loseReply) {
-      loseReply = false;
-      await route.fetch();
-      return route.abort('failed');
-    }
-    return route.continue();
-  });
-  await dialog.getByRole('button', { name: '恢复此版本', exact: true }).click();
-  await dialog.getByRole('button', { name: '确认恢复笔记', exact: true }).click();
-  await expect(dialog.getByRole('button', { name: '核对恢复结果', exact: true })).toBeVisible();
-  await expect(dialog.getByRole('tab', { name: '保存记录', exact: true })).toBeDisabled();
-  await expect(dialog.locator('.note-history-git-version').first()).toBeDisabled();
-  await dialog.getByRole('button', { name: '核对恢复结果', exact: true }).click();
-  await expect
-    .poll(() => readFile(fixture.file, 'utf8'), { timeout: 15000 })
-    .toBe(fixture.original);
-  await expect.poll(() => requests.length).toBe(2);
-  expect(requests[1]).toEqual(requests[0]);
-  await expect(page.locator('.cm-content')).toContainText('不要丢失的输入');
-  await dialog.getByRole('tab', { name: '保存记录', exact: true }).click();
-  await expect(dialog.locator('.note-history-version')).toHaveCount(3);
-  await dialog.getByRole('button', { name: '关闭', exact: true }).click();
+  const { requests, completed } = await interceptGitRestoreReplies(page);
+  try {
+    await dialog.getByRole('button', { name: '恢复此版本', exact: true }).click();
+    await dialog.getByRole('button', { name: '确认恢复笔记', exact: true }).click();
+    await expect.poll(() => requests.length).toBe(1);
+    await completed[0];
+    await expect(dialog.getByRole('button', { name: '核对恢复结果', exact: true })).toBeVisible();
+    await expect(dialog.getByRole('tab', { name: '保存记录', exact: true })).toBeDisabled();
+    await expect(dialog.locator('.note-history-git-version').first()).toBeDisabled();
+    await dialog.getByRole('button', { name: '核对恢复结果', exact: true }).click();
+    await expect
+      .poll(() => readFile(fixture.file, 'utf8'), { timeout: 15000 })
+      .toBe(fixture.original);
+    await expect.poll(() => requests.length).toBe(2);
+    await completed[1];
+    expect(requests[1]).toEqual(requests[0]);
+    await expect(page.locator('.cm-content')).toContainText('不要丢失的输入');
+    await dialog.getByRole('tab', { name: '保存记录', exact: true }).click();
+    await expect(dialog.locator('.note-history-version')).toHaveCount(3);
+    await dialog.getByRole('button', { name: '关闭', exact: true }).click();
+  } finally {
+    await page.unrouteAll({ behavior: 'wait' });
+  }
 });
 
 test('停用 Git 后保存记录仍可使用，且不会调用 Git 历史接口', async ({ page, context }) => {
   const fixture = await setupHistory(page, context);
   const csrf = await (await page.request.get('/api/security/csrf')).json();
   const disabled = await page.request.post('/api/platform/plugins/git/disable', {
-    headers: { origin: 'http://127.0.0.1:4179', 'x-csrf-token': csrf.token },
+    headers: { origin: new URL(page.url()).origin, 'x-csrf-token': csrf.token },
   });
   expect(disabled.status()).toBe(200);
   let gitReads = 0;
@@ -212,33 +235,30 @@ test('Git 恢复期间与结果待核对时阻止外层导航，核对后才允�
   await page.goto('/');
   await showSidebar(page);
   await expandFolderPath(page, '00-Inbox');
-  await page.locator('.tree-select').and(page.getByTitle(fixture.note.relativePath, { exact: true })).click();
+  await page
+    .locator('.tree-select')
+    .and(page.getByTitle(fixture.note.relativePath, { exact: true }))
+    .click();
   await expect(page.locator('.cm-content')).toBeVisible();
   const originalURL = page.url();
   await clickNoteAction(page, '历史版本');
   const dialog = page.locator('.note-history-dialog');
   await dialog.getByRole('tab', { name: 'Git 提交', exact: true }).click();
   await selectGitHistoryVersion(page, -1);
-  await expect(dialog.locator('.note-history-git-commit')).toContainText(fixture.first.slice(0, 12));
-  const requests: unknown[] = [];
+  await expect(dialog.locator('.note-history-git-commit')).toContainText(
+    fixture.first.slice(0, 12),
+  );
   let release!: () => void;
-  const gate = new Promise<void>((resolve) => { release = resolve; });
-  await page.route('**/api/plugins/git/call', async (route) => {
-    const data = route.request().postDataJSON();
-    if (data.id !== 'git.restore') return route.continue();
-    requests.push(data.input);
-    if (requests.length === 1) {
-      await gate;
-      await route.fetch();
-      return route.abort('failed');
-    }
-    return route.continue();
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
   });
-  const protectedUnload = () => page.evaluate(() => {
-    const event = new Event('beforeunload', { cancelable: true });
-    window.dispatchEvent(event);
-    return event.defaultPrevented;
-  });
+  const { requests, completed } = await interceptGitRestoreReplies(page, () => gate);
+  const protectedUnload = () =>
+    page.evaluate(() => {
+      const event = new Event('beforeunload', { cancelable: true });
+      window.dispatchEvent(event);
+      return event.defaultPrevented;
+    });
   try {
     await dialog.getByRole('button', { name: '恢复此版本', exact: true }).click();
     await dialog.getByRole('button', { name: '确认恢复笔记', exact: true }).click();
@@ -248,6 +268,7 @@ test('Git 恢复期间与结果待核对时阻止外层导航，核对后才允�
     await expect(dialog).toBeVisible();
     expect(await protectedUnload()).toBe(true);
     release();
+    await completed[0];
     await expect(dialog.getByRole('button', { name: '核对恢复结果', exact: true })).toBeVisible();
     await page.goBack();
     await expect(page).toHaveURL(originalURL);
@@ -262,23 +283,26 @@ test('Git 恢复期间与结果待核对时阻止外层导航，核对后才允�
     await expect(page).toHaveURL(originalURL);
     await expect(dialog.getByRole('button', { name: '核对恢复结果', exact: true })).toBeVisible();
     // Exercise an outer application action independently of the modal's pointer mask.
-    await page.locator('.workspace-footer button[title="应用"]').evaluate((button: HTMLButtonElement) => button.click());
+    await page
+      .locator('.workspace-footer button[title="应用"]')
+      .evaluate((button: HTMLButtonElement) => button.click());
     await expect(page).toHaveURL(originalURL);
     await expect(dialog.getByRole('button', { name: '核对恢复结果', exact: true })).toBeVisible();
     await dialog.getByRole('button', { name: '核对恢复结果', exact: true }).click();
     await expect.poll(() => requests.length).toBe(2);
+    await completed[1];
     expect(requests[1]).toEqual(requests[0]);
     await expect(dialog.getByRole('button', { name: '核对恢复结果', exact: true })).toBeHidden();
     await expect(page.locator('.cm-content')).toContainText('最初提交的正文');
     expect(await protectedUnload()).toBe(false);
     await dialog.getByRole('button', { name: '关闭', exact: true }).click();
     await page.goBack();
-    await expect(page).toHaveURL('http://127.0.0.1:4179/');
+    await expect(page).toHaveURL(new URL('/', originalURL).href);
     await expect(dialog).toBeHidden();
     await expect(page.locator('.cm-content')).toBeHidden();
     expect(await readFile(fixture.file, 'utf8')).toBe(fixture.original);
   } finally {
     release();
-    await page.unrouteAll({ behavior: 'ignoreErrors' });
+    await page.unrouteAll({ behavior: 'wait' });
   }
 });

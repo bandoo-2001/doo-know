@@ -122,7 +122,7 @@ async function save() {
       @click="emit('close')"
       >×</AButton
     >
-    <p class="todo-muted">
+    <p class="todo-form-help">
       选中 {{ state.selectedIds.length }} 项，将修改
       {{ affected.length }} 项。未勾选的字段保持原值。
     </p>
@@ -131,100 +131,134 @@ async function save() {
       <ACheckbox class="todo-checkbox" v-model:checked="includeChildren"
         >同时处理全部后代任务</ACheckbox
       >
-      <div class="todo-bulk-field">
-        <ACheckbox class="todo-checkbox" v-model:checked="enabled.priority">优先级</ACheckbox
-        ><ToDooSelect v-model="patch.priority" :disabled="!enabled.priority">
-          <option value="none">无优先级</option>
-          <option value="low">低</option>
-          <option value="normal">中</option>
-          <option value="high">高</option>
-        </ToDooSelect>
-      </div>
-      <div class="todo-bulk-field">
-        <ACheckbox class="todo-checkbox" v-model:checked="enabled.importance">重要程度</ACheckbox
-        ><ToDooSelect v-model="patch.importance" :disabled="!enabled.importance">
-          <option value="normal">普通</option>
-          <option value="important">重要</option>
-        </ToDooSelect>
-      </div>
-      <ACheckbox class="todo-checkbox" v-model:checked="enabled.tags">替换标签</ACheckbox
-      ><ToDooSelect v-if="enabled.tags" v-model="patch.tagIds" multiple aria-label="批量标签">
-        <option
-          v-for="t in state.snapshot?.tags.filter((t) => !t.deletedAt)"
-          :key="t.id"
-          :value="t.id"
-        >
-          {{ t.name }}
-        </option></ToDooSelect
-      ><ACheckbox class="todo-checkbox" v-model:checked="enabled.section">替换章节</ACheckbox
-      ><ToDooSelect v-if="enabled.section" v-model="patch.sectionId" aria-label="批量章节">
-        <option :value="null">不分章节</option>
-        <option
-          v-for="s in state.snapshot?.sections.filter((s) => !s.deletedAt)"
-          :key="s.id"
-          :value="s.id"
-        >
-          {{ s.name }}
-        </option></ToDooSelect
-      ><ACheckbox class="todo-checkbox" v-model:checked="enabled.notes">替换关联资料</ACheckbox
-      ><ToDooNotes
-        v-if="enabled.notes"
-        v-model="patch.noteRefs"
-        :tree="tree"
-        @open-note="emit('open-note', $event)"
-      /><ACheckbox class="todo-checkbox" v-model:checked="enabled.estimate">替换预计分钟</ACheckbox
-      ><AInputNumber
-        v-if="enabled.estimate"
-        :value="patch.estimateMinutes"
-        @update:value="patch.estimateMinutes = Number($event ?? 0)"
-        :min="0"
-        aria-label="批量预计分钟"
-      /><ACheckbox class="todo-checkbox" v-model:checked="enabled.criteria">替换完成标准</ACheckbox
-      ><ATextarea
-        v-if="enabled.criteria"
-        v-model:value="patch.criteria"
-        :rows="3"
-        aria-label="批量完成标准"
-      ></ATextarea
-      ><ACheckbox class="todo-checkbox" v-model:checked="enabled.repeat"
-        >调整整个重复系列（保留完成历史）</ACheckbox
-      >
-      <div v-if="enabled.repeat" class="todo-form">
-        <label
-          >重复规则<ToDooSelect v-model="recurrence.frequency">
-            <option value="">取消未来重复</option>
-            <option value="daily">每天</option>
-            <option value="weekly">每周</option>
-            <option value="monthly">每月</option>
-            <option value="yearly">每年</option>
-            <option value="after_completion">完成后重复</option>
-          </ToDooSelect></label
-        >
-        <div v-if="recurrence.frequency" class="todo-form-grid">
-          <label
-            >间隔<AInputNumber
-              aria-label="间隔"
-              :value="recurrence.interval"
-              @update:value="recurrence.interval = Number($event ?? 1)"
-              :min="1" /></label
-          ><label>开始日期<ToDooDateField v-model="recurrence.anchorDate" type="date" /></label
-          ><label>重复时间<ToDooDateField v-model="recurrence.time" type="time" /></label
-          ><label>结束日期<ToDooDateField v-model="recurrence.until" type="date" /></label>
-        </div>
-        <label v-if="recurrence.frequency === 'weekly'"
-          >每周日期<ToDooSelect v-model="recurrence.weekdays" multiple>
-            <option
-              v-for="(d, i) in ['日', '一', '二', '三', '四', '五', '六']"
-              :key="i"
-              :value="i"
+      <section class="todo-form-section">
+        <h3>常用修改</h3>
+        <div class="todo-form-grid">
+          <div class="todo-form">
+            <ACheckbox class="todo-checkbox" v-model:checked="enabled.priority">优先级</ACheckbox>
+            <ToDooSelect v-if="enabled.priority" v-model="patch.priority" aria-label="批量优先级">
+              <option value="none">无优先级</option>
+              <option value="low">低</option>
+              <option value="normal">中</option>
+              <option value="high">高</option>
+            </ToDooSelect>
+          </div>
+          <div class="todo-form">
+            <ACheckbox class="todo-checkbox" v-model:checked="enabled.importance"
+              >重要程度</ACheckbox
             >
-              星期{{ d }}
+            <ToDooSelect
+              v-if="enabled.importance"
+              v-model="patch.importance"
+              aria-label="批量重要程度"
+            >
+              <option value="normal">普通</option>
+              <option value="important">重要</option>
+            </ToDooSelect>
+          </div>
+        </div>
+        <div class="todo-form">
+          <ACheckbox class="todo-checkbox" v-model:checked="enabled.tags">替换标签</ACheckbox>
+          <ToDooSelect v-if="enabled.tags" v-model="patch.tagIds" multiple aria-label="批量标签">
+            <option
+              v-for="t in state.snapshot?.tags.filter((t) => !t.deletedAt)"
+              :key="t.id"
+              :value="t.id"
+            >
+              {{ t.name }}
             </option>
-          </ToDooSelect></label
+          </ToDooSelect>
+        </div>
+      </section>
+      <section class="todo-form-section">
+        <h3>内容与归属</h3>
+        <div class="todo-form">
+          <ACheckbox class="todo-checkbox" v-model:checked="enabled.section">替换分组</ACheckbox>
+          <ToDooSelect v-if="enabled.section" v-model="patch.sectionId" aria-label="批量分组">
+            <option :value="null">未分组</option>
+            <option
+              v-for="s in state.snapshot?.sections.filter((s) => !s.deletedAt)"
+              :key="s.id"
+              :value="s.id"
+            >
+              {{ s.name }}
+            </option>
+          </ToDooSelect>
+        </div>
+        <div class="todo-form">
+          <ACheckbox class="todo-checkbox" v-model:checked="enabled.notes">替换关联资料</ACheckbox>
+          <ToDooNotes
+            v-if="enabled.notes"
+            v-model="patch.noteRefs"
+            :tree="tree"
+            @open-note="emit('open-note', $event)"
+          />
+        </div>
+        <div class="todo-form">
+          <ACheckbox class="todo-checkbox" v-model:checked="enabled.estimate"
+            >替换预计分钟</ACheckbox
+          >
+          <AInputNumber
+            v-if="enabled.estimate"
+            :value="patch.estimateMinutes"
+            @update:value="patch.estimateMinutes = Number($event ?? 0)"
+            :min="0"
+            aria-label="批量预计分钟"
+          />
+        </div>
+        <div class="todo-form">
+          <ACheckbox class="todo-checkbox" v-model:checked="enabled.criteria"
+            >替换完成标准</ACheckbox
+          >
+          <ATextarea
+            v-if="enabled.criteria"
+            v-model:value="patch.criteria"
+            :rows="3"
+            aria-label="批量完成标准"
+          />
+        </div>
+      </section>
+      <section class="todo-form-section">
+        <ACheckbox class="todo-checkbox" v-model:checked="enabled.repeat"
+          >调整整个重复系列（保留完成历史）</ACheckbox
         >
-      </div>
+        <div v-if="enabled.repeat" class="todo-form">
+          <label
+            >重复规则<ToDooSelect v-model="recurrence.frequency">
+              <option value="">取消未来重复</option>
+              <option value="daily">每天</option>
+              <option value="weekly">每周</option>
+              <option value="monthly">每月</option>
+              <option value="yearly">每年</option>
+              <option value="after_completion">完成后重复</option>
+            </ToDooSelect></label
+          >
+          <div v-if="recurrence.frequency" class="todo-form-grid">
+            <label
+              >间隔<AInputNumber
+                aria-label="间隔"
+                :value="recurrence.interval"
+                @update:value="recurrence.interval = Number($event ?? 1)"
+                :min="1" /></label
+            ><label>开始日期<ToDooDateField v-model="recurrence.anchorDate" type="date" /></label
+            ><label>重复时间<ToDooDateField v-model="recurrence.time" type="time" /></label
+            ><label>结束日期<ToDooDateField v-model="recurrence.until" type="date" /></label>
+          </div>
+          <label v-if="recurrence.frequency === 'weekly'"
+            >每周日期<ToDooSelect v-model="recurrence.weekdays" multiple>
+              <option
+                v-for="(d, i) in ['日', '一', '二', '三', '四', '五', '六']"
+                :key="i"
+                :value="i"
+              >
+                星期{{ d }}
+              </option>
+            </ToDooSelect></label
+          >
+        </div>
+      </section>
       <p v-if="state.error" class="todo-error" role="alert">{{ state.error }}</p>
-      <div class="todo-actions">
+      <div class="todo-actions todo-form-footer">
         <AButton class="todo-button" html-type="button" @click="emit('close')">取消</AButton
         ><AButton
           class="todo-button todo-primary"

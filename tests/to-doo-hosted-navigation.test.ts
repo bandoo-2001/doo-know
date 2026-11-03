@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { compileScript, parse } from '@vue/compiler-sfc';
 import ts from 'typescript';
 import * as Vue from 'vue';
+import * as vueuse from '@vueuse/core';
 import * as workbench from '../apps/web/to-doo-workbench';
 import * as presentation from '../apps/web/to-doo-presentation';
 import * as controls from '../apps/web/to-doo-controls';
@@ -78,12 +79,14 @@ function component(path: string): Vue.Component {
     (id: string) => {
       if (id === 'vue') return { ...Vue, vModelText: {}, vModelSelect: {}, vModelCheckbox: {} };
       if (id === 'ant-design-vue') return toDooAntStubs;
+      if (id === '@vueuse/core') return vueuse;
       if (id.endsWith('/to-doo-controls')) return controls;
       if (id.endsWith('/to-doo-push')) return push;
       const boundary = toDooBoundaryStub(id);
       if (boundary) return { default: boundary };
       if (id.endsWith('/to-doo-workbench')) return workbench;
       if (id.endsWith('/to-doo-presentation')) return presentation;
+      if (id.endsWith('/to-doo-contracts')) return { toDooEntitySchemas };
       if (id === '../api')
         return {
           api: async (url: string) => {
@@ -99,9 +102,13 @@ function component(path: string): Vue.Component {
             throw Error('Unexpected request: ' + url);
           },
         };
-      if (/ToDoo(Navigation|Settings|Icon)\.vue$/.test(id))
-        return { default: component('to-doo/' + id.split('/').at(-1)!.replace('.vue', '')) };
-      if (id.endsWith('.vue')) return { default: Vue.defineComponent({ render: () => null }) };
+      if (/ToDoo(Navigation|Settings|Icon|PageHeader|FormLayout)\.vue$/.test(id))
+        return {
+          __esModule: true,
+          default: component('to-doo/' + id.split('/').at(-1)!.replace('.vue', '')),
+        };
+      if (id.endsWith('.vue'))
+        return { __esModule: true, default: Vue.defineComponent({ render: () => null }) };
       if (id.endsWith('.css')) return {};
       throw Error('Unexpected component dependency: ' + id);
     },
@@ -123,7 +130,7 @@ function mount(section: ToDooAppSection, hostedNavigation?: boolean) {
       else parent.children.splice(index, 0, child);
       return [child, child];
     },
-    createElement: (tag) => Object.assign(node(tag), { querySelector: () => null }),
+    createElement: (tag) => Object.assign(node(tag), { style: {}, querySelector: () => null }),
     createText: (text) => node('#text', text),
     createComment: () => node('#comment'),
     insert(child, parent, anchor) {
@@ -183,9 +190,22 @@ async function settled() {
 describe('To Doo hosted secondary navigation', () => {
   it('an unopened directory cannot steal focus from an active field during its initial closed callback', async () => {
     const field = {};
-    const close = { focus() { documentState.activeElement = close; } };
-    const dialog = { getClientRects: () => [{}], closest: () => null, contains: () => false, querySelector: () => close };
-    const documentState = { activeElement: field, querySelector: () => null, querySelectorAll: () => [dialog] };
+    const close = {
+      focus() {
+        documentState.activeElement = close;
+      },
+    };
+    const dialog = {
+      getClientRects: () => [{}],
+      closest: () => null,
+      contains: () => false,
+      querySelector: () => close,
+    };
+    const documentState = {
+      activeElement: field,
+      querySelector: () => null,
+      querySelectorAll: () => [dialog],
+    };
     vi.stubGlobal('document', documentState);
     const view = mount('tasks', true);
     await settled();
@@ -271,6 +291,11 @@ describe('To Doo hosted secondary navigation', () => {
   it('protects unsaved settings when the host switches section, preserves the form on cancel', async () => {
     const view = mount('settings', true);
     await settled();
+    await vi.waitFor(() =>
+      expect(
+        view.all().some((n) => n.tag === 'input' && n.props.placeholder === 'Asia/Shanghai'),
+      ).toBe(true),
+    );
     const zone = view
       .all()
       .find((n) => n.tag === 'input' && n.props.placeholder === 'Asia/Shanghai')!;

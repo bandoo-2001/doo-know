@@ -1,3 +1,11 @@
+import { operationPreviewToolDefinitions } from './mcp-operation-preview-tools.js';
+import {
+  primaryDiagramProtocols,
+  primaryCreationIntent,
+  primaryPreparedReceipt,
+  primaryCommitReceipt,
+} from './mcp-primary-diagram-contracts.js';
+import { diagramResourceSchema } from './diagram-resource.js';
 import { z } from 'zod';
 import { mcpTransferInfoSchema } from './mcp-transfer-tools.js';
 
@@ -15,7 +23,11 @@ const page = { limit: z.number().int().min(1).max(30).default(10), cursor: curso
 const note = { noteId: id },
   mutation = { ...note, expectedModifiedAt: version, requestId };
 const object = <T extends z.ZodRawShape>(shape: T) => z.object(shape).strict();
-const error = object({ code: z.string().max(64), retryable: z.boolean() });
+const error = object({
+  code: z.string().max(64),
+  retryable: z.boolean(),
+  details: z.record(z.string(), z.unknown()).optional(),
+});
 const fileResult = object({
   id: id.optional(),
   relativePath: path.optional(),
@@ -41,6 +53,7 @@ const operation = object({
     'failed',
     'cancelled',
     'needs_reconciliation',
+    'awaiting_preview',
   ]),
   snapshotId: id.optional(),
   result: fileResult.optional(),
@@ -88,6 +101,7 @@ const readReply = z.discriminatedUnion('kind', [
   object({ kind: z.literal('accepted'), operation }),
 ]);
 const share = object({
+  allowDiagramSource: z.boolean().optional(),
   enabled: z.boolean(),
   state: z.enum(['private', 'active', 'expired', 'revoked']),
   permission: z.enum(['view', 'edit']),
@@ -98,6 +112,7 @@ const share = object({
   editUnavailableReason: z.string().max(1024).optional(),
 });
 const shareOptions = {
+  allowDiagramSource: z.boolean().optional(),
   permission: z.enum(['view', 'edit']).optional(),
   expiresAt: z.string().max(64).nullable().optional(),
 };
@@ -217,7 +232,91 @@ const tool = (
 const readScopes = ['knowledge:read'],
   archiveScopes = ['knowledge:read', 'knowledge:archive'],
   writeScopes = ['knowledge:read', 'knowledge:write'];
+const portableImportSummary = object({
+  importId: id,
+  requestId,
+  state: z.enum(['running', 'failed', 'succeeded']),
+  notesImported: z.number().int().nonnegative(),
+  assetsImported: z.number().int().nonnegative(),
+  error: z.string().max(64).optional(),
+});
 export const knowledgeToolDefinitions: KnowledgeToolDefinition[] = [
+  ...operationPreviewToolDefinitions,
+  tool(
+    'export_portable_documents',
+    '严格便携导出；单篇无依赖返回 Markdown，多篇、目录或依赖返回带完整清单的归档。用 read_mcp_transfer 读取，原 requestId 可重试。',
+    readScopes,
+    true,
+    object({
+      selection: z.discriminatedUnion('kind', [
+        object({ kind: z.literal('single'), noteId: id }),
+        object({ kind: z.literal('multiple'), noteIds: z.array(id).min(1).max(1000) }),
+        object({ kind: z.literal('directory'), path }),
+      ]),
+      requestId,
+    }),
+    object({
+      id,
+      kind: z.enum(['markdown', 'archive']),
+      fileName: z.string().max(256),
+      mime: z.enum(['text/markdown', 'application/gzip']),
+      sizeBytes: z.number().int().nonnegative(),
+      sha256: hash,
+      manifestVersion: z.literal(1).optional(),
+      download: mcpTransferInfoSchema,
+    }),
+  ),
+  tool(
+    'begin_portable_import_upload',
+    '创建目标目录绑定的完整便携归档上传，最大256MiB；用 append_mcp_upload 分块上传。',
+    writeScopes,
+    false,
+    object({
+      folderPath: path,
+      name: z.string().min(1).max(256),
+      mime: z.literal('application/gzip'),
+      totalBytes: z
+        .number()
+        .int()
+        .min(1)
+        .max(256 * 1024 * 1024),
+      sha256: hash,
+      requestId,
+    }),
+    mcpTransferInfoSchema,
+  ),
+  tool(
+    'import_portable_archive',
+    '校验并导入完整清单归档，分配新身份；仅返回有界摘要。未知结果用 get_portable_import_result 查询原 requestId，再用相同参数重试。',
+    writeScopes,
+    false,
+    object({ transferId: id, folderPath: path, requestId }),
+    portableImportSummary,
+  ),
+  tool(
+    'get_portable_import_result',
+    '按本人当前客户端 importId 或原 requestId 查询进度并游标分页读取新身份映射。',
+    writeScopes,
+    true,
+    object({ importId: id.optional(), requestId: requestId.optional(), ...page }).refine(
+      (a) => !!a.importId !== !!a.requestId,
+    ),
+    object({
+      import: portableImportSummary,
+      items: z.array(object({ sourcePath: path, relativePath: path, noteId: id })).max(30),
+      nextCursor: cursor.optional(),
+    }),
+  ),
+  ...primaryDiagramProtocols.map((p) =>
+    tool(
+      p.name,
+      p.description,
+      p.readOnly ? readScopes : writeScopes,
+      p.readOnly,
+      p.input,
+      p.output,
+    ),
+  ),
   tool(
     'list_note_revisions',
     '分页列出授权笔记的历史版本摘要；不返回本机历史文件路径。',
@@ -232,6 +331,10 @@ export const knowledgeToolDefinitions: KnowledgeToolDefinition[] = [
             createdAt: z.string().max(64),
             modifiedAt: version,
             sizeBytes: z.number().int().nonnegative(),
+            documentType: z.enum(['markdown', 'whiteboard', 'mindmap', 'flowchart']).optional(),
+            payloadFormat: z.enum(['markdown', 'excalidraw']).optional(),
+            logicalPath: path.optional(),
+            contentHash: hash.optional(),
           }),
         )
         .max(30),
@@ -366,7 +469,15 @@ export const knowledgeToolDefinitions: KnowledgeToolDefinition[] = [
     '为指定笔记版本准备有界附件上传；用 append_mcp_upload 分块上传，再完成。',
     writeScopes,
     false,
-    object({ ...mutation, ...begin }),
+    object({
+      ...mutation,
+      ...begin,
+      totalBytes: z
+        .number()
+        .int()
+        .positive()
+        .max(128 * 1024 * 1024),
+    }),
     knowledgeTransfer,
   ),
   tool(
@@ -384,6 +495,14 @@ export const knowledgeToolDefinitions: KnowledgeToolDefinition[] = [
     true,
     object({ ...note, assetId: id, requestId, source: z.boolean().default(true) }),
     knowledgeTransfer,
+  ),
+  tool(
+    'get_note_diagram',
+    '读取专用图形的语义类型、源格式、源/预览版本及编辑能力；大原件用返回的 readHandle 经 read_mcp_transfer 有界读取。',
+    readScopes,
+    true,
+    object({ ...note }),
+    diagramResourceSchema,
   ),
   tool(
     'prepare_note_diagram',
@@ -545,6 +664,9 @@ export const knowledgeToolDefinitions: KnowledgeToolDefinition[] = [
       .extend({
         result: z
           .union([
+            primaryCreationIntent,
+            primaryPreparedReceipt,
+            primaryCommitReceipt,
             fileResult,
             write,
             restored,

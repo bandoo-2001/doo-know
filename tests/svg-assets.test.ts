@@ -77,7 +77,7 @@ describe('restricted SVG attachments', () => {
     const n = await note(),
       asset = await uploaded(n.id);
     expect(asset.mime).toBe('image/svg+xml');
-    expect(asset.markdownPath).toMatch(/^assets\/[^/]+\.svg$/);
+    expect(asset.markdownPath).toMatch(/^_doo-assets\/[^/]+\.svg$/);
     expect(await readFile(join(f.knowledgeRoot, asset.relativePath), 'utf8')).toBe(svg);
     const url = `/api/assets/${asset.id}`;
     const preview = await f.app.inject({ url, headers });

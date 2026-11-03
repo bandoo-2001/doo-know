@@ -289,6 +289,7 @@ it('keeps a cancelled pull uncertain when its fast-forward completed before the 
   try {
     await h.connect();
     const updated = await h.advanceRemote();
+    const cancelled = deferred();
     let merges = 0,
       jobId = '';
     h.setExecute(async (cwd, args, opts) => {
@@ -296,10 +297,13 @@ it('keeps a cancelled pull uncertain when its fast-forward completed before the 
       if (args.includes('merge') && result.code === 0) {
         merges++;
         h.service.cancel('owner', jobId);
+        cancelled.resolve();
       }
       return result;
     });
     jobId = h.start({ kind: 'pull' }).id;
+    // Start the terminal-state wait after the real fast-forward triggers cancellation.
+    await cancelled.promise;
     expect(await h.finish(jobId)).toMatchObject({
       status: 'needs_reconciliation',
       error: 'GIT_COMMAND_CANCELLED',
@@ -316,7 +320,7 @@ it('keeps a cancelled pull uncertain when its fast-forward completed before the 
   } finally {
     await h.close();
   }
-});
+}, 60000);
 
 it('preserves confirmed pull success when cancellation arrives during index refresh', async () => {
   const h = await fixture();

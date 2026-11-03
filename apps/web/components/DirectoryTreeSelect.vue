@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onBeforeUnmount, ref, watch, useId } from 'vue';
+import { computed, onMounted, onBeforeUnmount, onUnmounted, ref, watch, useId } from 'vue';
 import { TreeSelect as ATreeSelect } from 'ant-design-vue';
 const props = withDefaults(
   defineProps<{
@@ -54,7 +54,15 @@ const open = ref(false);
 const expanded = ref<(string | number)[]>(['']);
 const listHeight = ref(240);
 const placement = ref<'topLeft' | 'bottomLeft'>('bottomLeft');
-const popupContainer = () => document.body;
+let popupLayer: HTMLDivElement | undefined;
+function popupContainer() {
+  if (!popupLayer) {
+    popupLayer = document.createElement('div');
+    popupLayer.className = 'directory-select-popup-layer';
+    document.body.append(popupLayer);
+  }
+  return popupLayer;
+}
 function expandSelected(path: string) {
   const parts = path.split('/').filter(Boolean);
   expanded.value = ['', ...parts.map((_, index) => parts.slice(0, index + 1).join('/'))];
@@ -99,6 +107,7 @@ onMounted(() => {
   document.addEventListener('transitionend', settled, true);
   document.addEventListener('animationend', settled, true);
 });
+onUnmounted(() => popupLayer?.remove());
 onBeforeUnmount(() => {
   window.removeEventListener('resize', resize);
   document.removeEventListener('scroll', resize, true);
@@ -139,7 +148,17 @@ onBeforeUnmount(() => {
   width: 100%;
   min-width: 0;
 }
+/* The alignment boundary keeps the popup clear of all four viewport edges,
+   including when its tree grows after it has opened. */
+.directory-select-popup-layer {
+  position: fixed;
+  inset: 8px;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 3000;
+}
 .directory-tree-popup {
+  pointer-events: auto;
   max-width: calc(100vw - 16px);
   overscroll-behavior: contain;
 }

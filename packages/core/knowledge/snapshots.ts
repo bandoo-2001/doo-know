@@ -1,3 +1,5 @@
+import { documentMetadataReader } from './document-metadata.js';
+import { hasDiagramDeclarationSync } from './diagram-declaration.js';
 import { currentPrincipalPolicy } from '../agent/config.js';
 import { assertSharePrincipal, isSharePrincipal } from '../share-policy.js';
 import { mkdir, open, stat, unlink } from 'node:fs/promises';
@@ -38,6 +40,7 @@ export interface SnapshotRow {
   source_revision: number | null;
 }
 export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteService) {
+  const readMetadata = documentMetadataReader();
   let tail = Promise.resolve();
   let closing = false;
   const operation = (id: string): FileOperation => {
@@ -78,16 +81,24 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
         .prepare('SELECT file FROM revisions WHERE id=? AND note_id=?')
         .get(revisionId, noteId) as any;
       if (!r || !/^[a-zA-Z0-9-]+\.md$/.test(r.file)) fail(404, 'REVISION_NOT_FOUND');
-      return { n, file: join(config.dataRoot, 'history', r.file), historical: true };
+      return { n, file: join(config.dataRoot, 'history', r.file), historical: true,logicalModifiedAt:undefined,expectedHash:undefined };
     }
-    return { n, file: safePath(config.knowledgeRoot, n.path, 'note'), historical: false };
+    const published=notes.readableSource(noteId);
+    if (isSharePrincipal(p)) {
+      if (
+        hasDiagramDeclarationSync(published.file) ||
+        readMetadata(published.file, n.path).documentType !== 'markdown'
+      )
+        fail(403, 'DIAGRAM_SOURCE_FORBIDDEN');
+    }
+    return {n,file:published.file,historical:!!published.publication,logicalModifiedAt:published.modifiedAt,expectedHash:published.expectedHash};
   };
   function assertSnapshotNamespace(p:Principal,snapshotId:string,exportJobId?:string){
     const source=db.prepare("SELECT json_extract(f.payload,'$.exportJobId') AS job,o.principal,o.client_id FROM file_operations f JOIN operations o ON o.id=f.id WHERE f.snapshot_id=? AND f.kind='prepare_snapshot'").get(snapshotId) as {job:string|null;principal:string;client_id:string}|undefined;
     if(source?.job&&(source.job!==exportJobId||source.principal!==p.id||source.client_id!==p.clientId))fail(404,'SNAPSHOT_NOT_FOUND');
   }
   async function check(p: Principal, id: string, snapshotId: string,exportJobId?:string) {
-    const { file, n, historical } = authorizedFile(p, id);
+    const { file, n, historical,logicalModifiedAt } = authorizedFile(p, id);
     const row = db
       .prepare('SELECT * FROM read_snapshots WHERE id=? AND note_id=? AND source_key=?')
       .get(snapshotId, n.id, id) as SnapshotRow | undefined;
@@ -99,7 +110,7 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
         .prepare('SELECT content_hash,source_revision FROM document_state WHERE note_id=?')
         .get(id) as any;
     if (
-      s.mtimeNs.toString() !== row.modified_at ||
+      (logicalModifiedAt??s.mtimeNs.toString()) !== row.modified_at ||
       Number(s.size) !== row.size_bytes ||
       (!historical &&
         state?.content_hash &&
@@ -140,8 +151,8 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
       destination = join(dir, `${snapshotId}.md`);
     let fd: Awaited<ReturnType<typeof open>> | undefined;
     try {
-      const { n, file, historical } = authorizedFile(p, id),
-        before = await stableStat(file);
+      const { n, file, historical,logicalModifiedAt,expectedHash } = authorizedFile(p, id),
+        before = await stableStat(file),publishedModifiedAt=logicalModifiedAt??before.mtimeNs.toString();
       await mkdir(dir, { recursive: true, mode: 0o700 });
       fd = await open(destination, 'wx', 0o600);
       const hash = createHash('sha256'),
@@ -160,7 +171,7 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
         snapshotId,
         n.id,
         'preparing',
-        before.mtimeNs.toString(),
+        publishedModifiedAt,
         destination,
         Number(before.size),
         0,
@@ -245,7 +256,10 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
       if (!sameFile(before, await stableStat(authorizedFile(p, id).file)))
         fail(409, 'STALE_CURSOR');
       const sourceHash = hash.digest('hex');
+      if(expectedHash && sourceHash!==expectedHash) fail(409,'DIAGRAM_PUBLISHED_VERSION_UNAVAILABLE');
       authorizedFile(p, id);
+      const metadata = readMetadata(destination, n.path);
+      if (metadata.title !== undefined) title = [...metadata.title].slice(0, 256).join('');
       db.transaction(() => {
         const active = db
           .prepare('SELECT status,lease_epoch FROM file_operations WHERE id=?')
@@ -260,9 +274,10 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
           db.prepare(
             'UPDATE read_snapshots SET source_revision=(SELECT source_revision FROM document_state WHERE note_id=?) WHERE id=?',
           ).run(n.id, snapshotId);
-          db.prepare('UPDATE document_state SET longest_line_bytes=?,title=? WHERE note_id=?').run(
+          db.prepare('UPDATE document_state SET longest_line_bytes=?,title=?,document_type=? WHERE note_id=?').run(
             longest,
             title,
+            metadata.documentType,
             n.id,
           );
         }
@@ -273,7 +288,7 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
         completeOperation(db, opId, {
           snapshotId,
           sourceHash,
-          modifiedAt: before.mtimeNs.toString(),
+          modifiedAt: publishedModifiedAt,
           sizeBytes: byte,
         });
       }).immediate();
@@ -306,9 +321,9 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
   }
   async function prepare(p: Principal, id: string, requestId: string,exportJobId?:string) {
     if(exportJobId&&!/^[a-f0-9-]{36}$/.test(exportJobId))fail(400,'INVALID_INPUT');
-    const { file, n } = authorizedFile(p, id),
+    const { file, n,logicalModifiedAt } = authorizedFile(p, id),
       s = await stableStat(file),
-      modifiedAt = s.mtimeNs.toString();
+      modifiedAt = logicalModifiedAt??s.mtimeNs.toString();
     const accepted = db
       .transaction(() => {
         const pending = db
@@ -363,7 +378,7 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
   async function available(p: Principal, id: string, input: ReadInput, exportJobId?: string) {
     if (exportJobId && !/^[a-f0-9-]{36}$/.test(exportJobId)) fail(400, 'INVALID_INPUT');
     if (input.snapshotId) return check(p, id, input.snapshotId,exportJobId);
-    const { file, n, historical } = authorizedFile(p, id),
+    const { file, n, historical,logicalModifiedAt } = authorizedFile(p, id),
       s = await stableStat(file),
       state = historical
         ? null
@@ -375,7 +390,7 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
         .prepare(
           "SELECT s.* FROM read_snapshots s LEFT JOIN file_operations f ON f.snapshot_id=s.id AND f.kind='prepare_snapshot' LEFT JOIN operations o ON o.id=f.id WHERE s.note_id=? AND s.source_key=? AND s.modified_at=? AND s.size_bytes=? AND s.source_hash<>? AND s.expires_at>? AND (json_extract(f.payload,'$.exportJobId') IS NULL OR (json_extract(f.payload,'$.exportJobId')=? AND o.principal=? AND o.client_id=?)) ORDER BY CASE WHEN json_extract(f.payload,'$.exportJobId')=? THEN 0 ELSE 1 END,s.created_at DESC LIMIT 1",
         )
-        .get(n.id, id, s.mtimeNs.toString(), Number(s.size), 'preparing', Date.now(),exportJobId||null,p.id,p.clientId,exportJobId||null) as
+        .get(n.id, id, logicalModifiedAt??s.mtimeNs.toString(), Number(s.size), 'preparing', Date.now(),exportJobId||null,p.id,p.clientId,exportJobId||null) as
         | SnapshotRow
         | undefined;
       if (
@@ -392,7 +407,7 @@ export function snapshotService(config: AppConfig, db: AppDatabase, notes: NoteS
         id,
         exportJobId
           ? `mcp-export-${exportJobId}:${randomUUID()}`
-          : `snapshot:${sha256(JSON.stringify([id, s.mtimeNs.toString(), state?.content_hash || '']))}:${randomUUID()}`,
+          : `snapshot:${sha256(JSON.stringify([id, logicalModifiedAt??s.mtimeNs.toString(), state?.content_hash || '']))}:${randomUUID()}`,
         exportJobId,
       ),
     };

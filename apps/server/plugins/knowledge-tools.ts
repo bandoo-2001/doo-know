@@ -1,9 +1,23 @@
+import { safePreviewRequiredDetails } from '../../../shared/mcp-preview-required.js';
+import {
+  createOperationPreviewToolPort,
+  operationPreviewToolNames,
+} from './operation-preview-tools.js';
+import { createPortableToolPort, portableToolNames } from './portable-tools.js';
+import { createPrimaryDiagramToolPort, primaryDiagramToolNames } from './primary-diagram-tools.js';
+import { primaryDiagramService } from '../../../packages/core/knowledge/primary-diagrams.js';
+import { hasDiagramResourceProof } from '../../../packages/core/knowledge/diagram-publications.js';
 import { basename, dirname, posix } from 'node:path';
-import { lstatSync } from 'node:fs';
+import { createReadStream, lstatSync } from 'node:fs';
+import { hashFile } from '../../../packages/core/portable-delivery/manifest.js';
 import { join } from 'node:path';
 import { knowledgeToolByName } from '../../../shared/mcp-knowledge-tools.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
-import type { McpManagedDomainPort, McpTransferBinding } from '../../../shared/mcp-domain-tools.js';
+import type {
+  McpManagedDomainPort,
+  McpTransferBinding,
+  McpTransferInfo,
+} from '../../../shared/mcp-domain-tools.js';
 import type { ServiceCallOptions } from '../../../packages/plugin-sdk/index.js';
 import type { McpDomainContext } from './mcp-domain-context.js';
 import { authorizePath, requireScope } from '../../../packages/core/agent/auth.js';
@@ -203,7 +217,14 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
     binding: McpTransferBinding,
     write: boolean,
     options?: ServiceCallOptions,
+    state?: McpTransferInfo['state'],
   ) {
+    if (operationPreviews.handlesTransfer(binding))
+      return operationPreviews.authorizeTransfer(binding, write, options);
+    if (binding.kind === 'portable-import' || binding.kind === 'portable-export')
+      return portable.authorizeTransfer(binding, write, options);
+    if (primary.handlesTransfer(binding))
+      return primary.authorizeTransfer(binding, write, options, state);
     if (binding.kind === 'bundle-import' || binding.kind === 'bundle-export')
       return bundles.authorizeTransfer(binding, write, options);
     if (binding.domain !== 'knowledge') fail(403, 'FORBIDDEN');
@@ -214,6 +235,7 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
         'document-create',
         'document-update',
         'document-download',
+        'diagram-source',
       ].includes(binding.kind)
     )
       fail(403, 'FORBIDDEN');
@@ -226,18 +248,62 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
     if (binding.kind === 'document-create') authorizePath(p, binding.id, 'knowledge:write');
     else {
       const n = note(p, binding.id, upload ? 'knowledge:write' : 'knowledge:read');
+      if (!upload && binding.kind === 'diagram-source') {
+        const version = runtime.notes.readableVersion(n.id),
+          metadata = binding.metadata;
+        if (
+          version.contentHash !== metadata?.documentHash ||
+          version.modifiedAt !== binding.revision
+        )
+          fail(409, 'STALE_CURSOR');
+        if (metadata?.format === 'excalidraw' && typeof metadata.sourcePath !== 'string')
+          fail(403, 'FORBIDDEN');
+        if (
+          metadata?.format === 'excalidraw' &&
+          typeof metadata.sourcePath === 'string' &&
+          !canAccessPath(p, metadata.sourcePath) &&
+          !hasDiagramResourceProof(
+            db,
+            n.id,
+            metadata.sourcePath,
+            String(metadata.sourceHash),
+            'source',
+          )
+        )
+          fail(403, 'FORBIDDEN');
+        return p;
+      }
+      if (!upload && binding.kind === 'asset-download' && binding.metadata?.assetStamp) {
+        if (typeof binding.metadata.assetId !== 'string') fail(403, 'FORBIDDEN');
+        const access = assetAccess(p, n.id, binding.metadata.assetId);
+        if (!access.allowed) {
+          // A former bucket grant is not a saved reference. Only a parser-proven
+          // reference in this exact current note version can replace that grant.
+          const version = runtime.notes.readableVersion(n.id);
+          if (
+            typeof binding.metadata.savedReferenceHash !== 'string' ||
+            binding.metadata.savedReferenceHash !== version.contentHash ||
+            binding.metadata.savedReferencePathHash !== sha256(n.path)
+          )
+            fail(403, 'FORBIDDEN');
+        }
+        const descriptor = runtime.assets.inspectById(binding.metadata.assetId);
+        if (
+          descriptor.stamp !== binding.metadata.assetStamp ||
+          descriptor.path !== binding.metadata.assetPath
+        )
+          fail(409, 'STALE_CURSOR');
+      }
       if (
         !upload &&
         binding.revision &&
-        lstatSync(safePath(config.knowledgeRoot, n.path, 'note'), {
-          bigint: true,
-        }).mtimeNs.toString() !== binding.revision
+        runtime.notes.readableVersion(n.id).modifiedAt !== binding.revision
       )
         fail(409, 'STALE_CURSOR');
     }
     return p;
   }
-  async function permittedAsset(p: Principal, noteId: string, assetId: string) {
+  function assetAccess(p: Principal, noteId: string, assetId: string) {
     const n = note(p, noteId),
       row = db.prepare('SELECT path FROM assets WHERE id=?').get(assetId) as
         | { path: string }
@@ -255,9 +321,15 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
         "SELECT 1 FROM operations o JOIN mcp_knowledge_operation_bindings b ON b.operation_id=o.id WHERE o.principal=? AND o.client_id=? AND o.kind='knowledge.diagram' AND o.status='succeeded' AND json_extract(b.binding,'$.noteId')=? AND (json_extract(o.result,'$.source.id')=? OR json_extract(o.result,'$.preview.id')=?)",
       )
       .get(p.id, p.clientId, noteId, assetId, assetId);
-    if (!canAccessPath(p, row.path) && !uploaded && !prepared)
-      return runtime.assets.publicAsset(n.id, assetId);
-    return runtime.assets.byId(assetId);
+    return { n, allowed: !!(canAccessPath(p, row.path) || uploaded || prepared) };
+  }
+  async function permittedAsset(p: Principal, noteId: string, assetId: string, streaming = false) {
+    const { n, allowed } = assetAccess(p, noteId, assetId);
+    if (!allowed)
+      return streaming
+        ? runtime.assets.publicInspect(n.id, { id: assetId })
+        : runtime.assets.publicAsset(n.id, assetId);
+    return streaming ? runtime.assets.inspectById(assetId) : runtime.assets.byId(assetId);
   }
   async function call(
     name: string,
@@ -272,12 +344,16 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
     let p = context.authorize(def.scopes, options);
     const revalidate = () => context.authorize(def.scopes, options);
     let result: any;
-    if (knowledgeBundleToolNames.has(name)) result = await bundles.call(name, a, options);
+    if (operationPreviewToolNames.has(name))
+      result = await operationPreviews.call(name, a, options);
+    else if (portableToolNames.has(name)) result = await portable.call(name, a, options);
+    else if (primaryDiagramToolNames.has(name)) result = await primary.call(name, a, options);
+    else if (knowledgeBundleToolNames.has(name)) result = await bundles.call(name, a, options);
     else if (name === 'list_note_revisions') {
       note(p, a.noteId);
       const rows = db
         .prepare(
-          'SELECT id,file,created_at AS createdAt,modified_at AS modifiedAt FROM revisions WHERE note_id=? ORDER BY rowid DESC',
+          'SELECT id,file,created_at AS createdAt,modified_at AS modifiedAt,document_type AS documentType,payload_format AS payloadFormat,logical_path AS logicalPath,content_hash AS contentHash FROM revisions WHERE note_id=? ORDER BY rowid DESC',
         )
         .all(a.noteId) as any[];
       result = paged(
@@ -288,7 +364,16 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
           const st = lstatSync(join(config.dataRoot, 'history', r.file));
           if (!st.isFile() || st.isSymbolicLink() || st.nlink !== 1)
             fail(404, 'REVISION_NOT_FOUND');
-          return { id: r.id, createdAt: r.createdAt, modifiedAt: r.modifiedAt, sizeBytes: st.size };
+          return {
+            id: r.id,
+            createdAt: r.createdAt,
+            modifiedAt: r.modifiedAt,
+            sizeBytes: st.size,
+            ...(r.documentType ? { documentType: r.documentType } : {}),
+            ...(r.payloadFormat ? { payloadFormat: r.payloadFormat } : {}),
+            ...(r.logicalPath ? { logicalPath: r.logicalPath } : {}),
+            ...(r.contentHash ? { contentHash: r.contentHash } : {}),
+          };
         }),
         a,
       );
@@ -482,7 +567,7 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
         p = authorizeTransfer(info.binding, true, options);
         if (info.binding.kind !== 'asset-upload') fail(403, 'FORBIDDEN');
         const claim = 'asset-' + sha256(a.requestId),
-          uploaded = transfers.readUpload(p, a.transferId, undefined, claim);
+          uploaded = transfers.openUpload(p, a.transferId, undefined, claim);
         const n = info.binding.id;
         result = await receiptAsync(
           p,
@@ -490,16 +575,14 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
           a,
           async () => {
             await checkVersion(revalidate(), n, info.binding.revision!, revalidate);
-            const saved = workspaceWriteSync(db, { kind: 'mcp.asset.commit' }, () => {
-              assertSourceVersion(revalidate(), n, info.binding.revision!);
-              return runtime.assets.upload(
-                n,
-                uploaded.name,
-                uploaded.mime,
-                uploaded.bytes,
-                'mcp-' + sha256(p.id + '\0' + p.clientId + '\0' + a.requestId),
-              );
-            });
+            const saved = await runtime.assets.uploadStream(
+              n,
+              uploaded.name,
+              uploaded.mime,
+              createReadStream(uploaded.path),
+              'mcp-' + sha256(p.id + '\0' + p.clientId + '\0' + a.requestId),
+              { check: () => assertSourceVersion(revalidate(), n, info.binding.revision!) },
+            );
             return { ...saved, noteId: n };
           },
           { noteId: n },
@@ -509,8 +592,30 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
         result = saved;
       }
     } else if (name === 'download_note_asset') {
-      const info = await k.info(p, a.noteId),
-        asset = await permittedAsset(revalidate(), a.noteId, a.assetId);
+      const info = await k.info(p, a.noteId);
+      const descriptor = runtime.assets.inspectById(a.assetId);
+      const media = /^(?:audio|video)\//.test(descriptor.mime);
+      let savedReferenceHash: string | undefined, savedReferencePathHash: string | undefined;
+      if (media) {
+        const before = runtime.notes.readableVersion(a.noteId),
+          access = assetAccess(revalidate(), a.noteId, a.assetId);
+        try {
+          // Prove the saved reference even when the initial bucket grant is broader.
+          // This proof is never inferred from that grant or from another note.
+          await runtime.assets.publicInspect(a.noteId, { id: a.assetId });
+          savedReferenceHash = before.contentHash;
+          savedReferencePathHash = sha256(access.n.path);
+        } catch (error) {
+          if (!access.allowed) throw error;
+        }
+        const after = runtime.notes.readableVersion(a.noteId);
+        if (before.contentHash !== after.contentHash || before.modifiedAt !== after.modifiedAt)
+          fail(409, 'STALE_CURSOR');
+        const current = assetAccess(revalidate(), a.noteId, a.assetId);
+        if (current.n.path !== access.n.path) fail(409, 'STALE_CURSOR');
+        if (!current.allowed && !savedReferenceHash) fail(403, 'FORBIDDEN');
+      }
+      const asset = media ? descriptor : await permittedAsset(revalidate(), a.noteId, a.assetId);
       note(revalidate(), a.noteId);
       if (
         lstatSync(safePath(config.knowledgeRoot, info.relativePath, 'note'), {
@@ -518,19 +623,125 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
         }).mtimeNs.toString() !== info.modifiedAt
       )
         fail(409, 'STALE_CURSOR');
-      result = transfers.createDownload(p, {
-        requestId: a.requestId,
-        binding: {
-          domain: 'knowledge',
-          kind: 'asset-download',
-          id: a.noteId,
-          revision: info.modifiedAt,
-          metadata: { assetId: a.assetId },
+      const transferBinding: McpTransferBinding = {
+        domain: 'knowledge',
+        kind: 'asset-download',
+        id: a.noteId,
+        revision: info.modifiedAt,
+        metadata: {
+          assetId: a.assetId,
+          ...(media
+            ? {
+                assetStamp: descriptor.stamp,
+                assetPath: descriptor.path,
+                ...(savedReferenceHash
+                  ? { savedReferenceHash, savedReferencePathHash: savedReferencePathHash! }
+                  : {}),
+              }
+            : {}),
         },
-        name: basename(asset.path),
-        mime: asset.mime,
-        bytes: a.source ? asset.sourceBytes || asset.bytes : asset.bytes,
-      });
+      };
+      if (media) {
+        const verified = asset as import('../../../packages/core/assets.js').AssetDescriptor;
+        result = await transfers.createDownloadStream(revalidate(), {
+          requestId: a.requestId,
+          binding: transferBinding,
+          name: basename(verified.path),
+          mime: verified.mime,
+          totalBytes: verified.sizeBytes,
+          sha256: await hashFile(verified.absolutePath),
+          stream: runtime.assets.open(verified, {
+            check: () => {
+              authorizeTransfer(transferBinding, false, options);
+            },
+          }),
+          signal: options?.signal,
+        });
+      } else {
+        const buffered = asset as {
+          path: string;
+          mime: string;
+          bytes: Buffer;
+          sourceBytes?: Buffer;
+        };
+        result = transfers.createDownload(p, {
+          requestId: a.requestId,
+          binding: transferBinding,
+          name: basename(buffered.path),
+          mime: buffered.mime,
+          bytes: a.source ? buffered.sourceBytes || buffered.bytes : buffered.bytes,
+        });
+      }
+    } else if (name === 'get_note_diagram') {
+      const primary = primaryDiagramService(config, db, runtime.notes, runtime.assets, p);
+      const sourceHandle = (
+        snapshot: import('../../../packages/core/knowledge/diagram-resource-resolver.js').DiagramSourceSnapshot,
+      ) => {
+        const extension =
+            snapshot.format === 'excalidraw'
+              ? '.excalidraw'
+              : snapshot.format === 'mermaid'
+                ? '.mmd'
+                : '.md',
+          mime =
+            snapshot.format === 'excalidraw'
+              ? 'application/vnd.excalidraw+json'
+              : snapshot.format === 'mermaid'
+                ? 'text/plain'
+                : 'text/markdown';
+        let requestId =
+          'diagram-source-' +
+          sha256(
+            [
+              p.id,
+              p.clientId,
+              snapshot.noteId,
+              snapshot.documentHash,
+              snapshot.sourceHash,
+              snapshot.modifiedAt,
+            ].join('\0'),
+          );
+        for (let attempt = 0; attempt < 128; attempt++) {
+          const transfer = transfers.createDownload(p, {
+            requestId,
+            binding: {
+              domain: 'knowledge',
+              kind: 'diagram-source',
+              id: snapshot.noteId,
+              revision: snapshot.modifiedAt,
+              metadata: {
+                documentHash: snapshot.documentHash,
+                sourceHash: snapshot.sourceHash,
+                format: snapshot.format,
+                ...(snapshot.sourcePath ? { sourcePath: snapshot.sourcePath } : {}),
+              },
+            },
+            name:
+              basename(runtime.notes.row(snapshot.noteId).path).replace(
+                /\.(?:md|excalidraw)$/i,
+                '',
+              ) + extension,
+            mime,
+            bytes: Buffer.from(snapshot.content, 'utf8'),
+          });
+          if (transfer.state === 'ready') return transfer.transferId;
+          if (transfer.state !== 'cancelled') fail(503, 'MCP_TRANSFER_UNAVAILABLE');
+          requestId = 'diagram-source-' + sha256(transfer.transferId);
+        }
+        return fail(503, 'MCP_TRANSFER_UNAVAILABLE');
+      };
+      let resource = primary.resolve(a.noteId, { maxInlineBytes: 8192, sourceHandle });
+      if (mcpResultFrameSize({ data: resource }) > mcpMaximumFrameBytes) {
+        const { render: _render, ...bounded } = resource;
+        resource = bounded;
+      }
+      if (mcpResultFrameSize({ data: resource }) > mcpMaximumFrameBytes) {
+        resource = primary.resolve(a.noteId, { maxInlineBytes: 0, sourceHandle });
+        const { render: _render, title: _title, ...bounded } = resource;
+        resource = bounded;
+        delete resource.source.path;
+      }
+      result = resource;
     } else if (name === 'prepare_note_diagram') {
       note(p, a.noteId, 'knowledge:write');
       const prior = replay(p, 'diagram', a);
@@ -639,7 +850,9 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
           async () => {
             let content: string;
             try {
-              content = new TextDecoder('utf-8', { fatal: true }).decode(upload.bytes);
+              content = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(
+                upload.bytes,
+              );
             } catch {
               fail(400, 'INVALID_INPUT');
             }
@@ -770,7 +983,8 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
         .get(op.operationId) as { binding: string } | undefined;
       if (row) {
         const b = JSON.parse(row.binding);
-        if (b.noteId) lifecycle(p, b.noteId);
+        if (b.primary) primary.authorizeOperation(p, b.primary, { scope: 'knowledge:read' });
+        else if (b.noteId) lifecycle(p, b.noteId);
         else if (b.folderId) archivedFolder(p, b.folderId);
         else if (b.directoryId) {
           const dir = db
@@ -811,6 +1025,17 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
         ? k.files.operation(p, op.operationId)
         : op;
     } else fail(404, 'UNKNOWN_TOOL');
+    if (name === 'get_knowledge_operation' && result.error?.code === 'DIAGRAM_PREVIEW_REQUIRED') {
+      const details = safePreviewRequiredDetails(result.error.details);
+      result = {
+        ...result,
+        error: {
+          code: result.error.code,
+          retryable: !!result.error.retryable,
+          ...(details ? { details: { ...details, operationId: result.operationId } } : {}),
+        },
+      };
+    }
     // Reads are rechecked after awaits; write replays still need the current grant.
     const fresh = revalidate();
     if (def.scopes.includes('knowledge:manage') && !fresh.knowledgeAll) fail(403, 'FORBIDDEN');
@@ -819,6 +1044,14 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
     if (name === 'list_note_collection')
       for (const item of result.items) authorizePath(fresh, item.path);
     if (name === 'list_note_assets') note(fresh, a.noteId);
+    if (name === 'get_note_diagram') {
+      note(fresh, a.noteId);
+      try {
+        requireScope(fresh, 'knowledge:write');
+      } catch {
+        result.capabilities.canEdit = false;
+      }
+    }
     const out = def.output.safeParse(result);
     if (!out.success) fail(502, 'INVALID_BACKEND_RESPONSE');
     return out.data as Record<string, unknown>;
@@ -856,6 +1089,9 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
       throw error;
     }
   }
+  const operationPreviews = createOperationPreviewToolPort(context, paged);
+  const portable = createPortableToolPort(context, paged);
+  const primary = createPrimaryDiagramToolPort(context);
   const bundles = createKnowledgeBundlePort(context, paged);
   return { call, authorizeTransfer };
 }

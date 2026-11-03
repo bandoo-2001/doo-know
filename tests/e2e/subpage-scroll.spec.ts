@@ -122,7 +122,7 @@ test('all settings sections scroll with actual wheel or touch input and keep con
     .getByRole('navigation', { name: '设置分类', exact: true })
     .getByRole('button', { name: '通用与编辑', exact: true })
     .click();
-  await expect(page.locator('.settings-workspace h1')).toHaveText('编辑器与外观');
+  await expect(page.locator('.settings-workspace h1')).toHaveText('通用与编辑');
   await expect.poll(() => page.locator('.main-content').evaluate((el) => el.scrollTop)).toBe(0);
 });
 
@@ -130,7 +130,7 @@ test('trash contents scroll using actual wheel or touch gestures', async ({ page
   // Use the real create/delete APIs so the trash view exercises its usual cards and controls.
   await page.goto('/');
   const csrf = await (await page.request.get('/api/security/csrf')).json();
-  const headers = { origin: 'http://127.0.0.1:4179', 'x-csrf-token': csrf.token };
+  const headers = { origin: JSON.parse(await readFile('.local/e2e-config.json', 'utf8')).origin, 'x-csrf-token': csrf.token };
   const prefix = 'scroll-trash-' + crypto.randomUUID();
   for (let index = 0; index < 8; index++) {
     const created = await page.request.post('/api/notes', {

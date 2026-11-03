@@ -163,7 +163,7 @@ it('rejects a To Doo grant when the portable task dataset identity changes', asy
       },
     };
     const p = { ...f.principal, scopes: ['to-doo:read'] };
-    const path = join(f.config.knowledgeRoot, '_data/apps/to-doo/manifest.json');
+    const path = join(f.config.knowledgeRoot, '_doo-data/apps/to-doo/manifest.json');
     const manifest = JSON.parse(await readFile(path, 'utf8'));
     manifest.datasetId = 'different-task-dataset';
     await writeFile(path, JSON.stringify(manifest));

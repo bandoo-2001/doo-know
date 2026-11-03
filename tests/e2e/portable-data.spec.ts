@@ -8,8 +8,23 @@ test('synchronized plugin data shows a dependency hint without installation or a
   context,
 }, info) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
-  const { knowledgeRoot } = JSON.parse(await readFile('.local/e2e-config.json', 'utf8'));
-  const directory = join(knowledgeRoot, '_data/plugins/counter');
+  const { knowledgeRoot, origin = 'http://127.0.0.1:' + String(process.env.DOOKNOW_E2E_WEB_PORT || 4179) } =
+    JSON.parse(await readFile('.local/e2e-config.json', 'utf8'));
+  const initialRegistry = await (await page.request.get('/api/platform/plugins')).json();
+  const counter = initialRegistry.installed.find((plugin: any) => plugin.id === 'counter');
+  if (counter) {
+    const csrf = await (await page.request.get('/api/security/csrf')).json();
+    const headers = { origin, 'x-csrf-token': csrf.token };
+    if (counter.state !== 'disabled' || counter.desiredEnabled) {
+      const disabled = await page.request.post('/api/platform/plugins/counter/disable', { headers, data: {} });
+      expect(disabled.ok()).toBe(true);
+    }
+    const uninstalled = await page.request.post('/api/platform/plugins/counter/uninstall', { headers, data: {} });
+    expect(uninstalled.ok()).toBe(true);
+  }
+  const prepared = await (await page.request.get('/api/platform/plugins')).json();
+  expect(prepared.installed.some((plugin: any) => plugin.id === 'counter')).toBe(false);
+  const directory = join(knowledgeRoot, '_doo-data/plugins/counter');
   await mkdir(directory, { recursive: true });
   await writeFile(
     join(directory, 'state.json'),

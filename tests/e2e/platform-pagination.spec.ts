@@ -61,7 +61,7 @@ test('search and history expose their remaining pages', async ({ page, context }
   }
   await page.goto(`/?note=${current.id}`);
   await clickNoteAction(page, '历史版本');
-  await expect(page.locator('.revision-item')).toHaveCount(50);
+  await expect(page.getByRole('navigation', { name: '历史版本列表', exact: true }).locator('.note-history-version')).toHaveCount(50);
   await page.getByRole('button', { name: '加载更早版本', exact: true }).click();
-  await expect(page.locator('.revision-item')).toHaveCount(51);
+  await expect(page.getByRole('navigation', { name: '历史版本列表', exact: true }).locator('.note-history-version')).toHaveCount(51);
 });

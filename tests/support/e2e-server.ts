@@ -1,3 +1,4 @@
+import { realpathSync } from 'node:fs';
 import { createServer as createHTTPServer } from 'node:http';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
@@ -14,10 +15,33 @@ import { pathToFileURL } from 'node:url';
 // @ts-expect-error build tool is plain ESM
 import { buildPlugins } from '../../scripts/build-plugins.mjs';
 import { pluginFixture } from './plugin-fixture.js';
+import { browserFixtureDiagnostics } from './e2e-diagnostics.js';
 // @ts-expect-error native build tool is plain ESM
 import { buildProcessRunner } from '../../scripts/build-process-runner.mjs';
+// Visual acceptance fixes business timestamps without replacing native timers.
+if (process.env.DOOKNOW_E2E_FIXED_TIME) {
+  const originalDate = Date;
+  const fixedTime = originalDate.parse(process.env.DOOKNOW_E2E_FIXED_TIME);
+  if (!Number.isFinite(fixedTime)) throw Error('Invalid isolated browser fixture clock');
+  globalThis.Date = new Proxy(originalDate, {
+    construct(target, argumentsList, newTarget) {
+      return Reflect.construct(
+        target,
+        argumentsList.length ? argumentsList : [fixedTime],
+        newTarget,
+      );
+    },
+    apply() {
+      return new originalDate(fixedTime).toString();
+    },
+    get(target, property, receiver) {
+      return property === 'now' ? () => fixedTime : Reflect.get(target, property, receiver);
+    },
+  });
+}
 buildProcessRunner();
 const root = await mkdtemp(join(tmpdir(), 'dooknow-browser-'));
+const diagnostics = browserFixtureDiagnostics(process.env.DOOKNOW_E2E_DIAGNOSTICS);
 let searchSource: ReturnType<typeof createHTTPServer> | undefined;
 let frontend: ReturnType<typeof createHTTPServer> | undefined;
 let shutdownRequested = false;
@@ -52,6 +76,7 @@ function teardown() {
       app?.close(),
       graphModel?.close(),
     ]);
+    await diagnostics.close();
     await rm(root, { recursive: true, force: true });
     const errors = results
       .filter((result) => result.status === 'rejected')
@@ -189,6 +214,7 @@ async function initialize() {
   app = await createApp(config, {
     gitExec: (db) => localGitTransport(db, { [gitRemoteURL]: gitRemoteRoot }),
   });
+  diagnostics.attach(app.server, 'api');
   if (shutdownRequested) return;
   // Optional fixture-only diagnostics: keep request bodies, cookies and credentials
   // out of the log while retaining the underlying exception hidden by the API.
@@ -215,7 +241,12 @@ async function initialize() {
   }
   await app.listen({
     host: '127.0.0.1',
-    port: process.env.DOOKNOW_E2E_PRODUCTION === '1' ? webPort : isolatedPort !== undefined ? 0 : apiPort,
+    port:
+      process.env.DOOKNOW_E2E_PRODUCTION === '1'
+        ? webPort
+        : isolatedPort !== undefined
+          ? 0
+          : apiPort,
   });
   if (shutdownRequested) return;
   const login = await app.inject({
@@ -251,15 +282,21 @@ async function initialize() {
   if (shutdownRequested || process.env.DOOKNOW_E2E_PRODUCTION === '1') return;
   const backendOrigin = 'http://127.0.0.1:' + (app.server.address() as { port: number }).port;
   frontend ??= createHTTPServer();
+  diagnostics.attach(frontend, 'frontend');
   vite = await createServer({
     configFile: 'vite.config.ts',
     cacheDir: join(root, 'vite-cache'),
     server: {
       middlewareMode: { server: frontend },
+      fs: { allow: [realpathSync(new URL('../../node_modules', import.meta.url))] },
       port: frontendPort,
       host: '127.0.0.1',
       ws: { server: frontend },
-      proxy: { '/api/': backendOrigin, '/plugins/': backendOrigin, '^/blog(?:/|\\?|$)': backendOrigin },
+      proxy: {
+        '/api/': backendOrigin,
+        '/plugins/': backendOrigin,
+        '^/blog(?:/|\\?|$)': backendOrigin,
+      },
     },
   });
   if (shutdownRequested) return;

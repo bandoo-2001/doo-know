@@ -1,7 +1,7 @@
 {
   "id": "mcp",
-  "version": "1.3.0",
-  "apiVersion": "^1.3.0",
+  "version": "2.0.0",
+  "apiVersion": "^1.4.0",
   "title": "MCP 服务",
   "description": "通过独立授权连接知识库、博客与 To Doo，管理业务工具与调用状态。",
   "server": "server/index.mjs",
@@ -28,15 +28,15 @@
     "type": "object",
     "additionalProperties": false,
     "properties": {
-      "mode": {
-        "type": "string",
-        "title": "连接方式",
-        "enum": [
-          "oauth",
-          "tunnel",
-          "both"
-        ],
-        "default": "oauth"
+      "oauthEnabled": {
+        "type": "boolean",
+        "title": "启用 OAuth 连接",
+        "default": true
+      },
+      "apiKeyEnabled": {
+        "type": "boolean",
+        "title": "启用 API Key 连接",
+        "default": true
       },
       "readOnly": {
         "type": "boolean",
@@ -123,27 +123,6 @@
         "type": "string",
         "title": "外部网页地址",
         "description": "可选的 HTTPS 网页地址，用于返回可访问的资料链接。留空不返回网页链接。",
-        "default": "",
-        "maxLength": 2048
-      },
-      "compatPort": {
-        "type": "integer",
-        "title": "Tunnel 本地端口",
-        "minimum": 1024,
-        "maximum": 65535,
-        "default": 3071
-      },
-      "tunnelToken": {
-        "type": "string",
-        "title": "Tunnel Bearer 密钥",
-        "minLength": 32,
-        "maxLength": 8192,
-        "writeOnly": true
-      },
-      "tunnelOrigin": {
-        "type": "string",
-        "title": "Tunnel 外部地址",
-        "description": "可选的 HTTPS Tunnel 地址；用于兼容文档和 Host 检查。",
         "default": "",
         "maxLength": 2048
       },

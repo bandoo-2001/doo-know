@@ -77,19 +77,19 @@ it('rebuilds saved and published designs, history and images from knowledge file
   expect(other.designState(p)).toEqual(published);
   expect(other.designMedia(p, media.hash).bytes.equals(png)).toBe(true);
   const legacy = JSON.parse(
-    await readFile(join(config.knowledgeRoot, '_data/apps/blog/state.json'), 'utf8'),
+    await readFile(join(config.knowledgeRoot, '_doo-data/apps/blog/state.json'), 'utf8'),
   );
   expect(legacy.data.version).toBe(1);
   expect(legacy.data).not.toHaveProperty('studio');
   expect(
-    await readFile(join(config.knowledgeRoot, '_data/apps/blog/design.json'), 'utf8'),
+    await readFile(join(config.knowledgeRoot, '_doo-data/apps/blog/design.json'), 'utf8'),
   ).toContain('Portable identity');
 });
 it('rejects tampered synchronized design media and preserves the last local projection', async () => {
   const { media, published } = customize();
-  const path = join(config.knowledgeRoot, '_data/apps/blog/design-media', media.hash);
+  const path = join(config.knowledgeRoot, '_doo-data/apps/blog/design-media', media.hash);
   await writeFile(path, Buffer.from('not-an-image'));
-  const statePath = join(config.knowledgeRoot, '_data/apps/blog/design.json');
+  const statePath = join(config.knowledgeRoot, '_doo-data/apps/blog/design.json');
   const data = JSON.parse(await readFile(statePath, 'utf8'));
   data.data.state.version += 1;
   data.data.state.draft.profile.name = 'Tampered';
@@ -146,8 +146,8 @@ it('rejects a stale publish confirmation after another device imports a differen
     requestId: randomUUID(),
   });
   await cp(
-    join(otherConfig.knowledgeRoot, '_data/apps/blog/design.json'),
-    join(config.knowledgeRoot, '_data/apps/blog/design.json'),
+    join(otherConfig.knowledgeRoot, '_doo-data/apps/blog/design.json'),
+    join(config.knowledgeRoot, '_doo-data/apps/blog/design.json'),
   );
   expect(() =>
     blog.publishDesign(p, { expectedVersion: local.version, requestId: randomUUID() }),

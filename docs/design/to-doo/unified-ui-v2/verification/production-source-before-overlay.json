@@ -1,0 +1,7 @@
+{
+  "sha256": "f2652608d820fc55c0ec770b1cccb5701b658b19a2a3899cf78e809c24f2a2e0",
+  "files": 533,
+  "head": "393979a664142dcef981abbfe6422fa70715a4fa",
+  "description": "Production/config source fingerprint; tests/docs intentionally excluded. Captured after independent-review fixes before final browser/gallery acceptance.",
+  "capturedAt": "2026-10-31T00:29:17.923000+00:00"
+}

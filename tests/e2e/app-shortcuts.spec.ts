@@ -3,6 +3,7 @@ import { test, expect } from '../support/browser-test';
 import { showMainMenu, closeSidebar } from '../support/settings-navigation';
 import { openDocumentNote } from '../support/document-editor';
 import { showSource } from '../support/editor-navigation';
+import { expandToDooGroup } from '../support/to-doo-ant-controls';
 
 test('pins apps without opening them, retains shortcuts after reload and removes them', async ({ page, context }) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
@@ -61,7 +62,9 @@ test('returning to the default menu respects the unsaved To Doo confirmation bef
   await page.goto('/?view=apps');
   await page.getByRole('button', { name: '将博客加入左侧菜单', exact: true }).click();
   await page.goto('/?view=apps&app=to-doo&appSection=settings');
-  const zone = page.getByLabel('显示时区', { exact: true });
+  const app = page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
+  await expandToDooGroup(app, '日期与提醒');
+  const zone = app.getByLabel('显示时区', { exact: true });
   await zone.fill('Etc/GMT+5');
   const originalURL = page.url();
   const menu = page.getByRole('navigation', { name: '工作区', exact: true });

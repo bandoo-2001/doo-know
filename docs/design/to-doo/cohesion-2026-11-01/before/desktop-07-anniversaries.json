@@ -1,0 +1,15 @@
+{
+  "phase": "before",
+  "fixedTime": "2026-10-30T09:00:00.000Z",
+  "screenshots": [
+    {
+      "id": "07-anniversaries",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "label": "纪念日",
+      "file": "desktop-07-anniversaries.png",
+      "overflow": 0
+    }
+  ]
+}

@@ -93,7 +93,14 @@ for (const mode of ['document', 'source'] as const) {
     async function openHit(query: string, snippet: string) {
       await showSidebar(page);
       await input.fill(query);
+      const read = page.waitForResponse((response) =>
+        new URL(response.url()).pathname === '/api/notes/' + targetNote.id &&
+        response.request().method() === 'GET',
+      );
       await page.locator('.search-result').filter({ hasText: snippet }).click();
+      expect((await read).ok()).toBe(true);
+      // A same-note URL can match before its read and selection have finished.
+      await expect(page.locator('.main-content')).toHaveAttribute('aria-busy', 'false');
       const line = original.split('\n').indexOf(snippet) + 1;
       await expect(page).toHaveURL(new RegExp(`note=${targetNote.id}#L${line}$`));
       await closeSidebar(page);

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 import {
   Alert as AAlert,
   Button as AButton,
@@ -9,6 +9,10 @@ import {
   Segmented as ASegmented,
 } from 'ant-design-vue';
 import ToDooDateField from './ToDooDateField.vue';
+import ToDooDisclosure from './ToDooDisclosure.vue';
+import { groupTaskItems } from '../../to-doo-task-groups';
+import { toDooCalendarRange } from '../../to-doo-presentation';
+import { toDooAnniversaryDate } from '../../../../shared/to-doo-anniversaries';
 import {
   shiftToDooDate,
   toDooLocalDate,
@@ -29,30 +33,24 @@ const emit = defineEmits<{
   open: [item: ToDooItem];
   navigate: [selection: ToDooSelection];
   edit: [kind: ToDooEntityKind, entity?: Record<string, any>, seed?: Record<string, any>];
+  'task-view': [section: 'tasks' | 'board' | 'matrix' | 'timeline'];
 }>();
 const state = props.model.state,
+  displayOpen = ref(false),
+  showEmptyDates = ref(false),
   showExternal = ref(true),
-  showHabits = ref(true),
+  showHabits = ref(!props.timeline),
   showAnniversaries = ref(true),
   planTime = ref('09:00'),
   includeDependents = ref(false);
 const today = computed(() => toDooLocalDate(new Date(), state.snapshot?.settings.timeZone));
 const anchor = computed(() => props.date || today.value),
-  weekStart = computed(() => {
-    const day = new Date(anchor.value + 'T12:00:00Z').getUTCDay();
-    return shiftToDooDate(
-      anchor.value,
-      -((day - (state.snapshot?.settings.weekStartsOn ?? 1) + 7) % 7),
-    );
-  });
-const monthStart = computed(() => anchor.value.slice(0, 7) + '-01');
-const start = computed(() => {
-  const day = new Date(monthStart.value + 'T12:00:00Z').getUTCDay();
-  return shiftToDooDate(
-    monthStart.value,
-    -((day - (state.snapshot?.settings.weekStartsOn ?? 1) + 7) % 7),
+  weekStart = computed(
+    () => toDooCalendarRange(anchor.value, 'week', state.snapshot?.settings.weekStartsOn ?? 1).from,
   );
-});
+const start = computed(
+  () => toDooCalendarRange(anchor.value, 'month', state.snapshot?.settings.weekStartsOn ?? 1).from,
+);
 const days = computed(() =>
   Array.from({ length: props.view === 'week' ? 7 : 42 }, (_, i) =>
     shiftToDooDate(props.view === 'week' ? weekStart.value : start.value, i),
@@ -62,6 +60,19 @@ const weekDays = computed(() =>
   Array.from({ length: 7 }, (_, i) => shiftToDooDate(weekStart.value, i)),
 );
 const items = computed(() => props.model.items());
+const taskGroups = computed(() =>
+  groupTaskItems(
+    items.value,
+    props.model.taskDefinitions(),
+    state.snapshot?.sections ?? [],
+    state.filter.listIds?.length === 1 ? state.filter.listIds[0] : undefined,
+  ),
+);
+function toggleGroup(id: string) {
+  state.collapsedTaskGroups = state.collapsedTaskGroups.includes(id)
+    ? state.collapsedTaskGroups.filter((value) => value !== id)
+    : [...state.collapsedTaskGroups, id];
+}
 const hours = Array.from({ length: 24 }, (_, i) => i);
 const selectedExternal = ref<ToDooEntityMap['calendarEvent']>();
 const label = (date: string) =>
@@ -123,21 +134,71 @@ function external(date: string) {
           !e.deletedAt &&
           !e.seriesMaster &&
           e.sourceStatus !== 'CANCELLED' &&
-          (e.allDay ? e.start : toDooDisplayTime(e.start, state.snapshot!.settings.timeZone))
-            .date === date,
+          !!externalSegment(e, date),
       ) || []
     : [];
 }
-function anniversaries(date: string) {
-  return showAnniversaries.value
-    ? state.snapshot?.anniversaries.filter(
-        (a) =>
-          !a.deletedAt &&
-          a.calendar === 'gregorian' &&
-          (a.repeatYearly ? a.date.slice(5) === date.slice(5) : a.date === date),
-      ) || []
-    : [];
+function externalSegment(event: ToDooEntityMap['calendarEvent'], date: string) {
+  const zone = state.snapshot!.settings.timeZone;
+  const start = event.allDay ? event.start : toDooDisplayTime(event.start, zone);
+  const end = event.end ? (event.allDay ? event.end : toDooDisplayTime(event.end, zone)) : null;
+  if (event.allDay || !start.time) {
+    const endDate = end?.date || shiftToDooDate(start.date, 1);
+    return start.date <= date && date < endDate ? { time: null, duration: 1440 } : null;
+  }
+  const instant = (value: ToDooEntityMap['calendarEvent']['start']) => {
+    const utc = toDooDisplayTime({ ...value, time: value.time || '00:00' }, 'UTC');
+    return Date.parse(utc.date + 'T' + utc.time + ':00Z');
+  };
+  const startsAt = instant(event.start);
+  const endsAt = event.end ? instant(event.end) : startsAt + 30 * 60000;
+  const dayStart = instant({ date, time: '00:00', timeZone: zone });
+  const dayEnd = instant({ date: shiftToDooDate(date, 1), time: '00:00', timeZone: zone });
+  const from = Math.max(startsAt, dayStart);
+  const to = Math.min(endsAt, dayEnd);
+  if (to <= from) return null;
+  return {
+    time: new Intl.DateTimeFormat('en-GB', {
+      timeZone: zone,
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23',
+    }).format(new Date(from)),
+    duration: (to - from) / 60000,
+  };
 }
+const anniversaryOccurrences = computed(() => {
+  const grouped = new Map<string, ToDooEntityMap['anniversary'][]>();
+  if (!showAnniversaries.value || props.timeline) return grouped;
+  const range = toDooCalendarRange(
+    anchor.value,
+    props.view || 'month',
+    state.snapshot?.settings.weekStartsOn ?? 1,
+  );
+  for (const anniversary of state.snapshot?.anniversaries ?? []) {
+    if (anniversary.deletedAt) continue;
+    const date = toDooAnniversaryDate(anniversary, range.from);
+    if (date && date >= range.from && date <= range.to)
+      grouped.set(date, [...(grouped.get(date) ?? []), anniversary]);
+  }
+  return grouped;
+});
+const anniversaries = (date: string) => anniversaryOccurrences.value.get(date) ?? [];
+const agendaDays = computed(() =>
+  (props.view === 'week'
+    ? weekDays.value
+    : days.value.filter((day) => day.slice(0, 7) === anchor.value.slice(0, 7))
+  ).filter(
+    (day) =>
+      showEmptyDates.value ||
+      day === anchor.value ||
+      day === today.value ||
+      blocks(day).length > 0 ||
+      due(day).length > 0 ||
+      external(day).length > 0 ||
+      anniversaries(day).length > 0,
+  ),
+);
 function drag(event: DragEvent, id: string) {
   event.dataTransfer?.setData('application/x-to-doo-block', id);
 }
@@ -264,22 +325,13 @@ function weekEvents(day: string) {
     });
   }
   for (const event of external(day)) {
-    const start = toDooDisplayTime(event.start, state.snapshot!.settings.timeZone);
-    if (event.allDay || !start.time) continue;
-    const end = event.end ? toDooDisplayTime(event.end, state.snapshot!.settings.timeZone) : null;
-    const duration = end
-      ? Math.max(
-          15,
-          (Date.parse(end.date + 'T' + (end.time || '00:00') + ':00Z') -
-            Date.parse(start.date + 'T' + start.time + ':00Z')) /
-            60000,
-        )
-      : 30;
+    const segment = externalSegment(event, day);
+    if (!segment?.time) continue;
     entries.push({
       id: event.id,
       title: event.title,
-      time: start.time,
-      duration,
+      time: segment.time,
+      duration: segment.duration,
       event,
       lane: 0,
       lanes: 1,
@@ -309,6 +361,62 @@ function slotStyle(event: ReturnType<typeof weekEvents>[number]) {
     width: 'calc(' + 100 / event.lanes + '% - 4px)',
   };
 }
+const weekViewport = ref<HTMLElement>();
+const hasWeekAllDay = computed(() =>
+  weekDays.value.some(
+    (day) =>
+      blocks(day).some((block) => block.allDay || block.start.time === null) ||
+      external(day).some((event) => event.allDay || event.start.time === null) ||
+      anniversaries(day).length > 0 ||
+      due(day).length > 0,
+  ),
+);
+let scrollRange = '',
+  pendingWeekPosition = false,
+  scrollRevision = 0;
+function cancelWeekPosition() {
+  pendingWeekPosition = false;
+  scrollRevision += 1;
+}
+watch(
+  [
+    () => props.view,
+    () => props.timeline,
+    weekStart,
+    () => state.loading,
+    () => state.snapshot,
+    () => state.query?.from,
+    () => state.query?.to,
+  ],
+  async () => {
+    const range = props.timeline || props.view !== 'week' ? '' : weekStart.value;
+    if (scrollRange !== range) {
+      scrollRange = range;
+      pendingWeekPosition = !!range;
+      scrollRevision += 1;
+    }
+    const revision = scrollRevision;
+    await nextTick();
+    if (
+      !pendingWeekPosition ||
+      revision !== scrollRevision ||
+      state.loading ||
+      state.error ||
+      !state.snapshot ||
+      !weekViewport.value ||
+      (state.query?.from && state.query.from !== range) ||
+      (state.query?.to && state.query.to !== shiftToDooDate(range, 6))
+    )
+      return;
+    const eventHours = weekDays.value.flatMap((day) =>
+      weekEvents(day).map((event) => Number(event.time.slice(0, 2))),
+    );
+    const hour = eventHours.length ? Math.max(0, Math.min(...eventHours) - 1) : 8;
+    pendingWeekPosition = false;
+    weekViewport.value.scrollTop = hour * 46;
+  },
+  { immediate: true, flush: 'post' },
+);
 </script>
 <template>
   <div class="todo-calendar-toolbar">
@@ -349,13 +457,7 @@ function slotStyle(event: ReturnType<typeof weekEvents>[number]) {
       </AButton>
     </div>
     <div class="todo-actions">
-      <ToDooDateField
-        type="date"
-        aria-label="跳转日期"
-        :value="anchor"
-        :allow-clear="false"
-        @change="calendarDateChanged"
-      /><ASegmented
+      <ASegmented
         v-if="!timeline"
         aria-label="日历视图"
         :value="view === 'week' ? 'week' : 'month'"
@@ -364,7 +466,16 @@ function slotStyle(event: ReturnType<typeof weekEvents>[number]) {
           { label: '月', value: 'month' },
         ]"
         @change="calendarViewChanged"
-      /><AButton
+      />
+      <AButton
+        html-type="button"
+        type="default"
+        class="todo-button"
+        :aria-expanded="displayOpen"
+        @click="displayOpen = !displayOpen"
+        >显示内容</AButton
+      >
+      <AButton
         class="todo-button todo-primary"
         html-type="button"
         @click="
@@ -382,12 +493,25 @@ function slotStyle(event: ReturnType<typeof weekEvents>[number]) {
       </AButton>
     </div>
   </div>
-  <div class="todo-calendar-options">
-    <span>显示时区：{{ state.snapshot?.settings.timeZone }}</span
-    ><ACheckbox v-model:checked="showExternal" class="todo-checkbox">外部日历</ACheckbox
-    ><ACheckbox v-model:checked="showHabits" class="todo-checkbox">习惯</ACheckbox
-    ><ACheckbox v-model:checked="showAnniversaries" class="todo-checkbox">纪念日</ACheckbox
-    ><span class="todo-spacer"></span><span>计划与截止分别显示</span>
+  <div v-if="displayOpen" class="todo-calendar-options todo-calendar-display-panel">
+    <label class="todo-calendar-jump"
+      >跳转日期<ToDooDateField
+        type="date"
+        aria-label="跳转日期"
+        :value="anchor"
+        :allow-clear="false"
+        @change="calendarDateChanged"
+    /></label>
+    <div class="todo-calendar-layers">
+      <ACheckbox v-if="!timeline" v-model:checked="showExternal" class="todo-checkbox"
+        >外部日历</ACheckbox
+      >
+      <ACheckbox v-model:checked="showHabits" class="todo-checkbox">习惯</ACheckbox>
+      <ACheckbox v-if="!timeline" v-model:checked="showAnniversaries" class="todo-checkbox"
+        >纪念日</ACheckbox
+      >
+    </div>
+    <span>显示时区：{{ state.snapshot?.settings.timeZone }}</span>
   </div>
   <div v-if="state.preview" class="todo-plan-preview todo-panel">
     <div class="todo-panel-header">
@@ -446,8 +570,21 @@ function slotStyle(event: ReturnType<typeof weekEvents>[number]) {
       </div>
     </div>
   </div>
-  <template v-if="timeline"
-    ><div class="todo-timeline todo-panel">
+  <template v-if="timeline">
+    <div class="todo-task-toolbar">
+      <ASegmented
+        aria-label="任务展示方式"
+        value="timeline"
+        :options="[
+          { value: 'tasks', label: '列表' },
+          { value: 'board', label: '看板' },
+          { value: 'matrix', label: '四象限' },
+          { value: 'timeline', label: '时间线' },
+        ]"
+        @change="emit('task-view', $event as 'tasks' | 'board' | 'matrix' | 'timeline')"
+      />
+    </div>
+    <div class="todo-timeline todo-panel">
       <div class="todo-timeline-row todo-timeline-header">
         <span>任务 / 计划与截止</span>
         <div class="todo-timeline-track">
@@ -456,50 +593,74 @@ function slotStyle(event: ReturnType<typeof weekEvents>[number]) {
           }}</span>
         </div>
       </div>
-      <div v-for="item in items" :key="item.key" class="todo-timeline-row">
-        <AButton class="todo-task-body" html-type="button" @click="emit('open', item)" type="text">
-          {{ item.title }}<small>{{ item.list?.name || '收集箱' }}</small>
-        </AButton>
-        <div class="todo-timeline-track">
-          <button
-            v-for="b in item.blocks.filter(
-              (b) => offset(b.start.date) >= 0 && offset(b.start.date) < 28,
-            )"
-            :key="b.id"
-            type="button"
-            class="todo-timeline-bar"
-            :style="{
-              gridColumn:
-                offset(b.start.date) +
-                1 +
-                ' / span ' +
-                Math.max(
-                  1,
-                  Math.min(28 - offset(b.start.date), Math.ceil(b.durationMinutes / 1440)),
-                ),
-            }"
-            :aria-label="b.start.date + ' ' + item.title"
-            @click="emit('edit', 'timeBlock', b)"
-          >
-            {{ b.start.time || '全天' }}</button
-          ><button
-            v-if="
-              item.occurrence?.due &&
-              offset(item.occurrence.due.date) >= 0 &&
-              offset(item.occurrence.due.date) < 28
+      <template v-for="group in taskGroups" :key="group.id">
+        <div v-if="group.showHeader" class="todo-timeline-group-heading">
+          <AButton
+            type="text"
+            :aria-label="
+              (state.collapsedTaskGroups.includes(group.id) ? '展开分组 ' : '折叠分组 ') +
+              group.name
             "
-            class="todo-deadline"
-            type="button"
-            :style="{ gridColumn: offset(item.occurrence.due.date) + 1 }"
-            :aria-label="'截止 ' + item.occurrence.due.date + ' ' + item.title"
-            @click="emit('open', item)"
-          >
-            ◆</button
-          ><span v-if="!item.blocks.length && !item.occurrence?.due" class="todo-unscheduled"
-            >未安排</span
+            @click="toggleGroup(group.id)"
+            >{{ state.collapsedTaskGroups.includes(group.id) ? '›' : '⌄' }} {{ group.name }}
+            <small>{{ group.items.length }}</small></AButton
           >
         </div>
-      </div>
+        <template v-if="!state.collapsedTaskGroups.includes(group.id)">
+          <div v-for="item in group.items" :key="item.key" class="todo-timeline-row">
+            <AButton
+              class="todo-task-body"
+              html-type="button"
+              @click="emit('open', item)"
+              type="text"
+            >
+              {{ item.title
+              }}<small v-if="!state.filter.listIds?.length">{{
+                item.list?.name || '收集箱'
+              }}</small>
+            </AButton>
+            <div class="todo-timeline-track">
+              <button
+                v-for="b in item.blocks.filter(
+                  (b) => offset(b.start.date) >= 0 && offset(b.start.date) < 28,
+                )"
+                :key="b.id"
+                type="button"
+                class="todo-timeline-bar"
+                :style="{
+                  gridColumn:
+                    offset(b.start.date) +
+                    1 +
+                    ' / span ' +
+                    Math.max(
+                      1,
+                      Math.min(28 - offset(b.start.date), Math.ceil(b.durationMinutes / 1440)),
+                    ),
+                }"
+                :aria-label="b.start.date + ' ' + item.title"
+                @click="emit('edit', 'timeBlock', b)"
+              >
+                {{ b.start.time || '全天' }}</button
+              ><button
+                v-if="
+                  item.occurrence?.due &&
+                  offset(item.occurrence.due.date) >= 0 &&
+                  offset(item.occurrence.due.date) < 28
+                "
+                class="todo-deadline"
+                type="button"
+                :style="{ gridColumn: offset(item.occurrence.due.date) + 1 }"
+                :aria-label="'截止 ' + item.occurrence.due.date + ' ' + item.title"
+                @click="emit('open', item)"
+              >
+                ◆</button
+              ><span v-if="!item.blocks.length && !item.occurrence?.due" class="todo-unscheduled"
+                >未安排</span
+              >
+            </div>
+          </div>
+        </template>
+      </template>
       <AEmpty
         v-if="!items.length"
         class="todo-empty"
@@ -570,82 +731,138 @@ function slotStyle(event: ReturnType<typeof weekEvents>[number]) {
           class="todo-calendar-event external"
           @click="inspectExternal(e)"
         >
-          {{ e.start.time || '全天' }} {{ e.title }} · {{ e.readOnly ? '只读' : '外部' }}</button
-        ><span v-for="a in anniversaries(day)" :key="a.id" class="todo-calendar-event anniversary"
+          {{ externalSegment(e, day)?.time || '全天' }} {{ e.title }} ·
+          {{ e.readOnly ? '只读' : '外部' }}</button
+        ><span
+          v-for="a in anniversaries(day)"
+          :key="a.id"
+          class="todo-calendar-event anniversary"
+          :data-anniversary-id="a.id"
+          :data-date="day"
           >◇ {{ a.name }}</span
         >
       </div>
     </div>
     <div v-else class="todo-week">
-      <div class="todo-week-head">
-        <span></span>
-        <div v-for="day in weekDays" :key="day" :class="{ 'is-today': day === today }">
-          {{ label(day) }}
-          <button
-            v-for="block in blocks(day).filter((b) => b.allDay || b.start.time === null)"
-            :key="block.id"
-            type="button"
-            class="todo-calendar-event"
-            @click="emit('edit', 'timeBlock', block)"
+      <div
+        ref="weekViewport"
+        class="todo-week-viewport"
+        role="region"
+        aria-label="每周时间安排，包含全部 24 小时"
+        tabindex="0"
+        @wheel.passive="cancelWeekPosition"
+        @touchstart.passive="cancelWeekPosition"
+        @pointerdown="cancelWeekPosition"
+        @keydown="cancelWeekPosition"
+        @scroll.passive="cancelWeekPosition"
+      >
+        <div class="todo-week-head">
+          <div class="todo-week-labels">
+            <span></span>
+            <div v-for="day in weekDays" :key="day" :class="{ 'is-today': day === today }">
+              {{ label(day) }}
+            </div>
+          </div>
+          <div
+            v-if="hasWeekAllDay"
+            class="todo-week-allday"
+            role="region"
+            aria-label="全天安排与截止"
+            tabindex="0"
           >
-            全天 · {{ itemFor(block.occurrenceId)?.title || block.title || '时间安排' }}</button
-          ><button
-            v-for="event in external(day).filter((e) => e.allDay || e.start.time === null)"
-            :key="event.id"
-            type="button"
-            class="todo-calendar-event external"
-            @click="inspectExternal(event)"
-          >
-            全天 · {{ event.title }}
-          </button>
-          <div v-for="item in due(day)" :key="item.key">
-            <button type="button" class="todo-calendar-event deadline" @click="emit('open', item)">
-              ◆ {{ item.title }}
+            <div class="todo-week-all-day-grid">
+              <span></span>
+              <div v-for="day in weekDays" :key="day" :class="{ 'is-today': day === today }">
+                <button
+                  v-for="block in blocks(day).filter((b) => b.allDay || b.start.time === null)"
+                  :key="block.id"
+                  type="button"
+                  class="todo-calendar-event"
+                  @click="emit('edit', 'timeBlock', block)"
+                >
+                  全天 ·
+                  {{ itemFor(block.occurrenceId)?.title || block.title || '时间安排' }}</button
+                ><button
+                  v-for="event in external(day).filter((e) => e.allDay || e.start.time === null)"
+                  :key="event.id"
+                  type="button"
+                  class="todo-calendar-event external"
+                  @click="inspectExternal(event)"
+                >
+                  全天 · {{ event.title }}
+                </button>
+                <span
+                  v-for="a in anniversaries(day)"
+                  :key="a.id"
+                  class="todo-calendar-event anniversary"
+                  :data-anniversary-id="a.id"
+                  :data-date="day"
+                  >◇ {{ a.name }}</span
+                >
+                <div v-for="item in due(day)" :key="item.key">
+                  <button
+                    type="button"
+                    class="todo-calendar-event deadline"
+                    @click="emit('open', item)"
+                  >
+                    ◆ {{ item.title }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="todo-week-body">
+          <div class="todo-hour-labels">
+            <span v-for="hour in hours" :key="hour">{{ String(hour).padStart(2, '0') }}:00</span>
+          </div>
+          <div v-for="day in weekDays" :key="day" class="todo-week-lane">
+            <div
+              v-for="hour in hours"
+              :key="hour"
+              class="todo-week-slot"
+              @dragover.prevent
+              @drop="drop($event, day, String(hour).padStart(2, '0') + ':00')"
+            ></div>
+            <button
+              v-for="event in weekEvents(day)"
+              :key="event.id"
+              type="button"
+              class="todo-week-event"
+              :class="{ external: !!event.event }"
+              :draggable="!!event.block"
+              :style="slotStyle(event)"
+              :aria-label="event.title + ' ' + event.time + ' ' + event.duration + '分钟'"
+              :title="event.title + ' · ' + event.time"
+              @dragstart="event.block && drag($event, event.block.id)"
+              @click="
+                event.block
+                  ? emit('edit', 'timeBlock', event.block)
+                  : event.event && inspectExternal(event.event)
+              "
+            >
+              {{ event.title }}<small>{{ event.time }} · {{ event.duration }} 分钟</small>
             </button>
           </div>
         </div>
       </div>
-      <div class="todo-week-body">
-        <div class="todo-hour-labels">
-          <span v-for="hour in hours" :key="hour">{{ String(hour).padStart(2, '0') }}:00</span>
-        </div>
-        <div v-for="day in weekDays" :key="day" class="todo-week-lane">
-          <div
-            v-for="hour in hours"
-            :key="hour"
-            class="todo-week-slot"
-            @dragover.prevent
-            @drop="drop($event, day, String(hour).padStart(2, '0') + ':00')"
-          ></div>
-          <button
-            v-for="event in weekEvents(day)"
-            :key="event.id"
-            type="button"
-            class="todo-week-event"
-            :class="{ external: !!event.event }"
-            :draggable="!!event.block"
-            :style="slotStyle(event)"
-            :aria-label="event.title + ' ' + event.time + ' ' + event.duration + '分钟'"
-            :title="event.title + ' · ' + event.time"
-            @dragstart="event.block && drag($event, event.block.id)"
-            @click="
-              event.block
-                ? emit('edit', 'timeBlock', event.block)
-                : event.event && inspectExternal(event.event)
-            "
-          >
-            {{ event.title }}<small>{{ event.time }} · {{ event.duration }} 分钟</small>
-          </button>
-        </div>
-      </div>
     </div>
     <div class="todo-mobile-agenda">
+      <div class="todo-agenda-toolbar">
+        <AButton
+          html-type="button"
+          type="text"
+          :aria-label="showEmptyDates ? '隐藏空白日期' : '显示空白日期'"
+          :aria-pressed="showEmptyDates"
+          @click="showEmptyDates = !showEmptyDates"
+          >{{ showEmptyDates ? '隐藏空白日期' : '显示空白日期' }}</AButton
+        >
+      </div>
       <section
-        v-for="day in view === 'week'
-          ? weekDays
-          : days.filter((d) => d.slice(0, 7) === anchor.slice(0, 7))"
+        v-for="day in agendaDays"
         :key="day"
-        class="todo-panel"
+        class="todo-panel todo-agenda-day"
+        :data-date="day"
       >
         <h3 class="todo-panel-header">{{ label(day) }}{{ day === today ? ' · 今天' : '' }}</h3>
         <AButton
@@ -681,6 +898,16 @@ function slotStyle(event: ReturnType<typeof weekEvents>[number]) {
         >
           {{ e.title }} · {{ e.readOnly ? '只读事件' : '日历事件' }}
         </AButton>
+        <AButton
+          v-for="a in anniversaries(day)"
+          :key="a.id"
+          type="text"
+          class="todo-saved-row todo-text-button"
+          :data-anniversary-id="a.id"
+          :data-date="day"
+          @click="emit('edit', 'anniversary', a)"
+          >◇ {{ a.name }} · 纪念日</AButton
+        >
         <AButton
           html-type="button"
           class="todo-link todo-pad"
@@ -738,19 +965,120 @@ function slotStyle(event: ReturnType<typeof weekEvents>[number]) {
       </div>
     </template>
   </AModal>
-  <div class="todo-plan-tools">
-    <ACheckbox v-model:checked="includeDependents" class="todo-checkbox">联动调整后续安排</ACheckbox
-    ><span class="todo-muted todo-small"
-      >拖动先预览，确认后更新。按当前任务顺序安排至 {{ anchor }}，最多 20 项</span
-    ><ToDooDateField v-model="planTime" type="time" aria-label="连续安排开始时间" /><AButton
-      class="todo-button"
-      html-type="button"
-      :disabled="state.busy || !planTime"
-      :loading="state.busy"
-      @click="preview"
-      type="default"
+  <ToDooDisclosure class="todo-plan-disclosure">
+    <template #header
+      ><span>安排任务</span><small class="todo-muted">连续安排与联动调整</small></template
     >
-      预览连续安排
-    </AButton>
-  </div>
+    <div class="todo-plan-tools">
+      <ACheckbox v-model:checked="includeDependents" class="todo-checkbox"
+        >联动调整后续安排</ACheckbox
+      ><span class="todo-muted todo-small"
+        >拖动先预览，确认后更新。按当前任务顺序安排至 {{ anchor }}，最多 20 项</span
+      ><ToDooDateField v-model="planTime" type="time" aria-label="连续安排开始时间" /><AButton
+        class="todo-button"
+        html-type="button"
+        :disabled="state.busy || !planTime"
+        :loading="state.busy"
+        @click="preview"
+        type="default"
+      >
+        预览连续安排
+      </AButton>
+    </div>
+  </ToDooDisclosure>
 </template>
+<style scoped>
+.todo-calendar-display-panel {
+  gap: 16px 24px;
+  padding: 12px 14px;
+  border: 1px solid var(--todo-line);
+  border-radius: 8px;
+  background: var(--todo-paper);
+}
+.todo-calendar-jump {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.todo-calendar-jump :deep(.ant-picker) {
+  width: 145px;
+}
+.todo-calendar-layers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.todo-week-viewport {
+  max-height: min(65dvh, 620px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+.todo-week-viewport:focus-visible {
+  outline: 2px solid var(--todo-accent);
+  outline-offset: -2px;
+}
+.todo-week-head {
+  display: block;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--todo-paper);
+}
+.todo-week-head > div {
+  padding: 0;
+  border: 0;
+}
+.todo-week-labels,
+.todo-week-all-day-grid {
+  display: grid;
+  grid-template-columns: 42px repeat(7, minmax(0, 1fr));
+}
+.todo-week-labels > div,
+.todo-week-all-day-grid > div {
+  padding: 9px 3px;
+  min-width: 0;
+  text-align: center;
+  color: var(--todo-muted);
+  font-size: 10px;
+  border-left: 1px solid var(--todo-line);
+  border-bottom: 1px solid var(--todo-line);
+}
+.todo-week-labels > span,
+.todo-week-all-day-grid > span {
+  border-bottom: 1px solid var(--todo-line);
+}
+.todo-week-labels > div.is-today,
+.todo-week-all-day-grid > div.is-today {
+  color: var(--todo-accent);
+  background: var(--todo-tint);
+}
+.todo-week-allday {
+  max-height: min(22dvh, 180px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+.todo-week-allday:focus-visible {
+  outline: 2px solid var(--todo-accent);
+  outline-offset: -2px;
+}
+.todo-agenda-toolbar {
+  display: flex;
+  justify-content: flex-end;
+}
+.todo-agenda-toolbar .ant-btn {
+  font-size: 11px;
+  color: var(--todo-muted);
+}
+@container (max-width: 650px) {
+  .todo-calendar-toolbar > .todo-actions {
+    gap: 8px;
+  }
+  .todo-calendar-display-panel {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+</style>

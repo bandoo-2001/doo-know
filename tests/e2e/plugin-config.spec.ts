@@ -42,35 +42,20 @@ async function saveRemote(page: Page, values: Record<string, unknown>, configVer
   );
 }
 
-async function selectMode(page: Page, label: string) {
-  await page.getByRole('combobox', { name: '连接方式', exact: true }).press('ArrowDown');
-  await page.locator('.ant-select-item-option').filter({ hasText: label }).click();
-}
-
-test('shows relevant MCP fields, generates a local key and retains separate plugin drafts', async ({
+test('shows authentication switches and retains separate plugin drafts', async ({
   page,
 }, info) => {
   await openMcp(page);
   const saved = await mcp(page);
-  await selectMode(page, '网页授权（OAuth）');
-  for (const name of ['Tunnel 本地端口', 'Tunnel Bearer 密钥', 'Tunnel 外部地址'])
-    await expect(page.getByLabel(name, { exact: true })).toHaveCount(0);
+  const oauth = page.getByRole('switch', { name: '启用 OAuth 连接', exact: true });
+  const apiKey = page.getByRole('switch', { name: '启用 API Key 连接', exact: true });
+  await expect(oauth).toBeVisible();
+  await expect(apiKey).toBeVisible();
   const prefixes = page.getByLabel('允许访问的目录', { exact: true });
   await expect(prefixes).toHaveValue((saved.config.allowedPrefixes as string[]).join('\n'));
   await prefixes.fill('00-Inbox\n我的草稿目录');
-  await selectMode(page, '本地隧道（Tunnel）');
-  const key = page.getByLabel('Tunnel Bearer 密钥', { exact: true });
-  await page.getByRole('button', { name: '生成连接密钥', exact: true }).click();
-  await expect(key).toHaveValue(/^[a-f0-9]{64}$/);
-  const generated = await key.inputValue();
-  await page.getByLabel('Tunnel 外部地址', { exact: true }).fill('https://tunnel.example.invalid');
-  await selectMode(page, '网页授权（OAuth）');
-  await expect(key).toHaveCount(0);
-  await selectMode(page, '同时启用');
-  await expect(key).toHaveValue(generated);
-  await expect(page.getByLabel('Tunnel 外部地址', { exact: true })).toHaveValue(
-    'https://tunnel.example.invalid',
-  );
+  const initialApiKey = await apiKey.getAttribute('aria-checked');
+  await apiKey.click();
   const form = page.locator('.plugin-form'),
     addressRow = page.getByLabel('外部网页地址', { exact: true }).locator('..');
   expect((await addressRow.boundingBox())!.width).toBeGreaterThan(
@@ -91,7 +76,7 @@ test('shows relevant MCP fields, generates a local key and retains separate plug
     .getByRole('button', { name: '配置', exact: true })
     .click();
   await expect(prefixes).toHaveValue('00-Inbox\n我的草稿目录');
-  await expect(key).toHaveValue(generated);
+  await expect(apiKey).toHaveAttribute('aria-checked', initialApiKey === 'true' ? 'false' : 'true');
   await page.getByRole('button', { name: '返回插件列表', exact: true }).click();
   await git.getByRole('button', { name: '配置', exact: true }).click();
   await expect(page.getByLabel('提交作者', { exact: true })).toHaveValue('尚未保存的作者');

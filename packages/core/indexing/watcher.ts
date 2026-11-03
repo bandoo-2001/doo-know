@@ -1,3 +1,5 @@
+import { isKnowledgeDataPath, DOO_ASSETS_DIRECTORY } from '../../../shared/storage-paths.js';
+import { isDiagramDependencyPath } from './diagram-dependencies.js';
 import { watch } from 'node:fs';
 import type { AppConfig } from '../../../shared/contracts.js';
 import type { AppDatabase } from '../db.js';
@@ -43,13 +45,16 @@ export function startWatcher(
       watcher = watch(config.knowledgeRoot, { recursive: true }, (_event, name) => {
         const parts = String(name || '').split(/[\\/]/);
         if (
-          parts[0] === '_data' ||
+          isKnowledgeDataPath(parts.join('/')) ||
           parts[0] !== '.git' &&
-          parts.some((p) => p.startsWith('.') || p === 'assets' || p.toLowerCase() === 'agents.md')
+          parts.some((p) => p.startsWith('.') || p.toLowerCase() === 'agents.md')
         )
           return;
+        const asset = parts.includes(DOO_ASSETS_DIRECTORY);
+        if (asset && !isDiagramDependencyPath(db, parts.join('/'))) return;
+        full = full || !asset;
         if (debounce) clearTimeout(debounce);
-        debounce = setTimeout(() => schedule(true), 750);
+        debounce = setTimeout(() => schedule(false), 750);
         debounce.unref();
       });
       watcher.on('error', () => {

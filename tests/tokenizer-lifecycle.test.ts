@@ -408,6 +408,7 @@ describe.skipIf(process.platform !== 'linux')('tokenizer lifecycle', () => {
         recursive: true,
         filter: (path) => !path.includes('/.build'),
       });
+      await cp(resolve('shared'), join(f.root, 'shared'), { recursive: true });
       await writeFile(join(f.root, 'isolated/package.json'), '{"type":"module"}');
       const main = join(f.root, 'missing-runtime.mjs');
       await writeFile(

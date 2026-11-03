@@ -1,3 +1,4 @@
+import { knowledgeDataDirectory } from '../knowledge-data-path.js';
 import { randomUUID, createHash } from 'node:crypto';
 import { lstatSync, readdirSync, watch } from 'node:fs';
 import { join } from 'node:path';
@@ -165,6 +166,7 @@ export function createToDooStore(config: { knowledgeRoot: string }, db: AppDatab
   db.exec(
     `CREATE TABLE IF NOT EXISTS todo_meta(key TEXT PRIMARY KEY,value TEXT NOT NULL);CREATE TABLE IF NOT EXISTS todo_instance_state(id INTEGER PRIMARY KEY CHECK(id=1),root TEXT NOT NULL);CREATE TABLE IF NOT EXISTS todo_entities(kind TEXT NOT NULL,id TEXT NOT NULL,revision TEXT NOT NULL,data TEXT NOT NULL,envelope TEXT NOT NULL,digest TEXT NOT NULL,PRIMARY KEY(kind,id));CREATE TABLE IF NOT EXISTS todo_transactions(id TEXT PRIMARY KEY,request_id TEXT NOT NULL UNIQUE,fingerprint TEXT NOT NULL,data TEXT NOT NULL,digest TEXT NOT NULL,sequence INTEGER NOT NULL);CREATE TABLE IF NOT EXISTS todo_pending_files(kind TEXT NOT NULL,id TEXT NOT NULL,PRIMARY KEY(kind,id));CREATE TABLE IF NOT EXISTS todo_imported_receipts(request_id TEXT PRIMARY KEY,data TEXT NOT NULL);`,
   );
+  db.exec('CREATE INDEX IF NOT EXISTS todo_transactions_sequence ON todo_transactions(sequence)');
   for (const field of [
     'taskId',
     'occurrenceId',
@@ -193,7 +195,7 @@ export function createToDooStore(config: { knowledgeRoot: string }, db: AppDatab
   const fileCache = new Map<string, { stamp: string; digest: string }>();
   function stamp(path: string): string | undefined {
     try {
-      const s = lstatSync(join(config.knowledgeRoot, '_data', path), { bigint: true });
+      const s = lstatSync(join(knowledgeDataDirectory(config.knowledgeRoot), path), { bigint: true });
       if (s.isSymbolicLink() || !s.isFile()) toDooError('应用数据文件不安全');
       return String(s.mtimeNs) + ':' + String(s.size);
     } catch (e) {
@@ -240,7 +242,7 @@ export function createToDooStore(config: { knowledgeRoot: string }, db: AppDatab
     toDooError('To Doo 数据版本不支持');
   let datasetId = manifest.datasetId as string;
   function files(relative: string): string[] {
-    const full = join(config.knowledgeRoot, '_data', relative);
+    const full = join(knowledgeDataDirectory(config.knowledgeRoot), relative);
     let stat;
     try {
       stat = lstatSync(full);
@@ -478,7 +480,7 @@ export function createToDooStore(config: { knowledgeRoot: string }, db: AppDatab
   let watcher: ReturnType<typeof watch> | undefined;
   try {
     watcher = watch(
-      join(config.knowledgeRoot, '_data', rootPath),
+      join(knowledgeDataDirectory(config.knowledgeRoot), rootPath),
       { recursive: true, persistent: false },
       () => {
         diskDirty = true;
@@ -650,7 +652,7 @@ export function createToDooStore(config: { knowledgeRoot: string }, db: AppDatab
     });
   }
   function readAssets(): { hash: string; data: string }[] {
-    const directory = join(config.knowledgeRoot, '_data', rootPath, 'assets');
+    const directory = join(knowledgeDataDirectory(config.knowledgeRoot), rootPath, 'assets');
     try {
       const stat = lstatSync(directory);
       if (stat.isSymbolicLink() || !stat.isDirectory()) toDooError('附件目录不安全');

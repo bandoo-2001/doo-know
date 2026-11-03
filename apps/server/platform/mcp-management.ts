@@ -8,6 +8,7 @@ import type { createAuth } from '../auth.js';
 import { platformPolicy } from '../../../packages/core/auth/grants.js';
 import { oauthGrantStore } from './oauth-grants.js';
 import { revokeOAuthClient } from './oauth.js';
+import { listMcpApiClients, revokeMcpApiClient } from './mcp-api-keys.js';
 import { fail } from '../../../packages/core/knowledge/errors.js';
 
 export function registerMcpManagementRoutes(
@@ -25,24 +26,8 @@ export function registerMcpManagementRoutes(
       .prepare("SELECT value FROM plugin_data WHERE plugin_id='mcp' AND key='calls'")
       .get() as { value: string } | undefined;
     const calls = stored ? JSON.parse(stored.value) : [];
-    const identityTable = db
-      .prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='mcp_tunnel_identity'")
-      .get();
-    const identity = identityTable
-      ? (db
-          .prepare('SELECT principal_id,client_id FROM mcp_tunnel_identity WHERE owner_id=?')
-          .get(ownerId) as { principal_id: string; client_id: string } | undefined)
-      : undefined;
-    const last =
-      Array.isArray(calls) &&
-      calls.find(
-        (call: any) =>
-          call.code === 'OK' &&
-          (call.principal === ownerId ||
-            (identity &&
-              call.principal === identity.principal_id &&
-              call.client === identity.client_id)),
-      );
+    const apiIds = new Set(listMcpApiClients(db, ownerId).map(c => c.clientId));
+    const last = Array.isArray(calls) && calls.find((call: any) => call.code === 'OK' && call.principal === ownerId);
     return {
       origin: config.origin,
       plugin: {
@@ -58,10 +43,9 @@ export function registerMcpManagementRoutes(
       latestSuccessfulCall: last ? { at: last.at, tool: last.tool, client: last.client } : null,
       clients: oauthGrantStore(db)
         .list(ownerId)
+        .filter(grant => !apiIds.has(grant.clientId))
         .map((grant) => {
-          const channel = identity?.client_id === grant.clientId ? 'tunnel' : 'oauth';
-          const mode = plugin?.config.mode || 'oauth';
-          const channelEnabled = mode === 'both' || mode === channel;
+          const channelEnabled = plugin?.config.oauthEnabled !== false;
           const effective = channelEnabled
             ? platformPolicy(db, {
                 id: ownerId,
@@ -96,6 +80,11 @@ export function registerMcpManagementRoutes(
     const clientId = (request.body as any)?.clientId;
     if (typeof clientId !== 'string' || !clientId || clientId.length > 512)
       fail(400, 'INVALID_INPUT');
-    return revokeOAuthClient(auth, db, (request as any).ownerId, clientId);
+    return revokeMcpClient(auth, db, (request as any).ownerId, clientId);
   });
+}
+
+export function revokeMcpClient(auth: Awaited<ReturnType<typeof createAuth>>, db: AppDatabase, ownerId: string, clientId: string) {
+  const api = listMcpApiClients(db, ownerId).some(c => c.clientId === clientId);
+  return api ? { ...revokeMcpApiClient(db, ownerId, clientId), cleanupPending: false } : revokeOAuthClient(auth, db, ownerId, clientId);
 }

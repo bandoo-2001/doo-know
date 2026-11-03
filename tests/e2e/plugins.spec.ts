@@ -14,7 +14,7 @@ test('installs a separate ESM plugin and removes its interactions when disabled'
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   await page.goto('/');
   await configurePlugin(page, '计数验收插件');
-  await expect(page.getByRole('heading', { name: '扩展功能', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '插件与连接', exact: true })).toBeVisible();
   const enable = page
     .locator('.plugin-settings')
     .getByRole('button', { name: '启用插件', exact: true });

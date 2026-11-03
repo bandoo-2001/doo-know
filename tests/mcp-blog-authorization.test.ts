@@ -2,7 +2,7 @@ import { expect, it } from 'vitest';
 import { pluginRuntimeFixture } from './support/plugin-runtime.js';
 import { oauthGrantStore } from '../apps/server/platform/oauth-grants.js';
 import { platformPolicy } from '../packages/core/auth/grants.js';
-import { tunnelPrincipal } from '../apps/server/platform/tunnel-identity.js';
+import { createMcpApiClient, authenticateMcpApiKey, setMcpApiClientPermissions } from '../apps/server/platform/mcp-api-keys.js';
 import { checkTokenCutoff } from '../packages/core/agent/auth.js';
 import { pluginHost } from '../apps/server/plugins/host.js';
 
@@ -27,20 +27,26 @@ it('requires an explicit publication grant and both publication config controls 
   } finally { await f.close(); }
 });
 
-it('keeps Tunnel publication disabled after ceiling expansion until explicit reauthorization', async () => {
+it('keeps API Key publication disabled after ceiling expansion until owner grants it', async () => {
   const f = await pluginRuntimeFixture();
   pluginHost(f.config, f.db);
   try {
-    f.db.prepare("INSERT INTO platform_plugins(id,installed_version,installed,manifest_json,files_json,state,config_json) VALUES('mcp','1.1.0',1,'{}','{}','enabled',?)").run(JSON.stringify({ readOnly: false, allowedPrefixes: ['00-Inbox'] }));
-    const credential = { reference: 'fixture-ref', createdAt: Date.now(), authGeneration: 0 };
-    expect(tunnelPrincipal(f.db, f.principal.id, credential).scopes).not.toContain('blog:publish');
-    f.db.prepare("UPDATE platform_plugins SET config_json=? WHERE id='mcp'").run(JSON.stringify({ readOnly: false, allowPublish: true, allowedPrefixes: ['00-Inbox'] }));
-    const client = tunnelPrincipal(f.db, f.principal.id, credential);
-    expect(client.scopes).not.toContain('blog:publish');
-    oauthGrantStore(f.db).approve(f.principal.id, client.clientId, scopes, ['00-Inbox']);
-    expect(tunnelPrincipal(f.db, f.principal.id, credential).scopes).toContain('blog:publish');
-    f.db.prepare("UPDATE platform_plugins SET config_json=? WHERE id='mcp'").run(JSON.stringify({ readOnly: true, allowPublish: true, allowedPrefixes: ['00-Inbox'] }));
-    expect(tunnelPrincipal(f.db, f.principal.id, credential).scopes).not.toContain('blog:publish');
+    const { currentLibraryIdentity, currentBlogInstanceId } = await import('../packages/core/auth/permissions.js');
+    const knowledge = {enabled:true,ownerId:f.principal.id,instanceId:currentLibraryIdentity(f.db)!.libraryId,actions:['read','write'],resources:{mode:'all' as const}};
+    const base = {version:2 as const,domains:{knowledge}};
+    const expanded = {version:2 as const,domains:{knowledge,blog:{enabled:true,ownerId:f.principal.id,instanceId:currentBlogInstanceId(f.db),actions:['read','publish'],resources:{mode:'all' as const}}}};
+    const configure = (permissionPolicy: unknown) => f.db.prepare("UPDATE platform_plugins SET config_json=? WHERE id='mcp'").run(JSON.stringify({apiKeyEnabled:true,permissionPolicy}));
+    f.db.prepare("INSERT INTO platform_plugins(id,installed_version,installed,manifest_json,files_json,state,config_json) VALUES('mcp','1.4.0',1,'{}','{}','enabled','{}')").run();
+    configure(base);
+    const issued=createMcpApiClient(f.db,f.principal.id,{name:'Blog client',permissionPolicy:base});
+    const call=()=>authenticateMcpApiKey(f.db,'Bearer '+issued.key);
+    expect(call().scopes).not.toContain('blog:publish');
+    configure(expanded);
+    expect(call().scopes).not.toContain('blog:publish');
+    setMcpApiClientPermissions(f.db,f.principal.id,issued.client.clientId,{permissionPolicy:expanded,expectedGrantVersion:issued.client.grantVersion});
+    expect(call().scopes).toContain('blog:publish');
+    configure(base);
+    expect(call().scopes).not.toContain('blog:publish');
   } finally { await f.close(); }
 });
 

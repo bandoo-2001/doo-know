@@ -1,0 +1,14 @@
+[
+  {
+    "project": "desktop",
+    "source": "test-results/desktop/to-doo-focus-history-a-foc-fe745-ut-changing-its-linked-task-desktop/focus-project-history.png",
+    "file": "desktop.png",
+    "sha256": "a0af2c67ebf1ae7e5109d9193c0e954ce7b3723ad2a486bdcc527ae6f49a0ca8"
+  },
+  {
+    "project": "mobile",
+    "source": "test-results/mobile/to-doo-focus-history-a-foc-fe745-ut-changing-its-linked-task-mobile/focus-project-history.png",
+    "file": "mobile.png",
+    "sha256": "35742671ddff05d7a7d8c98339d92de8edee52c8aff56d483bc57f3ec76eb666"
+  }
+]

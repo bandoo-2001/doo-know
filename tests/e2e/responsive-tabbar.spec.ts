@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import type { Locator, Page, TestInfo } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
+import { expandToDooGroup } from '../support/to-doo-ant-controls';
 
 test.beforeEach(async ({ context }) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
@@ -90,6 +91,7 @@ test('tab navigation preserves the unsaved settings leave confirmation', async (
   await page.goto('/?view=apps&app=to-doo&appSection=settings');
   const navigation = tabs(page);
   await expectBottomNavigation(page, navigation);
+  await expandToDooGroup(page, '日期与提醒');
   const zone = page.getByLabel('显示时区', { exact: true });
   await zone.fill('Etc/GMT+5');
   const original = page.url();
@@ -178,7 +180,7 @@ test('tablet rotation switches between bottom tabs and the left rail and closes 
   await expect(rail).toBeVisible();
   const railBox = await rail.boundingBox();
   expect(railBox!.x).toBeCloseTo(0, 0);
-  expect(railBox!.width).toBeCloseTo(60, 0);
+  expect(railBox!.width).toBeCloseTo(64, 0);
   expect(railBox!.height).toBeCloseTo(820, 0);
   await page
     .getByRole('navigation', { name: 'To Doo 主菜单', exact: true })
@@ -262,9 +264,10 @@ test('blog labels fit the phone tabbar and site settings remain reachable', asyn
   await expect(page.locator('.workspace-footer')).toBeHidden();
   await expect(more).toContainText('站点设置');
   await expectBottomNavigation(page, navigation);
-  await navigation.getByRole('button', { name: '分类与标签', exact: true }).click();
+  // Overview exposes the picker with both an empty and an existing blog.
+  await navigation.getByRole('button', { name: '概览', exact: true }).click();
   await page.setViewportSize({ width: 568, height: 320 });
-  await page.getByRole('button', { name: '从笔记中选稿', exact: true }).click();
+  await page.getByRole('button', { name: '开始选稿', exact: true }).click();
   const picker = page.getByRole('dialog', { name: '选择一篇笔记', exact: true });
   await expect(picker).toBeVisible();
   const pickerBox = await picker.boundingBox();
@@ -310,11 +313,12 @@ test('desktop keeps the full left rail and its direct navigation', async ({ page
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/?view=apps&app=to-doo&appSection=calendar');
   await expect(tabs(page)).toBeHidden();
+  await expect(page.locator('.todo-page h1')).toHaveText('日历');
   const rail = page.locator('.workspace-footer');
   await expect(rail).toBeVisible();
   const box = await rail.boundingBox();
   expect(box!.x).toBeCloseTo(0, 0);
-  expect(box!.width).toBeCloseTo(60, 0);
+  expect(box!.width).toBeCloseTo(64, 0);
   expect(box!.height).toBeCloseTo(1000, 0);
   const menu = page.getByRole('navigation', { name: 'To Doo 主菜单', exact: true });
   await expect(menu.getByRole('button', { name: '纪念日', exact: true })).toBeVisible();
@@ -325,7 +329,7 @@ test('desktop keeps the full left rail and its direct navigation', async ({ page
     'page',
   );
   const content = await page.locator('.main-content').boundingBox();
-  expect(content!.x).toBeGreaterThanOrEqual(59);
+  expect(content!.x).toBeCloseTo(64, 0);
   expect(content!.y + content!.height).toBeCloseTo(1000, 0);
   await capture(page, info, 'desktop-rail');
 });

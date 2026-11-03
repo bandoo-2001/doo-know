@@ -24,7 +24,7 @@ export function createToDooOperations(client: KnowledgeClient): Operation[] {
     {
       name: 'query_to_doos',
       description:
-        '按领域、清单、条件和日期窗口分页查询 To Doo。大批提交可用 receiptRequestId 和 nextCursor 分页核对完整回执。长文本指定单个 ids、field、offset、maxBytes、expectedRevision，按 fieldRange.nextByte 续读。资料原文仍需知识权限。',
+        '按领域、清单、条件和日期窗口分页查询 To Doo。专注历史用 kind=focusSession、sort=recent，可按 topicId/from/to 筛选并用 nextCursor 稳定续读；kind=focusOverview 读取独立活动会话及完整今日/累计统计，需要 focus 与 statistics 授权。大批提交可用 receiptRequestId 和 nextCursor 分页核对完整回执。长文本指定单个 ids、field、offset、maxBytes、expectedRevision，按 fieldRange.nextByte 续读。资料原文仍需知识权限。',
       scope: 'to-doo:read',
       readOnly: true,
       input: toDooMcpQuery,

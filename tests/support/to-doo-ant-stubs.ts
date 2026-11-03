@@ -427,8 +427,52 @@ const MenuItem = Vue.defineComponent({
     () =>
       Vue.h('button', { ...attrs, type: 'button', role: 'menuitem' }, slots.default?.()),
 });
+const SubMenu = Vue.defineComponent({
+  props: ['title', 'disabled'],
+  setup:
+    (props, { slots }) =>
+    () =>
+      Vue.h('details', { 'aria-disabled': props.disabled }, [
+        Vue.h('summary', props.title),
+        slots.default?.(),
+      ]),
+});
+const Tabs = Vue.defineComponent({
+  props: ['activeKey'],
+  emits: ['update:activeKey'],
+  setup:
+    (_, { attrs, slots }) =>
+    () =>
+      Vue.h('div', attrs, slots.default?.()),
+});
+const TabPane = Vue.defineComponent({
+  props: ['tab'],
+  setup:
+    (_, { slots }) =>
+    () =>
+      Vue.h('div', slots.default?.()),
+});
+const Form = Vue.defineComponent({
+  props: ['disabled'],
+  emits: ['submit'],
+  setup:
+    (_, { attrs, slots, emit }) =>
+    () =>
+      Vue.h(
+        'form',
+        {
+          ...attrs,
+          onSubmit: (event: Event) => {
+            event.preventDefault();
+            emit('submit', event);
+          },
+        },
+        slots.default?.(),
+      ),
+});
 
 export const toDooAntStubs = {
+  Form,
   Input,
   Textarea,
   InputNumber,
@@ -450,6 +494,9 @@ export const toDooAntStubs = {
   Popover,
   Menu,
   MenuItem,
+  SubMenu,
+  Tabs,
+  TabPane,
 };
 
 export function toDooBoundaryStub(path: string): Vue.Component | undefined {

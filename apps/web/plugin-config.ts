@@ -55,15 +55,6 @@ export function refreshPluginDraft(
   return { ...draft, conflicted: true };
 }
 
-export function pluginFieldVisible(pluginId: string, key: string, mode: unknown) {
-  return !(
-    pluginId === 'mcp' &&
-    ['compatPort', 'tunnelToken', 'tunnelOrigin'].includes(key) &&
-    mode !== 'tunnel' &&
-    mode !== 'both'
-  );
-}
-
 export function serializePluginDraft(draft: PluginConfigDraft, plugin: PluginView) {
   if (
     draft.conflicted ||

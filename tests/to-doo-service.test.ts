@@ -248,7 +248,7 @@ it('rejects cycles and rejects an entire stale batch without editing siblings', 
 });
 it('keeps an externally edited entity intact and exposes a conflict', async () => {
   const id = task('Original');
-  const path = join(config.knowledgeRoot, '_data/apps/to-doo/tasks', id + '.json');
+  const path = join(config.knowledgeRoot, '_doo-data/apps/to-doo/tasks', id + '.json');
   const envelope = JSON.parse(await readFile(path, 'utf8'));
   envelope.data.title = 'External version';
   await writeFile(path, JSON.stringify(envelope));
@@ -378,7 +378,7 @@ it('includes verified app assets in a checkpoint and restores their bytes', asyn
   const { createHash } = await import('node:crypto');
   const bytes = Buffer.from('portable evidence');
   const hash = createHash('sha256').update(bytes).digest('hex');
-  const assetDir = join(config.knowledgeRoot, '_data/apps/to-doo/assets');
+  const assetDir = join(config.knowledgeRoot, '_doo-data/apps/to-doo/assets');
   await mkdir(assetDir, { recursive: true });
   await writeFile(join(assetDir, hash), bytes);
   const checkpoint = service.exportCheckpoint();
@@ -393,15 +393,15 @@ it('includes verified app assets in a checkpoint and restores their bytes', asyn
   connections.push(database);
   const restored = createToDooService(dest, database, noteService(dest, database));
   restored.importCheckpoint(checkpoint, 'asset-import');
-  expect(await readFile(join(dest.knowledgeRoot, '_data/apps/to-doo/assets', hash))).toEqual(bytes);
+  expect(await readFile(join(dest.knowledgeRoot, '_doo-data/apps/to-doo/assets', hash))).toEqual(bytes);
   restored.close();
 });
 it('replays attachment commands after later task edits but rejects a changed attachment body', async () => {
   const { createHash } = await import('node:crypto');
   const bytes = Buffer.from('proof'),
     hash = createHash('sha256').update(bytes).digest('hex');
-  await mkdir(join(config.knowledgeRoot, '_data/apps/to-doo/assets'), { recursive: true });
-  await writeFile(join(config.knowledgeRoot, '_data/apps/to-doo/assets', hash), bytes);
+  await mkdir(join(config.knowledgeRoot, '_doo-data/apps/to-doo/assets'), { recursive: true });
+  await writeFile(join(config.knowledgeRoot, '_doo-data/apps/to-doo/assets', hash), bytes);
   const id = task('Attach evidence'),
     base = service.getEntity('task', id)!;
   const request = {

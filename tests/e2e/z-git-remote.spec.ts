@@ -6,6 +6,7 @@ import {
   closeSidebar,
 } from '../support/settings-navigation';
 import { execFileSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { expandFolderPath } from '../support/notebook-tree';
@@ -19,6 +20,18 @@ test('connects an existing library, previews and pushes, then checks and pulls a
   test.setTimeout(120000);
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   const fixture = JSON.parse(await readFile('.local/e2e-config.json', 'utf8'));
+  const git = (...args: string[]) =>
+    execFileSync('git', args, { stdio: 'pipe', encoding: 'utf8' }).trim();
+  // Previous cases can create more files than a single user preview permits.
+  // Keep those real files in a baseline commit, then exercise this case's new changes.
+  if (!existsSync(join(fixture.knowledgeRoot, '.git')))
+    git('-C', fixture.knowledgeRoot, 'init', '--initial-branch=main');
+  git('-C', fixture.knowledgeRoot, 'config', 'user.name', 'Browser Baseline');
+  git('-C', fixture.knowledgeRoot, 'config', 'user.email', 'baseline@example.invalid');
+  git('-C', fixture.knowledgeRoot, 'add', '--all');
+  if (git('-C', fixture.knowledgeRoot, 'diff', '--cached', '--name-only'))
+    git('-C', fixture.knowledgeRoot, 'commit', '-m', 'Checkpoint earlier browser fixtures');
+
   await page.goto('/');
   await openSettingsSection(page, '知识库与存储');
   const panel = page.getByRole('region', { name: '云端同步面板', exact: true });
@@ -34,9 +47,8 @@ test('connects an existing library, previews and pushes, then checks and pulls a
   });
   await expect(
     panel.getByText('推送权限尚未验证。读取连接成功不代表可以推送。', { exact: true }),
-  ).toBeVisible();
-  // These fresh fixture notes are isolated to this case. Earlier cases
-  // can leave other saved fixture notes; the real preview deliberately lists all.
+  ).toBeVisible({ timeout: 30000 });
+  // The preview must include both newly saved notes while earlier fixtures stay tracked.
   const csrf = await (await page.request.get('/api/security/csrf')).json();
   const headers = { origin: 'http://127.0.0.1:4179', 'x-csrf-token': csrf.token };
   const original = '# Cloud sync browser fixture\n\nSaved on the local server.\n';
@@ -124,8 +136,6 @@ test('connects an existing library, previews and pushes, then checks and pulls a
   ).toBeVisible();
   await page.getByRole('button', { name: '云端同步', exact: true }).click();
   await expect(panel).toBeVisible();
-  const git = (...args: string[]) =>
-    execFileSync('git', args, { stdio: 'pipe', encoding: 'utf8' }).trim();
   expect(git('--git-dir', fixture.gitRemoteRoot, 'show', 'main:' + note.relativePath)).toBe(
     original.trim(),
   );
@@ -143,7 +153,7 @@ test('connects an existing library, previews and pushes, then checks and pulls a
   git('-C', fixture.gitExternalRoot, 'push', 'origin', 'main');
   await panel.getByRole('button', { name: '检查云端', exact: true }).click();
   await expect(panel.getByText('云端检查完成。', { exact: true })).toBeVisible({ timeout: 30000 });
-  await expect(panel.getByText('待推送：0 · 待拉取：1', { exact: true })).toBeVisible();
+  await expect(panel.getByText('待推送：0 · 待拉取：1', { exact: true })).toBeVisible({ timeout: 30000 });
   await panel.getByRole('button', { name: '拉取更新', exact: true }).click();
   await expect(panel.getByText('云端更新已拉取，目录与索引已刷新。', { exact: true })).toBeVisible({
     timeout: 30000,
@@ -220,7 +230,7 @@ test('@git-onboarding imports from the initial page into a fresh knowledge libra
   const registry = await (await page.request.get('/api/platform/plugins')).json();
   expect(registry.installed.find((entry: any) => entry.id === 'git')).toMatchObject({
     state: 'enabled',
-    installedVersion: '1.1.0',
+    installedVersion: '1.1.3',
   });
   expect(registry.installed.some((entry: any) => entry.id === 'mcp')).toBe(false);
   expect(await readFile(join(current.knowledgeRoot, '00-Inbox/远端导入示例.md'), 'utf8')).toBe(

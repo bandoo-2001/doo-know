@@ -71,10 +71,17 @@ test('storage categories keep their amounts and file counts in a compact readabl
 }, info) => {
   const mobile = info.project.name === 'mobile';
   await page.setViewportSize({ width: mobile ? 390 : 1280, height: mobile ? 844 : 720 });
+  const statistics = page.waitForResponse((response) =>
+    new URL(response.url()).pathname === '/api/manage/storage' && response.request().method() === 'GET',
+  );
   await page.goto('/?view=settings&section=library');
   const storage = page.getByRole('region', { name: '存储占用', exact: true });
   await expect(storage).toBeVisible();
   await closeSidebar(page);
+  const response = await statistics;
+  expect(response.ok()).toBe(true);
+  expect(await response.finished()).toBeNull();
+  await expect(storage.getByRole('table', { name: '各类别存储占用', exact: true })).toBeVisible();
   for (const category of [
     '笔记原文',
     '附件与其他文件',

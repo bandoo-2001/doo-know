@@ -1,5 +1,8 @@
 import { test, expect, type Page } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { diagramRendererVersions } from '../../shared/diagram-primary';
+import { exportOwnerWhiteboardPng } from '../support/owner-whiteboard-png';
 const cookiesPath = process.env.DOOKNOW_SHARE_E2E_COOKIES || '.local/e2e-cookies.json';
 async function seed(page: Page, content = '# 分享权限验收\n\n原始正文。') {
   await page.context().addCookies(JSON.parse(await readFile(cookiesPath, 'utf8')));
@@ -373,7 +376,36 @@ for (const authenticated of [false, true])
         content: JSON.stringify({
           type: 'excalidraw',
           version: 2,
-          elements: [],
+          elements: [
+            {
+              id: 'shared-rectangle',
+              type: 'rectangle',
+              x: 20,
+              y: 20,
+              width: 200,
+              height: 90,
+              angle: 0,
+              strokeColor: '#1e1e1e',
+              backgroundColor: '#dbeafe',
+              fillStyle: 'solid',
+              strokeWidth: 2,
+              strokeStyle: 'solid',
+              roughness: 1,
+              opacity: 100,
+              groupIds: [],
+              frameId: null,
+              index: 'a0',
+              roundness: { type: 3 },
+              seed: 1,
+              version: 1,
+              versionNonce: 1,
+              isDeleted: false,
+              boundElements: null,
+              updated: 1,
+              link: null,
+              locked: false,
+            },
+          ],
           appState: { viewBackgroundColor: '#ffffff' },
           files: {},
         }),
@@ -382,6 +414,21 @@ for (const authenticated of [false, true])
     });
     expect(boardResponse.status()).toBe(201);
     const board = await boardResponse.json();
+    // A legacy JSON scene has no public rendition until its owner fixes a real PNG.
+    const png = await exportOwnerWhiteboardPng(page, board.id);
+    const sourceHash = createHash('sha256').update(board.content).digest('hex');
+    const prepared = await page.request.post(`/api/notes/${board.id}/diagram/legacy-preview`, {
+      headers,
+      data: {
+        expectedDocumentHash: sourceHash,
+        expectedSourceHash: sourceHash,
+        pngBase64: png.toString('base64'),
+        renderer: diagramRendererVersions.whiteboard,
+        config: {},
+        requestId: crypto.randomUUID(),
+      },
+    });
+    expect(prepared.status(), await prepared.text()).toBe(200);
     const { note } = await seed(
       page,
       `# 含引用白板的分享\n\n\`\`\`excalidraw\n${board.id}\n\`\`\`\n\n父笔记正文。`,
@@ -412,13 +459,25 @@ for (const authenticated of [false, true])
       if (path.startsWith('/api/') && !path.startsWith('/api/public/')) privateRequests.push(path);
     });
     await reader.goto(origin + share.url);
-    await expect(reader.locator('.diagram-card')).toBeVisible();
+    const publicPreview = reader.locator('.markdown img').first();
+    await expect(publicPreview).toBeVisible();
+    await expect
+      .poll(() => publicPreview.evaluate((image: HTMLImageElement) => image.naturalWidth))
+      .toBeGreaterThan(10);
+    expect(boardResponses).toEqual([]);
     await expect(reader.getByRole('button', { name: '编辑设计', exact: true })).toHaveCount(0);
     await reader.getByRole('button', { name: '编辑笔记', exact: true }).click();
     await expect(
       reader.locator('.public-share-editor .document-diagram .diagram-card'),
     ).toBeVisible();
-    await expect.poll(() => boardResponses).toEqual([200, 200]);
+    await expect.poll(() => boardResponses).toEqual([200]);
+    const resource = await (
+      await reader.request.get(`/api/public/shares/${share.token}/whiteboards/${board.id}`)
+    ).json();
+    expect(resource.capabilities).toEqual({ canEdit: false, canDownloadSource: false });
+    expect(resource.source.content).toBeUndefined();
+    expect(resource.source.path).toBeUndefined();
+    expect(resource.preview.state).toBe('ready');
     await expect(reader.locator('.public-share-editor .diagram-state[role=status]')).toHaveCount(0);
     await expect(reader.getByRole('button', { name: '编辑设计', exact: true })).toHaveCount(0);
     await expect(reader.getByRole('button', { name: '编辑源码', exact: true })).toHaveCount(0);

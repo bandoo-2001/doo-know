@@ -130,6 +130,81 @@ async function fixture() {
 }
 
 describe('actionable reminder context', () => {
+  it.each(['snoozed', 'dismissed'] as const)(
+    'retains a legacy %s reminder instead of raising it again after upgrade',
+    async (userState) => {
+      const f = await fixture();
+      f.setClock('2026-11-01T12:00:00Z');
+      f.save('habit', {
+        id: 'legacy',
+        name: 'read',
+        startDate: '2026-11-01',
+        reminders: [{ id: 'reminder', anchor: 'occurrence', allDayTime: '09:00' }],
+      });
+      // Fixed identifiers produced by the pre-simplification reminder schedule.
+      const event = f.save('reminderEvent', {
+        id: 'rem_a66c10fc568f7d12ffafe634b6970c55c6e7391b',
+        sourceType: 'habit',
+        sourceId: 'legacy',
+        occurrenceKey: '2026-11-01',
+        ruleId: 'reminder',
+        scheduleRevision: 'h_5d84976ab19fda0ed460792c5cc97395',
+        scheduledAt: '2026-11-01T09:00:00.000Z',
+        firstRaisedAt: '2026-11-01T09:00:00.000Z',
+        userState,
+        snoozedUntil: userState === 'snoozed' ? '2026-11-01T15:00:00Z' : null,
+        deliveryGeneration: userState === 'snoozed' ? 1 : 0,
+      });
+      await f.runtime.process();
+      expect(f.events()).toHaveLength(1);
+      expect(f.events()[0]).toMatchObject({ id: event.id, userState });
+      expect((await f.pending()).json().reminders).toHaveLength(0);
+      if (userState === 'snoozed') {
+        f.setClock('2026-11-01T15:00:00Z');
+        expect((await f.get(event.id)).statusCode).toBe(200);
+        expect((await f.pending()).json().reminders.map((card: any) => card.event.id)).toEqual([
+          event.id,
+        ]);
+      }
+    },
+  );
+
+  it('completes one day of a weekly ordinary habit without requesting a quantity', async () => {
+    const f = await fixture();
+    const habit = f.save('habit', {
+      name: '每周运动',
+      goalMode: 'checkin',
+      frequency: 'weekly',
+      target: 3,
+      startDate: '2026-10-26',
+      reminders: [{ id: 'daily', allDayTime: '09:00' }],
+    });
+    await f.runtime.process();
+    const event = f.events().find((e) => e.sourceId === habit.id)!;
+    const result = await f.complete(event, 'weekly-one-day');
+    expect(result.statusCode, result.body).toBe(200);
+    expect(
+      f.service.snapshot({ all: true }).habitEntries.filter((e) => e.habitId === habit.id),
+    ).toMatchObject([{ amount: 1, localDate: '2026-10-30' }]);
+    expect((await f.pending()).json().reminders).toHaveLength(0);
+  });
+
+  it('does not remind an interval habit on its rest days', async () => {
+    const f = await fixture();
+    f.save('habit', {
+      name: '隔天运动',
+      goalMode: 'checkin',
+      intervalDays: 2,
+      startDate: '2026-10-29',
+      reminders: [{ id: 'daily', allDayTime: '09:00' }],
+    });
+    await f.runtime.process();
+    expect((await f.pending()).json().reminders).toHaveLength(0);
+    f.setClock('2026-10-31T09:00:00Z');
+    await f.runtime.process();
+    expect((await f.pending()).json().reminders).toHaveLength(1);
+  });
+
   it('isolates completion receipts when the SQLite host adopts another dataset', async () => {
     const f = await fixture();
     const oldHabit = f.save('habit', {

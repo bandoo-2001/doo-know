@@ -1,0 +1,238 @@
+Listing tests:
+  [desktop] › app-main-menu.spec.ts:11:1 › app rail owns main functions and settings while only contextual pages have a secondary directory
+  [desktop] › app-main-menu.spec.ts:62:1 › returning to DooKnow preserves the mounted note draft and reentering an app restores its location
+  [desktop] › app-main-menu.spec.ts:108:1 › cancelled app settings navigation and return retain both the route and the unsaved form
+  [desktop] › app-main-menu.spec.ts:136:1 › cancelling browser back from unsaved app settings restores its URL and permits a later confirmed back
+  [desktop] › app-main-menu.spec.ts:162:1 › the default app hub remains reachable and unpinned app cards restore the last app page
+  [desktop] › app-main-menu.spec.ts:197:1 › app return restores a DooKnow collection instead of losing its last location
+  [desktop] › app-shortcuts.spec.ts:7:1 › pins apps without opening them, retains shortcuts after reload and removes them
+  [desktop] › app-shortcuts.spec.ts:37:1 › opening a pinned app retains the mounted unsaved note
+  [desktop] › app-shortcuts.spec.ts:59:1 › returning to the default menu respects the unsaved To Doo confirmation before opening a pinned app
+  [desktop] › blog.spec.ts:14:1 › blog manual publication keeps the original and public snapshots independent
+  [desktop] › blog.spec.ts:196:1 › blog preserves per-article edits through delayed reads and real version conflicts
+  [desktop] › blog.spec.ts:336:1 › a failed post-save preview refresh cannot publish an unreviewed source in the next click
+  [desktop] › notes-first.spec.ts:7:1 › keeps note identity, secondary actions and editor preferences usable without losing the draft
+  [desktop] › notes-first.spec.ts:83:1 › allows keyboard and pointer resizing of the desktop directory and remembers the width
+  [desktop] › notes-first.spec.ts:117:1 › explains invalid plugin input and confirms a successful save without sending invalid data
+  [desktop] › responsive-layout.spec.ts:10:1 › keeps navigation reachable and content scrolling inside the window with a long directory
+  [desktop] › responsive-tabbar.spec.ts:37:1 › phone tabs switch pages directly and keep a selected overflow page identifiable
+  [desktop] › responsive-tabbar.spec.ts:88:1 › tab navigation preserves the unsaved settings leave confirmation
+  [desktop] › responsive-tabbar.spec.ts:115:1 › More and account menus keep keyboard focus inside and close one level at a time
+  [desktop] › responsive-tabbar.spec.ts:158:1 › tablet rotation switches between bottom tabs and the left rail and closes overflow
+  [desktop] › responsive-tabbar.spec.ts:197:1 › rotating with the account popup open closes both menus and restores a visible focus target
+  [desktop] › responsive-tabbar.spec.ts:224:1 › large touch tablet portrait keeps bottom tabs
+  [desktop] › responsive-tabbar.spec.ts:232:1 › blog labels fit the phone tabbar and site settings remain reachable
+  [desktop] › responsive-tabbar.spec.ts:283:1 › short phone landscape keeps overflow controls above the bottom tabs
+  [desktop] › responsive-tabbar.spec.ts:309:1 › desktop keeps the full left rail and its direct navigation
+  [desktop] › to-doo-antdv-values.spec.ts:61:1 › real Ant Select saves null, false, two tag identifiers and numeric zero
+  [desktop] › to-doo-antdv-values.spec.ts:121:1 › closing the portaled outcome Modal hides it and reopening preserves the unsaved draft
+  [desktop] › to-doo-antdv.spec.ts:84:1 › period statistics and progress follow real seven-day, thirty-day and custom date requests
+  [desktop] › to-doo-antdv.spec.ts:167:1 › Ant review modal preserves a canceled discard and saves a fresh local-date review once
+  [desktop] › to-doo-antdv.spec.ts:232:1 › focus and habit quantity modals cancel without writes and persist explicit numeric receipts
+  [desktop] › to-doo-antdv.spec.ts:334:1 › 320px dark Ant calendar popup and review modal keep their controls inside the viewport
+  [desktop] › to-doo-calendar-range.spec.ts:9:1 › a month query includes the entire displayed grid rather than only the anchor week
+  [desktop] › to-doo-calendar-range.spec.ts:43:1 › the initial review interval uses dataset time rather than a different browser day
+  [desktop] › to-doo-capture-polish.spec.ts:5:1 › quick capture schedules explicitly after recognizing a date and retains the chosen plan
+  [desktop] › to-doo-capture-polish.spec.ts:34:1 › Q focuses capture without stealing keys from text entry
+  [desktop] › to-doo-capture-polish.spec.ts:50:1 › clearing the contextual plan in Today survives a browser reload
+  [desktop] › to-doo-default-view.spec.ts:7:1 › saved default view applies to a fresh opening while explicit navigation and return memory win
+  [desktop] › to-doo-detail-audit.spec.ts:20:1 › moving a task to another list clears its old section and saves successfully
+  [desktop] › to-doo-detail-audit.spec.ts:55:1 › invalid typed deadline prevents saving an unrelated title change
+  [desktop] › to-doo-detail-audit.spec.ts:82:1 › input composition does not submit a task through the save shortcut
+  [desktop] › to-doo-detail-audit.spec.ts:110:1 › optional detail fields stay folded and remain editable when requested
+  [desktop] › to-doo-detail-audit.spec.ts:145:1 › 320px dark detail keeps its fields and footer inside the screen
+  [desktop] › to-doo-detail-audit.spec.ts:193:1 › narrow task detail contains keyboard focus and Escape keeps its draft
+  [desktop] › to-doo-focus-history.spec.ts:6:1 › leaving focus stops polling and returning reloads the kept page
+  [desktop] › to-doo-focus-history.spec.ts:32:1 › break defaults follow the configured rhythm and zero skips without creating a session
+  [desktop] › to-doo-focus-history.spec.ts:108:1 › phone focus keeps one header and a compact timer with optional settings
+  [desktop] › to-doo-focus-history.spec.ts:124:1 › a focus project saves records, survives refresh and archives without changing its linked task
+  [desktop] › to-doo-focus-history.spec.ts:196:1 › 1205 older records do not hide the current timer and history filters use real paging
+  [desktop] › to-doo-focus-history.spec.ts:269:1 › another window can finish the timer while a local note survives read and save failures
+  [desktop] › to-doo-focus-history.spec.ts:314:1 › typing while finish is pending keeps the newer note after the receipt arrives
+  [desktop] › to-doo-focus-history.spec.ts:359:1 › saving a retained note detects another window text and can preserve both versions
+  [desktop] › to-doo-focus-history.spec.ts:404:1 › an interrupted session resumes from history and active note conflicts preserve both versions
+  [desktop] › to-doo-forms.spec.ts:31:1 › a short habit form saves its optional settings and retains them when reopened
+  [desktop] › to-doo-forms.spec.ts:78:1 › an entity form locks the submitted fields while saving and restores them after failure
+  [desktop] › to-doo-forms.spec.ts:121:1 › a valid lunar day outside the Gregorian month can be saved and reopened as its original date
+  [desktop] › to-doo-forms.spec.ts:164:1 › invalid Gregorian input stays visible and cannot silently save the previous date
+  [desktop] › to-doo-forms.spec.ts:194:1 › all-day schedule hides irrelevant controls, restores the timed draft and persists a valid day
+  [desktop] › to-doo-forms.spec.ts:234:1 › changing list type does not erase its hidden goal fields
+  [desktop] › to-doo-forms.spec.ts:265:1 › invalid required settings inside a closed group are revealed on save
+  [desktop] › to-doo-forms.spec.ts:281:1 › task settings shortcuts open the existing editors with one click
+  [desktop] › to-doo-forms.spec.ts:295:1 › preference groups preserve folded values while saving a common setting
+  [desktop] › to-doo-forms.spec.ts:317:1 › settings tabs preserve drafts and keep unrelated forms out of preferences
+  [desktop] › to-doo-forms.spec.ts:342:1 › header save reveals a folded invalid preference and accepts a zero break
+  [desktop] › to-doo-forms.spec.ts:369:3 › preferences typed while a save is pending remain as the next draft: new value
+  [desktop] › to-doo-forms.spec.ts:369:3 › preferences typed while a save is pending remain as the next draft: return to original value
+  [desktop] › to-doo-habit-cards.spec.ts:4:1 › a failed quantity write retains the input and retries the same request once
+  [desktop] › to-doo-habit-cards.spec.ts:50:1 › habit cards distinguish today from weekly achievement and include all pages before recording, skipping and pausing
+  [desktop] › to-doo-lazy-pages.spec.ts:5:1 › task entry skips other page modules and a failed page can retry without losing the task draft
+  [desktop] › to-doo-lazy-pages.spec.ts:38:1 › page-header actions wait for a delayed review module
+  [desktop] › to-doo-light-sidebar.spec.ts:39:1 › a clean narrow dark task shows its content and date summary without edit controls
+  [desktop] › to-doo-light-sidebar.spec.ts:72:1 › explicit save preserves failed title and description edits and retries the same submission
+  [desktop] › to-doo-light-sidebar.spec.ts:133:1 › deadline editing updates the summary and stays closed after reopening or changing tasks
+  [desktop] › to-doo-light-sidebar.spec.ts:192:1 › title completion preserves an unsaved description and saving it keeps the task completed
+  [desktop] › to-doo-loading.spec.ts:60:1 › an initial task request shows Ant skeletons until the usable task list arrives
+  [desktop] › to-doo-loading.spec.ts:90:1 › a failed refresh retains the task DOM, search focus and content position
+  [desktop] › to-doo-loading.spec.ts:143:1 › reduced motion keeps the loading placeholder static and an initial failure can retry
+  [desktop] › to-doo-loading.spec.ts:179:1 › a cold To Doo component download has the same branded loading feedback
+  [desktop] › to-doo-loading.spec.ts:208:1 › returning during a cold To Doo download is safe and its late completion preserves the destination
+  [desktop] › to-doo-mcp-roundtrip.spec.ts:9:1 › browser writes and SDK writes share the actual dataset and live resource grants
+  [desktop] › to-doo-mobile-lists.spec.ts:38:1 › mobile navigation opens personal lists and quick capture inherits the selected list
+  [desktop] › to-doo-mobile-lists.spec.ts:100:1 › closing mobile new-list creation keeps the current list selected
+  [desktop] › to-doo-notification-history.spec.ts:22:1 › recent notifications and mark-all include unread records beyond the first 200
+  [desktop] › to-doo-notification-history.spec.ts:97:1 › a recurring task notification opens its own execution rather than the first task execution
+  [desktop] › to-doo-push-worker.spec.ts:9:1 › the real notification worker receives push, wakes after restart and preserves the task draft
+  [desktop] › to-doo-reminders.spec.ts:61:1 › older reminder summaries use the app badge and live cards stay below edit dialogs
+  [desktop] › to-doo-reminders.spec.ts:99:1 › workspace reminder card completes a real task and fits the viewport
+  [desktop] › to-doo-reminders.spec.ts:120:1 › activating a desktop notification keeps the current unsaved note and opens its reminder
+  [desktop] › to-doo-reminders.spec.ts:169:1 › cold notification links open the right habit and record the entered amount once
+  [desktop] › to-doo-reminders.spec.ts:189:1 › closing a cold notification card prevents that generation from reopening on refresh
+  [desktop] › to-doo-reminders.spec.ts:202:1 › switching from an exact reminder occurrence to another task clears the old occurrence
+  [desktop] › to-doo-review-period.spec.ts:9:1 › saving a review retains the applied interval when the following refresh fails
+  [desktop] › to-doo-task-row-clarity.spec.ts:26:1 › the opened recurring occurrence is active independently of batch selection
+  [desktop] › to-doo-task-row-clarity.spec.ts:75:1 › plan and deadline labels keep an overdue deadline separate from tomorrow’s plan
+  [desktop] › to-doo-unified-shell.spec.ts:6:1 › a long page title leaves the main action visible on a narrow screen
+  [desktop] › to-doo-unified-shell.spec.ts:32:1 › the shared header keeps save visible while a long settings form scrolls
+  [desktop] › to-doo-unified-shell.spec.ts:55:1 › desktop pages share the global header and contextual layout boundaries
+  [desktop] › to-doo-unified-shell.spec.ts:126:3 › the light shell and task detail fit all supported widths and the host navigation
+  [desktop] › to-doo-unified-shell.spec.ts:126:3 › the dark shell and task detail fit all supported widths and the host navigation
+  [desktop] › to-doo-ux.spec.ts:20:1 › quick add today persists its plan without opening details and keeps completed tasks folded
+  [desktop] › to-doo-ux.spec.ts:80:1 › quick add inherits the selected list and clearing filters restores tasks across views
+  [desktop] › to-doo-ux.spec.ts:129:1 › quick add keeps its draft after a failed POST and retries into real server data
+  [desktop] › to-doo-ux.spec.ts:166:1 › today and inbox quick navigation survive reload and browser history
+  [desktop] › to-doo-ux.spec.ts:192:1 › wide task details continue the quick draft and submit exactly one real task
+  [desktop] › to-doo-ux.spec.ts:227:1 › discarding a wide new-task detail clears its original list draft and preserves another list
+  [desktop] › to-doo-ux.spec.ts:274:1 › quick entry stays usable in a 320px dark workspace
+  [desktop] › to-doo-ux.spec.ts:297:1 › deleting a list immediately removes it from the sidebar catalog
+  [desktop] › to-doo-ux.spec.ts:319:1 › retrying a deleted list refreshes the sidebar after its editor was closed
+  [desktop] › to-doo-ux.spec.ts:351:3 › quick view time zones › initial today quick view uses the loaded workspace time zone across midnight
+  [desktop] › to-doo-visible-workspace.spec.ts:29:1 › primary tools and contextual task directories are discoverable without expanding hidden groups
+  [desktop] › to-doo-visible-workspace.spec.ts:63:1 › matrix uses four distinguishable surfaces and explains each action without wasting the viewport
+  [desktop] › to-doo-visible-workspace.spec.ts:116:1 › mobile navigation keeps keyboard focus inside and restores the opener on Escape
+  [desktop] › to-doo-visible-workspace.spec.ts:143:1 › leaving from navigation keeps focus on the unsaved confirmation and retains a cancelled draft
+  [desktop] › to-doo-visible-workspace.spec.ts:169:1 › priority edits persist independently from visible matrix classification and dates
+  [desktop] › to-doo.spec.ts:18:1 › To Doo creates a real goal and task, preserves edits, completes and survives refresh
+  [desktop] › to-doo.spec.ts:97:1 › all To Doo sections are reachable on narrow and dark workspaces without overflow
+  [desktop] › to-doo.spec.ts:169:1 › focus, habit check-ins, anniversary and real CSV import/export use durable server data
+  [desktop] › to-doo.spec.ts:259:3 › To Doo source and evidence › an unsaved note can create a linked action and a real outcome note without overwriting its source
+  [desktop] › to-doo.spec.ts:413:1 › bulk and cascade completion freeze execution membership and persist their actual states
+  [mobile] › app-main-menu.spec.ts:11:1 › app rail owns main functions and settings while only contextual pages have a secondary directory
+  [mobile] › app-main-menu.spec.ts:62:1 › returning to DooKnow preserves the mounted note draft and reentering an app restores its location
+  [mobile] › app-main-menu.spec.ts:108:1 › cancelled app settings navigation and return retain both the route and the unsaved form
+  [mobile] › app-main-menu.spec.ts:136:1 › cancelling browser back from unsaved app settings restores its URL and permits a later confirmed back
+  [mobile] › app-main-menu.spec.ts:162:1 › the default app hub remains reachable and unpinned app cards restore the last app page
+  [mobile] › app-main-menu.spec.ts:197:1 › app return restores a DooKnow collection instead of losing its last location
+  [mobile] › app-shortcuts.spec.ts:7:1 › pins apps without opening them, retains shortcuts after reload and removes them
+  [mobile] › app-shortcuts.spec.ts:37:1 › opening a pinned app retains the mounted unsaved note
+  [mobile] › app-shortcuts.spec.ts:59:1 › returning to the default menu respects the unsaved To Doo confirmation before opening a pinned app
+  [mobile] › blog.spec.ts:14:1 › blog manual publication keeps the original and public snapshots independent
+  [mobile] › blog.spec.ts:196:1 › blog preserves per-article edits through delayed reads and real version conflicts
+  [mobile] › blog.spec.ts:336:1 › a failed post-save preview refresh cannot publish an unreviewed source in the next click
+  [mobile] › notes-first.spec.ts:7:1 › keeps note identity, secondary actions and editor preferences usable without losing the draft
+  [mobile] › notes-first.spec.ts:83:1 › allows keyboard and pointer resizing of the desktop directory and remembers the width
+  [mobile] › notes-first.spec.ts:117:1 › explains invalid plugin input and confirms a successful save without sending invalid data
+  [mobile] › responsive-layout.spec.ts:10:1 › keeps navigation reachable and content scrolling inside the window with a long directory
+  [mobile] › responsive-tabbar.spec.ts:37:1 › phone tabs switch pages directly and keep a selected overflow page identifiable
+  [mobile] › responsive-tabbar.spec.ts:88:1 › tab navigation preserves the unsaved settings leave confirmation
+  [mobile] › responsive-tabbar.spec.ts:115:1 › More and account menus keep keyboard focus inside and close one level at a time
+  [mobile] › responsive-tabbar.spec.ts:158:1 › tablet rotation switches between bottom tabs and the left rail and closes overflow
+  [mobile] › responsive-tabbar.spec.ts:197:1 › rotating with the account popup open closes both menus and restores a visible focus target
+  [mobile] › responsive-tabbar.spec.ts:224:1 › large touch tablet portrait keeps bottom tabs
+  [mobile] › responsive-tabbar.spec.ts:232:1 › blog labels fit the phone tabbar and site settings remain reachable
+  [mobile] › responsive-tabbar.spec.ts:283:1 › short phone landscape keeps overflow controls above the bottom tabs
+  [mobile] › responsive-tabbar.spec.ts:309:1 › desktop keeps the full left rail and its direct navigation
+  [mobile] › to-doo-antdv-values.spec.ts:61:1 › real Ant Select saves null, false, two tag identifiers and numeric zero
+  [mobile] › to-doo-antdv-values.spec.ts:121:1 › closing the portaled outcome Modal hides it and reopening preserves the unsaved draft
+  [mobile] › to-doo-antdv.spec.ts:84:1 › period statistics and progress follow real seven-day, thirty-day and custom date requests
+  [mobile] › to-doo-antdv.spec.ts:167:1 › Ant review modal preserves a canceled discard and saves a fresh local-date review once
+  [mobile] › to-doo-antdv.spec.ts:232:1 › focus and habit quantity modals cancel without writes and persist explicit numeric receipts
+  [mobile] › to-doo-antdv.spec.ts:334:1 › 320px dark Ant calendar popup and review modal keep their controls inside the viewport
+  [mobile] › to-doo-calendar-range.spec.ts:9:1 › a month query includes the entire displayed grid rather than only the anchor week
+  [mobile] › to-doo-calendar-range.spec.ts:43:1 › the initial review interval uses dataset time rather than a different browser day
+  [mobile] › to-doo-capture-polish.spec.ts:5:1 › quick capture schedules explicitly after recognizing a date and retains the chosen plan
+  [mobile] › to-doo-capture-polish.spec.ts:34:1 › Q focuses capture without stealing keys from text entry
+  [mobile] › to-doo-capture-polish.spec.ts:50:1 › clearing the contextual plan in Today survives a browser reload
+  [mobile] › to-doo-default-view.spec.ts:7:1 › saved default view applies to a fresh opening while explicit navigation and return memory win
+  [mobile] › to-doo-detail-audit.spec.ts:20:1 › moving a task to another list clears its old section and saves successfully
+  [mobile] › to-doo-detail-audit.spec.ts:55:1 › invalid typed deadline prevents saving an unrelated title change
+  [mobile] › to-doo-detail-audit.spec.ts:82:1 › input composition does not submit a task through the save shortcut
+  [mobile] › to-doo-detail-audit.spec.ts:110:1 › optional detail fields stay folded and remain editable when requested
+  [mobile] › to-doo-detail-audit.spec.ts:145:1 › 320px dark detail keeps its fields and footer inside the screen
+  [mobile] › to-doo-detail-audit.spec.ts:193:1 › narrow task detail contains keyboard focus and Escape keeps its draft
+  [mobile] › to-doo-focus-history.spec.ts:6:1 › leaving focus stops polling and returning reloads the kept page
+  [mobile] › to-doo-focus-history.spec.ts:32:1 › break defaults follow the configured rhythm and zero skips without creating a session
+  [mobile] › to-doo-focus-history.spec.ts:108:1 › phone focus keeps one header and a compact timer with optional settings
+  [mobile] › to-doo-focus-history.spec.ts:124:1 › a focus project saves records, survives refresh and archives without changing its linked task
+  [mobile] › to-doo-focus-history.spec.ts:196:1 › 1205 older records do not hide the current timer and history filters use real paging
+  [mobile] › to-doo-focus-history.spec.ts:269:1 › another window can finish the timer while a local note survives read and save failures
+  [mobile] › to-doo-focus-history.spec.ts:314:1 › typing while finish is pending keeps the newer note after the receipt arrives
+  [mobile] › to-doo-focus-history.spec.ts:359:1 › saving a retained note detects another window text and can preserve both versions
+  [mobile] › to-doo-focus-history.spec.ts:404:1 › an interrupted session resumes from history and active note conflicts preserve both versions
+  [mobile] › to-doo-forms.spec.ts:31:1 › a short habit form saves its optional settings and retains them when reopened
+  [mobile] › to-doo-forms.spec.ts:78:1 › an entity form locks the submitted fields while saving and restores them after failure
+  [mobile] › to-doo-forms.spec.ts:121:1 › a valid lunar day outside the Gregorian month can be saved and reopened as its original date
+  [mobile] › to-doo-forms.spec.ts:164:1 › invalid Gregorian input stays visible and cannot silently save the previous date
+  [mobile] › to-doo-forms.spec.ts:194:1 › all-day schedule hides irrelevant controls, restores the timed draft and persists a valid day
+  [mobile] › to-doo-forms.spec.ts:234:1 › changing list type does not erase its hidden goal fields
+  [mobile] › to-doo-forms.spec.ts:265:1 › invalid required settings inside a closed group are revealed on save
+  [mobile] › to-doo-forms.spec.ts:281:1 › task settings shortcuts open the existing editors with one click
+  [mobile] › to-doo-forms.spec.ts:295:1 › preference groups preserve folded values while saving a common setting
+  [mobile] › to-doo-forms.spec.ts:317:1 › settings tabs preserve drafts and keep unrelated forms out of preferences
+  [mobile] › to-doo-forms.spec.ts:342:1 › header save reveals a folded invalid preference and accepts a zero break
+  [mobile] › to-doo-forms.spec.ts:369:3 › preferences typed while a save is pending remain as the next draft: new value
+  [mobile] › to-doo-forms.spec.ts:369:3 › preferences typed while a save is pending remain as the next draft: return to original value
+  [mobile] › to-doo-habit-cards.spec.ts:4:1 › a failed quantity write retains the input and retries the same request once
+  [mobile] › to-doo-habit-cards.spec.ts:50:1 › habit cards distinguish today from weekly achievement and include all pages before recording, skipping and pausing
+  [mobile] › to-doo-lazy-pages.spec.ts:5:1 › task entry skips other page modules and a failed page can retry without losing the task draft
+  [mobile] › to-doo-lazy-pages.spec.ts:38:1 › page-header actions wait for a delayed review module
+  [mobile] › to-doo-light-sidebar.spec.ts:39:1 › a clean narrow dark task shows its content and date summary without edit controls
+  [mobile] › to-doo-light-sidebar.spec.ts:72:1 › explicit save preserves failed title and description edits and retries the same submission
+  [mobile] › to-doo-light-sidebar.spec.ts:133:1 › deadline editing updates the summary and stays closed after reopening or changing tasks
+  [mobile] › to-doo-light-sidebar.spec.ts:192:1 › title completion preserves an unsaved description and saving it keeps the task completed
+  [mobile] › to-doo-loading.spec.ts:60:1 › an initial task request shows Ant skeletons until the usable task list arrives
+  [mobile] › to-doo-loading.spec.ts:90:1 › a failed refresh retains the task DOM, search focus and content position
+  [mobile] › to-doo-loading.spec.ts:143:1 › reduced motion keeps the loading placeholder static and an initial failure can retry
+  [mobile] › to-doo-loading.spec.ts:179:1 › a cold To Doo component download has the same branded loading feedback
+  [mobile] › to-doo-loading.spec.ts:208:1 › returning during a cold To Doo download is safe and its late completion preserves the destination
+  [mobile] › to-doo-mcp-roundtrip.spec.ts:9:1 › browser writes and SDK writes share the actual dataset and live resource grants
+  [mobile] › to-doo-mobile-lists.spec.ts:38:1 › mobile navigation opens personal lists and quick capture inherits the selected list
+  [mobile] › to-doo-mobile-lists.spec.ts:100:1 › closing mobile new-list creation keeps the current list selected
+  [mobile] › to-doo-notification-history.spec.ts:22:1 › recent notifications and mark-all include unread records beyond the first 200
+  [mobile] › to-doo-notification-history.spec.ts:97:1 › a recurring task notification opens its own execution rather than the first task execution
+  [mobile] › to-doo-push-worker.spec.ts:9:1 › the real notification worker receives push, wakes after restart and preserves the task draft
+  [mobile] › to-doo-reminders.spec.ts:61:1 › older reminder summaries use the app badge and live cards stay below edit dialogs
+  [mobile] › to-doo-reminders.spec.ts:99:1 › workspace reminder card completes a real task and fits the viewport
+  [mobile] › to-doo-reminders.spec.ts:120:1 › activating a desktop notification keeps the current unsaved note and opens its reminder
+  [mobile] › to-doo-reminders.spec.ts:169:1 › cold notification links open the right habit and record the entered amount once
+  [mobile] › to-doo-reminders.spec.ts:189:1 › closing a cold notification card prevents that generation from reopening on refresh
+  [mobile] › to-doo-reminders.spec.ts:202:1 › switching from an exact reminder occurrence to another task clears the old occurrence
+  [mobile] › to-doo-review-period.spec.ts:9:1 › saving a review retains the applied interval when the following refresh fails
+  [mobile] › to-doo-task-row-clarity.spec.ts:26:1 › the opened recurring occurrence is active independently of batch selection
+  [mobile] › to-doo-task-row-clarity.spec.ts:75:1 › plan and deadline labels keep an overdue deadline separate from tomorrow’s plan
+  [mobile] › to-doo-unified-shell.spec.ts:6:1 › a long page title leaves the main action visible on a narrow screen
+  [mobile] › to-doo-unified-shell.spec.ts:32:1 › the shared header keeps save visible while a long settings form scrolls
+  [mobile] › to-doo-unified-shell.spec.ts:55:1 › desktop pages share the global header and contextual layout boundaries
+  [mobile] › to-doo-unified-shell.spec.ts:126:3 › the light shell and task detail fit all supported widths and the host navigation
+  [mobile] › to-doo-unified-shell.spec.ts:126:3 › the dark shell and task detail fit all supported widths and the host navigation
+  [mobile] › to-doo-ux.spec.ts:20:1 › quick add today persists its plan without opening details and keeps completed tasks folded
+  [mobile] › to-doo-ux.spec.ts:80:1 › quick add inherits the selected list and clearing filters restores tasks across views
+  [mobile] › to-doo-ux.spec.ts:129:1 › quick add keeps its draft after a failed POST and retries into real server data
+  [mobile] › to-doo-ux.spec.ts:166:1 › today and inbox quick navigation survive reload and browser history
+  [mobile] › to-doo-ux.spec.ts:192:1 › wide task details continue the quick draft and submit exactly one real task
+  [mobile] › to-doo-ux.spec.ts:227:1 › discarding a wide new-task detail clears its original list draft and preserves another list
+  [mobile] › to-doo-ux.spec.ts:274:1 › quick entry stays usable in a 320px dark workspace
+  [mobile] › to-doo-ux.spec.ts:297:1 › deleting a list immediately removes it from the sidebar catalog
+  [mobile] › to-doo-ux.spec.ts:319:1 › retrying a deleted list refreshes the sidebar after its editor was closed
+  [mobile] › to-doo-ux.spec.ts:351:3 › quick view time zones › initial today quick view uses the loaded workspace time zone across midnight
+  [mobile] › to-doo-visible-workspace.spec.ts:29:1 › primary tools and contextual task directories are discoverable without expanding hidden groups
+  [mobile] › to-doo-visible-workspace.spec.ts:63:1 › matrix uses four distinguishable surfaces and explains each action without wasting the viewport
+  [mobile] › to-doo-visible-workspace.spec.ts:116:1 › mobile navigation keeps keyboard focus inside and restores the opener on Escape
+  [mobile] › to-doo-visible-workspace.spec.ts:143:1 › leaving from navigation keeps focus on the unsaved confirmation and retains a cancelled draft
+  [mobile] › to-doo-visible-workspace.spec.ts:169:1 › priority edits persist independently from visible matrix classification and dates
+  [mobile] › to-doo.spec.ts:18:1 › To Doo creates a real goal and task, preserves edits, completes and survives refresh
+  [mobile] › to-doo.spec.ts:97:1 › all To Doo sections are reachable on narrow and dark workspaces without overflow
+  [mobile] › to-doo.spec.ts:169:1 › focus, habit check-ins, anniversary and real CSV import/export use durable server data
+  [mobile] › to-doo.spec.ts:259:3 › To Doo source and evidence › an unsaved note can create a linked action and a real outcome note without overwriting its source
+  [mobile] › to-doo.spec.ts:413:1 › bulk and cascade completion freeze execution membership and persist their actual states
+Total: 236 tests in 29 files

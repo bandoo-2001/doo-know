@@ -48,7 +48,7 @@ async function integrated(actions = ['read', 'write', 'organize']) {
     .run(
       manifest.version,
       JSON.stringify(manifest),
-      JSON.stringify({ mode: 'oauth', permissionPolicy: policy }),
+      JSON.stringify({ oauthEnabled: true, apiKeyEnabled: false, permissionPolicy: policy }),
     );
   const grant = oauthGrantStore(f.db).approveV2(f.principal.id, 'organization-integration', policy);
   const p = {

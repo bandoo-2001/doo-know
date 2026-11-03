@@ -2,25 +2,36 @@ import { test, expect } from '../support/browser-test';
 import type { Locator, Page } from '@playwright/test';
 import { openDocumentNote } from '../support/document-editor';
 
-async function expectTableToolsAbove(page: Page, table: Locator) {
+async function expectTableToolsNear(page: Page, table: Locator, allowBelow = false) {
   const tools = page.getByRole('toolbar', { name: '表格操作', exact: true });
   await expect(tools).toBeVisible();
   await expect
     .poll(async () => {
       const toolbarBox = await tools.boundingBox();
       const tableBox = await table.boundingBox();
-      return toolbarBox && tableBox ? tableBox.y - toolbarBox.y - toolbarBox.height : -1000;
+      if (!toolbarBox || !tableBox) return -1000;
+      const above = tableBox.y - toolbarBox.y - toolbarBox.height;
+      return above >= -1 || !allowBelow ? above : toolbarBox.y - tableBox.y - tableBox.height;
     })
     .toBeGreaterThanOrEqual(-1);
   await expect
     .poll(async () => {
       const toolbarBox = await tools.boundingBox();
       const tableBox = await table.boundingBox();
-      return toolbarBox && tableBox ? tableBox.y - toolbarBox.y - toolbarBox.height : 1000;
+      if (!toolbarBox || !tableBox) return 1000;
+      const above = tableBox.y - toolbarBox.y - toolbarBox.height;
+      return above >= -1 || !allowBelow ? above : toolbarBox.y - tableBox.y - tableBox.height;
     })
     .toBeLessThanOrEqual(28);
   const toolbarBox = (await tools.boundingBox())!;
   const editorBox = (await page.locator('.document-editor').boundingBox())!;
+  const tableBox = (await table.boundingBox())!;
+  if (toolbarBox.y >= tableBox.y + tableBox.height) {
+    expect(allowBelow).toBe(true);
+    const viewport = (await page.locator('.document-editor-mount').boundingBox())!;
+    // The same toolbar flips below only after its usual above-table placement leaves the viewport.
+    expect(tableBox.y - toolbarBox.height - 4).toBeLessThan(viewport.y + 8);
+  }
   expect(toolbarBox.x).toBeGreaterThanOrEqual(Math.max(editorBox.x, 0) - 1);
   expect(toolbarBox.x + toolbarBox.width).toBeLessThanOrEqual(
     Math.min(editorBox.x + editorBox.width, page.viewportSize()!.width) + 1,
@@ -93,14 +104,14 @@ test('表格工具紧邻当前表格、随滚动保持边界并只修改当前�
   const second = editor.locator('table').nth(1);
   const tools = page.getByRole('toolbar', { name: '表格操作', exact: true });
   await first.getByText('第一内容', { exact: true }).click();
-  await expectTableToolsAbove(page, first);
+  await expectTableToolsNear(page, first);
   await second.getByText('第二内容', { exact: true }).click();
-  await expectTableToolsAbove(page, second);
+  await expectTableToolsNear(page, second);
   await page.screenshot({ path: info.outputPath('table-tools.png'), animations: 'disabled' });
   await page.locator('.document-editor-mount').evaluate((element) => {
     element.scrollTop += 72;
   });
-  await expectTableToolsAbove(page, second);
+  await expectTableToolsNear(page, second, true);
 
   if (info.project.name === 'desktop') {
     const bounds = (await tools.boundingBox())!;

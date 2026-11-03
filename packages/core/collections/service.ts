@@ -1,3 +1,4 @@
+import { isKnowledgeDataPath, DOO_ASSETS_DIRECTORY } from '../../../shared/storage-paths.js';
 import {
   isDocument,
   isWhiteboard,
@@ -146,7 +147,7 @@ export function collectionService(config: AppConfig, db: AppDatabase, notes: Not
     for await (const child of await fs.opendir(absolute)) {
       if (stopped) return;
       if (++entries % 32 === 0) await yieldWork();
-      if (!validName(child.name) || child.name === 'assets') continue;
+      if (!validName(child.name) || child.name === DOO_ASSETS_DIRECTORY) continue;
       const nested = path ? `${path}/${child.name}` : child.name;
       seen.add(nested);
       if (child.isDirectory() && !child.isSymbolicLink()) {
@@ -252,11 +253,11 @@ export function collectionService(config: AppConfig, db: AppDatabase, notes: Not
     if (!name) return;
     const path = String(name).replace(/\\/g, '/');
     if (
-      path.split('/')[0] === '_data' ||
+      isKnowledgeDataPath(path) ||
       path
         .split('/')
         .some(
-          (part) => part.startsWith('.') || part === 'assets' || part.toLowerCase() === 'agents.md',
+          (part) => part.startsWith('.') || part === DOO_ASSETS_DIRECTORY || part.toLowerCase() === 'agents.md',
         )
     )
       return;

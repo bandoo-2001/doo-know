@@ -1,0 +1,15 @@
+{
+  "phase": "before",
+  "fixedTime": "2026-10-30T09:00:00.000Z",
+  "screenshots": [
+    {
+      "id": "04-timeline",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "label": "时间线",
+      "file": "desktop-04-timeline.png",
+      "overflow": 0
+    }
+  ]
+}

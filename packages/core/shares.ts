@@ -6,12 +6,18 @@ import { KnowledgeError } from './knowledge/errors.js';
 import { isWhiteboard } from '../../shared/whiteboard.js';
 import type { PublicShareAccess, ShareOptions, ShareStatus } from '../../shared/share-contracts.js';
 import { shareIdentity, shareState, type ShareRow } from './share-policy.js';
+import { parseDiagramDocument } from '../../shared/diagram-document.js';
 export function shareService(db: AppDatabase, notes: NoteService) {
   function editSupport(id: string) {
     if (isWhiteboard(notes.row(id).path))
       return { editSupported: false, editUnavailableReason: '白板分享暂不支持公开编辑' };
     try {
-      notes.getNote(id);
+      const note = notes.getNote(id);
+      if (
+        note.documentType !== 'markdown' ||
+        parseDiagramDocument(note.content).status === 'invalid'
+      )
+        return { editSupported: false, editUnavailableReason: '图形分享暂不支持公开编辑' };
       return { editSupported: true };
     } catch (error) {
       if (
@@ -27,13 +33,16 @@ export function shareService(db: AppDatabase, notes: NoteService) {
   }
   function describe(id: string, support: ReturnType<typeof editSupport>): ShareStatus {
     const s = db
-      .prepare('SELECT token,enabled,permission,expires_at FROM shares WHERE note_id=?')
+      .prepare(
+        'SELECT token,enabled,permission,expires_at,allow_diagram_source FROM shares WHERE note_id=?',
+      )
       .get(id) as ShareRow | undefined;
     const state = shareState(s);
     return {
       enabled: state === 'active',
       state,
       permission: s?.permission || 'view',
+      allowDiagramSource: !!s?.allow_diagram_source,
       expiresAt: s?.expires_at == null ? null : new Date(s.expires_at).toISOString(),
       ...support,
       ...(s && state !== 'revoked' ? { token: s.token, url: `/s/${s.token}` } : {}),
@@ -50,12 +59,21 @@ export function shareService(db: AppDatabase, notes: NoteService) {
       (!input ||
         typeof input !== 'object' ||
         Array.isArray(input) ||
-        Object.keys(input).some((key) => !['permission', 'expiresAt'].includes(key)))
+        Object.keys(input).some(
+          (key) => !['permission', 'expiresAt', 'allowDiagramSource'].includes(key),
+        ))
     )
       throw new HttpError(400, '分享设置格式不正确');
     const options = input as ShareOptions | undefined;
     const explicit = !!options && Object.keys(options).length > 0;
     const old = status(id);
+    if (
+      options?.allowDiagramSource !== undefined &&
+      typeof options.allowDiagramSource !== 'boolean'
+    )
+      throw new HttpError(400, '原件分享设置不正确');
+    const allowDiagramSource =
+      options?.allowDiagramSource ?? (old.enabled ? !!old.allowDiagramSource : false);
     const permission =
       options?.permission === undefined
         ? old.enabled
@@ -90,8 +108,8 @@ export function shareService(db: AppDatabase, notes: NoteService) {
     if (old.enabled && !reset && !explicit) return old;
     const token = old.enabled && !reset ? old.token! : randomBytes(32).toString('base64url');
     db.prepare(
-      'INSERT INTO shares(note_id,token,enabled,permission,expires_at) VALUES(?,?,1,?,?) ON CONFLICT(note_id) DO UPDATE SET token=excluded.token,enabled=1,permission=excluded.permission,expires_at=excluded.expires_at',
-    ).run(id, token, permission, expiresAt);
+      'INSERT INTO shares(note_id,token,enabled,permission,expires_at,allow_diagram_source) VALUES(?,?,1,?,?,?) ON CONFLICT(note_id) DO UPDATE SET policy_revision=shares.policy_revision+CASE WHEN shares.enabled<>1 OR shares.token<>excluded.token OR shares.permission<>excluded.permission OR shares.expires_at IS NOT excluded.expires_at OR shares.allow_diagram_source<>excluded.allow_diagram_source THEN 1 ELSE 0 END,token=excluded.token,enabled=1,permission=excluded.permission,expires_at=excluded.expires_at,allow_diagram_source=excluded.allow_diagram_source',
+    ).run(id, token, permission, expiresAt, Number(allowDiagramSource));
     return status(id);
   }
   function revoke(id: string) {
@@ -125,6 +143,7 @@ export function shareService(db: AppDatabase, notes: NoteService) {
     return {
       permission: s.permission,
       expiresAt: s.expiresAt,
+      allowDiagramSource: !!s.allowDiagramSource,
       canEdit: s.permission === 'edit' && s.editSupported,
       ...(!s.editSupported ? { editUnavailableReason: s.editUnavailableReason } : {}),
     };

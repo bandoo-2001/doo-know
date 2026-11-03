@@ -1,0 +1,15 @@
+{
+  "phase": "after",
+  "fixedTime": "2026-10-30T09:00:00.000Z",
+  "screenshots": [
+    {
+      "id": "11-recovery",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "label": "数据与恢复",
+      "file": "desktop-11-recovery.png",
+      "overflow": 0
+    }
+  ]
+}

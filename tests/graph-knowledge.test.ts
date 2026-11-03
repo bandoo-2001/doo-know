@@ -106,7 +106,7 @@ it('publishes only exact model evidence, reviews, CAS/idempotency and persistent
   graph = await f.service.explore(webPrincipal, {});
   expect(graph.edges.some((e) => e.kind === 'semantic')).toBe(false);
   const file = JSON.parse(
-    readFileSync(join(f.config.knowledgeRoot, '_data/apps/knowledge-graph/state.json'), 'utf8'),
+    readFileSync(join(f.config.knowledgeRoot, '_doo-data/apps/knowledge-graph/state.json'), 'utf8'),
   );
   expect(file.data.decisions[review[0].id].decision).toBe('ignore');
 });
@@ -283,7 +283,7 @@ it('portable decisions import into a new library database and malformed/conflict
   );
   expect(copy.userState(webPrincipal).views[0].name).toBe('Portable');
   expect(copy.userState(webPrincipal).version).toBe(1);
-  writeFileSync(join(destination, '_data/apps/knowledge-graph/state.json'), '{}');
+  writeFileSync(join(destination, '_doo-data/apps/knowledge-graph/state.json'), '{}');
   expect(() => copy.userState(webPrincipal)).toThrow();
 });
 it('reports unconfigured vector similarity without lexical fallback and enforces output limits', async () => {

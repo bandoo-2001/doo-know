@@ -1,7 +1,7 @@
 import type { PermissionPolicy } from './permissions.js';
 export interface MCPConnectionAttempt {
   at: string;
-  mode: 'oauth' | 'tunnel';
+  mode: 'oauth' | 'api-key';
   outcome: 'authenticated' | 'rejected';
   code: string;
 }
@@ -11,7 +11,7 @@ export interface MCPConnectionState {
   plugin: { installed: boolean; enabled: boolean; state: string; configVersion: number | null };
   connection: {
     oauth: { ready: boolean; address: string; reason?: string };
-    tunnel: { ready: boolean; address?: string; reason?: string };
+    apiKey: { ready: boolean; address: string; reason?: string };
   };
   externalVerification: 'unknown';
   latestConnectionAttempt: MCPConnectionAttempt | null;

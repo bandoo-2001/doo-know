@@ -7,7 +7,13 @@ export type ToDooReminderCard = {
   occurrenceId?: string;
   date?: string;
   completion: 'task' | 'habit' | 'acknowledge' | 'open';
-  habit?: { amount: number; target: number; unit: string };
+  habit?: {
+    amount: number;
+    target: number;
+    unit: string;
+    goalMode?: 'checkin' | 'quantity';
+    checkedToday?: boolean;
+  };
 };
 export type ToDooReminderFeed = {
   reminders: ToDooReminderCard[];

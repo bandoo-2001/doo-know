@@ -1,3 +1,8 @@
+import { parseDiagramDocument } from '../../shared/diagram-document';
+import { primaryRenderDescriptor } from '../../shared/diagram-primary';
+import { diagramRenderFingerprint, hashDiagramBytes } from '../../shared/diagram-document-binding';
+import { renderPortableImage } from '../../shared/portable-figure';
+import type { DiagramResource } from '../../shared/diagram-resource';
 import MarkdownIt, { type MarkdownIt as MarkdownItInstance } from 'markdown-it';
 import type { renderToString as renderMathType } from 'katex';
 import { knowledgeMarkdown } from '../../shared/knowledge-markdown';
@@ -6,6 +11,7 @@ import { markdownStyles } from '../../shared/markdown-styles';
 import { frontmatterRange } from '../../shared/frontmatter-range';
 import { collectDiagramSaveNeeds, stripDiagramPreviews } from '../../shared/diagram-portability';
 import { validateSvgSource, SVG_MIME } from '../../shared/svg-policy';
+import { pngContainsDiagramSource } from '../../shared/png-policy';
 import { downloadBlob } from './whiteboards/download';
 
 export type ReadingExportInput = {
@@ -14,6 +20,8 @@ export type ReadingExportInput = {
   /** The caller owns attachment authorization; this helper never fetches URLs. */
   resolveImage?: (url: string) => Promise<Blob | string | undefined>;
   unavailablePreviews?: number;
+  /** Fresh authorized resource proof for a dedicated primary; never an original-source grant. */
+  diagramResource?: DiagramResource;
 };
 
 const imageTypes = new Set([
@@ -76,6 +84,7 @@ async function embeddedImage(input: Blob | string): Promise<string> {
   }
   if (!imageTypes.has(mime) || !bytes.length || bytes.length > maxImageBytes)
     throw Error('图片类型或大小不适合阅读导出');
+  if (pngContainsDiagramSource(bytes)) throw Error('PNG 预览不得包含可编辑图形源数据');
   if (mime === SVG_MIME) {
     const svg = validateSvgSource(bytes);
     if (!svg.ok) throw Error(`SVG 无法导出：${svg.message}`);
@@ -94,10 +103,50 @@ function readableLink(url: string) {
   }
 }
 
-/** Produce script-free, self-contained HTML. Diagram fences remain readable source. */
+/** Produce script-free HTML; ordinary embedded source remains compatible, primaries use read-only projection. */
 export async function buildReadingHtml(input: ReadingExportInput): Promise<string> {
-  const stale = await collectDiagramSaveNeeds(input.markdown, input.markdown);
-  const markdown = stripDiagramPreviews(input.markdown, stale);
+  const parsed = parseDiagramDocument(input.markdown);
+  if (parsed.status === 'invalid') throw Error('图形文档不完整，请先在源码视图恢复后导出');
+  const primary = parsed.status === 'diagram' ? parsed : undefined;
+  let source = input.markdown;
+  if (primary) {
+    const resource = input.diagramResource,
+      binding = primary.primary.binding;
+    if (
+      !resource ||
+      resource.documentType !== primary.type ||
+      resource.role !== 'primary' ||
+      resource.preview?.state !== 'ready' ||
+      resource.source.hash !== binding.sourceHash ||
+      resource.preview.hash !== binding.previewHash ||
+      resource.preview.renderHash !== binding.renderHash
+    )
+      throw Error('图形预览尚未通过完整版本核对，请先保存并更新预览');
+    if (
+      primary.primary.source.format !== 'excalidraw' &&
+      (await hashDiagramBytes(primary.primary.source.content)) !== binding.sourceHash
+    )
+      throw Error('图形源码已变化，请更新预览后导出');
+    const descriptor = primaryRenderDescriptor(primary);
+    if (
+      (await diagramRenderFingerprint({
+        type: primary.type,
+        sourceHash: resource.source.hash,
+        title: primary.title,
+        renderer: descriptor.renderer,
+        config: descriptor.config,
+      })) !== binding.renderHash
+    )
+      throw Error('图形标题或配置已变化，请更新预览后导出');
+    source =
+      source.slice(0, primary.primary.range.from) +
+      renderPortableImage(primary.title + ' 预览', primary.primary.previewPath) +
+      '\n' +
+      source.slice(primary.primary.range.to);
+    source = source.slice(0, primary.markerRange.from) + source.slice(primary.markerRange.to);
+  }
+  const stale = await collectDiagramSaveNeeds(source, source);
+  const markdown = stripDiagramPreviews(source, stale);
   let renderMath: typeof renderMathType | undefined;
   const md: MarkdownItInstance = new MarkdownIt({ html: false, linkify: true })
     .use(markdownStyles)
@@ -141,7 +190,20 @@ export async function buildReadingHtml(input: ReadingExportInput): Promise<strin
     if (!images.has(url)) {
       const resource = url.startsWith('data:') ? url : await input.resolveImage?.(url);
       if (!resource) throw Error('有图片未能包含在阅读文件中，请确认附件可访问后重试');
-      images.set(url, await embeddedImage(resource));
+      const embedded = await embeddedImage(resource);
+      if (primary && md.normalizeLink(primary.primary.previewPath) === url) {
+        const prefix = 'data:image/png;base64,';
+        if (
+          !embedded.startsWith(prefix) ||
+          (await hashDiagramBytes(
+            Uint8Array.from(atob(embedded.slice(prefix.length)), (character) =>
+              character.charCodeAt(0),
+            ),
+          )) !== primary.primary.binding.previewHash
+        )
+          throw Error('图形预览图片已变化，请重新准备后导出');
+      }
+      images.set(url, embedded);
     }
     token.attrSet('src', images.get(url)!);
   }
@@ -162,9 +224,10 @@ export async function buildReadingHtml(input: ReadingExportInput): Promise<strin
     }
   };
   stripLinks(tokens);
-  const properties = front
-    ? `<pre class="reading-properties" aria-label="笔记属性">${md.utils.escapeHtml(front.yaml)}</pre>\n`
-    : '';
+  const properties =
+    front && !primary
+      ? `<pre class="reading-properties" aria-label="笔记属性">${md.utils.escapeHtml(front.yaml)}</pre>\n`
+      : '';
   const notice =
     stale.length || input.unavailablePreviews
       ? '<p class="reading-properties">部分图形的预览已过期，本文件保留当前源码。请在编辑器中生成通用预览后重新导出。</p>'

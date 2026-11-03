@@ -1,3 +1,4 @@
+import { isKnowledgeDataPath, DOO_ASSETS_DIRECTORY } from '../../../shared/storage-paths.js';
 import { opendirSync, type Dir } from 'node:fs';
 import type { AppConfig } from '../../../shared/contracts.js';
 import type { AppDatabase } from '../db.js';
@@ -51,8 +52,8 @@ export function analysisDiscovery(
       }
       if (
         !validName(item.name) ||
-        item.name === '_data' ||
-        item.name === 'assets' ||
+        isKnowledgeDataPath(item.name) ||
+        item.name === DOO_ASSETS_DIRECTORY ||
         item.isSymbolicLink()
       )
         continue;

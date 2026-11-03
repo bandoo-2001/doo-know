@@ -1,4 +1,7 @@
 import { test, expect } from '../support/browser-test';
+import { completeFileSave, remainingFileOperationTime } from '../support/file-operations';
+import { completeFileRead } from '../support/file-readiness';
+import { createHash } from 'node:crypto';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { showSidebar } from '../support/settings-navigation';
@@ -12,12 +15,21 @@ async function openFixtureNote(page: import('@playwright/test').Page, fileName: 
   await page.getByRole('button', { name: '00-Inbox', exact: true }).first().click();
   const metadata = page.waitForResponse((response) =>
     /\/api\/notes\/[^/]+\/meta$/.test(response.url()),
+    { timeout: remainingFileOperationTime() },
   );
-  await page.locator('.folder-view').getByRole('button', { name: fileName, exact: true }).click();
-  const noteId = (await (await metadata).json()).id as string;
-  // A direct URL keeps the selected note stable across reloads.
-  await page.goto('/?note=' + encodeURIComponent(noteId));
-  return noteId;
+  const target = metadata.then(async (response) => {
+    expect(response.status()).toBe(200);
+    const note = await response.json();
+    expect(note.relativePath.split('/').at(-1)).toBe(fileName);
+    return note;
+  });
+  await completeFileRead(page, target, () =>
+    page.locator('.folder-view').getByRole('button', { name: fileName, exact: true }).click(),
+  );
+  const note = await target;
+  // Complete both reads around the direct URL used by subsequent reloads.
+  await completeFileRead(page, note, () => page.goto('/?note=' + encodeURIComponent(note.id)));
+  return note.id as string;
 }
 
 async function waitForLocalDraft(
@@ -72,7 +84,7 @@ test('reload offers an unsaved note draft and manual recovery never writes the s
   await page.locator('.cm-content').fill(content);
   await waitForLocalDraft(page, noteId, content);
   expect(await readFile(path, 'utf8')).toBe(original);
-  await page.reload();
+  await completeFileRead(page, { id: noteId }, () => page.reload());
   await expect(page.getByRole('button', { name: '恢复本地草稿', exact: true })).toBeVisible();
   await expect(page.locator('.cm-content')).toContainText('Saved source stays intact.');
   await page.getByRole('button', { name: '恢复本地草稿', exact: true }).click();
@@ -99,7 +111,7 @@ test('a changed large-file base offers copy recovery and refuses to apply an old
   await page.locator('.large-workspace .cm-content').fill(content);
   await waitForLocalDraft(page, noteId, content);
   await writeFile(path, '# Newer source\n' + original);
-  await page.reload();
+  await completeFileRead(page, { id: noteId, editorMode: 'large' }, () => page.reload());
   await expect(page.locator('.draft-recovery')).toContainText('原文基准已变化');
   await expect(page.getByRole('button', { name: '恢复本地草稿', exact: true })).toBeDisabled();
   await page.getByRole('button', { name: '复制恢复文本', exact: true }).click();
@@ -115,6 +127,8 @@ test('a large-file draft returns to its recorded second-page range before explic
   page,
   context,
 }, info) => {
+  // Snapshot reads, range recovery and the versioned patch share the large-files scenario budget.
+  test.setTimeout(120000);
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   const config = JSON.parse(await readFile('.local/e2e-config.json', 'utf8'));
   const fileName = `片段范围-${info.project.name}.md`;
@@ -124,13 +138,17 @@ test('a large-file draft returns to its recorded second-page range before explic
   await writeFile(path, original);
   const noteId = await openFixtureNote(page, fileName);
   await expect(page.locator('.large-workspace .cm-content')).toContainText('Large range');
-  await page.getByRole('button', { name: '下一片段', exact: true }).click();
+  await completeFileRead(page, { id: noteId, editorMode: 'large' }, () =>
+    page.getByRole('button', { name: '下一片段', exact: true }).click(),
+  );
   await expect(page.locator('.large-range')).not.toContainText('第 1–');
   const rangeBefore = await page.locator('.large-range').innerText();
   expect(rangeBefore).not.toContain('第 1–');
+  const recordedBytes = rangeBefore.match(/ · (\d+)–(\d+) 字节/);
+  expect(recordedBytes).not.toBeNull();
   await page.locator('.large-workspace .cm-content').fill(content);
   await waitForLocalDraft(page, noteId, content);
-  await page.reload();
+  await completeFileRead(page, { id: noteId, editorMode: 'large' }, () => page.reload());
   await expect(page.getByRole('button', { name: '恢复本地草稿', exact: true })).toBeEnabled();
   await expect(page.locator('.large-range')).toContainText(rangeBefore.split(' · ')[0]);
   await page.getByRole('button', { name: '恢复本地草稿', exact: true }).click();
@@ -138,12 +156,36 @@ test('a large-file draft returns to its recorded second-page range before explic
     'Recovered at the recorded range.',
   );
   expect(await readFile(path, 'utf8')).toBe(original);
-  await page.getByRole('button', { name: '保存片段', exact: true }).click();
+  const acceptedPatch = page.waitForResponse(
+    (response) =>
+      response.request().method() === 'POST' &&
+      new URL(response.url()).pathname === '/api/notes/' + noteId + '/patch',
+    { timeout: remainingFileOperationTime() },
+  );
+  const completion: {
+    operation?: Awaited<ReturnType<typeof completeFileSave>>;
+    requestId?: string;
+  } = {};
+  await completeFileRead(page, { id: noteId, editorMode: 'large' }, async () => {
+    await page.getByRole('button', { name: '保存片段', exact: true }).click();
+    const receipt = await acceptedPatch;
+    const submitted = receipt.request().postDataJSON();
+    expect(submitted.edits).toHaveLength(1);
+    expect(submitted.edits[0]).toMatchObject({
+      type: 'replace_range', startByte: Number(recordedBytes![1]), endByte: Number(recordedBytes![2]), insert: content,
+    });
+    completion.requestId = submitted.requestId;
+    completion.operation = await completeFileSave(page, receipt);
+  });
+  expect(typeof completion.requestId).toBe('string');
+  expect(completion.operation).toMatchObject({ requestId: completion.requestId, kind: 'patch', status: 'succeeded' });
   await expect(page.getByText('片段已保存', { exact: true })).toBeVisible();
   const saved = await readFile(path, 'utf8');
   expect(saved).toContain('Recovered at the recorded range.');
   expect(saved.endsWith('RANGE_TAIL')).toBe(true);
-  await page.reload();
+  expect(completion.operation?.result?.contentHash).toBe(createHash('sha256').update(saved).digest('hex'));
+  expect(completion.operation?.result?.editCount).toBe(1);
+  await completeFileRead(page, { id: noteId, editorMode: 'large' }, () => page.reload());
   await expect(page.locator('.large-workspace .cm-content')).toBeVisible();
   await expect(page.locator('.draft-recovery')).toHaveCount(0);
 });
@@ -164,7 +206,7 @@ test('a newer note source stays visible until an older local draft is explicitly
   await waitForLocalDraft(page, noteId, content);
   const newer = '# Newer externally saved source\n';
   await writeFile(path, newer);
-  await page.reload();
+  await completeFileRead(page, { id: noteId }, () => page.reload());
   await expect(page.locator('.draft-recovery')).toContainText('原文基准已变化');
   await expect(page.locator('.cm-content')).toContainText('Newer externally saved source');
   await page.getByRole('button', { name: '恢复本地草稿', exact: true }).click();
@@ -211,7 +253,7 @@ test('saving one version keeps later typing recoverable after the save response 
   await expect(page.getByText('笔记已保存', { exact: true })).toBeVisible();
   await expect(page.locator('.cm-content')).toContainText('Typed while saving');
   expect(await readFile(path, 'utf8')).toBe(submitted);
-  await page.reload();
+  await completeFileRead(page, { id: noteId }, () => page.reload());
   await expect(page.getByRole('button', { name: '恢复本地草稿', exact: true })).toBeVisible();
   await expect(page.locator('.cm-content')).toContainText('Submitted text');
   await page.getByRole('button', { name: '恢复本地草稿', exact: true }).click();
@@ -234,11 +276,11 @@ test('explicitly discarding a recovered note draft removes it without changing t
   await expect(page.locator('.cm-content')).toContainText('Source retained after discard');
   await page.locator('.cm-content').fill(content);
   await waitForLocalDraft(page, noteId, content);
-  await page.reload();
+  await completeFileRead(page, { id: noteId }, () => page.reload());
   await page.getByRole('button', { name: '丢弃本地草稿', exact: true }).click();
   await expect(page.locator('.draft-recovery')).toHaveCount(0);
   await expect(page.locator('.cm-content')).toContainText('Source retained after discard');
-  await page.reload();
+  await completeFileRead(page, { id: noteId }, () => page.reload());
   await expect(page.locator('.cm-content')).toContainText('Source retained after discard');
   await expect(page.locator('.draft-recovery')).toHaveCount(0);
   expect(await readFile(path, 'utf8')).toBe(original);
@@ -266,7 +308,7 @@ for (const previousMode of ['full', 'large'] as const) {
     await page.locator('.cm-content').fill(content);
     await waitForLocalDraft(page, noteId, content);
     await writeFile(path, replacement);
-    await page.reload();
+    await completeFileRead(page, { id: noteId }, () => page.reload());
     await expect(page.locator('.draft-recovery')).toContainText('原文基准已变化');
     await expect(page.getByRole('button', { name: '恢复本地草稿', exact: true })).toBeDisabled();
     await page.getByRole('button', { name: '复制恢复文本', exact: true }).click();
@@ -295,7 +337,9 @@ for (const draftKind of ['note', 'fragment'] as const) {
     await expect(page.locator('.cm-content')).toBeVisible();
     let recordedRange: string | undefined;
     if (draftKind === 'fragment') {
-      await page.getByRole('button', { name: '下一片段', exact: true }).click();
+      await completeFileRead(page, { id: noteId }, () =>
+        page.getByRole('button', { name: '下一片段', exact: true }).click(),
+      );
       await expect(page.locator('.large-range')).not.toContainText('第 1–');
       recordedRange = (await page.locator('.large-range').innerText()).split(' · ')[0];
     }
@@ -318,7 +362,15 @@ for (const draftKind of ['note', 'fragment'] as const) {
       (route) => route.fulfill({ status: 500, json: { error: '片段读取暂时失败，请重新读取' } }),
       { times: 1 },
     );
+    const failedRead = page.waitForResponse((response) =>
+      response.request().method() === 'POST' &&
+      new URL(response.url()).pathname === '/api/notes/' + noteId + '/read',
+      { timeout: remainingFileOperationTime() },
+    );
     await page.reload();
+    const failedResponse = await failedRead;
+    expect(failedResponse.status()).toBe(500);
+    expect((await failedResponse.json()).error).toBe('片段读取暂时失败，请重新读取');
     await expect(page.locator('.large-workspace')).toContainText('片段读取暂时失败，请重新读取');
     await expect(page.locator('.cm-content')).toHaveCount(0);
     await page.getByRole('button', { name: '复制恢复文本', exact: true }).click();
@@ -326,7 +378,7 @@ for (const draftKind of ['note', 'fragment'] as const) {
     await expect(recoveryText).toHaveValue(content);
     const retry = page.getByRole('button', { name: '重新读取', exact: true });
     await expect(retry).toBeEnabled();
-    await retry.click();
+    await completeFileRead(page, { id: noteId }, () => retry.click());
     await expect(page.locator('.large-workspace .cm-content')).toContainText(
       draftKind === 'note' ? 'Large retry source' : 'retry source line',
     );

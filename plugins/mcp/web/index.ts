@@ -94,22 +94,22 @@ export function activate(api: PluginUIApi) {
                         ? '网页授权本机条件已满足（外部连接未验证）：' + status.value.connection.oauth.address
                         : '网页授权尚未就绪：' + status.value.connection.oauth.reason,
                     ),
-                    status.value.connection.tunnel &&
+                    status.value.connection.apiKey &&
                       h(
                         'p',
                         {
                           class: [
                             'mcp-connection',
-                            { ready: status.value.connection.tunnel.ready },
+                            { ready: status.value.connection.apiKey.ready },
                           ],
                         },
-                        '本地隧道服务（不代表外部隧道在线）：' +
-                          (status.value.connection.tunnel.ready
-                            ? status.value.connection.tunnel.address
-                            : status.value.connection.tunnel.reason),
+                        'API Key 服务（外部连接未验证）：' +
+                          (status.value.connection.apiKey.ready
+                            ? status.value.connection.apiKey.address
+                            : status.value.connection.apiKey.reason),
                       ),
                   ]),
-                  h('p', { class: 'mcp-label' }, '授权客户端'),
+                  h('p', { class: 'mcp-label' }, 'OAuth 授权客户端'),
                   h('p', { class: 'mcp-description' }, '博客公开发布默认关闭，需在功能配置中开启并单独授权；修改笔记不会自动更新公开文章。'),
                   h(
                     'div',

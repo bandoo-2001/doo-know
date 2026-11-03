@@ -1,0 +1,156 @@
+{
+  "device": {
+    "id": "desktop",
+    "width": 1440,
+    "height": 1000,
+    "theme": "light"
+  },
+  "id": "habit-dialog",
+  "fixedTime": "2026-10-30T09:00:00.000Z",
+  "report": [
+    {
+      "tag": "ARTICLE",
+      "className": "todo-habit-card todo-panel",
+      "text": "阅读每天 · 20 页⋯ 今天 10 / 20 页本次新增页记录",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "9px",
+      "color": "rgb(230, 233, 241)",
+      "parent": "todo-habit-cards"
+    },
+    {
+      "tag": "ARTICLE",
+      "className": "todo-habit-card todo-panel",
+      "text": "运动每周累计 3 次⋯ 今天 0 次本周累计 2 / 3 次本次新增次记录",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "9px",
+      "color": "rgb(230, 233, 241)",
+      "parent": "todo-habit-cards"
+    },
+    {
+      "tag": "ARTICLE",
+      "className": "todo-habit-card todo-panel",
+      "text": "练习英语每天 · 15 分钟⋯ 今天 15 / 15 分钟今日达标本次新增分钟追加记录",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "9px",
+      "color": "rgb(230, 233, 241)",
+      "parent": "todo-habit-cards"
+    },
+    {
+      "tag": "INPUT",
+      "className": "ant-input css-xjeq",
+      "text": "",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "6px",
+      "color": "rgb(230, 233, 241)",
+      "parent": ""
+    },
+    {
+      "tag": "DIV",
+      "className": "ant-select-selector",
+      "text": "完成后打卡",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "6px",
+      "color": "rgb(223, 227, 235)",
+      "parent": "ant-select css-xjeq todo-ant-select ant-select-single ant-select-show-arrow"
+    },
+    {
+      "tag": "DIV",
+      "className": "ant-select-selector",
+      "text": "每天",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "6px",
+      "color": "rgb(223, 227, 235)",
+      "parent": "ant-select css-xjeq todo-ant-select ant-select-single ant-select-show-arrow"
+    },
+    {
+      "tag": "DIV",
+      "className": "ant-picker todo-ant-date css-xjeq",
+      "text": "",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "6px",
+      "color": "rgb(230, 233, 241)",
+      "parent": ""
+    }
+  ],
+  "focus": [
+    {
+      "className": "ant-input-number-input",
+      "label": "记录数量 阅读",
+      "focusVisible": true,
+      "outline": "rgb(44, 53, 81) solid 1px",
+      "boxShadow": "none",
+      "outerClass": "ant-input-number css-xjeq ant-input-number-focused",
+      "outerBorder": "1px solid rgb(230, 233, 241)",
+      "outerShadow": "rgba(5, 105, 255, 0.01) 0px 0px 0px 0.442793px",
+      "outerOutline": "rgb(39, 43, 58) none 2px"
+    },
+    {
+      "className": "ant-input-number-input",
+      "label": "记录数量 运动",
+      "focusVisible": true,
+      "outline": "rgb(44, 53, 81) solid 1px",
+      "boxShadow": "none",
+      "outerClass": "ant-input-number css-xjeq ant-input-number-focused",
+      "outerBorder": "1px solid rgb(230, 233, 241)",
+      "outerShadow": "rgba(5, 105, 255, 0.01) 0px 0px 0px 0.441319px",
+      "outerOutline": "rgb(39, 43, 58) none 2px"
+    },
+    {
+      "className": "ant-input-number-input",
+      "label": "记录数量 练习英语",
+      "focusVisible": true,
+      "outline": "rgb(44, 53, 81) solid 1px",
+      "boxShadow": "none",
+      "outerClass": "ant-input-number css-xjeq ant-input-number-focused",
+      "outerBorder": "1px solid rgb(230, 233, 241)",
+      "outerShadow": "rgba(5, 105, 255, 0.01) 0px 0px 0px 0.441319px",
+      "outerOutline": "rgb(39, 43, 58) none 2px"
+    },
+    {
+      "className": "ant-select-selection-search-input",
+      "label": "目标",
+      "focusVisible": true,
+      "outline": "rgb(0, 0, 0) none 3px",
+      "boxShadow": "none",
+      "outerClass": "ant-select css-xjeq todo-ant-select ant-select-focused ant-select-single ant-select-show-arrow",
+      "outerBorder": "1px solid rgb(223, 227, 235)",
+      "outerShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+      "outerOutline": "rgb(38, 43, 54) none 3px"
+    }
+  ]
+}

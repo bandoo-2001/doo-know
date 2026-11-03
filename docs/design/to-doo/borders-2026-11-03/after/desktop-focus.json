@@ -1,0 +1,122 @@
+{
+  "device": {
+    "id": "desktop",
+    "width": 1440,
+    "height": 1000,
+    "theme": "light"
+  },
+  "id": "focus",
+  "fixedTime": "2026-10-30T09:00:00.000Z",
+  "report": [
+    {
+      "tag": "ARTICLE",
+      "className": "todo-focus-topic selected",
+      "text": "阅读与学习25 分钟25 分钟",
+      "borders": [
+        "0px",
+        "0px",
+        "1px",
+        "0px"
+      ],
+      "radius": "8px",
+      "color": "rgb(39, 43, 58) rgb(39, 43, 58) rgba(0, 0, 0, 0)",
+      "parent": "todo-focus-projects"
+    },
+    {
+      "tag": "ARTICLE",
+      "className": "todo-focus-topic",
+      "text": "工作与创造0 分钟1 小时 10 分",
+      "borders": [
+        "0px",
+        "0px",
+        "1px",
+        "0px"
+      ],
+      "radius": "8px",
+      "color": "rgb(39, 43, 58) rgb(39, 43, 58) rgba(0, 0, 0, 0)",
+      "parent": "todo-focus-projects"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-panel-header todo-section-header",
+      "text": "专注概览收起趋势全部项目",
+      "borders": [
+        "0px",
+        "0px",
+        "0px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58)",
+      "parent": "todo-focus-records"
+    },
+    {
+      "tag": "DIV",
+      "className": "ant-select-selector",
+      "text": "全部项目",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "6px",
+      "color": "rgb(223, 227, 235)",
+      "parent": "ant-select css-xjeq todo-ant-select ant-select-single ant-select-show-arrow ant-select-show-search"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-panel-header todo-section-header",
+      "text": "专注记录全部时间",
+      "borders": [
+        "0px",
+        "0px",
+        "0px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58)",
+      "parent": "todo-focus-records"
+    },
+    {
+      "tag": "DIV",
+      "className": "ant-select-selector",
+      "text": "全部时间",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "6px",
+      "color": "rgb(223, 227, 235)",
+      "parent": "ant-select css-xjeq todo-ant-select ant-select-single ant-select-show-arrow ant-select-show-search"
+    }
+  ],
+  "focus": [
+    {
+      "className": "ant-select-selection-search-input",
+      "label": "专注记录项目",
+      "focusVisible": true,
+      "outline": "rgb(39, 43, 58) none 0px",
+      "boxShadow": "none",
+      "outerClass": "ant-select css-xjeq todo-ant-select ant-select-focused ant-select-single ant-select-show-arrow ant-select-show-search",
+      "outerBorder": "1px solid rgb(108, 137, 212)",
+      "outerShadow": "none",
+      "outerOutline": "rgb(39, 43, 58) none 0px",
+      "rootOutline": "rgb(69, 102, 198) solid 2px"
+    },
+    {
+      "className": "ant-select-selection-search-input",
+      "label": "专注记录日期范围",
+      "focusVisible": true,
+      "outline": "rgb(39, 43, 58) none 0px",
+      "boxShadow": "none",
+      "outerClass": "ant-select css-xjeq todo-ant-select ant-select-focused ant-select-single ant-select-show-arrow ant-select-show-search",
+      "outerBorder": "1px solid rgb(108, 137, 212)",
+      "outerShadow": "none",
+      "outerOutline": "rgb(39, 43, 58) none 0px",
+      "rootOutline": "rgb(69, 102, 198) solid 2px"
+    }
+  ]
+}

@@ -8,7 +8,6 @@ import { createOperations, registerOperations } from './operations.js';
 import { hostClient } from './service.js';
 import { budgets, assertRequest } from './budgets.js';
 import { BridgeError, errorBody } from './errors.js';
-import { buildOpenApi } from './openapi.js';
 import { makeAgentInstructions, toDooAgentGuidance } from './agent-guidance.js';
 import { permissionPolicy } from './contracts.js';
 import { permissionDomains } from '../../../shared/permissions.js';
@@ -27,6 +26,7 @@ export function activate(ctx: PluginContext) {
     finally {
       const rows = ctx.storage.get<any[]>('calls') || [];
       rows.unshift({ id: correlationId, at: new Date(started).toISOString(), principal: principal.id,
+        authentication: principal.credentialKind || 'oauth', keyId: principal.credentialKind === 'api-key' ? principal.credentialRef : undefined,
         client: principal.clientId, tool: registry.operations.some(operation => operation.name === tool) ? tool : 'unknown', elapsedMs: Date.now()-started, code });
       ctx.storage.set('calls', rows.slice(0,500));
     }
@@ -41,7 +41,7 @@ export function activate(ctx: PluginContext) {
       }
     }
     for (const p of config.allowedPrefixes || []) if (typeof p !== 'string' || p.startsWith('/') || /[\\\x00-\x1f]/.test(p) || p.split('/').some(x => x === '.' || x === '..' || !x || x.startsWith('.'))) throw new BridgeError('INVALID_CONFIGURATION');
-    for (const value of [config.externalWebOrigin,config.tunnelOrigin].filter(Boolean)) { const u = new URL(value); if (u.protocol !== 'https:' || u.origin !== value) throw new BridgeError('INVALID_CONFIGURATION'); }
+    for (const value of [config.externalWebOrigin].filter(Boolean)) { const u = new URL(value); if (u.protocol !== 'https:' || u.origin !== value) throw new BridgeError('INVALID_CONFIGURATION'); }
   };
   validate(ctx.config()); ctx.onConfigure(validate);
   ctx.registerProvider('mcp.status', async ({ services }) => ({ connection: await services.authorization!.connection(),
@@ -56,8 +56,6 @@ export function activate(ctx: PluginContext) {
     return services.authorization!.revoke(input.clientId);
   });
   const protocol = async ({ request, response, body, call }: ProtocolCall) => calls.run(call.services, async () => {
-    const path = new URL(request.url!, 'http://local.invalid').pathname;
-    if (path === '/openapi.json') { response.setHeader('content-type','application/json'); response.end(JSON.stringify(buildOpenApi(registry.operations, (ctx.config().tunnelOrigin || 'http://127.0.0.1:' + ctx.config().compatPort) + '/mcp'))); return; }
     const principal = call.principal!;
     assertRequest(body);
     const controller = new AbortController(), deadline = Date.now()+budgets.call;
@@ -65,10 +63,6 @@ export function activate(ctx: PluginContext) {
     const timer = setTimeout(() => controller.abort(),budgets.call); timer.unref();
     const abort = () => controller.abort(); request.once('aborted',abort); response.once('close',abort);
     try {
-      if (path.startsWith('/api/v1/tools/')) {
-        const tool = path.slice('/api/v1/tools/'.length), result = await registry.execute(tool, principal, body, { signal: controller.signal, deadline });
-        response.setHeader('content-type','application/json'); response.end(JSON.stringify(registry.operations.find(o => o.name === tool)?.research ? { data: result } : result)); return;
-      }
       const b = body as any;
       if (!b || typeof b !== 'object' || Array.isArray(b) || (b.id != null && !(typeof b.id === 'number' && Number.isFinite(b.id)) && !(typeof b.id === 'string' && Buffer.byteLength(b.id)<=128))) throw new BridgeError('INVALID_INPUT');
       if (b.method === 'notifications/cancelled') {
@@ -83,7 +77,7 @@ export function activate(ctx: PluginContext) {
         if (activeRequests.size >= 128) throw new BridgeError('CALL_CONCURRENCY_LIMIT', 429, true);
         activeKey = key; activeRequests.set(key, controller);
       }
-      const server = new McpServer({ name: 'doo-know', version: '1.3.0' }, { instructions: makeAgentInstructions(ctx.config()) + '\n' + toDooAgentGuidance });
+      const server = new McpServer({ name: 'doo-know', version: '2.0.0' }, { instructions: makeAgentInstructions(ctx.config()) + '\n' + toDooAgentGuidance });
       const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined, enableJsonResponse: true, maxRequestBodySize: budgets.request });
       const send = transport.send.bind(transport);
       transport.send = async (message, options) => {
@@ -100,5 +94,5 @@ export function activate(ctx: PluginContext) {
       finally { await server.close(); }
     } finally { if (activeKey && activeRequests.get(activeKey) === controller) activeRequests.delete(activeKey); clearTimeout(timer); request.off('aborted',abort); response.off('close',abort); }
   });
-  ctx.registerProtocol('mcp.oauth',protocol); ctx.registerProtocol('mcp.compat',protocol);
+  ctx.registerProtocol('mcp.oauth',protocol);
 }

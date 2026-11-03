@@ -1,7 +1,6 @@
 import { expect, it } from 'vitest';
 import { createOperations } from '../plugins/mcp/server/operations.js';
 import { hostClient } from '../plugins/mcp/server/service.js';
-import { buildOpenApi } from '../plugins/mcp/server/openapi.js';
 import type { BlogPost } from '../shared/blog-contracts.js';
 
 const p = { id: 'fixture-owner', clientId: 'fixture-client', scopes: ['knowledge:read', 'knowledge:write', 'blog:read', 'blog:publish'], allowedPrefixes: ['00-Inbox'] };
@@ -14,20 +13,13 @@ function registry() {
   } };
   return createOperations({ objectIdSecret: 'fixture-blog-secret-at-least-32-characters' }, hostClient(() => services, () => ({})));
 }
-it('exposes bounded blog status, publish and unpublish through tools and matching OpenAPI', async () => {
+it('exposes bounded blog status, publish and unpublish through tools', async () => {
   const r = registry();
   expect(await r.execute('get_blog_status', p, { noteId: 'note-1' })).toMatchObject({ data: { publicationVersion: 1, source: { relativePath: '00-Inbox/note.md' } } });
   const published: any = await r.execute('publish_blog_post', p, { noteId: 'note-1', expectedModifiedAt: '123', expectedContentHash: 'a'.repeat(64), expectedPublicationVersion: 0, requestId: 'publish-1' });
   expect(published).toMatchObject({ data: { id: 'post-1', state: 'published', version: 1, sourceHash: 'a'.repeat(64), title: 'Public title', slug: 'post', url: 'https://blog.example/blog/post', omittedMetadata: ['summary', 'category', 'tags', 'pinned', 'cover'] } });
   for (const key of ['summary', 'category', 'tags', 'pinned', 'cover']) expect(published.data).not.toHaveProperty(key);
   expect(await r.execute('unpublish_blog_post', p, { noteId: 'note-1', expectedPublicationVersion: 1, requestId: 'withdraw-1' })).toMatchObject({ data: { state: 'withdrawn', version: 2 } });
-  const api: any = buildOpenApi(r.operations);
-  expect(api.paths['/api/v1/tools/publish_blog_post'].post['x-required-scope']).toBe('blog:publish');
-  expect(JSON.stringify(api.paths['/api/v1/tools/publish_blog_post'].post.responses['200'])).not.toContain('sourceContent');
-  const receipt = api.paths['/api/v1/tools/publish_blog_post'].post.responses['200'].content['application/json'].schema.properties.data;
-  expect(receipt.additionalProperties).toBe(false);
-  expect(receipt.properties.omittedMetadata).toBeDefined();
-  for (const key of ['summary', 'category', 'tags', 'pinned', 'cover']) expect(receipt.properties[key]).toBeUndefined();
 });
 it.each(['knowledge:read', 'blog:publish'])('requires %s independently for publication', async (scope) => {
   await expect(registry().execute('publish_blog_post', { ...p, scopes: p.scopes.filter((value) => value !== scope) }, { noteId: 'note-1', expectedModifiedAt: '123', expectedContentHash: 'a'.repeat(64), expectedPublicationVersion: 0, requestId: 'publish-denied' })).rejects.toMatchObject({ code: 'INSUFFICIENT_SCOPE' });

@@ -1,0 +1,15 @@
+{
+  "phase": "after",
+  "fixedTime": "2026-10-30T09:00:00.000Z",
+  "screenshots": [
+    {
+      "id": "09-notifications",
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "label": "通知中心",
+      "file": "phone-09-notifications.png",
+      "overflow": 0
+    }
+  ]
+}

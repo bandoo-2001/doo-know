@@ -10,7 +10,7 @@ import {
 async function command(page: Page, action: string, payload: Record<string, unknown>) {
   const csrf = await (await page.request.get('/api/security/csrf')).json();
   const response = await page.request.post('/api/to-doo/commands', {
-    headers: { origin: 'http://127.0.0.1:4179', 'x-csrf-token': csrf.token },
+    headers: { origin: String(test.info().project.use.baseURL), 'x-csrf-token': csrf.token },
     data: { requestId: crypto.randomUUID(), action, payload },
   });
   expect(response.ok()).toBe(true);
@@ -214,7 +214,8 @@ test('wide task details continue the quick draft and submit exactly one real tas
     fullPage: true,
   });
   await detail.getByRole('button', { name: '创建任务', exact: true }).click();
-  await expect(detail.getByRole('button', { name: '保存任务', exact: true })).toBeVisible();
+  await expect(detail.getByLabel('任务标题', { exact: true })).toHaveValue(title);
+  await expect(detail.getByRole('button', { name: '保存任务', exact: true })).not.toBeVisible();
   const state = await (
     await page.request.get(
       '/api/to-doo/state?filter=' + encodeURIComponent(JSON.stringify({ query: title })),
@@ -352,36 +353,41 @@ test.describe('quick view time zones', () => {
     context,
   }, info) => {
     await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
-    const title = '上海次日行动 ' + info.project.name + '-' + Date.now();
-    await command(page, 'create_task', {
-      title,
-      plan: { date: '2026-10-30', time: null, timeZone: 'Asia/Shanghai' },
+    const before = (await (await page.request.get('/api/to-doo/state')).json()).settings;
+    await command(page, 'save_entity', {
+      kind: 'settings', entity: { ...before, timeZone: 'Asia/Shanghai' }, expectedRevision: before.revision,
     });
-    await page.clock.install({ time: new Date('2026-10-29T23:30:00Z') });
-    const requestedDates: string[] = [];
-    await page.route('**/api/to-doo/state?**', async (route) => {
-      const filter = JSON.parse(new URL(route.request().url()).searchParams.get('filter') || '{}');
-      if (typeof filter.from === 'string') requestedDates.push(filter.from);
-      const response = await route.fetch();
-      const snapshot = await response.json();
-      await route.fulfill({
-        response,
-        json: {
-          ...snapshot,
-          settings: { ...snapshot.settings, timeZone: 'Asia/Shanghai' },
-        },
+    try {
+      const title = '上海次日行动 ' + info.project.name + '-' + Date.now();
+      await command(page, 'create_task', {
+        title,
+        plan: { date: '2026-10-30', time: null, timeZone: 'Asia/Shanghai' },
       });
-    });
-    await page.goto('/?view=apps&app=to-doo&appSection=tasks&taskFilter=today');
-    const app = page.getByRole('region', { name: 'To Doo 行动工作空间' });
-    await expect(app.getByRole('heading', { name: '今天', exact: true })).toBeVisible();
-    await expect
-      .poll(() => requestedDates.at(-1), {
-        message: 'Today must load October 30 in the workspace time zone at 23:30 UTC',
-      })
-      .toBe('2026-10-30');
-    await expect(app.getByRole('button', { name: title, exact: true })).toBeVisible();
-    // Drain timezone-rewriting responses before fixture teardown closes their request context.
-    await page.unrouteAll({ behavior: 'wait' });
+      await page.clock.install({ time: new Date('2026-10-29T23:30:00Z') });
+      const requestedDates: string[] = [];
+      const observe = (request: import('@playwright/test').Request) => {
+        const url = new URL(request.url());
+        if (url.pathname !== '/api/to-doo/state') return;
+        const filter = JSON.parse(url.searchParams.get('filter') || '{}');
+        if (typeof filter.from === 'string') requestedDates.push(filter.from);
+      };
+      page.on('request', observe);
+      try {
+        await page.goto('/?view=apps&app=to-doo&appSection=tasks&taskFilter=today');
+        const app = page.getByRole('region', { name: 'To Doo 行动工作空间' });
+        await expect(app.getByRole('heading', { name: '今天', exact: true })).toBeVisible();
+        await expect.poll(() => requestedDates.at(-1), {
+          message: 'Today must load October 30 in the workspace time zone at 23:30 UTC',
+        }).toBe('2026-10-30');
+        await expect(app.getByRole('button', { name: title, exact: true })).toBeVisible();
+      } finally {
+        page.off('request', observe);
+      }
+    } finally {
+      const latest = (await (await page.request.get('/api/to-doo/state')).json()).settings;
+      await command(page, 'save_entity', {
+        kind: 'settings', entity: { ...latest, timeZone: before.timeZone }, expectedRevision: latest.revision,
+      });
+    }
   });
 });

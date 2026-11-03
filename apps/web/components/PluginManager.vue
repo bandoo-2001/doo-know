@@ -34,7 +34,6 @@ import {
   createPluginDraft,
   refreshPluginDraft,
   pluginDraftDirty,
-  pluginFieldVisible,
   serializePluginDraft,
   PluginConfigError,
 } from '../plugin-config';
@@ -122,30 +121,17 @@ watch([() => installed.value?.id, () => values.value.allowToDoo], async ([id, al
 });
 function requirement(key: string | number) {
   if (prefixField(key)) return '必填';
-  if (installed.value?.id === 'mcp' && key === 'mode') return '必选';
   return installed.value?.manifest.configSchema.required?.includes(String(key)) ? '必填' : '选填';
 }
-function enumOptions(key: string | number, field: any) {
-  const modes: Record<string, string> = {
-    oauth: '网页授权（OAuth）',
-    tunnel: '本地隧道（Tunnel）',
-    both: '同时启用',
-  };
-  return field.enum.map((value: any) => ({
-    label:
-      installed.value?.id === 'mcp' && key === 'mode'
-        ? modes[value] || String(value)
-        : String(value),
-    value,
-  }));
+function enumOptions(_key: string | number, field: any) {
+  return field.enum.map((value: any) => ({ label: String(value), value }));
 }
 const standardFields = computed(() =>
   Object.fromEntries(
     Object.entries(installed.value?.manifest.configSchema.properties || {}).filter(
       ([key, field]) =>
         !(installed.value?.id === 'mcp' && ['permissionPolicy','readOnly','allowIndex','allowPublish','allowToDoo','allowToDooWrite','allowedPrefixes'].includes(key)) &&
-        (!['object', 'array'].includes((field as any).type) || prefixField(key) || taskArrayField(key)) &&
-        pluginFieldVisible(installed.value?.id || '', key, values.value.mode),
+        (!['object', 'array'].includes((field as any).type) || prefixField(key) || taskArrayField(key)),
     ),
   ),
 );
@@ -328,13 +314,6 @@ async function reloadConfig() {
     await nextTick();
     notice.value = '已重新载入已保存配置。';
   }
-}
-async function generateConnectionKey() {
-  values.value.tunnelToken = Array.from(crypto.getRandomValues(new Uint8Array(32)), (byte) =>
-    byte.toString(16).padStart(2, '0'),
-  ).join('');
-  await nextTick();
-  notice.value = '已在本浏览器生成连接密钥，请保存插件配置。';
 }
 watch(
   values,
@@ -612,7 +591,6 @@ onMounted(() => {
       <MCPConnectionGuide
         v-if="installed.id === 'mcp'"
         :plugin="installed"
-        :mode="values.mode || 'oauth'"
         :dirty="dirty"
       />
       <AAlert
@@ -753,16 +731,6 @@ onMounted(() => {
             :aria-label="field.title || String(key)"
             :disabled="busy"
           />
-          <template v-if="installed.id === 'mcp' && key === 'tunnelToken'">
-            <AButton :disabled="busy" class="generate-connection-key" @click="generateConnectionKey"
-              ><template #icon><Icon class="settings-button-icon" name="key" :size="15" /></template
-              >生成连接密钥</AButton
-            >
-            <p class="muted">
-              这是 DooKnow 的连接密钥，与 OpenAI API key
-              不同。可在本浏览器生成，生成后仍需保存配置；已有密钥留空会保留。
-            </p>
-          </template>
           <AButton
             v-if="field.writeOnly && installed.configuredSecrets.includes(String(key))"
             size="small"
@@ -1093,9 +1061,6 @@ onMounted(() => {
 }
 .plugin-form :deep(.clear-secret) {
   margin: 4px 0 0;
-}
-.plugin-form :deep(.generate-connection-key) {
-  margin-top: 8px;
 }
 .plugin-draft-notice {
   margin-bottom: 14px;

@@ -16,7 +16,7 @@
 
 首版敏感控制声明为顶层`type: string, writeOnly: true`，不允许默认密钥。敏感值单独保存为600权限文件，数据库只保存受控引用，浏览器只收到已配置字段名称。嵌套writeOnly声明安装时明确拒绝，避免默默以普通数据保存；复杂配置页可使用独立顶层密钥字段。
 
-需要随知识库迁移的普通偏好，须在对应顶层属性声明 `"x-dooknow-portable": true`。宿主将这些值保存到知识库 `_data/plugins/<id>/state.json`，已有本机配置在首次接入时按此声明迁移；`writeOnly` 始终优先，敏感值与密钥引用不会进入此文件。未声明的配置继续保存在本机。官方 Git 旧版清单中的字符串类型提交作者与邮箱由宿主按固定名单迁移；MCP 的端口、外部地址与连接凭据属于本机连接设置。
+需要随知识库迁移的普通偏好，须在对应顶层属性声明 `"x-dooknow-portable": true`。宿主将这些值保存到知识库 `_doo-data/plugins/<id>/state.json`，已有本机配置在首次接入时按此声明迁移；`writeOnly` 始终优先，敏感值与密钥引用不会进入此文件。未声明的配置继续保存在本机。官方 Git 旧版清单中的字符串类型提交作者与邮箱由宿主按固定名单迁移；MCP 的认证开关、外部资料地址与连接凭据属于本机连接设置。
 
 同步后再次读取插件状态时会载入便携偏好，并递增发生变化的配置版本，旧浏览器草稿不能覆盖它。已运行插件遇到同步配置变更时提示重启，避免静默改变运行中的配置。
 
@@ -48,9 +48,11 @@ API 1.2 新增 `context.userData: PluginStorage`，提供与 `storage` 相同的
 
 `plugins/mcp` 1.3 独立构建与安装，110 个有界工具覆盖知识库、博客、To Doo 及共享传输。旧工具保持兼容；新增业务服务通过可选 `PluginServices.knowledgeTools/blogTools/toDooTools/transfers.call` 暴露，参数和结果以 `shared/mcp-*-tools.ts` 的严格契约为准。读取预算在插件激活期间共享，单次研究候选以最多两个并发读取，过期候选被略过并标明降级原因。研究引用绑定客户端授权版本，只有明确的 HTTPS 网页地址才返回网页链接。
 
-公开 `/mcp` 只接受标准 OAuth 的短期令牌。宿主提供 DCR、Authorization Code、PKCE S256、资源发现、主人同意及本地授权版本检查。`oauth / tunnel / both` 三种模式显式选择；没有可达的 HTTPS 授权站点时，界面显示条件未满足。
+MCP 插件 2.0.0 要求宿主插件 API `^1.4.0`。旧版宿主会拒绝安装新插件；本次不提供旧连接配置或凭据迁移，已有安装需重新配置并签发密钥。
 
-Tunnel 使用独立的 loopback 监听端口、Bearer 密钥和本地授权记录，保留 `/mcp`、`/api/v1/tools/*`、`/openapi.json`、`/health`。浏览器只知道密钥是否已配置。凭据引用的发行代数持久保存，主人修改或重置密码后，未曾使用过的旧密钥也无法建立新连接；必须真正轮换密钥才能重新授权。
+公开 `/mcp` 只接受标准 OAuth 的短期令牌。宿主提供 DCR、Authorization Code、PKCE S256、资源发现、主人同意及本地授权版本检查。`oauthEnabled`、`apiKeyEnabled` 分别控制两种认证；没有可达的 HTTPS 授权站点时，界面显示条件未满足。
+
+API Key 使用主服务的 `/mcp/api-key`，凭据格式为 `Authorization: Bearer <API_KEY>`；与 OAuth 共用 `mcp.oauth` 协议处理器和业务工具。每个客户端独立授权，Token 只在创建或轮换时显示，数据库仅保存校验摘要。有效期默认 90 天，可指定 UTC 到期时刻或选择永不过期。轮换立即撤销旧密钥并保留客户端身份；全局授权失效后需明确重新授权并签发。管理接口沿用主人会话、Origin、CSRF 和版本校验，API Key 无权管理凭据。网络接入由外部负责；没有专用监听端口、REST/OpenAPI 兼容入口或旧凭据迁移。
 
 调用观察最多保留 500 条元数据，分页 50 条，不记录工具参数、查询、正文或令牌。撤销先禁用本地授权版本，再清理 provider 的令牌记录；清理失败会返回 `cleanupPending`，旧授权仍立即失效。Web 主人的连接管理能力只在 Web 通道提供，外部工具调用不能管理授权。
 
@@ -70,7 +72,7 @@ API 1.3 新增 `knowledge:share/manage`、`blog:write/manage`、`to-doo:share/in
 
 `create_note` 可使用 `directoryId`；null 明确表示业务根目录，省略时保留旧 directory 路径输入，同时提供二者时宿主校验当前路径一致。整理每次最多50个显式动作，目录列表默认20/最多50项；完整请求128KiB，完整工具发现及JSON-RPC响应64KiB。accepted仅表示有后台任务；成功须查询succeeded，索引状态单独报告。
 
-插件策略保存为 `permissionPolicy`，主设置页按域提供能力预设及全部/指定资源范围。未升级配置保留折叠的旧版兼容表单，查看页面不把旧选区变成all。缩小上限立即生效；扩大上限不改变已有客户端授权。OAuth重新发起授权，Tunnel通过设置页明确检查并保存新授权。连接详情显示已授予/当前生效策略并允许收窄或撤销。
+插件策略保存为 `permissionPolicy`，主设置页按域提供能力预设及全部/指定资源范围。未升级配置保留折叠的旧版兼容表单，查看页面不把旧选区变成all。缩小上限立即生效；扩大上限不改变已有客户端授权。OAuth 重新发起授权，API Key 通过客户端权限管理明确检查并保存新授权。连接详情显示已授予/当前生效策略并允许收窄或撤销。
 
 ## Git 官方插件与写入协调
 
@@ -106,4 +108,4 @@ API 1.3 新增 `knowledge:share/manage`、`blog:write/manage`、`to-doo:share/in
 
 `command` 使用共享判别契约、稳定 `requestId` 与实体预期版本。结果未知时核对或重试原请求，不更换身份重复创建。对计划先调用纯预览，再在用户授权后应用；宿主可通过服务端可信上下文限制依赖扩张，客户端 JSON 不能自选此上下文。内部成果恢复操作不开放给普通 MCP 任务授权。
 
-端口返回固定变更回执，不能依靠直接修改 SQLite 或 `_data` 实现业务。UI 工作集、便携事务、重复实例和后台队列的详细约定见 [To Doo 全量设计](superpowers/specs/2026-10-29-to-doo-full-design.md)。
+端口返回固定变更回执，不能依靠直接修改 SQLite 或 `_doo-data` 实现业务。UI 工作集、便携事务、重复实例和后台队列的详细约定见 [To Doo 全量设计](superpowers/specs/2026-10-29-to-doo-full-design.md)。

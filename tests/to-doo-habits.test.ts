@@ -70,3 +70,66 @@ it('does not break a streak before the current period has ended', () => {
   ).toBe(2);
   expect(getHabitPeriod(h, '2026-10-28').scheduledDates).toEqual(['2026-10-28']);
 });
+
+it('counts a check-in only once per scheduled day, even when imported entries contain duplicates', () => {
+  const h = habit({ goalMode: 'checkin', frequency: 'weekly', target: 3 });
+  const summary = summarizeHabitPeriod(
+    h,
+    [entry('2026-10-26', 1), entry('2026-10-26', 1, { id: 'duplicate' }), entry('2026-10-28', 1)],
+    '2026-10-29',
+  );
+  expect(summary.amount).toBe(2);
+  expect(summary.status).toBe('pending');
+});
+
+it('keeps interval days anchored to the start date across a month boundary', () => {
+  const h = habit({ startDate: '2026-10-30', intervalDays: 3 });
+  expect(getHabitPeriod(h, '2026-10-30').scheduledDates).toEqual(['2026-10-30']);
+  expect(summarizeHabitPeriod(h, [], '2026-10-31').status).toBe('exempt');
+  expect(getHabitPeriod(h, '2026-11-02').scheduledDates).toEqual(['2026-11-02']);
+  expect(
+    habitStreak(h, [entry('2026-10-30', 1), entry('2026-11-02', 1)], '2026-11-03'),
+  ).toMatchObject({ current: 2, longest: 2 });
+});
+
+it('exempts unselected weekdays without breaking the streak', () => {
+  const h = habit({ weekdays: [1, 3, 5] });
+  expect(summarizeHabitPeriod(h, [], '2026-10-27').status).toBe('exempt');
+  expect(getHabitPeriod(h, '2026-10-28').scheduledDates).toEqual(['2026-10-28']);
+  expect(
+    habitStreak(h, [entry('2026-10-26', 1), entry('2026-10-28', 1)], '2026-10-29'),
+  ).toMatchObject({ current: 2, longest: 2 });
+});
+
+it.each([
+  { goalMode: 'checkin', target: 2 },
+  { goalMode: 'checkin', frequency: 'weekly', target: 1.5 },
+  { goalMode: 'checkin', frequency: 'weekly', target: 8 },
+  { goalMode: 'checkin', frequency: 'weekly', target: 3, weekdays: [1] },
+  { goalMode: 'checkin', frequency: 'weekly', target: 3, weekdays: [1, 1, 1] },
+  { goalMode: 'checkin', frequency: 'monthly', target: 6, weekdays: [1] },
+  { intervalDays: 2, frequency: 'weekly' },
+  { intervalDays: 2, weekdays: [1, 3] },
+])('rejects an ambiguous or impossible ordinary schedule %j', (fields) => {
+  expect(() => habit(fields)).toThrow();
+});
+
+it('keeps legacy quantities valid on a restricted week and allows reachable ordinary day goals', () => {
+  const legacy = habit({ frequency: 'weekly', target: 3, weekdays: [1] });
+  expect(summarizeHabitPeriod(legacy, [entry('2026-10-26', 3)], '2026-10-26').status).toBe(
+    'achieved',
+  );
+  const ordinary = habit({
+    goalMode: 'checkin',
+    frequency: 'weekly',
+    target: 3,
+    weekdays: [1, 3, 5],
+  });
+  expect(
+    summarizeHabitPeriod(
+      ordinary,
+      [entry('2026-10-26', 1), entry('2026-10-28', 1), entry('2026-10-30', 1)],
+      '2026-10-30',
+    ).status,
+  ).toBe('achieved');
+});

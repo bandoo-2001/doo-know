@@ -1,0 +1,78 @@
+[
+  {
+    "name": "@vueuse/core",
+    "version": "15.0.0",
+    "license": "MIT",
+    "published": "2026-09-16T11:21:30.050Z",
+    "peers": {
+      "vue": "^3.5.0"
+    },
+    "dependencies": {
+      "@vueuse/shared": "15.0.0",
+      "@vueuse/metadata": "15.0.0",
+      "@types/web-bluetooth": "^0.0.21"
+    },
+    "unpackedBytes": 920917,
+    "repository": {
+      "url": "git+https://github.com/vueuse/vueuse.git",
+      "type": "git",
+      "directory": "packages/core"
+    }
+  },
+  {
+    "name": "@fullcalendar/vue3",
+    "version": "7.1.3",
+    "license": "MIT",
+    "published": "2026-10-16T03:11:09.458Z",
+    "peers": {
+      "vue": "^3.0.11",
+      "temporal-polyfill": "^1.0.1"
+    },
+    "dependencies": {
+      "preact": "^10.29.8",
+      "@fullcalendar/core": "7.1.3",
+      "@full-ui/headless-calendar": "7.1.3"
+    },
+    "unpackedBytes": 1231319,
+    "repository": {
+      "url": "git+https://github.com/fullcalendar/fullcalendar-vue.git",
+      "type": "git",
+      "directory": "packages/vue3"
+    }
+  },
+  {
+    "name": "vue-draggable-plus",
+    "version": "0.6.1",
+    "license": "MIT",
+    "published": "2026-01-11T07:56:12.900Z",
+    "peers": {
+      "@types/sortablejs": "^1.15.0"
+    },
+    "dependencies": {
+      "@types/sortablejs": "^1.15.8"
+    },
+    "unpackedBytes": 214831,
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/Alfred-Skyblue/vue-draggable-plus.git"
+    }
+  },
+  {
+    "name": "@tanstack/vue-virtual",
+    "version": "3.13.50",
+    "license": "MIT",
+    "published": "2026-10-29T10:56:12.964Z",
+    "peers": {
+      "vue": "^2.7.0 || ^3.0.0"
+    },
+    "dependencies": {
+      "@tanstack/virtual-core": "3.19.9"
+    },
+    "unpackedBytes": 18928,
+    "repository": {
+      "url": "git+https://github.com/TanStack/virtual.git",
+      "type": "git",
+      "directory": "packages/vue-virtual"
+    }
+  }
+]

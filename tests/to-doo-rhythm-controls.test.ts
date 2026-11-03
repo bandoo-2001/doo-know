@@ -3,8 +3,13 @@ import { readFileSync } from 'node:fs';
 import { compileScript, parse } from '@vue/compiler-sfc';
 import ts from 'typescript';
 import * as Vue from 'vue';
+import * as vueuse from '@vueuse/core';
+import * as clock from '../apps/web/to-doo-time';
 import * as workbench from '../apps/web/to-doo-workbench';
+import * as reminders from '../apps/web/to-doo-reminders';
 import * as habits from '../shared/to-doo-habits';
+import * as habitPresentation from '../apps/web/to-doo-habit-presentation';
+import * as anniversaries from '../shared/to-doo-anniversaries';
 import { TO_DOO_COLLECTIONS, toDooEntitySchemas } from '../shared/to-doo-contracts';
 
 type Node = {
@@ -18,6 +23,7 @@ const cleanups: (() => void)[] = [];
 afterEach(() => {
   cleanups.splice(0).forEach((fn) => fn());
   vi.unstubAllGlobals();
+  vi.useRealTimers();
 });
 const control = (tag: string) =>
   Vue.defineComponent({
@@ -28,9 +34,21 @@ const control = (tag: string) =>
         Vue.h(tag, attrs, slots.default?.()),
   });
 const controls = Object.fromEntries(
-  ['Button', 'InputNumber', 'Modal', 'Empty', 'Alert', 'Segmented', 'Statistic', 'Progress'].map(
-    (name) => [name, control(name)],
-  ),
+  [
+    'Button',
+    'InputNumber',
+    'Modal',
+    'Empty',
+    'Alert',
+    'Segmented',
+    'Statistic',
+    'Progress',
+    'Dropdown',
+    'Menu',
+    'Tabs',
+    'Tag',
+    'MenuItem',
+  ].map((name) => [name, control(name)]),
 );
 const Input = Object.assign(control('Input'), { TextArea: control('TextArea') });
 function component(name: string): Vue.Component {
@@ -45,12 +63,26 @@ function component(name: string): Vue.Component {
   new Function('require', 'module', 'exports', source)(
     (id: string) => {
       if (id === 'vue') return { ...Vue, vModelText: {}, vModelSelect: {} };
+      if (id === '@vueuse/core') return vueuse;
+      if (id === '../../to-doo-time') return clock;
       if (id === '../../to-doo-workbench') return workbench;
+      if (id === '../../to-doo-reminders') return reminders;
       if (id === '../../../../shared/to-doo-habits') return habits;
+      if (id === '../../to-doo-habit-presentation') return habitPresentation;
+      if (id === '../../../../shared/to-doo-anniversaries') return anniversaries;
       if (id === '../../to-doo-controls') return { useToDooConfirm: () => async () => false };
-      if (id === 'ant-design-vue') return { ...controls, Input };
+      if (id === 'ant-design-vue')
+        return {
+          ...controls,
+          Input,
+          Menu: Object.assign(controls.Menu, { Item: control('MenuItem') }),
+          Tabs: Object.assign(controls.Tabs, { TabPane: control('TabPane') }),
+        };
       if (id.endsWith('ToDooDateField.vue')) return { default: control('DateField') };
       if (id.endsWith('ToDooSelect.vue')) return { default: control('Select') };
+      if (/ToDoo(PageToolbar|SectionHeader|Focus|FocusTrend|FocusTimerFields|HabitCard|Icon)\.vue$/.test(id))
+        return { default: component(id.split('/').at(-1)!.replace('.vue', '')) };
+      if (id.endsWith('.css')) return {};
       throw Error(`Unexpected dependency: ${id}`);
     },
     output,
@@ -66,7 +98,7 @@ function mount(name: string, props: Record<string, any>) {
       parent.children.push(child);
       return [child, child];
     },
-    createElement: node,
+    createElement: (tag) => Object.assign(node(tag), { style: {} }),
     createText: (text) => node('#text', text),
     createComment: () => node('#comment'),
     insert(child, parent, anchor) {
@@ -94,11 +126,12 @@ function mount(name: string, props: Record<string, any>) {
   });
   const root = node('root'),
     app = renderer.createApp(component(name), props);
-  app.mount(root);
+  const vm = app.mount(root) as any;
   cleanups.push(() => app.unmount());
   const all = (parent = root): Node[] => [parent, ...parent.children.flatMap(all)];
   const text = (parent: Node): string => parent.text + parent.children.map(text).join('');
   return {
+    vm,
     all,
     text,
     button: (label: string) =>
@@ -113,6 +146,7 @@ function model() {
     snapshot: {
       ...Object.fromEntries(Object.values(TO_DOO_COLLECTIONS).map((name) => [name, []])),
       settings: toDooEntitySchemas.settings.parse({ ...stamp, id: 'settings' }),
+      habitEntries: [] as ReturnType<typeof toDooEntitySchemas.habitEntry.parse>[],
       focusSessions: [
         toDooEntitySchemas.focusSession.parse({
           ...stamp,
@@ -130,7 +164,33 @@ function model() {
     notice: '',
     query: {},
   });
-  return { state, execute: vi.fn(async () => ({})), removeEntity: vi.fn() };
+  return {
+    state,
+    execute: vi.fn(async () => ({})),
+    removeEntity: vi.fn(),
+    request: async (url: string) =>
+      url.startsWith('/api/to-doo/focus/history')
+        ? {
+            datasetId: 'focus-fixture',
+            revision: 'r1',
+            now: new Date().toISOString(),
+            timeZone: 'UTC',
+            active: null,
+            items: state.snapshot.focusSessions,
+            overview: {
+              today: { completed: 0, minutes: 0 },
+              lifetime: { completed: 0, minutes: 0 },
+              filtered: { completed: 0, minutes: 0 },
+              byTopic: {},
+            },
+            page: { total: 1, limit: 50, hasMore: false, nextCursor: null },
+          }
+        : {
+            focusTopics: [],
+            habitEntries: state.snapshot.habitEntries,
+            page: { nextCursor: null },
+          },
+  };
 }
 
 test('canceling minute correction writes nothing; saving zero minutes stays numeric', async () => {
@@ -140,6 +200,7 @@ test('canceling minute correction writes nothing; saving zero minutes stays nume
   );
   const value = model(),
     view = mount('ToDooRhythm', { model: value, section: 'focus' });
+  for (let turn = 0; turn < 8; turn++) await Vue.nextTick();
   await view.button('修正').props.onClick();
   await Vue.nextTick();
   expect(view.dialog()).toBeDefined();
@@ -211,6 +272,132 @@ test('selecting a custom statistics interval keeps the dates and waits for expli
   );
 });
 
+test('a long review interval renders late completions from full statistics even when no detail rows are loaded', async () => {
+  const value = model();
+  Object.assign(value.state.snapshot, {
+    statistics: {
+      scope: 'period',
+      completed: 2,
+      focusMinutes: 0,
+      outcomes: 0,
+      byList: {},
+      completedByDay: { '2026-08-01': 1, '2026-10-30': 1 },
+    },
+    occurrences: [],
+  });
+  const view = mount('ToDooReview', {
+    model: { ...value, load: async () => {} },
+    section: 'stats',
+  });
+  const fields = view.all().filter((node) => node.tag === 'DateField');
+  fields[0].props['onUpdate:modelValue']('2026-08-01');
+  fields[1].props['onUpdate:modelValue']('2026-10-30');
+  await Vue.nextTick();
+  const chart = view.all().find((node) => node.props.class === 'todo-completion-chart')!;
+  expect(chart.props['aria-label']).toContain('2026-10-30');
+  expect(chart.props['aria-label']).toContain('共2项');
+  expect(chart.children.filter((node) => node.tag === 'div').length).toBeLessThanOrEqual(31);
+});
+
+test('editing unapplied review dates keeps the chart and new review on the displayed statistics interval', async () => {
+  const value = model(),
+    edit = vi.fn();
+  Object.assign(value.state.snapshot, {
+    statistics: {
+      scope: 'period',
+      from: '2026-10-24',
+      to: '2026-10-30',
+      completed: 1,
+      focusMinutes: 25,
+      outcomes: 2,
+      byList: {},
+      completedByDay: { '2026-10-25': 1 },
+    },
+  });
+  const view = mount('ToDooReview', {
+    model: { ...value, load: async () => {} },
+    section: 'stats',
+    onEdit: edit,
+  });
+  const fields = view.all().filter((node) => node.tag === 'DateField');
+  fields[0].props['onUpdate:modelValue']('2026-08-01');
+  fields[1].props['onUpdate:modelValue']('2026-08-31');
+  await Vue.nextTick();
+  const chart = view.all().find((node) => node.props.class === 'todo-completion-chart')!;
+  expect(chart.props['aria-label']).toContain('2026-10-24 — 2026-10-30');
+  expect(chart.props['aria-label']).toContain('共1项');
+  expect(typeof view.vm.createReview).toBe('function');
+  view.vm.createReview();
+  expect(edit).toHaveBeenCalledWith(
+    'review',
+    undefined,
+    expect.objectContaining({
+      from: '2026-10-24',
+      to: '2026-10-30',
+      metrics: { completed: 1, focusMinutes: 25, outcomes: 2 },
+    }),
+  );
+});
+
+test('a lunar anniversary distinguishes its original lunar date from the next Gregorian date', () => {
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date('2026-10-30T12:00:00Z'));
+  const value = model();
+  Object.assign(value.state.snapshot, {
+    anniversaries: [
+      toDooEntitySchemas.anniversary.parse({
+        id: 'mid-autumn',
+        revision: 'a1',
+        createdAt: '2026-10-30T12:00:00Z',
+        updatedAt: '2026-10-30T12:00:00Z',
+        name: '中秋',
+        date: '2001-08-15',
+        calendar: 'lunar',
+        repeatYearly: true,
+      }),
+    ],
+  });
+  const view = mount('ToDooRhythm', { model: value, section: 'anniversaries' });
+  const content = view
+    .all()
+    .map((node) => node.text)
+    .join('');
+  expect(content).toContain('农历原日期：2001-08-15');
+  expect(content).toContain('下次公历：2027-09-15');
+});
+
+test('opening a task notification resolves its exact recurring execution through the reminder domain', async () => {
+  const value = model(),
+    task = vi.fn();
+  const stamp = {
+    id: 'notice',
+    revision: 'n1',
+    createdAt: '2026-10-30T10:00:00Z',
+    updatedAt: '2026-10-30T10:00:00Z',
+  };
+  const event = toDooEntitySchemas.reminderEvent.parse({
+    ...stamp,
+    sourceType: 'task',
+    sourceId: 'task-id',
+    occurrenceKey: 'cycle-2',
+    ruleId: 'rule',
+    scheduleRevision: 's1',
+    scheduledAt: '2026-10-30T10:00:00Z',
+    firstRaisedAt: '2026-10-30T10:00:00Z',
+  });
+  Object.assign(value.state.snapshot, { reminderEvents: [event] });
+  const view = mount('ToDooReview', {
+    model: {
+      ...value,
+      request: async () => ({ event, taskId: 'task-id', occurrenceId: 'occurrence-2' }),
+    },
+    section: 'notifications',
+    onTask: task,
+  });
+  await view.button('查看任务').props.onClick();
+  expect(task).toHaveBeenCalledWith('task-id', 'occurrence-2');
+});
+
 test('empty habit quantities remain empty and cannot become zero or create a record', async () => {
   const value = model(),
     now = new Date().toISOString();
@@ -228,6 +415,12 @@ test('empty habit quantities remain empty and cannot become zero or create a rec
     ],
   });
   const view = mount('ToDooRhythm', { model: value, section: 'habits' });
+  for (let turn = 0; turn < 8; turn++) await Vue.nextTick();
+  view
+    .all()
+    .find((n) => n.tag === 'Segmented' && n.props['aria-label'] === '习惯视图')!
+    .props['onUpdate:value']('history');
+  await Vue.nextTick();
   const cell = view
     .all()
     .find(
@@ -258,4 +451,37 @@ test('empty habit quantities remain empty and cannot become zero or create a rec
     }),
     '习惯记录已保存',
   );
+});
+
+test('an ordinary habit card offers a single check-in and hides quantitative inputs', async () => {
+  const now = new Date().toISOString();
+  const habit = toDooEntitySchemas.habit.parse({
+    id: 'sleep',
+    revision: 'r1',
+    createdAt: now,
+    updatedAt: now,
+    name: '早睡',
+    goalMode: 'checkin',
+    startDate: '2026-10-26',
+  });
+  const record = vi.fn();
+  const view = mount('ToDooHabitCard', {
+    habit,
+    date: '2026-10-30',
+    summary: habits.summarizeHabitPeriod(habit, [], '2026-10-30'),
+    amount: 0,
+    entryCount: 0,
+    skipped: false,
+    exempt: false,
+    ready: true,
+    busy: false,
+    quantity: 1,
+    onRecord: record,
+  });
+  expect(view.all().filter((n) => n.tag === 'InputNumber')).toHaveLength(0);
+  await view.button('打卡').props.onClick();
+  expect(record).toHaveBeenCalledOnce();
+  Object.assign(view.vm.$.props, { amount: 1, entryCount: 1 });
+  await Vue.nextTick();
+  expect(view.button('已打卡').props.disabled).toBe(true);
 });

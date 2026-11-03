@@ -1,0 +1,204 @@
+{
+  "method": "Native browser screenshots arranged as HTML; original UI pixels unchanged",
+  "images": [
+    {
+      "file": "comparisons/desktop-01-overview.png",
+      "title": "目标总览",
+      "pages": [
+        "01-overview"
+      ]
+    },
+    {
+      "file": "comparisons/desktop-02-calendar-month.png",
+      "title": "月日历",
+      "pages": [
+        "02-calendar-month"
+      ]
+    },
+    {
+      "file": "comparisons/desktop-03-calendar-week.png",
+      "title": "周日历",
+      "pages": [
+        "03-calendar-week"
+      ]
+    },
+    {
+      "file": "comparisons/desktop-04-timeline.png",
+      "title": "时间线",
+      "pages": [
+        "04-timeline"
+      ]
+    },
+    {
+      "file": "comparisons/desktop-05-matrix.png",
+      "title": "四象限",
+      "pages": [
+        "05-matrix"
+      ]
+    },
+    {
+      "file": "comparisons/desktop-06-focus.png",
+      "title": "专注",
+      "pages": [
+        "06-focus"
+      ]
+    },
+    {
+      "file": "comparisons/desktop-07-anniversaries.png",
+      "title": "纪念日",
+      "pages": [
+        "07-anniversaries"
+      ]
+    },
+    {
+      "file": "comparisons/desktop-08-statistics.png",
+      "title": "统计与复盘",
+      "pages": [
+        "08-statistics"
+      ]
+    },
+    {
+      "file": "comparisons/desktop-09-notifications.png",
+      "title": "通知中心",
+      "pages": [
+        "09-notifications"
+      ]
+    },
+    {
+      "file": "comparisons/desktop-10-settings.png",
+      "title": "设置",
+      "pages": [
+        "10-settings"
+      ]
+    },
+    {
+      "file": "comparisons/desktop-11-recovery.png",
+      "title": "数据与恢复",
+      "pages": [
+        "11-recovery"
+      ]
+    },
+    {
+      "file": "comparisons/phone-01-overview.png",
+      "title": "目标总览 · 手机深色",
+      "pages": [
+        "01-overview"
+      ]
+    },
+    {
+      "file": "comparisons/phone-02-calendar-month.png",
+      "title": "月日历 · 手机深色",
+      "pages": [
+        "02-calendar-month"
+      ]
+    },
+    {
+      "file": "comparisons/phone-03-calendar-week.png",
+      "title": "周日历 · 手机深色",
+      "pages": [
+        "03-calendar-week"
+      ]
+    },
+    {
+      "file": "comparisons/phone-04-timeline.png",
+      "title": "时间线 · 手机深色",
+      "pages": [
+        "04-timeline"
+      ]
+    },
+    {
+      "file": "comparisons/phone-05-matrix.png",
+      "title": "四象限 · 手机深色",
+      "pages": [
+        "05-matrix"
+      ]
+    },
+    {
+      "file": "comparisons/phone-06-focus.png",
+      "title": "专注 · 手机深色",
+      "pages": [
+        "06-focus"
+      ]
+    },
+    {
+      "file": "comparisons/phone-07-anniversaries.png",
+      "title": "纪念日 · 手机深色",
+      "pages": [
+        "07-anniversaries"
+      ]
+    },
+    {
+      "file": "comparisons/phone-08-statistics.png",
+      "title": "统计与复盘 · 手机深色",
+      "pages": [
+        "08-statistics"
+      ]
+    },
+    {
+      "file": "comparisons/phone-09-notifications.png",
+      "title": "通知中心 · 手机深色",
+      "pages": [
+        "09-notifications"
+      ]
+    },
+    {
+      "file": "comparisons/phone-10-settings.png",
+      "title": "设置 · 手机深色",
+      "pages": [
+        "10-settings"
+      ]
+    },
+    {
+      "file": "comparisons/phone-11-recovery.png",
+      "title": "数据与恢复 · 手机深色",
+      "pages": [
+        "11-recovery"
+      ]
+    },
+    {
+      "file": "01-planning.png",
+      "title": "目标与执行",
+      "pages": [
+        "01-overview",
+        "05-matrix"
+      ]
+    },
+    {
+      "file": "02-calendar.png",
+      "title": "日历与时间线",
+      "pages": [
+        "02-calendar-month",
+        "03-calendar-week",
+        "04-timeline"
+      ]
+    },
+    {
+      "file": "03-life.png",
+      "title": "专注与纪念日",
+      "pages": [
+        "06-focus",
+        "07-anniversaries"
+      ]
+    },
+    {
+      "file": "04-management.png",
+      "title": "统计、通知与设置",
+      "pages": [
+        "08-statistics",
+        "09-notifications",
+        "10-settings",
+        "11-recovery"
+      ]
+    },
+    {
+      "file": "05-mobile.png",
+      "title": "手机深色界面",
+      "pages": [
+        "02-calendar-month",
+        "06-focus",
+        "09-notifications",
+        "10-settings"
+      ]
+    }
+  ]
+}

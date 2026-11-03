@@ -1,4 +1,5 @@
 import { it, expect } from 'vitest';
+import { prepareLegacyPreview } from './support/legacy-diagram-preview';
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
@@ -47,6 +48,14 @@ it('indexes only board labels rather than serialized scene coordinates and image
     ))
       chunks.push(chunk);
     expect(chunks.map((c) => c.content).join('')).toBe('应当检索的架构标签');
+    for (const chunk of chunks)
+      expect(chunk.content).toBe(
+        Buffer.from(n.content).subarray(chunk.startByte, chunk.endByte).toString(),
+      );
+    expect(chunks.map((c) => c.embeddingInput).join('\n')).toContain('应当检索的架构标签');
+    expect(chunks.map((c) => c.embeddingInput).join('\n')).not.toMatch(
+      /"(?:x|y|files|appState)"|data:image/,
+    );
     expect(chunks.every((c) => c.embeddingTokenCount <= 512)).toBe(true);
   } finally {
     db?.close();
@@ -250,6 +259,7 @@ it('only shares explicitly referenced boards and revokes access with the parent 
       return r.json();
     };
     const a = await create('公开图.excalidraw', scene('可分享内容'));
+    await prepareLegacyPreview(f, headers, a.id);
     const b = await create('私密图.excalidraw', scene('私密内容'));
     const note = await create('说明.md', '# 说明\n\n```excalidraw\n' + a.id + '\n```\n');
     const sharing = (
@@ -257,8 +267,11 @@ it('only shares explicitly referenced boards and revokes access with the parent 
     ).json();
     const url = `/api/public/shares/${sharing.token}/whiteboards/`;
     expect((await f.app.inject({ url: url + a.id })).json()).toMatchObject({
-      content: a.content,
+      source: { format: 'excalidraw' },
+      preview: { state: 'ready' },
+      capabilities: { canEdit: false, canDownloadSource: false },
     });
+    expect((await f.app.inject({ url: url + a.id })).body).not.toContain('可分享内容');
     expect((await f.app.inject({ url: url + b.id })).statusCode).toBe(404);
     await f.app.inject({ method: 'DELETE', url: `/api/notes/${note.id}/share`, headers });
     expect((await f.app.inject({ url: url + a.id })).statusCode).toBe(404);

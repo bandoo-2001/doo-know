@@ -71,7 +71,7 @@ it('shows honest preparation state before enabling MCP and keeps authorization m
   }
 });
 
-it('reports effective permissions only for the selected channel and recognizes successful calls from the owner migrated identity', async () => {
+it('separates API clients from OAuth grants and reports successful owner calls', async () => {
   const f = await createFixture({ pluginCatalog: [] });
   try {
     const headers = await loginFixtureOwner(f);
@@ -91,7 +91,7 @@ it('reports effective permissions only for the selected channel and recognizes s
           contributions: [],
         }),
         '{}',
-        JSON.stringify({ mode: 'tunnel', readOnly: true, allowedPrefixes: ['00-Inbox'] }),
+        JSON.stringify({ oauthEnabled: false, apiKeyEnabled: true, readOnly: true, allowedPrefixes: ['00-Inbox'] }),
       );
       oauthGrantStore(db).approve(owner, 'oauth-client', ['knowledge:read'], ['00-Inbox']);
       const response = await f.app.inject({ url: '/api/platform/mcp/connection', headers });
@@ -101,18 +101,13 @@ it('reports effective permissions only for the selected channel and recognizes s
         )
         .toEqual([]);
 
-      db.exec(`CREATE TABLE IF NOT EXISTS mcp_tunnel_identity(owner_id TEXT PRIMARY KEY,principal_id TEXT NOT NULL,client_id TEXT NOT NULL,
-        credential_reference TEXT NOT NULL,issued_at INTEGER NOT NULL,expires_at INTEGER,revoked INTEGER NOT NULL DEFAULT 0,source_migrated INTEGER NOT NULL DEFAULT 0)`);
-      db.prepare(
-        'INSERT INTO mcp_tunnel_identity(owner_id,principal_id,client_id,credential_reference,issued_at,source_migrated) VALUES(?,?,?,?,?,1)',
-      ).run(owner, 'legacy-owner', 'legacy-client', 'private-reference', 0);
       db.prepare('INSERT INTO plugin_data(plugin_id,key,value) VALUES(?,?,?)').run(
         'mcp',
         'calls',
         JSON.stringify([
           {
-            principal: 'legacy-owner',
-            client: 'legacy-client',
+            principal: owner,
+            client: 'api-client',
             code: 'OK',
             tool: 'list_notes',
             at: '2026-10-19T01:00:00Z',
@@ -122,9 +117,9 @@ it('reports effective permissions only for the selected channel and recognizes s
       const migrated = await f.app.inject({ url: '/api/platform/mcp/connection', headers });
       expect(migrated.json().latestSuccessfulCall).toMatchObject({
         tool: 'list_notes',
-        client: 'legacy-client',
+        client: 'api-client',
       });
-      expect(JSON.stringify(migrated.json())).not.toContain('private-reference');
+      expect(JSON.stringify(migrated.json())).not.toContain('authorization');
     } finally {
       db.close();
     }

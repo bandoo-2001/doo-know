@@ -1,3 +1,4 @@
+import { isKnowledgeDataPath, DOO_ASSETS_DIRECTORY } from '../../../shared/storage-paths.js';
 import { randomUUID } from 'node:crypto';
 import type {
   DomainGrant,
@@ -196,7 +197,7 @@ export const underPrefix = (path: string, prefix: string) =>
   path === prefix || path.startsWith(prefix + '/');
 /** Business syntax only. Filesystem evidence is additionally checked by every read/mutation. */
 export function canAccessPath(p: Principal, path: string): boolean {
-  if (typeof path !== 'string' || path === '_data' || path.startsWith('_data/')) return false;
+  if (typeof path !== 'string' || isKnowledgeDataPath(path)) return false;
   if (path === '') return p.knowledgeAll === true;
   if (
     path.startsWith('/') ||

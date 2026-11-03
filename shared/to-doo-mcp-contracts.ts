@@ -1,8 +1,15 @@
 import { z } from 'zod';
-import { toDooEntitySchemas, toDooId, toDooDate, toDooFilterSchema } from './to-doo-contracts.js';
+import {
+  toDooEntitySchemas,
+  toDooId,
+  toDooDate,
+  toDooFilterSchema,
+  toDooReminderStateSchema,
+} from './to-doo-contracts.js';
 
 export const toDooMcpKind = z.enum([
   'statistics',
+  'focusOverview',
   ...(Object.keys(toDooEntitySchemas) as Array<keyof typeof toDooEntitySchemas>),
 ] as const);
 export const toDooMcpQuery = z
@@ -11,6 +18,12 @@ export const toDooMcpQuery = z
     ids: z.array(toDooId).max(50).optional(),
     listIds: z.array(toDooId).max(50).optional(),
     filter: toDooFilterSchema.optional(),
+    sort: z.literal('recent').optional(),
+    raisedOnly: z.boolean().optional(),
+    sourceContext: z.boolean().optional(),
+    reminderStates: z.array(toDooReminderStateSchema).max(5).optional(),
+    topicId: toDooId.optional(),
+    unassigned: z.boolean().optional(),
     from: toDooDate.optional(),
     to: toDooDate.optional(),
     cursor: z.string().max(2048).optional(),

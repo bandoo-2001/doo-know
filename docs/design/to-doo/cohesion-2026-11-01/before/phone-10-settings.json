@@ -1,0 +1,15 @@
+{
+  "phase": "before",
+  "fixedTime": "2026-10-30T09:00:00.000Z",
+  "screenshots": [
+    {
+      "id": "10-settings",
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "label": "设置",
+      "file": "phone-10-settings.png",
+      "overflow": 0
+    }
+  ]
+}

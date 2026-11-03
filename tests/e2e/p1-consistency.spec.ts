@@ -8,7 +8,7 @@ test.use({ sourceEditorPreference: true });
 async function open(page: any, context: any, name: string) {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   const csrf = await page.request.get('/api/security/csrf');
-  const h = { origin: 'http://127.0.0.1:4179', 'x-csrf-token': (await csrf.json()).token };
+  const h = { origin: String(test.info().project.use.baseURL), 'x-csrf-token': (await csrf.json()).token };
   const r = await page.request.post('/api/notes', {
     headers: h,
     data: { folderPath: '00-Inbox', fileName: name + '.md', content: '# A' },
@@ -146,25 +146,50 @@ test('W02 stale deletion preserves share then checks a lost delete receipt', asy
   const row = page.locator('.trash-item').filter({ hasText: n.relativePath });
   let restoreInput: any;
   const restoreInputs: any[] = [];
+  let nextResult!: (result: 'busy' | 'lost') => void;
+  const nextAttempt = () => new Promise<'busy' | 'lost'>((resolve) => { nextResult = resolve; });
+  let attempt = nextAttempt(), injectBusy = true, responseLost = false, busyResponses = 0, previewResponses = 0;
   page.on('request', (req) => {
     if (new URL(req.url()).pathname === '/api/manage/trash/restore' && req.method() === 'POST')
       restoreInputs.push(req.postDataJSON());
   });
-  await page.route(
-    '**/api/manage/trash/restore',
-    async (route) => {
-      restoreInput = route.request().postDataJSON();
-      expect(restoreInput.ids).toEqual([n.id]);
-      const committed = await route.fetch();
-      expect(committed.status()).toBe(200);
-      expect((await committed.json()).results).toEqual([
-        { id: n.id, ok: true, relativePath: n.relativePath },
-      ]);
-      await route.abort('failed');
-    },
-    { times: 1 },
-  );
+  await page.route('**/api/manage/trash/restore', async (route) => {
+    if (responseLost) return route.continue();
+    restoreInput = route.request().postDataJSON();
+    expect(restoreInput.ids).toEqual([n.id]);
+    // A busy workspace has not committed anything. Deliver that response normally;
+    // lose a response only after the real server confirms the durable restore.
+    if (injectBusy) {
+      injectBusy = false;
+      busyResponses++;
+      await route.fulfill({ status: 503, json: { code: 'WORKSPACE_BUSY', error: '知识库正在执行其他维护操作', retryable: true } });
+      nextResult('busy');
+      return;
+    }
+    const committed = await route.fetch();
+    if (committed.status() === 503 && (await committed.json()).code === 'WORKSPACE_BUSY') {
+      busyResponses++;
+      await route.fulfill({ response: committed });
+      nextResult('busy');
+      return;
+    }
+    if (committed.status() === 409 && (await committed.json()).code === 'DIAGRAM_PREVIEW_REQUIRED') {
+      previewResponses++;
+      return route.fulfill({ response: committed });
+    }
+    expect(committed.status()).toBe(200);
+    expect((await committed.json()).results).toEqual([{ id: n.id, ok: true, relativePath: n.relativePath }]);
+    responseLost = true;
+    await route.abort('failed');
+    nextResult('lost');
+  });
   await row.getByRole('button', { name: '恢复并打开', exact: true }).click();
+  while (await attempt === 'busy') {
+    await expect(page.locator('.trash-workspace').getByRole('alert')).toContainText('维护操作');
+    await expect(row.getByRole('button', { name: '恢复并打开', exact: true })).toBeDisabled();
+    attempt = nextAttempt();
+    await page.getByRole('button', { name: '按原请求核对结果', exact: true }).click();
+  }
   await expect(page.locator('.trash-workspace').getByRole('alert')).toContainText(
     '未收到完整操作结果',
   );
@@ -173,8 +198,9 @@ test('W02 stale deletion preserves share then checks a lost delete receipt', asy
   await expect(row).toHaveCount(0);
   await expect(page).toHaveURL(new RegExp('note=' + n.id));
   await expect(page.locator('.cm-content')).toContainText('# B');
-  expect(restoreInputs).toHaveLength(2);
-  expect(restoreInputs[1]).toEqual(restoreInputs[0]);
+  expect(busyResponses).toBeGreaterThan(0);
+  expect(restoreInputs).toHaveLength(busyResponses + previewResponses + 2);
+  for (const input of restoreInputs) expect(input).toEqual(restoreInputs[0]);
   expect(restoreInput.requestId).toBeTruthy();
   const restored = await page.request.get(`/api/notes/${n.id}`);
   expect(restored.status()).toBe(200);

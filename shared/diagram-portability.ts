@@ -135,6 +135,8 @@ export function diagramPreviewGroups(markdown: string) {
   );
 }
 export function boundDiagramSources(markdown: string) {
+  // A bound native group requires a fenced block with a literal Markdown delimiter.
+  if (!/[`~]/.test(markdown)) return [];
   return inspect(markdown).flatMap(({ group, ...fence }) =>
     group ? [{ ...fence, ...group }] : [],
   );

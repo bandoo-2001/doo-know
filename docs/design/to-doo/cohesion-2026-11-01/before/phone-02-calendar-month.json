@@ -1,0 +1,15 @@
+{
+  "phase": "before",
+  "fixedTime": "2026-10-30T09:00:00.000Z",
+  "screenshots": [
+    {
+      "id": "02-calendar-month",
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "label": "月日历",
+      "file": "phone-02-calendar-month.png",
+      "overflow": 0
+    }
+  ]
+}

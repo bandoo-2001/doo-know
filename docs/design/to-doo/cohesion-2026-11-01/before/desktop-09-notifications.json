@@ -1,0 +1,15 @@
+{
+  "phase": "before",
+  "fixedTime": "2026-10-30T09:00:00.000Z",
+  "screenshots": [
+    {
+      "id": "09-notifications",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "label": "通知中心",
+      "file": "desktop-09-notifications.png",
+      "overflow": 0
+    }
+  ]
+}

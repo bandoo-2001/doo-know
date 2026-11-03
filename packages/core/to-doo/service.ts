@@ -39,7 +39,10 @@ import {
 } from './recurrence.js';
 import { validateToDooPlan, previewToDooDependentAdjustment } from './planning.js';
 import type { ToDooCommandContext } from '../../../shared/to-doo-contracts.js';
-import { buildToDooSnapshot } from './queries.js';
+import { buildToDooSnapshot, statistics } from './queries.js';
+import { readToDooFocusHistory } from './focus.js';
+import { resolveToDooReminderSource } from './reminder-source.js';
+import { getHabitGoalMode, getHabitPeriod } from '../../../shared/to-doo-habits.js';
 
 export function interruptImportedToDooFocusSession<T extends Record<string, unknown>>(session: T) {
   if (session.status !== 'running') return session;
@@ -77,6 +80,9 @@ function validateRelations(s: ToDooState, changedIds?: Set<string>) {
   for (const id of affected) {
     const task = s.task.get(id);
     if (!task || task.deletedAt) continue;
+    const section = task.sectionId ? s.section.get(task.sectionId) : undefined;
+    if (section && !section.deletedAt && section.listId !== task.listId)
+      toDooError('任务分组不属于当前清单', 400);
     const seen = new Set([id]);
     let current = task,
       depth = 1;
@@ -140,6 +146,18 @@ export function createToDooService(
   function context(state: ToDooState, requestId: string) {
     const changes = new Map<string, PendingEntity>(),
       now = new Date().toISOString();
+    let deletionAt: string | undefined;
+    function deletionTimestamp() {
+      if (deletionAt) return deletionAt;
+      // Restore groups share this timestamp; keep separate deletions distinct
+      // even when the clock repeats or moves backwards.
+      let instant = Date.parse(now);
+      for (const collection of Object.values(state))
+        for (const entity of collection.values())
+          if (entity.deletedAt) instant = Math.max(instant, Date.parse(entity.deletedAt) + 1);
+      deletionAt = new Date(instant).toISOString();
+      return deletionAt;
+    }
     function get<K extends ToDooEntityKind>(kind: K, id: string): ToDooEntityMap[K] {
       const entity = state[kind].get(id);
       if (!entity) toDooError('项目不存在或尚未同步', 404, 'TO_DOO_NOT_FOUND');
@@ -211,6 +229,17 @@ export function createToDooService(
         }
       }
       return [...result].map((id) => get('task', id));
+    }
+    function setTaskDeleted(task: ToDooTask, restore: boolean) {
+      if (restore ? !task.deletedAt : !!task.deletedAt) return;
+      const deletedAt = restore ? null : deletionTimestamp();
+      put('task', { ...task, deletedAt });
+      for (const item of state.occurrence.values())
+        if (
+          item.taskId === task.id &&
+          (restore ? item.deletedAt === task.deletedAt : !item.deletedAt)
+        )
+          put('occurrence', { ...item, deletedAt });
     }
     function recurrenceOwner(task: ToDooTask): ToDooTask | null {
       let current = task;
@@ -599,6 +628,43 @@ export function createToDooService(
       const existing = typeof value.id === 'string' ? state[kind].get(value.id) : undefined;
       if (existing && !expectedRevision) toDooError('修改既有实体需要预期版本', 400);
       if (existing) check(kind, existing.id, expectedRevision!);
+      if (kind === 'task' && existing) {
+        const task = existing as ToDooTask;
+        if (
+          Object.hasOwn(value, 'listId') &&
+          value.listId !== task.listId &&
+          (!Object.hasOwn(value, 'sectionId') || value.sectionId === task.sectionId)
+        )
+          value = { ...value, sectionId: null };
+      }
+      if (kind === 'focusSession') {
+        const old = existing as ToDooEntityMap['focusSession'] | undefined;
+        const merged = { ...old, ...value };
+        const topic =
+          typeof merged.topicId === 'string' ? state.focusTopic.get(merged.topicId) : undefined;
+        const occurrence =
+          typeof merged.occurrenceId === 'string'
+            ? state.occurrence.get(merged.occurrenceId)
+            : undefined;
+        const task = occurrence ? state.task.get(occurrence.taskId) : undefined;
+        value = {
+          ...value,
+          topicName:
+            (old?.topicId === merged.topicId ? old?.topicName : null) ??
+            topic?.name ??
+            merged.topicName ??
+            null,
+          taskTitle:
+            (old?.occurrenceId === merged.occurrenceId ? old?.taskTitle : null) ??
+            occurrence?.titleOverride ??
+            task?.title ??
+            merged.taskTitle ??
+            null,
+          ...(!old && !merged.listId && (topic?.listId || task?.listId)
+            ? { listId: task?.listId ?? topic?.listId }
+            : {}),
+        };
+      }
       if (kind === 'habit') {
         const old = existing as ToDooEntityMap['habit'] | undefined;
         const candidate = parseEntity('habit', {
@@ -612,6 +678,8 @@ export function createToDooService(
         });
         const fields = [
           'frequency',
+          'goalMode',
+          'intervalDays',
           'target',
           'unit',
           'timeZone',
@@ -698,7 +766,8 @@ export function createToDooService(
       }
       if (kind === 'occurrence' && existing) {
         const o = existing as ToDooOccurrence;
-        if (value.status && value.status !== o.status)
+        const statusChanged = !!value.status && value.status !== o.status;
+        if (statusChanged)
           setStatus(
             o.id,
             value.status as ToDooOccurrence['status'],
@@ -712,6 +781,7 @@ export function createToDooService(
         );
         return put('occurrence', {
           ...value,
+          ...(statusChanged ? { completedAt: get('occurrence', o.id).completedAt } : {}),
           manuallyEdited: true,
           ...(scheduled ? { scheduleRevision: randomUUID() } : {}),
         });
@@ -749,6 +819,8 @@ export function createToDooService(
       put,
       activity,
       descendants,
+      setTaskDeleted,
+      deletionTimestamp,
       materialize,
       createTask,
       setStatus,
@@ -830,8 +902,52 @@ export function createToDooService(
     return mutate(cmd.requestId, input, (c) => {
       const { action, payload: p } = cmd;
       switch (action) {
-        case 'save_entity':
-          return [c.save(p.kind, p.entity, p.expectedRevision).id];
+        case 'read_reminders': {
+          if (p.datasetId && p.datasetId !== store.datasetId)
+            toDooError('数据集已变化，请重新核对提醒');
+          const ids: string[] = [];
+          for (const id of new Set(p.ids)) {
+            const event = c.get('reminderEvent', id);
+            if (
+              !event.deletedAt &&
+              event.userState === 'unread' &&
+              (event.firstRaisedAt || Date.parse(event.scheduledAt) <= Date.parse(c.now))
+            ) {
+              ids.push(
+                c.put('reminderEvent', { ...event, userState: 'read', snoozedUntil: null }).id,
+              );
+            }
+          }
+          return ids;
+        }
+        case 'save_entity': {
+          if (p.captureMetrics && p.kind !== 'review') toDooError('只有复盘支持自动统计', 400);
+          const saved = c.save(p.kind, p.entity, p.expectedRevision);
+          if (p.kind === 'review' && p.captureMetrics) {
+            const review = saved as ToDooEntityMap['review'];
+            const summary = statistics(
+              store,
+              {
+                from: review.from,
+                to: review.to,
+                ...(review.listId ? { listIds: [review.listId] } : {}),
+              },
+              trustedContext.statisticsAuthorization,
+            );
+            return [
+              c.put('review', {
+                ...review,
+                capturedAt: summary.asOf ?? c.now,
+                metrics: {
+                  completed: summary.completed,
+                  focusMinutes: summary.focusMinutes,
+                  outcomes: summary.outcomes,
+                },
+              }).id,
+            ];
+          }
+          return [saved.id];
+        }
         case 'save_outcome': {
           c.check('occurrence', p.occurrenceId, p.expectedRevision);
           const occurrence = c.get('occurrence', p.occurrenceId),
@@ -974,31 +1090,34 @@ export function createToDooService(
             return ids;
           }
           const selectedIds = new Set(selected.map((t) => t.id));
+          const restoreMarkers = new Set(p.ids.map((id) => c.get('task', id).deletedAt));
           for (const t of selected) {
             ids.push(t.id);
             if (p.operation === 'delete' || p.operation === 'restore') {
-              c.put('task', { ...t, deletedAt: p.operation === 'delete' ? c.now : null });
-              for (const o of c.state.occurrence.values())
-                if (o.taskId === t.id)
-                  c.put('occurrence', { ...o, deletedAt: p.operation === 'delete' ? c.now : null });
+              if (p.operation === 'delete' || restoreMarkers.has(t.deletedAt))
+                c.setTaskDeleted(t, p.operation === 'restore');
             } else {
               const moving = p.operation === 'move';
-              c.put('task', {
-                ...t,
-                ...Object.fromEntries(
-                  Object.entries(p.patch ?? {}).filter(([key]) => key !== 'recurrence'),
-                ),
-                ...(moving
-                  ? {
-                      listId: p.listId ?? null,
-                      sectionId: null,
-                      parentTaskId:
-                        t.parentTaskId && selectedIds.has(t.parentTaskId)
-                          ? t.parentTaskId
-                          : (p.parentTaskId ?? null),
-                    }
-                  : {}),
-              });
+              c.save(
+                'task',
+                {
+                  ...t,
+                  ...Object.fromEntries(
+                    Object.entries(p.patch ?? {}).filter(([key]) => key !== 'recurrence'),
+                  ),
+                  ...(moving
+                    ? {
+                        listId: p.listId ?? null,
+                        sectionId: null,
+                        parentTaskId:
+                          t.parentTaskId && selectedIds.has(t.parentTaskId)
+                            ? t.parentTaskId
+                            : (p.parentTaskId ?? null),
+                      }
+                    : {}),
+                },
+                t.revision,
+              );
             }
           }
           if (p.operation === 'patch' && p.patch && Object.hasOwn(p.patch, 'recurrence')) {
@@ -1014,23 +1133,17 @@ export function createToDooService(
           if (p.kind === 'task') {
             const tasks = c.descendants([p.id], p.cascade);
             if (!p.cascade && c.descendants([p.id]).length > 1) toDooError('请选择同时处理子任务');
-            for (const t of tasks) {
-              c.put('task', { ...t, deletedAt: p.restore ? null : c.now });
-              for (const o of c.state.occurrence.values())
-                if (o.taskId === t.id)
-                  c.put('occurrence', { ...o, deletedAt: p.restore ? null : c.now });
-            }
+            const marker = c.get('task', p.id).deletedAt;
+            for (const t of tasks)
+              if (!p.restore || t.deletedAt === marker) c.setTaskDeleted(t, p.restore);
             return tasks.map((t) => t.id);
           }
           if (p.kind === 'list') {
             const tasks = [...c.state.task.values()].filter((t) => t.listId === p.id);
             if (tasks.length && !p.cascade) toDooError('清单包含任务，请选择级联处理或先移动');
-            for (const t of tasks) {
-              c.put('task', { ...t, deletedAt: p.restore ? null : c.now });
-              for (const o of c.state.occurrence.values())
-                if (o.taskId === t.id)
-                  c.put('occurrence', { ...o, deletedAt: p.restore ? null : c.now });
-            }
+            const marker = c.get('list', p.id).deletedAt;
+            for (const t of tasks)
+              if (!p.restore || t.deletedAt === marker) c.setTaskDeleted(t, p.restore);
           }
           if (p.kind === 'timeBlock') {
             const block = c.get('timeBlock', p.id);
@@ -1039,8 +1152,12 @@ export function createToDooService(
               c.put('occurrence', { ...o, scheduleRevision: randomUUID(), manuallyEdited: true });
             }
           }
+          const entity = c.get(p.kind, p.id);
           return [
-            c.put(p.kind, { ...c.get(p.kind, p.id), deletedAt: p.restore ? null : c.now }).id,
+            c.put(p.kind, {
+              ...entity,
+              deletedAt: p.restore ? null : (entity.deletedAt ?? c.deletionTimestamp()),
+            }).id,
           ];
         }
         case 'start_focus': {
@@ -1048,12 +1165,23 @@ export function createToDooService(
             [...c.state.focusSession.values()].some((s) => !s.deletedAt && s.status === 'running')
           )
             toDooError('已有运行中的专注，请先暂停或接管');
-          if (p.occurrenceId) c.get('occurrence', p.occurrenceId);
+          const occurrence = p.occurrenceId ? c.get('occurrence', p.occurrenceId) : undefined;
+          const task = occurrence ? c.get('task', occurrence.taskId) : undefined;
+          const topic = p.topicId ? c.get('focusTopic', p.topicId) : undefined;
+          if (occurrence?.deletedAt || task?.deletedAt) toDooError('关联任务已移除', 400);
+          if (topic?.deletedAt || topic?.archivedAt)
+            toDooError('专注项目已归档或移除，请先恢复项目', 400);
+          const listId = task ? task.listId : (topic?.listId ?? p.listId);
+          if ((p.listId && p.listId !== listId) || (topic?.listId && topic.listId !== listId))
+            toDooError('专注项目与任务的清单范围不一致', 400);
           return [
             c.put('focusSession', {
               mode: p.mode,
               occurrenceId: p.occurrenceId,
-              listId: p.listId,
+              listId,
+              topicId: p.topicId,
+              topicName: topic?.name ?? null,
+              taskTitle: occurrence?.titleOverride ?? task?.title ?? null,
               targetMinutes:
                 p.targetMinutes ??
                 (p.mode === 'pomodoro' ? c.state.settings.get('settings')!.focusMinutes : null),
@@ -1136,8 +1264,21 @@ export function createToDooService(
         case 'checkin_habit': {
           const habit = c.get('habit', p.habitId);
           if (habit.deletedAt) toDooError('习惯已删除', 400);
-          if (p.localDate < habit.startDate || (habit.endDate && p.localDate > habit.endDate))
-            toDooError('打卡日期不在习惯生效区间', 400);
+          const period = getHabitPeriod(habit, p.localDate);
+          if (!period.scheduledDates.includes(p.localDate))
+            toDooError('当天无需记录，请选择习惯安排内的日期', 400);
+          if (!p.skipped && getHabitGoalMode(period.rule) === 'checkin') {
+            if (p.amount !== 1) toDooError('普通打卡每次记录一次完成', 400);
+            const recorded = [...c.state.habitEntry.values()].find(
+              (entry) =>
+                entry.habitId === habit.id &&
+                entry.localDate === p.localDate &&
+                !entry.deletedAt &&
+                !entry.skipped &&
+                entry.amount > 0,
+            );
+            if (recorded) return [recorded.id];
+          }
           if (
             p.sourceSessionId &&
             [...c.state.habitEntry.values()].some(
@@ -1339,6 +1480,26 @@ export function createToDooService(
   }
   return {
     snapshot,
+    getVersion() {
+      store.refresh();
+      return db
+        .transaction(() => {
+          const head = db
+            .prepare('SELECT id FROM todo_transactions ORDER BY sequence DESC LIMIT 1')
+            .get() as { id: string } | undefined;
+          return JSON.stringify([store.datasetId, head?.id ?? 'empty']);
+        })
+        .deferred();
+    },
+    reminderSource: (id) => resolveToDooReminderSource(snapshot({ all: true }), id),
+    focusHistory(query, authorization) {
+      store.refresh();
+      return readToDooFocusHistory(store, query, authorization);
+    },
+    statistics(query, authorization) {
+      store.refresh();
+      return statistics(store, query, authorization);
+    },
     command,
     getEntity(kind, id) {
       store.refresh();

@@ -1,6 +1,8 @@
 import type { ToDooEntityMap, ToDooHabitRule } from './to-doo-contracts.js';
 type Habit = ToDooEntityMap['habit'];
 type Entry = ToDooEntityMap['habitEntry'];
+export const getHabitGoalMode = (rule: { goalMode?: 'checkin' | 'quantity' }) =>
+  rule.goalMode ?? 'quantity';
 const dayMs = 86400000;
 const addDays = (date: string, n: number) =>
   new Date(Date.parse(date + 'T00:00:00Z') + n * dayMs).toISOString().slice(0, 10);
@@ -17,6 +19,8 @@ export function getHabitRule(habit: Habit, date: string): ToDooHabitRule {
     id: 'legacy',
     effectiveFrom: habit.startDate,
     frequency: habit.frequency,
+    goalMode: habit.goalMode,
+    intervalDays: habit.intervalDays,
     target: habit.target,
     unit: habit.unit,
     timeZone: habit.timeZone,
@@ -56,6 +60,14 @@ export function getHabitPeriod(habit: Habit, date: string) {
     date >= rule.effectiveFrom
   )
     for (let day = start; day < endExclusive; day = addDays(day, 1)) {
+      if (
+        rule.frequency === 'daily' &&
+        (rule.intervalDays ?? 1) > 1 &&
+        Math.round((Date.parse(day) - Date.parse(rule.startDate)) / 86400000) %
+          rule.intervalDays! !==
+          0
+      )
+        continue;
       if (rule.weekdays.length && !rule.weekdays.includes(new Date(day + 'T00:00:00Z').getUTCDay()))
         continue;
       if (habit.pausedDates.includes(day)) continue;
@@ -81,7 +93,11 @@ export function summarizeHabitPeriod(
         e.localDate >= period.start &&
         e.localDate < period.endExclusive,
     );
-  const amount = selected.filter((e) => !e.skipped).reduce((sum, e) => sum + e.amount, 0),
+  const recorded = selected.filter((e) => !e.skipped);
+  const amount =
+      getHabitGoalMode(period.rule) === 'checkin'
+        ? new Set(recorded.filter((e) => e.amount > 0).map((e) => e.localDate)).size
+        : recorded.reduce((sum, e) => sum + e.amount, 0),
     skipDates = new Set(selected.filter((e) => e.skipped).map((e) => e.localDate));
   let status: ToDooHabitPeriodSummary['status'];
   if (

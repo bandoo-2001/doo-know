@@ -264,8 +264,23 @@ test('上传恢复被明确拒绝时保留两个文件并使用相同请求编�
 });
 
 test('Git 连接草稿在取消凭据编辑后保留，凭据秘密不会再次出现', async ({ page }) => {
-  await page.goto('/?view=settings&section=library');
+  const [status, credentials] = await Promise.all([
+    page.waitForResponse((response) =>
+      new URL(response.url()).pathname === '/api/platform/git/status' && response.request().method() === 'GET',
+      { timeout: test.info().timeout },
+    ),
+    page.waitForResponse((response) =>
+      new URL(response.url()).pathname === '/api/platform/git/credentials' && response.request().method() === 'GET',
+      { timeout: test.info().timeout },
+    ),
+    page.goto('/?view=settings&section=library'),
+  ]);
   const panel = page.getByRole('region', { name: '云端同步面板', exact: true });
+  for (const response of [status, credentials]) {
+    expect(response.ok()).toBe(true);
+    expect(await response.finished()).toBeNull();
+  }
+  await expect(panel.getByRole('button', { name: '刷新同步状态', exact: true })).not.toHaveClass(/ant-btn-loading/);
   await panel.getByRole('button', { name: /^(管理同步|关联云端仓库)$/ }).click();
   const connection = page.getByRole('dialog', { name: '管理云端同步', exact: true });
   await connection

@@ -2,13 +2,12 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { Button as AButton, InputNumber as AInputNumber, Select as ASelect } from 'ant-design-vue';
 import { api } from '../../api';
-import {
-  createToDooReminderController,
-  reminderIdFromUrl,
-  toDooReminderMessage,
-} from '../../to-doo-reminders';
+import { createToDooReminderController, reminderIdFromUrl, toDooReminderMessage } from '../../to-doo-reminders';
 import type { ToDooReminderCard } from '../../../../shared/to-doo-reminders';
 
+const props = withDefaults(defineProps<{ showMissedSummary?: boolean }>(), {
+  showMissedSummary: true,
+});
 const emit = defineEmits<{ open: [card?: ToDooReminderCard]; 'consume-link': [] }>();
 let channel: BroadcastChannel | undefined;
 const controller = createToDooReminderController(api, {
@@ -21,14 +20,12 @@ const current = ref(0),
   minutes = ref(15),
   amount = ref<number | undefined>(1);
 const card = computed(() => state.cards[Math.min(current.value, state.cards.length - 1)]);
-watch(
-  () => [card.value?.event.id, card.value?.event.deliveryGeneration],
-  () => {
-    const habit = card.value?.habit;
-    amount.value = habit ? Math.max(0.001, habit.target - habit.amount) : 1;
-    minutes.value = 15;
-  },
-);
+watch([() => card.value?.event.id, () => card.value?.event.deliveryGeneration], () => {
+  const habit = card.value?.habit;
+  amount.value =
+    habit && habit.goalMode !== 'checkin' ? Math.max(0.001, habit.target - habit.amount) : 1;
+  minutes.value = 15;
+});
 const clock = computed(() => {
   if (!card.value) return '';
   const date = new Date(card.value.event.snoozedUntil ?? card.value.event.scheduledAt);
@@ -67,7 +64,7 @@ async function message(event: MessageEvent) {
     return;
   }
   if (parsed.id) {
-    await controller.open(parsed.id);
+    if (await controller.open(parsed.id)) current.value = 0;
     refresh();
   } else emit('open');
 }
@@ -77,14 +74,15 @@ async function complete() {
     emit('open', card.value);
     return;
   }
-  if (card.value.completion === 'habit' && (!amount.value || amount.value <= 0)) {
+  const quantity = card.value.habit?.goalMode === 'checkin' ? 1 : amount.value;
+  if (card.value.completion === 'habit' && (!quantity || quantity <= 0)) {
     state.error = '请输入本次实际完成的数量';
     return;
   }
   await controller.act(
     card.value,
     card.value.completion === 'acknowledge' ? 'acknowledge' : 'complete',
-    card.value.completion === 'habit' ? { amount: amount.value! } : {},
+    card.value.completion === 'habit' ? { amount: quantity! } : {},
   );
 }
 onMounted(() => {
@@ -128,7 +126,7 @@ onBeforeUnmount(() => {
 <template>
   <Teleport to="body">
     <section
-      v-if="card || state.error || state.missedCount"
+      v-if="card || state.error || (props.showMissedSummary && state.missedCount)"
       class="reminder-stack"
       aria-label="到点提醒"
     >
@@ -158,8 +156,8 @@ onBeforeUnmount(() => {
           <div class="reminder-progress-label">
             本期已完成 {{ card.habit.amount }} / {{ card.habit.target }} {{ card.habit.unit }}
           </div>
-          <label
-            >本次打卡
+          <label v-if="card.habit.goalMode !== 'checkin'"
+            >本次新增
             <AInputNumber
               v-model:value="amount"
               :min="0.001"
@@ -242,8 +240,13 @@ onBeforeUnmount(() => {
           >查看通知中心</AButton
         >
       </div>
-      <AButton v-if="state.missedCount" class="reminder-missed" @click="emit('open')"
-        >还有 {{ state.missedCount }} 条较早提醒，查看通知中心</AButton
+      <AButton
+        v-if="props.showMissedSummary && state.missedCount"
+        class="reminder-missed"
+        :aria-label="'还有 ' + state.missedCount + ' 条较早提醒，查看通知中心'"
+        :title="'还有 ' + state.missedCount + ' 条较早提醒，查看通知中心'"
+        @click="emit('open')"
+        >较早提醒 {{ state.missedCount }}</AButton
       >
     </section>
   </Teleport>
@@ -255,12 +258,16 @@ onBeforeUnmount(() => {
   right: 24px;
   bottom: calc(44px + var(--workspace-bottom-inset, 0px));
   width: min(400px, calc(100vw - 32px));
-  z-index: 1050;
+  z-index: 90;
   color: var(--text, #202534);
   font-family: inherit;
+  text-align: right;
+  pointer-events: none;
 }
 .reminder-card {
   position: relative;
+  text-align: left;
+  pointer-events: auto;
   padding: 18px 20px 16px;
   border: 1px solid var(--border, #e8eaf0);
   border-radius: 16px;
@@ -368,12 +375,16 @@ onBeforeUnmount(() => {
   color: #a06415;
 }
 .reminder-missed {
-  width: 100%;
+  width: auto;
+  max-width: calc(50vw - 24px);
   margin-top: 10px;
   height: auto;
   min-height: 32px;
-  white-space: normal;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-size: 12px;
+  pointer-events: auto;
 }
 @media (max-width: 600px) {
   .reminder-stack {

@@ -28,10 +28,16 @@ beforeAll(async () => {
     import { Editor } from '@tiptap/core';
     import { createRichProjection, richExtensions } from './apps/web/editor/rich-adapter.ts';
     import { bindImageRequests, trackImageRequest, deferRenderedImages } from './apps/web/image-requests.ts';
+    const imageRequests=[];
+    const nativeFetch=window.fetch.bind(window);
+    window.fetch=(input,init)=>{
+      if(typeof input==='string'&&input.startsWith('/api/assets/'))imageRequests.push({source:input,signal:init?.signal});
+      return nativeFetch(input,init);
+    };
     const original = ${JSON.stringify(original)}, projection = createRichProjection(original);
     let changes = 0;
     const editor = new Editor({element:document.querySelector('#editor'), extensions:richExtensions(undefined, src=>'/api/assets/'+src), content:projection.json, injectCSS:false, onUpdate(){changes++;}});
-    window.fixture = { editor, trackImageRequest, serialize:()=>projection.serialize(editor.getJSON()), changes:()=>changes,
+    window.fixture = { editor, trackImageRequest, imageRequests:()=>imageRequests.map(({source,signal})=>({source,aborted:signal?.aborted===true})), serialize:()=>projection.serialize(editor.getJSON()), changes:()=>changes,
       createPreview(html){ const root=document.createElement('section'); root.id='preview'; document.body.append(root); root.innerHTML=deferRenderedImages(html ?? Array.from({length:6},(_,i)=>'<img src="/api/assets/preview-'+i+'">').join('')); const stop=bindImageRequests(root); window.fixture.preview={root,stop}; }
     };
   `,
@@ -142,7 +148,7 @@ beforeEach(async () => {
   page = await context.newPage();
   await page.goto(origin, { waitUntil: 'commit' });
   await page.waitForFunction(() => !!(window as any).fixture);
-  await expect.poll(() => active.size).toBeGreaterThan(0);
+  await expect.poll(() => active.size).toBe(3);
 });
 afterEach(async () => {
   await context?.close();
@@ -258,7 +264,9 @@ async function preview() {
   await page.evaluate(() => (window as any).fixture.editor.destroy());
   await expect.poll(() => active.size).toBe(0);
   await page.evaluate(() => (window as any).fixture.createPreview());
-  await expect.poll(() => active.size).toBeGreaterThan(0);
+  // The server must see the whole batch before its close events can be the
+  // cancellation oracle. A browser-aborted request may otherwise arrive late.
+  await expect.poll(() => active.size).toBe(3);
 }
 it('releases image connections from a read-only HTML surface before navigation', async () => {
   await preview();
@@ -290,9 +298,50 @@ it.each(['root', 'ancestor'])(
       wrapper.append(root);
       (kind === 'root' ? root : wrapper).remove();
     }, kind);
+    expect(await removedPreviewLeases()).toEqual(Array.from({ length: 6 }, () => ({
+      connected: false, source: null, deferred: null, busy: null,
+    })));
     await expect.poll(() => active.size, { timeout: 1500 }).toBe(0);
   },
 );
+
+async function removedPreviewLeases() {
+  return page.evaluate(() =>
+    [...(window as any).fixture.preview.root.querySelectorAll('img')].map((image: HTMLImageElement) => ({
+      connected: image.isConnected,
+      source: image.getAttribute('src'),
+      deferred: image.getAttribute('data-dooknow-image-src'),
+      busy: image.getAttribute('aria-busy'),
+    })),
+  );
+}
+
+it('aborts an immediately removed preview before queued images can start, without waiting for server acceptance', async () => {
+  await page.evaluate(() => (window as any).fixture.editor.destroy());
+  await expect.poll(() => active.size).toBe(0);
+  const started = await page.evaluate(() => {
+    const fixture = (window as any).fixture;
+    fixture.createPreview();
+    const requests = fixture.imageRequests().filter((request: any) => request.source.startsWith('/api/assets/preview-'));
+    fixture.preview.root.remove();
+    return requests;
+  });
+  expect(started).toEqual([0, 1, 2].map((index) => ({
+    source: '/api/assets/preview-' + index, aborted: false,
+  })));
+  expect(await removedPreviewLeases()).toEqual(Array.from({ length: 6 }, () => ({
+    connected: false, source: null, deferred: null, busy: null,
+  })));
+  // Cross the canceled fetch continuations before checking that pump did not
+  // launch any of the three queued images after their owners were detached.
+  await page.evaluate(() => new Promise<void>((resolve) => setTimeout(resolve, 0)));
+  const requests = await page.evaluate(() => (window as any).fixture.imageRequests()
+    .filter((request: any) => request.source.startsWith('/api/assets/preview-')));
+  expect(requests).toEqual(started.map((request: any) => ({ ...request, aborted: true })));
+  const controlStarted = Date.now();
+  expect(await page.evaluate(async () => (await fetch('/control')).status)).toBe(200);
+  expect(Date.now() - controlStarted).toBeLessThan(1500);
+});
 
 it('keeps pending preview streams alive across a synchronous move', async () => {
   await preview();

@@ -31,6 +31,9 @@ import {
 import ToDooTaskRow from './ToDooTaskRow.vue';
 import ToDooQuickAdd from './ToDooQuickAdd.vue';
 import ToDooIcon from './ToDooIcon.vue';
+import ToDooTaskMenu from './ToDooTaskMenu.vue';
+import ToDooTaskGroupMenu from './ToDooTaskGroupMenu.vue';
+import { groupTaskItems, taskSectionIds, boardTaskCards } from '../../to-doo-task-groups';
 import type { ToDooQuickFilter } from '../../to-doo-presentation';
 const confirmAction = useToDooConfirm();
 const props = withDefaults(
@@ -45,7 +48,7 @@ const props = withDefaults(
 );
 const emit = defineEmits<{
   open: [item: ToDooItem];
-  create: [parentTaskId?: string];
+  create: [parentTaskId?: string, sectionId?: string | null];
   list: [id: string];
   edit: [kind: ToDooEntityKind, entity?: Record<string, any>, seed?: Record<string, any>];
   navigate: [section: ToDooAppSection];
@@ -56,9 +59,11 @@ const viewOptions = [
   { value: 'tasks', label: '列表' },
   { value: 'board', label: '看板' },
   { value: 'matrix', label: '四象限' },
+  { value: 'timeline', label: '时间线' },
 ];
 function chooseView(value: string | number) {
-  if (value === 'tasks' || value === 'board' || value === 'matrix') emit('navigate', value);
+  if (value === 'tasks' || value === 'board' || value === 'matrix' || value === 'timeline')
+    emit('navigate', value);
 }
 const quadrants = [
   { name: '重要且紧急', action: '立即行动', tone: 'do', empty: '优先处理影响大、时间紧的任务。' },
@@ -132,6 +137,57 @@ const filterCount = computed(
 const lists = computed(
   () => state.snapshot?.lists.filter((l) => !l.deletedAt && !l.archivedAt) || [],
 );
+const goals = computed(() => lists.value.filter((list) => list.kind === 'goal'));
+const ordinaryLists = computed(() => lists.value.filter((list) => list.kind !== 'goal'));
+const recentOutcomes = computed(
+  () => state.snapshot?.outcomes.filter((outcome) => !outcome.deletedAt).slice(0, 3) ?? [],
+);
+const matrixIncludesCompleted = computed(
+  () =>
+    builtin.value === 'done' ||
+    !!state.filter.statuses?.includes('done') ||
+    !!state.filter.query ||
+    !!state.filter.group,
+);
+const matrixItems = computed(() =>
+  items.value.filter(
+    (item) => item.status !== 'done' || showCompleted.value || matrixIncludesCompleted.value,
+  ),
+);
+const activeListId = computed(() =>
+  state.filter.listIds?.length === 1 ? state.filter.listIds[0] : undefined,
+);
+const sections = computed(
+  () =>
+    state.snapshot?.sections
+      .filter(
+        (section) =>
+          !section.deletedAt && (!activeListId.value || section.listId === activeListId.value),
+      )
+      .sort((a, b) => a.orderKey.localeCompare(b.orderKey) || a.id.localeCompare(b.id)) ?? [],
+);
+const outlineGroups = computed(() =>
+  groupTaskItems(
+    outlineItems.value,
+    props.model.taskDefinitions(),
+    sections.value,
+    activeListId.value,
+  ),
+);
+const expandedBoardCards = ref<string[]>([]);
+const effectiveSections = computed(() => taskSectionIds(props.model.taskDefinitions()));
+const sectionIds = computed(() => new Set(sections.value.map((section) => section.id)));
+const groupCollapsed = (id: string) => state.collapsedTaskGroups.includes(id);
+function toggleGroup(id: string) {
+  state.collapsedTaskGroups = groupCollapsed(id)
+    ? state.collapsedTaskGroups.filter((value) => value !== id)
+    : [...state.collapsedTaskGroups, id];
+}
+const columnSection = (id: string) => sections.value.find((section) => section.id === id);
+function newSection() {
+  const listId = activeListId.value || lists.value[0]?.id || '';
+  emit('edit', 'section', undefined, { listId, sectionPlacement: {} });
+}
 const todayItems = computed(() =>
   items.value.filter(
     (i) => i.date === today.value && !['done', 'cancelled', 'skipped'].includes(i.status),
@@ -151,10 +207,8 @@ const columns = computed(() =>
       ? Object.entries(toDooPriorityLabels).map(([id, name]) => ({ id, name }))
       : boardBy.value === 'section'
         ? [
-            { id: '', name: '未分章节' },
-            ...(state.snapshot?.sections
-              .filter((s) => !s.deletedAt)
-              .map((s) => ({ id: s.id, name: s.name })) || []),
+            { id: '', name: '未分组' },
+            ...(sections.value.map((s) => ({ id: s.id, name: s.name })) || []),
           ]
         : boardBy.value === 'tag'
           ? [
@@ -177,7 +231,9 @@ function inColumn(item: ToDooItem, id: string) {
     : boardBy.value === 'priority'
       ? item.task.priority === id
       : boardBy.value === 'section'
-        ? (item.task.sectionId || '') === id
+        ? (sectionIds.value.has(effectiveSections.value.get(item.task.id) ?? '')
+            ? effectiveSections.value.get(item.task.id)
+            : '') === id
         : boardBy.value === 'tag'
           ? id
             ? item.task.tagIds.includes(id)
@@ -460,75 +516,8 @@ function saveView() {
         清除筛选
       </AButton>
     </div>
-    <div class="todo-section-title">
-      <h2>正在推进的目标</h2>
-      <div class="todo-actions">
-        <AButton
-          html-type="button"
-          class="todo-link"
-          @click="emit('edit', 'list', undefined, { kind: 'list' })"
-          type="link"
-        >
-          ＋ 清单</AButton
-        ><AButton
-          html-type="button"
-          class="todo-link"
-          @click="emit('edit', 'list', undefined, { kind: 'goal' })"
-          type="link"
-        >
-          ＋ 目标
-        </AButton>
-      </div>
-    </div>
-    <div v-if="lists.length" class="todo-goals">
-      <article v-for="l in lists" :key="l.id" class="todo-goal">
-        <div class="todo-between">
-          <span class="todo-badge accent">{{ l.kind === 'goal' ? '目标' : '清单' }}</span
-          ><AButton
-            class="todo-icon-button"
-            html-type="button"
-            :aria-label="'编辑 ' + l.name"
-            @click="emit('edit', 'list', l)"
-            type="text"
-          >
-            ⋯
-          </AButton>
-        </div>
-        <AButton class="todo-goal-name" html-type="button" @click="emit('list', l.id)" type="text">
-          {{ l.name }}
-        </AButton>
-        <p>{{ l.description || l.criteria || '把下一步行动放在这里' }}</p>
-        <div class="todo-goal-progress">
-          <progress
-            :value="state.snapshot?.statistics.byList[l.id]?.completed || 0"
-            :max="state.snapshot?.statistics.byList[l.id]?.total || 1"
-          ></progress
-          ><span
-            >{{ state.snapshot?.statistics.byList[l.id]?.completed || 0 }}/{{
-              state.snapshot?.statistics.byList[l.id]?.total || 0
-            }}</span
-          >
-        </div>
-        <div class="todo-between todo-muted todo-small">
-          <span>{{ l.goalDate ? '目标 ' + l.goalDate : '持续推进' }}</span
-          ><span>{{ l.noteRefs.length }} 份资料</span>
-        </div>
-      </article>
-    </div>
-    <div v-else class="todo-empty todo-panel">
-      <h2>从一个目标，或一件小事开始</h2>
-      <p>为工作、学习和生活创建清单，把资料与行动放在一起。</p>
-      <AButton
-        html-type="button"
-        class="todo-button todo-primary"
-        @click="emit('edit', 'list', undefined, { kind: 'goal' })"
-        type="primary"
-      >
-        创建第一个目标
-      </AButton>
-    </div>
-    <div class="todo-overview-grid">
-      <section class="todo-panel">
+    <div class="todo-overview-grid todo-overview-cohesion">
+      <section class="todo-panel todo-overview-today">
         <div class="todo-panel-header">
           <h2>
             今天的行动 <small>{{ todayItems.length }} 项</small>
@@ -553,7 +542,14 @@ function saveView() {
           @open="emit('open', $event)"
           @complete="complete"
           @child="emit('create', $event)"
-        />
+          ><template #actions
+            ><ToDooTaskMenu
+              :model="model"
+              :item="item"
+              @open="emit('open', $event)"
+              @child="emit('create', $event)"
+              @edit="(kind, entity, seed) => emit('edit', kind, entity, seed)" /></template
+        ></ToDooTaskRow>
         <div v-if="!todayItems.length" class="todo-empty">
           <p>今天还没有安排，留一点时间给重要的事。</p>
           <AButton class="todo-button" html-type="button" @click="emit('create')" type="default"
@@ -561,8 +557,7 @@ function saveView() {
           >
         </div>
         <div class="todo-panel-footer">
-          <span>完成行动与成果验证分别记录</span
-          ><AButton
+          <AButton
             class="todo-link"
             html-type="button"
             @click="emit('navigate', 'tasks')"
@@ -572,8 +567,111 @@ function saveView() {
           </AButton>
         </div>
       </section>
-      <aside>
-        <section class="todo-panel">
+      <aside class="todo-overview-context">
+        <section v-if="goals.length" class="todo-overview-goals">
+          <div class="todo-section-title"><h2>正在推进的目标</h2></div>
+          <div class="todo-goals">
+            <article v-for="goal in goals" :key="goal.id" class="todo-goal">
+              <div class="todo-between">
+                <AButton
+                  class="todo-goal-name"
+                  html-type="button"
+                  @click="emit('list', goal.id)"
+                  type="text"
+                >
+                  {{ goal.name }}
+                </AButton>
+                <AButton
+                  class="todo-icon-button"
+                  html-type="button"
+                  :aria-label="'编辑 ' + goal.name"
+                  @click="emit('edit', 'list', goal)"
+                  type="text"
+                  >⋯</AButton
+                >
+              </div>
+              <p v-if="goal.description || goal.criteria">
+                {{ goal.description || goal.criteria }}
+              </p>
+              <div
+                v-if="state.snapshot?.statistics.byList[goal.id]?.total"
+                class="todo-goal-progress"
+              >
+                <progress
+                  :aria-label="goal.name + '完成进度'"
+                  :value="state.snapshot?.statistics.byList[goal.id]?.completed || 0"
+                  :max="state.snapshot?.statistics.byList[goal.id]?.total"
+                ></progress>
+                <span
+                  >{{ state.snapshot?.statistics.byList[goal.id]?.completed || 0 }}/{{
+                    state.snapshot?.statistics.byList[goal.id]?.total
+                  }}</span
+                >
+              </div>
+              <div
+                v-if="goal.goalDate || goal.noteRefs.length"
+                class="todo-between todo-muted todo-small todo-goal-details"
+              >
+                <span v-if="goal.goalDate">目标 {{ goal.goalDate }}</span>
+                <span v-if="goal.noteRefs.length">{{ goal.noteRefs.length }} 份资料</span>
+              </div>
+            </article>
+          </div>
+        </section>
+        <section class="todo-panel todo-overview-lists">
+          <div class="todo-panel-header">
+            <h2>清单</h2>
+            <AButton
+              html-type="button"
+              type="text"
+              class="todo-icon-button"
+              aria-label="新建清单"
+              @click="emit('edit', 'list', undefined, { kind: 'list' })"
+              >＋</AButton
+            >
+          </div>
+          <div v-for="list in ordinaryLists" :key="list.id" class="todo-overview-list">
+            <AButton
+              html-type="button"
+              type="text"
+              class="todo-saved-row todo-text-button"
+              @click="emit('list', list.id)"
+            >
+              <span
+                >{{ list.name
+                }}<small v-if="list.description || list.criteria">{{
+                  list.description || list.criteria
+                }}</small
+                ><small v-if="list.goalDate || list.noteRefs.length"
+                  ><span v-if="list.goalDate">{{ list.goalDate }}</span
+                  ><span v-if="list.goalDate && list.noteRefs.length"> · </span
+                  ><span v-if="list.noteRefs.length">{{ list.noteRefs.length }} 份资料</span></small
+                ></span
+              >
+              <small v-if="state.snapshot?.statistics.byList[list.id]?.total"
+                >{{ state.snapshot?.statistics.byList[list.id]?.total }} 项任务</small
+              >
+            </AButton>
+            <AButton
+              html-type="button"
+              type="text"
+              class="todo-icon-button"
+              :aria-label="'编辑 ' + list.name"
+              @click="emit('edit', 'list', list)"
+              >⋯</AButton
+            >
+          </div>
+          <div v-if="!lists.length" class="todo-empty">
+            <p>为工作、学习和生活创建清单，把资料与行动放在一起。</p>
+            <AButton
+              html-type="button"
+              type="link"
+              @click="emit('edit', 'list', undefined, { kind: 'goal' })"
+              >创建第一个目标</AButton
+            >
+          </div>
+        </section>
+        <section v-if="materials.length" class="todo-panel">
           <div class="todo-panel-header">
             <h2>正在使用的资料</h2>
             <span>▤</span>
@@ -590,12 +688,11 @@ function saveView() {
               >{{ m.title }}<small>{{ m.task.title }}</small></span
             ><span>↗</span>
           </AButton>
-          <p v-if="!materials.length" class="todo-empty">将笔记关联到任务，需要时随时回到资料。</p>
         </section>
-        <section class="todo-panel todo-top-gap">
+        <section v-if="recentOutcomes.length" class="todo-panel">
           <div class="todo-panel-header"><h2>最近的成果</h2></div>
           <AButton
-            v-for="o in state.snapshot?.outcomes.filter((o) => !o.deletedAt).slice(0, 3)"
+            v-for="o in recentOutcomes"
             :key="o.id"
             html-type="button"
             class="todo-saved-row todo-text-button"
@@ -604,9 +701,6 @@ function saveView() {
           >
             {{ o.summary }}
           </AButton>
-          <p v-if="!state.snapshot?.outcomes.some((o) => !o.deletedAt)" class="todo-empty">
-            行动完成后，可以留下一条成果与证据。
-          </p>
         </section>
       </aside>
     </div>
@@ -663,15 +757,7 @@ function saveView() {
               >{{ selecting ? '结束多选' : '多选' }}</AMenuItem
             >
             <AMenuItem key="save-view" @click="saveView">保存视图</AMenuItem>
-            <AMenuItem
-              key="section"
-              @click="
-                emit('edit', 'section', undefined, {
-                  listId: state.filter.listIds?.[0] || lists[0]?.id || '',
-                })
-              "
-              >＋ 章节</AMenuItem
-            >
+            <AMenuItem key="section" @click="newSection">＋ 分组</AMenuItem>
             <AMenuItem key="tag" @click="emit('edit', 'tag')">＋ 标签</AMenuItem>
             <AMenuItem key="template" @click="emit('edit', 'template')">＋ 模板</AMenuItem>
           </AMenu></template
@@ -962,40 +1048,99 @@ function saveView() {
           <ToDooIcon name="more" :size="16" />
         </AButton>
       </div>
-      <div
-        v-for="item in outlineItems"
-        :key="item.key"
-        class="todo-tree-row"
-        draggable="true"
-        @dragstart="drag($event, item)"
-        @dragover.prevent
-        @drop="reorderBefore($event, item)"
-        @keydown.alt.up.prevent="reorderStep(item, -1)"
-        @keydown.alt.down.prevent="reorderStep(item, 1)"
-      >
-        <AButton
-          v-if="state.snapshot?.tasks.some((t) => t.parentTaskId === item.task.id && !t.deletedAt)"
-          html-type="button"
-          class="todo-collapse"
-          :aria-label="(collapsed.includes(item.task.id) ? '展开 ' : '折叠 ') + item.title"
-          @click="toggleTree(item.task.id)"
-          type="text"
-        >
-          {{ collapsed.includes(item.task.id) ? '›' : '⌄' }}</AButton
-        ><ToDooTaskRow
-          :item="item"
-          :hide-list="!!state.filter.listIds?.length"
-          :today="today"
-          :time-zone="state.snapshot?.settings.timeZone"
-          :active="active(item)"
-          :selecting="selecting"
-          :selected="state.selectedIds.includes(item.task.id)"
-          @open="emit('open', $event)"
-          @complete="complete"
-          @select="select"
-          @child="emit('create', $event)"
-        />
-      </div>
+      <section v-for="group in outlineGroups" :key="group.id" class="todo-task-group">
+        <header v-if="group.showHeader" class="todo-task-group-heading">
+          <AButton
+            type="text"
+            class="todo-group-toggle"
+            :aria-label="(groupCollapsed(group.id) ? '展开分组 ' : '折叠分组 ') + group.name"
+            :aria-expanded="!groupCollapsed(group.id)"
+            @click="toggleGroup(group.id)"
+          >
+            <span aria-hidden="true">{{ groupCollapsed(group.id) ? '›' : '⌄' }}</span>
+            <h2>{{ group.name }}</h2>
+            <small>{{ group.items.length }}</small>
+          </AButton>
+          <div class="todo-actions">
+            <AButton
+              type="text"
+              class="todo-icon-button"
+              :aria-label="'添加任务到分组 ' + group.name"
+              @click="emit('create', undefined, group.section?.id ?? null)"
+              ><ToDooIcon name="plus" :size="15"
+            /></AButton>
+            <ToDooTaskGroupMenu
+              v-if="group.section"
+              :model="model"
+              :section="group.section"
+              @edit="(kind, entity, seed) => emit('edit', kind, entity, seed)"
+            />
+          </div>
+        </header>
+        <div v-if="!groupCollapsed(group.id)">
+          <ToDooTaskMenu
+            v-for="item in group.items"
+            :key="item.key"
+            :model="model"
+            :item="item"
+            context-menu
+            @open="emit('open', $event)"
+            @child="emit('create', $event)"
+            @edit="(kind, entity, seed) => emit('edit', kind, entity, seed)"
+          >
+            <div
+              class="todo-tree-row"
+              draggable="true"
+              @dragstart="drag($event, item)"
+              @dragover.prevent
+              @drop="reorderBefore($event, item)"
+              @keydown.alt.up.prevent="reorderStep(item, -1)"
+              @keydown.alt.down.prevent="reorderStep(item, 1)"
+            >
+              <AButton
+                v-if="
+                  state.snapshot?.tasks.some((t) => t.parentTaskId === item.task.id && !t.deletedAt)
+                "
+                html-type="button"
+                class="todo-collapse"
+                :aria-label="(collapsed.includes(item.task.id) ? '展开 ' : '折叠 ') + item.title"
+                @click="toggleTree(item.task.id)"
+                type="text"
+                >{{ collapsed.includes(item.task.id) ? '›' : '⌄' }}</AButton
+              >
+              <ToDooTaskRow
+                :item="item"
+                :hide-list="!!state.filter.listIds?.length"
+                :today="today"
+                :time-zone="state.snapshot?.settings.timeZone"
+                :active="active(item)"
+                :selecting="selecting"
+                :selected="state.selectedIds.includes(item.task.id)"
+                @open="emit('open', $event)"
+                @complete="complete"
+                @select="select"
+                @child="emit('create', $event)"
+              >
+                <template #actions
+                  ><ToDooTaskMenu
+                    :model="model"
+                    :item="item"
+                    @open="emit('open', $event)"
+                    @child="emit('create', $event)"
+                    @edit="(kind, entity, seed) => emit('edit', kind, entity, seed)"
+                /></template>
+              </ToDooTaskRow>
+            </div>
+          </ToDooTaskMenu>
+          <AButton
+            v-if="!group.items.length && group.showHeader"
+            type="link"
+            class="todo-link todo-group-empty"
+            @click="emit('create', undefined, group.section?.id ?? null)"
+            >＋ 添加任务</AButton
+          >
+        </div>
+      </section>
       <AButton
         v-if="completedItems.length && builtin !== 'done' && !state.filter.query"
         html-type="button"
@@ -1080,7 +1225,7 @@ function saveView() {
           <option value="status">按状态</option>
           <option value="list">按清单</option>
           <option value="priority">按优先级</option>
-          <option value="section">按章节</option>
+          <option value="section">按分组</option>
           <option value="tag">按标签</option>
         </ToDooSelect>
       </div>
@@ -1093,109 +1238,276 @@ function saveView() {
           @dragover.prevent
           @drop="drop($event, column.id)"
         >
-          <div class="todo-between">
+          <div class="todo-board-column-heading">
             <h2>{{ column.name }}</h2>
-            <span class="todo-badge">{{ items.filter((i) => inColumn(i, column.id)).length }}</span>
+            <small>{{ items.filter((i) => inColumn(i, column.id)).length }}</small>
+            <ToDooTaskGroupMenu
+              v-if="boardBy === 'section' && columnSection(column.id)"
+              :model="model"
+              :section="columnSection(column.id)!"
+              @edit="(kind, entity, seed) => emit('edit', kind, entity, seed)"
+            />
           </div>
-          <article
-            v-for="item in items.filter((i) => inColumn(i, column.id))"
-            :key="item.key"
-            class="todo-board-card"
-            :class="'todo-priority-' + item.task.priority"
-            draggable="true"
-            @dragstart="drag($event, item)"
+          <ToDooTaskMenu
+            v-for="card in boardTaskCards(items.filter((i) => inColumn(i, column.id)))"
+            :key="card.item.key"
+            :model="model"
+            :item="card.item"
+            context-menu
+            @open="emit('open', $event)"
+            @child="emit('create', $event)"
+            @edit="(kind, entity, seed) => emit('edit', kind, entity, seed)"
           >
-            <span class="todo-badge">{{ item.list?.name || '收集箱' }}</span
-            ><AButton
-              html-type="button"
-              class="todo-task-title"
-              @click="emit('open', item)"
-              type="text"
+            <article
+              class="todo-board-card"
+              :class="'todo-priority-' + card.item.task.priority"
+              :aria-label="'任务 ' + card.item.title"
+              draggable="true"
+              @dragstart="drag($event, card.item)"
             >
-              {{ item.title }}
-            </AButton>
-            <p v-if="item.task.description">{{ item.task.description.slice(0, 80) }}</p>
-            <div class="todo-between todo-muted todo-small">
-              <ATag class="todo-priority-label"
-                >{{ toDooPriorityLabels[item.task.priority]
-                }}{{ item.task.priority === 'none' ? '' : '优先级' }}</ATag
-              ><span>▤ {{ item.task.noteRefs.length }}</span
-              ><span>{{ item.date || '未安排' }}</span>
-            </div>
-            <div class="todo-actions">
-              <ACheckbox
-                v-if="selecting"
-                :checked="state.selectedIds.includes(item.task.id)"
-                :aria-label="'选择 ' + item.title"
-                @change="select(item.task.id)"
-              /><AButton
-                html-type="button"
-                class="todo-link"
-                :disabled="!item.occurrence"
-                @click="complete(item)"
-                type="link"
+              <ToDooTaskRow
+                :item="card.item"
+                :active="active(card.item)"
+                :hide-list="!!activeListId || boardBy === 'list'"
+                :today="today"
+                :time-zone="state.snapshot?.settings.timeZone"
+                :selecting="selecting"
+                :selected="state.selectedIds.includes(card.item.task.id)"
+                @open="emit('open', $event)"
+                @complete="complete"
+                @select="select"
+                @child="emit('create', $event)"
               >
-                {{ item.status === 'done' ? '重新打开' : '完成' }}</AButton
-              ><ToDooSelect
-                :value="item.status"
-                :disabled="!item.occurrence"
-                aria-label="修改任务状态"
-                @change="item.occurrence && model.setStatus(item.occurrence.id, $event as any)"
-              >
-                <option v-if="!item.occurrence" value="unavailable">执行记录尚未载入</option>
-                <option v-for="(n, k) in toDooStatusLabels" :key="k" :value="k">{{ n }}</option>
-              </ToDooSelect>
-            </div>
-          </article>
-          <AButton class="todo-link" html-type="button" @click="emit('create')" type="link"
+                <template #actions
+                  ><ToDooTaskMenu
+                    :model="model"
+                    :item="card.item"
+                    @open="emit('open', $event)"
+                    @child="emit('create', $event)"
+                    @edit="(kind, entity, seed) => emit('edit', kind, entity, seed)"
+                /></template>
+              </ToDooTaskRow>
+              <p v-if="card.item.task.description" class="todo-board-description">
+                {{ card.item.task.description.slice(0, 80) }}
+              </p>
+              <div v-if="card.children.length" class="todo-board-children">
+                <ToDooTaskMenu
+                  v-for="child in expandedBoardCards.includes(card.item.key)
+                    ? card.children
+                    : card.children.slice(0, 3)"
+                  :key="child.key"
+                  :model="model"
+                  :item="child"
+                  context-menu
+                  @open="emit('open', $event)"
+                  @child="emit('create', $event)"
+                  @edit="(kind, entity, seed) => emit('edit', kind, entity, seed)"
+                  ><div
+                    class="todo-board-subtask"
+                    @contextmenu.stop
+                    draggable="true"
+                    @dragstart.stop="drag($event, child)"
+                  >
+                    <ToDooTaskRow
+                      :item="child"
+                      :active="active(child)"
+                      hide-list
+                      :today="today"
+                      :time-zone="state.snapshot?.settings.timeZone"
+                      :selecting="selecting"
+                      :selected="state.selectedIds.includes(child.task.id)"
+                      @open="emit('open', $event)"
+                      @complete="complete"
+                      @select="select"
+                      @child="emit('create', $event)"
+                    >
+                      <template #actions
+                        ><ToDooTaskMenu
+                          :model="model"
+                          :item="child"
+                          @open="emit('open', $event)"
+                          @child="emit('create', $event)"
+                          @edit="(kind, entity, seed) => emit('edit', kind, entity, seed)"
+                      /></template>
+                    </ToDooTaskRow></div
+                ></ToDooTaskMenu>
+                <AButton
+                  v-if="card.children.length > 3"
+                  type="link"
+                  class="todo-link"
+                  @click="
+                    expandedBoardCards = expandedBoardCards.includes(card.item.key)
+                      ? expandedBoardCards.filter((key) => key !== card.item.key)
+                      : [...expandedBoardCards, card.item.key]
+                  "
+                  >{{
+                    expandedBoardCards.includes(card.item.key)
+                      ? '收起子任务'
+                      : '查看全部 ' + card.children.length + ' 个子任务'
+                  }}</AButton
+                >
+              </div>
+            </article>
+          </ToDooTaskMenu>
+          <AButton
+            class="todo-link"
+            html-type="button"
+            @click="
+              boardBy === 'section' && activeListId
+                ? emit('create', undefined, column.id || null)
+                : emit('create')
+            "
+            type="link"
             >＋ 添加任务</AButton
           >
         </section>
       </div></template
     >
-    <div v-else-if="section === 'matrix'" class="todo-quadrants">
-      <section
-        v-for="(zone, index) in quadrants"
-        :key="index"
-        class="todo-panel todo-quadrant"
-        :class="'todo-quadrant-' + zone.tone"
-        @dragover.prevent
-        @drop="dropQuadrant($event, index)"
+    <template v-else-if="section === 'matrix'">
+      <div
+        v-if="items.some((item) => item.status === 'done') && !matrixIncludesCompleted"
+        class="todo-matrix-completed"
       >
-        <div class="todo-panel-header">
-          <div class="todo-quadrant-heading">
-            <h2>{{ zone.name }}</h2>
-            <span class="todo-quadrant-action">{{ zone.action }}</span>
+        <AButton
+          html-type="button"
+          type="text"
+          :aria-label="showCompleted ? '隐藏已完成任务' : '显示已完成任务'"
+          :aria-expanded="showCompleted"
+          @click="showCompleted = !showCompleted"
+        >
+          {{ showCompleted ? '隐藏已完成' : '显示已完成' }}
+          <small>{{ items.filter((item) => item.status === 'done').length }}</small>
+        </AButton>
+      </div>
+      <div class="todo-quadrants">
+        <section
+          v-for="(zone, index) in quadrants"
+          :key="index"
+          class="todo-panel todo-quadrant"
+          :class="'todo-quadrant-' + zone.tone"
+          @dragover.prevent
+          @drop="dropQuadrant($event, index)"
+        >
+          <div class="todo-panel-header">
+            <div class="todo-quadrant-heading">
+              <h2>{{ zone.name }}</h2>
+              <span class="todo-quadrant-action">{{ zone.action }}</span>
+            </div>
+            <span class="todo-badge">{{
+              matrixItems.filter((i) => quadrant(i, index)).length
+            }}</span>
           </div>
-          <span class="todo-badge">{{ items.filter((i) => quadrant(i, index)).length }}</span>
-        </div>
-        <div class="todo-quadrant-items">
-          <div
-            v-for="item in items.filter((i) => quadrant(i, index))"
-            :key="item.key"
-            draggable="true"
-            @dragstart="drag($event, item)"
-          >
-            <ToDooTaskRow
-              :item="item"
-              :active="active(item)"
-              :today="today"
-              :time-zone="state.snapshot?.settings.timeZone"
-              :selecting="selecting"
-              :selected="state.selectedIds.includes(item.task.id)"
-              @open="emit('open', $event)"
-              @complete="complete"
-              @select="select"
-              @child="emit('create', $event)"
-            />
+          <div class="todo-quadrant-items">
+            <div
+              v-for="item in matrixItems.filter((i) => quadrant(i, index))"
+              :key="item.key"
+              draggable="true"
+              @dragstart="drag($event, item)"
+            >
+              <ToDooTaskRow
+                :item="item"
+                :active="active(item)"
+                :today="today"
+                :time-zone="state.snapshot?.settings.timeZone"
+                :selecting="selecting"
+                :selected="state.selectedIds.includes(item.task.id)"
+                @open="emit('open', $event)"
+                @complete="complete"
+                @select="select"
+                @child="emit('create', $event)"
+                ><template #actions
+                  ><ToDooTaskMenu
+                    :model="model"
+                    :item="item"
+                    @open="emit('open', $event)"
+                    @child="emit('create', $event)"
+                    @edit="(kind, entity, seed) => emit('edit', kind, entity, seed)" /></template
+              ></ToDooTaskRow>
+            </div>
+            <div v-if="!matrixItems.some((i) => quadrant(i, index))" class="todo-empty">
+              <p>{{ zone.empty }}</p>
+            </div>
           </div>
-          <div v-if="!items.some((i) => quadrant(i, index))" class="todo-empty">
-            <strong>当前没有{{ zone.name }}的任务</strong>
-            <p>{{ zone.empty }}</p>
-            <p class="todo-muted">在上方添加任务后设置重要与紧急程度，也可拖入已有任务。</p>
-          </div>
-        </div>
-      </section>
-    </div>
+        </section>
+      </div>
+    </template>
   </template>
 </template>
+<style scoped>
+.todo-overview-cohesion {
+  margin-top: 0;
+  grid-template-columns: minmax(0, 1.6fr) minmax(260px, 1fr);
+}
+.todo-overview-context {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+.todo-overview-goals .todo-section-title {
+  margin: 0 0 10px;
+}
+.todo-overview-goals .todo-goals {
+  grid-template-columns: 1fr;
+}
+.todo-overview-goals .todo-goal {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+}
+.todo-overview-goals .todo-goal-name {
+  height: auto;
+  flex: 1;
+  white-space: normal;
+  text-align: left;
+  padding: 0;
+}
+.todo-overview-goals .todo-goal > p {
+  min-height: 0;
+  margin: 0;
+}
+.todo-overview-goals .todo-goal > .todo-between:first-child {
+  border: 0;
+  padding-top: 0;
+}
+.todo-overview-goals .todo-goal-details {
+  padding-top: 8px;
+}
+.todo-overview-list {
+  display: flex;
+  align-items: center;
+  padding-right: 9px;
+  border-bottom: 1px solid var(--todo-line);
+}
+.todo-overview-list:last-child {
+  border-bottom: 0;
+}
+.todo-overview-list > .todo-saved-row {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+}
+.todo-overview-list small {
+  flex-shrink: 0;
+  color: var(--todo-muted);
+}
+.todo-overview-today .todo-panel-footer {
+  justify-content: flex-end;
+}
+.todo-matrix-completed {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -6px;
+  margin-bottom: 4px;
+}
+.todo-matrix-completed .ant-btn {
+  font-size: 11px;
+  color: var(--todo-muted);
+}
+@container (max-width: 650px) {
+  .todo-overview-cohesion {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

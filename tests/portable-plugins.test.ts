@@ -70,7 +70,7 @@ async function fixture() {
   } };
 }
 
-const relativeState = '_data/plugins/portable-sample/state.json';
+const relativeState = '_doo-data/plugins/portable-sample/state.json';
 const owner = { ownerId: 'source-owner' };
 
 it('migrates legacy official Git author preferences while excluding secret and unmarked third-party fields', () => {
@@ -204,7 +204,7 @@ it('refuses symlinked portable plugin data without reading or replacing its exte
   const f = await fixture();
   try {
     await f.host.install(f.entry.id);
-    const directory = join(f.knowledgeRoot, '_data/plugins/portable-sample');
+    const directory = join(f.knowledgeRoot, '_doo-data/plugins/portable-sample');
     await mkdir(directory, { recursive: true });
     const outside = join(f.root, 'outside.json');
     await writeFile(outside, 'external-file-sentinel');

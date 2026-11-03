@@ -1,5 +1,7 @@
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import Database from 'better-sqlite3';
 import { configurePlugin, returnToNotes } from '../support/settings-navigation';
 
 test('guides a new MCP user before enablement and keeps local readiness separate from external verification', async ({
@@ -14,37 +16,26 @@ test('guides a new MCP user before enablement and keeps local readiness separate
     .getByRole('button', { name: '停用插件', exact: true });
   if (await disable.isVisible()) await disable.click();
   await expect(
-    page.getByRole('heading', { name: '连接 ChatGPT：按步骤完成', exact: true }),
+    page.getByRole('heading', { name: 'MCP 连接', exact: true }),
   ).toBeVisible();
   await expect(page.getByText('配置已保存，插件尚未启用', { exact: true })).toBeVisible();
   await expect(page.getByText('外部连接尚未验证', { exact: true })).toBeVisible();
-  await expect(page.getByLabel('Tunnel 本地端口', { exact: true })).toBeHidden();
   await expect(page.getByLabel('允许访问的目录', { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: '查看本地隧道教程', exact: true }).click();
-  await expect(page.getByText('运行在 DooKnow 所在主机', { exact: false })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'OpenAI 隧道设置', exact: true })).toBeVisible();
-  await page.getByRole('button', { name: '查看网页授权教程', exact: true }).click();
-  await expect(
-    page.getByText('localhost 不能直接填到 ChatGPT 的公网连接地址中。', { exact: true }),
-  ).toBeVisible();
-  await page.getByRole('combobox', { name: '连接方式', exact: true }).press('ArrowDown');
-  await page.locator('.ant-select-item-option').filter({ hasText: '本地隧道（Tunnel）' }).click();
-  await expect(page.getByLabel('Tunnel 本地端口', { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: '生成连接密钥', exact: true }).click();
-  await expect(page.getByLabel('Tunnel Bearer 密钥', { exact: true })).toHaveValue(
-    /^[a-f0-9]{64}$/,
-  );
+  await page.getByRole('button', { name: 'API Key 接入', exact: true }).click();
+  await expect(page.getByText('Authorization: Bearer <API Key>', { exact: true })).toBeVisible();
+  await expect(page.locator('.guide-value code')).toHaveText(/\/mcp\/api-key$/);
+  await expect(page.getByRole('button', { name: '创建 API 客户端', exact: true })).toBeDisabled();
+  await page.getByRole('button', { name: 'OAuth 接入', exact: true }).click();
+  await expect(page.getByText('OAuth 需要客户端和授权浏览器可达的 HTTPS 站点。', { exact: true })).toBeVisible();
+  await expect(page.getByRole('switch', { name: '启用 OAuth 连接', exact: true })).toBeVisible();
+  await expect(page.getByRole('switch', { name: '启用 API Key 连接', exact: true })).toBeVisible();
   await page.getByLabel('允许访问的目录', { exact: true }).fill('00-Inbox');
   await page.getByRole('button', { name: '保存插件配置', exact: true }).click();
   await expect(page.getByRole('status').filter({ hasText: '插件配置已保存' })).toBeVisible();
-  await page.getByRole('combobox', { name: '连接方式', exact: true }).press('ArrowDown');
-  await page.locator('.ant-select-item-option').filter({ hasText: '网页授权（OAuth）' }).click();
-  await page.getByRole('button', { name: '保存插件配置', exact: true }).click();
   await page.reload();
   await expect(page.locator('.settings-workspace')).toBeVisible();
   await configurePlugin(page, 'MCP 服务');
   await expect(page.getByLabel('允许访问的目录', { exact: true })).toHaveValue('00-Inbox');
-  await expect(page.getByLabel('Tunnel Bearer 密钥', { exact: true })).toBeHidden();
   await returnToNotes(page);
 });
 
@@ -52,10 +43,9 @@ test('uninstalling MCP keeps a visible authorization revocation path without re-
   page,
   context,
 }) => {
-  const { openDatabase } = await import('../../packages/core/db.js');
   const { oauthGrantStore } = await import('../../apps/server/platform/oauth-grants.js');
   const config = JSON.parse(await readFile('.local/e2e-config.json', 'utf8'));
-  const db = openDatabase(config.dataRoot);
+  const db = new Database(join(config.dataRoot, 'app.sqlite'), { fileMustExist: true });
   const ownerId = (db.prepare('SELECT id FROM user').get() as any).id;
   const clientId = 'browser-grant-' + crypto.randomUUID();
   oauthGrantStore(db).approve(ownerId, clientId, ['knowledge:read'], ['00-Inbox']);

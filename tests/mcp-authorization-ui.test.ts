@@ -19,7 +19,8 @@ const connection = (active: boolean) => ({
       allowedPrefixes: ['00-Inbox'],
     },
   ],
-  connection: { oauth: { ready: false }, tunnel: { ready: false } },
+  origin: 'http://127.0.0.1:3000',
+  connection: { oauth: { ready: false, address: 'http://127.0.0.1:3000/mcp' }, apiKey: { ready: true, address: 'http://127.0.0.1:3000/mcp/api-key' } },
   latestSuccessfulCall: null,
 });
 function deferred<T>() {
@@ -43,7 +44,7 @@ async function mount(file: string, props = {}) {
       if (id === 'ant-design-vue') return { Alert: 'aside', Button: 'button', Card: 'section', Checkbox: { Group: 'div' }, Spin: 'span' };
       if (id === '../api') return { api };
       if (id === '../mcp-permissions') return permissionHelpers;
-      if (id === './MCPDomainPermissions.vue' || id === './MCPClientPermissions.vue') return { default: {render:()=>null} };
+      if (id === './MCPDomainPermissions.vue' || id === './MCPClientPermissions.vue' || id === './MCPApiClients.vue') return { default: {render:()=>null} };
       if (id === '../plugins') return { pluginRegistry: registry };
       if (id === './Icon.vue' || id === './KnowledgeResourceTreeSelect.vue') return { default: { render: () => null } };
       if (id === '../../../shared/authorization-scopes') return { isResourceScope };
@@ -178,17 +179,11 @@ it('starts narrowing from the effective identity grant without editing the origi
   expect(view.notice).toContain('已收窄');
   expect(api).toHaveBeenCalledWith('/api/platform/mcp/clients/narrow','POST',expect.objectContaining({clientId:'agent',expectedGrantVersion:2,permissionPolicy:expect.objectContaining({version:2})}));
 });
-it('reviews the current Tunnel ceiling before explicitly replacing its authorization',async()=>{
-  const permissionPolicy={version:2,domains:{knowledge:{enabled:true,ownerId:'owner',instanceId:'lib',actions:['read','write','organize'],resources:{mode:'all'}}}};
-  const view=await mount('MCPConnectionGuide.vue',{plugin:{id:'mcp',state:'enabled',configVersion:1,config:{}},mode:'tunnel',dirty:false});
-  api.mockResolvedValueOnce({policy:permissionPolicy,resources:{}});
-  await view.prepareTunnel();
-  expect(view.tunnelPolicy).toEqual(permissionPolicy);
-  expect(api).not.toHaveBeenCalledWith('/api/platform/mcp/tunnel/authorize',expect.anything(),expect.anything());
-  api.mockResolvedValueOnce({authorized:true}).mockResolvedValueOnce(connection(true));
-  await view.authorizeTunnel();
-  expect(api).toHaveBeenCalledWith('/api/platform/mcp/tunnel/authorize','POST',{permissionPolicy});
-  expect(view.notice).toContain('Tunnel 授权已更新');
+it('shows the API Key endpoint from the saved connection state', async () => {
+  const view = await mount('MCPConnectionGuide.vue', { plugin: { id: 'mcp', state: 'enabled', configVersion: 1, config: {} }, dirty: false });
+  view.path = 'api-key';
+  expect(view.endpoint).toBe('http://127.0.0.1:3000/mcp/api-key');
+  expect(view.localReady).toBe(true);
 });
 
 it('accepts task-only legacy consent without requiring a note directory', async () => {
@@ -245,4 +240,181 @@ it('requires an explicit disabled rebind after the task dataset changes without 
   view.rebind('to-doo');
   expect(updates[0].domains['to-doo']).toEqual({ enabled: false, ownerId: 'owner', instanceId: 'new-dataset', actions: [], resources: { mode: 'selected', resources: [] } });
   expect(modelValue.domains['to-doo']).toEqual(old);
+});
+
+const apiPolicy = { version: 2 as const, domains: { knowledge: { enabled: true, ownerId: 'owner', instanceId: 'library', actions: ['read', 'write'], resources: { mode: 'all' as const } } } };
+function apiClient(overrides: Record<string, unknown> = {}) {
+  return { clientId: 'api-client', name: 'Desktop assistant', status: 'active', version: 4, grantVersion: 7, permissionPolicy: structuredClone(apiPolicy), effectivePolicy: structuredClone(apiPolicy), key: { id: 'key-id', suffix: '12345678', version: 2, createdAt: '2026-11-01T00:00:00.000Z', expiresAt: null, revokedAt: null, lastUsedAt: null }, ...overrides };
+}
+async function apiView(clients = [apiClient()]) {
+  api.mockImplementation(async (url: string) => url === '/api/platform/mcp/permissions' ? { policy: structuredClone(apiPolicy), resources: {} } : { items: clients });
+  return mount('MCPApiClients.vue');
+}
+it('creates a client with a ninety-day default and keeps the one-time key out of the client list', async () => {
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date('2026-11-01T12:00:00.000Z'));
+  try {
+    const view = await apiView([]);
+    await view.beginCreate();
+    expect(view.form.expiry).toBe('90');
+    expect(view.form.permissionPolicy.domains.knowledge.actions).toEqual(['read']);
+    view.form.name = 'My application';
+    api.mockResolvedValueOnce({ client: apiClient({ name: 'My application' }), key: 'one-time-key' });
+    await view.submit();
+    expect(api).toHaveBeenLastCalledWith('/api/platform/mcp/api-clients', 'POST', expect.objectContaining({ name: 'My application', expiresAt: '2027-01-30T12:00:00.000Z' }));
+    expect(view.secret).toBe('one-time-key');
+    expect(view.clients[0].name).toBe('My application');
+    expect(JSON.stringify(view.clients)).not.toContain('one-time-key');
+    view.dismissSecret();
+    expect(view.secret).toBe('');
+  } finally { vi.useRealTimers(); }
+});
+it.each([['7', '2026-11-08T12:00:00.000Z'], ['30', '2026-12-01T12:00:00.000Z'], ['forever', null], ['custom', '2027-02-03T10:00:00.000Z']])('uses the selected %s expiration when rotating without resubmitting permissions', async (expiry, expiresAt) => {
+  vi.useFakeTimers(); vi.setSystemTime(new Date('2026-11-01T12:00:00.000Z'));
+  try {
+    const view = await apiView();
+    await view.beginEdit(view.clients[0], 'rotate');
+    view.form.expiry = expiry;
+    view.form.expiresAtCustom = '2027-02-03T10:00';
+    api.mockResolvedValueOnce({ client: apiClient({ version: 5 }), key: 'rotated-key' });
+    await view.submit();
+    expect(api).toHaveBeenLastCalledWith('/api/platform/mcp/api-clients/api-client/rotate-key', 'POST', { expectedVersion: 4, expiresAt });
+    expect(view.clients[0].version).toBe(5);
+    expect(view.secret).toBe('rotated-key');
+  } finally { vi.useRealTimers(); }
+});
+it('rejects a custom expiration in the past before issuing a credential', async () => {
+  const view = await apiView();
+  await view.beginCreate();
+  view.form.name = 'Expired'; view.form.expiry = 'custom'; view.form.expiresAtCustom = '2020-01-01T00:00';
+  const previousCalls = api.mock.calls.length;
+  await view.submit();
+  expect(view.error).toContain('将来');
+  expect(api.mock.calls.length).toBe(previousCalls);
+});
+it('renames against the client version and edits permissions against the captured grant version', async () => {
+  const view = await apiView();
+  await view.beginEdit(view.clients[0], 'rename');
+  view.form.name = 'New name';
+  api.mockResolvedValueOnce(apiClient({ name: 'New name', version: 5 }));
+  await view.submit();
+  expect(view.clients[0].name).toBe('New name');
+  expect(api).toHaveBeenLastCalledWith('/api/platform/mcp/api-clients/api-client', 'PATCH', { name: 'New name', expectedVersion: 4 });
+  await view.beginEdit(view.clients[0], 'permissions');
+  view.form.permissionPolicy.domains.knowledge.actions = ['read'];
+  expect(view.clients[0].permissionPolicy.domains.knowledge.actions).toEqual(['read', 'write']);
+  api.mockResolvedValueOnce(apiClient({ grantVersion: 8 }));
+  await view.submit();
+  expect(api).toHaveBeenLastCalledWith('/api/platform/mcp/api-clients/api-client/permissions', 'PUT', { permissionPolicy: expect.objectContaining({ version: 2 }), expectedGrantVersion: 7 });
+  expect(view.clients[0].grantVersion).toBe(8);
+});
+it('retains a rejected stale permissions draft until the owner reloads it', async () => {
+  const view = await apiView();
+  await view.beginEdit(view.clients[0], 'permissions');
+  view.form.permissionPolicy.domains.knowledge.actions = ['read'];
+  api.mockRejectedValueOnce(Object.assign(Error('version conflict'), { status: 409 }));
+  await view.submit();
+  expect(view.error).toContain('重新载入');
+  expect(view.form.permissionPolicy.domains.knowledge.actions).toEqual(['read']);
+  expect(view.form.expectedGrantVersion).toBe(7);
+  expect(view.clients[0].grantVersion).toBe(7);
+});
+it('only offers explicit reauthorization for clients that require it and submits both versions', async () => {
+  const view = await apiView([apiClient({ status: 'requires_reauthorization' }), apiClient({ clientId: 'revoked', status: 'revoked' })]);
+  await view.beginEdit(view.clients[1], 'reauthorize');
+  expect(view.form).toBeUndefined();
+  await view.beginEdit(view.clients[0], 'reauthorize');
+  view.form.expiry = 'forever';
+  api.mockResolvedValueOnce({ client: apiClient(), key: 'reauthorized-key' });
+  await view.submit();
+  expect(api).toHaveBeenLastCalledWith('/api/platform/mcp/api-clients/api-client/reauthorize', 'POST', { permissionPolicy: expect.objectContaining({ version: 2 }), expectedVersion: 4, expectedGrantVersion: 7, expiresAt: null });
+  expect(view.clients[0].status).toBe('active');
+  expect(view.secret).toBe('reauthorized-key');
+});
+it('keeps revocation confirmed when an older list response arrives later', async () => {
+  const view = await apiView();
+  const stale = deferred<{ items: ReturnType<typeof apiClient>[] }>();
+  api.mockImplementationOnce(() => stale.promise);
+  const reading = view.load();
+  api.mockResolvedValueOnce({ revoked: true });
+  await view.revoke(view.clients[0]);
+  stale.resolve({ items: [apiClient()] });
+  await reading;
+  expect(view.clients[0].status).toBe('revoked');
+  expect(view.clients[0].key.revokedAt).not.toBeNull();
+});
+it('discards a late creation response after the API client component unmounts', async () => {
+  const view = await apiView([]);
+  await view.beginCreate(); view.form.name = 'Leaving';
+  const pending = deferred<any>(); api.mockImplementationOnce(() => pending.promise);
+  const submitting = view.submit();
+  cleanup.pop()!();
+  pending.resolve({ client: apiClient(), key: 'do-not-reveal' });
+  await submitting;
+  expect(view.secret).toBe('');
+});
+
+it('starts reauthorization from the current resource binding when the old dataset is unavailable', async () => {
+  const old = structuredClone(apiPolicy); old.domains.knowledge.instanceId = 'removed-dataset';
+  const view = await apiView([apiClient({ status: 'requires_reauthorization', permissionPolicy: old, effectivePolicy: undefined })]);
+  await view.beginEdit(view.clients[0], 'reauthorize');
+  expect(view.form.permissionPolicy.domains.knowledge.instanceId).toBe('library');
+  expect(view.form.permissionPolicy.domains.knowledge.actions).toEqual(['read']);
+});
+
+it('keeps saved grants editable when effective permissions are temporarily unavailable', async () => {
+  const view = await apiView([apiClient({ effectivePolicy: { version: 2, domains: {} } })]);
+  await view.beginEdit(view.clients[0], 'permissions');
+  expect(view.form.permissionPolicy.domains.knowledge.actions).toEqual(['read', 'write']);
+});
+it('does not unlock a stale form if reloading the latest client fails', async () => {
+  const view = await apiView();
+  await view.beginEdit(view.clients[0], 'rename'); view.form.name = 'Pending';
+  api.mockRejectedValueOnce(Object.assign(Error('conflict'), { status: 409 }));
+  await view.submit();
+  api.mockRejectedValueOnce(Error('offline'));
+  await view.reloadForm();
+  expect(view.conflict).toBe(true);
+  expect(view.form.name).toBe('Pending');
+  expect(view.canSubmit).toBe(false);
+});
+it('resolves an uncertain revoke from a fresh client list without leaving a stale confirmation', async () => {
+  const view = await apiView();
+  view.pendingRevoke = 'api-client';
+  api.mockRejectedValueOnce(Error('response lost'));
+  await view.revoke(view.clients[0]);
+  api.mockResolvedValueOnce({ items: [apiClient({ status: 'revoked' })] });
+  await view.load();
+  expect(view.pendingRevoke).toBe('');
+  expect(view.error).toBe('');
+  expect(view.clients[0].status).toBe('revoked');
+});
+
+it('offers newly available client permission domains without widening the existing grant', async () => {
+  const saved = { version: 2, domains: { knowledge: { enabled: true, ownerId: 'owner', instanceId: 'library', actions: ['read'], resources: { mode: 'selected', resources: [{ kind: 'directory', id: 'original-directory' }] } } } };
+  const ceiling = { version: 2, domains: { ...structuredClone(apiPolicy.domains), blog: { enabled: true, ownerId: 'owner', instanceId: 'blog', actions: ['read', 'write', 'publish'], resources: { mode: 'selected', resources: [{ kind: 'article', id: 'new-article' }] } } } };
+  const view = await apiView([apiClient({ permissionPolicy: structuredClone(saved) })]);
+  api.mockResolvedValueOnce({ policy: ceiling, resources: {} });
+  await view.beginEdit(view.clients[0], 'permissions');
+  expect(view.form.permissionPolicy.domains.knowledge).toEqual(saved.domains.knowledge);
+  expect(view.form.permissionPolicy.domains.blog).toEqual({ enabled: false, ownerId: 'owner', instanceId: 'blog', actions: [], resources: { mode: 'selected', resources: [{ kind: 'article', id: 'new-article' }] } });
+  expect(view.clients[0].permissionPolicy).toEqual(saved);
+  api.mockResolvedValueOnce({ policy: ceiling, resources: {} });
+  const editor = await mount('MCPDomainPermissions.vue', {
+    modelValue: view.form.permissionPolicy,
+    ceiling: view.form.ceiling,
+    consent: true,
+    'onUpdate:modelValue': (policy: unknown) => { view.form.permissionPolicy = policy; },
+  });
+  expect(editor.domains.map((domain: any) => domain.id)).toEqual(['knowledge', 'blog']);
+  editor.update('blog', (grant: any) => { grant.enabled = true; grant.actions = ['read']; });
+  expect(view.form.permissionPolicy.domains.knowledge).toEqual(saved.domains.knowledge);
+  expect(ceiling.domains.blog.actions).toEqual(['read', 'write', 'publish']);
+  api.mockResolvedValueOnce(apiClient({ permissionPolicy: JSON.parse(JSON.stringify(view.form.permissionPolicy)), grantVersion: 8 }));
+  await view.submit();
+  expect(api).toHaveBeenLastCalledWith('/api/platform/mcp/api-clients/api-client/permissions', 'PUT', {
+    expectedGrantVersion: 7,
+    permissionPolicy: { version: 2, domains: { knowledge: saved.domains.knowledge, blog: { enabled: true, ownerId: 'owner', instanceId: 'blog', actions: ['read'], resources: { mode: 'selected', resources: [{ kind: 'article', id: 'new-article' }] } } } },
+  });
+  expect(view.clients[0].permissionPolicy.domains.blog.actions).toEqual(['read']);
 });

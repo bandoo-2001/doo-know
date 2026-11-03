@@ -1,0 +1,15 @@
+{
+  "phase": "after",
+  "fixedTime": "2026-10-30T09:00:00.000Z",
+  "screenshots": [
+    {
+      "id": "08-statistics",
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "label": "统计与复盘",
+      "file": "desktop-08-statistics.png",
+      "overflow": 0
+    }
+  ]
+}

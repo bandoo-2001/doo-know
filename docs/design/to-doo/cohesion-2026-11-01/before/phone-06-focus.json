@@ -1,0 +1,15 @@
+{
+  "phase": "before",
+  "fixedTime": "2026-10-30T09:00:00.000Z",
+  "screenshots": [
+    {
+      "id": "06-focus",
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "label": "专注",
+      "file": "phone-06-focus.png",
+      "overflow": 0
+    }
+  ]
+}

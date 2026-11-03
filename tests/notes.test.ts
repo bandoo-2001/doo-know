@@ -54,14 +54,14 @@ it('supports ordinary top-level directories and root notes while refusing unsafe
     await mkdir(join(f.root, 'outside'));
     await symlink(join(f.root, 'outside'), join(f.knowledgeRoot, '00-Inbox/link'));
     for (const [parent, name] of [
-      ['', 'assets'],
+      ['', '_doo-assets'],
       ['', '.hidden'],
       ['', '../escaped'],
       ['.', '10-Projects'],
       ['../outside', 'escaped'],
       ['/tmp', 'escaped'],
       ['00-Inbox/link', 'escaped'],
-      ['00-Inbox', 'assets'],
+      ['00-Inbox', '_doo-assets'],
     ]) {
       const result = await f.app.inject({
         method: 'POST',
@@ -103,7 +103,7 @@ it('supports ordinary top-level directories and root notes while refusing unsafe
     );
     expect((await readdir(f.knowledgeRoot)).sort()).toEqual([
       '00-Inbox',
-      '_data',
+      '_doo-data',
       'other',
       'other.md',
     ]);

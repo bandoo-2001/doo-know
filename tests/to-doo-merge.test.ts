@@ -122,7 +122,7 @@ it.each([
   // B's second task, and both distinct immutable transaction markers.
   const cConfig = config('c');
   await cp(baselineConfig.knowledgeRoot, cConfig.knowledgeRoot, { recursive: true });
-  const portable = '_data/apps/to-doo';
+  const portable = '_doo-data/apps/to-doo';
   await cp(
     join(aConfig.knowledgeRoot, portable, 'tasks', first + '.json'),
     join(cConfig.knowledgeRoot, portable, 'tasks', first + '.json'),

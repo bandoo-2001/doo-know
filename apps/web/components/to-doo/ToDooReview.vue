@@ -1,89 +1,167 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, onUnmounted, ref } from 'vue';
 import {
   Alert as AAlert,
   Button as AButton,
+  Dropdown as ADropdown,
+  Menu as AMenu,
   Empty as AEmpty,
   Progress as AProgress,
   Segmented as ASegmented,
   Statistic as AStatistic,
+  Tabs as ATabs,
 } from 'ant-design-vue';
 import ToDooDateField from './ToDooDateField.vue';
-import type { ToDooEntityKind } from '../../../../shared/to-doo-contracts';
+import ToDooIcon from './ToDooIcon.vue';
+import { createToDooReminderController } from '../../to-doo-reminders';
+import ToDooPageToolbar from './ToDooPageToolbar.vue';
+import ToDooSectionHeader from './ToDooSectionHeader.vue';
+import { useToDooClock } from '../../to-doo-time';
+import type { ToDooEntityKind, ToDooEntityMap } from '../../../../shared/to-doo-contracts';
+import type { ToDooReminderSource } from '../../../../shared/to-doo-contracts';
 import { shiftToDooDate, toDooLocalDate, type ToDooWorkbench } from '../../to-doo-workbench';
 const props = defineProps<{ model: ToDooWorkbench; section: 'stats' | 'notifications' }>();
 const emit = defineEmits<{
   edit: [kind: ToDooEntityKind, entity?: Record<string, any>, seed?: Record<string, any>];
-  task: [id: string];
+  task: [id: string, occurrenceId?: string];
 }>();
+const { now } = useToDooClock();
 const state = props.model.state,
-  today = toDooLocalDate(new Date(), state.snapshot?.settings.timeZone),
-  from = ref(shiftToDooDate(today, -6)),
-  to = ref(today),
-  unreadOnly = ref(false);
+  today = computed(() => toDooLocalDate(new Date(now.value), state.snapshot?.settings.timeZone)),
+  from = ref(shiftToDooDate(today.value, -6)),
+  to = ref(today.value);
 const customRange = ref(false);
 const periodPreset = computed(() =>
   customRange.value
     ? 'custom'
-    : from.value === shiftToDooDate(today, -6) && to.value === today
+    : from.value === shiftToDooDate(today.value, -6) && to.value === today.value
       ? 'week'
-      : from.value === shiftToDooDate(today, -29) && to.value === today
+      : from.value === shiftToDooDate(today.value, -29) && to.value === today.value
         ? 'month'
         : 'custom',
 );
 async function selectPeriod(value: string | number) {
   customRange.value = value === 'custom';
   if (customRange.value) return;
-  from.value = shiftToDooDate(today, value === 'month' ? -29 : -6);
-  to.value = today;
+  from.value = shiftToDooDate(today.value, value === 'month' ? -29 : -6);
+  to.value = today.value;
   await range();
 }
-const lists = computed(() => state.snapshot?.lists.filter((l) => !l.deletedAt) || []);
+const lists = computed(
+  () =>
+    state.snapshot?.lists.filter((l) => !l.deletedAt && !l.archivedAt && l.kind === 'goal') || [],
+);
 const listProgress = (id: string) => {
   const item = state.snapshot?.statistics.byList[id];
   return item?.total ? Math.min(100, Math.round((item.completed / item.total) * 100)) : 0;
 };
-const reminders = computed(
-  () =>
-    state.snapshot?.reminderEvents
-      .filter(
-        (r) =>
-          !r.deletedAt &&
-          (r.firstRaisedAt || r.scheduledAt <= new Date().toISOString()) &&
-          (!unreadOnly.value || r.userState === 'unread'),
-      )
-      .sort((a, b) => b.scheduledAt.localeCompare(a.scheduledAt)) || [],
+const ATabPane = ATabs.TabPane,
+  AMenuItem = AMenu.Item;
+const reminderController = createToDooReminderController(props.model.request);
+const actingReminder = computed(() => reminderController.state.busy);
+onUnmounted(reminderController.dispose);
+type ReminderState = ToDooEntityMap['reminderEvent']['userState'];
+const notificationTabs: { value: ReminderState | 'all'; label: string }[] = [
+  { value: 'all', label: '全部' },
+  { value: 'unread', label: '未读' },
+  { value: 'read', label: '已读' },
+  { value: 'acknowledged', label: '已处理' },
+  { value: 'snoozed', label: '稍后' },
+  { value: 'dismissed', label: '忽略' },
+];
+const notificationFilter = computed(() => state.query.reminderStates?.[0] ?? 'all');
+const markingAll = ref(false);
+const reminders = computed(() =>
+  (state.snapshot?.reminderEvents ?? [])
+    .filter(
+      (event) =>
+        !event.deletedAt &&
+        (event.firstRaisedAt ||
+          event.scheduledAt <= (state.snapshot?.now ?? new Date().toISOString())) &&
+        (notificationFilter.value === 'all' || event.userState === notificationFilter.value),
+    )
+    .sort((a, b) =>
+      (b.firstRaisedAt ?? b.scheduledAt).localeCompare(a.firstRaisedAt ?? a.scheduledAt),
+    ),
 );
-const completions = computed(
-  () =>
-    state.snapshot?.occurrences.filter(
-      (o) =>
-        !o.deletedAt &&
-        o.status === 'done' &&
-        o.completedAt &&
-        toDooLocalDate(new Date(o.completedAt), state.snapshot?.settings.timeZone) >= from.value &&
-        toDooLocalDate(new Date(o.completedAt), state.snapshot?.settings.timeZone) <= to.value,
-    ) || [],
-);
-const daily = computed(() =>
-  Array.from(
-    {
-      length: Math.min(
-        31,
-        Math.max(1, Math.round((Date.parse(to.value) - Date.parse(from.value)) / 86400000) + 1),
+const notificationGroups = computed(() => {
+  const groups = new Map<string, ToDooEntityMap['reminderEvent'][]>();
+  for (const event of reminders.value) {
+    const date = toDooLocalDate(
+        new Date(event.firstRaisedAt ?? event.scheduledAt),
+        state.snapshot?.settings.timeZone,
       ),
-    },
-    (_, i) => {
-      const date = shiftToDooDate(from.value, i);
-      return {
-        date,
-        total: completions.value.filter(
-          (o) =>
-            toDooLocalDate(new Date(o.completedAt!), state.snapshot?.settings.timeZone) === date,
-        ).length,
-      };
-    },
+      rows = groups.get(date) ?? [];
+    rows.push(event);
+    groups.set(date, rows);
+  }
+  return [...groups].map(([date, items]) => ({
+    date,
+    label: date === today.value ? '今天' : date,
+    items,
+  }));
+});
+async function notificationFilterChanged(value: string | number) {
+  if (markingAll.value || actingReminder.value) return;
+  const key = value as ReminderState | 'all';
+  await props.model.load({
+    ...state.query,
+    reminderStates: key === 'all' ? undefined : [key],
+    cursor: undefined,
+  });
+}
+let sourceRequest = 0;
+async function openReminder(event: ToDooEntityMap['reminderEvent']) {
+  const ticket = ++sourceRequest;
+  try {
+    const card = (await props.model.request(
+      '/api/to-doo/reminders/' + encodeURIComponent(event.id) + '/source',
+    )) as ToDooReminderSource;
+    if (ticket !== sourceRequest || (state.query.view && state.query.view !== 'notifications'))
+      return;
+    if (card.taskId) emit('task', card.taskId, card.occurrenceId);
+    else state.error = '这条提醒没有可打开的任务执行记录';
+  } catch (cause) {
+    state.error = cause instanceof Error ? cause.message : String(cause);
+  }
+}
+const appliedFrom = computed(() => state.snapshot?.statistics.from ?? from.value);
+const appliedTo = computed(() => state.snapshot?.statistics.to ?? to.value);
+const bucketDays = computed(() =>
+  Math.max(
+    1,
+    Math.ceil(
+      (Math.floor((Date.parse(appliedTo.value) - Date.parse(appliedFrom.value)) / 86400000) + 1) /
+        31,
+    ),
   ),
+);
+const daily = computed(() => {
+  const days = Math.max(
+    0,
+    Math.floor((Date.parse(appliedTo.value) - Date.parse(appliedFrom.value)) / 86400000) + 1,
+  );
+  const totals = state.snapshot?.statistics.completedByDay ?? {};
+  const step = bucketDays.value;
+  return Array.from({ length: Math.ceil(days / step) }, (_, i) => {
+    const date = shiftToDooDate(appliedFrom.value, i * step);
+    const end = shiftToDooDate(appliedFrom.value, Math.min(days - 1, (i + 1) * step - 1));
+    return {
+      date,
+      end,
+      total: Object.entries(totals).reduce(
+        (count, [day, amount]) => count + (day >= date && day <= end ? amount : 0),
+        0,
+      ),
+    };
+  });
+});
+const trendDescription = computed(
+  () =>
+    `${appliedFrom.value} — ${appliedTo.value}，共${daily.value.reduce((total, row) => total + row.total, 0)}项；` +
+    daily.value
+      .map((row) => `${row.date}${row.end === row.date ? '' : '—' + row.end} ${row.total}项`)
+      .join('，'),
 );
 const reviews = computed(() => state.snapshot?.reviews.filter((r) => !r.deletedAt) || []);
 const outcomes = computed(() => state.snapshot?.outcomes.filter((r) => !r.deletedAt) || []);
@@ -104,39 +182,110 @@ async function range() {
     cursor: undefined,
   });
 }
-async function reminder(id: string, action: 'read' | 'acknowledge' | 'dismiss' | 'snooze') {
-  const item = state.snapshot?.reminderEvents.find((r) => r.id === id);
-  if (!item) return;
-  state.error = '';
-  state.notice = '';
-  try {
-    await props.model.request(
-      '/api/to-doo/reminders/' + encodeURIComponent(id) + '/action',
-      'POST',
-      {
-        action,
-        requestId: crypto.randomUUID(),
-        expectedRevision: item.revision,
-        ...(action === 'snooze' ? { until: new Date(Date.now() + 15 * 60000).toISOString() } : {}),
-      },
+function notifyReminderChange() {
+  if (typeof window !== 'undefined')
+    window.dispatchEvent(
+      new CustomEvent('dooknow-to-doo-changed', { detail: { workspaceAlreadyLoaded: true } }),
     );
-    await props.model.load();
-    window.dispatchEvent(new Event('dooknow-to-doo-changed'));
-    state.notice = '提醒已更新';
-  } catch (e) {
-    state.error = e instanceof Error ? e.message : String(e);
-  }
 }
+async function reminder(id: string, action: 'read' | 'acknowledge' | 'dismiss' | 'snooze') {
+  const event = state.snapshot?.reminderEvents.find((row) => row.id === id);
+  if (!event || actingReminder.value || markingAll.value || state.busy) return;
+  state.error = '';
+  const saved = await reminderController.act(
+    { event, section: 'notifications', completion: 'open' },
+    action,
+    { minutes: 15 },
+  );
+  if (!saved) {
+    state.error = reminderController.state.error;
+    return;
+  }
+  await props.model.load();
+  notifyReminderChange();
+  state.notice = '提醒已更新';
+}
+let readQueue: { datasetId: string; ids: string[]; offset: number; changed: number } | undefined;
 async function markAll() {
-  for (const r of reminders.value.filter((r) => r.userState === 'unread')) {
-    await reminder(r.id, 'read');
-    if (state.error) return;
+  if (markingAll.value || state.busy || actingReminder.value) return;
+  markingAll.value = true;
+  state.error = '';
+  try {
+    if (
+      !readQueue &&
+      state.pendingMutation?.action === 'read_reminders' &&
+      !(await props.model.retryPending())
+    )
+      return;
+    if (!readQueue) {
+      const datasetId = state.snapshot?.datasetId;
+      const ids = new Set<string>(),
+        seen = new Set<string>();
+      let cursor: string | null = null;
+      do {
+        const params = new URLSearchParams({
+          kind: 'reminderEvent',
+          sort: 'recent',
+          raisedOnly: 'true',
+          reminderStates: 'unread',
+          limit: '500',
+        });
+        if (cursor) params.set('cursor', cursor);
+        const page = await props.model.request('/api/to-doo/state?' + params);
+        if (datasetId !== page.datasetId) throw Error('数据集已变化，请重新核对提醒');
+        for (const event of page.reminderEvents) ids.add(event.id);
+        cursor = page.page.nextCursor;
+        if (cursor && seen.has(cursor)) throw Error('通知分页已变化，请重新读取后重试');
+        if (cursor) seen.add(cursor);
+      } while (cursor);
+      readQueue = { datasetId: datasetId!, ids: [...ids], offset: 0, changed: 0 };
+    }
+    while (readQueue.offset < readQueue.ids.length) {
+      if (state.snapshot?.datasetId !== readQueue.datasetId)
+        throw Error('数据集已变化，请重新核对提醒');
+      const ids = readQueue.ids.slice(readQueue.offset, readQueue.offset + 500);
+      const result = await props.model.execute({
+        action: 'read_reminders',
+        payload: { ids, datasetId: readQueue.datasetId },
+      });
+      if (!result) return;
+      readQueue.offset += ids.length;
+      readQueue.changed += result.changed.filter((item) => item.kind === 'reminderEvent').length;
+    }
+    const count = readQueue.changed;
+    readQueue = undefined;
+    await props.model.load();
+    notifyReminderChange();
+    state.notice = count ? `已将 ${count} 条提醒标为已读` : '当前没有未读提醒';
+  } catch (cause) {
+    state.error = cause instanceof Error ? cause.message : String(cause);
+  } finally {
+    markingAll.value = false;
   }
 }
+function createReview() {
+  const metrics = state.snapshot?.statistics;
+  emit('edit', 'review', undefined, {
+    from: appliedFrom.value,
+    to: appliedTo.value,
+    capturedAt: metrics?.asOf ?? new Date().toISOString(),
+    metrics: {
+      completed: metrics?.completed ?? 0,
+      focusMinutes: metrics?.focusMinutes ?? 0,
+      outcomes: metrics?.outcomes ?? 0,
+    },
+  });
+}
+defineExpose({ createReview, markAll, markingAll, actingReminder });
 </script>
 <template>
   <template v-if="section === 'stats'"
-    ><form class="todo-calendar-toolbar" @submit.prevent="range">
+    ><ToDooPageToolbar
+      tag="form"
+      class="todo-calendar-toolbar"
+      aria-label="统计区间"
+      @submit.prevent="range"
+    >
       <div class="todo-actions">
         <ASegmented
           :value="periodPreset"
@@ -148,83 +297,49 @@ async function markAll() {
           :disabled="state.busy"
           @change="selectPeriod"
         />
-        <label class="todo-inline-label"
-          >从<ToDooDateField
-            v-model="from"
-            type="date"
-            required
-            aria-label="统计开始日期"
-            :max="to || undefined" /></label
-        ><label class="todo-inline-label"
-          >到<ToDooDateField
-            v-model="to"
-            type="date"
-            required
-            aria-label="统计结束日期"
-            :min="from || undefined" /></label
-        ><AButton type="default" html-type="submit" class="todo-button">查看区间</AButton>
-      </div>
-      <AButton
-        type="primary"
-        class="todo-button todo-primary"
-        @click="
-          emit('edit', 'review', undefined, {
-            from,
-            to,
-            metrics: {
-              completed: completions.length,
-              focusMinutes: state.snapshot?.statistics.focusMinutes || 0,
-              outcomes: outcomes.length,
-            },
-          })
-        "
-      >
-        ＋ 写一篇复盘
-      </AButton>
-    </form>
-    <div class="todo-stats">
-      <article class="todo-panel">
-        <AStatistic
-          title="完成行动"
-          :value="state.snapshot?.statistics.completed || 0"
-          suffix="项"
-        />
-        <p>按执行实例统计</p>
-      </article>
-      <article class="todo-panel">
-        <AStatistic
-          title="专注时间"
-          :value="Math.round(state.snapshot?.statistics.focusMinutes || 0)"
-          suffix="分钟"
-        />
-        <p>来自实际专注记录</p>
-      </article>
-      <article class="todo-panel">
-        <AStatistic
-          title="沉淀成果"
-          :value="state.snapshot?.statistics.outcomes || 0"
-          suffix="份"
-        />
-        <p>成果与完成分别记录</p>
-      </article>
-    </div>
-    <AAlert
-      type="info"
-      show-icon
-      :message="`上方为${state.snapshot?.statistics.scope === 'period' ? '所选日期区间' : '知识库累计'}统计。下方明细基于 ${from} — ${to} 当前载入的记录，可在页尾继续载入。`"
-    />
-    <div class="todo-review-grid">
-      <section class="todo-panel">
-        <div class="todo-panel-header">
-          <h2>每天完成的行动</h2>
-          <small>单位：项</small>
+        <div v-show="customRange" class="todo-actions">
+          <label class="todo-inline-label"
+            >从<ToDooDateField
+              v-model="from"
+              type="date"
+              required
+              aria-label="统计开始日期"
+              :disabled="!customRange || state.busy"
+              :max="to || undefined" /></label
+          ><label class="todo-inline-label"
+            >到<ToDooDateField
+              v-model="to"
+              type="date"
+              required
+              aria-label="统计结束日期"
+              :disabled="!customRange || state.busy"
+              :min="from || undefined" /></label
+          ><AButton type="default" html-type="submit" class="todo-button">查看区间</AButton>
         </div>
-        <div
-          class="todo-completion-chart"
-          role="img"
-          :aria-label="daily.map((d) => d.date + ' ' + d.total + '项').join('，')"
-        >
-          <div v-for="d in daily" :key="d.date">
+      </div>
+    </ToDooPageToolbar>
+    <div class="todo-review-statistics" role="group" aria-label="区间统计">
+      <AStatistic title="完成行动" :value="state.snapshot?.statistics.completed || 0" suffix="项" />
+      <AStatistic
+        title="专注时长"
+        :value="Math.round(state.snapshot?.statistics.focusMinutes || 0)"
+        suffix="分钟"
+      />
+      <AStatistic title="沉淀成果" :value="state.snapshot?.statistics.outcomes || 0" suffix="份" />
+    </div>
+    <p class="todo-form-help">
+      {{ appliedFrom }} — {{ appliedTo }} ·
+      {{ bucketDays > 1 ? '每 ' + bucketDays + ' 天汇总' : '按天统计' }} · 目标进展为累计完成情况
+    </p>
+    <div class="todo-review-grid">
+      <section class="todo-panel todo-review-trend">
+        <ToDooSectionHeader title="完成趋势"><small>单位：项</small></ToDooSectionHeader>
+        <div class="todo-completion-chart" role="img" :aria-label="trendDescription">
+          <div
+            v-for="(d, index) in daily"
+            :key="d.date"
+            :title="d.date + (d.end === d.date ? '' : ' — ' + d.end) + '：' + d.total + '项'"
+          >
             <span>{{ d.total || '' }}</span
             ><i
               :style="{
@@ -234,10 +349,16 @@ async function markAll() {
                     : 2) + 'px',
               }"
             ></i
-            ><small>{{ d.date.slice(5) }}</small>
+            ><small>{{
+              index % Math.max(1, Math.ceil(daily.length / 6)) === 0 || index === daily.length - 1
+                ? d.date.slice(5)
+                : ' '
+            }}</small>
           </div>
         </div>
-        <div class="todo-panel-header"><h2>目标进展</h2></div>
+      </section>
+      <section class="todo-panel todo-review-goals">
+        <ToDooSectionHeader title="目标进展"><small>累计</small></ToDooSectionHeader>
         <div v-for="l in lists" :key="l.id" class="todo-progress-row">
           <div class="todo-between">
             <span>{{ l.name }}</span
@@ -259,8 +380,8 @@ async function markAll() {
           description="创建目标后，在这里回顾进展。"
         />
       </section>
-      <section class="todo-panel">
-        <div class="todo-panel-header"><h2>复盘与成果</h2></div>
+      <section class="todo-panel todo-review-records">
+        <ToDooSectionHeader title="复盘与成果" />
         <AButton
           type="text"
           v-for="r in reviews"
@@ -275,7 +396,7 @@ async function markAll() {
           ><span>↗</span>
         </AButton>
         <AEmpty
-          v-if="!reviews.length"
+          v-if="!reviews.length && !outcomes.length"
           class="todo-empty"
           description="写下做对的事与下一次调整，让记录成为下一步的依据。"
         />
@@ -297,7 +418,9 @@ async function markAll() {
                   delivered: '已交付',
                 }[o.verification]
               }}
-              · {{ o.evidenceRefs.length }} 份证据</small
+              <template v-if="o.evidenceRefs.length">
+                · {{ o.evidenceRefs.length }} 份证据</template
+              ></small
             ></span
           ></AButton
         ><AButton type="link" class="todo-link todo-pad" @click="emit('edit', 'record')">
@@ -307,64 +430,114 @@ async function markAll() {
     </div></template
   >
   <template v-else
-    ><div class="todo-calendar-toolbar">
-      <ASegmented
-        :value="unreadOnly ? 'unread' : 'all'"
-        :options="[
-          { label: '全部', value: 'all' },
-          { label: '未读', value: 'unread' },
-        ]"
-        @change="unreadOnly = $event === 'unread'"
-      />
-      <AButton type="default" class="todo-button" @click="markAll">全部标为已读</AButton>
-    </div>
+    ><ToDooPageToolbar class="todo-calendar-toolbar" aria-label="通知筛选">
+      <ATabs
+        class="todo-notification-tabs"
+        :active-key="notificationFilter"
+        @change="notificationFilterChanged"
+        ><ATabPane
+          v-for="tab in notificationTabs"
+          :key="tab.value"
+          :tab="tab.label"
+          :disabled="markingAll || state.loading || !!actingReminder"
+      /></ATabs>
+    </ToDooPageToolbar>
     <section class="todo-panel">
-      <article v-for="r in reminders" :key="r.id" class="todo-notification">
-        <span class="todo-notification-icon">◷</span>
-        <div>
-          <div class="todo-between">
-            <h2>{{ r.title || '行动提醒' }}</h2>
-            <span class="todo-badge" :class="{ accent: r.userState === 'unread' }">{{
-              {
-                unread: '未读',
-                read: '已读',
-                acknowledged: '已处理',
-                dismissed: '已忽略',
-                snoozed: '稍后提醒',
-              }[r.userState]
-            }}</span>
-          </div>
-          <p>{{ r.message }}</p>
-          <small class="todo-muted"
-            >{{ new Date(r.scheduledAt).toLocaleString()
-            }}{{
-              r.snoozedUntil ? ' · 稍后 ' + new Date(r.snoozedUntil).toLocaleString() : ''
-            }}</small
-          >
-          <div class="todo-actions todo-top-gap">
-            <AButton
-              type="link"
-              v-if="r.sourceType === 'task'"
-              class="todo-link"
-              @click="emit('task', r.sourceId)"
+      <section
+        v-for="group in notificationGroups"
+        :key="group.date"
+        class="todo-notification-group"
+      >
+        <ToDooSectionHeader :title="group.label" />
+        <article
+          v-for="r in group.items"
+          :key="r.id"
+          class="todo-notification"
+          :data-reminder-id="r.id"
+        >
+          <span class="todo-notification-icon"><ToDooIcon name="notifications" :size="18" /></span>
+          <div>
+            <div class="todo-between">
+              <h2>{{ r.title || '行动提醒' }}</h2>
+              <span
+                v-if="notificationFilter === 'all'"
+                class="todo-badge"
+                :class="{ accent: r.userState === 'unread' }"
+                >{{
+                  {
+                    unread: '未读',
+                    read: '已读',
+                    acknowledged: '已处理',
+                    dismissed: '已忽略',
+                    snoozed: '稍后提醒',
+                  }[r.userState]
+                }}</span
+              >
+            </div>
+            <p v-if="r.message?.trim() && r.message.trim() !== (r.title || '行动提醒').trim()">
+              {{ r.message }}
+            </p>
+            <small class="todo-muted"
+              >{{
+                { task: '任务提醒', habit: '习惯提醒', anniversary: '纪念日提醒' }[r.sourceType]
+              }}
+              ·
+              {{
+                new Date(r.scheduledAt).toLocaleString('zh-CN', {
+                  timeZone: state.snapshot?.settings.timeZone,
+                })
+              }}{{
+                r.snoozedUntil
+                  ? ' · 稍后 ' +
+                    new Date(r.snoozedUntil).toLocaleString('zh-CN', {
+                      timeZone: state.snapshot?.settings.timeZone,
+                    })
+                  : ''
+              }}</small
             >
-              查看任务</AButton
-            ><AButton type="default" class="todo-button" @click="reminder(r.id, 'read')"
-              >已读</AButton
-            ><AButton type="default" class="todo-button" @click="reminder(r.id, 'acknowledge')">
-              已处理</AButton
-            ><AButton type="default" class="todo-button" @click="reminder(r.id, 'snooze')">
-              15 分钟后提醒</AButton
-            ><AButton type="link" class="todo-link" @click="reminder(r.id, 'dismiss')">
-              忽略
-            </AButton>
+            <div class="todo-actions todo-top-gap">
+              <AButton
+                v-if="r.sourceType === 'task'"
+                type="link"
+                class="todo-link"
+                :disabled="markingAll || !!actingReminder"
+                @click="openReminder(r)"
+                >查看任务</AButton
+              >
+              <AButton
+                v-if="r.userState === 'unread' || r.userState === 'read'"
+                type="link"
+                class="todo-link"
+                :disabled="state.loading || markingAll || !!actingReminder"
+                @click="reminder(r.id, 'acknowledge')"
+                >已处理</AButton
+              >
+              <ADropdown :trigger="['click']" overlay-class-name="todo-ant-popup"
+                ><AButton
+                  type="text"
+                  size="small"
+                  aria-label="更多提醒操作"
+                  :disabled="state.loading || markingAll || !!actingReminder"
+                  ><ToDooIcon name="more" :size="17" /></AButton
+                ><template #overlay
+                  ><AMenu
+                    ><AMenuItem v-if="r.userState === 'unread'" @click="reminder(r.id, 'read')"
+                      >标为已读</AMenuItem
+                    ><AMenuItem @click="reminder(r.id, 'snooze')">15 分钟后提醒</AMenuItem
+                    ><AMenuItem @click="reminder(r.id, 'dismiss')">忽略提醒</AMenuItem></AMenu
+                  ></template
+                ></ADropdown
+              >
+            </div>
           </div>
-        </div>
-      </article>
+        </article>
+      </section>
       <AEmpty
         v-if="!reminders.length"
         class="todo-empty"
-        :description="unreadOnly ? '当前没有未读提醒' : '这里暂时没有提醒'"
+        :description="
+          notificationFilter === 'unread' ? '当前没有未读提醒' : '这个状态下暂时没有提醒'
+        "
       >
         <p class="todo-muted">为任务、习惯或重要日子添加提醒，到时会集中显示。</p>
       </AEmpty>

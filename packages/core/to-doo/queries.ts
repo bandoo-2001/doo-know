@@ -7,175 +7,191 @@ import {
   type ToDooQuery,
   type ToDooEntityKind,
   type ToDooStatistics,
+  type ToDooStatisticsAuthorization,
   type ToDooEntity,
   type ToDooFilter,
+  type ToDooDateTime,
+  type ToDooEntityMap,
 } from '../../../shared/to-doo-contracts.js';
 import type { createToDooStore } from './store.js';
 import { toDooError, toDooHash, canonical, parseEntity } from './store.js';
 import { dateTimeInstant, addDays, localDate } from './recurrence.js';
+import { aggregateToDooStatistics } from './statistics.js';
+export { focusMinutes } from './statistics.js';
 type Store = ReturnType<typeof createToDooStore>;
-export function focusMinutes(
-  session: {
-    mode: string;
-    status: string;
-    correctedMinutes: number | null;
-    segments: { start: string; end: string | null }[];
-  },
-  now = new Date(),
-): number {
-  if (session.mode === 'break' || session.status === 'cancelled') return 0;
-  if (session.correctedMinutes !== null) return session.correctedMinutes;
-  return session.segments.reduce(
-    (n, x) =>
-      n +
-      Math.max(
-        0,
-        (Date.parse(x.end ?? (session.status === 'running' ? now.toISOString() : x.start)) -
-          Date.parse(x.start)) /
-          60000,
-      ),
-    0,
+const queryConnections = new WeakSet<Store['db']>();
+function installQueryFunctions(db: Store['db']) {
+  if (queryConnections.has(db)) return;
+  db.function('to_doo_timestamp_ms', { deterministic: true }, (value) => {
+    if (typeof value !== 'string') return null;
+    const instant = Date.parse(value);
+    return Number.isFinite(instant) ? instant : null;
+  });
+  db.function('to_doo_display_date', { deterministic: true }, (json, timeZone) => {
+    if (typeof json !== 'string' || typeof timeZone !== 'string') return null;
+    const value = JSON.parse(json) as ToDooDateTime;
+    return value.time === null ? value.date : localDate(dateTimeInstant(value), timeZone);
+  });
+  db.function(
+    'to_doo_interval_overlap',
+    { deterministic: true },
+    (json, from, to, rangeStart, rangeEnd) => {
+      if (
+        typeof json !== 'string' ||
+        typeof from !== 'string' ||
+        typeof to !== 'string' ||
+        typeof rangeStart !== 'number' ||
+        typeof rangeEnd !== 'number'
+      )
+        return 0;
+      const value = JSON.parse(json) as
+        | ToDooEntityMap['timeBlock']
+        | ToDooEntityMap['calendarEvent'];
+      if (value.allDay) {
+        const end =
+          'durationMinutes' in value
+            ? (value.dateEndExclusive ??
+              addDays(value.start.date, Math.max(1, Math.ceil(value.durationMinutes / 1440))))
+            : (value.end?.date ?? addDays(value.start.date, 1));
+        return value.start.date <= to && end > from && end > value.start.date ? 1 : 0;
+      }
+      const start = dateTimeInstant(value.start, '00:00').getTime();
+      const end =
+        'durationMinutes' in value
+          ? start + value.durationMinutes * 60000
+          : value.end
+            ? dateTimeInstant(value.end, '00:00').getTime()
+            : start + 30 * 60000;
+      return start < rangeEnd && end > rangeStart && end > start ? 1 : 0;
+    },
+  );
+  queryConnections.add(db);
+}
+function recentAtSql(kind: ToDooEntityKind) {
+  const field =
+    kind === 'reminderEvent'
+      ? "COALESCE(json_extract(e.data,'$.firstRaisedAt'),json_extract(e.data,'$.scheduledAt'))"
+      : "json_extract(e.data,'$." +
+        (kind === 'focusSession'
+          ? 'segments[0].start'
+          : kind === 'record'
+            ? 'occurredAt'
+            : kind === 'review'
+              ? 'capturedAt'
+              : kind === 'habitEntry'
+                ? 'localDate'
+                : 'createdAt') +
+        "')";
+  return (
+    'COALESCE(to_doo_timestamp_ms(' +
+    field +
+    "),to_doo_timestamp_ms(json_extract(e.data,'$.createdAt')))"
   );
 }
-export function statistics(store: Store, q: ToDooQuery = {}): ToDooStatistics {
-  const db = store.db,
-    period = !!(q.from || q.to),
-    from = q.from ?? '0001-01-01',
-    to = q.to ?? '9998-12-31';
-  const settings = store.entities('settings', 1)[0],
-    timeZone = settings?.timeZone ?? 'UTC';
-  const start = period
-    ? dateTimeInstant({ date: from, time: '00:00', timeZone }).toISOString()
-    : '0001-01-01T00:00:00.000Z';
-  const end = period
-    ? dateTimeInstant({ date: addDays(to, 1), time: '00:00', timeZone }).toISOString()
-    : '9999-01-01T00:00:00.000Z';
-  const listIds = q.listIds ?? q.filter?.listIds;
-  function scope(kind: ToDooEntityKind): { sql: string; params: unknown[] } {
-    if (!listIds) return { sql: '', params: [] };
-    if (!listIds.length) return { sql: ' AND 0', params: [] };
-    return {
-      sql: ' AND ' + listIdentitySql(kind) + ' IN (' + listIds.map(() => '?').join(',') + ')',
-      params: listIds,
-    };
-  }
-  function count(kind: ToDooEntityKind, extra: string, params: unknown[] = []): number {
-    const scoped = scope(kind);
+function queryFingerprint(store: Store, query: ToDooQuery) {
+  return toDooHash(
+    canonical({
+      ...(query.sort === 'recent' ? { datasetId: store.datasetId } : {}),
+      ...query,
+      cursor: undefined,
+    }),
+  );
+}
+function unreadReminders(
+  store: Store,
+  q: ToDooQuery = {},
+  authorization?: ToDooStatisticsAuthorization,
+) {
+  const timeZone = store.entities('settings', 1)[0]?.timeZone ?? 'UTC';
+  const scoped = where(
+    'reminderEvent',
+    { listIds: q.listIds ?? q.filter?.listIds, from: q.from, to: q.to, raisedOnly: true },
+    q.from ?? '0001-01-01',
+    q.to ?? '9998-12-31',
+    timeZone,
+  );
+  const sql = scoped.sql + " AND json_extract(e.data,'$.userState')='unread'";
+  if (!authorization)
     return Number(
       (
-        db
-          .prepare(
-            "SELECT COUNT(*) n FROM todo_entities e WHERE e.kind=? AND json_extract(e.data,'$.deletedAt') IS NULL AND " +
-              extra +
-              scoped.sql,
-          )
-          .get(kind, ...params, ...scoped.params) as { n: number }
+        store.db
+          .prepare('SELECT COUNT(*) n FROM todo_entities e WHERE ' + sql)
+          .get(...scoped.params) as { n: number }
       ).n,
     );
+  return (
+    store.db.prepare('SELECT e.data FROM todo_entities e WHERE ' + sql).all(...scoped.params) as {
+      data: string;
+    }[]
+  ).filter((row) =>
+    authorization.canRead('reminderEvent', parseEntity('reminderEvent', JSON.parse(row.data))),
+  ).length;
+}
+export function statistics(
+  store: Store,
+  q: ToDooQuery = {},
+  authorization?: ToDooStatisticsAuthorization,
+): ToDooStatistics {
+  installQueryFunctions(store.db);
+  if (q.from && q.to && q.from > q.to) toDooError('日期区间无效', 400);
+  const listIds = q.listIds ?? q.filter?.listIds;
+  const selected = new Map<ToDooEntityKind, Set<string>>();
+  function selectedKind(kind: ToDooEntityKind) {
+    if (!listIds) return undefined;
+    if (!selected.has(kind)) {
+      const sql = listIds.length
+        ? listIdentitySql(kind) + ' IN (' + listIds.map(() => '?').join(',') + ')'
+        : '0';
+      selected.set(
+        kind,
+        new Set(
+          (
+            store.db
+              .prepare('SELECT e.id FROM todo_entities e WHERE e.kind=? AND ' + sql)
+              .all(kind, ...listIds) as { id: string }[]
+          ).map((row) => row.id),
+        ),
+      );
+    }
+    return selected.get(kind)!;
   }
-  const dateConstraint = period
-    ? " AND COALESCE(json_extract(e.data,'$.due.date'),json_extract(e.data,'$.scheduledDate')) BETWEEN ? AND ?"
-    : '';
-  const s: ToDooStatistics = {
-    scope: period ? 'period' : 'library',
-    ...(period ? { from, to } : {}),
-    completed: count(
-      'occurrence',
-      "json_extract(e.data,'$.status')='done'" +
-        (period
-          ? " AND json_extract(e.data,'$.completedAt')>=? AND json_extract(e.data,'$.completedAt')<?"
-          : ''),
-      period ? [start, end] : [],
-    ),
-    pending: count(
-      'occurrence',
-      "json_extract(e.data,'$.status') IN ('todo','doing','blocked')" + dateConstraint,
-      period ? [from, to] : [],
-    ),
-    overdue: 0,
-    focusMinutes: 0,
-    habitAmount: 0,
-    outcomes: count(
-      'outcome',
-      '1' +
-        (period
-          ? " AND json_extract(e.data,'$.createdAt')>=? AND json_extract(e.data,'$.createdAt')<?"
-          : ''),
-      period ? [start, end] : [],
-    ),
-    byList: {},
-  };
-  const overdueScope = scope('occurrence');
-  for (const row of db
-    .prepare(
-      "SELECT e.data FROM todo_entities e WHERE e.kind='occurrence' AND json_extract(e.data,'$.deletedAt') IS NULL AND json_extract(e.data,'$.status') IN ('todo','doing','blocked') AND json_extract(e.data,'$.due.date')<=?" +
-        dateConstraint +
-        overdueScope.sql,
-    )
-    .all(
-      new Date().toISOString().slice(0, 10),
-      ...(period ? [from, to] : []),
-      ...overdueScope.params,
-    ) as { data: string }[]) {
-    const o = JSON.parse(row.data);
-    if (o.due && dateTimeInstant(o.due).getTime() + (o.due.time ? 0 : 59999) < Date.now())
-      s.overdue++;
-  }
-  const focusScope = scope('focusSession');
-  s.focusMinutes =
-    Math.round(
-      Number(
-        (
-          db
-            .prepare(
-              "SELECT COALESCE(SUM(CASE WHEN json_extract(e.data,'$.correctedMinutes') IS NOT NULL THEN CASE WHEN json_extract(e.data,'$.segments[0].start')>=? AND json_extract(e.data,'$.segments[0].start')<? THEN json_extract(e.data,'$.correctedMinutes') ELSE 0 END ELSE COALESCE((SELECT SUM(MAX(0,(julianday(MIN(COALESCE(json_extract(j.value,'$.end'),CASE WHEN json_extract(e.data,'$.status')='running' THEN ? ELSE json_extract(j.value,'$.start') END),?))-julianday(MAX(json_extract(j.value,'$.start'),?)))*1440)) FROM json_each(e.data,'$.segments') j),0) END),0) n FROM todo_entities e WHERE e.kind='focusSession' AND json_extract(e.data,'$.deletedAt') IS NULL AND json_extract(e.data,'$.mode')<>'break' AND json_extract(e.data,'$.status')<>'cancelled'" +
-                focusScope.sql,
-            )
-            .get(start, end, new Date().toISOString(), end, start, ...focusScope.params) as {
-            n: number;
-          }
-        ).n,
-      ) * 100,
-    ) / 100;
-  const habitScope = listIds
-    ? " AND json_extract(e.data,'$.habitId') IN (SELECT h.id FROM todo_entities h WHERE h.kind='habit' AND json_extract(h.data,'$.listId') IN (" +
-      listIds.map(() => '?').join(',') +
-      '))'
-    : '';
-  s.habitAmount = Number(
-    (
-      db
-        .prepare(
-          "SELECT COALESCE(SUM(json_extract(e.data,'$.amount')),0) n FROM todo_entities e WHERE e.kind='habitEntry' AND json_extract(e.data,'$.deletedAt') IS NULL AND json_extract(e.data,'$.skipped')=0" +
-            (period ? " AND json_extract(e.data,'$.localDate') BETWEEN ? AND ?" : '') +
-            habitScope,
-        )
-        .get(...(period ? [from, to] : []), ...(listIds ?? [])) as { n: number }
-    ).n,
+  const now = new Date();
+  const timeZone = store.entities('settings', 1)[0]?.timeZone ?? 'UTC';
+  const result = aggregateToDooStatistics(
+    {
+      tasks: store.entities('task'),
+      occurrences: store.entities('occurrence'),
+      focusSessions: store.entities('focusSession'),
+      habits: store.entities('habit'),
+      habitEntries: store.entities('habitEntry'),
+      outcomes: store.entities('outcome'),
+    },
+    q,
+    {
+      now,
+      timeZone,
+      canRead(kind, entity) {
+        // Habit entries inherit the selected habit's scope in the core aggregator.
+        return (
+          (kind === 'habitEntry' || !listIds || selectedKind(kind)!.has(entity.id)) &&
+          (!authorization || authorization.canRead(kind, entity))
+        );
+      },
+    },
   );
-  const listWhere = listIds
-    ? listIds.length
-      ? " AND COALESCE(json_extract(t.data,'$.listId'),'inbox') IN (" +
-        listIds.map(() => '?').join(',') +
-        ')'
-      : ' AND 0'
-    : '';
-  for (const row of db
-    .prepare(
-      "SELECT json_extract(t.data,'$.listId') listId,COUNT(*) total,SUM(CASE WHEN json_extract(o.data,'$.status')='done' THEN 1 ELSE 0 END) completed FROM todo_entities o JOIN todo_entities t ON t.kind='task' AND t.id=json_extract(o.data,'$.taskId') WHERE o.kind='occurrence' AND json_extract(o.data,'$.deletedAt') IS NULL AND json_extract(t.data,'$.deletedAt') IS NULL AND json_extract(o.data,'$.status') NOT IN ('cancelled','skipped') AND NOT EXISTS(SELECT 1 FROM todo_entities c WHERE c.kind='task' AND json_extract(c.data,'$.parentTaskId')=t.id AND json_extract(c.data,'$.deletedAt') IS NULL)" +
-        (period
-          ? " AND COALESCE(json_extract(o.data,'$.due.date'),json_extract(o.data,'$.scheduledDate'),substr(json_extract(o.data,'$.completedAt'),1,10)) BETWEEN ? AND ?"
-          : '') +
-        listWhere +
-        ' GROUP BY listId',
-    )
-    .all(...(period ? [from, to] : []), ...(listIds ?? [])) as {
-    listId: string | null;
-    total: number;
-    completed: number;
-  }[])
-    s.byList[row.listId ?? 'inbox'] = { total: row.total, completed: row.completed };
-  return s;
+  const revision =
+    (
+      store.db.prepare('SELECT id FROM todo_transactions ORDER BY sequence DESC LIMIT 1').get() as
+        | { id: string }
+        | undefined
+    )?.id ?? 'empty';
+  return {
+    ...result,
+    unreadReminders: unreadReminders(store, q, authorization),
+    asOf: now.toISOString(),
+    timeZone,
+    revision,
+  };
 }
 function listSql(kind: ToDooEntityKind): string {
   switch (kind) {
@@ -184,6 +200,7 @@ function listSql(kind: ToDooEntityKind): string {
     case 'task':
     case 'section':
     case 'habit':
+    case 'focusTopic':
       return "json_extract(e.data,'$.listId')";
     case 'occurrence':
       return "(SELECT json_extract(t.data,'$.listId') FROM todo_entities t WHERE t.kind='task' AND t.id=json_extract(e.data,'$.taskId'))";
@@ -207,6 +224,12 @@ function listIdentitySql(kind: ToDooEntityKind): string {
     case 'task':
     case 'section':
       return "COALESCE(json_extract(e.data,'$.listId'),'inbox')";
+    case 'habitEntry':
+      return "(SELECT json_extract(h.data,'$.listId') FROM todo_entities h WHERE h.kind='habit' AND h.id=json_extract(e.data,'$.habitId'))";
+    case 'activity':
+      return `COALESCE(${fromOccurrence},(SELECT ${taskList} FROM todo_entities t WHERE t.kind='task' AND t.id=json_extract(e.data,'$.entityId')),(SELECT ${taskList} FROM todo_entities o JOIN todo_entities t ON t.kind='task' AND t.id=json_extract(o.data,'$.taskId') WHERE o.kind='occurrence' AND o.id=json_extract(e.data,'$.entityId')))`;
+    case 'reminderEvent':
+      return "CASE json_extract(e.data,'$.sourceType') WHEN 'task' THEN (SELECT COALESCE(json_extract(t.data,'$.listId'),'inbox') FROM todo_entities t WHERE t.kind='task' AND t.id=json_extract(e.data,'$.sourceId')) WHEN 'habit' THEN (SELECT json_extract(h.data,'$.listId') FROM todo_entities h WHERE h.kind='habit' AND h.id=json_extract(e.data,'$.sourceId')) ELSE NULL END";
     case 'occurrence':
       return fromTask;
     case 'timeBlock':
@@ -389,6 +412,7 @@ function where(
   q: ToDooQuery,
   from: string,
   to: string,
+  timeZone: string,
 ): { sql: string; params: unknown[] } {
   const clauses = ['e.kind=?'],
     params: unknown[] = [kind];
@@ -435,7 +459,39 @@ function where(
     clauses.push(group.sql);
     params.push(...group.params);
   }
-  if (q.listIds ?? f.listIds) inside(listIdentitySql(kind), q.listIds ?? f.listIds!);
+  const scopedLists = q.listIds ?? f.listIds;
+  if (scopedLists) {
+    if (kind === 'view' || kind === 'plan') {
+      if (!scopedLists.length) clauses.push('0');
+      else {
+        const marks = scopedLists.map(() => '?').join(',');
+        if (kind === 'view')
+          clauses.push(
+            `json_array_length(json_extract(e.data,'$.filter.listIds'))>0 AND NOT EXISTS(SELECT 1 FROM json_each(e.data,'$.filter.listIds') v WHERE v.value NOT IN (${marks}))`,
+          );
+        else
+          clauses.push(
+            `json_array_length(json_extract(e.data,'$.changes'))>0 AND NOT EXISTS(SELECT 1 FROM json_each(e.data,'$.changes') pc LEFT JOIN todo_entities o ON o.kind='occurrence' AND o.id=json_extract(pc.value,'$.occurrenceId') LEFT JOIN todo_entities t ON t.kind='task' AND t.id=json_extract(o.data,'$.taskId') LEFT JOIN todo_entities b ON b.kind='timeBlock' AND b.id=json_extract(pc.value,'$.blockId') WHERE o.id IS NULL OR t.id IS NULL OR COALESCE(json_extract(t.data,'$.listId'),'inbox') NOT IN (${marks}) OR (json_extract(pc.value,'$.blockId') IS NOT NULL AND (b.id IS NULL OR json_extract(b.data,'$.occurrenceId') IS NOT o.id)))`,
+          );
+        params.push(...scopedLists);
+        if (kind === 'plan') {
+          const referenceList =
+            'CASE r.kind ' +
+            (['task', 'occurrence', 'timeBlock'] as const)
+              .map(
+                (target) =>
+                  `WHEN '${target}' THEN ${listIdentitySql(target).replaceAll('e.', 'r.')}`,
+              )
+              .join(' ') +
+            ' END';
+          clauses.push(
+            `NOT EXISTS(SELECT 1 FROM json_each(e.data,'$.expectedRevisions') pv WHERE NOT EXISTS(SELECT 1 FROM todo_entities r WHERE r.kind=substr(pv.key,1,instr(pv.key,':')-1) AND r.id=substr(pv.key,instr(pv.key,':')+1) AND (${referenceList}) IN (${marks})))`,
+          );
+          params.push(...scopedLists);
+        }
+      }
+    } else inside(listIdentitySql(kind), scopedLists);
+  }
   if (f.query && !['list', 'section', 'tag', 'view'].includes(kind)) {
     if (kind === 'task' || kind === 'occurrence' || kind === 'timeBlock') {
       const search = taskSearch(kind, f.query);
@@ -453,8 +509,16 @@ function where(
     }
   }
   if (!f.includeDeleted && !q.all) clauses.push("json_extract(e.data,'$.deletedAt') IS NULL");
+  if (kind === 'reminderEvent' && q.raisedOnly) {
+    clauses.push(
+      "(json_extract(e.data,'$.firstRaisedAt') IS NOT NULL OR to_doo_timestamp_ms(json_extract(e.data,'$.scheduledAt'))<=?)",
+    );
+    params.push(Date.now());
+  }
   if (!f.includeArchived && !f.includeDeleted && !q.all)
     clauses.push("json_extract(e.data,'$.archivedAt') IS NULL");
+  if (kind === 'reminderEvent' && q.reminderStates)
+    inside("json_extract(e.data,'$.userState')", q.reminderStates);
   if (kind === 'task') {
     if (f.priorities) inside("json_extract(e.data,'$.priority')", f.priorities);
     if (f.importance) {
@@ -491,8 +555,8 @@ function where(
       params.push(f.from ?? q.from ?? from, f.to ?? q.to ?? to);
     }
     if (f.dueBefore) {
-      clauses.push("json_extract(e.data,'$.due.date')<=?");
-      params.push(f.dueBefore);
+      clauses.push("to_doo_display_date(json_extract(e.data,'$.due'),?)<=?");
+      params.push(timeZone, f.dueBefore);
     }
     if (f.unscheduled)
       clauses.push(
@@ -505,12 +569,54 @@ function where(
       );
   }
   if (!q.all && !q.ids && !q.taskIds && (kind === 'timeBlock' || kind === 'calendarEvent')) {
-    clauses.push("json_extract(e.data,'$.start.date') BETWEEN ? AND ?");
-    params.push(q.from ?? from, q.to ?? to);
+    clauses.push('to_doo_interval_overlap(e.data,?,?,?,?)=1');
+    params.push(
+      from,
+      to,
+      dateTimeInstant({ date: from, time: '00:00', timeZone }).getTime(),
+      dateTimeInstant({ date: addDays(to, 1), time: '00:00', timeZone }).getTime(),
+    );
+  }
+  if (!q.all && (q.from || q.to)) {
+    const timestampField =
+      kind === 'outcome' ? 'createdAt' : kind === 'record' ? 'occurredAt' : undefined;
+    if (timestampField || kind === 'reminderEvent') {
+      const expression =
+        kind === 'reminderEvent'
+          ? recentAtSql(kind)
+          : `to_doo_timestamp_ms(json_extract(e.data,'$.${timestampField}'))`;
+      if (q.from) {
+        clauses.push(expression + '>=?');
+        params.push(dateTimeInstant({ date: q.from, time: '00:00', timeZone }).getTime());
+      }
+      if (q.to) {
+        clauses.push(expression + '<?');
+        params.push(dateTimeInstant({ date: addDays(q.to, 1), time: '00:00', timeZone }).getTime());
+      }
+    } else if (kind === 'habitEntry') {
+      if (q.from) {
+        clauses.push("json_extract(e.data,'$.localDate')>=?");
+        params.push(q.from);
+      }
+      if (q.to) {
+        clauses.push("json_extract(e.data,'$.localDate')<=?");
+        params.push(q.to);
+      }
+    } else if (kind === 'review') {
+      if (q.from) {
+        clauses.push("json_extract(e.data,'$.to')>=?");
+        params.push(q.from);
+      }
+      if (q.to) {
+        clauses.push("json_extract(e.data,'$.from')<=?");
+        params.push(q.to);
+      }
+    }
   }
   return { sql: clauses.join(' AND '), params };
 }
 export function buildToDooSnapshot(store: Store, q: ToDooQuery = {}): ToDooSnapshot {
+  installQueryFunctions(store.db);
   store.refresh();
   if (q.filter) {
     const validated = toDooFilterSchema.safeParse(q.filter);
@@ -548,29 +654,46 @@ export function buildToDooSnapshot(store: Store, q: ToDooQuery = {}): ToDooSnaps
     to = q.to ?? addDays(today, 90);
   if (from > to) toDooError('日期区间无效', 400);
   const limit = q.all ? Number.MAX_SAFE_INTEGER : Math.min(500, Math.max(1, q.limit ?? 200));
-  const fingerprint = toDooHash(canonical({ ...q, cursor: undefined }));
-  let offset = 0;
+  const fingerprint = queryFingerprint(store, q);
+  let offset = 0,
+    after: { at: number; id: string } | undefined;
   if (q.cursor) {
     try {
-      const c = JSON.parse(Buffer.from(q.cursor, 'base64url').toString());
-      if (c.fingerprint !== fingerprint || !Number.isSafeInteger(c.offset) || c.offset < 0)
-        throw Error();
-      offset = c.offset;
+      const cursor = JSON.parse(Buffer.from(q.cursor, 'base64url').toString());
+      if (cursor.fingerprint !== fingerprint) throw Error();
+      if (q.sort === 'recent') {
+        if (
+          !Number.isSafeInteger(cursor.after?.at) ||
+          typeof cursor.after?.id !== 'string' ||
+          !cursor.after.id
+        )
+          throw Error();
+        after = cursor.after;
+      } else {
+        if (!Number.isSafeInteger(cursor.offset) || cursor.offset < 0) throw Error();
+        offset = cursor.offset;
+      }
     } catch {
       toDooError('分页游标无效', 400);
     }
   }
+  const summary = statistics(store, q);
   const result: any = {
     datasetId: store.datasetId,
     version: '',
     settings,
-    statistics: statistics(store, q),
+    statistics: summary,
+    reminderUnreadCount:
+      q.listIds || q.filter?.listIds || q.from || q.to
+        ? unreadReminders(store)
+        : summary.unreadReminders,
     warnings: [],
     collectionPages: {},
     now: new Date().toISOString(),
   };
   const counts: Record<string, number> = {};
   let pageTotal = 0,
+    pageNext: string | null = null,
     truncated = false;
   for (const kind of Object.keys(TO_DOO_COLLECTIONS) as (keyof typeof TO_DOO_COLLECTIONS)[]) {
     const name = TO_DOO_COLLECTIONS[kind];
@@ -589,7 +712,7 @@ export function buildToDooSnapshot(store: Store, q: ToDooQuery = {}): ToDooSnaps
       );
       continue;
     }
-    const w = where(kind, q, from, to);
+    const w = where(kind, q, from, to, settings.timeZone);
     const total = Number(
       (
         store.db
@@ -603,37 +726,68 @@ export function buildToDooSnapshot(store: Store, q: ToDooQuery = {}): ToDooSnaps
       : kind === 'occurrence' && !q.kind
         ? Math.max(limit, 500)
         : limit;
-    const rows = store.db
-      .prepare(
-        'SELECT e.data FROM todo_entities e WHERE ' + w.sql + ' ORDER BY rowid LIMIT ? OFFSET ?',
-      )
-      .all(...w.params, rowLimit, q.kind || q.kinds || kind === 'task' ? offset : 0) as {
-      data: string;
-    }[];
-    result[name] = rows.map((r) => parseEntity(kind, JSON.parse(r.data)));
     const collectionOffset = q.kind || q.kinds || kind === 'task' ? offset : 0;
-    const collectionTruncated = collectionOffset + rows.length < total;
+    const sortAt = recentAtSql(kind);
+    const cursorForKind = q.kind || q.kinds || kind === 'task' ? after : undefined;
+    const candidates =
+      q.sort === 'recent'
+        ? store.db
+            .prepare(
+              'SELECT e.data,e.id sortId,' +
+                sortAt +
+                ' sortAt FROM todo_entities e WHERE ' +
+                w.sql +
+                (cursorForKind ? ' AND (' + sortAt + '<? OR (' + sortAt + '=? AND e.id<?))' : '') +
+                ' ORDER BY sortAt DESC,e.id DESC LIMIT ?',
+            )
+            .all(
+              ...w.params,
+              ...(cursorForKind ? [cursorForKind.at, cursorForKind.at, cursorForKind.id] : []),
+              rowLimit + 1,
+            )
+        : store.db
+            .prepare(
+              'SELECT e.data FROM todo_entities e WHERE ' +
+                w.sql +
+                ' ORDER BY rowid LIMIT ? OFFSET ?',
+            )
+            .all(...w.params, rowLimit, collectionOffset);
+    const rows = (q.sort === 'recent' ? candidates.slice(0, rowLimit) : candidates) as {
+      data: string;
+      sortAt?: number;
+      sortId?: string;
+    }[];
+    result[name] = rows.map((row) => parseEntity(kind, JSON.parse(row.data)));
+    const collectionTruncated =
+      q.sort === 'recent' ? candidates.length > rowLimit : collectionOffset + rows.length < total;
     const collectionQuery = { ...q, kind, kinds: undefined, limit: rowLimit, cursor: undefined };
-    const collectionFingerprint = toDooHash(canonical(collectionQuery));
+    const collectionFingerprint = queryFingerprint(store, collectionQuery);
+    const lastRow = rows.at(-1);
+    const next = (key: string) =>
+      collectionTruncated
+        ? Buffer.from(
+            JSON.stringify(
+              q.sort === 'recent'
+                ? { fingerprint: key, after: { at: lastRow!.sortAt, id: lastRow!.sortId } }
+                : { offset: collectionOffset + rowLimit, fingerprint: key },
+            ),
+          ).toString('base64url')
+        : null;
     result.collectionPages[kind] = {
       kind,
       total,
       limit: rowLimit,
-      nextCursor: collectionTruncated
-        ? Buffer.from(
-            JSON.stringify({
-              offset: collectionOffset + rowLimit,
-              fingerprint: collectionFingerprint,
-            }),
-          ).toString('base64url')
-        : null,
+      nextCursor: next(collectionFingerprint),
       truncated: collectionTruncated,
       counts,
       from,
       to,
     };
     if (collectionTruncated) truncated = true;
-    if (q.kind === kind || (!q.kind && kind === 'task')) pageTotal = total;
+    if (q.kind === kind || (!q.kind && kind === 'task')) {
+      pageTotal = total;
+      pageNext = next(fingerprint);
+    }
   }
   const last = store.db
     .prepare('SELECT id FROM todo_transactions ORDER BY sequence DESC LIMIT 1')
@@ -643,10 +797,7 @@ export function buildToDooSnapshot(store: Store, q: ToDooQuery = {}): ToDooSnaps
     kind: q.kind ?? null,
     total: pageTotal,
     limit,
-    nextCursor:
-      offset + limit < pageTotal
-        ? Buffer.from(JSON.stringify({ offset: offset + limit, fingerprint })).toString('base64url')
-        : null,
+    nextCursor: pageNext,
     truncated,
     counts,
     from,

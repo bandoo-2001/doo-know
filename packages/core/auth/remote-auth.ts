@@ -16,4 +16,8 @@ export function invalidateRemoteAuth(db: AppDatabase) {
   ).run(String(Math.floor(Date.now() / 1000)));
   if (db.prepare("SELECT 1 FROM sqlite_master WHERE name='platform_grants'").get())
     db.prepare('UPDATE platform_grants SET active=0,version=version+1 WHERE active=1').run();
+  if (db.prepare("SELECT 1 FROM sqlite_master WHERE name='mcp_api_clients'").get())
+    db.prepare(
+      "UPDATE mcp_api_clients SET status='requires_reauthorization',version=version+1 WHERE status<>'revoked'",
+    ).run();
 }

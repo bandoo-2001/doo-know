@@ -6,6 +6,8 @@ import {
   toDooFilterSchema,
   toDooDate,
   toDooId,
+  toDooFocusQuerySchema,
+  toDooReminderStateSchema,
 } from '../../../shared/to-doo-contracts.js';
 import { outcomeNoteInput, type createOutcomeNoteService } from './outcome-note.js';
 import { HttpError } from '../../../packages/core/errors.js';
@@ -18,6 +20,38 @@ export function registerToDooRoutes(
   getService: () => ToDooService,
   getOutcome?: () => ReturnType<typeof createOutcomeNoteService>,
 ) {
+  app.get('/api/to-doo/settings', async () =>
+    toDooEntitySchemas.settings.parse(getService().getEntity('settings', 'settings')),
+  );
+  app.get('/api/to-doo/focus/history', async (req) => {
+    const raw = z
+      .object({
+        ids: z.string().max(8192).optional(),
+        from: toDooDate.optional(),
+        to: toDooDate.optional(),
+        topicId: toDooId.optional(),
+        unassigned: z.enum(['true', 'false']).optional(),
+        trendPeriod: z.enum(['week', 'month', 'year']).optional(),
+        trendDate: toDooDate.optional(),
+        cursor: z.string().max(2048).optional(),
+        limit: z.coerce.number().int().min(1).max(100).optional(),
+        listIds: z.string().max(8192).optional(),
+      })
+      .strict()
+      .parse(req.query);
+    const input = toDooFocusQuerySchema.parse({
+      ...raw,
+      ids:
+        raw.ids === undefined
+          ? undefined
+          : z.array(toDooId).max(50).parse(raw.ids.split(',').filter(Boolean)),
+      unassigned: raw.unassigned === 'true',
+      listIds: raw.listIds
+        ? z.array(toDooId).max(1000).parse(raw.listIds.split(',').filter(Boolean))
+        : undefined,
+    });
+    return getService().focusHistory(input);
+  });
   app.get('/api/to-doo/state', async (req) => {
     const query = z
       .object({
@@ -35,6 +69,9 @@ export function registerToDooRoutes(
         taskIds: z.string().max(8192).optional(),
         includeTree: z.enum(['true', 'false']).optional(),
         view: z.string().max(80).optional(),
+        sort: z.literal('recent').optional(),
+        raisedOnly: z.enum(['true', 'false']).optional(),
+        reminderStates: z.string().max(200).optional(),
         from: toDooDate.optional(),
         to: toDooDate.optional(),
         cursor: z.string().max(2048).optional(),
@@ -69,6 +106,14 @@ export function registerToDooRoutes(
       listIds: ids(query.listIds),
       taskIds: ids(query.taskIds),
       includeTree: query.includeTree === 'true',
+      raisedOnly: query.raisedOnly === undefined ? undefined : query.raisedOnly === 'true',
+      reminderStates:
+        query.reminderStates === undefined
+          ? undefined
+          : z
+              .array(toDooReminderStateSchema)
+              .max(5)
+              .parse(query.reminderStates.split(',').filter(Boolean)),
       filter,
     });
   });

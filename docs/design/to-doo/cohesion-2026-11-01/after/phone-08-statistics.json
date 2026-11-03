@@ -1,0 +1,15 @@
+{
+  "phase": "after",
+  "fixedTime": "2026-10-30T09:00:00.000Z",
+  "screenshots": [
+    {
+      "id": "08-statistics",
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "label": "统计与复盘",
+      "file": "phone-08-statistics.png",
+      "overflow": 0
+    }
+  ]
+}

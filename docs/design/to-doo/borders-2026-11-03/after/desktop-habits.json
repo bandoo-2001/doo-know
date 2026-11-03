@@ -1,0 +1,55 @@
+{
+  "device": {
+    "id": "desktop",
+    "width": 1440,
+    "height": 1000,
+    "theme": "light"
+  },
+  "id": "habits",
+  "fixedTime": "2026-10-30T09:00:00.000Z",
+  "report": [
+    {
+      "tag": "ARTICLE",
+      "className": "todo-habit-card todo-panel",
+      "text": "阅读每天 · 20 页⋯ 今天 10 / 20 页本次新增页记录",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "8px",
+      "color": "rgb(230, 233, 241)",
+      "parent": "todo-habit-cards"
+    },
+    {
+      "tag": "ARTICLE",
+      "className": "todo-habit-card todo-panel",
+      "text": "运动每周累计 3 次⋯ 今天 0 次本周累计 2 / 3 次本次新增次记录",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "8px",
+      "color": "rgb(230, 233, 241)",
+      "parent": "todo-habit-cards"
+    },
+    {
+      "tag": "ARTICLE",
+      "className": "todo-habit-card todo-panel",
+      "text": "练习英语每天 · 15 分钟⋯ 今天 15 / 15 分钟今日达标本次新增分钟追加记录",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "8px",
+      "color": "rgb(230, 233, 241)",
+      "parent": "todo-habit-cards"
+    }
+  ],
+  "focus": []
+}

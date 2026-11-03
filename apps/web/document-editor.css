@@ -218,6 +218,11 @@
   width: 100%;
   margin: 1em 0;
 }
+/* Reserve the edit tools' clearance before focus, so floating controls do not
+   cover adjacent text or move the table when the caret enters it. */
+.document-editor-editable .tiptap table {
+  margin-block-start: 64px;
+}
 .document-editor .tiptap :is(td, th) {
   border: 1px solid var(--border);
   padding: 7px 10px;

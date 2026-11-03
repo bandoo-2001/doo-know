@@ -14,7 +14,7 @@ const props = withDefaults(
     min?: string;
     max?: string;
   }>(),
-  { type: 'date', allowClear: true },
+  { type: 'date', allowClear: true, disabled: undefined },
 );
 const emit = defineEmits<{
   'update:modelValue': [value: string];
@@ -29,7 +29,8 @@ function pickerAttrs() {
     delete forwarded[key];
   return { ...forwarded, inputRender: renderInput };
 }
-const invalid = ref('');
+const invalid = ref(''),
+  draftText = ref('');
 let editedInput: HTMLInputElement | undefined;
 function syncInputLabel(input: HTMLInputElement) {
   if (attrs['aria-label'] || attrs['aria-labelledby']) return;
@@ -42,11 +43,13 @@ function syncInputLabel(input: HTMLInputElement) {
 }
 function clearValidation() {
   invalid.value = '';
+  draftText.value = '';
   editedInput?.setCustomValidity('');
 }
 function renderInput(input: Record<string, any>) {
   return h('input', {
     ...input,
+    ...(invalid.value ? { value: draftText.value } : {}),
     required: props.required,
     'aria-required': props.required || undefined,
     'aria-invalid': !!invalid.value,
@@ -58,6 +61,7 @@ function renderInput(input: Record<string, any>) {
     },
     onInput(event: Event) {
       editedInput = event.target as HTMLInputElement;
+      draftText.value = editedInput.value;
       invalid.value = validateToDooDateInput(editedInput.value, props);
       editedInput.setCustomValidity(invalid.value);
       input.onInput?.(event);
@@ -77,8 +81,11 @@ const value = computed(
     normalizeToDooDateValue(props.modelValue !== undefined ? props.modelValue : props.value) ||
     undefined,
 );
-watch(value, clearValidation);
+watch(value, () => {
+  if (!invalid.value) clearValidation();
+});
 function change(next: unknown) {
+  if (invalid.value && (normalizeToDooDateValue(next) || props.required)) return;
   clearValidation();
   const normalized = normalizeToDooDateValue(next);
   emit('update:modelValue', normalized);
@@ -107,6 +114,7 @@ function disabledDate(day: { format(format: string): string }) {
     popup-class-name="todo-ant-popup"
     @keydown.enter.prevent.stop
     @change="change"
+    @select="clearValidation"
   />
   <ADatePicker
     v-else
@@ -125,5 +133,6 @@ function disabledDate(day: { format(format: string): string }) {
     popup-class-name="todo-ant-popup"
     @keydown.enter.prevent.stop
     @change="change"
+    @select="clearValidation"
   />
 </template>

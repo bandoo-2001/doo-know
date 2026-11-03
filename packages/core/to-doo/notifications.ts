@@ -13,6 +13,7 @@ import { addDays, dateTimeInstant, localDate, nextAnniversary } from './recurren
 import {
   getHabitRule,
   getHabitPeriod,
+  getHabitGoalMode,
   summarizeHabitPeriod,
 } from '../../../shared/to-doo-habits.js';
 
@@ -415,6 +416,8 @@ export function createToDooNotifications(
         Date.parse(input.until) > now().getTime() + 366 * 86400000)
     )
       throw new ToDooNotificationError('Choose a future snooze time within one year');
+    if (input.action === 'snooze' && !port.valid(event))
+      throw new ToDooNotificationError('提醒来源已变化，无法再次提醒', 410);
     const userState =
       input.action === 'acknowledge'
         ? 'acknowledged'
@@ -697,6 +700,9 @@ function habitSchedule(habit: ToDooEntityMap['habit'], day: string) {
       period.endExclusive,
       period.scheduledDates,
       habit.reminders,
+      ...(getHabitGoalMode(rule) === 'checkin' || (rule.intervalDays ?? 1) > 1
+        ? ['habit-goal-v2', getHabitGoalMode(rule), rule.intervalDays ?? 1]
+        : []),
     ]).slice(0, 32)
   );
 }
@@ -746,6 +752,16 @@ export function reminderSourceValid(
       habitSchedule(habit, event.occurrenceKey) === event.scheduleRevision &&
       (period.status === 'pending' || (allowCompleted && period.status === 'achieved')) &&
       period.scheduledDates.includes(event.occurrenceKey) &&
+      (allowCompleted ||
+        getHabitGoalMode(period.rule) !== 'checkin' ||
+        !state.habitEntries.some(
+          (entry) =>
+            entry.habitId === habit.id &&
+            entry.localDate === event.occurrenceKey &&
+            !entry.deletedAt &&
+            !entry.skipped &&
+            entry.amount > 0,
+        )) &&
       !state.habitEntries.some(
         (entry) =>
           entry.habitId === habit.id &&
@@ -994,6 +1010,15 @@ export function notificationPlans(snapshot: ToDooSnapshot, at: Date): ReminderPl
     if (
       summary.status !== 'pending' ||
       !summary.scheduledDates.includes(day) ||
+      (getHabitGoalMode(historical) === 'checkin' &&
+        snapshot.habitEntries.some(
+          (entry) =>
+            entry.habitId === habit.id &&
+            entry.localDate === day &&
+            !entry.deletedAt &&
+            !entry.skipped &&
+            entry.amount > 0,
+        )) ||
       snapshot.habitEntries.some(
         (entry) =>
           entry.habitId === habit.id &&
@@ -1067,7 +1092,20 @@ export function notificationDomainPort(
   service: ToDooService,
   clock: () => Date = () => new Date(),
 ): NotificationDomainPort {
-  const snapshot = () => service.snapshot({ all: true });
+  let cached: { version: string; state: ToDooSnapshot } | undefined;
+  const snapshot = () => {
+    const version = service.getVersion?.();
+    if (version !== undefined && cached?.version === version) return cached.state;
+    const state = service.snapshot({ all: true });
+    cached =
+      version === undefined
+        ? undefined
+        : {
+            version: JSON.stringify([state.datasetId, state.version]),
+            state,
+          };
+    return state;
+  };
   const prepared = new Set<string>();
   return {
     prepare: (at) => {

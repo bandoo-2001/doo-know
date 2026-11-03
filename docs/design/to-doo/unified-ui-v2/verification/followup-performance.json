@@ -1,0 +1,97 @@
+{
+  "state": "verified",
+  "rootCause": "15-second reminder scheduler repeatedly constructed an all:true snapshot for each event, including unrelated full statistics. 200 reminders caused 205 snapshots in the failing regression.",
+  "fix": "Dataset/head-bound internal snapshot cache with live refresh, time recomputation and a sequence index.",
+  "regression": {
+    "beforeSnapshotCalls": 205,
+    "afterSnapshotCallsUpperBoundExclusive": 10,
+    "reminderCount": 200,
+    "focusRecordCount": 1205
+  },
+  "evidence": {
+    "before": {
+      "events": 63099,
+      "lagsOver1s": [
+        {
+          "elapsed": 167634,
+          "kind": "loop-lag",
+          "milliseconds": 16160
+        },
+        {
+          "elapsed": 231777,
+          "kind": "loop-lag",
+          "milliseconds": 1818
+        },
+        {
+          "elapsed": 297572,
+          "kind": "loop-lag",
+          "milliseconds": 1436
+        },
+        {
+          "elapsed": 307889,
+          "kind": "loop-lag",
+          "milliseconds": 4740
+        }
+      ],
+      "failureProbes": [
+        {
+          "kind": "failure-probes",
+          "test": "a recurring task notification opens its own execution rather than the first task execution",
+          "status": "failed",
+          "nodeHttp": {
+            "result": 200,
+            "milliseconds": 386
+          },
+          "contextHttp": {
+            "result": 200,
+            "milliseconds": 383
+          },
+          "rendererFetch": {
+            "result": 200,
+            "milliseconds": 502
+          }
+        }
+      ],
+      "closed": [
+        {
+          "elapsed": 308637,
+          "kind": "closed",
+          "pending": 0
+        }
+      ]
+    },
+    "after": {
+      "events": 74087,
+      "lagsOver1s": [
+        {
+          "elapsed": 166872,
+          "wallTime": 1793438164366,
+          "kind": "loop-lag",
+          "milliseconds": 16151
+        },
+        {
+          "elapsed": 226578,
+          "wallTime": 1793438224072,
+          "kind": "loop-lag",
+          "milliseconds": 1792
+        },
+        {
+          "elapsed": 291955,
+          "wallTime": 1793438289449,
+          "kind": "loop-lag",
+          "milliseconds": 1448
+        }
+      ],
+      "failureProbes": [],
+      "closed": [
+        {
+          "elapsed": 370292,
+          "wallTime": 1793438367786,
+          "kind": "closed",
+          "pending": 0
+        }
+      ]
+    }
+  },
+  "scopeNote": "One-off bulk test-data import can still block synchronously; the change removes repeated full scans during background scheduling, not every bulk-write cost."
+}

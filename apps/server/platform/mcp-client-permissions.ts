@@ -12,7 +12,6 @@ import {
   resourceContains,
 } from '../../../packages/core/auth/permissions.js';
 import { oauthGrantStore } from './oauth-grants.js';
-import { initializeTunnelIdentity } from './tunnel-identity.js';
 
 function canonical(policy: PermissionPolicy) {
   return JSON.stringify(
@@ -93,41 +92,6 @@ export function narrowMcpClientGrant(db: AppDatabase, ownerId: string, input: an
     })
     .immediate();
 }
-/** Explicit settings action; ordinary requests and key rotation never enlarge a grant. */
-export function authorizeMcpTunnel(db: AppDatabase, ownerId: string, input: any = {}) {
-  owner(db, ownerId);
-  initializeTunnelIdentity(db);
-  return db
-    .transaction(() => {
-      const identity = db
-        .prepare('SELECT client_id,revoked,issued_at FROM mcp_tunnel_identity WHERE owner_id=?')
-        .get(ownerId) as any;
-      if (!identity || identity.revoked) fail(404, 'TUNNEL_CLIENT_NOT_FOUND');
-      const plugin = db
-        .prepare(
-          "SELECT config_json FROM platform_plugins WHERE id='mcp' AND installed=1 AND state='enabled'",
-        )
-        .get() as any;
-      if (!plugin) fail(403, 'FORBIDDEN');
-      const config = JSON.parse(plugin.config_json);
-      if (!config.permissionPolicy) fail(400, 'V2_PERMISSION_POLICY_REQUIRED');
-      const ceiling = normalizePermissionPolicy(config.permissionPolicy);
-      const policy = subset(db, input?.permissionPolicy ?? ceiling, ceiling);
-      const grants = oauthGrantStore(db),
-        old = grants.list(ownerId).find((g) => g.clientId === identity.client_id);
-      if (!old) fail(403, 'OAUTH_GRANT_REVOKED');
-      expectedVersion(input?.expectedGrantVersion, old.version);
-      const next = grants.approveV2(ownerId, identity.client_id, policy, identity.issued_at);
-      return {
-        status: 'authorized' as const,
-        clientId: next.clientId,
-        version: next.version,
-        grantVersion: next.version,
-        permissionPolicy: next.permissionPolicy,
-      };
-    })
-    .immediate();
-}
 export function registerMcpClientPermissionRoutes(
   app: FastifyInstance,
   _auth: Awaited<ReturnType<typeof createAuth>>,
@@ -137,7 +101,5 @@ export function registerMcpClientPermissionRoutes(
   app.post('/api/platform/mcp/clients/narrow', (request) =>
     narrowMcpClientGrant(db, (request as any).ownerId, request.body),
   );
-  app.post('/api/platform/mcp/tunnel/authorize', (request) =>
-    authorizeMcpTunnel(db, (request as any).ownerId, request.body),
-  );
+
 }

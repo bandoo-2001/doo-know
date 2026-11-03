@@ -5,11 +5,10 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { CallToolResultSchema, type JSONRPCMessage } from '@modelcontextprotocol/sdk/types.js';
 import { createOperations, registerOperations } from '../plugins/mcp/server/operations.js';
-import { buildOpenApi } from '../plugins/mcp/server/openapi.js';
 import { hostClient } from '../plugins/mcp/server/service.js';
 import type { CallOptions } from '../plugins/mcp/server/service.js';
 import type { Principal } from '../plugins/mcp/server/contracts.js';
-import { BridgeError, bridgeErrorSchema } from '../plugins/mcp/server/errors.js';
+import { BridgeError } from '../plugins/mcp/server/errors.js';
 import { makeAgentInstructions } from '../plugins/mcp/server/agent-guidance.js';
 import { pluginRuntimeFixture } from './support/plugin-runtime.js';
 
@@ -177,25 +176,6 @@ it('discovers strict schemas and instructions within the complete JSON-RPC frame
     expect(validate({ data: { items: [] }, error: { code: 'INVALID_INPUT', message: 'invalid', retryable: false } })).toBe(false);
     expect(validate({ error: { code: 'INVALID_INPUT', message: 'invalid', retryable: false } })).toBe(true);
   } finally { await session.close(); }
-});
-
-it('keeps defaulted OpenAPI input fields optional', () => {
-  const registry = createOperations({ objectIdSecret: 'protocol-fixture-reference-secret-at-least-thirty-two-characters' },
-    hostClient(() => fixture.services, () => ({})));
-  const api = buildOpenApi(registry.operations) as any;
-  const input = (name: string) => api.paths['/api/v1/tools/' + name].post.requestBody.content['application/json'].schema;
-  expect(input('read_note').required).toEqual(['noteId']);
-  expect(input('list_notes').required ?? []).toEqual([]);
-  expect(input('search_notes').required).toEqual(['query']);
-  expect(input('read_note').properties.maxBytes.default).toBe(8192);
-  expect(input('list_notes').properties.limit.default).toBe(10);
-  expect(input('search_notes').properties.mode.default).toBe('hybrid');
-  expect(input('search_notes').properties.freshness.default).toBe('indexed');
-  expect(input('operation_status').description).toMatch(/operationId.*requestId/);
-  const error = api.paths['/api/v1/tools/read_note'].post.responses['400'].content['application/json'].schema;
-  expect(error).toBe(bridgeErrorSchema);
-  expect(error.properties.error.additionalProperties).toBe(false);
-  for (const field of ['requiredScope', 'currentModifiedAt', 'issues', 'recovery']) expect(error.properties.error.properties[field]).toBeDefined();
 });
 
 it('keeps combined organization and task guidance within the instruction budget', async () => {

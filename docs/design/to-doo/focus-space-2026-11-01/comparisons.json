@@ -1,0 +1,8 @@
+{
+  "method": "Native HTML layout of unchanged actual browser screenshots; left before/right after.",
+  "fixedTime": "2026-10-30T12:00:00Z",
+  "images": [
+    "desktop-comparison.png",
+    "mobile-comparison.png"
+  ]
+}

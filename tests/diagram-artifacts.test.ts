@@ -4,6 +4,7 @@ import { cp, mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { join, posix } from 'node:path';
 import { createApp } from '../apps/server/app';
 import { openDatabase } from '../packages/core/db';
+import { serializeDiagramBinding } from '../shared/diagram-binding';
 import { emptyWhiteboard } from '../shared/whiteboard';
 import { createFixture, loginFixtureOwner, type Fixture } from './support/fixture';
 
@@ -61,7 +62,7 @@ describe('immutable diagram source and PNG groups', () => {
     expect(result.sourceHash).toBe(hash(source));
     expect(result.preview).toMatchObject({ mime: 'image/png' });
     expect(result.source).toMatchObject({ mime });
-    expect(result.source.markdownPath).toMatch(new RegExp('^assets/[^/]+\\' + ext + '$'));
+    expect(result.source.markdownPath).toMatch(new RegExp('^_doo-assets/[^/]+\\' + ext + '$'));
     expect(await readFile(join(f.knowledgeRoot, result.source.relativePath), 'utf8')).toBe(source);
     expect((await readFile(join(f.knowledgeRoot, result.preview.relativePath))).equals(png)).toBe(true);
     expect(await get(n.id)).toEqual(before);
@@ -100,7 +101,7 @@ describe('immutable diagram source and PNG groups', () => {
     expect(failed.statusCode).toBe(500);
     expect(failed.json()).not.toHaveProperty('preview');
     expect(await get(n.id)).toEqual(before);
-    const assetsPath = join(f.knowledgeRoot, n.relativePath.replace(/[^/]+$/, 'assets'));
+    const assetsPath = join(f.knowledgeRoot, n.relativePath.replace(/[^/]+$/, '_doo-assets'));
     const prepared = await readdir(assetsPath);
     expect(prepared.filter(path => path.endsWith('.svg'))).toHaveLength(1);
     expect(prepared.filter(path => path.endsWith('.png'))).toHaveLength(1);
@@ -158,6 +159,52 @@ describe('immutable diagram source and PNG groups', () => {
       expect((await app.inject({ url: `/api/public/shares/${token}/assets/${asset.id}` })).statusCode).toBe(200);
   });
 
+  it('replays a consumed receipt using current asset identities after a renamed folder restore', async () => {
+    const n = await note(),
+      input = body(),
+      first = await post(n.id, input),
+      original = first.json();
+    const folder = posix.dirname(n.relativePath),
+      group = `![SVG 预览](${original.preview.markdownPath})\n\n[图形源文件](${original.source.markdownPath})\n\n${serializeDiagramBinding({ kind: 'svg', codeHash: hash(svg.replace(/\r\n?/g, '\n').replace(/\n+$/, '')), sourceHash: hash(svg) })}\n\n\`\`\`svg\n${svg}\n\`\`\`\n`;
+    const saved = await app.inject({
+      method: 'PUT',
+      url: '/api/notes/' + n.id,
+      headers,
+      payload: { content: group, expectedModifiedAt: n.modifiedAt, requestId: randomUUID() },
+    });
+    expect(saved.statusCode, saved.body).toBe(200);
+    const removed = await app.inject({
+      method: 'DELETE',
+      url: '/api/folders',
+      headers,
+      payload: { path: folder, requestId: randomUUID() },
+    });
+    expect(removed.statusCode, removed.body).toBe(200);
+    const id = removed.json().id,
+      name = 'restored-consumed-' + ++serial;
+    const restored = await app.inject({
+      method: 'POST',
+      url: '/api/manage/trash/restore',
+      headers,
+      payload: { ids: [id], requestId: randomUUID(), fileNames: { [id]: name } },
+    });
+    expect(restored.json().results).toEqual([{ id, ok: true, relativePath: '00-Inbox/' + name }]);
+    const replay = await post(n.id, input);
+    expect(replay.statusCode, replay.body).toBe(201);
+    for (const role of ['source', 'preview']) {
+      expect(replay.json()[role].id).toBe(original[role].id);
+      expect(replay.json()[role].relativePath).toBe(
+        original[role].relativePath.replace(folder, '00-Inbox/' + name),
+      );
+    }
+    const delivery = await app.inject({
+      method: 'POST',
+      url: '/api/portable-deliveries',
+      headers,
+      payload: { selection: { kind: 'single', noteId: n.id }, requestId: randomUUID() },
+    });
+    expect(delivery.statusCode, delivery.body).toBe(201);
+  });
   it.each([
     ['unbound hash', () => ({ ...body(), sourceHash: '0'.repeat(64) }), 400],
     ['script SVG', () => body('svg', '<svg xmlns="http://www.w3.org/2000/svg"><script/></svg>'), 400],
@@ -196,7 +243,7 @@ describe('immutable diagram source and PNG groups', () => {
     }
   });
 
-  it('authorizes source and PNG only through current saved public references and survives an offline directory copy', async () => {
+  it('publishes referenced PNG while keeping native source private and survives an offline directory copy', async () => {
     const n = await note(), input = body('excalidraw', JSON.stringify(emptyWhiteboard()));
     const response = await post(n.id, input);
     expect(response.statusCode, response.body).toBe(201);
@@ -205,12 +252,12 @@ describe('immutable diagram source and PNG groups', () => {
     const token = await share();
     for (const asset of [group.preview, group.source]) {
       expect((await app.inject({ url: `/api/assets/${asset.id}` })).statusCode).toBe(401);
-      expect((await app.inject({ url: `/api/public/shares/${token}/assets/${asset.id}` })).statusCode).toBe(404);
+      expect((await app.inject({ url: `/api/public/shares/${token}/assets/${asset.id}` })).statusCode).toBe(asset===group.source?403:404);
     }
     const markdown = `# 兼容设计\n\n![预览](${group.preview.markdownPath})\n\n[源文件](${group.source.markdownPath})\n`;
     await writeFile(join(f.knowledgeRoot, n.relativePath), markdown);
     for (const asset of [group.preview, group.source])
-      expect((await app.inject({ url: `/api/public/shares/${token}/assets/${asset.id}` })).statusCode).toBe(200);
+      expect((await app.inject({ url: `/api/public/shares/${token}/assets/${asset.id}` })).statusCode).toBe(asset===group.source?403:200);
     const copy = join(f.root, 'offline-copy');
     await cp(join(f.knowledgeRoot, n.relativePath.replace(/\/[^/]+$/, '')), copy, { recursive: true });
     expect(await readFile(join(copy, 'parent.md'), 'utf8')).toBe(markdown);

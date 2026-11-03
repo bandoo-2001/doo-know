@@ -1,0 +1,237 @@
+{
+  "device": {
+    "id": "desktop",
+    "width": 1440,
+    "height": 1000,
+    "theme": "light"
+  },
+  "id": "calendar-week",
+  "fixedTime": "2026-10-30T09:00:00.000Z",
+  "report": [
+    {
+      "tag": "DIV",
+      "className": "ant-picker todo-ant-date css-xjeq",
+      "text": "",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "6px",
+      "color": "rgb(230, 233, 241)",
+      "parent": "todo-calendar-date"
+    },
+    {
+      "tag": "DIV",
+      "className": "",
+      "text": "10/26周一",
+      "borders": [
+        "0px",
+        "0px",
+        "1px",
+        "1px"
+      ],
+      "radius": "0px",
+      "color": "rgb(101, 112, 132) rgb(101, 112, 132) rgb(230, 233, 241) rgb(230, 233, 241)",
+      "parent": "todo-week-labels"
+    },
+    {
+      "tag": "DIV",
+      "className": "",
+      "text": "10/27周二",
+      "borders": [
+        "0px",
+        "0px",
+        "1px",
+        "1px"
+      ],
+      "radius": "0px",
+      "color": "rgb(101, 112, 132) rgb(101, 112, 132) rgb(230, 233, 241) rgb(230, 233, 241)",
+      "parent": "todo-week-labels"
+    },
+    {
+      "tag": "DIV",
+      "className": "",
+      "text": "10/28周三",
+      "borders": [
+        "0px",
+        "0px",
+        "1px",
+        "1px"
+      ],
+      "radius": "0px",
+      "color": "rgb(101, 112, 132) rgb(101, 112, 132) rgb(230, 233, 241) rgb(230, 233, 241)",
+      "parent": "todo-week-labels"
+    },
+    {
+      "tag": "DIV",
+      "className": "",
+      "text": "10/29周四",
+      "borders": [
+        "0px",
+        "0px",
+        "1px",
+        "1px"
+      ],
+      "radius": "0px",
+      "color": "rgb(101, 112, 132) rgb(101, 112, 132) rgb(230, 233, 241) rgb(230, 233, 241)",
+      "parent": "todo-week-labels"
+    },
+    {
+      "tag": "DIV",
+      "className": "is-today",
+      "text": "10/30周五",
+      "borders": [
+        "0px",
+        "0px",
+        "1px",
+        "1px"
+      ],
+      "radius": "0px",
+      "color": "rgb(69, 102, 198) rgb(69, 102, 198) rgb(230, 233, 241) rgb(230, 233, 241)",
+      "parent": "todo-week-labels"
+    },
+    {
+      "tag": "DIV",
+      "className": "",
+      "text": "10/31周六",
+      "borders": [
+        "0px",
+        "0px",
+        "1px",
+        "1px"
+      ],
+      "radius": "0px",
+      "color": "rgb(101, 112, 132) rgb(101, 112, 132) rgb(230, 233, 241) rgb(230, 233, 241)",
+      "parent": "todo-week-labels"
+    },
+    {
+      "tag": "DIV",
+      "className": "",
+      "text": "11/1周日",
+      "borders": [
+        "0px",
+        "0px",
+        "1px",
+        "1px"
+      ],
+      "radius": "0px",
+      "color": "rgb(101, 112, 132) rgb(101, 112, 132) rgb(230, 233, 241) rgb(230, 233, 241)",
+      "parent": "todo-week-labels"
+    },
+    {
+      "tag": "DIV",
+      "className": "",
+      "text": "",
+      "borders": [
+        "0px",
+        "0px",
+        "1px",
+        "1px"
+      ],
+      "radius": "0px",
+      "color": "rgb(101, 112, 132) rgb(101, 112, 132) rgb(230, 233, 241) rgb(230, 233, 241)",
+      "parent": "todo-week-all-day-grid"
+    },
+    {
+      "tag": "DIV",
+      "className": "",
+      "text": "",
+      "borders": [
+        "0px",
+        "0px",
+        "1px",
+        "1px"
+      ],
+      "radius": "0px",
+      "color": "rgb(101, 112, 132) rgb(101, 112, 132) rgb(230, 233, 241) rgb(230, 233, 241)",
+      "parent": "todo-week-all-day-grid"
+    },
+    {
+      "tag": "DIV",
+      "className": "",
+      "text": "",
+      "borders": [
+        "0px",
+        "0px",
+        "1px",
+        "1px"
+      ],
+      "radius": "0px",
+      "color": "rgb(101, 112, 132) rgb(101, 112, 132) rgb(230, 233, 241) rgb(230, 233, 241)",
+      "parent": "todo-week-all-day-grid"
+    },
+    {
+      "tag": "DIV",
+      "className": "",
+      "text": "",
+      "borders": [
+        "0px",
+        "0px",
+        "1px",
+        "1px"
+      ],
+      "radius": "0px",
+      "color": "rgb(101, 112, 132) rgb(101, 112, 132) rgb(230, 233, 241) rgb(230, 233, 241)",
+      "parent": "todo-week-all-day-grid"
+    },
+    {
+      "tag": "DIV",
+      "className": "is-today",
+      "text": "",
+      "borders": [
+        "0px",
+        "0px",
+        "1px",
+        "1px"
+      ],
+      "radius": "0px",
+      "color": "rgb(69, 102, 198) rgb(69, 102, 198) rgb(230, 233, 241) rgb(230, 233, 241)",
+      "parent": "todo-week-all-day-grid"
+    },
+    {
+      "tag": "DIV",
+      "className": "",
+      "text": "◇ 家人的生日 ◆ 整理项目的下一步",
+      "borders": [
+        "0px",
+        "0px",
+        "1px",
+        "1px"
+      ],
+      "radius": "0px",
+      "color": "rgb(101, 112, 132) rgb(101, 112, 132) rgb(230, 233, 241) rgb(230, 233, 241)",
+      "parent": "todo-week-all-day-grid"
+    },
+    {
+      "tag": "DIV",
+      "className": "",
+      "text": "",
+      "borders": [
+        "0px",
+        "0px",
+        "1px",
+        "1px"
+      ],
+      "radius": "0px",
+      "color": "rgb(101, 112, 132) rgb(101, 112, 132) rgb(230, 233, 241) rgb(230, 233, 241)",
+      "parent": "todo-week-all-day-grid"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-calendar-habits todo-panel",
+      "text": "每日习惯↻ 阅读 · 20 页/日↻ 运动 · 3 次/周↻ 练习英语 · 15 分钟/日",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "8px",
+      "color": "rgb(230, 233, 241)",
+      "parent": "todo-content"
+    }
+  ],
+  "focus": []
+}

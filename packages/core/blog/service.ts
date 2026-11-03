@@ -25,6 +25,7 @@ import { assertWritable, acquireNoteWrite, releaseNoteWrite } from '../knowledge
 import { workspaceWriteSync } from '../workspace/gate.js';
 import { beginOperation, completeOperation, findOperation } from '../knowledge/operations.js';
 import { authorizeBlogPath, blogHash } from './resources.js';
+import { assertNoEmbeddedDiagramSource } from '../knowledge/diagram-artifacts.js';
 import { capturePublication } from './publication.js';
 import { portableBlog } from './portable.js';
 import { portableBlogStudio } from './studio-portable.js';
@@ -1239,6 +1240,7 @@ export function blogService(config: AppConfig, db: AppDatabase, notes: NoteServi
       )
       .get(versionId, hash) as { mime: string; bytes: Buffer } | undefined;
     if (!a) throw new BlogError(404, '资源不存在');
+    assertNoEmbeddedDiagramSource(a.bytes);
     return a;
   }
   function previewResource(p: Principal, id: string, hash: string) {

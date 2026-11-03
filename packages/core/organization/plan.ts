@@ -1,3 +1,11 @@
+import { DOO_ASSETS_DIRECTORY } from '../../../shared/storage-paths.js';
+import {
+  planRetainedFolderResources,
+  verifyRetainedFolderResources,
+  type RetainedFolderResource,
+  type RetainedFolderDirectory,
+} from '../knowledge/diagram-retained-folders.js';
+import { planNativeLinkChanges } from '../knowledge/native-link-plans.js';
 import {
   lstatSync,
   openSync,
@@ -26,6 +34,12 @@ import {
 } from './catalog.js';
 import { rewriteLibraryReferences } from './references.js';
 import { assertOrganizationReceiptFits } from './response-budget.js';
+import {
+  assertFolderDiagramResourcesUnshared,
+  planDiagramRelocation,
+  verifyDiagramRelocations,
+  type DiagramRelocation,
+} from '../knowledge/diagram-relocation.js';
 export const organizationLimits = {
   actions: 50,
   files: 1000,
@@ -64,6 +78,9 @@ export type DirectoryChange = {
   before?: Evidence;
   published?: Evidence;
   business: boolean;
+  retainedSource?: boolean;
+  existingTarget?: Evidence;
+  replacesDirectoryId?: string;
 };
 export type RemoveDirectory = {
   kind: 'remove_directory';
@@ -90,6 +107,10 @@ export type OrganizationManifest = {
   outputInventory?: string;
   outputCoverage?: Coverage[];
   outputContentInventory?: string;
+  diagrams?: DiagramRelocation[];
+  retainedResources?: RetainedFolderResource[];
+  retainedDirectories?: RetainedFolderDirectory[];
+  legacyPreviews?: Array<{ noteId: string; manifest: unknown }>;
 };
 export function evidence(path: string, hash?: string): Evidence {
   const s = lstatSync(path, { bigint: true });
@@ -204,7 +225,7 @@ export function prepareOrganization(
   const destinations = new Set<string>();
   for (const action of input.actions) {
     if (action.type === 'create_directory') {
-      if (!validName(action.name) || action.name === 'assets') fail(400, 'INVALID_DIRECTORY');
+      if (!validName(action.name) || action.name === DOO_ASSETS_DIRECTORY) fail(400, 'INVALID_DIRECTORY');
       const parent = targetDirectory(db, action.parentId),
         to = combine(parent, action.name);
       authorize(parent, 'knowledge:organize');
@@ -238,7 +259,7 @@ export function prepareOrganization(
       if (protectedContainer(d.path)) fail(400, 'PROTECTED_DIRECTORY');
       if (d.subtreeRevision !== action.expectedSubtreeRevision)
         fail(409, 'SUBTREE_VERSION_CONFLICT');
-      if (!validName(action.name) || action.name === 'assets') fail(400, 'INVALID_DIRECTORY');
+      if (!validName(action.name) || action.name === DOO_ASSETS_DIRECTORY) fail(400, 'INVALID_DIRECTORY');
       const parent = targetDirectory(db, action.toDirectoryId),
         to = combine(parent, action.name);
       if (contains(d.path, parent)) fail(409, 'DIRECTORY_CYCLE');
@@ -279,8 +300,11 @@ export function prepareOrganization(
       if ((e as any).code !== 'ENOENT') throw e;
     }
   }
+  const retainedResources = planRetainedFolderResources(config, db, p, moves),
+    retainedPaths = new Set(retainedResources.map((r) => r.path)),
+    referenceMoves = [...moves, ...retainedResources.map((r) => ({ from: r.path, to: r.path }))];
   const map = (path: string) => {
-    const m = moves
+    const m = referenceMoves
       .filter((m) => contains(m.from, path))
       .sort((a, b) => b.from.length - a.from.length)[0];
     return m ? m.to + path.slice(m.from.length) : path;
@@ -291,6 +315,19 @@ export function prepareOrganization(
     to: c.to,
     business: true,
   }));
+  const native = planNativeLinkChanges(config, db, p, referenceMoves);
+  for (const move of moves)
+    if (move.directory)
+      assertFolderDiagramResourcesUnshared(
+        config,
+        db,
+        move.from,
+        false,
+        referenceMoves,
+        retainedResources,
+      );
+  const diagrams: DiagramRelocation[] = [];
+  const legacyPreviews: Array<{ noteId: string; manifest: unknown }> = [];
   const assetRows = db.prepare('SELECT id,path FROM assets').all() as Array<{
     id: string;
     path: string;
@@ -323,6 +360,9 @@ export function prepareOrganization(
           to: map(path),
           before: evidence(absolute),
           business: !!d,
+          ...(retainedResources.some((r) => contains(path, r.path))
+            ? { retainedSource: true }
+            : {}),
         });
         for (const name of readdirSync(absolute)) {
           if (!validName(name)) fail(400, 'UNSUPPORTED_OBJECT');
@@ -350,9 +390,52 @@ export function prepareOrganization(
     bodyBytes += size;
     if (bodyBytes > organizationLimits.bodyBytes) fail(413, 'ORGANIZATION_LIMIT');
     const body = readBody(config, n.path);
+    const nativeRewrite = native.get(n.id);
+    if (
+      nativeRewrite &&
+      (nativeRewrite.documentHash !== body.hash ||
+        nativeRewrite.documentModifiedAt !== body.evidence.mtime)
+    )
+      fail(409, 'VERSION_CONFLICT');
     coverage.push({ path: n.path, id: n.id, hash: body.hash, evidence: body.evidence });
     const target = map(n.path),
-      rewrite = rewriteLibraryReferences(body.content, n.path, target, moves, isWhiteboard(n.path));
+      rewrite = native.has(n.id)
+        ? {
+            content: native.get(n.id)!.content,
+            changed: native.get(n.id)!.content !== body.content,
+          }
+        : rewriteLibraryReferences(
+            body.content,
+            n.path,
+            target,
+            referenceMoves,
+            isWhiteboard(n.path),
+          );
+    if (native.get(n.id)?.legacy)
+      legacyPreviews.push({ noteId: n.id, manifest: native.get(n.id)!.legacy });
+    try {
+      // An unchanged primary is covered by the fixed main-file inventory and
+      // native dependency enumeration; it is not a new publication to activate.
+      const diagram =
+        target !== n.path || rewrite.changed
+          ? planDiagramRelocation(
+              config,
+              db,
+              n.id,
+              body.content,
+              rewrite.content,
+              n.path,
+              target,
+              referenceMoves,
+              undefined,
+              native.get(n.id)?.primary,
+            )
+          : undefined;
+      if (diagram) diagrams.push(diagram);
+    } catch (error) {
+      if (!canAccessPath(p, n.path)) fail(403, 'DEPENDENCY_FORBIDDEN');
+      throw error;
+    }
     if (target !== n.path || rewrite.changed) {
       permissions.push(
         { path: n.path, scope: 'knowledge:read' },
@@ -372,7 +455,7 @@ export function prepareOrganization(
     }
   }
   for (const [path, obj] of movedFiles)
-    if (!obj.note) {
+    if (!obj.note && !retainedPaths.has(path)) {
       const e = evidence(join(config.knowledgeRoot, path));
       permissions.push(
         { path, scope: 'knowledge:read' },
@@ -406,6 +489,9 @@ export function prepareOrganization(
     graphRevision,
     inventory: snapshot,
     coverage,
+    diagrams,
+    retainedResources,
+    legacyPreviews,
     objects,
     permissions,
     changes: [
@@ -429,6 +515,16 @@ export function revalidateManifest(
   m: OrganizationManifest,
 ) {
   checkPermissions(p, m.permissions);
+  const moves = m.changes
+    .filter((change) => change.from && /^(?:undo_)?move_/.test(change.type))
+    .map((change) => ({ from: change.from!, to: change.to }));
+  verifyRetainedFolderResources(config, db, m.retainedResources ?? []);
+  const referenceMoves = [
+    ...moves,
+    ...(m.retainedResources ?? []).map((r) => ({ from: r.path, to: r.path })),
+  ];
+  planNativeLinkChanges(config, db, p, referenceMoves);
+  verifyDiagramRelocations(config, m.diagrams || [], true);
   const binding = libraryIdentity(db);
   if (!binding || binding.libraryId !== m.libraryId || binding.bindingVersion !== m.bindingVersion)
     fail(409, 'LIBRARY_BINDING_CHANGED');
@@ -447,7 +543,10 @@ export function revalidateManifest(
         (!o.before || !sameEvidence(evidence(join(config.knowledgeRoot, o.from)), o.before))
       )
         fail(409, 'SOURCE_CHANGED');
-      if (o.to !== o.from) {
+      if (o.existingTarget) {
+        if (!sameIdentity(evidence(join(config.knowledgeRoot, o.to)), o.existingTarget))
+          fail(409, 'UNDO_CONFLICT');
+      } else if (o.to !== o.from) {
         try {
           lstatSync(join(config.knowledgeRoot, o.to));
           fail(409, 'NAME_CONFLICT');

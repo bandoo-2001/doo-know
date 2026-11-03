@@ -106,7 +106,7 @@ export async function verifyMcpBearer(auth: OwnerAuth, config: HostConfig, db: A
       || !Number.isInteger(payload.dk_grant_version) || !Number.isInteger(payload.iat)) throw new Error();
     const scopes = String(payload.scope || '').split(' ').filter(isResourceScope);
     const grant = oauthGrantStore(db).requireExact(`${payload.dk_grant_id}:${payload.dk_grant_version}`, payload.sub, payload.client_id, scopes);
-    const p: Principal = { id: grant.ownerId, ownerId: grant.ownerId, clientId: grant.clientId, scopes, allowedPrefixes: grant.allowedPrefixes, pluginId: 'mcp',
+    const p: Principal = { id: grant.ownerId, ownerId: grant.ownerId, clientId: grant.clientId, scopes, allowedPrefixes: grant.allowedPrefixes, pluginId: 'mcp', credentialKind: 'oauth',
       policyVersion: grant.policyVersion, permissionPolicy: grant.permissionPolicy,
       tokenIssuedAt: payload.iat, ...(typeof payload.exp === 'number' ? { tokenExpiresAt: payload.exp } : {}), grantId: grant.id, grantVersion: grant.version };
     checkTokenCutoff(db, p); return p;

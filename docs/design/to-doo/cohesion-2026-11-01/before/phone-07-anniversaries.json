@@ -1,0 +1,15 @@
+{
+  "phase": "before",
+  "fixedTime": "2026-10-30T09:00:00.000Z",
+  "screenshots": [
+    {
+      "id": "07-anniversaries",
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "label": "纪念日",
+      "file": "phone-07-anniversaries.png",
+      "overflow": 0
+    }
+  ]
+}

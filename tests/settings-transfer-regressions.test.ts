@@ -7,6 +7,8 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import * as pagedRecords from '../apps/web/components/settings/paged-records';
 import * as transferFiles from '../apps/web/components/settings/transfer-files';
 import * as settings from '../apps/web/settings';
+import * as portablePreviews from '../apps/web/diagrams/portable-previews';
+import * as portableResourceLimits from '../shared/portable-resource-limits';
 const nodeRequire = createRequire(import.meta.url),
   mockApi = vi.fn();
 const cleanups: (() => void)[] = [];
@@ -41,6 +43,8 @@ function component(name: string, realChildren: string[] = []): any {
       if (id === 'vue') return Vue;
       if (id === '../../api') return { api: mockApi };
       if (id === '../../settings') return settings;
+      if (id === '../../diagrams/portable-previews') return portablePreviews;
+      if (id === '../../../../shared/portable-resource-limits') return portableResourceLimits;
       if (id === 'ant-design-vue')
         return new Proxy(
           {},

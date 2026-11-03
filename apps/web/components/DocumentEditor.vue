@@ -1,43 +1,23 @@
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, ref, watch, useId, type CSSProperties } from 'vue';
-import { Editor, Extension, type JSONContent } from '@tiptap/core';
+import { Editor, Extension } from '@tiptap/core';
 import { Plugin, TextSelection } from '@tiptap/pm/state';
 import { NModal } from 'naive-ui';
-import {
-  createRichProjection,
-  richExtensions,
-  parseRichUnit,
-  parseRichContent,
-  safeEditorUrl,
-} from '../editor/rich-adapter';
+import { createRichProjection, richExtensions, parseRichContent, safeEditorUrl } from '../editor/rich-adapter';
 import { editorImageSource } from '../editor/extensions/authorized-image';
 import { convertClipboard, plainTextMarkdown } from '../editor/clipboard';
 import { contextAt, contextSlots } from '../editor/context-slot';
 import { textEdit, parseSource } from '../editor/source-codec';
 import { syncDOMTextSelection } from '../editor/dom-selection';
 import { CODE_BLOCK_ACTION, revealCodeBlockRange } from '../editor/code-block-view';
-import {
-  isTableMoveAction,
-  moveMarkdownTable,
-  tableMoveActions,
-  tableMoveAvailability,
-  type TableMoveAction,
-} from '../editor/table-move';
+import { isTableMoveAction, moveMarkdownTable, tableMoveActions, tableMoveAvailability, type TableMoveAction } from '../editor/table-move';
 import { documentMatches, documentSearchHighlightPlugin, documentSearchKey, type TextMatch } from '../editor/search';
 import { sourceOffsetPosition } from '../editor/source-position';
-import {
-  countCharacters,
-  visibleDocumentText,
-  type DocumentStatistics,
-} from '../editor/document-stats';
+import { countCharacters, visibleDocumentText, type DocumentStatistics } from '../editor/document-stats';
 import { createFloatingTools, virtualAnchor } from '../editor/floating-tools';
 import type { EditorSession } from '../editor/session';
 import type { ImageReplacementTarget, SelectionBookmark, TableAction } from '../editor/contracts';
-import {
-  emptyToolbarState,
-  type MarkdownAction,
-  type MarkdownToolbarState,
-} from '../editor/toolbar-state';
+import { emptyToolbarState, type MarkdownAction, type MarkdownToolbarState } from '../editor/toolbar-state';
 import DocumentTableTools from './DocumentTableTools.vue';
 import Icon from './Icon.vue';
 const props = defineProps<{
@@ -1143,7 +1123,7 @@ onBeforeUnmount(() => {
 });
 </script>
 <template>
-  <div ref="root" class="document-editor" @focusin="updateTableFocus" @focusout="deferTableFocus">
+  <div ref="root" class="document-editor" :class="{ 'document-editor-editable': !readOnly }" @focusin="updateTableFocus" @focusout="deferTableFocus">
     <p v-if="message" class="editor-warning" role="alert">{{ message }}</p>
     <div v-if="recoveryPending" class="editor-warning" role="status">
       当前输入暂时无法安全保存。请先保留恢复副本，调整格式后再保存。

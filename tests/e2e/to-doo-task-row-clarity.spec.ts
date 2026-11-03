@@ -5,7 +5,7 @@ import { test, expect } from '../support/browser-test';
 async function command(page: Page, action: string, payload: Record<string, unknown>) {
   const csrf = await (await page.request.get('/api/security/csrf')).json();
   const response = await page.request.post('/api/to-doo/commands', {
-    headers: { origin: 'http://127.0.0.1:4179', 'x-csrf-token': csrf.token },
+    headers: { origin: String(test.info().project.use.baseURL), 'x-csrf-token': csrf.token },
     data: { requestId: crypto.randomUUID(), action, payload },
   });
   expect(response.ok()).toBe(true);

@@ -23,7 +23,7 @@ function fixture() {
 }
 
 for (const [kind, path] of [
-  ['note', '_data/private.md'], ['folder', '_data'], ['asset', '_data/apps/private.png'],
+  ['note', '_doo-data/private.md'], ['folder', '_doo-data'], ['asset', '_doo-data/apps/private.png'],
 ] as const)
   it(`rejects reserved root application data as a ${kind} path`, () => {
     expect(() => validateRelative(path, kind)).toThrow();
@@ -32,19 +32,19 @@ for (const [kind, path] of [
 
 it('excludes root application data from knowledge scans and directory catalogs while retaining nested data folders', () => {
   const f = fixture();
-  mkdirSync(join(f.config.knowledgeRoot, '_data/private'), { recursive: true });
-  mkdirSync(join(f.config.knowledgeRoot, '00-Inbox/_data'));
-  writeFileSync(join(f.config.knowledgeRoot, '_data/private/note.md'), '# Private');
-  writeFileSync(join(f.config.knowledgeRoot, '00-Inbox/_data/note.md'), '# Ordinary');
+  mkdirSync(join(f.config.knowledgeRoot, '_doo-data/private'), { recursive: true });
+  mkdirSync(join(f.config.knowledgeRoot, '00-Inbox/_doo-data'));
+  writeFileSync(join(f.config.knowledgeRoot, '_doo-data/private/note.md'), '# Private');
+  writeFileSync(join(f.config.knowledgeRoot, '00-Inbox/_doo-data/note.md'), '# Ordinary');
   const scanned = scanFiles(f.config.knowledgeRoot);
-  expect(scanned.notes).toEqual(['00-Inbox/_data/note.md']);
-  expect(scanned.folders).toContain('00-Inbox/_data');
-  expect(scanned.folders.some((path) => path === '_data' || path.startsWith('_data/'))).toBe(false);
+  expect(scanned.notes).toEqual(['00-Inbox/_doo-data/note.md']);
+  expect(scanned.folders).toContain('00-Inbox/_doo-data');
+  expect(scanned.folders.some((path) => path === '_doo-data' || path.startsWith('_doo-data/'))).toBe(false);
   const s = organizationService(f.config, f.db, f.notes);
   closes.push(() => s.close());
-  expect(s.list(f.p).items.map((item) => item.path)).not.toContain('_data');
-  expect(() => readDocument(f.config.knowledgeRoot, '_data/private/note.md')).toThrow();
-  expect(f.notes.scan().notes).toEqual(['00-Inbox/_data/note.md']);
+  expect(s.list(f.p).items.map((item) => item.path)).not.toContain('_doo-data');
+  expect(() => readDocument(f.config.knowledgeRoot, '_doo-data/private/note.md')).toThrow();
+  expect(f.notes.scan().notes).toEqual(['00-Inbox/_doo-data/note.md']);
 });
 
 for (const source of ['SQLite only', 'portable file', 'portable file with stale SQLite'] as const)
@@ -54,14 +54,14 @@ for (const source of ['SQLite only', 'portable file', 'portable file with stale 
       knowledgeRoot: join(root, 'knowledge'), dataRoot: join(root, 'data'),
       origin: 'http://localhost', secret: 'test-only-legacy-data-secret',
     } as AppConfig;
-    mkdirSync(join(config.knowledgeRoot, '_data'), { recursive: true });
+    mkdirSync(join(config.knowledgeRoot, '_doo-data'), { recursive: true });
     mkdirSync(join(config.knowledgeRoot, '00-Inbox'));
-    writeFileSync(join(config.knowledgeRoot, '_data/private.md'), '# Application-owned record');
+    writeFileSync(join(config.knowledgeRoot, '_doo-data/private.md'), '# Application-owned record');
     writeFileSync(join(config.knowledgeRoot, '00-Inbox/ordinary.md'), '# Ordinary');
     const db = openDatabase(config.dataRoot);
     closes.push(() => { db.close(); rmSync(root, { recursive: true, force: true }); });
     if (source !== 'portable file') {
-      db.prepare('INSERT INTO notes(id,path) VALUES(?,?)').run('legacy-private', '_data/private.md');
+      db.prepare('INSERT INTO notes(id,path) VALUES(?,?)').run('legacy-private', '_doo-data/private.md');
       db.prepare('INSERT INTO notes(id,path) VALUES(?,?)').run('ordinary', '00-Inbox/ordinary.md');
       db.prepare('INSERT INTO note_favorites VALUES(?,?)').run('owner', 'legacy-private');
       db.prepare('INSERT INTO note_favorites VALUES(?,?)').run('owner', 'ordinary');
@@ -73,7 +73,7 @@ for (const source of ['SQLite only', 'portable file', 'portable file with stale 
         format: 1, revision: 'legacy-data-registry', data: {
           version: 1,
           notes: [
-            { id: 'legacy-private', path: '_data/private.md', active: true },
+            { id: 'legacy-private', path: '_doo-data/private.md', active: true },
             { id: 'ordinary', path: '00-Inbox/ordinary.md', active: true },
           ],
           favorites: [{ username: 'owner', noteId: 'legacy-private' }, { username: 'owner', noteId: 'ordinary' }],
@@ -89,7 +89,7 @@ for (const source of ['SQLite only', 'portable file', 'portable file with stale 
     notes.scan();
     notes.createNote('00-Inbox', 'new.md', '# Subsequent ordinary write');
     expect(notes.getNote('ordinary').content).toBe('# Ordinary');
-    expect(readFileSync(join(config.knowledgeRoot, '_data/private.md'), 'utf8')).toBe('# Application-owned record');
+    expect(readFileSync(join(config.knowledgeRoot, '_doo-data/private.md'), 'utf8')).toBe('# Application-owned record');
     const saved = JSON.parse(readKnowledgeDataFile(config.knowledgeRoot, 'library/state.json')!.toString()).data;
     expect(saved.notes.map((note: { path: string }) => note.path).sort()).toEqual(['00-Inbox/new.md', '00-Inbox/ordinary.md']);
     expect(saved.favorites).toEqual([{ username: 'owner', noteId: 'ordinary' }]);

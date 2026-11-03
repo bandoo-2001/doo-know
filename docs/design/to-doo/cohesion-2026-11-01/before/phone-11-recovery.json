@@ -1,0 +1,15 @@
+{
+  "phase": "before",
+  "fixedTime": "2026-10-30T09:00:00.000Z",
+  "screenshots": [
+    {
+      "id": "11-recovery",
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "label": "数据与恢复",
+      "file": "phone-11-recovery.png",
+      "overflow": 0
+    }
+  ]
+}

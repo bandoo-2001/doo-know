@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import type { Locator, Page, Request } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
-import { goToToDooSection } from '../support/to-doo-navigation';
+import { goToToDooSection, openToDooFocusHistory } from '../support/to-doo-navigation';
 import { fillToDooDate } from '../support/to-doo-ant-controls';
 
 // Exercise calendar strings in a browser zone with a DST boundary, independently of the server zone.
@@ -17,7 +17,7 @@ async function snapshot(page: Page, query = '') {
 async function command(page: Page, action: string, payload: Record<string, unknown>) {
   const csrf = await (await page.request.get('/api/security/csrf')).json();
   const response = await page.request.post('/api/to-doo/commands', {
-    headers: { origin: 'http://127.0.0.1:4179', 'x-csrf-token': csrf.token },
+    headers: { origin: String(test.info().project.use.baseURL), 'x-csrf-token': csrf.token },
     data: { requestId: crypto.randomUUID(), action, payload },
   });
   expect(response.ok(), await response.text()).toBe(true);
@@ -81,7 +81,7 @@ test.beforeEach(async ({ context }) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
 });
 
-test('Ant statistics and progress follow real seven-day, thirty-day and custom date requests', async ({
+test('period statistics and progress follow real seven-day, thirty-day and custom date requests', async ({
   page,
 }, info) => {
   const initial = await snapshot(page),
@@ -105,20 +105,28 @@ test('Ant statistics and progress follow real seven-day, thirty-day and custom d
     expectedRevision: occurrence.revision,
     status: 'done',
   });
+  const initialPeriodResponse = statsResponse(page, shift(today, -6), today);
   await page.goto('/?view=apps&app=to-doo&appSection=stats');
+  const initialPeriod = await (await initialPeriodResponse).json();
   const app = workspace(page);
   await expect(app.getByRole('heading', { name: '统计与复盘', exact: true })).toBeVisible();
-  const completed = app.locator('.todo-stats article').filter({ hasText: '完成行动' });
-  await expect(completed.locator('.ant-statistic-content-value')).not.toHaveText('0');
+  const completedMetric = app
+    .getByRole('group', { name: '区间统计' })
+    .locator('.ant-statistic')
+    .filter({ hasText: '完成行动' })
+    .locator('.ant-statistic-content-value');
+  await expect(completedMetric).toHaveText(/[1-9][\d,]*/);
   const progress = app.locator('.todo-progress-row').filter({ hasText: name });
   await expect(progress).toContainText('1/2');
   await expect(
     progress.getByRole('progressbar', { name: name + '完成进度', exact: true }),
   ).toBeVisible();
-  if (!initial.reviews.some((item: any) => !item.deletedAt))
-    await expect(
-      app.locator('.ant-empty').filter({ hasText: '写下做对的事与下一次调整' }),
-    ).toBeVisible();
+  const hasPeriodRecords = [...initialPeriod.reviews, ...initialPeriod.outcomes].some(
+    (item: any) => !item.deletedAt,
+  );
+  await expect(
+    app.locator('.ant-empty').filter({ hasText: '写下做对的事与下一次调整' }),
+  ).toHaveCount(hasPeriodRecords ? 0 : 1);
   const month = statsResponse(page, shift(today, -29), today);
   await app.getByText('近 30 天', { exact: true }).click();
   expect((await month).ok()).toBe(true);
@@ -211,6 +219,17 @@ test('Ant review modal preserves a canceled discard and saves a fresh local-date
     content,
   });
   await page.reload();
+  await expect(app.getByRole('heading', { name: '统计与复盘', exact: true })).toBeVisible();
+  await app.getByText('自定义', { exact: true }).click();
+  await fillToDooDate(
+    app.getByRole('textbox', { name: '统计开始日期', exact: true }),
+    '2026-03-07',
+  );
+  await fillToDooDate(
+    app.getByRole('textbox', { name: '统计结束日期', exact: true }),
+    '2026-03-10',
+  );
+  await app.getByRole('button', { name: '查看区间', exact: true }).click();
   await expect(app.getByRole('button').filter({ hasText: name })).toBeVisible();
 });
 
@@ -242,9 +261,11 @@ test('focus and habit quantity modals cancel without writes and persist explicit
   await page.goto('/?view=apps&app=to-doo&appSection=focus');
   const app = workspace(page),
     writes = watchCommands(page);
-  const row = app.locator('.todo-saved-row').filter({ hasText: name });
+  await openToDooFocusHistory(page);
+  const row = app.locator('.todo-focus-history-item').filter({ hasText: name });
+  await row.locator('summary').click();
   await row.getByRole('button', { name: '修正', exact: true }).click();
-  const correction = page.getByRole('dialog', { name: '修正实际专注时间', exact: true });
+  const correction = page.getByRole('dialog', { name: '修正专注时长', exact: true });
   await correction.getByRole('spinbutton', { name: '实际专注分钟数', exact: true }).fill('0');
   await correction.getByRole('button', { name: '取消', exact: true }).click();
   await expect(correction).not.toBeVisible();
@@ -253,6 +274,7 @@ test('focus and habit quantity modals cancel without writes and persist explicit
       (body) => body.action === 'control_focus' && body.payload.operation === 'correct',
     ),
   ).toHaveLength(0);
+  await row.locator('summary').click();
   await row.getByRole('button', { name: '修正', exact: true }).click();
   await correction.getByRole('spinbutton', { name: '实际专注分钟数', exact: true }).fill('0');
   const corrected = mutation(
@@ -271,6 +293,8 @@ test('focus and habit quantity modals cancel without writes and persist explicit
     ),
   ).toMatchObject({ correctedMinutes: 0 });
   await goToToDooSection(page, 'habits');
+  await app.locator('[aria-label="习惯视图"]').getByText('历史', { exact: true }).click();
+  await expect(app.getByRole('radio', { name: '历史', exact: true })).toBeChecked();
   const cell = app.getByRole('button', {
     name: name + ' ' + today + ' 打卡，当前 0 页',
     exact: true,
@@ -302,6 +326,8 @@ test('focus and habit quantity modals cancel without writes and persist explicit
   expect((await checked).ok()).toBe(true);
   await expect(checkin).not.toBeVisible();
   await page.reload();
+  await app.locator('[aria-label="习惯视图"]').getByText('历史', { exact: true }).click();
+  await expect(app.getByRole('radio', { name: '历史', exact: true })).toBeChecked();
   await expect(
     app.getByRole('button', { name: name + ' ' + today + ' 打卡，当前 2.5 页', exact: true }),
   ).toHaveText('✓');
@@ -328,6 +354,7 @@ test('320px dark Ant calendar popup and review modal keep their controls inside 
   await page.goto('/?view=apps&app=to-doo&appSection=stats');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   const app = workspace(page);
+  await app.getByText('自定义', { exact: true }).click();
   await app.getByRole('textbox', { name: '统计开始日期', exact: true }).click();
   const popup = page.locator('.ant-picker-dropdown:visible');
   await withinViewport(page, popup);

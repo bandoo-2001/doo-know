@@ -1,0 +1,9 @@
+
+ RUN  v5.0.4 /home/bandoo/workspace/projects/doo-know
+
+
+ Test Files  1 passed (1)
+      Tests  15 passed (15)
+   Start at  08:23:15
+   Duration  23.06s (tests 98%, import 1%)
+

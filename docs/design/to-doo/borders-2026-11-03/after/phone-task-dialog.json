@@ -1,0 +1,178 @@
+{
+  "device": {
+    "id": "phone",
+    "width": 390,
+    "height": 844,
+    "theme": "dark"
+  },
+  "id": "task-dialog",
+  "fixedTime": "2026-10-30T09:00:00.000Z",
+  "report": [
+    {
+      "tag": "INPUT",
+      "className": "ant-input css-1phc3w9",
+      "text": "",
+      "borders": [
+        "0px",
+        "0px",
+        "0px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(50, 55, 70)",
+      "parent": "todo-search"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-panel todo-tree",
+      "text": "待办任务 4 项整理项目的下一步高优先级工作与创造计划今天09:00截止明天17:00梳理",
+      "borders": [
+        "0px",
+        "0px",
+        "0px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(229, 232, 240)",
+      "parent": "todo-content todo-readable-list-content"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-task-row todo-priority-high",
+      "text": "整理项目的下一步高优先级工作与创造计划今天09:00截止明天17:00",
+      "borders": [
+        "0px",
+        "0px",
+        "1px",
+        "0px"
+      ],
+      "radius": "6px",
+      "color": "rgb(229, 232, 240) rgb(229, 232, 240) rgba(0, 0, 0, 0)",
+      "parent": "todo-tree-row"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-task-row todo-priority-normal",
+      "text": "梳理本周的阅读计划中优先级保持阅读与学习计划昨天14:00",
+      "borders": [
+        "0px",
+        "0px",
+        "1px",
+        "0px"
+      ],
+      "radius": "6px",
+      "color": "rgb(229, 232, 240) rgb(229, 232, 240) rgba(0, 0, 0, 0)",
+      "parent": "todo-tree-row"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-task-row todo-priority-normal",
+      "text": "回复合作伙伴的反馈中优先级工作与创造",
+      "borders": [
+        "0px",
+        "0px",
+        "1px",
+        "0px"
+      ],
+      "radius": "6px",
+      "color": "rgb(229, 232, 240) rgb(229, 232, 240) rgba(0, 0, 0, 0)",
+      "parent": "todo-tree-row"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-task-row todo-priority-none",
+      "text": "整理一份读书笔记保持阅读与学习",
+      "borders": [
+        "0px",
+        "0px",
+        "1px",
+        "0px"
+      ],
+      "radius": "6px",
+      "color": "rgb(229, 232, 240) rgb(229, 232, 240) rgba(0, 0, 0, 0)",
+      "parent": "todo-tree-row"
+    },
+    {
+      "tag": "INPUT",
+      "className": "ant-input css-1phc3w9",
+      "text": "",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "6px",
+      "color": "rgb(50, 55, 70)",
+      "parent": ""
+    },
+    {
+      "tag": "TEXTAREA",
+      "className": "ant-input css-1phc3w9",
+      "text": "",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "6px",
+      "color": "rgb(50, 55, 70)",
+      "parent": ""
+    },
+    {
+      "tag": "DIV",
+      "className": "ant-select-selector",
+      "text": "收集箱",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "6px",
+      "color": "rgb(50, 55, 70)",
+      "parent": "ant-select css-1phc3w9 todo-ant-select ant-select-single ant-select-show-arrow ant-select-show-search"
+    },
+    {
+      "tag": "DIV",
+      "className": "ant-picker todo-ant-date css-1phc3w9",
+      "text": "",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "6px",
+      "color": "rgb(50, 55, 70)",
+      "parent": ""
+    }
+  ],
+  "focus": [
+    {
+      "className": "ant-select-selection-search-input",
+      "label": "目标或清单",
+      "focusVisible": true,
+      "outline": "rgb(229, 232, 240) none 0px",
+      "boxShadow": "none",
+      "outerClass": "ant-select css-1phc3w9 todo-ant-select ant-select-focused ant-select-single ant-select-show-arrow ant-select-show-search",
+      "outerBorder": "1px solid rgb(165, 182, 232)",
+      "outerShadow": "none",
+      "outerOutline": "rgb(229, 232, 240) none 0px",
+      "rootOutline": "rgb(139, 164, 255) solid 2px"
+    },
+    {
+      "className": "",
+      "label": "计划日期",
+      "focusVisible": true,
+      "outline": "rgb(229, 232, 240) none 0px",
+      "boxShadow": "none",
+      "outerClass": "ant-picker todo-ant-date css-1phc3w9 ant-picker-focused",
+      "outerBorder": "1px solid rgb(50, 55, 70)",
+      "outerShadow": "none",
+      "outerOutline": "rgb(139, 164, 255) solid 2px",
+      "rootOutline": "rgb(139, 164, 255) solid 2px"
+    }
+  ]
+}

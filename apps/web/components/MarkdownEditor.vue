@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
+import { externalMarkdownUpdate } from '../editor/external-markdown';
 import { findText, type TextMatch } from '../editor/search';
 import { countCharacters, type DocumentStatistics } from '../editor/document-stats';
 import { EditorView, keymap } from '@codemirror/view';
@@ -213,7 +214,7 @@ watch(
     if (view && view.state.doc.toString() !== v) {
       programmatic = true;
       try {
-        view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: v } });
+        view.dispatch(externalMarkdownUpdate(view.state, v));
       } finally {
         programmatic = false;
       }

@@ -3,12 +3,14 @@ import { posix } from 'node:path';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
 import { MAX_WHITEBOARD_BYTES, parseWhiteboard } from '../../../shared/whiteboard.js';
 import { SVG_MIME } from '../../../shared/svg-policy.js';
+import { pngContainsDiagramSource } from '../../../shared/png-policy.js';
 import type { AppDatabase } from '../db.js';
 import type { NoteService } from '../notes.js';
 import type { assetService } from '../assets.js';
 import { HttpError } from '../errors.js';
 import { validateSvgSource } from '../svg.js';
 import { workspaceWriteSync } from '../workspace/gate.js';
+import { authorizePath, requireScope, canAccessPath } from '../agent/auth.js';
 import { beginOperation, completeOperation, existingResult, type OperationRow } from './operations.js';
 
 export type DiagramKind = 'svg' | 'mermaid' | 'excalidraw';
@@ -56,8 +58,16 @@ export function validateDiagramSource(kind: DiagramKind, bytes: Uint8Array) {
   return source;
 }
 
+/** Refuse the known native Excalidraw payload in public presentation bytes.
+ * Inspect only the bounded PNG keyword, never decompress attacker-controlled text.
+ * Ordinary images retain their original bytes and unrelated textual metadata. */
+export function assertNoEmbeddedDiagramSource(bytes: Buffer) {
+  if (pngContainsDiagramSource(bytes))
+    throw new HttpError(400, 'PNG 预览不得包含可编辑图形源数据');
+}
+
 /** Check the real PNG signature and IHDR before accepting a bounded raster preview. */
-function validatePng(bytes: Buffer) {
+export function validatePng(bytes: Buffer) {
   if (bytes.length > maxPng) throw new HttpError(413, 'PNG 预览不能超过 10 MiB');
   if (
     bytes.length < 33 ||
@@ -80,6 +90,7 @@ function validatePng(bytes: Buffer) {
     offset += length + 12;
   }
   if (!image || !end) throw new HttpError(400, '预览必须是完整的 PNG 图片');
+  assertNoEmbeddedDiagramSource(bytes);
 }
 
 type Assets = ReturnType<typeof assetService>;
@@ -119,7 +130,9 @@ export function diagramArtifactService(db: AppDatabase, notes: NoteService, asse
     return db.transaction(() => {
       const current = db.prepare('SELECT * FROM operations WHERE id=?').get(operation.id) as OperationRow;
       if (current.status !== 'prepared') {
-        const result = existingResult(current) as DiagramArtifacts;
+        const recorded = existingResult(current) as DiagramArtifacts;
+        const currentArtifact = (artifact: Artifact) => { const descriptor=assets.inspectById(artifact.id); return {...artifact,relativePath:descriptor.path}; };
+        const result = {...recorded,source:currentArtifact(recorded.source),preview:currentArtifact(recorded.preview)};
         try {
           const savedSource = assets.file(result.source.relativePath), savedPreview = assets.file(result.preview.relativePath);
           if (sha256(savedSource.sourceBytes ?? savedSource.bytes) !== sourceHash || sha256(savedPreview.bytes) !== params.previewHash)
@@ -141,7 +154,52 @@ export function diagramArtifactService(db: AppDatabase, notes: NoteService, asse
       return result;
     }).immediate();
   }
+  /** Internal whole-package preparation: validate the actual imported immutable pair,
+   * then issue the same durable preparation receipt as a browser-rendered upload. */
+  function prepareImportedPair(
+    noteId: string,
+    input: {
+      kind: DiagramKind;
+      sourcePath: string;
+      previewPath: string;
+      sourceHash: string;
+      previewHash: string;
+      requestId: string;
+    },
+  ) {
+    requireScope(principal, 'knowledge:write');
+    authorizePath(principal, notes.exists(noteId).path, 'knowledge:write');
+    if (!canAccessPath(principal, input.sourcePath) || !canAccessPath(principal, input.previewPath))
+      throw new HttpError(403, '无权访问图形附件');
+    const file = assets.file(input.sourcePath),
+      source = file.sourceBytes ?? file.bytes,
+      png = assets.file(input.previewPath).bytes;
+    validateDiagramSource(input.kind, source);
+    validatePng(png);
+    if (sha256(source) !== input.sourceHash || sha256(png) !== input.previewHash)
+      throw new HttpError(409, '图形资源摘要不匹配');
+    const { operation } = beginOperation(
+      db,
+      principal,
+      'diagram-artifacts:' + noteId,
+      input.requestId,
+      { noteId, kind: input.kind, sourceHash: input.sourceHash, previewHash: sha256(png) },
+    );
+    const folder = posix.dirname(notes.exists(noteId).path);
+    const artifact = (path: string) => ({
+      ...assets.register(path),
+      markdownPath: posix.relative(folder, path),
+    });
+    const result = {
+      sourceHash: input.sourceHash,
+      source: artifact(input.sourcePath),
+      preview: artifact(input.previewPath),
+    };
+    if (operation.status === 'prepared') completeOperation(db, operation.id, result);
+    return result;
+  }
   return {
+    prepareImportedPair: (noteId: string,input: Parameters<typeof prepareImportedPair>[1]) => workspaceWriteSync(db,{kind:'diagram-artifacts.import'},()=>db.transaction(()=>prepareImportedPair(noteId,input)).immediate()),
     prepare: (noteId: string, input: unknown) => workspaceWriteSync(db, { kind: 'diagram-artifacts.prepare' }, () => prepare(noteId, input)),
   };
 }

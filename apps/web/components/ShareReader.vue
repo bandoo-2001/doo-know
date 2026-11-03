@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {diagramFences} from '../../../shared/diagram-fences';
-import DiagramPreview from './DiagramPreview.vue';
 import {syncDiagrams,clearDiagrams} from '../whiteboards/diagrams';
 import {watch, defineAsyncComponent} from 'vue';
 import type { PublicShareAccess } from '../../../shared/share-contracts';
@@ -188,8 +187,7 @@ onUnmounted(() => {
             }}</a>
           </nav>
         </details>
-        <DiagramPreview v-if="doc.documentType==='whiteboard'" kind="excalidraw" code="" :scene="doc.content" :share-token="token" read-only/>
-        <div v-else class="markdown" v-html="doc.html"></div>
+        <div class="markdown" v-html="doc.html"></div>
         <div v-if="loading && !doc.html" class="reader-loading" role="status">
           <ASpin size="small" />
           <p>正在读取笔记…</p>

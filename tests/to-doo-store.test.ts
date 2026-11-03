@@ -32,8 +32,8 @@ it('recovers a committed batch on a fresh machine even when projected entity fil
   const task = s.snapshot().tasks[0];
   const copy = { ...c, knowledgeRoot: join(r, 'copy'), dataRoot: join(r, 'other') };
   await cp(c.knowledgeRoot, copy.knowledgeRoot, { recursive: true });
-  const files = await readdir(join(copy.knowledgeRoot, '_data/apps/to-doo/tasks'));
-  for (const f of files) await unlink(join(copy.knowledgeRoot, '_data/apps/to-doo/tasks', f));
+  const files = await readdir(join(copy.knowledgeRoot, '_doo-data/apps/to-doo/tasks'));
+  for (const f of files) await unlink(join(copy.knowledgeRoot, '_doo-data/apps/to-doo/tasks', f));
   const fd = openDatabase(copy.dataRoot);
   dbs.push(fd);
   const restored = createToDooService(copy, fd, noteService(copy, fd));
@@ -128,7 +128,7 @@ it('validates legacy after-images before applying new schema defaults', async ()
   }).ids[0];
   const copy = { ...config, knowledgeRoot: join(r, 'copy'), dataRoot: join(r, 'fresh') };
   await cp(config.knowledgeRoot, copy.knowledgeRoot, { recursive: true });
-  const dir = join(copy.knowledgeRoot, '_data/apps/to-doo/transactions');
+  const dir = join(copy.knowledgeRoot, '_doo-data/apps/to-doo/transactions');
   for (const file of await readdir(dir)) {
     const tx = JSON.parse(await readFile(join(dir, file), 'utf8'));
     for (const member of tx.members) {
@@ -140,7 +140,7 @@ it('validates legacy after-images before applying new schema defaults', async ()
     }
     await writeFile(join(dir, file), JSON.stringify(tx, null, 2) + '\n');
   }
-  const path = join(copy.knowledgeRoot, '_data/apps/to-doo/tasks', id + '.json');
+  const path = join(copy.knowledgeRoot, '_doo-data/apps/to-doo/tasks', id + '.json');
   const entity = JSON.parse(await readFile(path, 'utf8'));
   delete entity.data.attachments;
   await writeFile(path, JSON.stringify(entity, null, 2) + '\n');

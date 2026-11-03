@@ -114,8 +114,14 @@ it.each(['missing', 'unverified'])('refuses %s legacy input before issuing a nat
     await run('git', ['init', '--quiet', repository]);
     await run('git', ['-C', repository, '-c', 'user.name=Release fixture', '-c', 'user.email=fixture@example.invalid', '-c', 'core.hooksPath=/dev/null', 'commit', '--quiet', '--allow-empty', '--no-gpg-sign', '-m', 'fixture']);
     const commit = (await run('git', ['-C', repository, 'rev-parse', 'HEAD'])).stdout.trim();
-    await writeFile(join(directory, 'release.json'), JSON.stringify({sourceCommit:commit,dirty:false,version:'1.1.0-rc.49',file:'dooknow-1.1.0-rc.49-linux-x64.tar.gz'}));
-    const { DOOKNOW_RECOVERY_LEGACY_ARCHIVE: _legacy, ...env } = process.env;
+    await writeFile(join(directory, 'release.json'), JSON.stringify({sourceCommit:commit,dirty:false,databaseCompatibility:3,version:'1.1.0-rc.49',file:'dooknow-1.1.0-rc.49-linux-x64.tar.gz'}));
+    const {
+      DOOKNOW_RECOVERY_LEGACY_ARCHIVE: _legacy,
+      DOOKNOW_RECOVERY_ROLLBACK_ARCHIVE: _rollback,
+      DOOKNOW_RECOVERY_ROLLBACK_VERSION: _rollbackVersion,
+      DOOKNOW_RECOVERY_ROLLBACK_SHA256: _rollbackHash,
+      ...env
+    } = process.env;
     const args = ['--import', resolve('node_modules/tsx/dist/loader.mjs'), resolve('scripts/verify-release.ts'), '--directory', directory, '--output', output];
     if (kind === 'unverified') {
       const file = join(root, 'wrong-archive.tar.gz');
@@ -128,3 +134,44 @@ it.each(['missing', 'unverified'])('refuses %s legacy input before issuing a nat
     await expect(readFile(output, 'utf8')).rejects.toMatchObject({code:'ENOENT'});
   } finally { await rm(root, {recursive:true,force:true}); }
 });
+
+it.each(['missing', 'version', 'generation', 'source', 'dirty', 'checksum', 'symlink', 'inside', 'valid'])(
+  'checks the independent same-generation recovery archive before any release receipt: %s',
+  async (kind) => {
+    const { createHash } = await import('node:crypto');
+    const { create } = await import('tar');
+    const root = await mkdtemp(join(tmpdir(), 'release-rollback-input-'));
+    const repository = join(root, 'checkout'), directory = join(root, 'artifacts');
+    const output = join(root, 'proof.json'), run = promisify(execFile);
+    try {
+      await mkdir(repository); await mkdir(directory);
+      await run('git', ['init', '--quiet', repository]);
+      await run('git', ['-C', repository, '-c', 'user.name=Release fixture', '-c', 'user.email=fixture@example.invalid', '-c', 'core.hooksPath=/dev/null', 'commit', '--quiet', '--allow-empty', '--no-gpg-sign', '-m', 'fixture']);
+      const commit = (await run('git', ['-C', repository, 'rev-parse', 'HEAD'])).stdout.trim();
+      await writeFile(join(directory, 'release.json'), JSON.stringify({ sourceCommit: commit, dirty: false, version: '1.1.0-rc.59', databaseCompatibility: 4, file: 'dooknow-1.1.0-rc.59-linux-x64.tar.gz' }));
+      const env = { ...process.env };
+      for (const key of ['DOOKNOW_RECOVERY_LEGACY_ARCHIVE', 'DOOKNOW_RECOVERY_ROLLBACK_ARCHIVE', 'DOOKNOW_RECOVERY_ROLLBACK_VERSION', 'DOOKNOW_RECOVERY_ROLLBACK_SHA256']) delete env[key];
+      const args = ['--import', resolve('node_modules/tsx/dist/loader.mjs'), resolve('scripts/verify-release.ts'), '--directory', directory, '--output', output];
+      if (kind !== 'missing') {
+        const staged = join(root, 'staged'); await mkdir(staged);
+        await writeFile(join(staged, 'release.json'), JSON.stringify({
+          version: kind === 'version' ? '1.1.0-rc.57' : '1.1.0-rc.58.diagram-recovery.1',
+          databaseCompatibility: kind === 'generation' ? 3 : 4,
+          sourceCommit: kind === 'source' ? 'b'.repeat(40) : commit,
+          dirty: kind === 'dirty',
+        }));
+        const archive = join(kind === 'inside' ? directory : root, 'recovery.tar.gz');
+        await create({ file: archive, gzip: true, cwd: staged }, ['./release.json']);
+        const hash = createHash('sha256').update(await readFile(archive)).digest('hex');
+        const input = kind === 'symlink' ? archive + '.linked' : archive;
+        if (kind === 'symlink') await symlink(archive, input);
+        args.push('--rollback-archive', input, '--rollback-version', '1.1.0-rc.58.diagram-recovery.1', '--rollback-sha256', kind === 'checksum' ? '0'.repeat(64) : hash);
+      }
+      await expect(run(process.execPath, args, { cwd: repository, env })).rejects.toMatchObject({
+        code: 1,
+        stderr: expect.stringContaining(kind === 'missing' ? '同代次恢复验证需要' : kind === 'valid' ? '跨版本回滚验证需要' : '同代次恢复制品校验失败'),
+      });
+      await expect(readFile(output, 'utf8')).rejects.toMatchObject({ code: 'ENOENT' });
+    } finally { await rm(root, { recursive: true, force: true }); }
+  },
+);

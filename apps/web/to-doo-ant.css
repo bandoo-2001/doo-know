@@ -28,6 +28,32 @@
   padding: 0 11px;
   height: 32px;
 }
+/* Compound controls own one focus frame; their internal text inputs own none. */
+:is(.to-doo-workspace, .todo-ant-modal)
+  :is(
+    .ant-picker input,
+    .ant-select-selection-search-input,
+    .ant-input-number-input,
+    .ant-input-affix-wrapper > input.ant-input
+  ):focus-visible,
+.to-doo-workspace .todo-search input:focus-visible {
+  outline: 0;
+  box-shadow: none;
+}
+:is(.to-doo-workspace, .todo-ant-modal)
+  :is(.ant-select, .ant-picker, .ant-input-number, .ant-input-affix-wrapper, .todo-search):has(
+    input:focus-visible
+  ) {
+  outline: 2px solid var(--todo-accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+  box-shadow: none;
+}
+:is(.to-doo-workspace, .todo-ant-modal)
+  .ant-select.ant-select-focused:not(.ant-select-disabled):has(input:focus-visible)
+  .ant-select-selector {
+  box-shadow: none;
+}
 .to-doo-workspace .todo-ant-select,
 .to-doo-workspace .todo-ant-date,
 .todo-ant-modal .todo-ant-select,
@@ -85,6 +111,11 @@
 .to-doo-workspace .todo-saved-row.ant-btn:hover {
   background: transparent;
 }
+.to-doo-workspace .todo-timeline-row > .todo-task-body.ant-btn {
+  padding: var(--todo-timeline-cell-padding, 12px);
+  border-right: 1px solid var(--todo-line);
+  border-radius: 0;
+}
 .to-doo-workspace .todo-saved-row.ant-btn {
   display: flex;
   width: 100%;
@@ -132,6 +163,34 @@
   font-size: 12px;
   padding: 10px 8px;
 }
+.to-doo-workspace .todo-detail .todo-ant-collapse .ant-collapse-header-text {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
+.to-doo-workspace .todo-detail .todo-ant-collapse .ant-collapse-header {
+  padding: 9px 0;
+}
+.to-doo-workspace .todo-detail .todo-ant-collapse .ant-collapse-content-box {
+  padding: 4px 0 0;
+}
+.to-doo-workspace .todo-detail .todo-create-fields {
+  gap: 12px;
+}
+.to-doo-workspace .todo-detail-options {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-left: 8px;
+}
+.to-doo-workspace .todo-detail-validation {
+  margin: 0;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--todo-line);
+  font-size: 12px;
+}
 .to-doo-workspace .todo-ant-collapse .ant-collapse-content,
 .to-doo-workspace .todo-ant-collapse .ant-collapse-content-box {
   color: var(--todo-ink);
@@ -159,14 +218,7 @@
   gap: 8px;
   font-size: 12px;
 }
-.todo-ant-modal {
-  --todo-paper: var(--panel, #fff);
-  --todo-soft: var(--surface-soft, #f7f8fa);
-  --todo-ink: var(--text, #272b3a);
-  --todo-muted: var(--muted, #657084);
-  --todo-line: var(--border, #e6e9f1);
-  --todo-accent: var(--blue, #4566c6);
-}
+
 .todo-ant-modal .ant-modal-body {
   max-height: calc(100dvh - 210px);
   overflow-y: auto;
@@ -180,6 +232,119 @@
 .todo-ant-modal .todo-form label {
   min-width: 0;
 }
+.todo-ant-modal .ant-input,
+.todo-ant-modal .ant-input-number,
+.todo-ant-modal .ant-picker {
+  background: var(--todo-paper);
+  color: var(--todo-ink);
+  border-color: var(--todo-line);
+  font: inherit;
+}
+.todo-ant-modal .ant-picker input,
+.todo-ant-modal .ant-input-number-input {
+  color: inherit;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+.todo-ant-modal .ant-checkbox-wrapper,
+.todo-ant-modal .ant-btn-text {
+  color: var(--todo-ink);
+}
+.todo-ant-modal .ant-btn-default {
+  color: var(--todo-ink);
+  background: var(--todo-paper);
+  border-color: var(--todo-line);
+}
+.todo-ant-modal .todo-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  font-size: 12px;
+}
+.todo-ant-modal .todo-form-section,
+.to-doo-workspace .todo-form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+.todo-ant-modal .todo-form-section > h3,
+.to-doo-workspace .todo-form-section > h3 {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 550;
+  color: var(--todo-muted);
+}
+.todo-ant-modal .todo-form-help,
+.to-doo-workspace .todo-form-help,
+.todo-ant-modal .todo-form-context {
+  margin: 0;
+  color: var(--todo-muted);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.todo-ant-modal .todo-form-grid .ant-input-number,
+.todo-ant-modal .todo-form label > .ant-input-number {
+  width: 100%;
+}
+.todo-ant-modal .ant-collapse {
+  background: transparent;
+  color: var(--todo-ink);
+}
+.todo-ant-modal .ant-collapse .ant-collapse-header {
+  padding: 10px 0;
+  color: var(--todo-ink);
+  font-size: 12px;
+}
+.todo-ant-modal .ant-collapse-header-text {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
+.todo-ant-modal .ant-collapse .ant-collapse-content,
+.todo-ant-modal .ant-collapse .ant-collapse-content-box {
+  background: transparent;
+  color: var(--todo-ink);
+}
+.todo-ant-modal .ant-collapse .ant-collapse-content-box {
+  padding: 4px 0 0;
+}
+.todo-ant-modal .todo-form-footer,
+.todo-ant-modal .todo-ant-modal-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  margin-top: 6px;
+  padding: 14px 0 0;
+  background: var(--todo-paper);
+}
+.todo-ant-modal .todo-form-footer {
+  border-top: 1px solid var(--todo-line);
+}
+.todo-ant-modal .ant-segmented {
+  max-width: 100%;
+}
+.to-doo-workspace .todo-detail-shortcuts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+.to-doo-workspace .todo-detail-shortcuts .ant-btn {
+  height: auto;
+  min-height: 42px;
+  min-width: 0;
+  padding: 7px 5px;
+  white-space: normal;
+}
+.to-doo-workspace .todo-detail-shortcuts .ant-btn small {
+  display: block;
+  color: var(--todo-muted);
+  font-size: 10px;
+}
 .todo-ant-modal-actions {
   display: flex;
   justify-content: flex-end;
@@ -187,11 +352,36 @@
   flex-wrap: wrap;
   margin-top: 20px;
 }
-[data-theme='dark'] .todo-ant-modal {
-  --todo-paper: #1b1e29;
-  --todo-ink: #e5e8f0;
-  --todo-muted: #a1a9bb;
-  --todo-line: #323746;
+
+[data-theme='dark'] .todo-ant-modal .ant-segmented {
+  background: var(--todo-soft);
+  color: var(--todo-ink);
+}
+[data-theme='dark'] .todo-ant-modal .ant-segmented-item-selected {
+  background: var(--todo-paper);
+  color: var(--todo-ink);
+}
+[data-theme='dark']
+  :is(.to-doo-workspace, .todo-ant-modal)
+  .ant-select:not(.ant-select-customize-input)
+  .ant-select-selector {
+  color: var(--todo-ink);
+  background: var(--todo-paper);
+  border-color: var(--todo-line);
+}
+[data-theme='dark'] :is(.to-doo-workspace, .todo-ant-modal) .ant-select .ant-select-selection-item {
+  color: var(--todo-ink);
+}
+[data-theme='dark']
+  :is(.to-doo-workspace, .todo-ant-modal)
+  .ant-select
+  .ant-select-selection-placeholder,
+[data-theme='dark'] :is(.to-doo-workspace, .todo-ant-modal) .ant-select-arrow,
+[data-theme='dark'] :is(.to-doo-workspace, .todo-ant-modal) .ant-picker-suffix,
+[data-theme='dark'] :is(.to-doo-workspace, .todo-ant-modal) .ant-picker input::placeholder,
+[data-theme='dark'] :is(.to-doo-workspace, .todo-ant-modal) .ant-input::placeholder {
+  color: var(--todo-muted);
+  opacity: 1;
 }
 [data-theme='dark'] .todo-ant-popup,
 [data-theme='dark'] .todo-ant-popup .ant-picker-panel-container,

@@ -1,0 +1,15 @@
+{
+  "phase": "after",
+  "fixedTime": "2026-10-30T09:00:00.000Z",
+  "screenshots": [
+    {
+      "id": "04-timeline",
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "label": "时间线",
+      "file": "phone-04-timeline.png",
+      "overflow": 0
+    }
+  ]
+}

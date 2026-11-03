@@ -6,7 +6,6 @@ import {
   createPluginDraft,
   refreshPluginDraft,
   pluginDraftDirty,
-  pluginFieldVisible,
   serializePluginDraft,
 } from '../apps/web/plugin-config';
 
@@ -19,36 +18,28 @@ function plugin(overrides: Partial<PluginView> = {}): PluginView {
     configVersion: 7,
     restartRequired: false,
     manifest,
-    config: { mode: 'both', allowedPrefixes: ['资料/项目', 'README.md'], compatPort: 3071 },
-    configuredSecrets: ['tunnelToken'],
+    config: { oauthEnabled: true, apiKeyEnabled: true, allowedPrefixes: ['资料/项目', 'README.md'] },
+    configuredSecrets: [],
     ...overrides,
   };
 }
 
-it('edits directory prefixes as separate lines and retains hidden Tunnel settings in the save payload', () => {
-  const source = plugin(),
-    draft = createPluginDraft(source);
+it('edits directory prefixes independently of the two authentication switches', () => {
+  const source = plugin(), draft = createPluginDraft(source);
   expect(draft.values.allowedPrefixes).toBe('资料/项目\nREADME.md');
-  expect(draft.values.tunnelToken).toBe('');
   expect(pluginDraftDirty(draft)).toBe(false);
-  draft.values.mode = 'oauth';
+  draft.values.oauthEnabled = false;
   draft.values.allowedPrefixes = '文档/测试\r\n 空格目录 \r\n';
-  draft.values.tunnelToken = 'new-connection-key'.repeat(3);
   expect(pluginDraftDirty(draft)).toBe(true);
-  for (const key of ['compatPort', 'tunnelToken', 'tunnelOrigin']) {
-    expect(pluginFieldVisible('mcp', key, 'oauth')).toBe(false);
-    expect(pluginFieldVisible('mcp', key, 'tunnel')).toBe(true);
-    expect(pluginFieldVisible('mcp', key, 'both')).toBe(true);
-  }
   expect(serializePluginDraft(draft, source)).toMatchObject({
     configVersion: 7,
-    values: {
-      mode: 'oauth',
-      allowedPrefixes: ['文档/测试', ' 空格目录 '],
-      compatPort: 3071,
-      tunnelToken: 'new-connection-key'.repeat(3),
-    },
+    values: { oauthEnabled: false, apiKeyEnabled: true, allowedPrefixes: ['文档/测试', ' 空格目录 '] },
   });
+});
+
+it('defaults both authentication switches to enabled in a new plugin draft', () => {
+  const source = plugin({ config: { allowedPrefixes: ['README.md'] } });
+  expect(serializePluginDraft(createPluginDraft(source), source).values).toMatchObject({ oauthEnabled: true, apiKeyEnabled: true });
 });
 
 it.each([
@@ -80,13 +71,13 @@ it('retains unsaved inputs on status refresh and blocks stale saves until an exp
   const source = plugin(),
     draft = createPluginDraft(source);
   draft.values.allowedPrefixes = '我的未保存目录';
-  draft.values.tunnelToken = 'unsaved-secret'.repeat(4);
+  draft.values.apiKeyEnabled = false;
   const unchanged = refreshPluginDraft(draft, { ...source, state: 'enabled' });
   expect(unchanged).toBe(draft);
   const remote = plugin({ configVersion: 8, config: { ...source.config, readOnly: false } }),
     conflicted = refreshPluginDraft(unchanged, remote);
   expect(conflicted.values.allowedPrefixes).toBe('我的未保存目录');
-  expect(conflicted.values.tunnelToken).toBe('unsaved-secret'.repeat(4));
+  expect(conflicted.values.apiKeyEnabled).toBe(false);
   expect(conflicted.configVersion).toBe(7);
   expect(conflicted.conflicted).toBe(true);
   expect(() => serializePluginDraft(conflicted, remote)).toThrow(/重新载入/);
@@ -110,17 +101,17 @@ it('keeps advanced JSON parsing and explicit secret clearing while blank secrets
       ...manifest,
       configSchema: {
         ...manifest.configSchema,
-        properties: { ...manifest.configSchema.properties, options: { type: 'object' } },
+        properties: { ...manifest.configSchema.properties, options: { type: 'object' }, accessToken: { type: 'string', writeOnly: true } },
       },
     },
     config: { allowedPrefixes: ['README.md'], options: { nested: ['保留结构'] } },
   });
   const draft = createPluginDraft(source);
-  expect(serializePluginDraft(draft, source).values).not.toHaveProperty('tunnelToken');
+  expect(serializePluginDraft(draft, source).values).not.toHaveProperty('accessToken');
   expect(serializePluginDraft(draft, source).values.options).toEqual({ nested: ['保留结构'] });
   draft.values.options = '[]';
   expect(() => serializePluginDraft(draft, source)).toThrow(/JSON 对象/);
   draft.values.options = '{}';
-  draft.values.tunnelToken = null;
-  expect(serializePluginDraft(draft, source).values.tunnelToken).toBeNull();
+  draft.values.accessToken = null;
+  expect(serializePluginDraft(draft, source).values.accessToken).toBeNull();
 });

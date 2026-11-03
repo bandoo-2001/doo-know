@@ -15,7 +15,7 @@ async function seed(context: BrowserContext, content = original) {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   const csrf = await (await context.request.get('/api/security/csrf')).json();
   const response = await context.request.post('/api/notes', {
-    headers: { origin: 'http://127.0.0.1:4179', 'x-csrf-token': csrf.token },
+    headers: { origin: JSON.parse(await readFile('.local/e2e-config.json', 'utf8')).origin, 'x-csrf-token': csrf.token },
     data: { folderPath: '00-Inbox', fileName: `ownership-${crypto.randomUUID()}.md`, content, requestId: crypto.randomUUID() },
   });
   expect(response.status()).toBe(201);
@@ -59,12 +59,16 @@ for (const source of [false, true]) test.describe(source ? 'Markdown' : '文档'
     });
     const editor = source ? page.locator('.cm-content') : page.getByRole('textbox', { name: '文档正文', exact: true });
     try {
+      const treeRead = page.waitForResponse((response) => new URL(response.url()).pathname === '/api/tree');
       await page.goto('/');
       await expect.poll(() => held).toBe(true);
       await sidebar(page);
-      const refreshed = page.waitForResponse((response) => response.url().endsWith('/api/tree'));
-      await page.getByRole('button', { name: '刷新目录', exact: true }).click();
-      expect((await refreshed).ok()).toBe(true);
+      expect((await treeRead).ok()).toBe(true);
+      // Refresh stays disabled until the shared ownership check completes.
+      // Clicking a disabled control would wait for its timeout and retry after
+      // the ownership request had already failed, missing this boundary.
+      await expect(page.getByRole('button', { name: '刷新目录', exact: true })).toBeDisabled();
+      await expect(page.locator('.tree-scroll')).toHaveAttribute('aria-busy', 'true');
       await expect(page.getByRole('button', { name: '展开 00-Inbox', exact: true })).toHaveCount(0);
       // A real history event also reaches the common opening boundary while
       // the directory is intentionally unpublished.
@@ -146,12 +150,12 @@ test('归属核对期间仍能进入设置，迟到的启动跳转不会覆盖�
     await expect.poll(() => held).toBe(true);
     await showMainMenu(page);
     await page.getByRole('button', { name: '设置', exact: true }).click();
-    await expect(page.getByRole('heading', { name: '编辑器与外观', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '编辑与阅读', exact: true })).toBeVisible();
   } finally { identity.release(); }
   await page.waitForFunction(() => (window as any).__ownershipHashComplete === true);
   await expect(page).toHaveURL(/view=settings/);
   await expect(page.getByRole('textbox', { name: '文档正文', exact: true })).toHaveCount(0);
-  await expect(page.getByRole('heading', { name: '编辑器与外观', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '编辑与阅读', exact: true })).toBeVisible();
   expect((await (await context.request.get('/api/notes/' + note.id)).json()).content).toBe(original);
 });
 

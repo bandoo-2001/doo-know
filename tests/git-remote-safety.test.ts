@@ -315,7 +315,7 @@ for (const interruption of ['before-merge', 'after-merge'] as const) {
         // Collection readers can discover the merged files while the durable pull
         // still awaits reconciliation. Register them deterministically before retry.
         h.platform.get().notes.scan();
-        expect(git(h.local, 'status', '--porcelain=v1')).toContain('_data/library/state.json');
+        expect(git(h.local, 'status', '--porcelain=v1')).toContain('_doo-data/library/state.json');
         expect(await readFile(join(h.local, '00-Inbox/added.md'), 'utf8')).toBe('# Recorded target\n');
         await writeFile(join(h.local, '00-Inbox/added.md'), expectedContent);
         git(h.local, 'add', '--', '00-Inbox/added.md');

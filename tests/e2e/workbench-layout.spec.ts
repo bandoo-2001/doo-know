@@ -1,6 +1,7 @@
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
 import { showSidebar } from '../support/settings-navigation';
+import { expandFolderPath } from '../support/notebook-tree';
 
 test.use({ sourceEditorPreference: true });
 
@@ -57,15 +58,10 @@ test('desktop rail remains available in focus mode and returns from trash with t
   expect(railBox.x).toBe(0);
   expect(railBox.width).toBeLessThanOrEqual(72);
   expect((await sidebar.boundingBox())!.x).toBeGreaterThanOrEqual(railBox.x + railBox.width);
-  await page.getByRole('button', { name: '展开 00-Inbox', exact: true }).click();
-  const firstNote = page.locator('.tree-row.is-note .tree-select').first();
-  // Each run already contains the welcome fixture in the knowledge directory.
-  if (!(await firstNote.count())) {
-    await page.getByRole('button', { name: '展开 30-Knowledge', exact: true }).click();
-    await page.getByRole('button', { name: '展开 个人知识管理', exact: true }).click();
-    await page.getByRole('button', { name: '展开 方法', exact: true }).click();
-  }
-  await firstNote.click();
+  await expandFolderPath(page, '30-Knowledge/个人知识管理/方法');
+  await page.locator('.tree-select').and(page.getByTitle(
+    '30-Knowledge/个人知识管理/方法/入门指南.md', { exact: true },
+  )).click();
   await page.getByRole('button', { name: 'Markdown 源码', exact: true }).click();
   await expect(page.locator('.cm-content')).toBeVisible();
   await expect(page).toHaveURL(/note=/);

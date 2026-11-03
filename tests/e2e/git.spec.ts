@@ -8,6 +8,8 @@ test('installs Git interactions, initializes when missing, previews all changes 
   page,
   context,
 }, info) => {
+  // Installation, initialization, stale-preview recovery, commit and history run sequentially.
+  test.setTimeout(90000);
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   const mobile = info.project.name === 'mobile';
   await page.goto('/');

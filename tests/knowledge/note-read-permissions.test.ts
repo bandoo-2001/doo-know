@@ -85,7 +85,7 @@ for (const concurrent of ['completed move', 'reappeared file'] as const) {
           const result = get(...values);
           const boundary = concurrent === 'completed move'
             ? sql === 'SELECT * FROM notes WHERE id=?'
-            : sql.includes("SELECT 1 FROM write_intents WHERE note_id=? AND kind='move'");
+            : sql.startsWith('SELECT 1 FROM write_intents WHERE note_id=?') && sql.includes("kind='move'");
           if (!changed && boundary && values[0] === note.id) {
             changed = true;
             if (concurrent === 'completed move')

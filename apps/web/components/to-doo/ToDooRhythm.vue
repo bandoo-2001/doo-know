@@ -1,26 +1,30 @@
 <script setup lang="ts">
-import { computed, onUnmounted, ref, watch } from 'vue';
+import { computed, onUnmounted, reactive, ref, watch } from 'vue';
 import {
   Alert as AAlert,
   Button as AButton,
   Empty as AEmpty,
-  Input,
   InputNumber as AInputNumber,
   Modal as AModal,
   Segmented as ASegmented,
 } from 'ant-design-vue';
-import ToDooSelect from './ToDooSelect.vue';
+import ToDooFocus from './ToDooFocus.vue';
+import ToDooHabitCard from './ToDooHabitCard.vue';
+import { formatHabitSchedule } from '../../to-doo-habit-presentation';
+import ToDooPageToolbar from './ToDooPageToolbar.vue';
+import ToDooSectionHeader from './ToDooSectionHeader.vue';
+import { useToDooClock } from '../../to-doo-time';
 import { useToDooConfirm } from '../../to-doo-controls';
 import type { ToDooEntityKind, ToDooEntityMap } from '../../../../shared/to-doo-contracts';
+import { shiftToDooDate, toDooLocalDate, type ToDooWorkbench } from '../../to-doo-workbench';
+import { toDooAnniversaryDate as nextToDooAnniversary } from '../../../../shared/to-doo-anniversaries';
 import {
-  focusElapsed,
-  nextToDooAnniversary,
-  shiftToDooDate,
-  toDooLocalDate,
-  type ToDooWorkbench,
-} from '../../to-doo-workbench';
-import { getHabitRule, summarizeHabitPeriod, habitStreak } from '../../../../shared/to-doo-habits';
-const ATextarea = Input.TextArea;
+  getHabitPeriod,
+  getHabitGoalMode,
+  habitStreak,
+  getHabitRule,
+  summarizeHabitPeriod,
+} from '../../../../shared/to-doo-habits';
 const props = defineProps<{
   model: ToDooWorkbench;
   section: 'focus' | 'habits' | 'anniversaries';
@@ -31,73 +35,82 @@ const emit = defineEmits<{
   task: [id: string, occurrenceId?: string];
 }>();
 const confirmAction = useToDooConfirm();
+const { now: tick, active: clockActive } = useToDooClock();
 const state = props.model.state,
-  tick = ref(Date.now()),
-  mode = ref<'pomodoro' | 'stopwatch' | 'break'>('pomodoro'),
-  target = ref<number | ''>(state.snapshot?.settings.focusMinutes || 25),
-  chosen = ref(props.occurrenceId || ''),
-  weekOffset = ref(0),
-  note = ref('');
-const timer = setInterval(() => (tick.value = Date.now()), 1000);
-onUnmounted(() => {
-  clearInterval(timer);
-  delete state.externalDirty.focus;
-});
-watch(note, (value) => (state.externalDirty.focus = !!value), { immediate: true });
-watch(
-  () => props.occurrenceId,
-  (id) => {
-    if (!active.value) chosen.value = id || '';
-  },
-);
+  weekOffset = ref(0);
 const today = computed(() =>
   toDooLocalDate(new Date(tick.value), state.snapshot?.settings.timeZone),
 );
-const active = computed(
-  () =>
-    state.snapshot?.focusSessions
-      .filter((s) => !s.deletedAt && ['running', 'paused'].includes(s.status))
-      .sort(
-        (a, b) =>
-          Number(b.status === 'running') - Number(a.status === 'running') ||
-          b.updatedAt.localeCompare(a.updatedAt),
-      )[0],
-);
-const elapsed = computed(() => (active.value ? focusElapsed(active.value, tick.value) : 0));
-const displayed = computed(() => {
-  const seconds = active.value
-    ? active.value.targetMinutes === null
-      ? elapsed.value
-      : Math.max(0, active.value.targetMinutes * 60 - elapsed.value)
-    : mode.value === 'stopwatch'
-      ? 0
-      : Number(target.value) * 60;
-  return (
-    Math.floor(seconds / 60)
-      .toString()
-      .padStart(2, '0') +
-    ':' +
-    Math.floor(seconds % 60)
-      .toString()
-      .padStart(2, '0')
-  );
-});
-const progress = computed(() =>
-  active.value?.targetMinutes
-    ? Math.min(100, (elapsed.value / (active.value.targetMinutes * 60)) * 100)
-    : 0,
-);
-const sessions = computed(
-  () =>
-    state.snapshot?.focusSessions
-      .filter(
-        (s) =>
-          !s.deletedAt &&
-          toDooLocalDate(new Date(s.createdAt), state.snapshot?.settings.timeZone) === today.value,
-      )
-      .sort((a, b) => b.createdAt.localeCompare(a.createdAt)) || [],
-);
 const habits = computed(() => state.snapshot?.habits.filter((h) => !h.deletedAt) || []);
+const habitPane = ref('today');
+const habitEntries = ref<ToDooEntityMap['habitEntry'][]>([]);
+const habitLoading = ref(false),
+  habitError = ref(''),
+  appliedHabitQuery = ref('');
+const quantities = reactive<Record<string, number | ''>>(Object.create(null));
+const quantityErrors = reactive<Record<string, string>>(Object.create(null));
+let habitEpoch = 0;
+const statisticsHabit = ref<ToDooEntityMap['habit']>();
+const habitStatistics = ref<{
+  date: string;
+  count: number;
+  streak: ReturnType<typeof habitStreak>;
+}>();
+const statisticsLoading = ref(false),
+  statisticsError = ref('');
+let statisticsEpoch = 0;
+async function openHabitStatistics(habit: ToDooEntityMap['habit']) {
+  statisticsHabit.value = habit;
+  habitStatistics.value = undefined;
+  statisticsError.value = '';
+  statisticsLoading.value = true;
+  const token = ++statisticsEpoch,
+    date = habitToday(habit);
+  const values: ToDooEntityMap['habitEntry'][] = [];
+  let cursor: string | undefined, version: string | undefined;
+  try {
+    do {
+      const params = new URLSearchParams({ kind: 'habitEntry', sort: 'recent', limit: '200' });
+      if (cursor) params.set('cursor', cursor);
+      const snapshot = await props.model.request('/api/to-doo/state?' + params);
+      if (token !== statisticsEpoch) return;
+      version ??= snapshot.version;
+      if (version !== snapshot.version) throw Error('读取期间记录有更新，请重新读取后查看连续记录');
+      values.push(
+        ...snapshot.habitEntries.filter(
+          (entry: ToDooEntityMap['habitEntry']) => entry.habitId === habit.id,
+        ),
+      );
+      cursor = snapshot.page.nextCursor || undefined;
+    } while (cursor);
+    habitStatistics.value = {
+      date,
+      count: values.length,
+      streak: habitStreak(habit, values, date),
+    };
+  } catch (cause) {
+    if (token === statisticsEpoch)
+      statisticsError.value = cause instanceof Error ? cause.message : String(cause);
+  } finally {
+    if (token === statisticsEpoch) statisticsLoading.value = false;
+  }
+}
+function closeHabitStatistics() {
+  statisticsEpoch++;
+  statisticsHabit.value = undefined;
+  statisticsLoading.value = false;
+}
+const habitToday = (habit: ToDooEntityMap['habit']) =>
+  toDooLocalDate(new Date(tick.value), habit.timeZone);
+const quantityKey = (habit: ToDooEntityMap['habit']) => habit.id + ':' + habitToday(habit);
+const quantity = (habit: ToDooEntityMap['habit']) =>
+  quantities[quantityKey(habit)] ??
+  (getHabitRule(habit, habitToday(habit)).frequency === 'daily'
+    ? Math.max(
+        0,
+        getHabitRule(habit, habitToday(habit)).target - amount(habit.id, habitToday(habit)),
+      ) || ''
+    : 1);
 const weekStart = computed(() => {
   const date = shiftToDooDate(today.value, weekOffset.value * 7),
     weekday = new Date(date + 'T12:00:00Z').getUTCDay();
@@ -106,6 +119,80 @@ const weekStart = computed(() => {
 const days = computed(() =>
   Array.from({ length: 7 }, (_, i) => shiftToDooDate(weekStart.value, i)),
 );
+const habitRange = computed(() => {
+  const periods = habits.value
+    .flatMap((habit) =>
+      [habitToday(habit), ...days.value].map((date) => getHabitPeriod(habit, date)),
+    )
+    .filter((period) => period.start < period.endExclusive);
+  return {
+    from: periods.reduce(
+      (from, period) => (period.start < from ? period.start : from),
+      today.value,
+    ),
+    to: periods.reduce(
+      (to, period) =>
+        shiftToDooDate(period.endExclusive, -1) > to ? shiftToDooDate(period.endExclusive, -1) : to,
+      today.value,
+    ),
+  };
+});
+const habitQueryKey = computed(() => JSON.stringify([habitRange.value, state.snapshot?.version]));
+const habitReady = computed(
+  () => !habitLoading.value && !habitError.value && appliedHabitQuery.value === habitQueryKey.value,
+);
+async function loadHabitEntries() {
+  if (!clockActive.value || props.section !== 'habits') return;
+  const token = ++habitEpoch,
+    key = habitQueryKey.value;
+  habitLoading.value = true;
+  habitError.value = '';
+  const values: ToDooEntityMap['habitEntry'][] = [];
+  let cursor: string | undefined, version: string | undefined;
+  try {
+    do {
+      const params = new URLSearchParams({ kind: 'habitEntry', ...habitRange.value, limit: '200' });
+      if (cursor) params.set('cursor', cursor);
+      const snapshot = await props.model.request('/api/to-doo/state?' + params);
+      if (token !== habitEpoch || key !== habitQueryKey.value || props.section !== 'habits') return;
+      version ??= snapshot.version;
+      if (version !== snapshot.version) throw Error('读取期间记录有更新，请重试读取习惯记录');
+      values.push(...snapshot.habitEntries);
+      cursor = snapshot.page.nextCursor || undefined;
+    } while (cursor);
+    habitEntries.value = values;
+    appliedHabitQuery.value = key;
+  } catch (cause) {
+    if (token === habitEpoch)
+      habitError.value = cause instanceof Error ? cause.message : String(cause);
+  } finally {
+    if (token === habitEpoch) habitLoading.value = false;
+  }
+}
+watch(
+  () => [clockActive.value, props.section, habitQueryKey.value],
+  () => {
+    if (clockActive.value && props.section === 'habits') void loadHabitEntries();
+    else {
+      habitEpoch++;
+      habitLoading.value = false;
+      closeHabitStatistics();
+    }
+  },
+  { immediate: true },
+);
+watch(
+  quantities,
+  () => {
+    state.externalDirty.habits = Object.keys(quantities).length > 0;
+  },
+  { deep: true },
+);
+onUnmounted(() => {
+  habitEpoch++;
+  statisticsEpoch++;
+  delete state.externalDirty.habits;
+});
 const anniversaries = computed(
   () =>
     state.snapshot?.anniversaries
@@ -113,10 +200,30 @@ const anniversaries = computed(
       .map((a) => ({ entity: a, next: nextToDooAnniversary(a, today.value) }))
       .sort((a, b) => (a.next || '9999').localeCompare(b.next || '9999')) || [],
 );
+const anniversaryGroups = computed(() => {
+  const bucket = (next: string | null) =>
+    !next
+      ? 'invalid'
+      : next < today.value
+        ? 'past'
+        : next <= shiftToDooDate(today.value, 30)
+          ? 'soon'
+          : 'later';
+  return [
+    { id: 'soon', label: '未来 30 天' },
+    { id: 'later', label: '更远的日子' },
+    { id: 'past', label: '已经过去' },
+    { id: 'invalid', label: '待核对日期' },
+  ]
+    .map((group) => ({
+      ...group,
+      items: anniversaries.value.filter((row) => bucket(row.next) === group.id),
+    }))
+    .filter((group) => group.items.length);
+});
 const entries = (habitId: string, date: string) =>
-  state.snapshot?.habitEntries.filter(
-    (e) => !e.deletedAt && e.habitId === habitId && e.localDate === date,
-  ) || [];
+  habitEntries.value.filter((e) => !e.deletedAt && e.habitId === habitId && e.localDate === date) ||
+  [];
 const amount = (habitId: string, date: string) =>
   entries(habitId, date)
     .filter((e) => !e.skipped)
@@ -125,14 +232,16 @@ const summaries = computed(
   () =>
     new Map(
       habits.value.map((habit) => {
-        const values = (state.snapshot?.habitEntries || []).filter((e) => e.habitId === habit.id);
+        const values = habitEntries.value.filter((e) => e.habitId === habit.id);
         return [
           habit.id,
           {
             days: new Map(
-              days.value.map((date) => [date, summarizeHabitPeriod(habit, values, date)]),
+              [...new Set([...days.value, habitToday(habit)])].map((date) => [
+                date,
+                summarizeHabitPeriod(habit, values, date),
+              ]),
             ),
-            streak: habitStreak(habit, values, today.value),
           },
         ] as const;
       }),
@@ -140,16 +249,12 @@ const summaries = computed(
 );
 const habitSummary = (habit: ToDooEntityMap['habit'], date: string) =>
   summaries.value.get(habit.id)!.days.get(date)!;
-const streak = (habit: ToDooEntityMap['habit']) => summaries.value.get(habit.id)!.streak;
 const exemptDay = (habit: ToDooEntityMap['habit'], date: string) => {
-  const rule = getHabitRule(habit, date);
-  return (
-    habit.pausedDates.includes(date) ||
-    (!!rule.weekdays.length && !rule.weekdays.includes(new Date(date + 'T12:00:00Z').getUTCDay()))
-  );
+  return !getHabitPeriod(habit, date).scheduledDates.includes(date);
 };
 async function skip(habit: ToDooEntityMap['habit'], date: string) {
-  await props.model.execute(
+  if (!habitReady.value || state.busy) return;
+  return props.model.execute(
     {
       action: 'checkin_habit',
       payload: {
@@ -164,59 +269,20 @@ async function skip(habit: ToDooEntityMap['habit'], date: string) {
     '已记录跳过，按当期规则计算',
   );
 }
-function taskName(occurrenceId: string | null) {
-  const occurrence = state.snapshot?.occurrences.find((o) => o.id === occurrenceId);
-  return state.snapshot?.tasks.find((t) => t.id === occurrence?.taskId)?.title || '未关联任务';
-}
-async function start() {
-  if (
-    mode.value !== 'stopwatch' &&
-    (target.value === '' || target.value < 1 || target.value > 1440)
-  ) {
-    state.error = '请输入 1 到 1440 分钟的专注时长';
-    return;
-  }
-  await props.model.execute(
-    {
-      action: 'start_focus',
-      payload: {
-        mode: mode.value,
-        occurrenceId: chosen.value || null,
-        targetMinutes: mode.value === 'stopwatch' ? null : Number(target.value),
-        listId:
-          state.snapshot?.tasks.find(
-            (t) => t.id === state.snapshot?.occurrences.find((o) => o.id === chosen.value)?.taskId,
-          )?.listId || null,
-      },
-    },
-    '专注已开始',
-  );
-}
-async function control(operation: 'pause' | 'resume' | 'finish' | 'cancel') {
-  const session = active.value;
-  if (!session) return;
-  const result = await props.model.execute(
-    {
-      action: 'control_focus',
-      payload: {
-        id: session.id,
-        expectedRevision: session.revision,
-        operation,
-        ...(operation === 'finish' ? { note: note.value } : {}),
-      },
-    },
-    operation === 'finish'
-      ? '本次专注已保存'
-      : operation === 'cancel'
-        ? '已取消本次专注'
-        : '专注状态已保存',
-  );
-  if (result && operation === 'finish') note.value = '';
-}
-type NumericDialog =
-  | { kind: 'habit'; habit: ToDooEntityMap['habit']; date: string }
-  | { kind: 'focus'; session: ToDooEntityMap['focusSession'] };
+type NumericDialog = { kind: 'habit'; habit: ToDooEntityMap['habit']; date: string };
 const numericDialog = ref<NumericDialog | null>(null);
+const dialogRule = computed(
+  () => numericDialog.value && getHabitRule(numericDialog.value.habit, numericDialog.value.date),
+);
+const ordinaryDialog = computed(
+  () => !!dialogRule.value && getHabitGoalMode(dialogRule.value) === 'checkin',
+);
+const dialogRecorded = computed(
+  () => numericDialog.value && amount(numericDialog.value.habit.id, numericDialog.value.date) > 0,
+);
+const dialogExempt = computed(
+  () => numericDialog.value && exemptDay(numericDialog.value.habit, numericDialog.value.date),
+);
 const numericValue = ref<number | ''>('');
 const numericError = ref('');
 function closeNumeric() {
@@ -225,45 +291,38 @@ function closeNumeric() {
   numericError.value = '';
 }
 function checkin(habit: ToDooEntityMap['habit'], date: string) {
-  numericValue.value = getHabitRule(habit, date).target;
+  if (!habitReady.value || state.busy) return;
+  const rule = getHabitRule(habit, date);
+  numericValue.value =
+    rule.frequency === 'daily' ? Math.max(0, rule.target - amount(habit.id, date)) || '' : 1;
   numericError.value = '';
   numericDialog.value = { kind: 'habit', habit, date };
 }
 async function saveNumeric() {
   const dialog = numericDialog.value;
-  if (!dialog || state.busy) return;
-  const value = numericValue.value;
-  if (
-    value === '' ||
-    !Number.isFinite(value) ||
-    (dialog.kind === 'habit' ? value <= 0 : value < 0)
-  ) {
-    numericError.value = dialog.kind === 'habit' ? '请输入大于 0 的数量' : '请输入有效的非负分钟数';
+  if (!dialog || state.busy || dialogExempt.value || (ordinaryDialog.value && dialogRecorded.value))
+    return;
+  const value =
+    getHabitGoalMode(getHabitRule(dialog.habit, dialog.date)) === 'checkin'
+      ? 1
+      : numericValue.value;
+  if (value === '' || !Number.isFinite(value) || value <= 0) {
+    numericError.value = '请输入大于 0 的数量';
     return;
   }
   const result = await props.model.execute(
-    dialog.kind === 'habit'
-      ? {
-          action: 'checkin_habit',
-          payload: {
-            habitId: dialog.habit.id,
-            localDate: dialog.date,
-            amount: value,
-            note: '',
-            skipped: false,
-            sourceSessionId: null,
-          },
-        }
-      : {
-          action: 'control_focus',
-          payload: {
-            id: dialog.session.id,
-            expectedRevision: dialog.session.revision,
-            operation: 'correct',
-            correctedMinutes: value,
-          },
-        },
-    dialog.kind === 'habit' ? '习惯记录已保存' : '实际专注时间已修正',
+    {
+      action: 'checkin_habit',
+      payload: {
+        habitId: dialog.habit.id,
+        localDate: dialog.date,
+        amount: value,
+        note: '',
+        skipped: false,
+        sourceSessionId: null,
+      },
+    },
+    '习惯记录已保存',
   );
   if (result) {
     numericDialog.value = null;
@@ -271,6 +330,7 @@ async function saveNumeric() {
   }
 }
 async function undo(habit: ToDooEntityMap['habit'], date: string) {
+  if (!habitReady.value || state.busy) return;
   const values = entries(habit.id, date);
   if (!values.length) return;
   if (
@@ -282,22 +342,64 @@ async function undo(habit: ToDooEntityMap['habit'], date: string) {
     return;
   for (const entry of values) {
     const r = await props.model.removeEntity('habitEntry', entry);
-    if (!r) break;
+    if (!r) return false;
   }
+  return true;
 }
-function correct(session: ToDooEntityMap['focusSession']) {
-  numericValue.value = Math.round(focusElapsed(session, tick.value) / 60);
-  numericError.value = '';
-  numericDialog.value = { kind: 'focus', session };
-}
-async function takeover(session: ToDooEntityMap['focusSession']) {
-  await props.model.execute(
+async function recordToday(habit: ToDooEntityMap['habit']) {
+  if (!habitReady.value || state.busy) return;
+  const key = quantityKey(habit),
+    value =
+      getHabitGoalMode(getHabitRule(habit, habitToday(habit))) === 'checkin' ? 1 : quantity(habit);
+  if (
+    getHabitGoalMode(getHabitRule(habit, habitToday(habit))) === 'checkin' &&
+    amount(habit.id, habitToday(habit)) > 0
+  )
+    return;
+  if (value === '' || !Number.isFinite(value) || value <= 0) {
+    quantityErrors[key] = '请输入大于 0 的数量';
+    return;
+  }
+  quantityErrors[key] = '';
+  const result = await props.model.execute(
     {
-      action: 'control_focus',
-      payload: { id: session.id, expectedRevision: session.revision, operation: 'takeover' },
+      action: 'checkin_habit',
+      payload: {
+        habitId: habit.id,
+        localDate: habitToday(habit),
+        amount: value,
+        skipped: false,
+        note: '',
+        sourceSessionId: null,
+      },
     },
-    '计时已接管，开始新的时间段',
+    '习惯记录已保存',
   );
+  if (result && quantities[key] === value) delete quantities[key];
+}
+async function pauseToday(habit: ToDooEntityMap['habit'], date = habitToday(habit)) {
+  if (state.busy) return;
+  return props.model.saveEntity(
+    'habit',
+    {
+      ...habit,
+      pausedDates: habit.pausedDates.includes(date)
+        ? habit.pausedDates.filter((day) => day !== date)
+        : [...habit.pausedDates, date],
+    },
+    habit.revision,
+  );
+}
+async function adjustHistory(action: 'undo' | 'skip' | 'rest') {
+  const dialog = numericDialog.value;
+  if (!dialog || state.busy) return;
+  const result =
+    action === 'undo'
+      ? await undo(dialog.habit, dialog.date)
+      : action === 'skip'
+        ? await skip(dialog.habit, dialog.date)
+        : await pauseToday(dialog.habit, dialog.date);
+  if (result) closeNumeric();
 }
 function distance(date: string, a: ToDooEntityMap['anniversary']) {
   const days = Math.round(
@@ -307,174 +409,26 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
 }
 </script>
 <template>
-  <template v-if="section === 'focus'"
-    ><div class="todo-focus-grid">
-      <section class="todo-panel">
-        <div class="todo-focus-center">
-          <ASegmented
-            :value="mode"
-            :disabled="!!active"
-            :options="[
-              { label: '番茄钟', value: 'pomodoro' },
-              { label: '正计时', value: 'stopwatch' },
-              { label: '休息', value: 'break' },
-            ]"
-            @change="
-              (value) => {
-                mode = value as typeof mode;
-                target =
-                  value === 'break'
-                    ? state.snapshot?.settings.shortBreakMinutes || 5
-                    : state.snapshot?.settings.focusMinutes || 25;
-              }
-            "
-          />
-          <div class="todo-focus-ring" :style="{ '--focus-progress': progress + '%' }">
-            <div>
-              <div class="todo-focus-digits" role="timer" aria-label="专注计时">
-                {{ displayed }}
-              </div>
-              <p>
-                {{
-                  active?.status === 'paused'
-                    ? '已暂停'
-                    : active
-                      ? '只专注眼前这一件事'
-                      : '给一个行动，一段完整的时间'
-                }}
-              </p>
-            </div>
-          </div>
-          <div class="todo-actions">
-            <template v-if="active"
-              ><AButton
-                type="primary"
-                class="todo-button todo-primary"
-                :disabled="state.busy"
-                @click="control(active.status === 'paused' ? 'resume' : 'pause')"
-              >
-                {{ active.status === 'paused' ? '继续' : '暂停' }}</AButton
-              ><AButton
-                type="default"
-                class="todo-button"
-                :disabled="state.busy"
-                @click="control('finish')"
-              >
-                结束并保存</AButton
-              ><AButton
-                type="link"
-                class="todo-link"
-                :disabled="state.busy"
-                @click="control('cancel')"
-              >
-                取消
-              </AButton></template
-            ><AButton
-              type="primary"
-              v-else
-              class="todo-button todo-primary"
-              :disabled="state.busy"
-              @click="start"
-            >
-              开始专注
-            </AButton>
-          </div>
-          <label v-if="!active && mode !== 'stopwatch'" class="todo-inline-label"
-            >本次时长<AInputNumber
-              :value="target"
-              :min="1"
-              :max="1440"
-              aria-label="本次时长"
-              @update:value="target = $event === null || $event === '' ? '' : Number($event)"
-            />分钟</label
-          >
-        </div>
-        <div class="todo-pad todo-form">
-          <label
-            >关联行动<ToDooSelect v-model="chosen" :disabled="!!active">
-              <option value="">不关联任务</option>
-              <option
-                v-for="o in state.snapshot?.occurrences.filter(
-                  (o) => !o.deletedAt && !['done', 'cancelled', 'skipped'].includes(o.status),
-                )"
-                :key="o.id"
-                :value="o.id"
-              >
-                {{ taskName(o.id) }} · {{ o.scheduledDate || o.due?.date || '普通任务' }}
-              </option>
-            </ToDooSelect></label
-          >
-          <p v-if="active" class="todo-muted">正在推进：{{ taskName(active.occurrenceId) }}</p>
-          <label v-if="active"
-            >结束时留下的记录<ATextarea
-              v-model:value="note"
-              :rows="3"
-              placeholder="完成了什么？下一步是什么？"
-            ></ATextarea>
-          </label>
-        </div>
-      </section>
-      <aside class="todo-panel">
-        <div class="todo-panel-header">
-          <h2>今天的专注记录</h2>
-          <span class="todo-badge"
-            >{{ sessions.filter((s) => s.status === 'finished').length }} 次完成</span
-          >
-        </div>
-        <div v-for="s in sessions" :key="s.id" class="todo-saved-row">
-          <span
-            ><strong>{{ taskName(s.occurrenceId) }}</strong
-            ><small
-              >{{
-                new Date(s.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-              }}
-              ·
-              {{
-                {
-                  running: '进行中',
-                  paused: '已暂停',
-                  finished: '已完成',
-                  cancelled: '已取消',
-                  interrupted: '已中断',
-                }[s.status]
-              }}</small
-            ></span
-          ><span>{{ Math.round(focusElapsed(s, tick) / 60) }} 分钟</span
-          ><AButton type="link" class="todo-link" :disabled="state.busy" @click="correct(s)">
-            修正</AButton
-          ><AButton
-            type="link"
-            v-if="s.status === 'interrupted'"
-            class="todo-link"
-            :disabled="state.busy"
-            @click="takeover(s)"
-          >
-            接管计时</AButton
-          ><AButton
-            type="link"
-            class="todo-link"
-            @click="
-              emit('edit', 'record', undefined, {
-                content: s.note,
-                sourceSessionId: s.id,
-                occurrenceId: s.occurrenceId,
-                minutes: Math.round(focusElapsed(s, tick) / 60),
-              })
-            "
-          >
-            记录
-          </AButton>
-        </div>
-        <AEmpty
-          v-if="!sessions.length"
-          class="todo-empty"
-          description="开始第一段专注，记录真实投入。"
-        />
-      </aside></div
-  ></template>
-  <template v-else-if="section === 'habits'"
-    ><div class="todo-calendar-toolbar">
-      <div class="todo-actions">
+  <KeepAlive
+    ><ToDooFocus
+      v-if="section === 'focus'"
+      :model="model"
+      :occurrence-id="occurrenceId"
+      @edit="(kind, entity, seed) => emit('edit', kind, entity, seed)"
+      @task="(id, occurrence) => emit('task', id, occurrence)"
+  /></KeepAlive>
+  <template v-if="section === 'habits'"
+    ><ToDooPageToolbar class="todo-calendar-toolbar">
+      <ASegmented
+        v-model:value="habitPane"
+        aria-label="习惯视图"
+        :options="[
+          { label: '今天', value: 'today' },
+          { label: '历史', value: 'history' },
+        ]"
+      />
+      <span v-if="habitPane === 'today'" class="todo-muted">{{ today }}</span>
+      <div v-else class="todo-actions">
         <AButton type="text" class="todo-icon-button" aria-label="上一周" @click="weekOffset--">
           ‹
         </AButton>
@@ -483,164 +437,175 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
           ›
         </AButton>
       </div>
-      <AButton type="primary" class="todo-button todo-primary" @click="emit('edit', 'habit')">
-        ＋ 新建习惯
-      </AButton>
+    </ToDooPageToolbar>
+    <AAlert v-if="habitError" type="error" :message="habitError" show-icon
+      ><template #action
+        ><AButton @click="loadHabitEntries">重试读取习惯记录</AButton></template
+      ></AAlert
+    >
+    <div v-if="habitPane === 'today'" class="todo-habit-cards" :aria-busy="habitLoading">
+      <ToDooHabitCard
+        v-for="h in habits"
+        :key="h.id"
+        :habit="h"
+        :date="habitToday(h)"
+        :summary="habitSummary(h, habitToday(h))"
+        :amount="amount(h.id, habitToday(h))"
+        :entry-count="entries(h.id, habitToday(h)).length"
+        :skipped="entries(h.id, habitToday(h)).some((entry) => entry.skipped)"
+        :exempt="exemptDay(h, habitToday(h))"
+        :ready="habitReady"
+        :busy="state.busy"
+        :quantity="quantity(h)"
+        :error="quantityErrors[quantityKey(h)]"
+        @update:quantity="
+          quantities[quantityKey(h)] = $event;
+          quantityErrors[quantityKey(h)] = '';
+        "
+        @record="recordToday(h)"
+        @edit="emit('edit', 'habit', h)"
+        @skip="skip(h, habitToday(h))"
+        @undo="undo(h, habitToday(h))"
+        @pause="pauseToday(h)"
+        @statistics="openHabitStatistics(h)"
+      />
+      <AEmpty v-if="!habits.length" description="从一件小事开始，记录每一次积累。" />
     </div>
-    <AAlert
-      class="todo-top-gap"
-      type="info"
-      show-icon
-      message="日历格按当时规则与所属周期累计判断。暂停日免除打卡；跳过按该期规则决定是否中断连续达标。历史未读完时，连续记录仅按已载入数据计算。"
-    />
-    <section class="todo-panel todo-habit-table">
-      <div class="todo-habit-row head">
-        <span>习惯</span
-        ><span v-for="d in days" :key="d"
-          >{{
-            new Date(d + 'T12:00:00Z').toLocaleDateString('zh-CN', {
-              weekday: 'short',
-              timeZone: 'UTC',
-            })
-          }}<small>{{ d.slice(5) }}</small></span
-        >
-      </div>
-      <div v-for="h in habits" :key="h.id" class="todo-habit-row">
-        <div>
-          <AButton type="text" class="todo-task-title" @click="emit('edit', 'habit', h)">
-            {{ h.name }}</AButton
-          ><small
-            >{{ h.target }} {{ h.unit }}/{{
-              { daily: '日', weekly: '周', monthly: '月' }[h.frequency]
-            }}</small
-          ><small
-            >已载入记录：连续 {{ streak(h).current }} 期 · 最长 {{ streak(h).longest }} 期{{
-              streak(h).estimated ? '（含估算）' : ''
-            }}</small
-          ><AButton
-            type="link"
-            class="todo-link todo-small"
-            @click="
-              model.saveEntity(
-                'habit',
-                {
-                  ...h,
-                  pausedDates: h.pausedDates.includes(today)
-                    ? h.pausedDates.filter((d) => d !== today)
-                    : [...h.pausedDates, today],
-                },
-                h.revision,
-              )
-            "
+    <template v-else>
+      <AAlert
+        class="todo-top-gap"
+        type="info"
+        show-icon
+        message="点击日期补记或调整记录。周／月累计请在“今天”查看。"
+      />
+      <section class="todo-panel todo-habit-table">
+        <div class="todo-habit-row head">
+          <span>习惯</span
+          ><span v-for="d in days" :key="d"
+            >{{
+              new Date(d + 'T12:00:00Z').toLocaleDateString('zh-CN', {
+                weekday: 'short',
+                timeZone: 'UTC',
+              })
+            }}<small>{{ d.slice(5) }}</small></span
           >
-            {{ h.pausedDates.includes(today) ? '恢复今天' : '暂停今天' }}
-          </AButton>
         </div>
-        <div v-for="d in days" :key="d" class="todo-habit-cell">
-          <button
-            type="button"
-            class="todo-habit-check"
-            :class="{ checked: habitSummary(h, d).status === 'achieved' }"
-            :disabled="
-              state.busy || d > today || habitSummary(h, d).status === 'inactive' || exemptDay(h, d)
-            "
-            :title="
-              habitSummary(h, d).start +
-              ' 至 ' +
-              habitSummary(h, d).endExclusive +
-              '（不含）：' +
-              habitSummary(h, d).amount +
-              '/' +
-              habitSummary(h, d).target +
-              ' ' +
-              habitSummary(h, d).rule.unit +
-              (habitSummary(h, d).estimated ? '（历史规则估算）' : '')
-            "
-            :aria-label="h.name + ' ' + d + ' 打卡，当前 ' + amount(h.id, d) + ' ' + h.unit"
-            @click="checkin(h, d)"
-          >
-            {{
-              exemptDay(h, d)
-                ? '–'
-                : habitSummary(h, d).status === 'achieved'
-                  ? '✓'
-                  : habitSummary(h, d).status === 'skipped'
-                    ? '跳'
-                    : amount(h.id, d) || '＋'
-            }}</button
-          ><AButton
-            type="link"
-            v-if="
-              !entries(h.id, d).length &&
-              d <= today &&
-              !exemptDay(h, d) &&
-              habitSummary(h, d).status !== 'inactive'
-            "
-            class="todo-link todo-small"
-            :disabled="state.busy"
-            :aria-label="'跳过 ' + h.name + ' ' + d"
-            @click="skip(h, d)"
-          >
-            跳过</AButton
-          ><AButton
-            type="link"
-            v-if="entries(h.id, d).length"
-            class="todo-link todo-small"
-            :aria-label="'撤销 ' + h.name + ' ' + d"
-            @click="undo(h, d)"
-          >
-            撤销
-          </AButton>
+        <div v-for="h in habits" :key="h.id" class="todo-habit-row">
+          <div>
+            <AButton type="text" class="todo-task-title" @click="emit('edit', 'habit', h)">
+              {{ h.name }}</AButton
+            ><small>{{ formatHabitSchedule(getHabitRule(h, habitToday(h))) }}</small>
+          </div>
+          <div v-for="d in days" :key="d" class="todo-habit-cell">
+            <button
+              type="button"
+              class="todo-habit-check"
+              :class="{
+                checked:
+                  getHabitRule(h, d).frequency === 'daily' &&
+                  habitSummary(h, d).status === 'achieved',
+              }"
+              :disabled="
+                state.busy || !habitReady || d > today || habitSummary(h, d).status === 'inactive'
+              "
+              :title="
+                habitSummary(h, d).start +
+                ' 至 ' +
+                habitSummary(h, d).endExclusive +
+                '（不含）：' +
+                habitSummary(h, d).amount +
+                '/' +
+                habitSummary(h, d).target +
+                ' ' +
+                habitSummary(h, d).rule.unit +
+                (habitSummary(h, d).estimated ? '（历史规则估算）' : '')
+              "
+              :aria-label="
+                h.name + ' ' + d + ' 打卡，当前 ' + amount(h.id, d) + ' ' + getHabitRule(h, d).unit
+              "
+              @click="checkin(h, d)"
+            >
+              {{
+                exemptDay(h, d)
+                  ? '–'
+                  : (getHabitGoalMode(getHabitRule(h, d)) === 'checkin' && amount(h.id, d) > 0) ||
+                      (getHabitRule(h, d).frequency === 'daily' &&
+                        habitSummary(h, d).status === 'achieved')
+                    ? '✓'
+                    : entries(h.id, d).some((entry) => entry.skipped)
+                      ? '跳'
+                      : amount(h.id, d) || '＋'
+              }}
+            </button>
+          </div>
         </div>
-      </div>
-      <AEmpty
-        v-if="!habits.length"
-        class="todo-empty"
-        description="让一个小行动重复发生，习惯以真实数量记录，中断一天也可以继续。"
-      >
-        <AButton type="default" class="todo-button" @click="emit('edit', 'habit')"
-          >新建习惯</AButton
+        <AEmpty
+          v-if="!habits.length"
+          class="todo-empty"
+          description="让一个小行动重复发生，习惯以真实数量记录，中断一天也可以继续。"
         >
-      </AEmpty>
-    </section></template
+          <AButton type="default" class="todo-button" @click="emit('edit', 'habit')"
+            >新建习惯</AButton
+          >
+        </AEmpty>
+      </section></template
+    ></template
   >
-  <template v-else
-    ><div class="todo-section-title">
-      <p class="todo-muted">重要日期与计数方式分别保存，农历日期按所选农历年月日计算。</p>
-      <AButton type="primary" class="todo-button todo-primary" @click="emit('edit', 'anniversary')">
-        ＋ 新建纪念日
-      </AButton>
-    </div>
-    <div class="todo-anniversaries">
-      <article v-for="a in anniversaries" :key="a.entity.id" class="todo-anniversary todo-panel">
-        <div class="todo-between">
-          <span class="todo-badge">{{ a.entity.category || '重要日子' }}</span
-          ><AButton
-            type="text"
-            class="todo-icon-button"
-            :aria-label="'编辑 ' + a.entity.name"
-            @click="emit('edit', 'anniversary', a.entity)"
+  <template v-else-if="section === 'anniversaries'">
+    <section v-for="group in anniversaryGroups" :key="group.id" class="todo-anniversary-group">
+      <ToDooSectionHeader :title="group.label" />
+      <div class="todo-anniversaries">
+        <article v-for="a in group.items" :key="a.entity.id" class="todo-anniversary todo-panel">
+          <div class="todo-between todo-anniversary-heading">
+            <span v-if="a.entity.category" class="todo-badge">{{ a.entity.category }}</span
+            ><AButton
+              type="text"
+              class="todo-icon-button"
+              :aria-label="'编辑 ' + a.entity.name"
+              @click="emit('edit', 'anniversary', a.entity)"
+            >
+              ⋯
+            </AButton>
+          </div>
+          <h2>{{ a.entity.name }}</h2>
+          <p class="todo-days" v-if="a.next">
+            <small>{{ a.next >= today ? '还有' : '已经' }}</small
+            >{{ distance(a.next, a.entity) }}<small>天</small>
+          </p>
+          <p v-else class="todo-muted">暂未找到下一次日期，请检查闰月设置</p>
+          <p v-if="a.entity.calendar === 'lunar'" class="todo-muted">
+            农历原日期：{{ a.entity.date }}{{ a.entity.lunarLeapMonth ? '（闰月）' : '' }}
+          </p>
+          <p v-if="a.next" class="todo-muted">下次公历：{{ a.next }}</p>
+          <details
+            v-if="
+              a.entity.repeatYearly ||
+              a.entity.description ||
+              a.entity.noteRefs.length ||
+              a.entity.reminders.length ||
+              (a.entity.calendar !== 'lunar' && a.entity.date !== a.next)
+            "
+            class="todo-anniversary-details"
           >
-            ⋯
-          </AButton>
-        </div>
-        <h2>{{ a.entity.name }}</h2>
-        <p class="todo-days" v-if="a.next">
-          <small>{{ a.next >= today ? '还有' : '已经' }}</small
-          >{{ distance(a.next, a.entity) }}<small>天</small>
-        </p>
-        <p v-else class="todo-muted">暂未找到下一次日期，请检查闰月设置</p>
-        <p class="todo-muted">
-          {{ a.next || a.entity.date }} · {{ a.entity.calendar === 'lunar' ? '农历' : '公历'
-          }}{{ a.entity.repeatYearly ? ' · 每年重复' : '' }}
-        </p>
-        <p v-if="a.entity.description">{{ a.entity.description }}</p>
-        <div class="todo-actions">
-          <span class="todo-badge">{{ a.entity.noteRefs.length }} 份关联资料</span
-          ><span class="todo-badge">{{ a.entity.reminders.length }} 个提醒</span>
-        </div>
-      </article>
-    </div>
+            <summary :aria-label="a.entity.name + ' · 查看详情'">查看详情</summary>
+            <div class="todo-anniversary-details-content">
+              <p v-if="a.entity.calendar !== 'lunar' && a.entity.date !== a.next" class="todo-muted">
+                公历原日期：{{ a.entity.date }}
+              </p>
+              <p v-if="a.entity.repeatYearly" class="todo-muted">每年重复</p>
+              <p v-if="a.entity.description">{{ a.entity.description }}</p>
+              <div v-if="a.entity.noteRefs.length || a.entity.reminders.length" class="todo-actions">
+                <span v-if="a.entity.noteRefs.length" class="todo-badge"
+                  >{{ a.entity.noteRefs.length }} 份关联资料</span
+                ><span v-if="a.entity.reminders.length" class="todo-badge"
+                  >{{ a.entity.reminders.length }} 个提醒</span
+                >
+              </div>
+            </div>
+          </details>
+        </article>
+      </div>
+    </section>
     <AEmpty
       v-if="!anniversaries.length"
       class="todo-empty todo-panel"
@@ -652,10 +617,46 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
     </AEmpty></template
   >
   <AModal
+    :open="!!statisticsHabit"
+    :title="(statisticsHabit?.name || '') + ' · 连续记录'"
+    :footer="null"
     wrap-class-name="todo-ant-modal"
-    :open="!!numericDialog"
-    :title="numericDialog?.kind === 'habit' ? '记录习惯数量' : '修正实际专注时间'"
-    ok-text="保存"
+    @cancel="closeHabitStatistics"
+  >
+    <p v-if="statisticsLoading" role="status">正在读取全部记录…</p>
+    <AAlert v-if="statisticsError" type="error" :message="statisticsError" show-icon />
+    <div v-if="habitStatistics" class="todo-form">
+      <p>已读取 {{ habitStatistics.count }} 条记录 · 截至 {{ habitStatistics.date }}</p>
+      <p>
+        当前连续 {{ habitStatistics.streak.current }} 期 · 最长连续
+        {{ habitStatistics.streak.longest }} 期
+      </p>
+      <p class="todo-muted todo-small">
+        按记录当天的规则和日／周／月周期计算；暂停与跳过使用当期规则。
+      </p>
+      <AAlert
+        v-if="habitStatistics.streak.estimated"
+        type="info"
+        :message="
+          habitStatistics.streak.truncated
+            ? '超过 5000 个周期，连续结果仅供参考'
+            : '旧记录缺少完整规则版本，结果包含历史规则估算'
+        "
+      />
+    </div>
+    <AButton
+      v-if="statisticsError && statisticsHabit"
+      :loading="statisticsLoading"
+      @click="openHabitStatistics(statisticsHabit)"
+      >重新读取连续记录</AButton
+    >
+  </AModal>
+  <AModal
+    wrap-class-name="todo-ant-modal"
+    :open="clockActive && !!numericDialog"
+    :title="ordinaryDialog ? '习惯打卡' : '记录习惯数量'"
+    :ok-text="ordinaryDialog ? (dialogRecorded ? '已打卡' : '打卡') : '保存'"
+    :ok-button-props="{ disabled: !!dialogExempt || (ordinaryDialog && !!dialogRecorded) }"
     cancel-text="取消"
     :confirm-loading="state.busy"
     :cancel-button-props="{ disabled: state.busy }"
@@ -670,18 +671,80 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
         {{ numericDialog.habit.name }} · {{ numericDialog.date }} ·
         {{ getHabitRule(numericDialog.habit, numericDialog.date).unit }}
       </p>
-      <label
-        >{{ numericDialog?.kind === 'habit' ? '本次数量' : '实际分钟数' }}
+      <p v-if="dialogExempt" class="todo-muted">这一天无需记录。</p>
+      <p v-else-if="ordinaryDialog">
+        {{ dialogRecorded ? '这一天已打卡。' : '完成后记录一次打卡。' }}
+      </p>
+      <label v-else
+        >本次新增
         <AInputNumber
           :value="numericValue"
           :min="0"
-          :disabled="state.busy"
-          :aria-label="numericDialog?.kind === 'habit' ? '习惯数量' : '实际专注分钟数'"
+          :disabled="state.busy || !!dialogExempt"
+          aria-label="习惯数量"
           autofocus
           @update:value="numericValue = $event === null || $event === '' ? '' : Number($event)"
         />
       </label>
+      <div v-if="numericDialog" class="todo-actions">
+        <AButton
+          v-if="entries(numericDialog.habit.id, numericDialog.date).length"
+          type="link"
+          :disabled="state.busy"
+          @click="adjustHistory('undo')"
+          >撤销当天记录</AButton
+        >
+        <AButton
+          v-else-if="!dialogExempt"
+          type="link"
+          :disabled="state.busy"
+          @click="adjustHistory('skip')"
+          >跳过这一天</AButton
+        >
+        <AButton
+          v-if="!dialogExempt || numericDialog.habit.pausedDates.includes(numericDialog.date)"
+          type="link"
+          :disabled="state.busy"
+          @click="adjustHistory('rest')"
+          >{{
+            numericDialog.habit.pausedDates.includes(numericDialog.date)
+              ? '恢复这一天'
+              : '这一天休息'
+          }}</AButton
+        >
+      </div>
+      <small v-if="numericDialog && !dialogExempt" class="todo-muted"
+        >休息不影响连续记录；跳过按习惯的跳过规则计算。</small
+      >
       <AAlert v-if="numericError" type="error" show-icon :message="numericError" />
     </form>
   </AModal>
 </template>
+
+<style scoped>
+.todo-anniversary-heading > .ant-btn {
+  margin-left: auto;
+}
+.todo-anniversary-details {
+  margin-top: auto;
+  color: var(--todo-muted);
+  font-size: 12px;
+}
+.todo-anniversary-details summary {
+  cursor: pointer;
+  width: fit-content;
+}
+.todo-anniversary-details summary:focus-visible {
+  outline: 2px solid var(--todo-accent);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+.todo-anniversary-details-content {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--todo-line);
+  color: var(--todo-ink);
+}
+</style>

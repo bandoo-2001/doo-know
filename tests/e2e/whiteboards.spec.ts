@@ -1,5 +1,6 @@
 import { test, expect } from '../support/browser-test';
 import { readFile } from 'node:fs/promises';
+import {createHash} from 'node:crypto';
 test.setTimeout(90000);
 test.use({ actionTimeout: 7000 });
 test.beforeEach(async ({ context }) => {
@@ -8,7 +9,7 @@ test.beforeEach(async ({ context }) => {
 async function create(page: import('@playwright/test').Page, fileName: string, content: string) {
   const csrf = await (await page.request.get('/api/security/csrf')).json();
   const r = await page.request.post('/api/notes', {
-    headers: { origin: 'http://127.0.0.1:4179', 'x-csrf-token': csrf.token },
+    headers: { origin: 'http://127.0.0.1:' + String(process.env.DOOKNOW_E2E_WEB_PORT || 4179), 'x-csrf-token': csrf.token },
     data: { folderPath: '00-Inbox', fileName, content, requestId: crypto.randomUUID() },
   });
   expect(r.status(), await r.text()).toBe(201);
@@ -43,7 +44,7 @@ test('新建白板进入完整设计页，实际绘图保存后刷新可重新�
   const dialog = page.getByRole('dialog', { name: '新建白板', exact: true });
   await dialog.getByLabel('文件名', { exact: true }).fill('浏览器白板-' + crypto.randomUUID());
   await dialog.getByRole('button', { name: '创建', exact: true }).click();
-  const workspace = page.getByTestId('whiteboard-workspace');
+  const workspace = page.getByTestId('diagram-document-workspace');
   await expect(workspace).toBeVisible();
   const canvas = workspace.locator('canvas.interactive');
   await expect(canvas).toBeVisible({ timeout: 30000 });
@@ -56,22 +57,24 @@ test('新建白板进入完整设计页，实际绘图保存后刷新可重新�
   await page.mouse.down();
   await page.mouse.move(x + Math.min(120, box.width * 0.25), y + 90, { steps: 8 });
   await page.mouse.up();
-  await workspace.getByRole('button', { name: '保存白板', exact: true }).click();
-  await expect(workspace.locator('.whiteboard-status')).toContainText('已保存');
+  await workspace.getByRole('button', { name: '保存图形', exact: true }).click();
+  await expect(workspace.getByRole('status')).toContainText('已保存');
   const id = new URL(page.url()).searchParams.get('note')!;
   await expect
     .poll(
       async () =>
-        JSON.parse((await (await page.request.get('/api/notes/' + id)).json()).content).elements
+        JSON.parse((await (await page.request.get('/api/notes/' + id+'/diagram')).json()).source.content).elements
           .length,
     )
     .toBeGreaterThan(0);
+  const main=await(await page.request.get('/api/notes/'+id)).json();
+  expect(main.relativePath).toMatch(/\.md$/);expect(main.content).toContain('dooknow:document');
   await page.reload();
-  await expect(page.getByTestId('whiteboard-workspace').locator('canvas.interactive')).toBeVisible({
+  await expect(page.getByTestId('diagram-document-workspace').locator('canvas.interactive')).toBeVisible({
     timeout: 30000,
   });
   await expect(
-    page.getByTestId('whiteboard-workspace').locator('.whiteboard-status'),
+    page.getByTestId('diagram-document-workspace').getByRole('status'),
   ).toContainText('已保存');
 });
 
@@ -105,7 +108,7 @@ test('Mermaid 显示流程图并能转换为独立可编辑白板副本', async 
   await expect(diagram.locator('.diagram-image > svg')).toBeVisible({ timeout: 30000 });
   await expect(diagram.locator('.diagram-image')).toContainText('开始');
   await diagram.getByRole('button', { name: '转换为白板', exact: true }).click();
-  await expect(page.getByTestId('whiteboard-workspace').locator('canvas.interactive')).toBeVisible({
+  await expect(page.getByTestId('diagram-document-workspace').locator('canvas.interactive')).toBeVisible({
     timeout: 30000,
   });
   await page.getByRole('button', { name: '返回笔记', exact: true }).click();
@@ -154,7 +157,7 @@ test('外部修改与自动保存冲突时保留磁盘版本，下载草稿后�
     appState: { viewBackgroundColor: '#fff3bf' },
   });
   const changed = await page.request.put('/api/notes/' + board.id, {
-    headers: { origin: 'http://127.0.0.1:4179', 'x-csrf-token': csrf.token },
+    headers: { origin: 'http://127.0.0.1:' + String(process.env.DOOKNOW_E2E_WEB_PORT || 4179), 'x-csrf-token': csrf.token },
     data: {
       content: external,
       expectedModifiedAt: board.modifiedAt,
@@ -207,13 +210,16 @@ test('分享白板和笔记内引用只读展示且取消分享后无法再读�
     '# 分享说明\n\n```excalidraw\n' + board.id + '\n```\n',
   );
   const csrf = await (await page.request.get('/api/security/csrf')).json();
-  const headers = { origin: 'http://127.0.0.1:4179', 'x-csrf-token': csrf.token };
+  const headers = { origin: 'http://127.0.0.1:' + String(process.env.DOOKNOW_E2E_WEB_PORT || 4179), 'x-csrf-token': csrf.token };
+  const sourceHash=createHash('sha256').update(board.content).digest('hex');
+  const prepared=await page.request.post('/api/notes/'+board.id+'/diagram/legacy-preview',{headers,data:{expectedDocumentHash:sourceHash,expectedSourceHash:sourceHash,pngBase64:'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a7i8AAAAASUVORK5CYII=',renderer:'excalidraw@0.18.1+dooknow@1',config:{},requestId:crypto.randomUUID()}});
+  expect(prepared.status(),await prepared.text()).toBe(200);
   const share = await (
     await page.request.post('/api/notes/' + note.id + '/share', { headers })
   ).json();
   await context.clearCookies();
   await page.goto('/s/' + share.token);
-  await expect(page.locator('.reader-layout .diagram-image > svg')).toBeVisible({ timeout: 30000 });
+  await expect(page.locator('.reader-layout img').first()).toBeVisible({ timeout: 30000 });
   await expect(page.getByRole('button', { name: '编辑设计', exact: true })).toHaveCount(0);
   const asset = '/api/public/shares/' + share.token + '/whiteboards/' + board.id;
   expect((await page.request.get(asset)).status()).toBe(200);
@@ -260,7 +266,7 @@ test('深色主题切换会重新绘制 Mermaid，白板画布和操作栏保持
   const externalRequests: string[] = [];
   page.on('request', (request) => {
     const url = new URL(request.url());
-    if (/^https?:$/.test(url.protocol) && url.origin !== 'http://127.0.0.1:4179')
+    if (/^https?:$/.test(url.protocol) && url.origin !== 'http://127.0.0.1:' + String(process.env.DOOKNOW_E2E_WEB_PORT || 4179))
       externalRequests.push(request.url());
   });
   const note = await create(
@@ -282,13 +288,13 @@ test('深色主题切换会重新绘制 Mermaid，白板画布和操作栏保持
     .locator('.preview-panel .diagram-card')
     .getByRole('button', { name: '转换为白板', exact: true })
     .click();
-  const workspace = page.getByTestId('whiteboard-workspace');
+  const workspace = page.getByTestId('diagram-document-workspace');
   await expect(workspace.locator('canvas.interactive')).toBeVisible({ timeout: 30000 });
   await expect(workspace.locator('.excalidraw')).toHaveClass(/theme--dark/);
-  const bounds = await workspace.locator('.whiteboard-header').boundingBox();
+  const bounds = await workspace.locator('header.note-header').boundingBox();
   expect(bounds!.x).toBeGreaterThanOrEqual(0);
   expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(await page.evaluate(() => innerWidth));
-  await expect(workspace.getByRole('button', { name: '保存白板', exact: true })).toBeInViewport();
+  await expect(workspace.getByRole('button', { name: '保存图形', exact: true })).toBeInViewport();
   await expect(page.locator('.toast')).toHaveCount(0, { timeout: 6000 });
   await page.screenshot({
     path: '.local/whiteboards/' + info.project.name + '-dark-preview.png',

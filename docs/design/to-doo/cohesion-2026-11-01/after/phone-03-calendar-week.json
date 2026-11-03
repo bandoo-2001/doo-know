@@ -1,0 +1,15 @@
+{
+  "phase": "after",
+  "fixedTime": "2026-10-30T09:00:00.000Z",
+  "screenshots": [
+    {
+      "id": "03-calendar-week",
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "label": "周日历",
+      "file": "phone-03-calendar-week.png",
+      "overflow": 0
+    }
+  ]
+}

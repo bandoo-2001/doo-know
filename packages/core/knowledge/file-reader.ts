@@ -52,3 +52,15 @@ export function sameFile(
 ) {
   return a.dev === b.dev && a.ino === b.ino && a.mtimeNs === b.mtimeNs && a.size === b.size;
 }
+
+export function fileVersionStamp(s: {
+  dev: bigint;
+  ino: bigint;
+  size: bigint;
+  mtimeNs: bigint;
+  ctimeNs: bigint;
+}) {
+  return createHash('sha256')
+    .update([s.dev, s.ino, s.size, s.mtimeNs, s.ctimeNs].join(':'))
+    .digest('hex');
+}

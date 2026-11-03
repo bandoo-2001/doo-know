@@ -1,0 +1,125 @@
+{
+  "device": {
+    "id": "desktop",
+    "width": 1440,
+    "height": 1000,
+    "theme": "light"
+  },
+  "id": "timeline",
+  "fixedTime": "2026-10-30T09:00:00.000Z",
+  "report": [
+    {
+      "tag": "DIV",
+      "className": "ant-picker todo-ant-date css-xjeq",
+      "text": "",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "6px",
+      "color": "rgb(230, 233, 241)",
+      "parent": "todo-calendar-date"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-timeline todo-panel",
+      "text": "任务 / 计划与截止10-3011-0611-1311-20整理项目的下一步工作与创造09",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "8px",
+      "color": "rgb(230, 233, 241)",
+      "parent": "todo-content"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-timeline-row todo-timeline-header",
+      "text": "任务 / 计划与截止10-3011-0611-1311-20",
+      "borders": [
+        "0px",
+        "0px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(101, 112, 132) rgb(101, 112, 132) rgb(230, 233, 241)",
+      "parent": "todo-timeline todo-panel"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-timeline-row",
+      "text": "整理项目的下一步工作与创造09:00 ◆",
+      "borders": [
+        "0px",
+        "0px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(39, 43, 58) rgb(230, 233, 241)",
+      "parent": "todo-timeline todo-panel"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-timeline-row",
+      "text": "梳理本周的阅读计划保持阅读与学习未安排",
+      "borders": [
+        "0px",
+        "0px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(39, 43, 58) rgb(230, 233, 241)",
+      "parent": "todo-timeline todo-panel"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-timeline-row",
+      "text": "回复合作伙伴的反馈工作与创造未安排",
+      "borders": [
+        "0px",
+        "0px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(39, 43, 58) rgb(230, 233, 241)",
+      "parent": "todo-timeline todo-panel"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-timeline-row",
+      "text": "整理一份读书笔记保持阅读与学习未安排",
+      "borders": [
+        "0px",
+        "0px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(39, 43, 58) rgb(230, 233, 241)",
+      "parent": "todo-timeline todo-panel"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-timeline-row",
+      "text": "完成一章阅读与练习保持阅读与学习未安排",
+      "borders": [
+        "0px",
+        "0px",
+        "0px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58)",
+      "parent": "todo-timeline todo-panel"
+    }
+  ],
+  "focus": []
+}

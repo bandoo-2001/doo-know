@@ -1,0 +1,629 @@
+{
+  "device": {
+    "id": "desktop",
+    "width": 1440,
+    "height": 1000,
+    "theme": "light"
+  },
+  "id": "calendar-month",
+  "fixedTime": "2026-10-30T09:00:00.000Z",
+  "report": [
+    {
+      "tag": "DIV",
+      "className": "ant-picker todo-ant-date css-xjeq",
+      "text": "",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "6px",
+      "color": "rgb(230, 233, 241)",
+      "parent": "todo-calendar-date"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day outside",
+      "text": "28",
+      "borders": [
+        "0px",
+        "1px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(230, 233, 241) rgb(230, 233, 241) rgb(39, 43, 58)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day outside",
+      "text": "29",
+      "borders": [
+        "0px",
+        "1px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(230, 233, 241) rgb(230, 233, 241) rgb(39, 43, 58)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day outside",
+      "text": "30",
+      "borders": [
+        "0px",
+        "1px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(230, 233, 241) rgb(230, 233, 241) rgb(39, 43, 58)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day",
+      "text": "1",
+      "borders": [
+        "0px",
+        "1px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(230, 233, 241) rgb(230, 233, 241) rgb(39, 43, 58)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day",
+      "text": "2",
+      "borders": [
+        "0px",
+        "1px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(230, 233, 241) rgb(230, 233, 241) rgb(39, 43, 58)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day",
+      "text": "3",
+      "borders": [
+        "0px",
+        "1px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(230, 233, 241) rgb(230, 233, 241) rgb(39, 43, 58)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day",
+      "text": "4",
+      "borders": [
+        "0px",
+        "0px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(39, 43, 58) rgb(230, 233, 241)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day",
+      "text": "5",
+      "borders": [
+        "0px",
+        "1px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(230, 233, 241) rgb(230, 233, 241) rgb(39, 43, 58)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day",
+      "text": "6",
+      "borders": [
+        "0px",
+        "1px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(230, 233, 241) rgb(230, 233, 241) rgb(39, 43, 58)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day",
+      "text": "7",
+      "borders": [
+        "0px",
+        "1px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(230, 233, 241) rgb(230, 233, 241) rgb(39, 43, 58)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day",
+      "text": "8",
+      "borders": [
+        "0px",
+        "1px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(230, 233, 241) rgb(230, 233, 241) rgb(39, 43, 58)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day",
+      "text": "9",
+      "borders": [
+        "0px",
+        "1px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(230, 233, 241) rgb(230, 233, 241) rgb(39, 43, 58)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day",
+      "text": "10",
+      "borders": [
+        "0px",
+        "1px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(230, 233, 241) rgb(230, 233, 241) rgb(39, 43, 58)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day",
+      "text": "11",
+      "borders": [
+        "0px",
+        "0px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(39, 43, 58) rgb(230, 233, 241)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day",
+      "text": "12",
+      "borders": [
+        "0px",
+        "1px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(230, 233, 241) rgb(230, 233, 241) rgb(39, 43, 58)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day",
+      "text": "13",
+      "borders": [
+        "0px",
+        "1px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(230, 233, 241) rgb(230, 233, 241) rgb(39, 43, 58)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day",
+      "text": "14",
+      "borders": [
+        "0px",
+        "1px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(230, 233, 241) rgb(230, 233, 241) rgb(39, 43, 58)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day",
+      "text": "15",
+      "borders": [
+        "0px",
+        "1px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(230, 233, 241) rgb(230, 233, 241) rgb(39, 43, 58)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day",
+      "text": "16",
+      "borders": [
+        "0px",
+        "1px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(230, 233, 241) rgb(230, 233, 241) rgb(39, 43, 58)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day",
+      "text": "17",
+      "borders": [
+        "0px",
+        "1px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(230, 233, 241) rgb(230, 233, 241) rgb(39, 43, 58)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day",
+      "text": "18",
+      "borders": [
+        "0px",
+        "0px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(39, 43, 58) rgb(230, 233, 241)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day",
+      "text": "19",
+      "borders": [
+        "0px",
+        "1px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(230, 233, 241) rgb(230, 233, 241) rgb(39, 43, 58)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day",
+      "text": "20",
+      "borders": [
+        "0px",
+        "1px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(230, 233, 241) rgb(230, 233, 241) rgb(39, 43, 58)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day",
+      "text": "21",
+      "borders": [
+        "0px",
+        "1px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(230, 233, 241) rgb(230, 233, 241) rgb(39, 43, 58)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day",
+      "text": "22",
+      "borders": [
+        "0px",
+        "1px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(230, 233, 241) rgb(230, 233, 241) rgb(39, 43, 58)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day",
+      "text": "23",
+      "borders": [
+        "0px",
+        "1px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(230, 233, 241) rgb(230, 233, 241) rgb(39, 43, 58)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day",
+      "text": "24",
+      "borders": [
+        "0px",
+        "1px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(230, 233, 241) rgb(230, 233, 241) rgb(39, 43, 58)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day",
+      "text": "25",
+      "borders": [
+        "0px",
+        "0px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(39, 43, 58) rgb(230, 233, 241)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day",
+      "text": "26",
+      "borders": [
+        "0px",
+        "1px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(230, 233, 241) rgb(230, 233, 241) rgb(39, 43, 58)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day",
+      "text": "27",
+      "borders": [
+        "0px",
+        "1px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(230, 233, 241) rgb(230, 233, 241) rgb(39, 43, 58)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day",
+      "text": "28",
+      "borders": [
+        "0px",
+        "1px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(230, 233, 241) rgb(230, 233, 241) rgb(39, 43, 58)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day",
+      "text": "2914:00 梳理本周的阅读计划",
+      "borders": [
+        "0px",
+        "1px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(230, 233, 241) rgb(230, 233, 241) rgb(39, 43, 58)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day is-today",
+      "text": "3009:00 整理项目的下一步15:00 公开课：如何保持专注 · 只读",
+      "borders": [
+        "0px",
+        "1px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(230, 233, 241) rgb(230, 233, 241) rgb(39, 43, 58)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day",
+      "text": "3117:00 散步与放空 ◆ 整理项目的下一步◇ 家人的生日",
+      "borders": [
+        "0px",
+        "1px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(230, 233, 241) rgb(230, 233, 241) rgb(39, 43, 58)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day outside",
+      "text": "1",
+      "borders": [
+        "0px",
+        "0px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(39, 43, 58) rgb(230, 233, 241)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day outside",
+      "text": "2",
+      "borders": [
+        "0px",
+        "1px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(230, 233, 241) rgb(230, 233, 241) rgb(39, 43, 58)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day outside",
+      "text": "3",
+      "borders": [
+        "0px",
+        "1px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(230, 233, 241) rgb(230, 233, 241) rgb(39, 43, 58)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day outside",
+      "text": "4",
+      "borders": [
+        "0px",
+        "1px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(230, 233, 241) rgb(230, 233, 241) rgb(39, 43, 58)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day outside",
+      "text": "5",
+      "borders": [
+        "0px",
+        "1px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(230, 233, 241) rgb(230, 233, 241) rgb(39, 43, 58)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day outside",
+      "text": "6",
+      "borders": [
+        "0px",
+        "1px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(230, 233, 241) rgb(230, 233, 241) rgb(39, 43, 58)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day outside",
+      "text": "7",
+      "borders": [
+        "0px",
+        "1px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(230, 233, 241) rgb(230, 233, 241) rgb(39, 43, 58)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-month-day outside",
+      "text": "8",
+      "borders": [
+        "0px",
+        "0px",
+        "1px",
+        "0px"
+      ],
+      "radius": "0px",
+      "color": "rgb(39, 43, 58) rgb(39, 43, 58) rgb(230, 233, 241)",
+      "parent": "todo-month"
+    },
+    {
+      "tag": "DIV",
+      "className": "todo-calendar-habits todo-panel",
+      "text": "每日习惯↻ 阅读 · 20 页/日↻ 运动 · 3 次/周↻ 练习英语 · 15 分钟/日",
+      "borders": [
+        "1px",
+        "1px",
+        "1px",
+        "1px"
+      ],
+      "radius": "9px",
+      "color": "rgb(230, 233, 241)",
+      "parent": "todo-content"
+    }
+  ],
+  "focus": []
+}

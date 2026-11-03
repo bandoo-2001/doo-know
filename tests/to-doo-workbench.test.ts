@@ -2,13 +2,15 @@ import { describe, expect, test, vi } from 'vitest';
 import {
   createToDooWorkbench,
   deriveToDooItems,
-  nextToDooAnniversary,
   toDooDisplayTime,
   parseToDooQuickEntry,
   toDooOutcomeResumeInput,
   toDooDependencies,
   toDooMoveBlock,
+  focusElapsed,
 } from '../apps/web/to-doo-workbench';
+import { toDooAnniversaryDate as nextToDooAnniversary } from '../shared/to-doo-anniversaries';
+import { toDooDraftPayload } from '../apps/web/to-doo-presentation';
 import {
   TO_DOO_COLLECTIONS,
   toDooEntitySchemas,
@@ -16,6 +18,92 @@ import {
   type ToDooSnapshot,
   type ToDooCollections,
 } from '../shared/to-doo-contracts';
+
+test.each([
+  ['paused', 300],
+  ['interrupted', 300],
+  ['running', 900],
+] as const)('focus display only extends an open segment while %s', (status, seconds) => {
+  const session = toDooEntitySchemas.focusSession.parse({
+    id: 'clock',
+    revision: 'clock-r1',
+    createdAt: '2026-10-30T11:00:00Z',
+    updatedAt: '2026-10-30T11:00:00Z',
+    mode: 'stopwatch',
+    status,
+    segments: [
+      { start: '2026-10-30T11:00:00Z', end: '2026-10-30T11:05:00Z' },
+      { start: '2026-10-30T11:50:00Z', end: null },
+    ],
+  });
+  expect(focusElapsed(session, Date.parse('2026-10-30T12:00:00Z'))).toBe(seconds);
+});
+
+test('filtered child results hydrate ancestor metadata without adding ancestor rows to the result set', async () => {
+  const data = snapshot();
+  const parent = { ...data.tasks[0]!, sectionId: 'group-a' };
+  const child = {
+    ...parent,
+    id: 'child-only',
+    title: '匹配子任务',
+    sectionId: null,
+    parentTaskId: parent.id,
+  };
+  data.tasks = [child];
+  data.occurrences = [{ ...data.occurrences[0], id: 'child-occurrence', taskId: child.id }];
+  const reads: string[] = [];
+  const model = createToDooWorkbench(async (url) => {
+    reads.push(url);
+    return url.includes('ids=task-a') ? { ...data, tasks: [parent], occurrences: [] } : data;
+  });
+  model.state.filter = { query: '匹配子任务' };
+  await model.load({ view: 'tasks', filter: model.state.filter });
+  expect(model.taskDefinitions().find((task) => task.id === parent.id)?.sectionId).toBe('group-a');
+  expect(model.state.snapshot?.tasks.map((task) => task.id)).toEqual(['child-only']);
+  expect(model.items().map((row) => row.task.id)).toEqual(['child-only']);
+  expect(reads.some((url) => url.includes('ids=task-a') && !url.includes('includeTree'))).toBe(
+    true,
+  );
+  model.acceptSnapshot({ ...data, datasetId: 'another-dataset' });
+  expect(model.taskDefinitions().some((task) => task.id === parent.id)).toBe(false);
+});
+
+test('a scoped task page loads alternative lists as metadata without replacing its visible result set', async () => {
+  const data = snapshot();
+  const current = toDooEntitySchemas.list.parse({ ...stamp, id: 'current-list', name: '当前清单' });
+  const other = toDooEntitySchemas.list.parse({ ...stamp, id: 'other-list', name: '另一清单' });
+  data.lists = [current];
+  const model = createToDooWorkbench(async (url) =>
+    url.includes('kind=list') ? { ...data, lists: [current, other] } : data,
+  );
+  model.acceptSnapshot(data);
+  await model.ensureListCatalog();
+  expect(model.taskLists().map((list) => list.id)).toEqual(['current-list', 'other-list']);
+  expect(model.state.snapshot?.lists.map((list) => list.id)).toEqual(['current-list']);
+  model.acceptSnapshot({ ...data, datasetId: 'another-library' });
+  expect(model.taskLists().map((list) => list.id)).toEqual(['current-list']);
+});
+
+test('saving a new task does not erase a group change made while the request was pending', async () => {
+  const data = snapshot();
+  let release!: () => void;
+  const wait = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const model = createToDooWorkbench(async (_url, method = 'GET') => {
+    if (method === 'GET') return data;
+    await wait;
+    return { snapshot: data, ids: [], changed: [] };
+  });
+  model.acceptSnapshot(data);
+  const draft = model.newTaskDraft();
+  Object.assign(draft, { title: '保留新分组', sectionId: 'group-a' });
+  const saving = model.createTask(toDooDraftPayload(draft, 'UTC'));
+  draft.sectionId = 'group-b';
+  release();
+  await saving;
+  expect(model.newTaskDraft()).toMatchObject({ title: '保留新分组', sectionId: 'group-b' });
+});
 
 const stamp = {
   id: 'task-a',
@@ -35,6 +123,7 @@ function snapshot(): ToDooSnapshot {
     outcomes: [],
     records: [],
     activities: [],
+    focusTopics: [],
     focusSessions: [],
     habits: [],
     habitEntries: [],
@@ -205,6 +294,410 @@ async function domainStatusFixture() {
   };
 }
 describe('To Doo workbench', () => {
+  test.each(['done', 'todo'] as const)(
+    'changing status to %s preserves dirty detail edits without undoing the status on save',
+    async (status) => {
+      const f = await domainStatusFixture();
+      try {
+        const task = f.create('Dirty status', { due: { date: '2026-10-30' } });
+        if (status === 'todo') {
+          const occurrence = f.service.snapshot({ taskIds: [task.id] }).occurrences[0]!;
+          f.service.command({
+            requestId: crypto.randomUUID(),
+            action: 'set_occurrence_status',
+            payload: { id: occurrence.id, expectedRevision: occurrence.revision, status: 'done' },
+          });
+        }
+        const model = createToDooWorkbench(f.request);
+        await model.load();
+        model.selectTask(task.id);
+        const occurrenceId = model.draft()!.occurrence!.id;
+        model.draft()!.task.description = 'Unsaved explanation';
+        model.draft()!.occurrence!.due!.date = '2026-10-31';
+
+        await model.setStatus(occurrenceId, status);
+
+        const remote = f.service.snapshot({ taskIds: [task.id] }).occurrences[0]!;
+        expect(remote.status).toBe(status);
+        expect(model.draft()?.occurrence?.status).toBe(status);
+        expect(model.draft()?.occurrence?.revision).toBe(remote.revision);
+        expect(model.draft()?.occurrence?.completedAt).toBe(remote.completedAt);
+        expect(model.draft()?.task.description).toBe('Unsaved explanation');
+        expect(model.draft()?.occurrence?.due?.date).toBe('2026-10-31');
+        expect(model.dirty()).toBe(true);
+
+        await model.saveTask();
+
+        expect(model.state.error).toBe('');
+        const saved = f.service.snapshot({ taskIds: [task.id] });
+        expect(saved.tasks[0]?.description).toBe('Unsaved explanation');
+        expect(saved.occurrences[0]?.due?.date).toBe('2026-10-31');
+        expect(saved.occurrences[0]?.status).toBe(status);
+        expect(model.dirty()).toBe(false);
+      } finally {
+        await f.close();
+      }
+    },
+  );
+  test('completion refreshes its dirty execution after another cycle is selected', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const task = f.create('Dirty recurring status', {
+        due: { date: '2026-10-29' },
+        recurrence: {
+          id: 'dirty-status-cycles',
+          frequency: 'daily',
+          anchorDate: '2026-10-29',
+          count: 2,
+          timeZone: 'UTC',
+        },
+      });
+      let release!: () => void;
+      const waiting = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        if (method === 'POST') await waiting;
+        return f.request(url, method, body);
+      });
+      await model.load();
+      const first = model.state.snapshot!.occurrences.find(
+          (o) => o.taskId === task.id && o.scheduledDate === '2026-10-29',
+        )!,
+        next = model.state.snapshot!.occurrences.find(
+          (o) => o.taskId === task.id && o.scheduledDate === '2026-10-30',
+        )!;
+      model.selectTask(task.id, first.id);
+      model.draft()!.occurrence!.due!.date = '2026-11-01';
+      const completing = model.setStatus(first.id, 'done');
+      model.selectTask(task.id, next.id);
+      model.draft()!.occurrence!.due!.date = '2026-11-02';
+      const nextRevision = model.draft()!.occurrence!.revision;
+      release();
+      await completing;
+
+      expect(model.state.selectedOccurrenceId).toBe(next.id);
+      expect(model.draft()?.occurrence?.status).toBe('todo');
+      expect(model.draft()?.occurrence?.revision).toBe(nextRevision);
+      expect(model.draft()?.occurrence?.due?.date).toBe('2026-11-02');
+      expect(model.dirty()).toBe(true);
+      model.selectTask(task.id, first.id);
+      expect(model.draft()?.occurrence?.status).toBe('done');
+      expect(model.draft()?.occurrence?.due?.date).toBe('2026-11-01');
+      await model.saveTask();
+      expect(model.state.error).toBe('');
+      const saved = f.service.snapshot({ taskIds: [task.id] });
+      expect(saved.occurrences.find((o) => o.id === first.id)?.status).toBe('done');
+      expect(saved.occurrences.find((o) => o.id === next.id)?.status).toBe('todo');
+    } finally {
+      await f.close();
+    }
+  });
+  test('an explicit execution ID cannot pair a task with another task execution', async () => {
+    const data = snapshot();
+    data.tasks.push({ ...data.tasks[0]!, id: 'task-b', title: 'Another task' });
+    data.occurrences.push({ ...data.occurrences[0]!, id: 'occ-b', taskId: 'task-b' });
+    const model = createToDooWorkbench(transport(data).request);
+    await model.load();
+    model.selectTask('task-a', 'occ-b');
+    expect(model.draft()?.occurrence?.id).toBe('occ-a');
+    expect(model.state.selectedOccurrenceId).toBe('occ-a');
+  });
+  test('finishing a task save preserves a different execution selected during the request', async () => {
+    const data = snapshot();
+    data.occurrences.push({ ...data.occurrences[0]!, id: 'occ-next', scheduledDate: '2026-10-31' });
+    const server = transport(data);
+    let release!: () => void;
+    const waiting = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+      if (method === 'POST') await waiting;
+      return server.request(url, method, body);
+    });
+    await model.load();
+    model.selectTask('task-a', 'occ-a');
+    model.draft()!.task.title = 'Updated title';
+    const saving = model.saveTask();
+    model.selectTask('task-a', 'occ-next');
+    release();
+    await saving;
+    expect(model.state.selectedOccurrenceId).toBe('occ-next');
+    expect(model.draft()?.occurrence?.id).toBe('occ-next');
+  });
+  test('execution edits typed during a save retain current revisions for the next save', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const task = f.create('Draft dates', { due: { date: '2026-10-30' } });
+      let release!: () => void;
+      const waiting = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      let delayed = true;
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        if (method === 'POST' && delayed) {
+          delayed = false;
+          await waiting;
+        }
+        return f.request(url, method, body);
+      });
+      await model.load();
+      model.selectTask(task.id);
+      model.draft()!.occurrence!.due!.date = '2026-10-31';
+      const saving = model.saveTask();
+      model.draft()!.occurrence!.due!.date = '2026-11-01';
+      release();
+      await saving;
+      expect(model.draft()?.occurrence?.due?.date).toBe('2026-11-01');
+      expect(model.dirty()).toBe(true);
+      await model.saveTask();
+      expect(model.state.error).toBe('');
+      expect(f.service.snapshot({ taskIds: [task.id] }).occurrences[0]?.due?.date).toBe(
+        '2026-11-01',
+      );
+      expect(model.dirty()).toBe(false);
+    } finally {
+      await f.close();
+    }
+  });
+  test('retrying a partially saved detail uses the committed execution revision', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const task = f.create('Partial dates', {
+        due: { date: '2026-10-30' },
+        plan: { date: '2026-10-30', time: '09:00', timeZone: 'UTC' },
+      });
+      let rejectBlock = true;
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        const command = body as { action?: string; payload?: { kind?: string } } | undefined;
+        if (
+          command?.action === 'save_entity' &&
+          command.payload?.kind === 'timeBlock' &&
+          rejectBlock
+        ) {
+          rejectBlock = false;
+          throw Object.assign(Error('计划时间尚未保存'), { status: 400 });
+        }
+        return f.request(url, method, body);
+      });
+      await model.load();
+      model.selectTask(task.id);
+      model.draft()!.occurrence!.due!.date = '2026-10-31';
+      model.draft()!.blocks[0]!.start.time = '10:00';
+      await model.saveTask();
+      expect(model.state.error).toBe('计划时间尚未保存');
+      await model.saveTask();
+      expect(model.state.error).toBe('');
+      const remote = f.service.snapshot({ taskIds: [task.id] });
+      expect(remote.occurrences[0]?.due?.date).toBe('2026-10-31');
+      expect(remote.timeBlocks[0]?.start.time).toBe('10:00');
+      expect(model.dirty()).toBe(false);
+    } finally {
+      await f.close();
+    }
+  });
+  test.each([false, true])(
+    'a time-block save refreshes its execution revision while preserving a later due edit (lost reply: %s)',
+    async (loseReply) => {
+      const f = await domainStatusFixture();
+      try {
+        const task = f.create('Block and later deadline', {
+          due: { date: '2026-10-30' },
+          plan: { date: '2026-10-30', time: '09:00', timeZone: 'UTC' },
+        });
+        let release!: () => void;
+        const waiting = new Promise<void>((resolve) => {
+          release = resolve;
+        });
+        let delayed = true;
+        const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+          if (method === 'POST' && delayed) {
+            delayed = false;
+            await waiting;
+          }
+          const result = await f.request(url, method, body),
+            command = body as { action?: string; payload?: { kind?: string } } | undefined;
+          if (
+            loseReply &&
+            command?.action === 'save_entity' &&
+            command.payload?.kind === 'timeBlock'
+          ) {
+            loseReply = false;
+            throw Error('计划已提交但回复丢失');
+          }
+          return result;
+        });
+        await model.load();
+        model.selectTask(task.id);
+        model.draft()!.blocks[0]!.start.time = '10:00';
+        const saving = model.saveTask();
+        model.draft()!.occurrence!.due!.date = '2026-10-31';
+        release();
+        await saving;
+        if (model.state.pendingMutation) await model.retryPending();
+        expect(model.draft()?.occurrence?.due?.date).toBe('2026-10-31');
+        await model.saveTask();
+        expect(model.state.error).toBe('');
+        const remote = f.service.snapshot({ taskIds: [task.id] });
+        expect(remote.occurrences[0]?.due?.date).toBe('2026-10-31');
+        expect(remote.timeBlocks[0]?.start.time).toBe('10:00');
+        expect(model.dirty()).toBe(false);
+      } finally {
+        await f.close();
+      }
+    },
+  );
+  test('saving an execution edit before its new recurrence protects the edited cycle from replacement', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const task = f.create('Repeat with edited deadline', {
+        recurrence: {
+          id: 'rule-original',
+          frequency: 'daily',
+          anchorDate: '2026-10-30',
+          count: 2,
+          timeZone: 'UTC',
+        },
+      });
+      const model = createToDooWorkbench(f.request);
+      await model.load();
+      model.selectTask(task.id);
+      const originalId = model.draft()!.occurrence!.id;
+      model.draft()!.task.recurrence!.interval = 2;
+      model.draft()!.occurrence!.due!.date = '2026-11-01';
+      await model.saveTask();
+      expect(model.state.error).toBe('');
+      const remote = f.service.snapshot({ taskIds: [task.id] });
+      expect(remote.occurrences.filter((o) => !o.deletedAt)).toHaveLength(2);
+      expect(remote.occurrences.find((o) => o.id === originalId)).toMatchObject({
+        deletedAt: null,
+        due: { date: '2026-11-01' },
+        manuallyEdited: true,
+      });
+      expect(
+        remote.occurrences.filter((o) => !o.deletedAt && o.scheduledDate === '2026-10-30'),
+      ).toHaveLength(1);
+      expect(model.dirty()).toBe(false);
+    } finally {
+      await f.close();
+    }
+  });
+  test('reconciling a lost execution-save reply makes the remaining detail safely saveable', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const task = f.create('Uncertain dates', {
+        due: { date: '2026-10-30' },
+        plan: { date: '2026-10-30', time: '09:00', timeZone: 'UTC' },
+      });
+      let loseReply = true;
+      const model = createToDooWorkbench(async (url, method = 'GET', body) => {
+        const result = await f.request(url, method, body),
+          command = body as { action?: string; payload?: { kind?: string } } | undefined;
+        if (
+          command?.action === 'save_entity' &&
+          command.payload?.kind === 'occurrence' &&
+          loseReply
+        ) {
+          loseReply = false;
+          throw Error('执行内容已提交但回复丢失');
+        }
+        return result;
+      });
+      await model.load();
+      model.selectTask(task.id);
+      model.draft()!.occurrence!.due!.date = '2026-10-31';
+      model.draft()!.blocks[0]!.start.time = '10:00';
+      await model.saveTask();
+      expect(model.state.pendingMutation?.action).toBe('save_entity');
+      await model.retryPending();
+      expect(model.state.pendingMutation).toBeNull();
+      await model.saveTask();
+      expect(model.state.error).toBe('');
+      expect(f.service.snapshot({ taskIds: [task.id] }).timeBlocks[0]?.start.time).toBe('10:00');
+      expect(model.dirty()).toBe(false);
+    } finally {
+      await f.close();
+    }
+  });
+  test('overdue filtering follows the displayed local date of a timed deadline', () => {
+    const data = snapshot();
+    data.settings.timeZone = 'America/Los_Angeles';
+    data.occurrences[0]!.due = { date: '2026-10-30', time: '01:00', timeZone: 'UTC' };
+    expect(deriveToDooItems(data, { dueBefore: '2026-10-29' })).toHaveLength(1);
+  });
+  test('saving cleared optional recurrence fields leaves a clean normalized draft', async () => {
+    const f = await domainStatusFixture();
+    try {
+      const task = f.create('Repeat without an end', {
+        recurrence: { id: 'no-end', frequency: 'daily', anchorDate: '2026-10-30', timeZone: 'UTC' },
+      });
+      const model = createToDooWorkbench(f.request);
+      await model.load();
+      model.selectTask(task.id);
+      model.draft()!.task.recurrence!.until = '';
+      await model.saveTask();
+      expect(model.state.error).toBe('');
+      expect(model.draft()?.task.recurrence?.until).toBeNull();
+      expect(model.dirty()).toBe(false);
+    } finally {
+      await f.close();
+    }
+  });
+  test('an old pending-operation response cannot enter a different dataset', async () => {
+    let current = snapshot(),
+      finish!: (value: ToDooSnapshot) => void;
+    const model = createToDooWorkbench(async (url) =>
+      url.includes('kind=operation')
+        ? new Promise<ToDooSnapshot>((resolve) => {
+            finish = resolve;
+          })
+        : structuredClone(current),
+    );
+    await model.load();
+    const loading = model.loadPendingOperations();
+    current = { ...snapshot(), datasetId: 'other-dataset' };
+    await model.load();
+    const old = snapshot();
+    old.operations.push(
+      toDooEntitySchemas.operation.parse({
+        ...stamp,
+        id: 'private-operation',
+        kind: 'outcome_note',
+        occurrenceId: 'occ-a',
+        requestId: 'private-request',
+        fingerprint: 'private-fingerprint',
+        expectedRevision: 'r1',
+        title: 'Private title',
+        folderPath: '00-Inbox',
+        fileName: 'private.md',
+        content: 'Private content',
+        state: 'prepared',
+      }),
+    );
+    finish(old);
+    await loading;
+    expect(model.state.snapshot?.datasetId).toBe('other-dataset');
+    expect(model.state.pendingOperations).toEqual([]);
+    expect(model.state.operationPage).toBeNull();
+  });
+  test('a stale detail failure cannot replace the current dataset error state', async () => {
+    let current = snapshot(),
+      fail!: (reason: Error) => void;
+    const model = createToDooWorkbench(async (url) =>
+      url.includes('taskIds=')
+        ? new Promise<ToDooSnapshot>((_resolve, reject) => {
+            fail = reject;
+          })
+        : structuredClone(current),
+    );
+    await model.load();
+    const loading = model.ensureTask('task-a');
+    current = { ...snapshot(), datasetId: 'other-dataset' };
+    await model.load();
+    fail(Error('旧资料库已无法连接'));
+    await loading;
+    expect(model.state.error).toBe('');
+  });
   test('a second client finishing today cannot redirect a frozen current batch onto tomorrow', async () => {
     const f = await domainStatusFixture();
     try {
@@ -723,6 +1216,37 @@ describe('To Doo workbench', () => {
     await model.batch('complete');
     expect(model.state.error).toBe('');
     expect(model.state.snapshot?.occurrences.map((o) => o.status)).toEqual(['done', 'done']);
+  });
+  test('a task menu operation reads descendant revisions without changing the active multi-selection', async () => {
+    const data = snapshot();
+    data.tasks.push({
+      ...data.tasks[0]!,
+      id: 'task-child',
+      revision: 'child-r2',
+      parentTaskId: 'task-a',
+    });
+    const commands: any[] = [];
+    const model = createToDooWorkbench(async (_url, method = 'GET', body) => {
+      if (method !== 'GET') commands.push(toDooCommandSchema.parse(body));
+      return method === 'GET'
+        ? data
+        : { snapshot: data, ids: ['copy'], changed: [], requestId: 'menu' };
+    });
+    model.acceptSnapshot(data);
+    model.state.selectedIds = ['someone-else'];
+    await model.batchTasks(['task-a'], 'copy');
+    expect(model.state.selectedIds).toEqual(['someone-else']);
+    expect(commands).toMatchObject([
+      {
+        action: 'batch_tasks',
+        payload: {
+          ids: ['task-a'],
+          operation: 'copy',
+          includeDescendants: true,
+          expectedRevisions: { 'task-a': 'r1', 'task-child': 'child-r2' },
+        },
+      },
+    ]);
   });
   test('yearly anniversaries honor leap-day policy without rolling into a different month', () => {
     const anniversary = toDooEntitySchemas.anniversary.parse({

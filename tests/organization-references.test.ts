@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import { markdown } from '../packages/core/render.js';
 import { rewriteLibraryReferences } from '../packages/core/organization/references.js';
 
 describe('lossless organization references', () => {
@@ -128,4 +129,36 @@ describe('lossless organization references', () => {
       ).content,
     ).toBe('[x](New/a.md&#35;part) [y](New/a.md?x=1&amp;y=2)');
   });
+});
+it('rebases legacy Excalidraw path references while preserving ordinary fenced code and UUID references', () => {
+  const before =
+    '```excalidraw\n../Topic/board.excalidraw\n```\n\n```text\n../Topic/board.excalidraw\n```\n';
+  const after = rewriteLibraryReferences(before, '00-Inbox/note.md', 'Topic/note.md', [
+    { from: 'Topic/board.excalidraw', to: 'Topic/renamed.excalidraw' },
+  ]);
+  expect(after.content).toBe(
+    '```excalidraw\nrenamed.excalidraw\n```\n\n```text\n../Topic/board.excalidraw\n```\n',
+  );
+});
+
+it.each([
+  ['', '😀 [x](Notes/a.md)\r\n'],
+  ['---\nexample: "😀 [x](Notes/a.md)"\n---\n', '\n[x](Notes/a.md)'],
+  ['\uFEFF---\r\nexample: "😀 [x](Notes/a.md)"\r\n...\r\n', '\r\n[x](Notes/a.md)'],
+])('preserves parser offsets and original frontmatter when rewriting %j', (prefix, body) => {
+  const input = prefix + body;
+  const parse = vi.spyOn(markdown, 'parse');
+  try {
+    const output = rewriteLibraryReferences(input, 'index.md', 'index.md', [
+      { from: 'Notes', to: 'New' },
+    ]).content;
+    expect(output).toBe(prefix + body.replace('Notes/a.md', 'New/a.md'));
+    const projection = parse.mock.calls[0][0];
+    expect(projection.length).toBe(input.length);
+    expect(projection.slice(prefix.length)).toBe(body);
+    for (let i = 0; i < prefix.length; i++)
+      expect(projection[i]).toBe(/[\r\n]/.test(prefix[i]) ? prefix[i] : ' ');
+  } finally {
+    parse.mockRestore();
+  }
 });

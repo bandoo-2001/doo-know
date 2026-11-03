@@ -1,3 +1,6 @@
+import { diagramOperationPreviewNeeds } from '../knowledge/diagram-operation-preview-pages.js';
+import { planNativeLinkChanges } from '../knowledge/native-link-plans.js';
+import { diagramOperationPreviewRegistry } from '../knowledge/diagram-operation-previews.js';
 import { randomUUID } from 'node:crypto';
 import { basename, dirname, join } from 'node:path';
 import { readFileSync, existsSync, rmSync, lstatSync } from 'node:fs';
@@ -45,10 +48,12 @@ import {
   readBody,
   inventory,
   sameIdentity,
+  sameEvidence,
   type OrganizationManifest,
   type Change,
 } from './plan.js';
 import { rewriteLibraryReferences } from './references.js';
+import { planDiagramRelocation, type DiagramRelocation } from '../knowledge/diagram-relocation.js';
 import { organizationResponseFits, assertOrganizationReceiptFits } from './response-budget.js';
 import {
   stageOrganization,
@@ -249,14 +254,24 @@ export function organizationService(config: AppConfig, db: AppDatabase, notes: N
       result.undoAvailable =
         !!result.undoAvailable && !row.cleaned && !row.undo_id && row.expires_at > Date.now();
     }
+    let previewRequired: OrganizationOperation['previewRequired'];
+    if (row.status === 'awaiting_preview') {
+      previewRequired = diagramOperationPreviewNeeds(config, db, p, { operationId: row.id });
+    }
     return {
+      ...(previewRequired ? { previewRequired } : {}),
       operationId: row.id,
       requestId: row.request_id,
       kind: row.kind,
       status: row.status,
       ...(result ? { result } : {}),
       ...(row.error
-        ? { error: { code: row.error, retryable: row.status === 'needs_reconciliation' } }
+        ? {
+            error: {
+              code: previewRequired ? 'DIAGRAM_PREVIEW_REQUIRED' : row.error,
+              retryable: row.status === 'needs_reconciliation',
+            },
+          }
         : {}),
     };
   }
@@ -332,19 +347,32 @@ export function organizationService(config: AppConfig, db: AppDatabase, notes: N
         : (error as any)?.code === 'ENOSPC'
           ? 'INSUFFICIENT_STORAGE'
           : 'ORGANIZATION_FAILED';
-    const next =
-      status === 'cancelled'
+    const preview =
+      error instanceof KnowledgeError &&
+      error.code === 'DIAGRAM_PREVIEW_REQUIRED' &&
+      Array.isArray(error.details.documents);
+    const next = preview
+      ? 'awaiting_preview'
+      : status === 'cancelled'
         ? 'cancelled'
         : ['committing', 'needs_reconciliation'].includes(status)
           ? 'needs_reconciliation'
           : 'failed';
+    const storedError = preview
+      ? JSON.stringify({
+          status: 409,
+          retryable: false,
+          code,
+          details: (error as KnowledgeError).details,
+        })
+      : code;
     db.transaction(() => {
       db.prepare(
         'UPDATE organization_jobs SET status=?,error=?,finished_at=?,owner_pid=NULL,owner_start=NULL WHERE id=?',
-      ).run(next, code, Date.now(), id);
+      ).run(next, storedError, Date.now(), id);
       db.prepare('UPDATE operations SET status=?,error=?,updated_at=? WHERE id=?').run(
         next,
-        code,
+        storedError,
         Date.now(),
         id,
       );
@@ -363,8 +391,12 @@ export function organizationService(config: AppConfig, db: AppDatabase, notes: N
       const path = published && object.kind !== 'remove_directory' ? object.to : object.from;
       if (object.kind === 'file') {
         const row = object.note
-          ? db.prepare('SELECT path FROM notes WHERE id=? AND active=1').get(object.id) as { path: string } | undefined
-          : db.prepare('SELECT path FROM assets WHERE id=?').get(object.id) as { path: string } | undefined;
+          ? (db.prepare('SELECT path FROM notes WHERE id=? AND active=1').get(object.id) as
+              | { path: string }
+              | undefined)
+          : (db.prepare('SELECT path FROM assets WHERE id=?').get(object.id) as
+              | { path: string }
+              | undefined);
         if (!row || row.path !== path) fail(409, 'UNDO_CONFLICT');
       } else if (object.kind === 'remove_directory' || object.business) {
         if (resolveDirectory(db, object.id)?.path !== path) fail(409, 'UNDO_CONFLICT');
@@ -374,19 +406,33 @@ export function organizationService(config: AppConfig, db: AppDatabase, notes: N
   function revalidate(p: Principal, manifest: OrganizationManifest) {
     if (manifest.undoOf) {
       checkUndoIdentities(manifest.objects);
-      const current = db.prepare('SELECT id,path FROM notes WHERE active=1').all() as { id: string; path: string }[];
+      const current = db.prepare('SELECT id,path FROM notes WHERE active=1').all() as {
+        id: string;
+        path: string;
+      }[];
       const expected = new Map(manifest.coverage.map(({ id, path }) => [id, path]));
-      if (current.length !== expected.size || current.some((note) => expected.get(note.id) !== note.path))
+      if (
+        current.length !== expected.size ||
+        current.some((note) => expected.get(note.id) !== note.path)
+      )
         fail(409, 'UNDO_CONFLICT');
       for (const object of manifest.objects) {
         if (object.kind === 'file') {
           const owner = object.note
-            ? db.prepare('SELECT id FROM notes WHERE path=? AND active=1 AND id<>?').get(object.to, object.id)
+            ? db
+                .prepare('SELECT id FROM notes WHERE path=? AND active=1 AND id<>?')
+                .get(object.to, object.id)
             : db.prepare('SELECT id FROM assets WHERE path=? AND id<>?').get(object.to, object.id);
           if (owner) fail(409, 'UNDO_CONFLICT');
-        } else if (object.kind === 'directory' && object.business &&
-          db.prepare('SELECT id FROM organization_directories WHERE library_id=? AND path=? AND active=1 AND id<>?')
-            .get(manifest.libraryId, object.to, object.id)) {
+        } else if (
+          object.kind === 'directory' &&
+          object.business &&
+          db
+            .prepare(
+              'SELECT id FROM organization_directories WHERE library_id=? AND path=? AND active=1 AND id<>? AND id<>?',
+            )
+            .get(manifest.libraryId, object.to, object.id, object.replacesDirectoryId ?? '')
+        ) {
           fail(409, 'UNDO_CONFLICT');
         }
       }
@@ -404,8 +450,35 @@ export function organizationService(config: AppConfig, db: AppDatabase, notes: N
     )
       fail(409, 'UNDO_CONFLICT');
     const old = JSON.parse(original.manifest) as OrganizationManifest;
+    const retryPayload = JSON.parse(
+      (db.prepare('SELECT payload FROM organization_jobs WHERE id=?').get(id) as any).payload,
+    );
+    const previewPaths: string[] = retryPayload.diagramPreviewPaths ?? [];
     try {
-      if (outputInventory(config, old) !== old.outputInventory) fail(409, 'UNDO_CONFLICT');
+      if (outputInventory(config, old) !== old.outputInventory) {
+        // Exact new preparation files may change their containing directory's timestamps.
+        // Preserve original file identity/mtime/hash checks and the complete remaining tree.
+        if (
+          !previewPaths.length ||
+          outputInventory(config, old, true, new Set(previewPaths)) !== old.outputContentInventory
+        )
+          fail(409, 'UNDO_CONFLICT');
+        for (const object of old.objects) {
+          if (object.kind === 'file') {
+            if (
+              !object.published ||
+              !sameEvidence(evidence(join(config.knowledgeRoot, object.to)), object.published) ||
+              sha256(readFileSync(join(config.knowledgeRoot, object.to))) !== object.afterHash
+            )
+              fail(409, 'UNDO_CONFLICT');
+          } else if (
+            object.kind === 'directory' &&
+            (!object.published ||
+              !sameIdentity(evidence(join(config.knowledgeRoot, object.to)), object.published))
+          )
+            fail(409, 'UNDO_CONFLICT');
+        }
+      }
     } catch {
       fail(409, 'UNDO_CONFLICT');
     }
@@ -445,7 +518,14 @@ export function organizationService(config: AppConfig, db: AppDatabase, notes: N
         const current = evidence(join(config.knowledgeRoot, o.to));
         if (!o.published || !sameIdentity(current, o.published)) fail(409, 'UNDO_CONFLICT');
         if (o.from) {
-          if (existsSync(join(config.knowledgeRoot, o.from))) fail(409, 'UNDO_CONFLICT');
+          const retained = old.retainedDirectories?.find((d) => d.path === o.from);
+          const existing = existsSync(join(config.knowledgeRoot, o.from));
+          if (
+            existing &&
+            (!retained ||
+              !sameIdentity(evidence(join(config.knowledgeRoot, o.from)), retained.before))
+          )
+            fail(409, 'UNDO_CONFLICT');
           objects.push({
             kind: 'directory',
             id: o.id,
@@ -453,6 +533,12 @@ export function organizationService(config: AppConfig, db: AppDatabase, notes: N
             from: o.to,
             to: o.from,
             before: current,
+            ...(existing && retained
+              ? {
+                  existingTarget: retained.before,
+                  ...(retained.directoryId ? { replacesDirectoryId: retained.directoryId } : {}),
+                }
+              : {}),
           });
           permissions.push(
             { path: o.to, scope: 'knowledge:organize' },
@@ -468,7 +554,35 @@ export function organizationService(config: AppConfig, db: AppDatabase, notes: N
     const inverseMoves = old.changes
       .filter((c) => c.from && c.type.startsWith('move_'))
       .map((c) => ({ from: c.to, to: c.from! }));
+    inverseMoves.push(...(old.retainedResources ?? []).map((r) => ({ from: r.path, to: r.path })));
+    for (const path of previewPaths) {
+      const move = inverseMoves.find((m) => path === m.from || path.startsWith(m.from + '/'));
+      if (!move || objects.some((o) => o.kind === 'file' && o.from === path)) continue;
+      const asset = db.prepare('SELECT id FROM assets WHERE path=?').get(path) as
+        | { id: string }
+        | undefined;
+      if (!asset) fail(409, 'UNDO_CONFLICT');
+      const before = evidence(
+        join(config.knowledgeRoot, path),
+        sha256(readFileSync(join(config.knowledgeRoot, path))),
+      );
+      objects.push({
+        kind: 'file',
+        id: asset.id,
+        note: false,
+        from: path,
+        to: move.to + path.slice(move.from.length),
+        before,
+        afterHash: before.hash!,
+      });
+      permissions.push(
+        { path, scope: 'knowledge:read' },
+        { path: move.to + path.slice(move.from.length), scope: 'knowledge:write' },
+      );
+    }
+    const native = planNativeLinkChanges(config, db, p, inverseMoves);
     let readBytes = 0;
+    const diagrams: DiagramRelocation[] = [];
     const coverage = (
       db.prepare('SELECT id,path FROM notes WHERE active=1 ORDER BY path').all() as any[]
     ).map((n) => {
@@ -486,6 +600,29 @@ export function organizationService(config: AppConfig, db: AppDatabase, notes: N
         inverseMoves,
         n.path.endsWith('.excalidraw'),
       );
+      const change = objects.find((o) => o.kind === 'file' && o.note && o.id === n.id);
+      if (change && change.kind === 'file' && native.has(n.id)) {
+        change.afterContent = native.get(n.id)!.content;
+        change.afterHash = sha256(change.afterContent);
+      }
+      const finalContent =
+        change && change.kind === 'file' ? (change.afterContent ?? b.content) : b.content;
+      const diagram =
+        destination !== n.path || finalContent !== b.content
+          ? planDiagramRelocation(
+              config,
+              db,
+              n.id,
+              b.content,
+              finalContent,
+              n.path,
+              destination,
+              inverseMoves,
+              undefined,
+              native.get(n.id)?.primary,
+            )
+          : undefined;
+      if (diagram) diagrams.push(diagram);
       if (rewritten.changed && !objects.some((o) => o.kind === 'file' && o.id === n.id))
         fail(409, 'UNDO_CONFLICT');
       return { path: n.path, id: n.id, hash: b.hash, evidence: b.evidence };
@@ -499,6 +636,11 @@ export function organizationService(config: AppConfig, db: AppDatabase, notes: N
       graphRevision: sha256(JSON.stringify(coverage.map((c) => [c.id, c.path, c.hash]))),
       inventory: inventory(config),
       coverage,
+      diagrams,
+      retainedResources: old.retainedResources,
+      legacyPreviews: [...native].flatMap(([noteId, v]) =>
+        v.legacy ? [{ noteId, manifest: v.legacy }] : [],
+      ),
       objects,
       permissions,
       undoOf: old.operationId,
@@ -643,6 +785,46 @@ export function organizationService(config: AppConfig, db: AppDatabase, notes: N
     }
     return { kind: 'accepted', operation: operation(p, { operationId: op.operation.id }) };
   }
+  async function resume(
+    p: Principal,
+    input: { operationId: string },
+    recheck?: () => Principal,
+  ): Promise<OrganizationReply> {
+    p = projected(p);
+    requireOrganization(p);
+    const row = rowFor(p, input);
+    if (row.status === 'awaiting_preview') {
+      const details = JSON.parse(row.error).details as NonNullable<
+        OrganizationOperation['previewRequired']
+      >;
+      const registry = diagramOperationPreviewRegistry(config, db, p);
+      const diagramPreviewPaths: string[] = [];
+      for (const document of details.documents) {
+        const snapshot = registry.get(document.snapshotId);
+        if ((snapshot.input.context as any)?.inventory !== inventory(config))
+          fail(409, 'STRUCTURE_VERSION_CONFLICT');
+        const prepared = registry.prepared(document.snapshotId);
+        if (!prepared) fail(409, 'DIAGRAM_PREVIEW_REQUIRED', undefined, false, details);
+        diagramPreviewPaths.push(
+          prepared.preview.relativePath,
+          ...(prepared.source ? [prepared.source.relativePath] : []),
+        );
+      }
+      db.transaction(() => {
+        const payload = JSON.parse(
+          (db.prepare('SELECT payload FROM organization_jobs WHERE id=?').get(row.id) as any)
+            .payload,
+        );
+        db.prepare(
+          "UPDATE organization_jobs SET status='queued',error=NULL,payload=? WHERE id=? AND status='awaiting_preview'",
+        ).run(JSON.stringify({ ...payload, diagramPreviewPaths }), row.id);
+        db.prepare("UPDATE operations SET status='queued',error=NULL WHERE id=?").run(row.id);
+      }).immediate();
+      if (recheck) callbacks.set(row.id, recheck);
+      schedule(row.id);
+    }
+    return { kind: 'accepted', operation: operation(p, input) };
+  }
   function cancel(p: Principal, input: { operationId: string }) {
     const row = rowFor(p, input);
     if (
@@ -735,6 +917,7 @@ export function organizationService(config: AppConfig, db: AppDatabase, notes: N
     undo,
     operation,
     cancel,
+    resume,
     recover,
     cleanup,
     drain,

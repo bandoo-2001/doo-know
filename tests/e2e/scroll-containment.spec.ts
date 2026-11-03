@@ -46,18 +46,31 @@ for (const compact of [false, true]) {
   test(`${compact ? 'short' : 'normal'} windows keep long directory scrolling below the sidebar controls`, async ({
     page,
   }, info) => {
+    if (compact) {
+      // Full-suite users can have both Git and plugin actions in this footer.
+      await page.route('**/api/platform/plugins', (route) => route.fulfill({ json: {
+        catalog: [], installed: [],
+        contributions: ['云端同步', '提交全部变更'].map((title, index) => ({
+          id: 'scroll-tool-' + index, pluginId: 'scroll-fixture',
+          slot: 'navigation', title, command: 'scroll-tool-' + index,
+        })),
+      } }));
+    }
     await page.setViewportSize(
       info.project.name === 'mobile'
         ? { width: compact ? 568 : 390, height: compact ? 320 : 844 }
         : { width: compact ? 844 : 1890, height: compact ? 390 : 1000 },
     );
     await page.goto('/?folder=empty');
+    await expect(page.locator('.folder-view')).toBeVisible();
+    await expect(page.locator('.main-content')).toHaveAttribute('aria-busy', 'false');
     await showSidebar(page);
     await page.getByRole('button', { name: '展开 长目录', exact: true }).click();
     const sidebar = page.locator('.sidebar'),
       tree = page.locator('.tree-scroll');
     const last = tree.getByRole('button', { name: names.at(-1)!, exact: true });
     await expect(last).toBeAttached();
+    if (compact) await expect(page.getByRole('button', { name: '提交全部变更', exact: true })).toBeVisible();
     const original = await page.locator('.sidebar > .brand').boundingBox();
     await expect
       .poll(() => sidebar.evaluate((el) => el.scrollHeight - el.clientHeight))
@@ -120,6 +133,9 @@ test('native scrollbars share the active appearance while directory and settings
   for (const theme of ['light', 'dark'] as const) {
     await page.emulateMedia({ colorScheme: theme });
     await page.goto('/?folder=long');
+    // Initial folder navigation dismisses the drawer once its tree is ready.
+    await expect(page.locator('.folder-view')).toBeVisible();
+    await expect(page.locator('.main-content')).toHaveAttribute('aria-busy', 'false');
     await showSidebar(page);
     await page.getByRole('button', { name: '展开 长目录', exact: true }).click();
     await expect(page.locator('html')).toHaveAttribute('data-theme', theme);

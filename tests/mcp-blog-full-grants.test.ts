@@ -19,12 +19,12 @@ async function fixture(actions: string[]) {
   } };
   const ceiling: PermissionPolicy = { ...policy, domains: { ...policy.domains, blog: { ...policy.domains.blog, actions: ['read','write','manage','publish'] } } };
   const manifest = JSON.parse(await readFile(new URL('../plugins/mcp/manifest.json', import.meta.url), 'utf8'));
-  f.db.prepare("INSERT INTO platform_plugins(id,installed_version,manifest_json,files_json,config_json,state) VALUES('mcp',?,?,'[]',?,'enabled')").run(manifest.version, JSON.stringify(manifest), JSON.stringify({ mode: 'oauth', permissionPolicy: ceiling }));
+  f.db.prepare("INSERT INTO platform_plugins(id,installed_version,manifest_json,files_json,config_json,state) VALUES('mcp',?,?,'[]',?,'enabled')").run(manifest.version, JSON.stringify(manifest), JSON.stringify({ oauthEnabled: true, apiKeyEnabled: false, permissionPolicy: ceiling }));
   const grant = oauthGrantStore(f.db).approveV2(f.principal.id, 'blog-full-grants', policy);
   const principal = { ...f.principal, ownerId: f.principal.id, clientId: grant.clientId, grantId: grant.id, grantVersion: grant.version, tokenIssuedAt: grant.notBefore, tokenExpiresAt: Math.floor(Date.now() / 1000) + 120, pluginId: 'mcp', scopes: policyScopes(policy), allowedPrefixes: [], permissionPolicy: policy, policyVersion: 2 as const };
   const services = () => pluginServices(f.platform, f.db, 'mcp', manifest.capabilities, { ownerId: principal.id, principal, channel: 'mcp' });
   const registry = createOperations({ objectIdSecret: 'blog-grants-integration-object-secret-thirty-two' }, hostClient(services, () => ({})));
-  return { ...f, principal, policy, ceiling, registry, setCeiling: (value: PermissionPolicy) => f.db.prepare("UPDATE platform_plugins SET config_json=? WHERE id='mcp'").run(JSON.stringify({ mode: 'oauth', permissionPolicy: value })) };
+  return { ...f, principal, policy, ceiling, registry, setCeiling: (value: PermissionPolicy) => f.db.prepare("UPDATE platform_plugins SET config_json=? WHERE id='mcp'").run(JSON.stringify({ oauthEnabled: true, apiKeyEnabled: false, permissionPolicy: value })) };
 }
 it('executes explicit draft grants through the persisted OAuth policy, without note-write, manage or publish rights', async () => {
   const f = await fixture(['write']);

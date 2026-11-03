@@ -1,0 +1,115 @@
+{
+  "status": "automated-passed-real-device-confirmation-pending",
+  "recordedAt": "2026-10-31T09:36:25.907279+00:00",
+  "source": {
+    "sha256": "ba544fb9d70365572832c0eeb2ddde2017b9c8c9250a3c1f664d49b6e3ca0389",
+    "files": 533,
+    "head": "393979a664142dcef981abbfe6422fa70715a4fa",
+    "capturedAt": "2026-10-31T09:32:25.084666+00:00",
+    "description": "Follow-up notification snapshot cache fix; excludes test/doc sources."
+  },
+  "checks": {
+    "domainMcp": {
+      "command": "npx vitest run tests/to-doo*.test.ts tests/mcp-to-doo*.test.ts",
+      "exitCode": 0,
+      "filesPassed": 52,
+      "testsPassed": 457,
+      "log": "logs/followup-domain.log"
+    },
+    "cacheRegression": {
+      "beforeSnapshotCalls": 205,
+      "afterSnapshotCallsUpperBoundExclusive": 10,
+      "testsPassed": 7,
+      "log": "logs/followup-cache-boundaries.log"
+    },
+    "nativeRollback": {
+      "testsPassed": 15,
+      "exitCode": 0,
+      "evidence": "native-recovery-followup.json"
+    },
+    "browser": {
+      "status": "passed-by-case-consolidation",
+      "expectedCases": 236,
+      "counts": {
+        "passed": 234,
+        "skipped": 2
+      },
+      "coverage": "browser-coverage.json",
+      "desktopLongBatch": {
+        "passed": 95,
+        "skipped": 1,
+        "exitCode": 0,
+        "log": "logs/followup-cache-desktop.log"
+      },
+      "desktopOther": {
+        "passed": 21,
+        "exitCode": 0,
+        "log": "logs/followup-other-desktop.log"
+      },
+      "mobileFull": {
+        "passed": 117,
+        "skipped": 1,
+        "exitCode": 0,
+        "log": "logs/followup-mobile.log"
+      }
+    },
+    "pushBrowserRuntime": {
+      "desktopPassed": 1,
+      "mobilePassed": 1,
+      "transport": "CDP-injected push, real full Chromium ServiceWorker and Notification APIs",
+      "verified": [
+        "registration and activation",
+        "push listener dispatch",
+        "persistent notification tag replacement",
+        "worker stop and wake",
+        "client update message",
+        "unsaved task draft retained"
+      ],
+      "notVerified": [
+        "external push-provider delivery to a real user device",
+        "visible OS notification",
+        "real user granting site/OS permission"
+      ]
+    },
+    "types": {
+      "exitCode": 0,
+      "log": "logs/followup-types.log"
+    },
+    "build": {
+      "exitCode": 0,
+      "log": "logs/followup-build.log",
+      "metrics": "build-followup.json"
+    },
+    "visual": {
+      "status": "passed",
+      "exitCode": 0,
+      "testsPassed": 169,
+      "geometryChecks": 156,
+      "images": 46,
+      "source": {
+        "sha256": "a63b7f3133e6f154744f6d405e98fcb59beb3f18bacc3820b2f1312448152619",
+        "files": 1096,
+        "head": "393979a664142dcef981abbfe6422fa70715a4fa"
+      },
+      "index": "current-ui/index.html",
+      "log": "logs/followup-visual.log"
+    },
+    "review": {
+      "status": "accepted",
+      "unresolvedImportant": 0,
+      "unresolvedCritical": 0,
+      "note": "Read-only review of version-bound cache and diagnostics; the two recommended cross-connection/midnight tests were subsequently added and passed."
+    },
+    "realDevicePush": {
+      "status": "awaiting-user-device-information-and-physical-confirmation"
+    },
+    "sourceIntegrity": {
+      "status": "passed",
+      "visualSourceMatchesCurrent": true,
+      "productionSource": "ba544fb9d70365572832c0eeb2ddde2017b9c8c9250a3c1f664d49b6e3ca0389"
+    }
+  },
+  "deployment": "not-performed",
+  "mcp": "Development code and shared core updated; no live service publish. No new MCP tool or wire field required by this performance change.",
+  "completedAt": "2026-10-31T09:39:52.220325+00:00"
+}

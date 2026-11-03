@@ -1,3 +1,4 @@
+import { DOO_ASSETS_DIRECTORY, isCompatibleAssetPath, isDooAssetPath } from '../../../shared/storage-paths.js';
 import {isWhiteboard,whiteboardId} from '../../../shared/whiteboard.js';
 import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import {
@@ -426,11 +427,11 @@ export function registerTransferRoutes(
           for (const part of parent === '.' ? [] : parent.split('/')) {
             const next = cursor ? cursor + '/' + part : part;
             if (!existsSync(join(runtime.config.knowledgeRoot, next))) {
-              if (part === 'assets')
+              if ((part === DOO_ASSETS_DIRECTORY || part === 'assets'))
                 mkdirSync(targetPath(runtime.config.knowledgeRoot, next, 'asset'), { mode: 0o700 });
               else runtime.notes.createFolder(cursor, part);
             }
-            targetPath(runtime.config.knowledgeRoot, next, part === 'assets' ? 'asset' : 'folder');
+            targetPath(runtime.config.knowledgeRoot, next, (part === DOO_ASSETS_DIRECTORY || part === 'assets') ? 'asset' : 'folder');
             cursor = next;
           }
           const entry = b.entries[index],

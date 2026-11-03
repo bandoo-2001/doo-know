@@ -39,7 +39,7 @@ it('discovers exact To Doo schemas and invokes scoped typed writes/exports throu
       .run(
         manifest.version,
         JSON.stringify(manifest),
-        JSON.stringify({ mode: 'oauth', permissionPolicy: policy, toDooDomains: ['tasks'] }),
+        JSON.stringify({ oauthEnabled: true, apiKeyEnabled: false, permissionPolicy: policy, toDooDomains: ['tasks'] }),
       );
     const grant = oauthGrantStore(f.db).approveV2(f.principal.id, 'to-doo-full-sdk', policy);
     const p = {
@@ -141,7 +141,7 @@ it('discovers exact To Doo schemas and invokes scoped typed writes/exports throu
     };
     f.db
       .prepare("UPDATE platform_plugins SET config_json=? WHERE id='mcp'")
-      .run(JSON.stringify({ mode: 'oauth', permissionPolicy: ceiling, toDooDomains: ['tasks'] }));
+      .run(JSON.stringify({ oauthEnabled: true, apiKeyEnabled: false, permissionPolicy: ceiling, toDooDomains: ['tasks'] }));
     const noShare: any = await client.callTool({
       name: 'export_to_doo_data',
       arguments: { requestId: 'sdk-export-after-revoke', format: 'json' },
@@ -203,7 +203,7 @@ it('reads complete template JSON through the actual SDK with only task read acce
       .run(
         manifest.version,
         JSON.stringify(manifest),
-        JSON.stringify({ mode: 'oauth', permissionPolicy: policy, toDooDomains: ['tasks'] }),
+        JSON.stringify({ oauthEnabled: true, apiKeyEnabled: false, permissionPolicy: policy, toDooDomains: ['tasks'] }),
       );
     const grant = oauthGrantStore(f.db).approveV2(f.principal.id, 'to-doo-read-sdk', policy),
       p = {

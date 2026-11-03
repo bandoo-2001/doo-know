@@ -2,8 +2,11 @@ import type { AppDatabase } from '../db.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
 import type { PermissionPolicy } from '../../../shared/permissions.js';
 import { categories } from '../files.js';
+import { mcpApiCredentialValid } from './mcp-api-credentials.js';
 import {
   currentLibraryIdentity,
+  currentBlogInstanceId,
+  currentToDooInstanceId,
   hasTable,
   intersectPermissionPolicies,
   normalizePermissionPolicy,
@@ -89,11 +92,83 @@ export function legacyScopes(scopes: string[], signedScopes = scopes): string[] 
   const result = scopes.filter(
     (s) =>
       signedScopes.includes(s) &&
-      ['knowledge:read', 'knowledge:write', 'knowledge:index', 'blog:publish', 'to-doo:read', 'to-doo:write'].includes(s),
+      [
+        'knowledge:read',
+        'knowledge:write',
+        'knowledge:index',
+        'blog:publish',
+        'to-doo:read',
+        'to-doo:write',
+      ].includes(s),
   );
   if (result.includes('knowledge:write')) result.push('knowledge:archive');
   if (result.includes('blog:publish')) result.push('blog:read');
   return result;
+}
+/** Project the existing simple settings into the same ceiling used by newly issued API grants. */
+export function mcpPermissionCeiling(
+  db: AppDatabase,
+  ownerId: string,
+  config: Record<string, any>,
+): PermissionPolicy {
+  if (config.permissionPolicy) return normalizePermissionPolicy(config.permissionPolicy);
+  const library = currentLibraryIdentity(db);
+  if (!library) return { version: 2, domains: {} };
+  const resources = resolveLegacyPrefixes(
+    db,
+    'plugin:mcp:legacy',
+    config.allowedPrefixes || ['README.md', ...categories],
+  ).flatMap((path) => {
+    const dir = db
+      .prepare('SELECT id FROM organization_directories WHERE path=? AND active=1 AND library_id=?')
+      .get(path, library.libraryId) as { id: string } | undefined;
+    const note =
+      !dir &&
+      (db.prepare('SELECT id FROM notes WHERE path=? AND active=1').get(path) as
+        | { id: string }
+        | undefined);
+    return dir ? [{ kind: 'directory', id: dir.id }] : note ? [{ kind: 'note', id: note.id }] : [];
+  });
+  const writable = config.readOnly === false;
+  return normalizePermissionPolicy({
+    version: 2,
+    domains: {
+      knowledge: {
+        enabled: true,
+        ownerId,
+        instanceId: library.libraryId,
+        actions: [
+          'read',
+          ...(writable ? ['write', 'archive'] : []),
+          ...(config.allowIndex === true ? ['index'] : []),
+        ],
+        resources: { mode: 'selected', resources },
+      },
+      blog: {
+        enabled: config.allowPublish === true && writable,
+        ownerId,
+        instanceId: currentBlogInstanceId(db),
+        actions: config.allowPublish === true && writable ? ['read', 'publish'] : [],
+        resources: { mode: 'all' },
+      },
+      'to-doo': {
+        enabled: config.allowToDoo === true,
+        ownerId,
+        instanceId: currentToDooInstanceId(db),
+        actions:
+          config.allowToDoo === true
+            ? ['read', ...(config.allowToDooWrite === true && writable ? ['write'] : [])]
+            : [],
+        resources:
+          Array.isArray(config.toDooListIds) && config.toDooListIds.length
+            ? {
+                mode: 'selected',
+                resources: config.toDooListIds.map((id: string) => ({ kind: 'list', id })),
+              }
+            : { mode: 'all' },
+      },
+    },
+  });
 }
 export function platformPolicy(db: AppDatabase, p: Principal): Principal | undefined {
   if (p.clientId.startsWith('plugin-web:')) {
@@ -146,11 +221,9 @@ export function platformPolicy(db: AppDatabase, p: Principal): Principal | undef
     if (p.pluginId === 'mcp') {
       config = JSON.parse(plugin.config_json);
       config.__selectionKey = 'plugin:mcp:legacy';
-      if (
-        p.authGeneration != null &&
-        (!p.credentialRef || p.credentialRef !== config.tunnelToken?.$secretRef)
-      )
-        return;
+      if (p.credentialKind === 'api-key') {
+        if (config.apiKeyEnabled === false || !mcpApiCredentialValid(db, p)) return;
+      } else if (p.authGeneration != null || config.oauthEnabled === false) return;
     }
   }
   if (grant.policy_version === 2) {
@@ -158,7 +231,7 @@ export function platformPolicy(db: AppDatabase, p: Principal): Principal | undef
     for (const [domain, value] of Object.entries(policy.domains))
       value.actions = value.actions.filter((action) => p.scopes.includes(`${domain}:${action}`));
     if (config) {
-      if (!config.permissionPolicy)
+      if (!config.permissionPolicy && p.credentialKind !== 'api-key')
         return {
           ...p,
           policyVersion: 2,
@@ -169,7 +242,7 @@ export function platformPolicy(db: AppDatabase, p: Principal): Principal | undef
         };
       policy = intersectPermissionPolicies(
         policy,
-        normalizePermissionPolicy(config.permissionPolicy),
+        mcpPermissionCeiling(db, p.ownerId || p.id, config),
         resourceContains(db),
       );
     }
@@ -206,7 +279,10 @@ export function platformPolicy(db: AppDatabase, p: Principal): Principal | undef
           (s !== 'blog:publish' || (config.allowPublish === true && config.readOnly === false)) &&
           (s !== 'knowledge:index' || config.allowIndex === true) &&
           (s !== 'to-doo:read' || config.allowToDoo === true) &&
-          (s !== 'to-doo:write' || (config.allowToDoo === true && config.allowToDooWrite === true && config.readOnly === false)),
+          (s !== 'to-doo:write' ||
+            (config.allowToDoo === true &&
+              config.allowToDooWrite === true &&
+              config.readOnly === false)),
       );
       const allowed = resolveLegacyPrefixes(
         db,

@@ -127,7 +127,7 @@ describe('portable task attachments', () => {
       }).transactionId,
     ).toBe(removed.transactionId);
     expect(f.service.snapshot({ all: true }).tasks[0].attachments).toEqual([]);
-    expect(await readFile(join(f.config.knowledgeRoot, '_data/apps/to-doo/assets', hash))).toEqual(
+    expect(await readFile(join(f.config.knowledgeRoot, '_doo-data/apps/to-doo/assets', hash))).toEqual(
       bytes,
     );
     expect(() => f.assets.get(task.id, hash)).toThrow();
@@ -151,7 +151,7 @@ describe('portable task attachments', () => {
     ).toThrow();
     expect(
       await readFile(
-        join(f.config.knowledgeRoot, '_data/apps/to-doo/assets', sha(Buffer.from('orphan'))),
+        join(f.config.knowledgeRoot, '_doo-data/apps/to-doo/assets', sha(Buffer.from('orphan'))),
         'utf8',
       ),
     ).toBe('orphan');
@@ -172,7 +172,7 @@ describe('portable task attachments', () => {
     const hash = sha(Buffer.from('%PDF-1.7\nfixture'));
     g.service.importCheckpoint(f.service.exportCheckpoint(), 'restore-assets');
     expect(g.assets.get(f.task.id, hash).bytes.toString()).toContain('%PDF-1.7');
-    const path = join(g.config.knowledgeRoot, '_data/apps/to-doo/assets', hash);
+    const path = join(g.config.knowledgeRoot, '_doo-data/apps/to-doo/assets', hash);
     await writeFile(path, 'corrupted');
     expect(() => g.assets.get(f.task.id, hash)).toThrow(/hash|corrupt|校验|损坏/i);
     await unlink(path);

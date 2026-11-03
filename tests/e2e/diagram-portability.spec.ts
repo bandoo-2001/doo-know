@@ -34,8 +34,8 @@ test('新图形保存先准备源与PNG，父笔记只在明确保存后落盘',
   await expect(dialog).toBeHidden();
   await expect(page.locator('.save-state')).toContainText('已保存');
   const content = (await (await page.request.get('/api/notes/' + note.id)).json()).content;
-  expect(content).toContain('![SVG 预览](assets/diagram-');
-  expect(content).toContain('[图形源文件](assets/diagram-');
+  expect(content).toContain('![SVG 预览](_doo-assets/diagram-');
+  expect(content).toContain('[图形源文件](_doo-assets/diagram-');
   expect(content).toContain('<!-- dooknow:diagram-preview v1 kind=svg code=');
   expect(content).toContain('```svg\n' + svg + '\n```');
   expect(content.startsWith(raw)).toBe(true);
