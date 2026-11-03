@@ -698,3 +698,73 @@ test.each([
     expect(view.text(row)).toContain(label);
   },
 );
+
+test.each([
+  {
+    zone: 'UTC',
+    onDay: '2026-11-03T12:00:00Z',
+    backfilled: '2026-11-05T12:00:00Z',
+    clock: '12:00',
+    recorded: '记录于 2026-11-05 12:00',
+  },
+  {
+    zone: 'America/Los_Angeles',
+    onDay: '2026-11-04T00:30:00Z',
+    backfilled: '2026-11-06T00:30:00Z',
+    clock: '16:30',
+    recorded: '记录于 2026-11-05 16:30',
+  },
+])(
+  'backfilled entries distinguish the recording date at the same clock time in historical $zone',
+  async ({ zone, onDay, backfilled, clock, recorded }) => {
+    const { value, records } = auditHabitFixture();
+    vi.setSystemTime(new Date('2026-11-06T12:00:00Z'));
+    const habit = (value.state.snapshot as any).habits[0];
+    const oldRule = {
+      ...habits.getHabitRule(habit, '2026-11-03'),
+      id: 'old',
+      timeZone: zone,
+      estimated: false,
+    };
+    const laterRule = {
+      ...oldRule,
+      id: 'later',
+      effectiveFrom: '2026-11-04',
+      timeZone: 'Asia/Shanghai',
+      unit: '分钟',
+    };
+    Object.assign(habit, {
+      timeZone: 'Asia/Shanghai',
+      unit: '分钟',
+      ruleVersions: [oldRule, laterRule],
+    });
+    records[0].occurredAt = onDay;
+    records[1].occurredAt = backfilled;
+    value.state.snapshot.habitEntries = records.slice(0, 2);
+    const view = mount('ToDooRhythm', { model: value, section: 'habits' });
+    for (let turn = 0; turn < 8; turn++) await Vue.nextTick();
+    view
+      .all()
+      .find((n) => n.tag === 'Segmented' && n.props['aria-label'] === '习惯视图')!
+      .props['onUpdate:value']('history');
+    await Vue.nextTick();
+    view
+      .all()
+      .find(
+        (n) =>
+          n.tag === 'button' && n.props['aria-label'] === '历史阅读 2026-11-03 打卡，当前 25 页',
+      )!
+      .props.onClick();
+    await Vue.nextTick();
+    const row = (id: string) =>
+      view.all().find((n) => n.tag === 'li' && n.props['data-habit-entry-id'] === id)!;
+    const originalTime = view.all(row('entry-0')).find((n) => n.tag === 'time')!;
+    const backfillTime = view.all(row('entry-1')).find((n) => n.tag === 'time')!;
+    expect(view.text(originalTime)).toBe(clock);
+    expect(view.text(backfillTime)).toBe(recorded);
+    expect(backfillTime.props.datetime).toBe(backfilled);
+    expect(view.text(row('entry-0'))).toContain('10 页');
+    expect(view.text(row('entry-1'))).toContain('15 页');
+    expect(view.text(view.dialog())).toContain('记录时区：' + zone);
+  },
+);

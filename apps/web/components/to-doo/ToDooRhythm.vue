@@ -371,12 +371,16 @@ async function undoEntry(entry: ToDooEntityMap['habitEntry']) {
   await props.model.removeEntity('habitEntry', entry);
 }
 function entryTime(entry: ToDooEntityMap['habitEntry'], habit: ToDooEntityMap['habit']) {
-  return new Intl.DateTimeFormat('zh-CN', {
-    timeZone: getHabitRule(habit, entry.localDate).timeZone,
+  const timeZone = getHabitRule(habit, entry.localDate).timeZone;
+  const recordedAt = new Date(entry.occurredAt);
+  const clock = new Intl.DateTimeFormat('zh-CN', {
+    timeZone,
     hour: '2-digit',
     minute: '2-digit',
     hourCycle: 'h23',
-  }).format(new Date(entry.occurredAt));
+  }).format(recordedAt);
+  const recordedDate = toDooLocalDate(recordedAt, timeZone);
+  return recordedDate === entry.localDate ? clock : `记录于 ${recordedDate} ${clock}`;
 }
 async function recordToday(habit: ToDooEntityMap['habit']) {
   if (!habitReady.value || state.busy) return;
