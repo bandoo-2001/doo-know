@@ -750,3 +750,41 @@ test('task and occurrence import rows resolve their shared title, list and sched
     expect(view.text(row)).toContain('Asia/Tokyo');
   }
 });
+
+test('clearing CSV mappings and restoring options removes the import draft guard', async () => {
+  const value = model(),
+    view = mount('ToDooSettings', value);
+  await settleSettings();
+  expect((view.instance as any).hasUnsavedChanges()).toBe(false);
+  settingField(view, '格式', 'select').props.onChange({ target: { value: 'csv' } });
+  await settleSettings();
+  settingField(view, '任务标题列').props.onInput({ target: { value: '来源标题' } });
+  await settleSettings();
+  expect(value.state.externalDirty.settings).toBe(true);
+  settingField(view, '任务标题列').props.onInput({ target: { value: '' } });
+  settingField(view, '格式', 'select').props.onChange({ target: { value: 'json' } });
+  await settleSettings();
+  expect(value.state.externalDirty.settings).toBe(false);
+  expect((view.instance as any).hasUnsavedChanges()).toBe(false);
+});
+
+test('inbox occurrence preview rows show the same destination as their related task', async () => {
+  const { view, value } = await settingsImport();
+  value.request.mockImplementationOnce(async () => ({
+    ...importFixture(),
+    items: [
+      { kind: 'task', entity: { id: 'inbox-task', title: '收集箱导入任务', listId: null } },
+      { kind: 'occurrence', entity: { id: 'inbox-occurrence', taskId: 'inbox-task', due: null } },
+    ],
+  }));
+  await view.button('预览导入').props.onClick();
+  await settleSettings();
+  const rows = view
+    .all()
+    .filter((row) => row.tag === 'li' && view.text(row).includes('收集箱导入任务'));
+  expect(rows).toHaveLength(2);
+  for (const row of rows) {
+    const summary = row.children.find((child) => child.tag === 'p')!;
+    expect(view.text(summary)).toContain('收集箱');
+  }
+});

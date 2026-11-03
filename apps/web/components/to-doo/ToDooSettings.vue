@@ -122,6 +122,13 @@ const state = props.model.state,
   mapping = reactive<Record<string, string>>({}),
   sourceName = ref(''),
   exportMode = ref('events');
+const effectiveImportMapping = computed(() =>
+  Object.fromEntries(
+    Object.entries(mapping)
+      .filter(([, value]) => value)
+      .sort(([left], [right]) => left.localeCompare(right)),
+  ),
+);
 // A confirmation belongs to every input used to parse this exact draft.
 const importInputSnapshot = computed(() =>
   JSON.stringify({
@@ -131,7 +138,7 @@ const importInputSnapshot = computed(() =>
     target: target.value,
     timeZone: importZone.value,
     listId: importList.value,
-    mapping,
+    mapping: effectiveImportMapping.value,
     encoding: encoding.value,
     name: sourceName.value,
     file: file.value && {
@@ -254,7 +261,8 @@ function importItemDate(item: any): string {
   return dates.join('；') || '无日期';
 }
 function importItemDestination(item: any): string {
-  const entity = importRelatedTask(item) || item.entity;
+  const relatedTask = importRelatedTask(item);
+  const entity = relatedTask || item.entity;
   if (entity.listId) {
     const list =
       preview.value?.items.find(
@@ -262,7 +270,7 @@ function importItemDestination(item: any): string {
       )?.entity || state.snapshot?.lists.find((row) => row.id === entity.listId);
     return '清单：' + (list?.name || entity.listId);
   }
-  if (item.kind === 'task') return '收集箱';
+  if (relatedTask) return '收集箱';
   if (entity.sourceId) {
     const source =
       preview.value?.items.find(
@@ -632,9 +640,7 @@ async function previewImport() {
     timeZone: importZone.value,
     target: target.value,
     listId: importList.value,
-    ...(format.value === 'csv'
-      ? { mapping: Object.fromEntries(Object.entries(mapping).filter(([, v]) => v)) }
-      : {}),
+    ...(format.value === 'csv' ? { mapping: effectiveImportMapping.value } : {}),
   };
   cancelPreview();
   await work(async () => {
