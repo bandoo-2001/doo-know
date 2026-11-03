@@ -132,10 +132,9 @@ test('a valid lunar day outside the Gregorian month can be saved and reopened as
   const name = '农历二月三十 ' + crypto.randomUUID().slice(0, 8);
   await editor.getByLabel('名称', { exact: true }).fill(name);
   await selectToDooOption(editor, '历法', '农历');
-  const date = editor.getByRole('textbox', { name: /^(农历原日期|日期)$/ });
-  await date.click();
-  await date.fill('2024-02-30');
-  await date.press('Tab');
+  await editor.getByRole('spinbutton', { name: '农历年', exact: true }).fill('2024');
+  await selectToDooOption(editor, '农历月', '二月');
+  await editor.getByRole('spinbutton', { name: '农历日', exact: true }).fill('30');
   await editor.getByRole('button', { name: '保存', exact: true }).click();
   await expect(editor).not.toBeVisible();
   const card = page
@@ -144,11 +143,11 @@ test('a valid lunar day outside the Gregorian month can be saved and reopened as
   await expect(card).toContainText('农历原日期：2024-02-30');
   await page.reload();
   await card.getByRole('button', { name: '编辑 ' + name, exact: true }).click();
-  await expect(
-    page
-      .getByRole('dialog', { name: '编辑纪念日', exact: true })
-      .getByLabel('农历原日期', { exact: true }),
-  ).toHaveValue('2024-02-30');
+  const reopened = page.getByRole('dialog', { name: '编辑纪念日', exact: true });
+  await expect(reopened.getByRole('spinbutton', { name: '农历年', exact: true })).toHaveValue(
+    '2024',
+  );
+  await expect(reopened.getByRole('spinbutton', { name: '农历日', exact: true })).toHaveValue('30');
   await page
     .getByRole('dialog', { name: '编辑纪念日', exact: true })
     .getByRole('button', { name: '取消', exact: true })

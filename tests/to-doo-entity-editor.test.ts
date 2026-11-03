@@ -6,6 +6,7 @@ import * as Vue from 'vue';
 import * as workbench from '../apps/web/to-doo-workbench';
 import * as controls from '../apps/web/to-doo-controls';
 import * as groups from '../apps/web/to-doo-task-groups';
+import lunar from 'lunar-javascript';
 
 function editor(
   listId: string | null,
@@ -25,6 +26,7 @@ function editor(
   new Function('require', 'module', 'exports', compiled)(
     (id: string) => {
       if (id === 'vue') return Vue;
+      if (id === 'lunar-javascript') return { default: lunar };
       if (id === '../../to-doo-workbench') return workbench;
       if (id === '../../to-doo-controls') return controls;
       if (id === '../../to-doo-task-groups') return groups;
@@ -238,3 +240,71 @@ it.each(['template', 'outcome'])(
     }
   },
 );
+
+it.each([
+  ['2024-02-31', false],
+  ['2024-02-30', true],
+  ['2023-02-30', true],
+])(
+  'rejects the actual invalid lunar date %s (leap=%s) before saving',
+  async (date, lunarLeapMonth) => {
+    const value = editor(null, {
+      kind: 'anniversary',
+      seed: { name: '农历', calendar: 'lunar', date, lunarLeapMonth, leapPolicy: 'previous_day' },
+    });
+    try {
+      await value.save();
+      expect(value.model.saveEntity).not.toHaveBeenCalled();
+      expect(value.model.state.error).toMatch(/农历.*(日期|闰月)/);
+    } finally {
+      value.unmount();
+    }
+  },
+);
+it.each([
+  ['2024-02-30', false],
+  ['2023-02-01', true],
+])('saves valid lunar %s with the existing date and leap payload', async (date, lunarLeapMonth) => {
+  const value = editor(null, {
+    kind: 'anniversary',
+    seed: { name: '农历', calendar: 'lunar', date, lunarLeapMonth, leapPolicy: 'skip' },
+  });
+  try {
+    await value.save();
+    expect(value.model.saveEntity).toHaveBeenCalledWith(
+      'anniversary',
+      expect.objectContaining({ date, lunarLeapMonth, leapPolicy: 'skip' }),
+      undefined,
+    );
+  } finally {
+    value.unmount();
+  }
+});
+
+it('editing habit rules defaults to the habit local day across midnight rather than the workspace date', async () => {
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date('2026-11-03T00:30:00Z'));
+  const value = editor(null, {
+    kind: 'habit',
+    entity: {
+      name: '本地习惯',
+      timeZone: 'America/Los_Angeles',
+      startDate: '2026-10-01',
+      target: 20,
+      unit: '页',
+      frequency: 'daily',
+    },
+  });
+  try {
+    value.form.target = 30;
+    await value.save();
+    expect(value.model.saveEntity).toHaveBeenCalledWith(
+      'habit',
+      expect.objectContaining({ effectiveFrom: '2026-11-02' }),
+      undefined,
+    );
+  } finally {
+    value.unmount();
+    vi.useRealTimers();
+  }
+});

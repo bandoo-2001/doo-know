@@ -5,6 +5,7 @@ import ts from 'typescript';
 import * as Vue from 'vue';
 import * as vueuse from '@vueuse/core';
 import * as clock from '../apps/web/to-doo-time';
+import * as focusSync from '../apps/web/to-doo-focus-history-sync';
 import * as workbench from '../apps/web/to-doo-workbench';
 import * as reminders from '../apps/web/to-doo-reminders';
 import * as habits from '../shared/to-doo-habits';
@@ -19,9 +20,11 @@ type Node = {
   children: Node[];
   parent?: Node;
 };
+let confirmation = false;
 const cleanups: (() => void)[] = [];
 afterEach(() => {
   cleanups.splice(0).forEach((fn) => fn());
+  confirmation = false;
   vi.unstubAllGlobals();
   vi.useRealTimers();
 });
@@ -65,12 +68,14 @@ function component(name: string): Vue.Component {
       if (id === 'vue') return { ...Vue, vModelText: {}, vModelSelect: {} };
       if (id === '@vueuse/core') return vueuse;
       if (id === '../../to-doo-time') return clock;
+      if (id === '../../to-doo-focus-history-sync') return focusSync;
       if (id === '../../to-doo-workbench') return workbench;
       if (id === '../../to-doo-reminders') return reminders;
       if (id === '../../../../shared/to-doo-habits') return habits;
       if (id === '../../to-doo-habit-presentation') return habitPresentation;
       if (id === '../../../../shared/to-doo-anniversaries') return anniversaries;
-      if (id === '../../to-doo-controls') return { useToDooConfirm: () => async () => false };
+      if (id === '../../to-doo-controls')
+        return { useToDooConfirm: () => async () => confirmation };
       if (id === 'ant-design-vue')
         return {
           ...controls,
@@ -80,7 +85,11 @@ function component(name: string): Vue.Component {
         };
       if (id.endsWith('ToDooDateField.vue')) return { default: control('DateField') };
       if (id.endsWith('ToDooSelect.vue')) return { default: control('Select') };
-      if (/ToDoo(PageToolbar|SectionHeader|Focus|FocusTrend|FocusTimerFields|HabitCard|Icon)\.vue$/.test(id))
+      if (
+        /ToDoo(PageToolbar|SectionHeader|Focus|FocusTrend|FocusTimerFields|HabitCard|Icon)\.vue$/.test(
+          id,
+        )
+      )
         return { default: component(id.split('/').at(-1)!.replace('.vue', '')) };
       if (id.endsWith('.css')) return {};
       throw Error(`Unexpected dependency: ${id}`);
@@ -485,3 +494,207 @@ test('an ordinary habit card offers a single check-in and hides quantitative inp
   await Vue.nextTick();
   expect(view.button('已打卡').props.disabled).toBe(true);
 });
+
+function auditHabitFixture() {
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date('2026-11-03T12:00:00Z'));
+  const value = model();
+  const habit = toDooEntitySchemas.habit.parse({
+    id: 'reading',
+    revision: 'h1',
+    createdAt: '2026-11-01T00:00:00Z',
+    updatedAt: '2026-11-01T00:00:00Z',
+    name: '历史阅读',
+    startDate: '2026-11-01',
+    timeZone: 'UTC',
+    target: 20,
+    unit: '页',
+    goalMode: 'quantity',
+  });
+  const records = [10, 15, 20].map((amount, i) =>
+    toDooEntitySchemas.habitEntry.parse({
+      id: 'entry-' + i,
+      revision: 'e' + i,
+      createdAt: '2026-11-03T00:00:00Z',
+      updatedAt: '2026-11-03T00:00:00Z',
+      habitId: habit.id,
+      localDate: '2026-11-03',
+      occurredAt: `2026-11-03T0${i + 1}:00:00Z`,
+      amount,
+      note: '记录' + i,
+      sourceSessionId: i === 1 ? 'focus-session' : null,
+    }),
+  );
+  Object.assign(value.state.snapshot, { habits: [habit], habitEntries: records });
+  value.removeEntity.mockImplementation(async (_kind, entry) => {
+    entry.deletedAt = '2026-11-03T12:00:00Z';
+    return {};
+  });
+  return { value, records };
+}
+async function openAuditHistory() {
+  const fixture = auditHabitFixture();
+  const view = mount('ToDooRhythm', { model: fixture.value, section: 'habits' });
+  for (let turn = 0; turn < 8; turn++) await Vue.nextTick();
+  view
+    .all()
+    .find((n) => n.tag === 'Segmented' && n.props['aria-label'] === '习惯视图')!
+    .props['onUpdate:value']('history');
+  await Vue.nextTick();
+  const cell = view
+    .all()
+    .find(
+      (n) => n.tag === 'button' && n.props['aria-label'] === '历史阅读 2026-11-03 打卡，当前 45 页',
+    )!;
+  return { ...fixture, view, cell };
+}
+test('achieved quantitative history retains the actual 45 rather than replacing it with a check', async () => {
+  const { view, cell } = await openAuditHistory();
+  expect(view.text(cell)).toContain('45');
+  expect(view.text(cell)).toContain('✓');
+  cell.props.onClick();
+  await Vue.nextTick();
+  expect(view.text(view.dialog())).toContain('已累计 45 / 20 页');
+});
+test('correcting one of three day records retains the other two and its focus source', async () => {
+  const { value, records, view, cell } = await openAuditHistory();
+  cell.props.onClick();
+  await Vue.nextTick();
+  const rows = view.all().filter((n) => n.tag === 'li' && n.props['data-habit-entry-id']);
+  expect(rows).toHaveLength(3);
+  const row = rows.find((n) => n.props['data-habit-entry-id'] === 'entry-0')!;
+  expect(view.text(row)).toContain('10 页');
+  expect(view.text(row)).toContain('01:00');
+  expect(view.text(row)).toContain('记录0');
+  confirmation = true;
+  await view
+    .all(row)
+    .find((n) => n.tag === 'Button' && view.text(n) === '撤销此条')!
+    .props.onClick();
+  expect(value.removeEntity).toHaveBeenCalledExactlyOnceWith('habitEntry', records[0]);
+  expect(records.filter((e) => !e.deletedAt).map((e) => e.id)).toEqual(['entry-1', 'entry-2']);
+  expect(records[1].sourceSessionId).toBe('focus-session');
+});
+test('habit cards expose the effective local date and zone when workspace today differs', async () => {
+  const { value } = auditHabitFixture();
+  vi.setSystemTime(new Date('2026-11-03T00:30:00Z'));
+  value.state.snapshot.settings.timeZone = 'UTC';
+  (value.state.snapshot as any).habits[0].timeZone = 'America/Los_Angeles';
+  const view = mount('ToDooRhythm', { model: value, section: 'habits' });
+  for (let turn = 0; turn < 8; turn++) await Vue.nextTick();
+  const card = view.all().find((n) => n.tag === 'article')!;
+  expect(view.text(card)).toContain('2026-11-02');
+  expect(view.text(card)).toContain('America/Los_Angeles');
+  await view.button('记录').props.onClick();
+  expect(value.execute).toHaveBeenCalledWith(
+    expect.objectContaining({ payload: expect.objectContaining({ localDate: '2026-11-02' }) }),
+    expect.any(String),
+  );
+});
+test.each(['exclude_today', 'include_today'] as const)(
+  'today anniversary reads today with %s and past one-off labels the original date',
+  (countMode) => {
+    auditHabitFixture();
+    const value = model();
+    Object.assign(value.state.snapshot, {
+      anniversaries: ['2026-11-03', '2026-11-01'].map((date, i) =>
+        toDooEntitySchemas.anniversary.parse({
+          id: 'ann-' + i,
+          revision: 'a1',
+          createdAt: '2026-11-01T00:00:00Z',
+          updatedAt: '2026-11-01T00:00:00Z',
+          name: '纪念日' + i,
+          date,
+          repeatYearly: false,
+          countMode,
+        }),
+      ),
+    });
+    const view = mount('ToDooRhythm', { model: value, section: 'anniversaries' });
+    const cards = view.all().filter((n) => n.tag === 'article');
+    expect(view.text(cards.find((n) => view.text(n).includes('纪念日0'))!)).toContain('就是今天');
+    const past = view.text(cards.find((n) => view.text(n).includes('纪念日1'))!);
+    expect(past).toContain('公历日期：2026-11-01');
+    expect(past).not.toContain('下次');
+  },
+);
+
+test('historical entries retain the rule unit and local clock after a later rule changes timezone', async () => {
+  const { value } = auditHabitFixture();
+  const habit = (value.state.snapshot as any).habits[0];
+  const oldRule = { ...habits.getHabitRule(habit, '2026-11-03'), id: 'old', estimated: false };
+  const laterRule = {
+    ...oldRule,
+    id: 'later',
+    effectiveFrom: '2026-11-04',
+    timeZone: 'Asia/Shanghai',
+    unit: '分钟',
+    target: 30,
+  };
+  Object.assign(habit, {
+    timeZone: 'Asia/Shanghai',
+    unit: '分钟',
+    target: 30,
+    ruleVersions: [oldRule, laterRule],
+  });
+  const view = mount('ToDooRhythm', { model: value, section: 'habits' });
+  for (let turn = 0; turn < 8; turn++) await Vue.nextTick();
+  view
+    .all()
+    .find((n) => n.tag === 'Segmented' && n.props['aria-label'] === '习惯视图')!
+    .props['onUpdate:value']('history');
+  await Vue.nextTick();
+  view
+    .all()
+    .find(
+      (n) => n.tag === 'button' && n.props['aria-label'] === '历史阅读 2026-11-03 打卡，当前 45 页',
+    )!
+    .props.onClick();
+  await Vue.nextTick();
+  const row = view
+    .all()
+    .find((n) => n.tag === 'li' && n.props['data-habit-entry-id'] === 'entry-0')!;
+  expect(view.text(row)).toContain('10 页');
+  expect(view.text(row)).toContain('01:00');
+  expect(view.text(view.dialog())).toContain('记录时区：UTC');
+});
+
+test.each([
+  { skipped: false, amount: 7, unit: '杯', marker: '✓', label: '打卡', want: '7 杯' },
+  { skipped: true, amount: 0, unit: '次', marker: '跳', label: '已跳过', want: '0 次' },
+])(
+  'a saved $label entry exposes its actual amount and historical unit',
+  async ({ skipped, amount, unit, marker, label, want }) => {
+    const { value, records } = auditHabitFixture();
+    Object.assign((value.state.snapshot as any).habits[0], {
+      goalMode: 'checkin',
+      target: 1,
+      unit,
+    });
+    records[0].amount = amount;
+    records[0].skipped = skipped;
+    value.state.snapshot.habitEntries = [records[0]];
+    const view = mount('ToDooRhythm', { model: value, section: 'habits' });
+    for (let turn = 0; turn < 8; turn++) await Vue.nextTick();
+    view
+      .all()
+      .find((n) => n.tag === 'Segmented' && n.props['aria-label'] === '习惯视图')!
+      .props['onUpdate:value']('history');
+    await Vue.nextTick();
+    const cell = view
+      .all()
+      .find(
+        (n) =>
+          n.tag === 'button' &&
+          n.props['aria-label'] === '历史阅读 2026-11-03 打卡，当前 ' + amount + ' ' + unit,
+      )!;
+    expect(view.text(cell)).toBe(marker);
+    cell.props.onClick();
+    await Vue.nextTick();
+    const row = view
+      .all()
+      .find((n) => n.tag === 'li' && n.props['data-habit-entry-id'] === 'entry-0')!;
+    expect(view.text(row)).toContain(want);
+    expect(view.text(row)).toContain(label);
+  },
+);

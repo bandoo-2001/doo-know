@@ -11,6 +11,7 @@ import {
 import ToDooSelect from './ToDooSelect.vue';
 import ToDooDateField from './ToDooDateField.vue';
 import { computed, nextTick, reactive, ref } from 'vue';
+import lunar from 'lunar-javascript';
 import type { TreeEntry } from '../../../../shared/contracts';
 import type { ToDooEntityKind } from '../../../../shared/to-doo-contracts';
 import { shiftToDooDate, toDooLocalDate, type ToDooWorkbench } from '../../to-doo-workbench';
@@ -115,7 +116,22 @@ const { sectionPlacement, ...entitySeed } = props.seed || {};
 const form = reactive<any>(
   JSON.parse(JSON.stringify(props.entity || { ...(defaults[props.kind] || {}), ...entitySeed })),
 );
-if (props.kind === 'habit' && props.entity) form.effectiveFrom = today;
+if (props.kind === 'habit' && props.entity)
+  form.effectiveFrom = toDooLocalDate(
+    new Date(),
+    form.timeZone || props.model.state.snapshot?.settings.timeZone,
+  );
+const lunarParts = computed(() =>
+  String(form.date || '')
+    .split('-')
+    .map(Number),
+);
+function setLunarPart(index: number, value: number | string | null) {
+  const parts = String(form.date || '').split('-');
+  parts[index] =
+    value === null || value === '' ? '' : String(Number(value)).padStart(index === 0 ? 4 : 2, '0');
+  form.date = [0, 1, 2].map((i) => parts[i] || '').join('-');
+}
 const completeOutcome = ref(false);
 const extraFields = ref<InstanceType<typeof ToDooDisclosure>>();
 const formLayout = ref<InstanceType<typeof ToDooFormLayout>>();
@@ -202,6 +218,17 @@ async function close() {
   emit('close');
 }
 async function save() {
+  if (props.kind === 'anniversary' && form.calendar === 'lunar') {
+    try {
+      if (!/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|30)$/.test(form.date)) throw Error();
+      const [year, month, day] = String(form.date).split('-').map(Number);
+      lunar.Lunar.fromYmd(year!, form.lunarLeapMonth ? -month! : month!, day!);
+    } catch {
+      props.model.state.error = '请检查农历日期与闰月：该年该月不存在此日期。';
+      validationError.value = props.model.state.error;
+      return;
+    }
+  }
   if (
     props.kind === 'section' &&
     !props.model.state.snapshot?.lists.some((list) => list.id === form.listId && !list.deletedAt)
@@ -310,6 +337,9 @@ defineExpose({
       @click="close"
       >×</AButton
     >
+    <p class="todo-muted todo-small">
+      点击保存后生效；关闭有未保存输入时会询问是否放弃。刷新页面不保留这些输入。
+    </p>
     <ToDooFormLayout
       ref="formLayout"
       class="todo-entity-form"
@@ -358,19 +388,61 @@ defineExpose({
       <ToDooHabitFields v-if="kind === 'habit'" :form="form" :rule-changed="habitRuleChanged" />
       <template v-if="kind === 'anniversary'">
         <div class="todo-form-grid">
-          <label v-if="form.calendar === 'lunar'"
-            >农历原日期<AInput
-              v-model:value="form.date"
-              aria-label="农历原日期"
-              aria-describedby="todo-lunar-original-help"
-              required
-              :maxlength="10"
-              placeholder="YYYY-MM-DD"
-              pattern="[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|30)"
-            /><small id="todo-lunar-original-help"
-              >按农历填写年、月、日；闰月请勾选下方选项。</small
-            ></label
+          <div
+            v-if="form.calendar === 'lunar'"
+            class="todo-lunar-fields"
+            role="group"
+            aria-label="农历原日期"
           >
+            <label
+              >年<AInputNumber
+                :value="lunarParts[0]"
+                :min="1"
+                :max="9999"
+                :precision="0"
+                required
+                aria-label="农历年"
+                @update:value="setLunarPart(0, $event)"
+            /></label>
+            <label
+              >月<ToDooSelect
+                :value="String(lunarParts[1])"
+                aria-label="农历月"
+                :show-search="false"
+                :virtual="false"
+                @change="setLunarPart(1, $event)"
+                ><option v-for="month in 12" :key="month" :value="String(month)">
+                  {{
+                    [
+                      '正月',
+                      '二月',
+                      '三月',
+                      '四月',
+                      '五月',
+                      '六月',
+                      '七月',
+                      '八月',
+                      '九月',
+                      '十月',
+                      '冬月',
+                      '腊月',
+                    ][month - 1]
+                  }}
+                </option></ToDooSelect
+              ></label
+            >
+            <label
+              >日<AInputNumber
+                :value="lunarParts[2]"
+                :min="1"
+                :max="30"
+                :precision="0"
+                required
+                aria-label="农历日"
+                @update:value="setLunarPart(2, $event)"
+            /></label>
+            <small class="todo-muted">按农历选择年、月、日；闰月需勾选下方选项。</small>
+          </div>
           <label v-else>日期<ToDooDateField v-model="form.date" type="date" required /></label>
           <label
             >历法<ToDooSelect v-model="form.calendar"
@@ -717,3 +789,18 @@ defineExpose({
     </ToDooFormLayout>
   </AModal>
 </template>
+
+<style scoped>
+.todo-lunar-fields {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(90px, 1.2fr) minmax(80px, 1fr) minmax(70px, 1fr);
+  gap: 10px;
+}
+.todo-lunar-fields .ant-input-number {
+  width: 100%;
+}
+.todo-lunar-fields > small {
+  grid-column: 1 / -1;
+}
+</style>

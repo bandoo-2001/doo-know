@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { Button as AButton, Dropdown as ADropdown, InputNumber as AInputNumber, Menu as AMenu, MenuItem as AMenuItem, Progress as AProgress, Tag as ATag } from 'ant-design-vue';
+import {
+  Button as AButton,
+  Dropdown as ADropdown,
+  InputNumber as AInputNumber,
+  Menu as AMenu,
+  MenuItem as AMenuItem,
+  Progress as AProgress,
+  Tag as ATag,
+} from 'ant-design-vue';
 import type { ToDooEntityMap } from '../../../../shared/to-doo-contracts';
 import type { ToDooHabitPeriodSummary } from '../../../../shared/to-doo-habits';
 import { getHabitGoalMode } from '../../../../shared/to-doo-habits';
@@ -9,6 +17,7 @@ import ToDooIcon from './ToDooIcon.vue';
 const props = defineProps<{
   habit: ToDooEntityMap['habit'];
   date: string;
+  showLocalDate?: boolean;
   summary: ToDooHabitPeriodSummary;
   amount: number;
   entryCount: number;
@@ -27,6 +36,7 @@ const emit = defineEmits<{
   undo: [];
   pause: [];
   statistics: [];
+  entries: [];
 }>();
 const period = computed(
   () => ({ daily: '今日', weekly: '本周', monthly: '本月' })[props.summary.rule.frequency],
@@ -52,12 +62,14 @@ const checkedToday = computed(() => ordinary.value && props.amount > 0);
       <div>
         <AButton type="text" class="todo-task-title" @click="emit('edit')">{{ habit.name }}</AButton
         ><small>{{ formatHabitSchedule(summary.rule) }}</small>
+        <small v-if="showLocalDate">记录日期 {{ date }} · {{ habit.timeZone }}</small>
       </div>
       <ADropdown :trigger="['click']" placement="bottomRight">
         <template #overlay
           ><AMenu>
             <AMenuItem @click="emit('edit')">编辑习惯</AMenuItem>
             <AMenuItem @click="emit('statistics')">连续记录</AMenuItem>
+            <AMenuItem @click="emit('entries')">查看当天记录</AMenuItem>
             <AMenuItem :disabled="disabled || entryCount > 0" @click="emit('skip')"
               >跳过今天</AMenuItem
             >
@@ -157,3 +169,63 @@ const checkedToday = computed(() => ordinary.value && props.amount > 0);
     <p v-if="error" class="todo-error" role="alert">{{ error }}</p>
   </article>
 </template>
+
+<style scoped>
+@media (max-width: 600px) {
+  .todo-habit-card,
+  .todo-habit-card.is-checkin {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px 10px;
+    padding: 12px;
+    align-items: center;
+  }
+  .todo-habit-card-heading {
+    grid-column: 1 / -1;
+    gap: 8px;
+  }
+  .todo-habit-card-icon {
+    width: 32px;
+    height: 32px;
+    flex-basis: 32px;
+    font-size: 20px;
+  }
+  .todo-habit-card-heading small {
+    margin-top: 1px;
+  }
+  .todo-habit-card-heading .todo-task-title {
+    padding: 0;
+    min-height: 26px;
+    height: auto;
+  }
+  .todo-habit-card-progress {
+    grid-column: 1 / -1;
+  }
+  .is-checkin .todo-habit-card-progress {
+    grid-column: 1;
+  }
+  .todo-habit-card-status:empty {
+    display: none;
+  }
+  .todo-habit-card-record {
+    grid-column: 1 / -1;
+    align-items: center;
+  }
+  .is-checkin .todo-habit-card-record {
+    grid-column: 2;
+    grid-row: 2;
+  }
+  .todo-habit-addition {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: auto;
+  }
+  .todo-habit-addition > span {
+    flex: none;
+  }
+  .todo-habit-addition .ant-input-number {
+    width: 64px;
+  }
+}
+</style>

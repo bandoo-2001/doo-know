@@ -277,6 +277,19 @@ const dialogRule = computed(
 const ordinaryDialog = computed(
   () => !!dialogRule.value && getHabitGoalMode(dialogRule.value) === 'checkin',
 );
+const dialogEntries = computed(() =>
+  numericDialog.value
+    ? entries(numericDialog.value.habit.id, numericDialog.value.date)
+        .slice()
+        .sort((a, b) => b.occurredAt.localeCompare(a.occurredAt))
+    : [],
+);
+const dialogAmount = computed(() =>
+  numericDialog.value ? amount(numericDialog.value.habit.id, numericDialog.value.date) : 0,
+);
+const dialogSummary = computed(
+  () => numericDialog.value && habitSummary(numericDialog.value.habit, numericDialog.value.date),
+);
 const dialogRecorded = computed(
   () => numericDialog.value && amount(numericDialog.value.habit.id, numericDialog.value.date) > 0,
 );
@@ -345,6 +358,25 @@ async function undo(habit: ToDooEntityMap['habit'], date: string) {
     if (!r) return false;
   }
   return true;
+}
+async function undoEntry(entry: ToDooEntityMap['habitEntry']) {
+  if (!habitReady.value || state.busy) return;
+  if (
+    !(await confirmAction('仅撤销这一条记录？其他记录和来源专注记录会保留，可从回收站恢复此条。', {
+      title: '撤销单条习惯记录',
+      danger: true,
+    }))
+  )
+    return;
+  await props.model.removeEntity('habitEntry', entry);
+}
+function entryTime(entry: ToDooEntityMap['habitEntry'], habit: ToDooEntityMap['habit']) {
+  return new Intl.DateTimeFormat('zh-CN', {
+    timeZone: getHabitRule(habit, entry.localDate).timeZone,
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).format(new Date(entry.occurredAt));
 }
 async function recordToday(habit: ToDooEntityMap['habit']) {
   if (!habitReady.value || state.busy) return;
@@ -449,6 +481,9 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
         :key="h.id"
         :habit="h"
         :date="habitToday(h)"
+        :show-local-date="
+          habitToday(h) !== today || h.timeZone !== state.snapshot?.settings.timeZone
+        "
         :summary="habitSummary(h, habitToday(h))"
         :amount="amount(h.id, habitToday(h))"
         :entry-count="entries(h.id, habitToday(h)).length"
@@ -468,6 +503,7 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
         @undo="undo(h, habitToday(h))"
         @pause="pauseToday(h)"
         @statistics="openHabitStatistics(h)"
+        @entries="checkin(h, habitToday(h))"
       />
       <AEmpty v-if="!habits.length" description="从一件小事开始，记录每一次积累。" />
     </div>
@@ -506,7 +542,10 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
                   habitSummary(h, d).status === 'achieved',
               }"
               :disabled="
-                state.busy || !habitReady || d > today || habitSummary(h, d).status === 'inactive'
+                state.busy ||
+                !habitReady ||
+                d > habitToday(h) ||
+                habitSummary(h, d).status === 'inactive'
               "
               :title="
                 habitSummary(h, d).start +
@@ -525,17 +564,31 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
               "
               @click="checkin(h, d)"
             >
-              {{
+              <template
+                v-if="
+                  getHabitGoalMode(getHabitRule(h, d)) === 'quantity' &&
+                  entries(h.id, d).some((entry) => !entry.skipped)
+                "
+              >
+                <span>{{ amount(h.id, d) }}</span
+                ><small
+                  v-if="
+                    getHabitRule(h, d).frequency === 'daily' &&
+                    habitSummary(h, d).status === 'achieved'
+                  "
+                  aria-label="已达标"
+                  >✓</small
+                >
+              </template>
+              <template v-else>{{
                 exemptDay(h, d)
                   ? '–'
-                  : (getHabitGoalMode(getHabitRule(h, d)) === 'checkin' && amount(h.id, d) > 0) ||
-                      (getHabitRule(h, d).frequency === 'daily' &&
-                        habitSummary(h, d).status === 'achieved')
+                  : getHabitGoalMode(getHabitRule(h, d)) === 'checkin' && amount(h.id, d) > 0
                     ? '✓'
                     : entries(h.id, d).some((entry) => entry.skipped)
                       ? '跳'
-                      : amount(h.id, d) || '＋'
-              }}
+                      : '＋'
+              }}</template>
             </button>
           </div>
         </div>
@@ -568,7 +621,8 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
             </AButton>
           </div>
           <h2>{{ a.entity.name }}</h2>
-          <p class="todo-days" v-if="a.next">
+          <p v-if="a.next === today" class="todo-anniversary-today">就是今天</p>
+          <p class="todo-days" v-else-if="a.next">
             <small>{{ a.next >= today ? '还有' : '已经' }}</small
             >{{ distance(a.next, a.entity) }}<small>天</small>
           </p>
@@ -576,7 +630,13 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
           <p v-if="a.entity.calendar === 'lunar'" class="todo-muted">
             农历原日期：{{ a.entity.date }}{{ a.entity.lunarLeapMonth ? '（闰月）' : '' }}
           </p>
-          <p v-if="a.next" class="todo-muted">下次公历：{{ a.next }}</p>
+          <p v-if="a.next" class="todo-muted">
+            {{
+              (!a.entity.repeatYearly && a.next < today) || a.next === today
+                ? '公历日期'
+                : '下次公历'
+            }}：{{ a.next }}
+          </p>
           <details
             v-if="
               a.entity.repeatYearly ||
@@ -589,12 +649,18 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
           >
             <summary :aria-label="a.entity.name + ' · 查看详情'">查看详情</summary>
             <div class="todo-anniversary-details-content">
-              <p v-if="a.entity.calendar !== 'lunar' && a.entity.date !== a.next" class="todo-muted">
+              <p
+                v-if="a.entity.calendar !== 'lunar' && a.entity.date !== a.next"
+                class="todo-muted"
+              >
                 公历原日期：{{ a.entity.date }}
               </p>
               <p v-if="a.entity.repeatYearly" class="todo-muted">每年重复</p>
               <p v-if="a.entity.description">{{ a.entity.description }}</p>
-              <div v-if="a.entity.noteRefs.length || a.entity.reminders.length" class="todo-actions">
+              <div
+                v-if="a.entity.noteRefs.length || a.entity.reminders.length"
+                class="todo-actions"
+              >
                 <span v-if="a.entity.noteRefs.length" class="todo-badge"
                   >{{ a.entity.noteRefs.length }} 份关联资料</span
                 ><span v-if="a.entity.reminders.length" class="todo-badge"
@@ -666,11 +732,58 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
     @ok="saveNumeric"
     @cancel="closeNumeric"
   >
-    <form class="todo-form" @submit.prevent="saveNumeric">
+    <form class="todo-form todo-habit-day-form" @submit.prevent="saveNumeric">
       <p v-if="numericDialog?.kind === 'habit'">
         {{ numericDialog.habit.name }} · {{ numericDialog.date }} ·
         {{ getHabitRule(numericDialog.habit, numericDialog.date).unit }}
       </p>
+      <p v-if="numericDialog" class="todo-muted">记录时区：{{ dialogRule?.timeZone }}</p>
+      <p v-if="!ordinaryDialog && dialogRule">
+        已累计 {{ dialogAmount
+        }}<template v-if="dialogRule.frequency === 'daily'"> / {{ dialogRule.target }}</template>
+        {{ dialogRule.unit }}<span v-if="dialogSummary?.status === 'achieved'"> · 已达标</span>
+      </p>
+      <p v-if="dialogRule && dialogRule.frequency !== 'daily'" class="todo-muted">
+        当期累计 {{ dialogSummary?.amount }} / {{ dialogRule.target }}
+        {{ ordinaryDialog ? '天' : dialogRule.unit }}
+      </p>
+      <p class="todo-muted todo-small">
+        {{
+          ordinaryDialog ? '点击打卡后保存本次记录' : '点击保存后记录本次新增'
+        }}；关闭会放弃本次输入，已保存记录保留。
+      </p>
+      <ul
+        v-if="numericDialog && dialogEntries.length"
+        class="todo-habit-entries"
+        aria-label="当天记录"
+      >
+        <li v-for="entry in dialogEntries" :key="entry.id" :data-habit-entry-id="entry.id">
+          <div>
+            <time :datetime="entry.occurredAt">{{ entryTime(entry, numericDialog.habit) }}</time> ·
+            <span
+              >{{ entry.amount }}
+              {{ getHabitRule(numericDialog.habit, entry.localDate).unit }}</span
+            >
+            <small v-if="entry.skipped"> · 已跳过</small>
+            <small
+              v-else-if="
+                getHabitGoalMode(getHabitRule(numericDialog.habit, entry.localDate)) === 'checkin'
+              "
+            >
+              · 打卡</small
+            >
+            <small v-if="entry.sourceSessionId"> · 来自专注</small>
+            <p v-if="entry.note">{{ entry.note }}</p>
+          </div>
+          <AButton
+            type="link"
+            danger
+            :disabled="state.busy || !habitReady"
+            @click="undoEntry(entry)"
+            >撤销此条</AButton
+          >
+        </li>
+      </ul>
       <p v-if="dialogExempt" class="todo-muted">这一天无需记录。</p>
       <p v-else-if="ordinaryDialog">
         {{ dialogRecorded ? '这一天已打卡。' : '完成后记录一次打卡。' }}
@@ -746,5 +859,67 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
   padding-top: 12px;
   border-top: 1px solid var(--todo-line);
   color: var(--todo-ink);
+}
+.todo-anniversaries {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 340px));
+}
+.todo-anniversary {
+  min-width: 0;
+}
+.todo-anniversary-today {
+  color: var(--todo-accent);
+  font-size: 28px;
+  font-weight: 650;
+  padding-block: 12px;
+}
+.todo-habit-check {
+  width: auto;
+  min-width: 32px;
+  padding-inline: 5px;
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+  justify-content: center;
+}
+.todo-habit-check small {
+  font-size: 10px;
+}
+.todo-habit-day-form {
+  gap: 12px;
+}
+.todo-habit-day-form > p {
+  margin: 0;
+}
+.todo-habit-entries {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 240px;
+  overflow-y: auto;
+}
+.todo-habit-entries li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border-bottom: 1px solid var(--todo-line);
+  padding-block: 8px;
+}
+.todo-habit-entries li > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.todo-habit-entries li .ant-btn {
+  flex: none;
+}
+.todo-habit-entries p {
+  margin: 4px 0 0;
+  color: var(--todo-muted);
+  font-size: 12px;
+}
+@media (max-width: 600px) {
+  .todo-habit-cards {
+    gap: 10px;
+  }
 }
 </style>
