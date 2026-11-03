@@ -1,6 +1,5 @@
 import { constants, openSync, closeSync, fstatSync, lstatSync, readFileSync } from 'node:fs';
 import { parseDiagramDocument } from '../../../shared/diagram-document.js';
-import { isWhiteboard } from '../../../shared/whiteboard.js';
 import type { DocumentType } from '../../../shared/diagram-resource.js';
 import { hasDiagramDeclarationSync } from './diagram-declaration.js';
 import { fileVersionStamp } from './file-reader.js';
@@ -11,7 +10,7 @@ type Metadata = { documentType: DocumentType; title?: string };
 export function documentMetadataReader() {
   const cache = new Map<string, { signature: string; metadata: Metadata }>();
   return (file: string, logicalPath: string): Metadata => {
-    if (isWhiteboard(logicalPath)) return { documentType: 'whiteboard' };
+
     const fd = openSync(file, constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK);
     try {
       const before = fstatSync(fd, { bigint: true }),

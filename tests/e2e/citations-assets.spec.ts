@@ -9,10 +9,10 @@ test('citation opens its line and a large share renders only saved local attachm
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   const config = JSON.parse(await readFile('.local/e2e-config.json', 'utf8'));
   const name = `引用与附件-${info.project.name}.md`;
-  await mkdir(join(config.knowledgeRoot, '00-Inbox/assets'), { recursive: true });
+  await mkdir(join(config.knowledgeRoot, '00-Inbox/_doo-assets'), { recursive: true });
   const image = `citation-${info.project.name}.png`;
   await writeFile(
-    join(config.knowledgeRoot, '00-Inbox/assets', image),
+    join(config.knowledgeRoot, '00-Inbox/_doo-assets', image),
     Buffer.from(
       'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a7i8AAAAASUVORK5CYII=',
       'base64',
@@ -20,7 +20,7 @@ test('citation opens its line and a large share renders only saved local attachm
   );
   await writeFile(
     join(config.knowledgeRoot, '00-Inbox', name),
-    `# 分享附件\n\n![本地图片](assets/${image})\n\n` + '正文一行\n\n'.repeat(180000),
+    `# 分享附件\n\n![本地图片](_doo-assets/${image})\n\n` + '正文一行\n\n'.repeat(180000),
   );
   await page.goto('/');
   const notes = await (await page.request.get('/api/notes')).json();

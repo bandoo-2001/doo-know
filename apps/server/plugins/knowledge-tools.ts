@@ -1,8 +1,5 @@
 import { safePreviewRequiredDetails } from '../../../shared/mcp-preview-required.js';
-import {
-  createOperationPreviewToolPort,
-  operationPreviewToolNames,
-} from './operation-preview-tools.js';
+import { createOperationPreviewToolPort, operationPreviewToolNames } from './operation-preview-tools.js';
 import { createPortableToolPort, portableToolNames } from './portable-tools.js';
 import { createPrimaryDiagramToolPort, primaryDiagramToolNames } from './primary-diagram-tools.js';
 import { primaryDiagramService } from '../../../packages/core/knowledge/primary-diagrams.js';
@@ -13,41 +10,23 @@ import { hashFile } from '../../../packages/core/portable-delivery/manifest.js';
 import { join } from 'node:path';
 import { knowledgeToolByName } from '../../../shared/mcp-knowledge-tools.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
-import type {
-  McpManagedDomainPort,
-  McpTransferBinding,
-  McpTransferInfo,
-} from '../../../shared/mcp-domain-tools.js';
+import type { McpManagedDomainPort, McpTransferBinding, McpTransferInfo } from '../../../shared/mcp-domain-tools.js';
 import type { ServiceCallOptions } from '../../../packages/plugin-sdk/index.js';
 import type { McpDomainContext } from './mcp-domain-context.js';
 import { authorizePath, requireScope } from '../../../packages/core/agent/auth.js';
 import { signCursor, decodeCursor, acquireRead } from '../../../packages/core/agent/budgets.js';
-import {
-  beginOperation,
-  completeOperation,
-  existingResult,
-  sha256,
-} from '../../../packages/core/knowledge/operations.js';
+import { beginOperation, completeOperation, existingResult, sha256 } from '../../../packages/core/knowledge/operations.js';
 import { fail } from '../../../packages/core/knowledge/errors.js';
-import {
-  lifecyclePrincipal,
-  authorizeFolderPath,
-} from '../../../packages/core/knowledge/lifecycle-access.js';
+import { lifecyclePrincipal, authorizeFolderPath } from '../../../packages/core/knowledge/lifecycle-access.js';
 import { backlinkService } from '../../../packages/core/knowledge/backlinks.js';
 import { diagramArtifactService } from '../../../packages/core/knowledge/diagram-artifacts.js';
 import { archiveFolder, restoreFolder } from '../../../packages/core/folders.js';
-import {
-  resolveDirectory,
-  syncDirectoryCatalog,
-} from '../../../packages/core/organization/catalog.js';
-import {
-  readOrganizationSettings,
-  updateOrganizationSettings,
-} from '../../../packages/core/organization/settings.js';
+import { resolveDirectory, syncDirectoryCatalog } from '../../../packages/core/organization/catalog.js';
+import { readOrganizationSettings, updateOrganizationSettings } from '../../../packages/core/organization/settings.js';
 import { workspaceExclusive, workspaceWriteSync } from '../../../packages/core/workspace/gate.js';
 import { readBlocks } from '../../../packages/core/knowledge/file-reader.js';
 import { localReference } from '../../../packages/core/render.js';
-import { isWhiteboard, whiteboardId, whiteboardReference } from '../../../shared/whiteboard.js';
+import { whiteboardId, whiteboardReference } from '../../../shared/whiteboard.js';
 import { canAccessPath } from '../../../packages/core/auth/permissions.js';
 import { conflictService } from '../../../packages/core/knowledge/conflicts.js';
 import { findOperation } from '../../../packages/core/knowledge/operations.js';
@@ -797,8 +776,8 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
         )?.id;
       if (!targetId) fail(404, 'NOT_FOUND');
       const target = note(p, targetId);
-      if (!isWhiteboard(target.path)) fail(404, 'NOT_FOUND');
       const info = await k.info(p, targetId);
+      if (info.documentType !== 'whiteboard') fail(404, 'NOT_FOUND');
       note(revalidate(), targetId);
       note(revalidate(), a.noteId);
       result = {
@@ -817,7 +796,7 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
       if (!a.noteId && target.length > 2048) fail(400, 'INVALID_PATH');
       if (!a.noteId) authorizePath(p, target, 'knowledge:write');
       if (
-        !/\.(md|excalidraw)$/i.test(a.name) ||
+        !/\.md$/i.test(a.name) ||
         a.mime !==
           (/\.excalidraw$/i.test(a.name) ? 'application/vnd.excalidraw+json' : 'text/markdown')
       )
@@ -904,7 +883,7 @@ export function createKnowledgeToolPort(context: McpDomainContext): McpManagedDo
               metadata: { snapshotId: ready.id },
             },
             name: basename(n.path),
-            mime: isWhiteboard(n.path) ? 'application/vnd.excalidraw+json' : 'text/markdown',
+            mime: 'text/markdown',
             bytes: Buffer.concat(parts),
           });
         } finally {

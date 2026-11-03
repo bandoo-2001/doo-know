@@ -1,45 +1,22 @@
 import { DOO_ASSETS_DIRECTORY } from '../../../shared/storage-paths.js';
-import {
-  planRetainedFolderResources,
-  verifyRetainedFolderResources,
-  type RetainedFolderResource,
-  type RetainedFolderDirectory,
-} from '../knowledge/diagram-retained-folders.js';
+import { planRetainedFolderResources, verifyRetainedFolderResources, type RetainedFolderResource, type RetainedFolderDirectory } from '../knowledge/diagram-retained-folders.js';
 import { planNativeLinkChanges } from '../knowledge/native-link-plans.js';
-import {
-  lstatSync,
-  openSync,
-  closeSync,
-  fstatSync,
-  readFileSync,
-  constants,
-  readdirSync,
-} from 'node:fs';
-import { join, dirname } from 'node:path';
+import { lstatSync, openSync, closeSync, fstatSync, readFileSync, constants, readdirSync } from 'node:fs';
+import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import type { AppConfig } from '../../../shared/contracts.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
 import type { OrganizeInput, OrganizationResult } from '../../../shared/organization-contracts.js';
 import type { AppDatabase } from '../db.js';
 import { validName, safePath, scanFiles } from '../files.js';
-import { isDocument, isWhiteboard } from '../../../shared/whiteboard.js';
+import { isDocument } from '../../../shared/whiteboard.js';
 import { fail } from '../knowledge/errors.js';
 import { sha256 } from '../knowledge/operations.js';
 import { canAccessPath, requireScope } from '../agent/auth.js';
-import {
-  syncDirectoryCatalog,
-  resolveDirectory,
-  directoryByPath,
-  libraryIdentity,
-} from './catalog.js';
+import { syncDirectoryCatalog, resolveDirectory, directoryByPath, libraryIdentity } from './catalog.js';
 import { rewriteLibraryReferences } from './references.js';
 import { assertOrganizationReceiptFits } from './response-budget.js';
-import {
-  assertFolderDiagramResourcesUnshared,
-  planDiagramRelocation,
-  verifyDiagramRelocations,
-  type DiagramRelocation,
-} from '../knowledge/diagram-relocation.js';
+import { assertFolderDiagramResourcesUnshared, planDiagramRelocation, verifyDiagramRelocations, type DiagramRelocation } from '../knowledge/diagram-relocation.js';
 export const organizationLimits = {
   actions: 50,
   files: 1000,
@@ -110,7 +87,7 @@ export type OrganizationManifest = {
   diagrams?: DiagramRelocation[];
   retainedResources?: RetainedFolderResource[];
   retainedDirectories?: RetainedFolderDirectory[];
-  legacyPreviews?: Array<{ noteId: string; manifest: unknown }>;
+
 };
 export function evidence(path: string, hash?: string): Evidence {
   const s = lstatSync(path, { bigint: true });
@@ -237,8 +214,7 @@ export function prepareOrganization(
       if (!n?.active) fail(404, 'NOT_FOUND');
       if (
         !validName(action.fileName) ||
-        !isDocument(action.fileName) ||
-        isWhiteboard(n.path) !== isWhiteboard(action.fileName)
+        !isDocument(action.fileName)
       )
         fail(400, 'INVALID_INPUT');
       const parent = targetDirectory(db, action.toDirectoryId),
@@ -327,7 +303,7 @@ export function prepareOrganization(
         retainedResources,
       );
   const diagrams: DiagramRelocation[] = [];
-  const legacyPreviews: Array<{ noteId: string; manifest: unknown }> = [];
+
   const assetRows = db.prepare('SELECT id,path FROM assets').all() as Array<{
     id: string;
     path: string;
@@ -409,10 +385,9 @@ export function prepareOrganization(
             n.path,
             target,
             referenceMoves,
-            isWhiteboard(n.path),
+            false,
           );
-    if (native.get(n.id)?.legacy)
-      legacyPreviews.push({ noteId: n.id, manifest: native.get(n.id)!.legacy });
+
     try {
       // An unchanged primary is covered by the fixed main-file inventory and
       // native dependency enumeration; it is not a new publication to activate.
@@ -491,7 +466,7 @@ export function prepareOrganization(
     coverage,
     diagrams,
     retainedResources,
-    legacyPreviews,
+
     objects,
     permissions,
     changes: [

@@ -1,4 +1,3 @@
-import { resolveStorageAssetAlias } from './storage-asset-aliases.js';
 import { mediaMime } from '../../shared/media.js';
 import { assetStamp, hashAssetSync } from './asset-stream.js';
 import { posix } from 'node:path';
@@ -14,10 +13,7 @@ import type { NoteService } from './notes.js';
 import type { assetService } from './assets.js';
 import type { shareService } from './shares.js';
 import { localReference, references, renderMarkdownReferences } from './render.js';
-import {
-  resolvePrimaryDiagram,
-  resolveWhiteboardResource,
-} from './knowledge/diagram-resource-resolver.js';
+import { resolvePrimaryDiagram, resolveWhiteboardResource } from './knowledge/diagram-resource-resolver.js';
 import { webPrincipal } from './knowledge/core.js';
 import { sha256 } from './knowledge/operations.js';
 import { fail, KnowledgeError } from './knowledge/errors.js';
@@ -152,16 +148,13 @@ export function publicDiagramProjectionService(
     let content = note.content,
       resource: DiagramResource | undefined;
     // Semantic classification uses actual current/last-complete bytes, never the document_state cache.
-    const parsed = parseDiagramDocument(note.content),
-      legacy = /\.excalidraw$/i.test(note.relativePath);
+    const parsed = parseDiagramDocument(note.content);
     if (parsed.status === 'invalid')
       fail(422, 'INVALID_DIAGRAM_DOCUMENT', '图形声明无效，请由所有者恢复原文');
-    if (legacy || parsed.status === 'diagram') {
+    if (parsed.status === 'diagram') {
       const privateResource = resolvePrimaryDiagram(config, db, notes, webPrincipal, note.id);
       resource = safe(privateResource, note.relativePath, 'primary');
-      content = legacy
-        ? `# ${note.title.replace(/[\r\n]/g, ' ')}\n\n${renderPortableImage('图形预览', resource.preview!.path)}\n`
-        : projectPrimaryMarkdown(content, resource.preview!.path);
+      content = projectPrimaryMarkdown(content, resource.preview!.path);
     }
     const original = content,
       starts = [0];
@@ -184,61 +177,6 @@ export function publicDiagramProjectionService(
         ),
         child = notes.row(owner.noteId);
       owner.role = 'embedded';
-      // Legacy portable bindings may prove a fixed PNG for this exact scene and exact reference code.
-      if (owner.preview?.state !== 'ready' && /\.excalidraw$/i.test(child.path)) {
-        const group = groups.find((g) => g.from === from);
-        if (
-          group &&
-          group.binding.kind === 'excalidraw' &&
-          group.binding.codeHash === sha256(normalizeDiagramCode(t.content)) &&
-          group.binding.sourceHash === owner.source.hash
-        ) {
-          const native = localReference(note.relativePath, group.sourcePath),
-            preview = localReference(note.relativePath, group.previewPath);
-          try {
-            if (!native || !preview) throw Error();
-            const sourceBytes = readBoundDiagramAssetSnapshot(config, native, 'source').bytes,
-              png = readBoundDiagramAssetSnapshot(config, preview, 'preview').bytes;
-            validatePng(png);
-            if (sha256(sourceBytes) !== owner.source.hash) throw Error();
-            // v1 portable comments contain no PNG hash. A durable upload receipt must
-            // independently prove this exact source/PNG pair; hashing today's PNG alone
-            // would silently bless an externally replaced preview.
-            const previewHash = sha256(png),
-              prefix = 'diagram-artifacts:';
-            const receipts = db
-              .prepare(
-                "SELECT kind,params_hash,result FROM operations WHERE kind LIKE 'diagram-artifacts:%' AND status='succeeded' AND json_extract(result,'$.sourceHash')=?",
-              )
-              .all(owner.source.hash) as { kind: string; params_hash: string; result: string }[];
-            if (
-              !receipts.some(
-                (receipt) =>
-                  resolveStorageAssetAlias(config.knowledgeRoot, JSON.parse(receipt.result).source.relativePath) === resolveStorageAssetAlias(config.knowledgeRoot, native) &&
-                  resolveStorageAssetAlias(config.knowledgeRoot, JSON.parse(receipt.result).preview.relativePath) === resolveStorageAssetAlias(config.knowledgeRoot, preview) &&
-                  receipt.params_hash ===
-                  sha256(
-                    JSON.stringify({
-                      kind: 'excalidraw',
-                      noteId: receipt.kind.slice(prefix.length),
-                      previewHash,
-                      sourceHash: owner.source.hash,
-                    }),
-                  ),
-              )
-            )
-              throw Error();
-            owner.preview = {
-              path: posix.relative(posix.dirname(child.path), preview),
-              hash: previewHash,
-              renderHash: sha256(JSON.stringify(group.binding)),
-              state: 'ready',
-            };
-          } catch {
-            /* The absence of a valid proof remains preview-required. */
-          }
-        }
-      }
       const view = safe(owner, child.path, 'embedded');
       embedded.set(ref, view);
       changes.push({

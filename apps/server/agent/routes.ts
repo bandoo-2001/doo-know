@@ -1,23 +1,17 @@
 import { folderRestorePending } from '../../../packages/core/knowledge/folder-restore-pending.js';
 import { recoverFolders } from '../../../packages/core/folders.js';
 import { workspaceExclusive } from '../../../packages/core/workspace/gate.js';
-import {isWhiteboard,documentTitle,MAX_WHITEBOARD_BYTES} from '../../../shared/whiteboard.js';
+import { documentTitle } from '../../../shared/whiteboard.js';
 import { hasActiveShare } from '../../../packages/core/share-policy.js';
 import { stat } from 'node:fs/promises';
-import { basename } from 'node:path';
+
 import type { FastifyInstance } from 'fastify';
 import type { AppConfig } from '../../../shared/contracts.js';
 import type { Principal, NoteInfo } from '../../../shared/knowledge-contracts.js';
 import type { AppDatabase } from '../../../packages/core/db.js';
 import type { NoteService } from '../../../packages/core/notes.js';
-import { safePath } from '../../../packages/core/files.js';
-import {
-  authorizeAgent,
-  authorizePath,
-  requireScope,
-  underPrefix,
-  authorizationCutoff,
-} from '../../../packages/core/agent/auth.js';
+
+import { authorizeAgent, authorizePath, requireScope, authorizationCutoff } from '../../../packages/core/agent/auth.js';
 import { KnowledgeError, fail } from '../../../packages/core/knowledge/errors.js';
 import { mutationCore } from '../../../packages/core/knowledge/core.js';
 import { findOperation } from '../../../packages/core/knowledge/operations.js';
@@ -62,13 +56,12 @@ export function metadataService(config: AppConfig, db: AppDatabase, notes: NoteS
       contentHash: known ? state.content_hash : null,
       sourceRevision: known ? state.source_revision : null,
       longestLineBytes: ready ? state.longest_line_bytes : null,
-      editorMode: isWhiteboard(row.path) ? (s.size <= BigInt(MAX_WHITEBOARD_BYTES) ? 'full' : 'metadata') :
-        s.size > 20n * 1024n * 1024n
+      editorMode: s.size > 20n * 1024n * 1024n
           ? 'metadata'
           : !ready || s.size > 1024n * 1024n || state.longest_line_bytes > 32768
             ? 'large'
             : 'full',
-      readState: isWhiteboard(row.path) ? 'ready' : ready
+      readState: ready
         ? 'ready'
         : db
               .prepare(
@@ -236,7 +229,7 @@ export async function registerAgentRoutes(
                       ? 'INVALID_INPUT'
                       : 'INTERNAL_ERROR',
             message: e instanceof KnowledgeError ? e.message : '操作未完成',
-            retryable: e.retryable || false,
+            retryable: e.retryable,
           },
         });
       });

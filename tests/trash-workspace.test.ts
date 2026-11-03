@@ -1,3 +1,4 @@
+import * as storagePaths from '../shared/storage-paths';
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { beforeEach, expect, it, vi } from 'vitest';
@@ -38,6 +39,8 @@ async function mount() {
           ? operationPreviews
         : id === '../api'
           ? { api: mockApi, ApiError }
+          : id === '../../../shared/storage-paths'
+            ? storagePaths
           : id === 'ant-design-vue'
             ? {}
             : nodeRequire(id),

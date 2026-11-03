@@ -5,19 +5,8 @@ import { readBody } from '../organization/plan.js';
 import { planNativeLinkChanges } from './native-link-plans.js';
 import { journalDocumentMove, recoverJournalDocumentMove } from './document-move-journal.js';
 import { rewriteLibraryReferences } from '../organization/references.js';
-import { isDocument, isWhiteboard } from '../../../shared/whiteboard.js';
-import {
-  constants,
-  copyFileSync,
-  existsSync,
-  lstatSync,
-  openSync,
-  closeSync,
-  fsyncSync,
-  linkSync,
-  unlinkSync,
-  readFileSync,
-} from 'node:fs';
+import { isDocument } from '../../../shared/whiteboard.js';
+import { constants, copyFileSync, existsSync, lstatSync, openSync, closeSync, fsyncSync, linkSync, unlinkSync, readFileSync } from 'node:fs';
 import { basename, dirname, join } from 'node:path';
 import type { AppConfig } from '../../../shared/contracts.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
@@ -32,12 +21,7 @@ import { acquireNoteWrite, releaseNoteWrite } from './write-lease.js';
 import { beginOperation, existingResult, sha256 } from './operations.js';
 import { fail, KnowledgeError } from './errors.js';
 import { hasDiagramDeclarationSync } from './diagram-declaration.js';
-import {
-  planDiagramRelocation,
-  recordDiagramRelocations,
-  verifyDiagramRelocations,
-  type DiagramRelocation,
-} from './diagram-relocation.js';
+import { planDiagramRelocation, recordDiagramRelocations, verifyDiagramRelocations, type DiagramRelocation } from './diagram-relocation.js';
 
 export function moveService(config: AppConfig, db: AppDatabase, record: (intent: any) => any) {
   const stageFor = (intent: any) =>
@@ -227,8 +211,7 @@ export function moveService(config: AppConfig, db: AppDatabase, record: (intent:
     const path = folderPath === '' ? fileName : `${folderPath}/${fileName}`,
       note = db.prepare('SELECT * FROM notes WHERE id=?').get(id) as any;
     if (!note) fail(404, 'NOT_FOUND');
-    if (isWhiteboard(note.path) !== isWhiteboard(fileName))
-      fail(400, 'INVALID_INPUT', '改名时请保留原文件类型');
+
     authorizePath(p, note.path, 'knowledge:write');
     authorizePath(p, path, 'knowledge:write');
     const prior = db
@@ -308,7 +291,7 @@ export function moveService(config: AppConfig, db: AppDatabase, record: (intent:
       note.path,
       path,
       moves,
-      isWhiteboard(note.path),
+      false,
     );
     if (
       native.size ||
@@ -373,7 +356,6 @@ export function moveService(config: AppConfig, db: AppDatabase, record: (intent:
         if (document.modifiedAt !== expectedModifiedAt || sha256(document.content) !== hash)
           fail(409, 'VERSION_CONFLICT');
         if (
-          !isWhiteboard(note.path) &&
           references(document.content).some((url) => localReference(note.path, url) !== undefined)
         )
           fail(

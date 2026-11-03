@@ -34,7 +34,7 @@ it('retains a full-hash request when a later asset event joins the same debounce
     );
   try {
     observation.callback!('change', '00-Inbox/edited.md');
-    observation.callback!('change', '00-Inbox/assets/fixed.excalidraw');
+    observation.callback!('change', '00-Inbox/_doo-assets/fixed.excalidraw');
     await vi.advanceTimersByTimeAsync(751);
     expect(reconcile).toHaveBeenCalledWith(undefined, true);
   } finally {

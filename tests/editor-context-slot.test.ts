@@ -9,7 +9,7 @@ const schema = getSchema(richExtensions());
 describe('文档就近操作定位', () => {
   const table = schema.nodeFromJSON(
     createRichProjection(
-      '| 链接 | 图片 |\n| --- | --- |\n| [资源](https://example.invalid/docs) | ![图示](assets/example.png) |',
+      '| 链接 | 图片 |\n| --- | --- |\n| [资源](https://example.invalid/docs) | ![图示](_doo-assets/example.png) |',
     ).json,
   );
   it('表格内选择图片时使用图片控件，而非表格控件', () => {
@@ -37,7 +37,7 @@ describe('文档就近操作定位', () => {
   it('长段末尾的图片控件定位在图片处', () => {
     const paragraph = schema.nodes.paragraph.create(null, [
       schema.text('x'.repeat(2000)),
-      schema.nodes.image.create({ src: 'assets/x.png', alt: 'x' }),
+      schema.nodes.image.create({ src: '_doo-assets/x.png', alt: 'x' }),
     ]);
     const doc = schema.nodes.doc.create(null, paragraph);
     const state = EditorState.create({ doc, selection: NodeSelection.create(doc, 2001) });

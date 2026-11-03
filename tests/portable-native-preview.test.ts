@@ -221,14 +221,14 @@ it('rejects own-origin native API links as unavailable package dependencies whil
   expect(() =>
     checkNativeLinks(
       source('https://own.invalid/api/assets/id'),
-      'assets/source.excalidraw',
+      '_doo-assets/source.excalidraw',
       'https://own.invalid',
     ),
   ).toThrowError(expect.objectContaining({ code: 'PORTABLE_DEPENDENCY_UNAVAILABLE' }));
   expect(() =>
     checkNativeLinks(
       source('https://external.invalid/api/docs'),
-      'assets/source.excalidraw',
+      '_doo-assets/source.excalidraw',
       'https://own.invalid',
     ),
   ).not.toThrow();

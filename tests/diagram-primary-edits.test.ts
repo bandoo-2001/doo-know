@@ -21,16 +21,16 @@ function prepared(
     config: { layout: 'first' },
     preview: {
       id: 'preview',
-      relativePath: '00-Inbox/assets/new.png',
-      markdownPath: 'assets/new.png',
+      relativePath: '00-Inbox/_doo-assets/new.png',
+      markdownPath: '_doo-assets/new.png',
       mime: 'image/png',
     },
     ...(type === 'whiteboard'
       ? {
           source: {
             id: 'source',
-            relativePath: '00-Inbox/assets/new.excalidraw',
-            markdownPath: 'assets/new.excalidraw',
+            relativePath: '00-Inbox/_doo-assets/new.excalidraw',
+            markdownPath: '_doo-assets/new.excalidraw',
             mime: 'application/vnd.excalidraw+json',
           },
         }
@@ -73,7 +73,7 @@ it.each(['whiteboard', 'mindmap', 'flowchart'] as const)(
       next = {
         ...prepared(type),
         sourceHash: createHash('sha256').update(source(type)).digest('hex'),
-        preview: { ...first.preview, markdownPath: 'assets/next.png' },
+        preview: { ...first.preview, markdownPath: '_doo-assets/next.png' },
         config: { layout: 'next' },
       };
     const apply = primary.applyPreparedDiagramDocument;
@@ -89,7 +89,7 @@ it.each(['whiteboard', 'mindmap', 'flowchart'] as const)(
         custom: { keep: '未知字段' },
         render: { config: { layout: 'next' }, adapterFuture: { keep: 42 } },
       },
-      primary: { previewPath: 'assets/next.png', binding: { sourceHash: next.sourceHash } },
+      primary: { previewPath: '_doo-assets/next.png', binding: { sourceHash: next.sourceHash } },
     });
     if (parsed.status === 'diagram' && parsed.primary.source.format !== 'excalidraw')
       expect(parsed.primary.source.content).toBe(source(type));

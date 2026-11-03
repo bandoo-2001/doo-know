@@ -1,13 +1,10 @@
-import { DOO_ASSETS_DIRECTORY, isCompatibleAssetPath, isDooAssetPath } from '../../../shared/storage-paths.js';
-import { noteIdAtPath } from './note-path-aliases.js';
+import { isDooAssetPath } from '../../../shared/storage-paths.js';
+import { noteIdAtPath } from './note-path.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
 import type { AppConfig } from '../../../shared/contracts.js';
 import { diagramResourceSchema, type DiagramResource } from '../../../shared/diagram-resource.js';
 import { parseDiagramDocument } from '../../../shared/diagram-document.js';
-import {
-  diagramRendererVersions,
-  primaryRenderDescriptor,
-} from '../../../shared/diagram-primary.js';
+import { diagramRendererVersions, primaryRenderDescriptor } from '../../../shared/diagram-primary.js';
 import { serializeDiagramRenderInput } from '../../../shared/diagram-document-binding.js';
 import type { AppDatabase } from '../db.js';
 import type { NoteService } from '../notes.js';
@@ -19,8 +16,7 @@ import { readBoundDiagramAssetSnapshot } from './diagram-resource-files.js';
 import { validateDiagramSource, validatePng } from './diagram-artifacts.js';
 import { sha256 } from './operations.js';
 import { fail } from './errors.js';
-import { isWhiteboard, whiteboardId, whiteboardReference } from '../../../shared/whiteboard.js';
-import { resolveLegacyDiagram } from './legacy-diagram-previews.js';
+import { whiteboardId, whiteboardReference } from '../../../shared/whiteboard.js';
 
 export type DiagramSourceSnapshot = {
   noteId: string;
@@ -48,8 +44,7 @@ export function resolvePrimaryDiagram(
   if (isSharePrincipal(principal)) fail(403, 'DIAGRAM_SOURCE_FORBIDDEN');
   const row = notes.row(noteId);
   authorizePath(principal, row.path);
-  if (isWhiteboard(row.path))
-    return resolveLegacyDiagram(config, db, notes, principal, noteId, options);
+
   const { note } = notes.getNoteSnapshot(noteId),
     parsed = parseDiagramDocument(note.content);
   if (parsed.status !== 'diagram')
@@ -66,7 +61,7 @@ export function resolvePrimaryDiagram(
   try {
     if (format === 'excalidraw') {
       sourcePath = localReference(note.relativePath, declared.path);
-      if (!sourcePath || !isCompatibleAssetPath(sourcePath)) throw Error();
+      if (!sourcePath || !isDooAssetPath(sourcePath)) throw Error();
       if (
         !canAccessPath(principal, sourcePath) &&
         !hasDiagramResourceProof(db, noteId, sourcePath, binding.sourceHash, 'source')
@@ -109,7 +104,7 @@ export function resolvePrimaryDiagram(
   let previewState: 'ready' | 'stale' | 'missing' = 'stale';
   try {
     const path = localReference(note.relativePath, parsed.primary.previewPath);
-    if (!path || !isCompatibleAssetPath(path)) throw Error();
+    if (!path || !isDooAssetPath(path)) throw Error();
     // The PNG itself is explicitly included in the readable main document; this never grants native source access.
     const snapshot = readBoundDiagramAssetSnapshot(config, path, 'preview');
     validatePng(snapshot.bytes);

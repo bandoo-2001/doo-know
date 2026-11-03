@@ -3,16 +3,10 @@ import type { TokenizerClient } from './tokenizer-client.js';
 import type { SourceVersion, Principal, SearchInput } from '../../../shared/knowledge-contracts.js';
 import type { IndexedChunk } from './chunks.js';
 import { chunkInventory } from './scan-proof.js';
-import { isWhiteboard } from '../../../shared/whiteboard.js';
-import { whiteboardChunkText } from '../../../shared/whiteboard-text-spans.js';
 import { requireScope } from '../agent/auth.js';
 import { fail } from '../knowledge/errors.js';
 import { recallFilter } from '../search/filters.js';
-import {
-  CONTENT_MATCH_RANK,
-  filenameMatchRank,
-  searchNeedle,
-} from '../../../shared/search-matching.js';
+import { CONTENT_MATCH_RANK, filenameMatchRank, searchNeedle } from '../../../shared/search-matching.js';
 function recallResult<T>(rows: T[], hasMoreNotes = false) {
   return Object.defineProperty(rows, 'hasMoreNotes', { value: hasMoreNotes }) as T[] & {
     hasMoreNotes: boolean;
@@ -38,14 +32,7 @@ export function pathFilter(p: Principal, column = 'c.path') {
   return { sql: clauses.join(' OR '), values };
 }
 export function textIndexService(db: AppDatabase, tokenizer: TokenizerClient) {
-  const searchableText = (path: string, content: string) => {
-    if (!isWhiteboard(path)) return content;
-    try {
-      return whiteboardChunkText(content);
-    } catch {
-      return '';
-    }
-  };
+  const searchableText = (_path: string, content: string) => content;
   db.function('dooknow_chunk_text', { deterministic: true }, searchableText);
   async function stage(
     version: SourceVersion,
@@ -56,7 +43,7 @@ export function textIndexService(db: AppDatabase, tokenizer: TokenizerClient) {
   ) {
     if (chunks.length > 16) fail(413, 'INDEX_BATCH_TOO_LARGE');
     const semantic = chunks.map((c) =>
-        isWhiteboard(path) ? whiteboardChunkText(c.content) : c.content,
+        c.content,
       ),
       fields = chunks.flatMap((c, i) => [title, path, c.headingPath.join(' / '), semantic[i]]),
       terms = await tokenizer.tokenize(fields);

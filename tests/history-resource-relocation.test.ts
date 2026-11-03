@@ -42,6 +42,7 @@ function fixture() {
     primary = primaryDiagramService(f.config, f.db, f.notes, assets, f.p);
   const registry = diagramOperationPreviewRegistry(f.config, f.db, f.p, assets);
   mkdirSync(join(f.config.knowledgeRoot, 'Topic/Folder/assets'), { recursive: true });
+  mkdirSync(join(f.config.knowledgeRoot, 'Topic/Folder/_doo-assets'), { recursive: true });
   const target = f.create('Topic/Folder/target.md', '# Target');
   cleanup.push(async () => {
     await org.close();
@@ -688,11 +689,11 @@ it.each([false, true])(
   'uses the same identity mapping in ordinary small/background restores (%s)',
   async (background) => {
     const f = fixture(),
-      imagePath = 'Topic/Folder/assets/body.png';
+      imagePath = 'Topic/Folder/_doo-assets/body.png';
     writeFileSync(join(f.config.knowledgeRoot, imagePath), Buffer.from(png, 'base64'));
     f.db.prepare('INSERT INTO assets(id,path) VALUES(?,?)').run(randomUUID(), imagePath);
     const original =
-      '# Historical\n\n![body](assets/body.png) [[target|Target]]\n\n`[[target]]`\n\n' +
+      '# Historical\n\n![body](_doo-assets/body.png) [[target|Target]]\n\n`[[target]]`\n\n' +
       (background ? 'x'.repeat(2 * 1024 * 1024) : 'Original');
     const note = f.create('Topic/Folder/note.md', original),
       snapshots = snapshotService(f.config, f.db, f.notes),
@@ -753,7 +754,7 @@ it.each([false, true])(
       );
     const body = readFileSync(join(f.config.knowledgeRoot, expected), 'utf8');
     expect(body.slice(0, 512)).toContain('# Historical');
-    expect(body.slice(0, 512)).toContain('![body](assets/body.png) [Target](<renamed.md>)');
+    expect(body.slice(0, 512)).toContain('![body](_doo-assets/body.png) [Target](<renamed.md>)');
     expect(body.slice(0, 512)).toContain('`[[target]]`');
     expect(sha256(body)).not.toBe(sha256(current));
   },

@@ -1,8 +1,4 @@
-import { storageAssetAliasState } from './storage-asset-alias-state.js';
-import { knowledgeDataDirectory } from './knowledge-data-path.js';
-import { ASSET_ALIASES_FILE } from './storage-asset-aliases.js';
-import { resolveStorageAssetAlias } from './storage-asset-aliases.js';
-import { DOO_ASSETS_DIRECTORY, isCompatibleAssetPath } from '../../shared/storage-paths.js';
+import { DOO_ASSETS_DIRECTORY, isDooAssetPath } from '../../shared/storage-paths.js';
 import { MEDIA_MIMES, mediaMime } from '../../shared/media.js';
 import { inspectMediaFile } from './media.js';
 import { assetStamp, openAsset, type AssetDescriptor } from './asset-stream.js';
@@ -18,20 +14,7 @@ import type { Principal } from '../../shared/knowledge-contracts.js';
 import { fail } from './knowledge/errors.js';
 import { workspaceWriteSync } from './workspace/gate.js';
 import { randomUUID, createHash } from 'node:crypto';
-import {
-  mkdirSync,
-  existsSync,
-  readdirSync,
-  writeFileSync,
-  unlinkSync,
-  openSync,
-  readFileSync,
-  closeSync,
-  constants,
-  fstatSync,
-  lstatSync,
-  linkSync,
-} from 'node:fs';
+import { mkdirSync, readdirSync, writeFileSync, unlinkSync, openSync, readFileSync, closeSync, constants, fstatSync, lstatSync, linkSync } from 'node:fs';
 import { dirname, join, extname, posix } from 'node:path';
 import type { AppConfig, NoteDocument } from '../../shared/contracts.js';
 import type { AppDatabase } from './db.js';
@@ -67,7 +50,6 @@ function sniff(bytes: Buffer) {
   return undefined;
 }
 export function assetService(config: AppConfig, db: AppDatabase, notes: NoteService) {
-  if (existsSync(join(knowledgeDataDirectory(config.knowledgeRoot), ASSET_ALIASES_FILE))) storageAssetAliasState(config, db);
   function file(path: string) {
     const mime = allowed[extname(path).toLowerCase()];
     if (!mime) throw new HttpError(404, '附件不存在');
@@ -85,7 +67,7 @@ export function assetService(config: AppConfig, db: AppDatabase, notes: NoteServ
         return { bytes: Buffer.from(result.presentation, 'utf8'), sourceBytes: bytes, mime };
       }
       if (mime === DIAGRAM_SOURCE_MIMES['.mmd'] || mime === DIAGRAM_SOURCE_MIMES['.excalidraw']) {
-        if (mime === DIAGRAM_SOURCE_MIMES['.excalidraw'] && !isCompatibleAssetPath(path))
+        if (mime === DIAGRAM_SOURCE_MIMES['.excalidraw'] && !isDooAssetPath(path))
           throw new HttpError(404, '附件不存在');
         validateDiagramSource(
           mime === DIAGRAM_SOURCE_MIMES['.mmd'] ? 'mermaid' : 'excalidraw',
@@ -117,7 +99,6 @@ export function assetService(config: AppConfig, db: AppDatabase, notes: NoteServ
     return inspect(row.path);
   }
   function register(path: string) {
-    path = resolveStorageAssetAlias(config.knowledgeRoot, path);
     inspect(path);
     let a = db.prepare('SELECT id,path FROM assets WHERE path=?').get(path) as
       | { id: string; path: string }
@@ -161,7 +142,8 @@ export function assetService(config: AppConfig, db: AppDatabase, notes: NoteServ
     } catch (e) {
       if (!(e instanceof KnowledgeError) || e.code !== 'LARGE_FILE_MODE_REQUIRED') throw e;
     }
-    for (const namespace of [DOO_ASSETS_DIRECTORY, 'assets']) {
+    {
+      const namespace = DOO_ASSETS_DIRECTORY;
       const rel = `${dirname(n.path) === '.' ? '' : dirname(n.path) + '/'}${namespace}`;
       try {
         const dir = safePath(config.knowledgeRoot, rel, 'asset');

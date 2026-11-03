@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { importPath, encodeImportFile } from '../apps/web/components/settings/transfer-files';
 describe('browser transfer boundaries', () => {
   it('preserves nested attachment paths and strips only a picker root when requested', () => {
-    expect(importPath('notes/assets/picture.png')).toBe('notes/assets/picture.png');
+    expect(importPath('notes/_doo-assets/picture.png')).toBe('notes/_doo-assets/picture.png');
     expect(importPath('Collection/notes/a.md', true)).toBe('notes/a.md');
   });
   it.each([
@@ -27,7 +27,7 @@ describe('browser transfer boundaries', () => {
       content: '# 中文',
     });
     expect(
-      await encodeImportFile(new Blob([new Uint8Array([0, 255, 127])]), 'assets/a.png'),
-    ).toEqual({ path: 'assets/a.png', encoding: 'base64', content: 'AP9/' });
+      await encodeImportFile(new Blob([new Uint8Array([0, 255, 127])]), '_doo-assets/a.png'),
+    ).toEqual({ path: '_doo-assets/a.png', encoding: 'base64', content: 'AP9/' });
   });
 });

@@ -1,12 +1,9 @@
-import { DOO_ASSETS_DIRECTORY, isCompatibleAssetPath, isDooAssetPath } from '../../../shared/storage-paths.js';
+import { isDooAssetPath } from '../../../shared/storage-paths.js';
 import { readBoundDiagramAsset } from './diagram-resource-files.js';
 import type { AppConfig } from '../../../shared/contracts.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
 import { parseDiagramDocument } from '../../../shared/diagram-document.js';
-import {
-  primaryRenderDescriptor,
-  type PreparedDiagramPrimary,
-} from '../../../shared/diagram-primary.js';
+import { primaryRenderDescriptor, type PreparedDiagramPrimary } from '../../../shared/diagram-primary.js';
 import { serializeDiagramRenderInput } from '../../../shared/diagram-document-binding.js';
 import { whiteboardText } from '../../../shared/whiteboard.js';
 import type { AppDatabase } from '../db.js';
@@ -35,7 +32,7 @@ function assetPath(
   const target = localReference(path, relative);
   if (!target) fail(400, 'INVALID_DIAGRAM_RESOURCE');
   validateRelative(target, 'asset');
-  if (!isCompatibleAssetPath(target)) fail(400, 'INVALID_DIAGRAM_RESOURCE');
+  if (!isDooAssetPath(target)) fail(400, 'INVALID_DIAGRAM_RESOURCE');
   if (!canAccessPath(principal, target) && !hasDiagramResourceProof(db, noteId, target, hash, role))
     fail(403, 'FORBIDDEN');
   return target;

@@ -330,7 +330,7 @@ it('review: streams a file-first 252 MiB owner archive across data/knowledge fil
     { randomFillSync } = await import('node:crypto');
   const knowledge = await mkdtemp(join(process.cwd(), '.local/portable-owner-cross-'));
   closes.push(() => rm(knowledge, { recursive: true, force: true }));
-  await mkdir(join(knowledge, '00-Inbox/assets'), { recursive: true });
+  await mkdir(join(knowledge, '00-Inbox/_doo-assets'), { recursive: true });
   const f = await createFixture({ knowledgeRoot: knowledge });
   closes.push(f.close);
   const headers = await loginFixtureOwner(f),
@@ -362,7 +362,7 @@ it('review: streams a file-first 252 MiB owner archive across data/knowledge fil
     header.writeUInt16LE(8, 34);
     header.write('data', 36);
     header.writeUInt32LE(size - 44, 40);
-    const file = await open(join(knowledge, '00-Inbox/assets', name), 'wx');
+    const file = await open(join(knowledge, '00-Inbox/_doo-assets', name), 'wx');
     try {
       await file.write(header);
       for (let at = 44; at < size; at += chunk.length)
@@ -375,7 +375,7 @@ it('review: streams a file-first 252 MiB owner archive across data/knowledge fil
       p,
       '00-Inbox',
       'owner-max.md',
-      '[a](assets/owner-a.wav)\n[b](assets/owner-b.wav)',
+      '[a](_doo-assets/owner-a.wav)\n[b](_doo-assets/owner-b.wav)',
       randomUUID(),
     ),
     delivery = await core.create(p, {
@@ -463,8 +463,8 @@ it('review: streams a file-first 252 MiB owner archive across data/knowledge fil
   });
   const { hashFile } = await import('../packages/core/portable-delivery/manifest');
   for (const name of ['owner-a.wav', 'owner-b.wav'])
-    expect(await hashFile(join(knowledge, folder, '00-Inbox/assets', name))).toBe(
-      await hashFile(join(knowledge, '00-Inbox/assets', name)),
+    expect(await hashFile(join(knowledge, folder, '00-Inbox/_doo-assets', name))).toBe(
+      await hashFile(join(knowledge, '00-Inbox/_doo-assets', name)),
     );
 }, 90000);
 it('review: preserves legacy small file-first archive uploads and rejects mismatched early context before publication', async () => {

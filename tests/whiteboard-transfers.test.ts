@@ -1,3 +1,6 @@
+import { createPrimaryWhiteboard } from './support/primary-whiteboard';
+import { parseDiagramDocument } from '../shared/diagram-document';
+import { localReference } from '../packages/core/render';
 import { it, expect } from 'vitest';
 import { randomUUID } from 'node:crypto';
 import { join } from 'node:path';
@@ -5,7 +8,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { createFixture, loginFixtureOwner } from './support/fixture';
 import { emptyWhiteboard } from '../shared/whiteboard';
 import { extractArchive } from '../apps/server/platform/archive';
-it('exports referenced whiteboards portably and resolves imported renamed whiteboard references', async () => {
+it('exports referenced current whiteboards portably and resolves their stable identities after a rename', async () => {
   const f = await createFixture();
   try {
     const headers = await loginFixtureOwner(f);
@@ -17,8 +20,8 @@ it('exports referenced whiteboards portably and resolves imported renamed whiteb
       expect(response.statusCode, response.body).toBe(201);
       return response.json();
     };
-    const board = await create('00-Inbox', 'design.excalidraw', JSON.stringify(emptyWhiteboard()));
-    await create('00-Inbox/docs', 'readme.md', '#说明\n\n```excalidraw\n' + board.id + '\n```\n');
+    const board = await createPrimaryWhiteboard(f,headers,'design.md',JSON.stringify(emptyWhiteboard()));
+    const parent = await create('00-Inbox/docs', 'readme.md', '#说明\n\n```excalidraw\n' + board.id + '\n```\n');
     const settle = async (id: string) => {
       for (let n = 0; n < 150; n++) {
         const task = (await f.app.inject({ url: '/api/manage/tasks/' + id, headers })).json();
@@ -43,61 +46,18 @@ it('exports referenced whiteboards portably and resolves imported renamed whiteb
     await mkdir(output);
     await extractArchive(archive, output);
     expect(await readFile(join(output, '00-Inbox/docs/readme.md'), 'utf8')).toContain(
-      '```excalidraw\n../design.excalidraw\n```',
+      '```excalidraw\n../design.md\n```',
     );
-    expect(
-      JSON.parse(await readFile(join(output, '00-Inbox/design.excalidraw'), 'utf8')),
-    ).toMatchObject({ type: 'excalidraw' });
-    const request = {
-      folderPath: '00-Inbox',
-      collision: 'rename',
-      requestId: randomUUID(),
-      entries: [
-        { path: 'design.excalidraw', encoding: 'utf8', content: JSON.stringify(emptyWhiteboard()) },
-        {
-          path: 'imported.md',
-          encoding: 'utf8',
-          content: '```excalidraw\ndesign.excalidraw\n```\n',
-        },
-      ],
-    };
-    const nativeBoard = JSON.stringify({ ...emptyWhiteboard(), dooknow: { id: board.id } });
-    const nativeTask = await settle(
-      (
-        await post('/api/manage/import', {
-          folderPath: '00-Inbox',
-          collision: 'rename',
-          requestId: randomUUID(),
-          entries: [
-            {
-              path: 'native.md',
-              encoding: 'utf8',
-              content: '```excalidraw\n' + board.id + '\n```\n',
-            },
-            { path: 'native.excalidraw', encoding: 'utf8', content: nativeBoard },
-          ],
-        })
-      ).json().id,
-    );
-    expect(nativeTask.state).toBe('succeeded');
-    const nativeNote = nativeTask.items.find((i: any) => i.path === 'native.md');
-    const nativeCopy = nativeTask.items.find((i: any) => i.path === 'native.excalidraw');
-    expect(nativeCopy.noteId).not.toBe(board.id);
-    expect(
-      (await f.app.inject({ url: '/api/notes/' + nativeNote.noteId, headers })).json().content,
-    ).toContain(nativeCopy.noteId);
-    const imported = await settle((await post('/api/manage/import', request)).json().id);
-    expect(imported.state).toBe('succeeded');
-    const item = imported.items.find((i: any) => i.path === 'imported.md');
-    const document = (await f.app.inject({ url: '/api/notes/' + item.noteId, headers })).json();
-    const importedBoard = imported.items.find((i: any) => i.path === 'design.excalidraw');
-    expect(document.content).toContain(importedBoard.noteId);
-    const version = (
-      await f.app.inject({ url: '/api/notes/' + importedBoard.noteId, headers })
-    ).json();
+    const exported = parseDiagramDocument(await readFile(join(output,'00-Inbox/design.md'),'utf8'));
+    expect(exported.status).toBe('diagram');
+    if(exported.status!=='diagram'||exported.primary.source.format!=='excalidraw')throw Error('Missing portable native source');
+    const sourcePath=localReference('00-Inbox/design.md',exported.primary.source.path)!;
+    expect(JSON.parse(await readFile(join(output,sourcePath),'utf8'))).toMatchObject({type:'excalidraw'});
+    const version=(await f.app.inject({url:'/api/notes/'+board.id,headers})).json();
+    const importedBoard={noteId:board.id};
     const moved = await post('/api/notes/' + version.id + '/move', {
-      folderPath: '00-Inbox/docs',
-      fileName: '移动后.excalidraw',
+      folderPath: '00-Inbox',
+      fileName: '移动后.md',
       expectedModifiedAt: version.modifiedAt,
       requestId: randomUUID(),
     });
@@ -105,13 +65,13 @@ it('exports referenced whiteboards portably and resolves imported renamed whiteb
     const resolved = await f.app.inject({
       url:
         '/api/notes/' +
-        item.noteId +
+        parent.id +
         '/whiteboards/resolve?source=' +
         encodeURIComponent(importedBoard.noteId),
       headers,
     });
     expect(resolved.statusCode, resolved.body).toBe(200);
-    expect(resolved.json().relativePath).toBe('00-Inbox/docs/移动后.excalidraw');
+    expect(resolved.json().relativePath).toBe('00-Inbox/移动后.md');
     expect(resolved.json()).toMatchObject({id:version.id,noteId:version.id,documentType:'whiteboard',source:{format:'excalidraw'}});
     expect(resolved.json()).not.toHaveProperty('content');
   } finally {

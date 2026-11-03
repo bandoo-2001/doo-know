@@ -273,7 +273,7 @@ it.each(['tEXt', 'zTXt', 'iTXt'] as const)(
       await expect(
         buildReadingHtml({
           title: 'Public',
-          markdown: '![preview](assets/view.png)',
+          markdown: '![preview](_doo-assets/view.png)',
           resolveImage: async () => image,
         }),
       ).rejects.toThrow();
@@ -282,7 +282,7 @@ it.each(['tEXt', 'zTXt', 'iTXt'] as const)(
     expect(
       await buildReadingHtml({
         title: 'Public',
-        markdown: '![preview](assets/view.png)',
+        markdown: '![preview](_doo-assets/view.png)',
         resolveImage: async () => new Blob([safe], { type: 'image/png' }),
       }),
     ).toContain(safe.toString('base64'));

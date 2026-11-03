@@ -1,3 +1,4 @@
+import { createPrimaryWhiteboard } from './support/primary-whiteboard';
 import { expect, it } from 'vitest';
 import Database from 'better-sqlite3';
 import { mkdtemp, rm, readFile, writeFile, unlink } from 'node:fs/promises';
@@ -361,24 +362,7 @@ it('rejects edit settings for large Markdown and whiteboards while still sharing
     const large = tree
       .find((r: any) => r.path === '00-Inbox')
       .children.find((r: any) => r.path.endsWith('large.md'));
-    const board = (
-      await f.app.inject({
-        method: 'POST',
-        url: '/api/notes',
-        headers,
-        payload: {
-          folderPath: '00-Inbox',
-          fileName: 'board.excalidraw',
-          content: JSON.stringify({
-            type: 'excalidraw',
-            version: 2,
-            elements: [],
-            appState: {},
-            files: {},
-          }),
-        },
-      })
-    ).json();
+    const board = await createPrimaryWhiteboard(f,headers,'board.md',JSON.stringify({type:'excalidraw',version:2,elements:[],appState:{},files:{}}));
     for (const n of [large, board]) {
       const url = `/api/notes/${n.id}/share`;
       const unsupported = await f.app.inject({

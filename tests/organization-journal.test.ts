@@ -172,11 +172,11 @@ it('does not stage an external secret through a raced asset symlink', async () =
     await s.close();
     f.close();
   });
-  f.create('00-Inbox/a.md', '![asset](assets/a.png)');
-  mkdirSync(join(f.config.knowledgeRoot, '00-Inbox/assets'));
-  writeFileSync(join(f.config.knowledgeRoot, '00-Inbox/assets/a.png'), 'original asset');
+  f.create('00-Inbox/a.md', '![asset](_doo-assets/a.png)');
+  mkdirSync(join(f.config.knowledgeRoot, '00-Inbox/_doo-assets'));
+  writeFileSync(join(f.config.knowledgeRoot, '00-Inbox/_doo-assets/a.png'), 'original asset');
   writeFileSync(join(f.config.dataRoot, 'private.txt'), 'external secret');
-  f.db.prepare('INSERT INTO assets(id,path) VALUES(?,?)').run('asset', '00-Inbox/assets/a.png');
+  f.db.prepare('INSERT INTO assets(id,path) VALUES(?,?)').run('asset', '00-Inbox/_doo-assets/a.png');
   const c = s.context(f.p),
     d = f.directory('00-Inbox'),
     input = {
@@ -208,7 +208,7 @@ it('does not stage an external secret through a raced asset symlink', async () =
   expect(child.status, child.stderr).toBe(0);
   expect(existsSync(join(f.config.dataRoot, 'attack-triggered'))).toBe(true);
   expect(s.operation(f.p, { requestId: 'symlink' }).status).toBe('failed');
-  expect(existsSync(join(f.config.knowledgeRoot, 'Topic/Moved/assets/a.png'))).toBe(false);
+  expect(existsSync(join(f.config.knowledgeRoot, 'Topic/Moved/_doo-assets/a.png'))).toBe(false);
 });
 it('does not report success when a new external backlink appears during publication', async () => {
   const f = organizationFixture(),

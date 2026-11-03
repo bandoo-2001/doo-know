@@ -1,66 +1,28 @@
 import { diagramOperationPreviewNeeds } from '../knowledge/diagram-operation-preview-pages.js';
 import { planNativeLinkChanges } from '../knowledge/native-link-plans.js';
 import { diagramOperationPreviewRegistry } from '../knowledge/diagram-operation-previews.js';
-import { randomUUID } from 'node:crypto';
+
 import { basename, dirname, join } from 'node:path';
-import { readFileSync, existsSync, rmSync, lstatSync } from 'node:fs';
+import { readFileSync, existsSync, rmSync } from 'node:fs';
 import type { AppConfig } from '../../../shared/contracts.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
-import type {
-  DirectoryListInput,
-  DirectoryPage,
-  HistoryInput,
-  HistoryPage,
-  OrganizeInput,
-  OrganizationContext,
-  OrganizationOperation,
-  OrganizationReply,
-  UndoOrganizationInput,
-} from '../../../shared/organization-contracts.js';
+import type { DirectoryListInput, DirectoryPage, HistoryInput, HistoryPage, OrganizeInput, OrganizationContext, OrganizationOperation, OrganizationReply, UndoOrganizationInput } from '../../../shared/organization-contracts.js';
 import type { AppDatabase } from '../db.js';
 import type { NoteService } from '../notes.js';
 import { requireScope, canAccessPath, checkTokenCutoff } from '../agent/auth.js';
 import { currentPrincipalPolicy } from '../agent/config.js';
-import {
-  projectPermissionPrincipal,
-  intersectPermissionPolicies,
-  resourceContains,
-} from '../auth/permissions.js';
+import { projectPermissionPrincipal, intersectPermissionPolicies, resourceContains } from '../auth/permissions.js';
 import { fail, KnowledgeError } from '../knowledge/errors.js';
 import { beginOperation, sha256 } from '../knowledge/operations.js';
 import { decodeCursor, signCursor } from '../agent/budgets.js';
-import {
-  workspaceExclusive,
-  workspaceWriteSync,
-  workspaceProcess,
-  processIsAlive,
-  assertOrganizationReadable,
-} from '../workspace/gate.js';
+import { workspaceExclusive, workspaceWriteSync, workspaceProcess, processIsAlive, assertOrganizationReadable } from '../workspace/gate.js';
 import { migrateOrganization } from './schema.js';
 import { syncDirectoryCatalog, libraryIdentity, resolveDirectory } from './catalog.js';
-import {
-  prepareOrganization,
-  revalidateManifest,
-  requireOrganization,
-  checkPermissions,
-  organizationLimits,
-  evidence,
-  readBody,
-  inventory,
-  sameIdentity,
-  sameEvidence,
-  type OrganizationManifest,
-  type Change,
-} from './plan.js';
+import { prepareOrganization, revalidateManifest, requireOrganization, checkPermissions, organizationLimits, evidence, readBody, inventory, sameIdentity, sameEvidence, type OrganizationManifest, type Change } from './plan.js';
 import { rewriteLibraryReferences } from './references.js';
 import { planDiagramRelocation, type DiagramRelocation } from '../knowledge/diagram-relocation.js';
 import { organizationResponseFits, assertOrganizationReceiptFits } from './response-budget.js';
-import {
-  stageOrganization,
-  commitOrganization,
-  journalDirectory,
-  outputInventory,
-} from './journal.js';
+import { stageOrganization, commitOrganization, journalDirectory, outputInventory } from './journal.js';
 export function organizationService(config: AppConfig, db: AppDatabase, notes: NoteService) {
   migrateOrganization(db);
   let tail = Promise.resolve(),
@@ -638,9 +600,7 @@ export function organizationService(config: AppConfig, db: AppDatabase, notes: N
       coverage,
       diagrams,
       retainedResources: old.retainedResources,
-      legacyPreviews: [...native].flatMap(([noteId, v]) =>
-        v.legacy ? [{ noteId, manifest: v.legacy }] : [],
-      ),
+
       objects,
       permissions,
       undoOf: old.operationId,

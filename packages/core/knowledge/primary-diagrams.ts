@@ -1,4 +1,4 @@
-import { DOO_ASSETS_DIRECTORY, isCompatibleAssetPath, isDooAssetPath } from '../../../shared/storage-paths.js';
+import { DOO_ASSETS_DIRECTORY, isDooAssetPath } from '../../../shared/storage-paths.js';
 import { posix } from 'node:path';
 import {
   diagramPreparationSchema as inputSchema,

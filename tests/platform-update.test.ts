@@ -70,6 +70,8 @@ it.each(['missing installation record', 'deleted previous release'])(
 );
 
 it.each([
+  { name: 'current-format local release to public rc61', currentEpoch: 6, candidateEpoch: 6, current: '1.1.0-rc.59.doo-storage.5', candidate: '1.1.0-rc.61', explicit: false, rejected: false },
+  { name: 'current-format local release rejects rc60 generation five', currentEpoch: 6, candidateEpoch: 5, current: '1.1.0-rc.59.doo-storage.5', candidate: '1.1.0-rc.60', explicit: false, rejected: true },
   {
     name: 'latest metadata downgrade',
     currentEpoch: 2,

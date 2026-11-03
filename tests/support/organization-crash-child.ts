@@ -10,7 +10,7 @@ const [configJson, inputJson, point] = process.argv.slice(2),
   notes = noteService(config, db);
 let attacked = false;
 function attack(source: unknown) {
-  if (point === 'symlink' && !attacked && String(source).endsWith('/assets/a.png')) {
+  if (point === 'symlink' && !attacked && String(source).endsWith('/_doo-assets/a.png')) {
     attacked = true;
     fs.unlinkSync(source as string);
     fs.symlinkSync(config.dataRoot + '/private.txt', source as string);

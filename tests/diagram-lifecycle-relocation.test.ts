@@ -14,7 +14,6 @@ import { archiveFolder, restoreFolder, recoverFolders } from '../packages/core/f
 import { workspaceExclusive } from '../packages/core/workspace/gate';
 import { spawnSync } from 'node:child_process';
 import { mutationCore, webPrincipal } from '../packages/core/knowledge/core';
-import { migrateDiagramDocuments } from '../packages/core/knowledge/diagram-document-schema';
 import { diagramArtifactService } from '../packages/core/knowledge/diagram-artifacts';
 import { serializeDiagramBinding } from '../shared/diagram-binding';
 import { normalizeDiagramCode } from '../shared/diagram-portability';
@@ -294,30 +293,6 @@ it('registers the current logical publication context for a byte-identical simpl
       .primary({ ...f.p, knowledgeAll: false, allowedPrefixes: ['00-Inbox/renamed.md'] })
       .resolve(f.note.id).capabilities.canEdit,
   ).toBe(true);
-});
-
-it('upgrades a persisted old two-column version key without losing the old publication context', () => {
-  const f = fixture();
-  f.db.exec(`DROP INDEX diagram_published_bindings;
-    ALTER TABLE diagram_document_versions RENAME TO saved_versions;
-    CREATE TABLE diagram_document_versions(note_id TEXT NOT NULL REFERENCES notes(id),document_hash TEXT NOT NULL,path TEXT NOT NULL,document_type TEXT NOT NULL,source_hash TEXT NOT NULL,render_hash TEXT NOT NULL,preview_hash TEXT NOT NULL,manifest TEXT NOT NULL,created_at INTEGER NOT NULL,PRIMARY KEY(note_id,document_hash));
-    INSERT INTO diagram_document_versions SELECT * FROM saved_versions;
-    DROP TABLE saved_versions;`);
-  migrateDiagramDocuments(f.db);
-  migrateDiagramDocuments(f.db);
-  mutationCore(f.config, f.db).move(
-    webPrincipal,
-    f.note.id,
-    '00-Inbox',
-    'renamed.md',
-    f.note.modifiedAt,
-    randomUUID(),
-  );
-  expect(
-    f.db
-      .prepare('SELECT path FROM diagram_document_versions WHERE note_id=? ORDER BY path')
-      .all(f.note.id),
-  ).toEqual([{ path: '00-Inbox/board.md' }, { path: '00-Inbox/renamed.md' }]);
 });
 
 it('blocks simple target rename when another primary would need changed native source bytes', () => {

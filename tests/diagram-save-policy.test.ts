@@ -12,7 +12,7 @@ async function bound(source: string) {
     codeHash: await hashDiagramCode(id),
     sourceHash: await hashDiagramSource(source),
   });
-  return `![EXCALIDRAW 预览](assets/diagram-${'a'.repeat(64)}.png)\n\n[图形源文件](assets/diagram-${'b'.repeat(64)}.excalidraw)\n\n${marker}\n\n\`\`\`excalidraw\n${id}\n\`\`\`\n`;
+  return `![EXCALIDRAW 预览](_doo-assets/diagram-${'a'.repeat(64)}.png)\n\n[图形源文件](_doo-assets/diagram-${'b'.repeat(64)}.excalidraw)\n\n${marker}\n\n\`\`\`excalidraw\n${id}\n\`\`\`\n`;
 }
 beforeEach(() => vi.clearAllMocks());
 it('detects a changed canonical scene even when the parent fence reference stays the same', async () => {

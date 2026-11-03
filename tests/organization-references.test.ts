@@ -5,9 +5,9 @@ import { rewriteLibraryReferences } from '../packages/core/organization/referenc
 describe('lossless organization references', () => {
   it('rebases outgoing attachments and note links when a note moves', () => {
     const input =
-      '# Keep  spaces\r\n\r\n![A](assets/a.png "title") and [B](../Other/b.md#part)\r\n';
+      '# Keep  spaces\r\n\r\n![A](_doo-assets/a.png "title") and [B](../Other/b.md#part)\r\n';
     expect(rewriteLibraryReferences(input, 'Notes/a.md', 'New/Deep/a.md', []).content).toBe(
-      '# Keep  spaces\r\n\r\n![A](../../Notes/assets/a.png "title") and [B](../../Other/b.md#part)\r\n',
+      '# Keep  spaces\r\n\r\n![A](../../Notes/_doo-assets/a.png "title") and [B](../../Other/b.md#part)\r\n',
     );
   });
   it('repairs incoming links using exact directory-prefix boundaries', () => {
@@ -81,8 +81,8 @@ describe('lossless organization references', () => {
     expect(
       rewriteLibraryReferences(
         input,
-        'board.excalidraw',
-        'board.excalidraw',
+        'board.md',
+        'board.md',
         [{ from: 'Notes', to: 'New' }],
         true,
       ).content,
@@ -130,14 +130,14 @@ describe('lossless organization references', () => {
     ).toBe('[x](New/a.md&#35;part) [y](New/a.md?x=1&amp;y=2)');
   });
 });
-it('rebases legacy Excalidraw path references while preserving ordinary fenced code and UUID references', () => {
+it('rebases current Markdown whiteboard path references while preserving ordinary fenced code and UUID references', () => {
   const before =
-    '```excalidraw\n../Topic/board.excalidraw\n```\n\n```text\n../Topic/board.excalidraw\n```\n';
+    '```excalidraw\n../Topic/board.md\n```\n\n```text\n../Topic/board.md\n```\n';
   const after = rewriteLibraryReferences(before, '00-Inbox/note.md', 'Topic/note.md', [
-    { from: 'Topic/board.excalidraw', to: 'Topic/renamed.excalidraw' },
+    { from: 'Topic/board.md', to: 'Topic/renamed.md' },
   ]);
   expect(after.content).toBe(
-    '```excalidraw\nrenamed.excalidraw\n```\n\n```text\n../Topic/board.excalidraw\n```\n',
+    '```excalidraw\nrenamed.md\n```\n\n```text\n../Topic/board.md\n```\n',
   );
 });
 

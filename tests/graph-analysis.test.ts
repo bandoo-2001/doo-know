@@ -384,7 +384,7 @@ it('sends only primary diagram semantics to the model and rebuilds old projectio
     }),
   });
   const body =
-    '<!-- dooknow:document {"version":1,"type":"whiteboard","engine":"excalidraw","render":{"renderer":"MACHINE_SENTINEL","config":{}}} -->\r\n\r\n# Actual title\r\n\r\n<!-- dooknow:primary:start -->\r\n\r\n[Source](assets/source.excalidraw)\r\n\r\n```text\r\nSummarySignal connects retrieval. 中文😀\r\n```\r\n\r\n![preview](assets/preview.png)\r\n\r\n<!-- dooknow:primary-binding {"version":1,"sourceHash":"' +
+    '<!-- dooknow:document {"version":1,"type":"whiteboard","engine":"excalidraw","render":{"renderer":"MACHINE_SENTINEL","config":{}}} -->\r\n\r\n# Actual title\r\n\r\n<!-- dooknow:primary:start -->\r\n\r\n[Source](_doo-assets/source.excalidraw)\r\n\r\n```text\r\nSummarySignal connects retrieval. 中文😀\r\n```\r\n\r\n![preview](_doo-assets/preview.png)\r\n\r\n<!-- dooknow:primary-binding {"version":1,"sourceHash":"' +
     'a'.repeat(64) +
     '","renderHash":"' +
     'b'.repeat(64) +

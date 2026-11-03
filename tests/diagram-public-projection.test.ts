@@ -15,7 +15,7 @@ import { serializeDiagramBinding } from '../shared/diagram-binding';
 import { assetService } from '../packages/core/assets';
 import { publicDiagramProjectionService } from '../packages/core/public-diagram-projection';
 import { resolvePrimaryDiagram } from '../packages/core/knowledge/diagram-resource-resolver';
-import { prepareLegacyPreview } from './support/legacy-diagram-preview';
+import { createPrimaryWhiteboard } from './support/primary-whiteboard';
 const fixtures: Fixture[] = [];
 afterEach(async () => {
   for (const f of fixtures.splice(0)) await f.close();
@@ -174,7 +174,7 @@ it.each(['bytes', 'long-line'] as const)(
   async (mode) => {
     const { f, headers } = await setup(),
       note = await create(f, headers, 'large-assets.md', '# Large');
-    await mkdir(join(f.knowledgeRoot, '00-Inbox', 'assets'), { recursive: true });
+    await mkdir(join(f.knowledgeRoot, '00-Inbox', '_doo-assets'), { recursive: true });
     const files = [
       { name: 'large.png', bytes: Buffer.from(png, 'base64'), mime: 'image/png' },
       {
@@ -191,9 +191,9 @@ it.each(['bytes', 'long-line'] as const)(
       },
     ];
     for (const file of files)
-      await writeFile(join(f.knowledgeRoot, '00-Inbox', 'assets', file.name), file.bytes);
+      await writeFile(join(f.knowledgeRoot, '00-Inbox', '_doo-assets', file.name), file.bytes);
     const prefix =
-      '# Large\n\n![Image](assets/large.png)\n\n[PDF](assets/large.pdf)\n\n[Original](assets/private.excalidraw)\n\n';
+      '# Large\n\n![Image](_doo-assets/large.png)\n\n[PDF](_doo-assets/large.pdf)\n\n[Original](_doo-assets/private.excalidraw)\n\n';
     await writeFile(join(f.knowledgeRoot, note.relativePath), prefix);
     const registered = (
       await f.app.inject({ url: `/api/notes/${note.id}/assets`, headers })
@@ -211,7 +211,7 @@ it.each(['bytes', 'long-line'] as const)(
       expect(asset).toBeTruthy();
       return [
         { file, path: '/assets/' + asset.id },
-        { file, path: '/asset?source=' + encodeURIComponent('assets/' + file.name) },
+        { file, path: '/asset?source=' + encodeURIComponent('_doo-assets/' + file.name) },
       ];
     });
     for (const { file, path } of paths) {
@@ -247,7 +247,7 @@ it.each(['bytes', 'long-line'] as const)(
             notes,
             racing,
             shareService(db, notes),
-          ).asset(s.token, { source: 'assets/large.png' }),
+          ).asset(s.token, { source: '_doo-assets/large.png' }),
         ).rejects.toMatchObject({ code: 'SHARE_POLICY_CHANGED' });
       } finally {
         db.close();
@@ -393,89 +393,20 @@ it.each(['whiteboard', 'mindmap', 'flowchart'] as const)(
   },
 );
 
-it('keeps exact legacy JSON private, registers immutable preview receipts and invalidates changed source/PNG', async () => {
-  const { f, headers } = await setup(),
-    note = await create(
-      f,
-      headers,
-      'legacy.excalidraw',
-      JSON.stringify({
-        ...emptyWhiteboard(),
-        elements: [{ id: 'secret', type: 'text', text: 'PRIVATE_SCENE' }],
-      }),
-    ),
-    url = `/api/notes/${note.id}/diagram`,
-    before = await readFile(join(f.knowledgeRoot, note.relativePath), 'utf8');
-  const owner = await f.app.inject({ url, headers });
-  expect(owner.statusCode, owner.body).toBe(200);
-  expect(owner.json()).toMatchObject({
-    documentHash: sha(before),
-    source: { hash: sha(before), content: before },
-    capabilities: { canEdit: true, canDownloadSource: true },
-  });
-  const s = await share(f, headers, note.id),
-    pub = `/api/public/shares/${s.token}`;
-  const missing = await f.app.inject({ url: pub });
-  expect(missing.statusCode, missing.body).toBe(409);
-  expect(missing.json().code).toBe('DIAGRAM_PREVIEW_REQUIRED');
-  expect(missing.body).not.toContain('PRIVATE_SCENE');
-  const input = {
-    expectedDocumentHash: sha(before),
-    expectedSourceHash: sha(before),
-    pngBase64: png,
-    renderer: diagramRendererVersions.whiteboard,
-    config: {},
-    requestId: randomUUID(),
-  };
-  const prepare = () =>
-    f.app.inject({ method: 'POST', url: url + '/legacy-preview', headers, payload: input });
-  const prepared = await prepare();
-  expect(prepared.statusCode, prepared.body).toBe(200);
-  expect((await prepare()).json()).toEqual(prepared.json());
-  expect(await readFile(join(f.knowledgeRoot, note.relativePath), 'utf8')).toBe(before);
-  expect(prepared.json().preview.state).toBe('ready');
-  const changedPng = Buffer.from(png, 'base64');
-  changedPng[changedPng.length - 1] ^= 1;
-  const rebound = await f.app.inject({
-    method: 'POST',
-    url: url + '/legacy-preview',
-    headers,
-    payload: { ...input, pngBase64: changedPng.toString('base64'), requestId: randomUUID() },
-  });
-  expect(rebound.statusCode, rebound.body).toBe(409);
-  expect((await prepare()).json().preview.hash).toBe(prepared.json().preview.hash);
-  expect((await f.app.inject({ url: pub })).body).not.toContain('PRIVATE_SCENE');
-  expect((await f.app.inject({ url: pub + '/diagram' })).json().source).not.toHaveProperty(
-    'content',
-  );
-  const path = join(f.knowledgeRoot, '00-Inbox', prepared.json().preview.path);
-  await unlink(path);
-  expect((await f.app.inject({ url, headers })).json().preview.state).toBe('missing');
-  expect((await f.app.inject({ url: pub })).statusCode).toBe(409);
-  await writeFile(path, Buffer.from(png, 'base64'));
-  await writeFile(
-    join(f.knowledgeRoot, note.relativePath),
-    before.replace('PRIVATE_SCENE', 'PRIVATE_CHANGED'),
-  );
-  expect((await f.app.inject({ url, headers })).json().preview.state).toBe('stale');
-  expect((await f.app.inject({ url: pub })).statusCode).toBe(409);
-  expect((await prepare()).statusCode).toBe(409);
-});
-
 it('uses semantic resources for UUID and Markdown path embeds without granting unrelated documents', async () => {
   const { f, headers } = await setup(),
     { note, source } = await primary(f, headers, 'whiteboard'),
-    legacy = await create(f, headers, 'embedded.excalidraw', JSON.stringify(emptyWhiteboard())),
-    other = await create(f, headers, 'other.excalidraw', JSON.stringify(emptyWhiteboard())),
+    legacy = await createPrimaryWhiteboard(f, headers, "embedded.md", JSON.stringify(emptyWhiteboard())),
+    other = await createPrimaryWhiteboard(f, headers, "other.md", JSON.stringify(emptyWhiteboard())),
     parent = await create(
       f,
       headers,
       'parent.md',
-      `# Parent\n\n\`\`\`excalidraw\n${note.id}\n\`\`\`\n\n\`\`\`excalidraw\nwhiteboard.md\n\`\`\`\n\n\`\`\`excalidraw\n${legacy.id}\n\`\`\`\n\n\`\`\`excalidraw\nembedded.excalidraw\n\`\`\`\n`,
+      `# Parent\n\n\`\`\`excalidraw\n${note.id}\n\`\`\`\n\n\`\`\`excalidraw\nwhiteboard.md\n\`\`\`\n\n\`\`\`excalidraw\n${legacy.id}\n\`\`\`\n\n\`\`\`excalidraw\nembedded.md\n\`\`\`\n`,
     ),
     s = await share(f, headers, parent.id),
     url = `/api/public/shares/${s.token}`;
-  await prepareLegacyPreview(f, headers, legacy.id);
+
   const owner = await f.app.inject({
     url: `/api/notes/${parent.id}/whiteboards/resolve?source=whiteboard.md`,
     headers,
@@ -483,12 +414,12 @@ it('uses semantic resources for UUID and Markdown path embeds without granting u
   expect(owner.statusCode, owner.body).toBe(200);
   expect(owner.json().source.content).toBe(source);
   const legacyOwner = await f.app.inject({
-    url: `/api/notes/${parent.id}/whiteboards/resolve?source=embedded.excalidraw`,
+    url: `/api/notes/${parent.id}/whiteboards/resolve?source=embedded.md`,
     headers,
   });
   expect(legacyOwner.statusCode, legacyOwner.body).toBe(200);
-  expect(legacyOwner.json().source.content).toBe(legacy.content);
-  for (const ref of [note.id, 'whiteboard.md', legacy.id, 'embedded.excalidraw']) {
+  expect(legacyOwner.json().source.content).toBe(legacy.nativeSource);
+  for (const ref of [note.id, 'whiteboard.md', legacy.id, 'embedded.md']) {
     const r = await f.app.inject({ url: url + '/whiteboards/' + encodeURIComponent(ref) });
     expect(r.statusCode, r.body).toBe(200);
     expect(r.json()).toMatchObject({
@@ -555,68 +486,6 @@ it('invalidates projected cursors on native source and PNG changes even when the
       })
     ).statusCode,
   ).toBe(409);
-});
-
-it('reuses a complete legacy portable binding, rejects rebinding changed scenes, and keeps inline SVG/Mermaid compatible', async () => {
-  const { f, headers } = await setup(),
-    board = await create(
-      f,
-      headers,
-      'bound.excalidraw',
-      JSON.stringify({
-        ...emptyWhiteboard(),
-        elements: [{ id: 'secret', type: 'text', text: 'BOUND_SCENE_SECRET' }],
-      }),
-    ),
-    parent = await create(f, headers, 'bound-parent.md', '# Parent');
-  const prepared = await f.app.inject({
-    method: 'POST',
-    url: `/api/notes/${parent.id}/diagram-artifacts`,
-    headers,
-    payload: {
-      kind: 'excalidraw',
-      source: board.content,
-      sourceHash: sha(board.content),
-      pngBase64: png,
-      requestId: randomUUID(),
-    },
-  });
-  expect(prepared.statusCode, prepared.body).toBe(201);
-  const a = prepared.json();
-  const content = `# Parent\n\n![EXCALIDRAW 预览](${a.preview.markdownPath})\n\n[图形源文件](${a.source.markdownPath})\n\n${serializeDiagramBinding({ kind: 'excalidraw', codeHash: sha(board.id), sourceHash: sha(board.content) })}\n\n\`\`\`excalidraw\n${board.id}\n\`\`\`\n\n\`\`\`mermaid\nflowchart TD\n A-->B\n\`\`\`\n\n\`\`\`svg\n<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"></svg>\n\`\`\`\n`;
-  await writeFile(join(f.knowledgeRoot, parent.relativePath), content);
-  const s = await share(f, headers, parent.id),
-    url = `/api/public/shares/${s.token}`;
-  const body = await f.app.inject({ url });
-  expect(body.statusCode, body.body).toBe(200);
-  expect(body.body).not.toContain('BOUND_SCENE_SECRET');
-  expect(body.body).toContain('mermaid');
-  expect(body.body).toContain('svg');
-  const resource = await f.app.inject({ url: url + '/whiteboards/' + board.id });
-  expect(resource.statusCode, resource.body).toBe(200);
-  expect(resource.json().preview.state).toBe('ready');
-  expect((await f.app.inject({ url: url + '/assets/' + a.source.id })).statusCode).toBe(403);
-  const changedPng = Buffer.from(png, 'base64');
-  changedPng[changedPng.length - 1] ^= 1;
-  await writeFile(join(f.knowledgeRoot, a.preview.relativePath), changedPng);
-  expect((await f.app.inject({ url })).statusCode).toBe(409);
-  await writeFile(join(f.knowledgeRoot, a.preview.relativePath), Buffer.from(png, 'base64'));
-  const fakeSource = a.source.markdownPath.replace(/\.excalidraw$/, '.svg');
-  await writeFile(join(f.knowledgeRoot, '00-Inbox', fakeSource), board.content);
-  await writeFile(
-    join(f.knowledgeRoot, parent.relativePath),
-    content
-      .replace('EXCALIDRAW 预览', 'SVG 预览')
-      .replace('kind=excalidraw', 'kind=svg')
-      .replace(a.source.markdownPath, fakeSource),
-  );
-  expect((await f.app.inject({ url })).statusCode).toBe(409);
-  await writeFile(join(f.knowledgeRoot, parent.relativePath), content);
-  await writeFile(
-    join(f.knowledgeRoot, board.relativePath),
-    board.content.replace('BOUND_SCENE_SECRET', 'DIFFERENT_SCENE'),
-  );
-  expect((await f.app.inject({ url })).statusCode).toBe(409);
 });
 
 it('ignores forged type caches and duplicate source links when enforcing diagram capabilities', async () => {
@@ -718,9 +587,9 @@ it('renders cross-directory embedded PNG paths with spaces, parentheses and Chin
   expect(response.json().html).toContain('<img src="/api/public/shares/');
 });
 
-it('honors bounded source handles for legacy semantic reads while keeping exact source bytes', async () => {
+it('honors bounded source handles for current semantic reads while keeping exact source bytes', async () => {
   const { f, headers } = await setup(),
-    note = await create(f, headers, 'bounded.excalidraw', JSON.stringify(emptyWhiteboard())),
+    note = await createPrimaryWhiteboard(f, headers, "bounded.md", JSON.stringify(emptyWhiteboard())),
     db = openDatabase(f.dataRoot),
     notes = noteService(f.config, db);
   let snapshot: any;
@@ -735,9 +604,9 @@ it('honors bounded source handles for legacy semantic reads while keeping exact 
     expect(resource.source).not.toHaveProperty('content');
     expect(resource.source.readHandle).toBe('private-source-handle');
     expect(snapshot).toMatchObject({
-      content: note.content,
+      content: note.nativeSource,
       documentHash: sha(note.content),
-      sourceHash: sha(note.content),
+      sourceHash: sha(note.nativeSource),
       modifiedAt: note.modifiedAt,
     });
   } finally {

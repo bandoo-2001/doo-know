@@ -17,13 +17,8 @@ import { createDraftStore, type DraftScope, type DraftRecord } from '../drafts';
 import { createDocumentSession, type DocumentSessionState } from '../diagrams/document-session';
 import { readCoherentDiagramDocument } from '../diagrams/document-read';
 import { documentDraft, restoreDocumentDraft } from '../diagrams/document-draft';
-import {isLegacySceneDraft,convertLegacySceneDraft,heldDraftDownload} from '../diagrams/legacy-draft';
-import {
-  readDiagram,
-  renderPrimaryPng,
-  preparePrimary,
-  commitPrimary,
-} from '../diagrams/primary-api';
+import { heldDraftDownload } from '../diagrams/document-draft';
+import { readDiagram, renderPrimaryPng, preparePrimary, commitPrimary } from '../diagrams/primary-api';
 import { hashDiagramSource } from '../diagrams/preview-artifact';
 import { markdownDestination } from '../markdown-links';
 import { downloadBlob } from '../whiteboards/download';
@@ -404,19 +399,10 @@ async function restore() {
         documentHash: draft.documentHash,
         sourceHash: draft.baselineSourceHash ?? null,
       };
-    const legacy=isLegacySceneDraft(originalRecord,baseline);
-    const restored:Pick<DocumentSessionState,'markdown'|'source'|'title'|'pending'> = legacy
-      ? await convertLegacySceneDraft(originalRecord,baseline)
-      : restoreDocumentDraft(originalRecord, baseline);
+    const restored = restoreDocumentDraft(originalRecord, baseline);
     if(disposed||session!==originalSession||recovered.value?.version!==originalRecord.version)
       throw Error('草稿或页面已变化，请重新核对，原草稿仍保留');
-    if(legacy){
-      if(!store)throw Error('本地草稿存储尚未准备，请下载保留');
-      const upgraded={...baseline,...restored},envelope=documentDraft(upgraded);
-      // Upgrade with the store's existing CAS before adopting or dropping the offered JSON.
-      record=await store.put({noteId:props.noteId,kind:'note',baseRevision:baseline.documentHash!,content:envelope.payload,diagram:envelope});
-      if(disposed||session!==originalSession)return;
-    }
+
     session.restore(restored,restored.pending);
     recovered.value = undefined;
     error.value = '';

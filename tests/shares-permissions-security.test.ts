@@ -1,6 +1,6 @@
 import { afterEach, expect, it, vi } from 'vitest';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { prepareLegacyPreview } from './support/legacy-diagram-preview';
+import { createPrimaryWhiteboard } from './support/primary-whiteboard';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { createFixture, loginFixtureOwner, origin, type Fixture } from './support/fixture.js';
@@ -166,9 +166,9 @@ it('denies inserting a known private whiteboard while allowing existing referenc
   const f = await createFixture();
   try {
     const owner = await loginFixtureOwner(f);
-    const publicBoard = await note(f, owner, 'existing-board.excalidraw', scene('ALREADY_PUBLIC_BOARD'));
-    await prepareLegacyPreview(f, owner, publicBoard.id);
-    const privateBoard = await note(f, owner, 'private-board.excalidraw', scene('PRIVATE_BOARD_SECRET'));
+    const publicBoard = await createPrimaryWhiteboard(f, owner, "existing-board.md", scene('ALREADY_PUBLIC_BOARD'));
+
+    const privateBoard = await createPrimaryWhiteboard(f, owner, "private-board.md", scene('PRIVATE_BOARD_SECRET'));
     const original = '# Shared explanation' + fence(publicBoard.id);
     const n = await note(f, owner, 'board-parent.md', original);
     const base = await share(f, owner, n.id);
@@ -281,8 +281,8 @@ it('expires at the exact boundary across metadata, direct reads, cached cursors,
   const f = await createFixture();
   try {
     const owner = await loginFixtureOwner(f);
-    const board = await note(f, owner, 'expiry-board.excalidraw', scene('EXPIRING_BOARD'));
-    await prepareLegacyPreview(f, owner, board.id);
+    const board = await createPrimaryWhiteboard(f, owner, "expiry-board.md", scene('EXPIRING_BOARD'));
+
     await writeFile(join(f.knowledgeRoot, '00-Inbox/expiring.png'), png);
     const text = '# Expires\n\n![image](expiring.png)' + fence(board.id) + '\nReadable paragraph.\n\n'.repeat(1000);
     const n = await note(f, owner, 'expires.md', text);

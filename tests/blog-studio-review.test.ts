@@ -51,14 +51,14 @@ it('diagnoses real Markdown and wikilinks, ignores code/frontmatter and still pr
   draft('unpublished', '# Not public');
   const { post } = draft(
     'article',
-    '---\nprivate: SECRET_PROPERTY\n---\n# Article\n\n[[unpublished]]\n\n[Absent](absent.md)\n\n![Missing](assets/absent.png)\n\n`[Code](code.md)`\n\n```md\n![Code](assets/code.png)\n```',
+    '---\nprivate: SECRET_PROPERTY\n---\n# Article\n\n[[unpublished]]\n\n[Absent](absent.md)\n\n![Missing](_doo-assets/absent.png)\n\n`[Code](code.md)`\n\n```md\n![Code](_doo-assets/code.png)\n```',
   );
   const result = review(post.id);
   expect(result.warnings).toEqual(
     expect.arrayContaining([
       expect.objectContaining({ code: 'unpublished-link', target: 'unpublished.md' }),
       expect.objectContaining({ code: 'missing-link', target: 'absent.md' }),
-      expect.objectContaining({ code: 'missing-image', target: 'assets/absent.png' }),
+      expect.objectContaining({ code: 'missing-image', target: '_doo-assets/absent.png' }),
     ]),
   );
   expect(result.warnings).toHaveLength(3);

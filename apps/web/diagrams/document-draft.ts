@@ -2,6 +2,10 @@ import { parseDiagramDocument } from '../../../shared/diagram-document';
 import { canRestoreNoteDraft, type DiagramDraftEnvelope, type DraftRecord } from '../drafts';
 import type { DocumentSessionState, PendingDocumentCommit } from './document-session';
 import { diagramFormat } from './primary-api';
+export function heldDraftDownload(record: DraftRecord) {
+  const formats = { markdown: '.md', excalidraw: '.excalidraw', mermaid: '.mmd', 'markdown-outline': '.outline.md' };
+  return { content: record.content, extension: record.diagram ? formats[record.diagram.payloadFormat] : '.md' };
+}
 export function documentDraft(state: DocumentSessionState): DiagramDraftEnvelope {
   return {
     version: 2,

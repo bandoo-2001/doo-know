@@ -1,24 +1,16 @@
-import { DOO_ASSETS_DIRECTORY, isCompatibleAssetPath, isDooAssetPath } from '../../../shared/storage-paths.js';
+import { DOO_ASSETS_DIRECTORY } from '../../../shared/storage-paths.js';
 import { archivedDiagramRoot, type ArchivedDiagramContext } from './archived-diagram-context.js';
-import {
-  archivedNoteDiagramFile,
-  type ArchivedNoteDiagramContext,
-} from './archived-note-diagram-context.js';
+import { archivedNoteDiagramFile, type ArchivedNoteDiagramContext } from './archived-note-diagram-context.js';
 import { lstatSync, readFileSync } from 'node:fs';
 import { posix } from 'node:path';
 import type { AppConfig } from '../../../shared/contracts.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
 import { parseDiagramDocument } from '../../../shared/diagram-document.js';
-import {
-  applyPreparedDiagramDocument,
-  primaryRenderDescriptor,
-  diagramRendererVersions,
-  type PreparedDiagramPrimary,
-} from '../../../shared/diagram-primary.js';
+import { applyPreparedDiagramDocument, primaryRenderDescriptor, diagramRendererVersions, type PreparedDiagramPrimary } from '../../../shared/diagram-primary.js';
 import { boundDiagramSources, normalizeDiagramCode } from '../../../shared/diagram-portability.js';
 import { serializeDiagramBinding } from '../../../shared/diagram-binding.js';
 import { renderPortableFigure } from '../../../shared/portable-figure.js';
-import { isWhiteboard, withWhiteboardId } from '../../../shared/whiteboard.js';
+
 import type { AppDatabase } from '../db.js';
 import { safePath } from '../files.js';
 import { canAccessPath } from '../agent/auth.js';
@@ -46,14 +38,7 @@ export type NativeDocumentRewrite = {
   snapshotIds?: string[];
   content: string;
   primary?: PreparedDiagramPrimary;
-  legacy?: {
-    documentHash: string;
-    title: string;
-    renderer: string;
-    config: Record<string, unknown>;
-    renderHash: string;
-    preview: { path: string; hash: string };
-  };
+
 };
 /** Enumerate current documents only. Retained old assets remain immutable retention roots. */
 export function collectNativeLinkChanges(
@@ -121,7 +106,6 @@ export function collectNativeLinkChanges(
     // Linkified scheme URLs retain their URL; every file above is still fully read and validated.
     if (
       parsed.status === 'ordinary' &&
-      !isWhiteboard(note.path) &&
       !/[<\[`~]/.test(original)
     )
       continue;
@@ -130,9 +114,8 @@ export function collectNativeLinkChanges(
       note.path,
       target,
       moves,
-      isWhiteboard(note.path),
     ).content;
-    let primary: PreparedDiagramPrimary | undefined, legacy: NativeDocumentRewrite['legacy'];
+    let primary: PreparedDiagramPrimary | undefined;
     const prepare = (
       source: string,
       sourcePath: string | undefined,
@@ -160,8 +143,7 @@ export function collectNativeLinkChanges(
             .changed
         : false;
       if (!final.changed && !existingChanges) return;
-      if (!sourcePath && isWhiteboard(note.path))
-        final.content = withWhiteboardId(final.content, note.id);
+
       if (!canAccessPath(p, note.path)) fail(403, 'DEPENDENCY_FORBIDDEN');
       const snapshot = registry.fix({
         noteId: note.id,
@@ -328,38 +310,6 @@ export function collectNativeLinkChanges(
           });
         }
       }
-    } else if (isWhiteboard(note.path)) {
-      const row = db
-        .prepare(
-          'SELECT manifest FROM legacy_diagram_previews WHERE note_id=? ORDER BY created_at DESC,rowid DESC LIMIT 1',
-        )
-        .get(note.id) as { manifest: string } | undefined;
-      const old = row ? JSON.parse(row.manifest) : undefined,
-        title = old?.title ?? posix.basename(note.path, '.excalidraw');
-      const result = prepare(
-        original,
-        undefined,
-        documentHash,
-        'primary',
-        title,
-        old?.renderer ?? diagramRendererVersions.whiteboard,
-        old?.config ?? {},
-        'legacy',
-      );
-      if (result) {
-        content = result.source;
-        legacy = {
-          documentHash: sha256(content),
-          title,
-          renderer: result.prepared.renderer,
-          config: result.prepared.config,
-          renderHash: result.prepared.renderHash,
-          preview: {
-            path: result.prepared.preview.markdownPath,
-            hash: result.prepared.previewHash,
-          },
-        };
-      }
     }
     // Generated groups retain exact native JSON syntax in their authoritative asset.
     for (const group of boundDiagramSources(original)
@@ -471,7 +421,6 @@ export function collectNativeLinkChanges(
         documentModifiedAt: stamp.mtimeNs.toString(),
         snapshotIds,
         ...(primary ? { primary } : {}),
-        ...(legacy ? { legacy } : {}),
       });
   }
   return { rewrites, needs };

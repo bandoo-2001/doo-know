@@ -1,63 +1,28 @@
-import { migrationAliasState } from './migration-alias-state.js';
-import { finishWhiteboardMigration, finishWhiteboardRollback, type MigrationRow } from './diagram-migration-journal.js';
 import { recordRevisionContext } from './revision-context.js';
-import {
-  captureNoteArchiveContext, prepareNoteTrashRestore, noteTrashRestorePlan,
-  commitNoteRestore, assertNoteRestoreCommitted, publishNoteTrashRestoreAssets, verifyNoteTrashRestore,
-} from './note-trash-native-restore.js';
-import {parseDiagramDocument} from '../../../shared/diagram-document.js';
+import { captureNoteArchiveContext, prepareNoteTrashRestore, noteTrashRestorePlan, commitNoteRestore, assertNoteRestoreCommitted, publishNoteTrashRestoreAssets, verifyNoteTrashRestore } from './note-trash-native-restore.js';
+import { parseDiagramDocument } from '../../../shared/diagram-document.js';
 import { assertDiagramPublication } from './diagram-publication-policy.js';
-import { recordDiagramPublication,verifyPendingDiagramPublication } from './diagram-publications.js';
+import { recordDiagramPublication, verifyPendingDiagramPublication } from './diagram-publications.js';
 import { assertDiagramRestorePublication } from './diagram-file-publication.js';
 import { diagramCreationService } from './diagram-creation.js';
-import {isWhiteboard,isDocument,parseWhiteboard,MAX_WHITEBOARD_BYTES,documentTitle,documentType,whiteboardText,withWhiteboardId} from '../../../shared/whiteboard.js';
-import {
-  workspaceWrite,
-  workspaceWriteSync,
-  operationHasLiveWorkspaceWriter,
-  workspaceBegin,
-  workspaceArtifact,
-} from '../workspace/gate.js';
+import { isDocument, documentTitle, documentType } from '../../../shared/whiteboard.js';
+import { workspaceWrite, workspaceWriteSync, operationHasLiveWorkspaceWriter, workspaceBegin, workspaceArtifact } from '../workspace/gate.js';
 import { assertWritable, acquireNoteWrite, releaseNoteWrite } from './write-lease.js';
 export { assertWritable } from './write-lease.js';
 import { randomUUID, createHash } from 'node:crypto';
 import { lifecyclePrincipal } from './lifecycle-access.js';
-import {
-  readFileSync,
-  copyFileSync,
-  constants,
-  chmodSync,
-  readSync,
-  fstatSync,
-  writeFileSync,
-  renameSync,
-  linkSync,
-  unlinkSync,
-  mkdirSync,
-  openSync,
-  closeSync,
-  fsyncSync,
-  statSync,
-  existsSync,
-  lstatSync,
-} from 'node:fs';
+import { readFileSync, copyFileSync, constants, chmodSync, readSync, fstatSync, writeFileSync, renameSync, linkSync, unlinkSync, mkdirSync, openSync, closeSync, fsyncSync, statSync, existsSync, lstatSync } from 'node:fs';
 import { join, dirname, basename } from 'node:path';
 import type { AppConfig } from '../../../shared/contracts.js';
 import type { Principal, RecoveryReport } from '../../../shared/knowledge-contracts.js';
 import type { AppDatabase } from '../db.js';
-import { safePath, validName, readDocument, readDocumentForMigration } from '../files.js';
+import { safePath, validName, readDocument } from '../files.js';
 import { assertSharePrincipal, isSharePrincipal } from '../share-policy.js';
 import { assertShareResources } from '../share-resources.js';
 import { authorizePath, requireScope } from '../agent/auth.js';
 import { fail, KnowledgeError } from './errors.js';
 import type { OperationRow } from './operations.js';
-import {
-  beginOperation,
-  existingResult,
-  completeOperation,
-  sha256,
-  releaseSnapshotRef,
-} from './operations.js';
+import { beginOperation, existingResult, completeOperation, sha256, releaseSnapshotRef } from './operations.js';
 import { observeSource } from '../indexing/state.js';
 import { hashFile, fileVersionStamp } from './file-reader.js';
 import { limits } from './limits.js';
@@ -65,7 +30,6 @@ import { assertRoot } from '../indexing/reconcile.js';
 import { moveService } from './move.js';
 import { observeCollectionSource } from '../collections/source.js';
 import { portableLibrary } from '../portable-library.js';
-const documentTypeMismatch = (a:string,b:string) => isWhiteboard(a)!==isWhiteboard(b);
 export const webPrincipal: Principal = {
   id: 'web-owner',
   clientId: 'browser',
@@ -275,14 +239,14 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
       }
       const file = safePath(config.knowledgeRoot, intent.path, 'note'),
         s = statSync(file, { bigint: true });
-      if (['restore', 'move', 'whiteboard-migrate', 'whiteboard-rollback'].includes(intent.kind) && restoreHash(file) !== intent.target_hash)
+      if (['restore', 'move'].includes(intent.kind) && restoreHash(file) !== intent.target_hash)
         fail(409, 'RESTORE_CONFLICT', '恢复目标发生外部变化');
       recordRevisionContext(config, db, intent);
       const previousRelativePath =
         intent.kind === 'move'
           ? (db.prepare('SELECT path FROM notes WHERE id=?').get(intent.note_id) as any).path
           : undefined;
-      if (intent.kind === 'restore' || intent.kind === 'move' || intent.kind === 'whiteboard-migrate' || intent.kind === 'whiteboard-rollback') {
+      if (intent.kind === 'restore' || intent.kind === 'move') {
         db.prepare('UPDATE notes SET path=?,active=1,trash_path=NULL WHERE id=?').run(
           intent.path,
           intent.note_id,
@@ -290,14 +254,8 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
         if (intent.kind === 'restore')
           db.prepare('UPDATE shares SET enabled=0 WHERE note_id=?').run(intent.note_id);
       } else db.prepare('UPDATE notes SET active=1 WHERE id=?').run(intent.note_id);
-      if (intent.kind === 'whiteboard-rollback') {
-        db.prepare('DELETE FROM note_path_aliases WHERE note_id=?').run(intent.note_id);
-      }
-      if (intent.kind === 'whiteboard-migrate') {
-        const migration = db.prepare('SELECT id,old_path FROM whiteboard_migrations WHERE commit_operation_id=?').get(intent.id) as { id:string;old_path:string } | undefined;
-        if (!migration) fail(409, 'MIGRATION_INTENT_MISSING');
-        db.prepare('INSERT INTO note_path_aliases(path,note_id,migration_id) VALUES(?,?,?) ON CONFLICT(path) DO UPDATE SET note_id=excluded.note_id,migration_id=excluded.migration_id').run(migration.old_path,intent.note_id,migration.id);
-      }
+
+
       if (intent.kind === 'move')
         db.prepare('UPDATE document_state SET active=0 WHERE note_id=?').run(intent.note_id);
       enqueueSource(
@@ -308,7 +266,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
         s.mtimeNs.toString(),
         Number(s.size),
       );
-      observeCollectionSource(db, intent.note_id, s.mtimeNs.toString(), Number(s.size), isWhiteboard(intent.path) && content !== undefined ? whiteboardText(content) : content,
+      observeCollectionSource(db, intent.note_id, s.mtimeNs.toString(), Number(s.size), content,
         `${s.dev}:${s.ino}:${s.ctimeNs}`, intent.target_hash!);
       db.prepare("UPDATE document_state SET longest_line_bytes=NULL,document_type='markdown' WHERE note_id=?").run(
         intent.note_id,
@@ -362,9 +320,9 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     ordinaryByteLimit = limits.ordinary,
   ) {
     if (typeof directory !== 'string') fail(400, 'INVALID_DIRECTORY');
-    if (typeof content !== 'string' || Buffer.byteLength(content) > (isWhiteboard(fileName) ? MAX_WHITEBOARD_BYTES : parseDiagramDocument(content).status==='diagram'?limits.file:ordinaryByteLimit))
+    if (typeof content !== 'string' || Buffer.byteLength(content) > (parseDiagramDocument(content).status==='diagram'?limits.file:ordinaryByteLimit))
       fail(413, 'REQUEST_TOO_LARGE');
-    if (isWhiteboard(fileName)) { try { parseWhiteboard(content); } catch(e) { fail(400, 'INVALID_WHITEBOARD', (e as Error).message); } }
+
     if (!validName(fileName) || !isDocument(fileName)) fail(400, 'INVALID_INPUT');
     const path = directory === '' ? fileName : `${directory}/${fileName}`;
     authorizePath(p, path, 'knowledge:write');
@@ -378,14 +336,14 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     return runOperation(op.operation, (commit, stage) => {
       if (directory !== '') safePath(config.knowledgeRoot, directory, 'folder');
       const file = safePath(config.knowledgeRoot, path, 'note', true);
-      if (existsSync(file) || db.prepare("SELECT 1 FROM whiteboard_migrations WHERE new_path=? AND status NOT IN ('rolled_back','committed','references_pending')").get(path) || db.prepare('SELECT 1 FROM note_path_aliases WHERE path=?').get(path)) fail(409, 'NAME_CONFLICT');
+      if (existsSync(file)) fail(409, 'NAME_CONFLICT');
       const creation=creationIntentId?diagramCreationService(config,db,p).get(creationIntentId):undefined;
       if(!creation && db.prepare("SELECT 1 FROM diagram_creation_intents WHERE path=? AND status IN ('reserved','prepared') AND (expires_at>? OR commit_operation_id IS NOT NULL)").get(path,Date.now())) fail(409,'NAME_CONFLICT');
       const noteId = creation?.noteId || randomUUID(),
         temp = join(dirname(file), `.doo-${op.operation.id}.tmp`);
       assertDiagramPublication(config,db,p,{operationId:op.operation.id,noteId,path,markdown:content,creationIntentId});
       stage(temp);
-      if(isWhiteboard(path)){content=withWhiteboardId(content,noteId);if(Buffer.byteLength(content)>MAX_WHITEBOARD_BYTES)fail(413,'REQUEST_TOO_LARGE','白板不能超过 8 MiB');}
+
       durableFile(temp, content);
       db.transaction(() => {
         if(creationIntentId) {
@@ -415,38 +373,20 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     });
   }
   function update(p: Principal, id: string, content: string, expected: string, requestId: string) {
-    return updateDocument(p, id, content, expected, requestId, false);
-  }
-  function updateDocument(
-    p: Principal,
-    id: string,
-    content: string,
-    expected: string,
-    requestId: string,
-    forMigration: boolean,
-  ) {
     const n = row(id);
     assertSharePrincipal(db, p, id, n.path, 'edit');
     authorizePath(p, n.path, 'knowledge:write');
     assertWritable(db, id);
-    if (forMigration && isSharePrincipal(p)) fail(403, 'FORBIDDEN');
-    if (typeof content !== 'string') fail(413, 'REQUEST_TOO_LARGE');
-    const maxBytes = isWhiteboard(n.path)
-      ? MAX_WHITEBOARD_BYTES
-      : forMigration || parseDiagramDocument(content).status === 'diagram'
-        ? limits.file
-        : limits.ordinary;
-    if (Buffer.byteLength(content) > maxBytes) fail(413, 'REQUEST_TOO_LARGE');
+    if (typeof content !== 'string' || Buffer.byteLength(content) > (parseDiagramDocument(content).status==='diagram'?limits.file:1024*1024))
+      fail(413, 'REQUEST_TOO_LARGE');
     if (isSharePrincipal(p)) {
-      if (isWhiteboard(n.path)) fail(403, 'SHARE_EDIT_UNSUPPORTED', '白板分享暂不支持公开编辑');
+
       if (content.split('\n').some(line => Buffer.byteLength(line) > 32768))
         fail(413, 'SHARE_EDIT_UNSUPPORTED', '公开编辑不支持超过 32 KiB 的长行');
     }
-    if (!isWhiteboard(n.path) && db.prepare('SELECT 1 FROM note_path_aliases WHERE note_id=?').get(id)) {
-      try { const native = JSON.parse(content); if (native?.type === 'excalidraw') fail(409, 'VERSION_CONFLICT', '白板已迁移，请重新载入文档'); } catch (error) { if (error instanceof KnowledgeError) throw error; }
-    }
-    if (isWhiteboard(n.path)) { try { parseWhiteboard(content); } catch(e) { fail(400, 'INVALID_WHITEBOARD', (e as Error).message); } }
-    if(isWhiteboard(n.path)){content=withWhiteboardId(content,id);if(Buffer.byteLength(content)>MAX_WHITEBOARD_BYTES)fail(413,'REQUEST_TOO_LARGE','白板不能超过 8 MiB');}
+
+
+
     if (typeof expected !== 'string' || !/^\d+$/.test(expected)) fail(400, 'INVALID_VERSION');
     const op = workspaceBegin(db, () =>
       beginOperation(db, p, 'update', requestId, {
@@ -459,16 +399,12 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     return runOperation(op.operation, (commit, stage) => {
       const file = safePath(config.knowledgeRoot, n.path, 'note'),
         s = statSync(file, { bigint: true });
-      const readCurrent = () =>
-        forMigration
-          ? readDocumentForMigration(config.knowledgeRoot, n.path)
-          : readDocument(config.knowledgeRoot, n.path, { allowDiagramLarge: true });
-      const current = readCurrent();
+      const current = readDocument(config.knowledgeRoot, n.path,{allowDiagramLarge:true});
       if (current.modifiedAt !== expected)
         fail(409, 'VERSION_CONFLICT', '原文件已更新', false, {
           currentModifiedAt: current.modifiedAt,
         });
-      if (!forMigration && !isWhiteboard(n.path) && parseDiagramDocument(current.content).status!=='diagram' && current.content.split('\n').some((line) => Buffer.byteLength(line) > 32768))
+      if (parseDiagramDocument(current.content).status!=='diagram' && current.content.split('\n').some((line) => Buffer.byteLength(line) > 32768))
         fail(409, 'LARGE_FILE_MODE_REQUIRED');
       if (isSharePrincipal(p)) assertShareResources(n.path, current.content, content);
       assertDiagramPublication(config,db,p,{operationId:op.operation.id,noteId:id,path:n.path,markdown:content,currentMarkdown:current.content});
@@ -496,7 +432,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
         op.operation.id,
         historyFile,
       );
-      const latest = readCurrent();
+      const latest = readDocument(config.knowledgeRoot, n.path,{allowDiagramLarge:true});
       if (latest.modifiedAt !== expected || sha256(latest.content) !== sha256(current.content))
         fail(409, 'VERSION_CONFLICT', '原文件再次更新', false, {
           currentModifiedAt: latest.modifiedAt,
@@ -747,7 +683,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     p = lifecyclePrincipal(db, p, 'note', id, n.path);
     authorizePath(p, n.path, 'knowledge:write');
     const name = fileName || basename(n.path);
-    if (!validName(name) || !isDocument(name) || documentTypeMismatch(name,n.path)) fail(400, 'INVALID_INPUT');
+    if (!validName(name) || !isDocument(name)) fail(400, 'INVALID_INPUT');
     const path = dirname(n.path) === '.' ? name : `${dirname(n.path)}/${name}`;
     p = lifecyclePrincipal(db, p, 'note', id, path);
     authorizePath(p, path, 'knowledge:write');
@@ -814,19 +750,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
   }
   async function recover(): Promise<RecoveryReport> {
     const report = { recovered: 0, unapplied: 0, conflicted: 0 };
-    for (const migration of db.prepare("SELECT * FROM whiteboard_migrations WHERE status IN ('committing','rolling_back')").all() as MigrationRow[]) {
-      const migrationOperationId = migration.status === 'rolling_back' ? migration.rollback_operation_id : migration.commit_operation_id;
-      if (!migrationOperationId || operationHasLiveWorkspaceWriter(db, migrationOperationId)) continue;
-      let owned = false;
-      try {
-        acquireNoteWrite(db, migration.note_id, migrationOperationId, migrationOperationId); owned = true;
-        if (migration.status === 'rolling_back') finishWhiteboardRollback(config, db, migration, record);
-        else finishWhiteboardMigration(config, db, migration, record);
-        library.flush(); migrationAliasState(config,db).flush(); report.recovered++;
-      } catch {
-        if (owned) report.conflicted++;
-      } finally { if (owned) releaseNoteWrite(db, migration.note_id, migrationOperationId); }
-    }
+
     for (const orphan of db
       .prepare(
         "SELECT id FROM operations WHERE kind IN ('create','update','archive','restore','move') AND status='prepared' AND (error IS NULL OR error<>'DIAGRAM_PREVIEW_REQUIRED') AND NOT EXISTS(SELECT 1 FROM write_intents WHERE write_intents.id=operations.id)",
@@ -842,7 +766,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     for (let intent of db
       .prepare("SELECT * FROM write_intents WHERE status='prepared'")
       .all() as Intent[]) {
-      if (intent.kind === 'whiteboard-migrate' || intent.kind === 'whiteboard-rollback') continue;
+
       if (operationHasLiveWorkspaceWriter(db, intent.id)) continue;
       if (
         db
@@ -1042,7 +966,7 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
     /** Internal manifest-import capability; ordinary public create retains its 1 MiB limit. */
     createPortableMarkdown: (p:Principal,directory:string,fileName:string,content:string,requestId:string) =>
       workspaceWriteSync(db, { kind: 'core.create-portable-markdown' }, () => {
-        if (typeof content !== 'string' || isWhiteboard(fileName) || parseDiagramDocument(content).status !== 'ordinary')
+        if (typeof content !== 'string' || parseDiagramDocument(content).status !== 'ordinary')
           fail(400, 'INVALID_PORTABLE_DOCUMENT');
         return create(p,directory,fileName,content,requestId,undefined,limits.file);
       }),
@@ -1053,9 +977,6 @@ export function mutationCore(config: AppConfig, db: AppDatabase) {
       }),
     update: (...args: Parameters<typeof update>) =>
       workspaceWriteSync(db, { kind: 'core.update' }, () => update(...args)),
-    /** Internal migration capability; retains ordinary versioned update receipts, validation and history. */
-    updateMigrationReference: (...args: Parameters<typeof update>) =>
-      workspaceWriteSync(db, { kind: 'core.update-migration-reference' }, () => updateDocument(...args, true)),
     archive: (...args: Parameters<typeof archive>) =>
       workspaceWriteSync(db, { kind: 'core.archive' }, () => archive(...args)),
     restore: (...args: Parameters<typeof restore>) =>

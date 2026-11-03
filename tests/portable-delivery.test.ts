@@ -10,7 +10,6 @@ import { assetService } from '../packages/core/assets';
 import { mutationCore, webPrincipal } from '../packages/core/knowledge/core';
 import { diagramCreationService } from '../packages/core/knowledge/diagram-creation';
 import { primaryDiagramService } from '../packages/core/knowledge/primary-diagrams';
-import { legacyDiagramPreviewService } from '../packages/core/knowledge/legacy-diagram-previews';
 import { diagramArtifactService } from '../packages/core/knowledge/diagram-artifacts';
 import { serializeDiagramBinding } from '../shared/diagram-binding';
 import { renderPreparedDiagramDocument, diagramRendererVersions } from '../shared/diagram-primary';
@@ -38,7 +37,7 @@ async function fixture() {
     origin: 'http://localhost',
     secret: 'fixture-only',
   };
-  await mkdir(join(config.knowledgeRoot, '00-Inbox/assets'), { recursive: true });
+  await mkdir(join(config.knowledgeRoot, '00-Inbox/_doo-assets'), { recursive: true });
   const db = openDatabase(config.dataRoot),
     notes = noteService(config, db);
   clean.push(async () => {
@@ -138,10 +137,10 @@ it('keeps explicit multiple and directory selections archives even for one docum
 
 it('exports the local linked Markdown closure with anchors and reference images while preserving code examples', async () => {
   const f = await fixture();
-  await writeFile(join(f.config.knowledgeRoot, '00-Inbox/assets/图 (1).png'), png);
+  await writeFile(join(f.config.knowledgeRoot, '00-Inbox/_doo-assets/图 (1).png'), png);
   const a = f.create(
       'a.md',
-      '# A\n\n[B](b.md#anchor)\n\n![图][pic]\n\n[pic]: <assets/图 (1).png>\n\n`[code](missing.md)`\n',
+      '# A\n\n[B](b.md#anchor)\n\n![图][pic]\n\n[pic]: <_doo-assets/图 (1).png>\n\n`[code](missing.md)`\n',
     ),
     b = f.create('b.md', '# B\n\n[A](a.md)\n');
   const out = await f.service.create(webPrincipal, {
@@ -169,7 +168,7 @@ it('exports the local linked Markdown closure with anchors and reference images 
 
 it('fails missing, inaccessible and unavailable media dependencies instead of delivering an incomplete package', async () => {
   const f = await fixture(),
-    missing = f.create('missing.md', '![broken](assets/missing.png)');
+    missing = f.create('missing.md', '![broken](_doo-assets/missing.png)');
   await expect(
     f.service.create(webPrincipal, {
       selection: { kind: 'single', noteId: missing.id },
@@ -177,7 +176,7 @@ it('fails missing, inaccessible and unavailable media dependencies instead of de
     }),
   ).rejects.toMatchObject({
     code: 'PORTABLE_DEPENDENCY_UNAVAILABLE',
-    details: { diagnostics: [{ document: '00-Inbox/missing.md', resource: 'assets/missing.png' }] },
+    details: { diagnostics: [{ document: '00-Inbox/missing.md', resource: '_doo-assets/missing.png' }] },
   });
   const privateNote = f.create('secret.md', 'private'),
     parent = f.create('parent.md', '[other](secret.md)');
@@ -191,7 +190,7 @@ it('fails missing, inaccessible and unavailable media dependencies instead of de
   for (const [name, content] of [
     ['remote', '![remote](http://127.0.0.1/a.png)'],
     ['html', '<video poster="poster.png"><source src="movie.mp4"></video>'],
-    ['media', '[audio](assets/a.mp3)'],
+    ['media', '[audio](_doo-assets/a.mp3)'],
   ]) {
     const note = f.create(name + '.md', content);
     await expect(
@@ -474,25 +473,9 @@ it('terminates later download chunks after the current document grant is revoked
   ).rejects.toMatchObject({ code: 'FORBIDDEN' });
 });
 
-it('exports a prepared legacy UUID embed as ordinary PNG plus a linked Markdown diagram document', async () => {
+it('exports a current UUID embed as ordinary PNG plus a linked Markdown diagram document', async () => {
   const f = await fixture(),
-    board = f.create('legacy).excalidraw', JSON.stringify(emptyWhiteboard()));
-  const source = f.primary.resolve(board.id),
-    legacy = legacyDiagramPreviewService(
-      f.config,
-      f.db,
-      f.notes,
-      assetService(f.config, f.db, f.notes),
-      webPrincipal,
-    );
-  legacy.prepare(board.id, {
-    expectedDocumentHash: source.documentHash,
-    expectedSourceHash: source.source.hash,
-    renderer: diagramRendererVersions.whiteboard,
-    config: {},
-    pngBase64: png.toString('base64'),
-    requestId: randomUUID(),
-  });
+    board = f.diagram('whiteboard', JSON.stringify(emptyWhiteboard()), 'legacy)').note;
   const parent = f.create('parent.md', '正文\n\n```excalidraw\n' + board.id + '\n```\n');
   const out = await f.service.create(webPrincipal, {
       selection: { kind: 'single', noteId: parent.id },
@@ -573,8 +556,8 @@ it('reimports a complete package above the old 20 MiB JSON total without flatten
   for (let n = 0; n < 3; n++) {
     const bytes = Buffer.alloc(8 * 1024 ** 2, n + 1);
     bytes.write('%PDF-1.7\n');
-    await writeFile(join(f.config.knowledgeRoot, `00-Inbox/assets/large-${n}.pdf`), bytes);
-    content += `\n[attachment ${n}](assets/large-${n}.pdf)\n`;
+    await writeFile(join(f.config.knowledgeRoot, `00-Inbox/_doo-assets/large-${n}.pdf`), bytes);
+    content += `\n[attachment ${n}](_doo-assets/large-${n}.pdf)\n`;
   }
   const note = f.create('attachments.md', content),
     out = await f.service.create(webPrincipal, {
@@ -963,13 +946,13 @@ it('exports and reimports all four real media formats with HTML sources, poster 
     extensions = ['mp4', 'webm', 'mp3', 'wav'];
   for (const ext of extensions)
     await writeFile(
-      join(f.config.knowledgeRoot, '00-Inbox/assets/a.' + ext),
+      join(f.config.knowledgeRoot, '00-Inbox/_doo-assets/a.' + ext),
       await readFile(join(import.meta.dirname, 'fixtures/media/sample.' + ext)),
     );
-  await writeFile(join(f.config.knowledgeRoot, '00-Inbox/assets/poster.png'), png);
+  await writeFile(join(f.config.knowledgeRoot, '00-Inbox/_doo-assets/poster.png'), png);
   const note = f.create(
     'media.md',
-    '<video poster="assets/poster.png"><source src="assets/a.mp4"></video>\n<audio src="assets/a.mp3"></audio>\n\n[WebM](assets/a.webm)\n[WAV](assets/a.wav)\n',
+    '<video poster="_doo-assets/poster.png"><source src="_doo-assets/a.mp4"></video>\n<audio src="_doo-assets/a.mp3"></audio>\n\n[WebM](_doo-assets/a.webm)\n[WAV](_doo-assets/a.wav)\n',
   );
   const delivery = await f.service.create(webPrincipal, {
     selection: { kind: 'single', noteId: note.id },
@@ -985,7 +968,7 @@ it('exports and reimports all four real media formats with HTML sources, poster 
   const md = await readFile(join(extracted, '00-Inbox/media.md'), 'utf8');
   expect(md).toContain('[媒体文件]');
   expect(md).not.toContain('/api/');
-  expect(md).toContain('assets/a.mp4');
+  expect(md).toContain('_doo-assets/a.mp4');
   const target = await fixture();
   const result = await target.service.importDirectory(webPrincipal, {
     directoryPath: extracted,
@@ -994,7 +977,7 @@ it('exports and reimports all four real media formats with HTML sources, poster 
   });
   expect(result.assets).toBe(5);
   expect(target.notes.getNote(result.notes[0].noteId).content).toContain(
-    'poster="assets/poster.png',
+    'poster="_doo-assets/poster.png',
   );
   const again = await target.service.create(webPrincipal, {
     selection: { kind: 'single', noteId: result.notes[0].noteId },
@@ -1194,8 +1177,8 @@ it('review regression: remote failure diagnostics redact URL userinfo and inline
 
 it('review regression: own-origin API asset autolinks cannot publish an archive retaining the application URL', async () => {
   const f = await fixture();
-  await writeFile(join(f.config.knowledgeRoot, '00-Inbox/assets/auto.png'), png);
-  const asset = assetService(f.config, f.db, f.notes).register('00-Inbox/assets/auto.png');
+  await writeFile(join(f.config.knowledgeRoot, '00-Inbox/_doo-assets/auto.png'), png);
+  const asset = assetService(f.config, f.db, f.notes).register('00-Inbox/_doo-assets/auto.png');
   const note = f.create('auto-api.md', `<http://localhost/api/assets/${asset.id}>\n`);
   await expect(
     f.service.create(webPrincipal, {
@@ -1211,7 +1194,7 @@ it('review regression: exact 128 MiB incompressible PCM roundtrips while its exp
     { open } = await import('node:fs/promises'),
     { randomFillSync } = await import('node:crypto');
   const size = 128 * 1024 * 1024,
-    path = join(f.config.knowledgeRoot, '00-Inbox/assets/limit.wav');
+    path = join(f.config.knowledgeRoot, '00-Inbox/_doo-assets/limit.wav');
   const header = Buffer.from(
     await readFile(join(import.meta.dirname, 'fixtures/media/sample.wav')),
   ).subarray(0, 44);
@@ -1226,7 +1209,7 @@ it('review regression: exact 128 MiB incompressible PCM roundtrips while its exp
   } finally {
     await fd.close();
   }
-  const note = f.create('limit-media.md', '[WAV](assets/limit.wav)\n'),
+  const note = f.create('limit-media.md', '[WAV](_doo-assets/limit.wav)\n'),
     out = await f.service.create(webPrincipal, {
       selection: { kind: 'single', noteId: note.id },
       requestId: randomUUID(),
@@ -1272,8 +1255,8 @@ it.each(['svg', 'mermaid', 'excalidraw'] as const)(
           : 'flowchart LR\n A-->B\n',
       code = source;
     if (kind === 'excalidraw') {
-      const board = f.create('bound-board.excalidraw', JSON.stringify(emptyWhiteboard()));
-      source = f.notes.getNote(board.id).content;
+      const { note: board, source: scene } = f.diagram('whiteboard', JSON.stringify(emptyWhiteboard()), 'bound-board');
+      source = scene;
       code = board.id;
     }
     const prepared = diagramArtifactService(
@@ -1422,70 +1405,6 @@ it('returns a fixed read-only source plan for native UUID links and resumes same
       requestId: randomUUID(),
     }),
   ).toMatchObject({ kind: 'archive' });
-});
-it('rebases a legacy self-reference to its renamed Markdown target before preview planning and updates the full render tuple', async () => {
-  const f = await fixture(),
-    source = JSON.stringify({
-      ...emptyWhiteboard(),
-      elements: [{ id: 'self', type: 'rectangle', link: 'legacy-self.excalidraw#self' }],
-    }),
-    board = f.create('legacy-self.excalidraw', source),
-    state = f.primary.resolve(board.id);
-  legacyDiagramPreviewService(
-    f.config,
-    f.db,
-    f.notes,
-    assetService(f.config, f.db, f.notes),
-    webPrincipal,
-  ).prepare(board.id, {
-    expectedDocumentHash: state.documentHash,
-    expectedSourceHash: state.source.hash,
-    renderer: diagramRendererVersions.whiteboard,
-    config: {},
-    pngBase64: png.toString('base64'),
-    requestId: randomUUID(),
-  });
-  const parent = f.create('legacy-self-parent.md', '```excalidraw\n' + board.id + '\n```\n');
-  const input = {
-      selection: { kind: 'single' as const, noteId: parent.id },
-      requestId: randomUUID(),
-    },
-    error = await f.service.create(webPrincipal, input).catch((e) => e),
-    need = error.details.portablePreviews[0],
-    fixed = f.service.previews.get(webPrincipal, need.previewId);
-  expect(JSON.parse(fixed.source).elements[0].link).toBe('../00-Inbox/legacy-self.md#self');
-  const changed = Buffer.from(
-    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
-    'base64',
-  );
-  f.service.previews.prepare(webPrincipal, {
-    previewId: need.previewId,
-    sourceHash: need.sourceHash,
-    pngBase64: changed.toString('base64'),
-    requestId: 'legacy-fixed',
-  });
-  const out = await f.service.create(webPrincipal, input),
-    archive = join(f.root, 'self.tar.gz'),
-    directory = join(f.root, 'self-out');
-  await writeFile(archive, await deliveryBytes(f, out.id));
-  await mkdir(directory);
-  await extractArchive(archive, directory);
-  const parsed = (await import('../shared/diagram-document')).parseDiagramDocument(
-    await readFile(join(directory, '00-Inbox/legacy-self.md'), 'utf8'),
-  );
-  expect(parsed.status).toBe('diagram');
-  if (parsed.status !== 'diagram') throw Error('diagram');
-  expect(parsed.primary.binding).toMatchObject({
-    sourceHash: sha256(fixed.source),
-    previewHash: sha256(changed),
-    renderHash: need.renderHash,
-  });
-  expect(parsed.primary.binding.previewHash).not.toBe(sha256(png));
-  const manifest = JSON.parse(await readFile(join(directory, 'dooknow-portable.json'), 'utf8'));
-  expect(manifest.files.filter((file: any) => file.kind === 'asset')).toHaveLength(2);
-  expect(await readFile(join(f.config.knowledgeRoot, board.relativePath), 'utf8')).toBe(
-    state.source.content,
-  );
 });
 it('rejects an incoming native dependency absent from the fixed manifest before publishing any main document', async () => {
   const f = await fixture(),
@@ -1710,7 +1629,7 @@ it('applies the 256 MiB package bound to final files while counting superseded n
     header.writeUInt16LE(8, 34);
     header.write('data', 36);
     header.writeUInt32LE(total - 44, 40);
-    const file = await open(join(f.config.knowledgeRoot, '00-Inbox/assets', name), 'wx');
+    const file = await open(join(f.config.knowledgeRoot, '00-Inbox/_doo-assets', name), 'wx');
     try {
       await file.write(header);
       await file.truncate(total);
@@ -1720,7 +1639,7 @@ it('applies the 256 MiB package bound to final files while counting superseded n
   }
   const parent = f.create(
     'large-native-parent.md',
-    `[graph](whiteboard.md)\n[a](assets/large-a.wav)\n[b](assets/large-b.wav)\n`,
+    `[graph](whiteboard.md)\n[a](_doo-assets/large-a.wav)\n[b](_doo-assets/large-b.wav)\n`,
   );
   const input = {
       selection: { kind: 'single' as const, noteId: parent.id },
@@ -1824,7 +1743,7 @@ it('review: two real incompressible 126 MiB WAVs roundtrip with the original 252
     header.writeUInt16LE(8, 34);
     header.write('data', 36);
     header.writeUInt32LE(total - 44, 40);
-    const file = await open(join(f.config.knowledgeRoot, '00-Inbox/assets', name), 'wx');
+    const file = await open(join(f.config.knowledgeRoot, '00-Inbox/_doo-assets', name), 'wx');
     try {
       await file.write(header);
       for (let at = 44; at < total; at += chunk.length)
@@ -1833,7 +1752,7 @@ it('review: two real incompressible 126 MiB WAVs roundtrip with the original 252
       await file.close();
     }
   }
-  const note = f.create('max-package.md', '[a](assets/max-a.wav)\n[b](assets/max-b.wav)\n'),
+  const note = f.create('max-package.md', '[a](_doo-assets/max-a.wav)\n[b](_doo-assets/max-b.wav)\n'),
     out = await f.service.create(webPrincipal, {
       selection: { kind: 'single', noteId: note.id },
       requestId: randomUUID(),
@@ -1870,13 +1789,13 @@ it('review: two real incompressible 126 MiB WAVs roundtrip with the original 252
   const { hashFile } = await import('../packages/core/portable-delivery/manifest');
   for (const name of ['max-a.wav', 'max-b.wav'])
     expect(
-      await hashFile(join(f.config.knowledgeRoot, '00-Inbox/max-copy/00-Inbox/assets', name)),
-    ).toBe(await hashFile(join(f.config.knowledgeRoot, '00-Inbox/assets', name)));
+      await hashFile(join(f.config.knowledgeRoot, '00-Inbox/max-copy/00-Inbox/_doo-assets', name)),
+    ).toBe(await hashFile(join(f.config.knowledgeRoot, '00-Inbox/_doo-assets', name)));
 }, 60000);
 it('review: revocation during streamed archive extraction reclaims private shards before any asset or main publication', async () => {
   const f = await fixture();
-  await writeFile(join(f.config.knowledgeRoot, '00-Inbox/assets/cancel.png'), png);
-  const note = f.create('cancel-extract.md', '![image](assets/cancel.png)\n'),
+  await writeFile(join(f.config.knowledgeRoot, '00-Inbox/_doo-assets/cancel.png'), png);
+  const note = f.create('cancel-extract.md', '![image](_doo-assets/cancel.png)\n'),
     delivery = await f.service.create(webPrincipal, {
       selection: { kind: 'single', noteId: note.id },
       requestId: randomUUID(),

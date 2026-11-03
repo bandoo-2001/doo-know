@@ -1,3 +1,7 @@
+import { primaryDiagramService } from '../packages/core/knowledge/primary-diagrams';
+import { diagramCreationService } from '../packages/core/knowledge/diagram-creation';
+import { diagramRendererVersions, renderPreparedDiagramDocument } from '../shared/diagram-primary';
+import { randomUUID } from 'node:crypto';
 import { afterEach, expect, it } from 'vitest';
 import { pluginRuntimeFixture } from './support/plugin-runtime.js';
 import { requireScope } from '../packages/core/agent/auth.js';
@@ -66,6 +70,14 @@ async function fixture() {
       caller = p;
     },
   };
+}
+
+function createCurrentBoard(f: Awaited<ReturnType<typeof fixture>>, directory: string) {
+  const runtime = f.platform.get(), source = JSON.stringify(emptyWhiteboard());
+  const service = primaryDiagramService(f.config,f.db,runtime.notes,runtime.assets,f.principal);
+  const intent = diagramCreationService(f.config,f.db,f.principal).reserve({path:directory+'/board.md',type:'whiteboard',requestId:randomUUID()});
+  const prepared = service.prepare({target:{kind:'creation',intentId:intent.id},type:'whiteboard',source,sourceHash:createHash('sha256').update(source).digest('hex'),title:'Board',renderer:diagramRendererVersions.whiteboard,config:{},pngBase64:'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a7i8AAAAASUVORK5CYII=',requestId:randomUUID()});
+  return service.commit({preparedId:prepared.id,markdown:renderPreparedDiagramDocument({prepared,title:'Board',source}),requestId:randomUUID()});
 }
 
 it('reads a note-bound revision through snapshots and restores using a replayable file operation', async () => {
@@ -184,9 +196,9 @@ it('previews collision-safe bulk imports, preserves attachments, pages receipts 
   (f.principal as Principal).knowledgeAll = true;
   f.create('bundle.md', '# Existing');
   const entries = [
-    { path: 'bundle.md', encoding: 'utf8', content: '# Bundle\n[PDF](assets/file.pdf)' },
+    { path: 'bundle.md', encoding: 'utf8', content: '# Bundle\n[PDF](_doo-assets/file.pdf)' },
     {
-      path: 'assets/file.pdf',
+      path: '_doo-assets/file.pdf',
       encoding: 'base64',
       content: Buffer.from('%PDF-1.7\nsource').toString('base64'),
     },
@@ -233,7 +245,7 @@ it('previews collision-safe bulk imports, preserves attachments, pages receipts 
   const imported = f.db
     .prepare("SELECT id FROM notes WHERE path='00-Inbox/bundle (2).md' AND active=1")
     .get() as { id: string };
-  expect(f.platform.get().notes.getNote(imported.id).content).toContain('assets/file.pdf');
+  expect(f.platform.get().notes.getNote(imported.id).content).toContain('_doo-assets/file.pdf');
   const structure = f.platform.get().knowledge.organization.context(f.principal).structureRevision;
   let exported: any = await f.call('export_knowledge_bundle', {
     folderPath: '00-Inbox',
@@ -296,14 +308,14 @@ it('binds attachment and diagram uploads to the note version and resolves whiteb
   };
   f.config.agent!.policies[0] = { ...f.principal, permissionPolicy: policy, policyVersion: 2 };
   f.setCaller(projectPermissionPrincipal(f.db, f.principal, policy));
-  await (await import('node:fs/promises')).mkdir(join(f.config.knowledgeRoot, '00-Inbox/assets'), { recursive: true });
+  await (await import('node:fs/promises')).mkdir(join(f.config.knowledgeRoot, '00-Inbox/_doo-assets'), { recursive: true });
   await writeFile(
-    join(f.config.knowledgeRoot, '00-Inbox/assets/unrelated.pdf'),
+    join(f.config.knowledgeRoot, '00-Inbox/_doo-assets/unrelated.pdf'),
     '%PDF-1.7\nprivate',
   );
   expect(await f.call('list_note_assets', { noteId: other.id })).toMatchObject({ items: [] });
   expect(
-    f.db.prepare("SELECT id FROM assets WHERE path='00-Inbox/assets/unrelated.pdf'").get(),
+    f.db.prepare("SELECT id FROM assets WHERE path='00-Inbox/_doo-assets/unrelated.pdf'").get(),
   ).toBeUndefined();
   await expect(
     f.call('download_note_asset', {
@@ -314,15 +326,7 @@ it('binds attachment and diagram uploads to the note version and resolves whiteb
   ).rejects.toThrow();
   f.config.agent!.policies[0] = f.principal;
   f.setCaller(f.principal);
-  const board = f.platform
-    .get()
-    .knowledge.core.create(
-      f.principal,
-      '00-Inbox',
-      'board.excalidraw',
-      JSON.stringify(emptyWhiteboard()),
-      'board-create',
-    );
+  const board = createCurrentBoard(f, '00-Inbox');
   expect(await f.call('resolve_note_whiteboard', { noteId: a.id, source: board.id })).toMatchObject(
     { id: board.id, documentType: 'whiteboard' },
   );
@@ -474,15 +478,7 @@ it('includes a whiteboard referenced by a large note in a scoped portable export
   f.principal.scopes.push('knowledge:manage');
   (f.principal as Principal).knowledgeAll = true;
   f.platform.get().notes.createFolder('', 'Outside');
-  const board = f.platform
-    .get()
-    .knowledge.core.create(
-      f.principal,
-      'Outside',
-      'board.excalidraw',
-      JSON.stringify(emptyWhiteboard()),
-      'export-board-create',
-    );
+  const board = createCurrentBoard(f, 'Outside');
   await writeFile(
     join(f.config.knowledgeRoot, '00-Inbox/large.md'),
     'line\n'.repeat(230_000) + '\n```excalidraw\n' + board.id + '\n```\n',

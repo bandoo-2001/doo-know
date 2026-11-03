@@ -1,30 +1,13 @@
-import { resolveStorageAssetAlias } from '../storage-asset-aliases.js';
-import { DOO_ASSETS_DIRECTORY, isCompatibleAssetPath, isDooAssetPath } from '../../../shared/storage-paths.js';
+import { DOO_ASSETS_DIRECTORY, isDooAssetPath } from '../../../shared/storage-paths.js';
 import { portablePreviewRegistry, type PortablePreviewNeed } from './previews.js';
 import { boundWhiteboardLines, portableBoundWhiteboards } from './embedded.js';
 import { replacePortableNativeGroup } from './embedded.js';
 import { hasDiagramBindingProof } from '../knowledge/diagram-publications.js';
 import { assertRoot } from '../indexing/reconcile.js';
 import { mediaMime } from '../../../shared/media.js';
-import {
-  stageRemoteResource,
-  stageDataResource,
-  resourceDiagnostic,
-  type RemoteDependencies,
-} from './remote.js';
+import { stageRemoteResource, stageDataResource, resourceDiagnostic, type RemoteDependencies } from './remote.js';
 import type { AssetDescriptor } from '../assets.js';
-import {
-  createReadStream,
-  readFileSync,
-  writeFileSync,
-  mkdirSync,
-  lstatSync,
-  rmSync,
-  constants,
-  openSync,
-  fstatSync,
-  closeSync,
-} from 'node:fs';
+import { createReadStream, readFileSync, writeFileSync, mkdirSync, lstatSync, constants, openSync, fstatSync, closeSync } from 'node:fs';
 import { mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { join, posix, extname } from 'node:path';
 import { randomUUID } from 'node:crypto';
@@ -33,18 +16,11 @@ import { pipeline } from 'node:stream/promises';
 import { create as createTar } from 'tar';
 import type { AppConfig } from '../../../shared/contracts.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
-import type {
-  PortableDelivery,
-  PortableDeliveryRequest,
-} from '../../../shared/portable-delivery-contracts.js';
+import type { PortableDelivery, PortableDeliveryRequest } from '../../../shared/portable-delivery-contracts.js';
 import { portableResourceLimits as limits } from '../../../shared/portable-resource-limits.js';
 import { parseDiagramDocument } from '../../../shared/diagram-document.js';
-import { isWhiteboard, whiteboardId } from '../../../shared/whiteboard.js';
-import {
-  diagramRendererVersions,
-  applyPreparedDiagramDocument,
-  renderPreparedDiagramDocument,
-} from '../../../shared/diagram-primary.js';
+import { whiteboardId } from '../../../shared/whiteboard.js';
+import { diagramRendererVersions, applyPreparedDiagramDocument } from '../../../shared/diagram-primary.js';
 import { renderPortableImage, encodePortablePathSegment } from '../../../shared/portable-figure.js';
 import { boundDiagramSources, normalizeDiagramCode } from '../../../shared/diagram-portability.js';
 import type { AppDatabase } from '../db.js';
@@ -53,30 +29,13 @@ import { assetService } from '../assets.js';
 import { authorizePath, requireScope, canAccessPath } from '../agent/auth.js';
 import { safePath } from '../files.js';
 import { localReference, markdown } from '../render.js';
-import {
-  workspaceExclusive,
-  workspaceProcess,
-  processIsAlive,
-  assertOrganizationReadable,
-} from '../workspace/gate.js';
+import { workspaceExclusive, workspaceProcess, processIsAlive, assertOrganizationReadable } from '../workspace/gate.js';
 import { resolvePrimaryDiagram } from '../knowledge/diagram-resource-resolver.js';
 import { sha256 } from '../knowledge/operations.js';
 import { fail } from '../knowledge/errors.js';
 import { manifestName, hashFile, portablePath, type PortableManifest } from './manifest.js';
-import {
-  destinations,
-  externalNavigation,
-  rewriteDestinations,
-  nativeLinks,
-  rewriteNativeLinks,
-  internalNoteNavigation,
-  unresolvedInternalNavigation,
-} from './paths.js';
-import {
-  importPortableArchive,
-  importPortableDirectory,
-  type PortableImportOptions,
-} from './import.js';
+import { destinations, externalNavigation, rewriteDestinations, nativeLinks, rewriteNativeLinks, internalNoteNavigation, unresolvedInternalNavigation } from './paths.js';
+import { importPortableArchive, importPortableDirectory, type PortableImportOptions } from './import.js';
 
 type Proof = { noteId?: string; path: string; hash: string; stamp: string };
 type Row = {
@@ -298,7 +257,7 @@ export function portableDeliveryService(
         if (selected.length > limits.documents) fail(413, 'PORTABLE_BUDGET_EXCEEDED');
         const capture = join(directory, 'capture');
         mkdirSync(capture, { mode: 0o700 });
-        const legacyEmbeds: { document: string; linked: string; previewPath: string }[] = [];
+        const embeddedReferences: { document: string; linked: string; previewPath: string }[] = [];
         const nativeScenes: {
           document: string;
           sourcePath: string;
@@ -393,8 +352,6 @@ export function portableDeliveryService(
           for (const link of nativeLinks(source)) nativeTarget(link, sourcePath, document);
         };
         const addAsset = (path: string, document: string, url: string) => {
-          const canonical = resolveStorageAssetAlias(config.knowledgeRoot, path);
-          if (canonical !== path) { addAsset(canonical, document, url); mapping.set(path, mapping.get(canonical)!); return; }
           if (resources.has(path)) return;
           try {
             if (mediaMime(path)) {
@@ -446,7 +403,7 @@ export function portableDeliveryService(
             target = row.path;
           const parsed = parseDiagramDocument(content);
           if (parsed.status === 'invalid') fail(422, 'INVALID_DIAGRAM_DOCUMENT');
-          if (parsed.status === 'diagram' || isWhiteboard(row.path)) {
+          if (parsed.status === 'diagram') {
             const resolved = resolvePrimaryDiagram(config, db, notes, p, noteId);
             if (
               resolved.publication ||
@@ -488,9 +445,7 @@ export function portableDeliveryService(
                 ],
               });
             if (resolved.source.format === 'excalidraw') {
-              const sourcePath = isWhiteboard(row.path)
-                ? row.path
-                : localReference(
+              const sourcePath = localReference(
                     row.path,
                     parsed.status === 'diagram' && parsed.primary.source.format === 'excalidraw'
                       ? parsed.primary.source.path
@@ -499,15 +454,7 @@ export function portableDeliveryService(
               nativeScenes.push({
                 document: row.path,
                 sourcePath,
-                ...(isWhiteboard(row.path)
-                  ? {
-                      exportSourcePath: posix.join(
-                        posix.dirname(row.path),
-                        DOO_ASSETS_DIRECTORY,
-                        'legacy-' + row.id + '.excalidraw',
-                      ),
-                    }
-                  : {}),
+
                 source: resolved.source.content,
                 role: 'primary',
                 title: resolved.title!,
@@ -517,56 +464,12 @@ export function portableDeliveryService(
               });
               discoverNative(resolved.source.content, sourcePath, row.path);
             }
-            if (isWhiteboard(row.path)) {
-              target = row.path.replace(/\.excalidraw$/i, '.md');
-              const native = posix.join(
-                posix.dirname(row.path),
-                DOO_ASSETS_DIRECTORY,
-                'legacy-' + row.id + '.excalidraw',
-              );
-              resources.set(native, { path: native, snapshot: captures.get(row.path)! });
-              const pgPath = localReference(row.path, resolved.preview.path)!;
-              addAsset(pgPath, row.path, resolved.preview.path);
-              content = renderPreparedDiagramDocument({
-                title: resolved.title!,
-                source: resolved.source.content,
-                prepared: {
-                  id: 'export',
-                  noteId,
-                  type: 'whiteboard',
-                  documentHash: null,
-                  baselineSourceHash: null,
-                  sourceHash: resolved.source.hash,
-                  renderHash: resolved.preview.renderHash,
-                  previewHash: resolved.preview.hash,
-                  title: resolved.title!,
-                  renderer: resolved.render!.renderer,
-                  config: resolved.render!.config,
-                  preview: {
-                    id: 'export',
-                    relativePath: pgPath,
-                    markdownPath: resolved.preview.path,
-                    mime: 'image/png',
-                  },
-                  source: {
-                    id: 'export-source',
-                    relativePath: row.path,
-                    markdownPath: posix.relative(posix.dirname(row.path), native),
-                    mime: 'application/vnd.excalidraw+json',
-                  },
-                  expiresAt: Date.now() + 1000,
-                },
-              });
-              // The generated source link already targets the package copy.
-              mapping.set(native, native);
-            }
+
           }
           mapping.set(row.path, target);
           docs.set(row.path, {
             noteId,
-            snapshot: isWhiteboard(row.path)
-              ? captureBytes(Buffer.from(content))
-              : captures.get(row.path)!,
+            snapshot: captures.get(row.path)!,
             target,
           });
           for (const group of boundDiagramSources(content)) {
@@ -752,7 +655,7 @@ export function portableDeliveryService(
               if (!queue.includes(linked.id)) queue.push(linked.id);
             }
         }
-        // Convert legacy embeds while the semantic resources and note identities are fixed.
+        // Resolve embedded document references while the semantic resources and note identities are fixed.
         for (const [path, doc] of docs) {
           let content = readFileSync(doc.snapshot, 'utf8');
           const lines = content.split('\n'),
@@ -776,7 +679,7 @@ export function portableDeliveryService(
                 });
               const preview = localReference(linked.path, resource.preview.path)!;
               addAsset(preview, path, resource.preview.path);
-              legacyEmbeds.push({ document: path, linked: linked.path, previewPath: preview });
+              embeddedReferences.push({ document: path, linked: linked.path, previewPath: preview });
               const image = posix.relative(posix.dirname(path), preview),
                 noteLink = posix.relative(posix.dirname(path), linked.path);
               lines.splice(
@@ -1001,7 +904,7 @@ export function portableDeliveryService(
             });
           doc.snapshot = captureBytes(Buffer.from(content));
           if (scene.role === 'primary')
-            for (const embed of legacyEmbeds.filter((embed) => embed.linked === scene.document)) {
+            for (const embed of embeddedReferences.filter((embed) => embed.linked === scene.document)) {
               const parent = docs.get(embed.document)!;
               parent.snapshot = captureBytes(
                 Buffer.from(

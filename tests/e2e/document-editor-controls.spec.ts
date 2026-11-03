@@ -200,7 +200,7 @@ test('表格中的链接和图片显示自己的操作条，普通单元格恢�
   await openDocumentNote(
     page,
     context,
-    '| [资源](https://example.invalid/docs) | ![图示](assets/diagram.png) |\n' +
+    '| [资源](https://example.invalid/docs) | ![图示](_doo-assets/diagram.png) |\n' +
       '| --- | --- |\n| 普通单元格 | 保留内容 |',
   );
   const editor = editorFor(page);
@@ -516,7 +516,7 @@ for (const kind of ['image', 'link'] as const) {
     const paragraph = '连续阅读的长段落需要自然换行并保持原文结构。'.repeat(75);
     const object =
       kind === 'image'
-        ? '![段尾图片](assets/paragraph-image.png)'
+        ? '![段尾图片](_doo-assets/paragraph-image.png)'
         : '[段尾资源](https://example.invalid/paragraph)';
     const raw = paragraph + object;
     const note = await openDocumentNote(page, context, raw);

@@ -5,8 +5,8 @@ import { renderPortableFigure } from '../shared/portable-figure';
 
 it('keeps a diagram and its source readable without application routes or scripts', () => {
   const source = renderPortableFigure({
-    alt: '系统 [结构]', previewPath: './assets/系统 #1.png',
-    source: { type: 'file', path: './assets/系统 #1.excalidraw' },
+    alt: '系统 [结构]', previewPath: './_doo-assets/系统 #1.png',
+    source: { type: 'file', path: './_doo-assets/系统 #1.excalidraw' },
   });
   const html = new HtmlRenderer().render(new Parser().parse(source));
   expect(html).toContain('<img');
@@ -19,7 +19,7 @@ it('keeps a diagram and its source readable without application routes or script
 
 it('preserves diagram source containing fences and XML as ordinary Markdown', () => {
   const code = '<svg xmlns="http://www.w3.org/2000/svg"><text>``` &amp; 中文</text></svg>';
-  const source = renderPortableFigure({ alt: '图', previewPath: '../assets/view.png',
+  const source = renderPortableFigure({ alt: '图', previewPath: '../_doo-assets/view.png',
     source: { type: 'fence', language: 'svg', code } });
   const tree = new Parser().parse(source);
   const blocks: string[] = [];

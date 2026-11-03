@@ -534,8 +534,8 @@ it('rejects a stale move and occupied destination without changing either file',
 });
 
 for (const [label, reference] of [
-  ['image', '![image](assets/image.png)'],
-  ['PDF', '[manual](assets/manual.pdf)'],
+  ['image', '![image](_doo-assets/image.png)'],
+  ['PDF', '[manual](_doo-assets/manual.pdf)'],
   ['note', '[related](related.md)'],
   ['reference definition', '[related][target]\n\n[target]: ../00-Inbox/related.md'],
 ] as const)
@@ -558,8 +558,8 @@ for (const [label, reference] of [
       );
       const output = await readFile(join(f.knowledgeRoot, moved.relativePath), 'utf8');
       expect(output).toContain(
-        reference.includes('assets/')
-          ? '../00-Inbox/assets/'
+        reference.includes('_doo-assets/')
+          ? '../00-Inbox/_doo-assets/'
           : label === 'reference definition'
             ? '../00-Inbox/related.md'
             : '../00-Inbox/related.md',
@@ -581,7 +581,7 @@ for (const [label, reference] of [
   ['absolute URL', '[website](https://example.com/reference.md)'],
   ['root absolute path', '[attachment](/api/assets/asset-id)'],
   ['anchor', '[section](#heading)'],
-  ['fenced example', '```md\n![example](assets/example.png)\n```'],
+  ['fenced example', '```md\n![example](_doo-assets/example.png)\n```'],
 ] as const)
   it(`allows a cross-directory move with an unaffected ${label}`, async () => {
     const f = await createFixture({ fileTasks: { embedded: false } });

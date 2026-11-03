@@ -1,26 +1,9 @@
-import {
-  captureFolderTree,
-  folderTreeDigest,
-  verifyFolderTree,
-  type FolderTreeEntry,
-} from './folder-restore-tree.js';
+import { captureFolderTree, folderTreeDigest, verifyFolderTree, type FolderTreeEntry } from './folder-restore-tree.js';
 import { canAccessPath, requireScope, authorizePath } from '../agent/auth.js';
 import { recordOperationRevision } from './operation-revisions.js';
 import { evidence, sameEvidence, type Evidence } from '../organization/plan.js';
 import { inventory } from '../organization/plan.js';
-import {
-  mkdirSync,
-  readFileSync,
-  writeFileSync,
-  copyFileSync,
-  renameSync,
-  lstatSync,
-  existsSync,
-  openSync,
-  closeSync,
-  fsyncSync,
-  constants,
-} from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync, renameSync, lstatSync, existsSync, openSync, closeSync, fsyncSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import type { AppConfig } from '../../../shared/contracts.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
@@ -32,11 +15,7 @@ import { fail } from './errors.js';
 import { archivedTreeInventory, type ArchivedDiagramContext } from './archived-diagram-context.js';
 import { collectNativeLinkChanges } from './native-link-plans.js';
 import { diagramOperationPreviewRegistry } from './diagram-operation-previews.js';
-import {
-  planDiagramRelocation,
-  relocatePath,
-  type DiagramRelocation,
-} from './diagram-relocation.js';
+import { planDiagramRelocation, relocatePath, type DiagramRelocation } from './diagram-relocation.js';
 import { readBoundDiagramAsset } from './diagram-resource-files.js';
 import type { PreparedDiagramAsset } from '../../../shared/diagram-primary.js';
 export type FolderNativeRestorePlan = {
@@ -67,7 +46,7 @@ export type FolderNativeRestorePlan = {
   }[];
   assets: { asset: PreparedDiagramAsset; stage: string; hash: string }[];
   diagrams: DiagramRelocation[];
-  legacyPreviews: { noteId: string; manifest: unknown }[];
+
 };
 function schema(db: AppDatabase) {
   db.exec(
@@ -202,7 +181,7 @@ export function prepareFolderNativeRestore(
       files: [],
       assets: [],
       diagrams: [],
-      legacyPreviews: [],
+
     },
     registry = diagramOperationPreviewRegistry(config, db, p);
   for (const rewrite of rewrites.values())
@@ -272,7 +251,7 @@ export function prepareFolderNativeRestore(
       rewrite?.primary,
     );
     if (diagram) plan.diagrams.push(diagram);
-    if (rewrite?.legacy) plan.legacyPreviews.push({ noteId: note.id, manifest: rewrite.legacy });
+
     if (after !== before) {
       const index = plan.files.length,
         backup = join('folder-restores', input.operationId, index + '.before'),
@@ -402,12 +381,7 @@ export function recordFolderNativeRestore(
       s = lstatSync(file, { bigint: true });
     enqueueSource(db, config, entry.noteId, entry.afterHash, s.mtimeNs.toString(), Number(s.size));
   }
-  for (const entry of plan.legacyPreviews) {
-    const m = entry.manifest as any;
-    db.prepare(
-      'INSERT OR REPLACE INTO legacy_diagram_previews(note_id,document_hash,render_hash,manifest,created_at) VALUES(?,?,?,?,?)',
-    ).run(entry.noteId, m.documentHash, m.renderHash, JSON.stringify(m), Date.now());
-  }
+
 }
 
 export function recordFolderNativeRestoreRevisions(

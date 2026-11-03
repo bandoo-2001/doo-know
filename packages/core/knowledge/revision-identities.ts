@@ -165,9 +165,9 @@ export function captureRevisionReferences(
     );
     const directNote = db
       .prepare(
-        'SELECT id FROM notes WHERE path=? AND active=1 UNION ALL SELECT note_id AS id FROM note_path_aliases WHERE path=? LIMIT 1',
+        'SELECT id FROM notes WHERE path=? AND active=1 LIMIT 1',
       )
-      .get(path, path) as { id: string } | undefined;
+      .get(path) as { id: string } | undefined;
     const note =
       historicalSince !== undefined && moved?.note
         ? { id: moved.id }

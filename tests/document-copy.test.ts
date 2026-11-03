@@ -101,52 +101,6 @@ it('copies a published primary with a new UUID and verified shared immutable pai
   expect(updated.preview.relativePath).not.toBe(prepared.preview.relativePath);
   expect(primary.resolve(original.id).source.hash).toBe(prepared.sourceHash);
 });
-it('converts an old JSON copy to a new Markdown primary only after rendering its final asset-anchored source', async () => {
-  const f = organizationFixture();
-  cleanup.push(f.close);
-  const { emptyWhiteboard } = await import('../shared/whiteboard');
-  const { diagramOperationPreviewRegistry } =
-    await import('../packages/core/knowledge/diagram-operation-previews');
-  const original = f.create(
-    '00-Inbox/legacy.excalidraw',
-    JSON.stringify({
-      ...emptyWhiteboard(),
-      elements: [{ id: 'a', type: 'rectangle', link: '../Topic/target.md' }],
-    }),
-  );
-  const assets = assetService(f.config, f.db, f.notes),
-    service = documentCopyService(f.config, f.db, f.notes, assets, f.p),
-    registry = diagramOperationPreviewRegistry(f.config, f.db, f.p, assets);
-  const input = {
-    folderPath: 'Topic',
-    fileName: 'copy.md',
-    expectedModifiedAt: original.expectedModifiedAt,
-    expectedContentHash: original.expectedContentHash,
-    requestId: randomUUID(),
-  };
-  let required: any;
-  try {
-    service.copy(original.noteId, input);
-  } catch (error) {
-    required = (error as any).details;
-  }
-  expect(required.documents).toHaveLength(1);
-  expect(
-    f.db.prepare('SELECT id FROM notes WHERE path=? AND active=1').get('Topic/copy.md'),
-  ).toBeUndefined();
-  const snapshot = registry.get(required.documents[0].snapshotId);
-  expect(JSON.parse(snapshot.source).elements[0].link).toBe('../../Topic/target.md');
-  registry.prepare(snapshot.id, {
-    sourceHash: snapshot.sourceHash,
-    pngBase64:
-      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a7i8AAAAASUVORK5CYII=',
-    requestId: randomUUID(),
-  });
-  const copied = service.copy(original.noteId, input);
-  expect(copied.id).not.toBe(original.noteId);
-  expect(f.notes.getNote(copied.id).documentType).toBe('whiteboard');
-  expect(f.notes.row(original.noteId).path).toBe('00-Inbox/legacy.excalidraw');
-});
 it('copies a relocated inline primary only after final-source PNG preparation, using the same request and a fresh UUID', async () => {
   const f = organizationFixture();
   cleanup.push(f.close);

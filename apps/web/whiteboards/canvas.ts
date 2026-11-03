@@ -1,20 +1,9 @@
 import { createElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import {
-  Excalidraw,
-  serializeAsJSON,
-  exportToSvg,
-  exportToBlob,
-  restoreElements,
-  convertToExcalidrawElements,
-} from '@excalidraw/excalidraw';
+import { Excalidraw, serializeAsJSON, exportToSvg, exportToBlob, restoreElements, convertToExcalidrawElements } from '@excalidraw/excalidraw';
 import type { ExcalidrawImperativeAPI, AppState, BinaryFiles } from '@excalidraw/excalidraw/types';
 import type { ExcalidrawElement } from '@excalidraw/excalidraw/element/types';
-import {
-  parseWhiteboard,
-  withWhiteboardId,
-  type WhiteboardScene,
-} from '../../../shared/whiteboard';
+import { parseWhiteboard, type WhiteboardScene } from '../../../shared/whiteboard';
 import { previewDimensions } from '../diagrams/preview-artifact';
 import '@excalidraw/excalidraw/index.css';
 
@@ -45,7 +34,7 @@ export function mountCanvas(
       files,
       'local',
     );
-    return scene.dooknow ? withWhiteboardId(content, scene.dooknow.id) : content;
+    return content;
   }
   const theme = () => (document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light');
   const render = () =>

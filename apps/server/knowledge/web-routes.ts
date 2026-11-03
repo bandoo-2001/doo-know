@@ -1,6 +1,5 @@
 import { registerOrganizationOperationRoutes } from './organization-operation-routes.js';
 import { Readable } from 'node:stream';
-import { isWhiteboard } from '../../../shared/whiteboard.js';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { acquireRead, chargeRate } from '../../../packages/core/agent/budgets.js';
 import type { AppConfig } from '../../../shared/contracts.js';
@@ -16,10 +15,7 @@ import { conflictService } from '../../../packages/core/knowledge/conflicts.js';
 import { assertSharePrincipal, shareIdentity } from '../../../packages/core/share-policy.js';
 import { saveInput } from '../../../packages/core/notes.js';
 import type { PublicShareSource, ShareSaveReply } from '../../../shared/share-contracts.js';
-import {
-  readOrganizationSettings,
-  updateOrganizationSettings,
-} from '../../../packages/core/organization/settings.js';
+import { readOrganizationSettings, updateOrganizationSettings } from '../../../packages/core/organization/settings.js';
 import type { publicDiagramProjectionService } from '../../../packages/core/public-diagram-projection.js';
 import { readPublicProjection } from '../../../packages/core/public-projection-read.js';
 export async function registerWebKnowledgeRoutes(
@@ -145,27 +141,11 @@ export async function registerWebKnowledgeRoutes(
     reply.raw.setTimeout(30000, () => controller.abort());
     return reply
       .type(
-        isWhiteboard(
-          (
-            db.prepare('SELECT path FROM notes WHERE id=?').get(req.params.id) as
-              | { path: string }
-              | undefined
-          )?.path || '',
-        )
-          ? 'application/json; charset=utf-8'
-          : 'text/markdown; charset=utf-8',
+        'text/markdown; charset=utf-8',
       )
       .header(
         'Content-Disposition',
-        isWhiteboard(
-          (
-            db.prepare('SELECT path FROM notes WHERE id=?').get(req.params.id) as
-              | { path: string }
-              | undefined
-          )?.path || '',
-        )
-          ? 'attachment; filename="whiteboard.excalidraw"'
-          : 'attachment; filename="note.md"',
+        'attachment; filename="note.md"',
       )
       .header('Content-Length', String(ready.size_bytes))
       .send(Readable.from(iterator(), { objectMode: false, highWaterMark: 65536 }));

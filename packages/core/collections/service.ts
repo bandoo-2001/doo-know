@@ -1,35 +1,18 @@
 import { isKnowledgeDataPath, DOO_ASSETS_DIRECTORY } from '../../../shared/storage-paths.js';
-import {
-  isDocument,
-  isWhiteboard,
-  whiteboardText,
-  documentTitle,
-  MAX_WHITEBOARD_BYTES,
-} from '../../../shared/whiteboard.js';
+import { isDocument, documentTitle } from '../../../shared/whiteboard.js';
 import fs from 'node:fs/promises';
 import nodefs, { constants, lstatSync } from 'node:fs';
 import type { BigIntStats } from 'node:fs';
 import { basename, join } from 'node:path';
 import type { AppConfig } from '../../../shared/contracts.js';
-import type {
-  CollectionKind,
-  CollectionNote,
-  CollectionPage,
-  CollectionStatus,
-} from '../../../shared/collection-contracts.js';
+import type { CollectionKind, CollectionNote, CollectionPage, CollectionStatus } from '../../../shared/collection-contracts.js';
 import type { AppDatabase } from '../db.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
 import { pathFilter } from '../indexing/text.js';
 import { sha256 } from '../knowledge/operations.js';
 import { mcpResultFrameSize, mcpMaximumFrameBytes } from '../../../shared/mcp-frame.js';
 import type { NoteService } from '../notes.js';
-import {
-  safePath,
-  validateRelative,
-  validName,
-  isMissingSource,
-  sourceErrorCode,
-} from '../files.js';
+import { safePath, validateRelative, validName, isMissingSource, sourceErrorCode } from '../files.js';
 import { assertRoot } from '../indexing/reconcile.js';
 import { fail } from '../knowledge/errors.js';
 import { decodeCursor, signCursor } from '../agent/budgets.js';
@@ -426,10 +409,9 @@ export function collectionService(config: AppConfig, db: AppDatabase, notes: Not
             (row.identity && `${before.dev}:${before.ino}:${before.ctimeNs}` !== row.identity)
           )
             throw new Error('source changed');
-          if (isWhiteboard(row.path) && before.size > BigInt(MAX_WHITEBOARD_BYTES))
-            throw Error('白板过大');
+
           const buffer = Buffer.alloc(
-            Math.min(isWhiteboard(row.path) ? MAX_WHITEBOARD_BYTES : 8192, Number(before.size)),
+            Math.min(8192, Number(before.size)),
           );
           const { bytesRead } = await handle.read(buffer, 0, buffer.length, 0);
           const decoder = new TextDecoder('utf-8', { fatal: true });
@@ -452,7 +434,7 @@ export function collectionService(config: AppConfig, db: AppDatabase, notes: Not
           )
             throw new Error('source changed');
           ({ title, summary } = collectionText(
-            isWhiteboard(row.path) ? whiteboardText(content) : content,
+            content,
           ));
           state = 'ready';
         } finally {

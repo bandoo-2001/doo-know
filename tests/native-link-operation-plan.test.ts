@@ -75,6 +75,18 @@ function fixture(targetName = 'target.md') {
   }
   return { ...f, org, registry, prepared, note, source, target, rename };
 }
+function extraBoard(f: ReturnType<typeof fixture>, path: string, original: string) {
+  const value=JSON.parse(original);
+  for(const element of value.elements)if(element.link?.startsWith('../'))element.link='../'+element.link;
+  const source=JSON.stringify(value),service=primaryDiagramService(f.config,f.db,f.notes,assetService(f.config,f.db,f.notes),f.p);
+  const intent=diagramCreationService(f.config,f.db,f.p).reserve({path:path.replace(/\.excalidraw$/,'.md'),type:'whiteboard',requestId:randomUUID()});
+  const prepared=service.prepare({target:{kind:'creation',intentId:intent.id},type:'whiteboard',source,sourceHash:sha256(source),title:'Secondary',renderer:diagramRendererVersions.whiteboard,config:{},pngBase64:png,requestId:randomUUID()});
+  const note=service.commit({preparedId:prepared.id,markdown:renderPreparedDiagramDocument({prepared,title:'Secondary',source}),requestId:randomUUID()});
+  return {noteId:note.id,expectedModifiedAt:note.modifiedAt,expectedContentHash:sha256(note.content)};
+}
+function sourceOf(f: ReturnType<typeof fixture>, id: string) {
+ return primaryDiagramService(f.config,f.db,f.notes,assetService(f.config,f.db,f.notes),f.p).resolve(id).source.content!;
+}
 it('keeps target live until exact final native source has a new prepared preview, then commits dependencies together', async () => {
   const f = fixture();
   const pending = await f.rename();
@@ -148,7 +160,7 @@ it('checks inventory again before resuming an immutable operation plan', async (
   });
   expect(f.notes.row(f.target.noteId).path).toBe('Topic/target.md');
 });
-it('prepares all current primary, ordinary native groups, and legacy JSON dependencies once before a single activation', async () => {
+it('prepares all current primary, ordinary native groups, and secondary primary dependencies once before a single activation', async () => {
   const f = fixture();
   const { diagramArtifactService } = await import('../packages/core/knowledge/diagram-artifacts');
   const { serializeDiagramBinding } = await import('../shared/diagram-binding');
@@ -187,8 +199,8 @@ it('prepares all current primary, ordinary native groups, and legacy JSON depend
     code +
     '\n```\n';
   f.notes.saveNote(group.noteId, groupContent, group.expectedModifiedAt, randomUUID());
-  const legacy = f.create(
-    '00-Inbox/legacy.excalidraw',
+  const secondary = extraBoard(f,
+    '00-Inbox/secondary.md',
     JSON.stringify({
       ...emptyWhiteboard(),
       elements: [{ id: 'a', type: 'rectangle', link: '../Topic/target.md' }],
@@ -197,8 +209,8 @@ it('prepares all current primary, ordinary native groups, and legacy JSON depend
   const pending = await f.rename();
   expect(pending.previewRequired?.documents).toHaveLength(3);
   const ids = pending.previewRequired!.documents.map((d) => d.snapshotId);
-  const legacyRender = pending.previewRequired!.documents.find(
-    (d) => d.noteId === legacy.noteId,
+  const secondaryRender = pending.previewRequired!.documents.find(
+    (d) => d.noteId === secondary.noteId,
   )!.renderHash;
   for (const id of ids) {
     const snapshot = f.registry.get(id);
@@ -221,16 +233,16 @@ it('prepares all current primary, ordinary native groups, and legacy JSON depend
   expect(
     JSON.parse(readFileSync(join(f.config.knowledgeRoot, sourcePath), 'utf8')).elements[0].link,
   ).toBe('../../Topic/renamed.md');
-  expect(JSON.parse(f.notes.getNote(legacy.noteId).content).elements[0].link).toBe(
-    '../Topic/renamed.md',
+  expect(JSON.parse(sourceOf(f, secondary.noteId)).elements[0].link).toBe(
+    '../../Topic/renamed.md',
   );
   const record = f.db
     .prepare(
-      'SELECT document_hash,manifest FROM legacy_diagram_previews WHERE note_id=? ORDER BY created_at DESC LIMIT 1',
+      'SELECT document_hash,manifest FROM diagram_document_versions WHERE note_id=? ORDER BY created_at DESC LIMIT 1',
     )
-    .get(legacy.noteId) as any;
-  expect(record.document_hash).toBe(sha256(f.notes.getNote(legacy.noteId).content));
-  expect(JSON.parse(record.manifest).renderHash).toBe(legacyRender);
+    .get(secondary.noteId) as any;
+  expect(record.document_hash).toBe(sha256(f.notes.getNote(secondary.noteId).content));
+  expect(JSON.parse(record.manifest).renderHash).toBe(secondaryRender);
 });
 it('moves a source directory after final preview preparation and can undo that move with the same journal rules', async () => {
   const f = fixture();
@@ -654,7 +666,7 @@ it('rejects an inbound ordinary document changed between native enumeration and 
 });
 
 it.each(['missing', 'changed'] as const)(
-  'organizes an independent legacy dependency while an unrelated published primary source is %s',
+  'organizes an independent primary dependency while an unrelated published primary source is %s',
   async (state) => {
     const f = fixture();
     // The existing primary points to Topic/target.md, which this operation leaves fixed.
@@ -669,8 +681,8 @@ it.each(['missing', 'changed'] as const)(
     else
       writeFileSync(join(f.config.knowledgeRoot, f.prepared.source!.relativePath), changedSource);
     const other = f.create('Topic/other.md', '# Other');
-    const legacy = f.create(
-      '00-Inbox/other.excalidraw',
+    const secondary = extraBoard(f,
+      '00-Inbox/other-board.md',
       JSON.stringify({
         ...emptyWhiteboard(),
         elements: [{ id: 'other', type: 'rectangle', link: '../Topic/other.md' }],
@@ -693,7 +705,7 @@ it.each(['missing', 'changed'] as const)(
     await f.org.drain();
     const pending = f.org.operation(f.p, { operationId: submitted.operation.operationId });
     expect(pending.status, JSON.stringify(pending)).toBe('awaiting_preview');
-    expect(pending.previewRequired?.documents.map((need) => need.noteId)).toEqual([legacy.noteId]);
+    expect(pending.previewRequired?.documents.map((need) => need.noteId)).toEqual([secondary.noteId]);
     for (const need of pending.previewRequired!.documents) {
       const fixed = f.registry.get(need.snapshotId);
       f.registry.prepare(fixed.id, {
@@ -707,8 +719,8 @@ it.each(['missing', 'changed'] as const)(
     const completed = f.org.operation(f.p, { operationId: pending.operationId });
     expect(completed.status, JSON.stringify(completed)).toBe('succeeded');
     expect(f.notes.row(other.noteId).path).toBe('Topic/other-renamed.md');
-    expect(JSON.parse(f.notes.getNote(legacy.noteId).content).elements[0].link).toBe(
-      '../Topic/other-renamed.md',
+    expect(JSON.parse(sourceOf(f, secondary.noteId)).elements[0].link).toBe(
+      '../../Topic/other-renamed.md',
     );
     const undo = await f.org.undo(f.p, {
       operationId: pending.operationId,
@@ -718,7 +730,7 @@ it.each(['missing', 'changed'] as const)(
     const reverting = f.org.operation(f.p, { operationId: undo.operation.operationId });
     expect(reverting.status).toBe('awaiting_preview');
     expect(reverting.previewRequired?.documents.map((need) => need.noteId)).toEqual([
-      legacy.noteId,
+      secondary.noteId,
     ]);
     for (const need of reverting.previewRequired!.documents) {
       const fixed = f.registry.get(need.snapshotId);
@@ -777,7 +789,7 @@ it.each(['target', 'main', 'source', 'unproven'] as const)(
       context === 'main'
         ? [{ from: f.note.relativePath, to: 'Topic/moved-board.md' }]
         : context === 'source'
-          ? [{ from: f.prepared.source!.relativePath, to: 'Topic/assets/moved.excalidraw' }]
+          ? [{ from: f.prepared.source!.relativePath, to: 'Topic/_doo-assets/moved.excalidraw' }]
           : [
               {
                 from: context === 'target' ? 'Topic/target.md' : 'Topic/other.md',
@@ -791,74 +803,11 @@ it.each(['target', 'main', 'source', 'unproven'] as const)(
     expect(f.notes.row(f.note.id).path).toBe(f.note.relativePath);
   },
 );
-it.each(['unrelated', 'native-inbound', 'unproven', 'markdown-inbound'] as const)(
-  'preflights migration with a missing primary source only when its complete proof establishes %s context',
-  async (context) => {
-    const f = fixture(context === 'native-inbound' ? 'migrating.excalidraw' : 'target.md');
-    const legacy = f.create('Topic/migrating.excalidraw', JSON.stringify(emptyWhiteboard()));
-    if (context === 'markdown-inbound') {
-      const before = f.notes.getNote(f.note.id);
-      f.notes.saveNote(
-        f.note.id,
-        before.content + '\n[Migration](../Topic/migrating.excalidraw)\n',
-        before.modifiedAt,
-        randomUUID(),
-      );
-    }
-    if (context === 'unproven') {
-      const row = f.db
-        .prepare('SELECT rowid,manifest FROM diagram_document_versions WHERE note_id=?')
-        .get(f.note.id) as { rowid: number; manifest: string };
-      const manifest = JSON.parse(row.manifest);
-      delete manifest.nativeLinks;
-      f.db
-        .prepare('UPDATE diagram_document_versions SET manifest=? WHERE rowid=?')
-        .run(JSON.stringify(manifest), row.rowid);
-    }
-    const original = readFileSync(join(f.config.knowledgeRoot, f.note.relativePath));
-    const oldPreview = readFileSync(join(f.config.knowledgeRoot, f.prepared.preview.relativePath));
-    unlinkSync(join(f.config.knowledgeRoot, f.prepared.source!.relativePath));
-    const { whiteboardMigrationService } =
-      await import('../packages/core/knowledge/whiteboard-migrations');
-    const service = whiteboardMigrationService(
-      f.config,
-      f.db,
-      f.notes,
-      assetService(f.config, f.db, f.notes),
-      f.p,
-    );
-    const preflight = service.preflight(legacy.noteId);
-    if (context !== 'unrelated') {
-      expect(preflight.issues).toContainEqual({
-        code: 'INBOUND_SCAN_INCOMPLETE',
-        path: f.note.relativePath,
-      });
-      expect(() => service.plan({ noteId: legacy.noteId, requestId: randomUUID() })).toThrow();
-      expect(f.notes.row(legacy.noteId).path).toBe('Topic/migrating.excalidraw');
-    } else {
-      expect(preflight.issues).toEqual([]);
-      const planned = service.plan({ noteId: legacy.noteId, requestId: randomUUID() });
-      const prepared = service.prepare({
-        migrationId: planned.id,
-        sourceHash: planned.sourceHash,
-        pngBase64: png,
-        requestId: randomUUID(),
-      });
-      const result = service.commit({ migrationId: prepared.id, requestId: randomUUID() });
-      expect(result.noteId).toBe(legacy.noteId);
-      expect(f.notes.row(legacy.noteId).path).toBe('Topic/migrating.md');
-    }
-    expect(readFileSync(join(f.config.knowledgeRoot, f.note.relativePath))).toEqual(original);
-    expect(readFileSync(join(f.config.knowledgeRoot, f.prepared.preview.relativePath))).toEqual(
-      oldPreview,
-    );
-  },
-);
 
 it('records every native link token, including duplicate JSON keys, in the complete source proof', async () => {
   const { captureNativeLinkProof, nativeLinkProofUnaffected } =
     await import('../packages/core/knowledge/native-link-proof');
-  const sourcePath = '00-Inbox/assets/board.excalidraw';
+  const sourcePath = '00-Inbox/_doo-assets/board.excalidraw';
   const source =
     '{"elements":[{"link":"../../Topic/target.md","link":"https://example.com"}],"elements":[{"link":"../../Topic/other.md"}],"future":{"link":"ignored.md"}}';
   const proof = captureNativeLinkProof(sourcePath, sha256(source), source);

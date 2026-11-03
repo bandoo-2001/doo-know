@@ -125,16 +125,16 @@ describe('owner managed transfers', () => {
     try {
       const png = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
       const request = body([
-        note('one.md', '![pic](assets/pic.png)\n[other](two.md)'),
+        note('one.md', '![pic](_doo-assets/pic.png)\n[other](two.md)'),
         note('two.md'),
-        { path: 'assets/pic.png', encoding: 'base64', content: png.toString('base64') },
+        { path: '_doo-assets/pic.png', encoding: 'base64', content: png.toString('base64') },
       ]);
       let task = await f.post('/api/manage/import', request);
       expect((await f.settle(task.json().id)).state).toBe('succeeded');
       task = await f.post('/api/manage/import', body(request.entries));
       expect((await f.settle(task.json().id)).state).toBe('succeeded');
       expect(await readFile(join(f.config.knowledgeRoot, '00-Inbox/one (2).md'), 'utf8')).toContain(
-        'assets/pic%20(2).png',
+        '_doo-assets/pic%20(2).png',
       );
       expect(await readFile(join(f.config.knowledgeRoot, '00-Inbox/one (2).md'), 'utf8')).toContain(
         'two%20(2).md',
@@ -154,9 +154,9 @@ describe('owner managed transfers', () => {
       await writeFile(archive, download.rawPayload);
       await mkdir(extracted);
       await extractArchive(archive, extracted);
-      expect(await readFile(join(extracted, '00-Inbox/assets/pic.png'))).toEqual(png);
+      expect(await readFile(join(extracted, '00-Inbox/_doo-assets/pic.png'))).toEqual(png);
       expect(await readFile(join(extracted, '00-Inbox/one (2).md'), 'utf8')).toContain(
-        'assets/pic%20(2).png',
+        '_doo-assets/pic%20(2).png',
       );
       const manifest = JSON.parse(await readFile(join(extracted, 'dooknow-export.json'), 'utf8'));
       expect(manifest).toMatchObject({ notes: 4, assets: 2, scope: '00-Inbox' });
@@ -273,15 +273,15 @@ describe('owner managed transfers', () => {
 
 it('rewrites Unicode and reference-definition targets after rename while preserving link fragments', () => {
   const mapping = new Map([
-    ['assets/照片.png', '00-Inbox/assets/照片 (2).png'],
+    ['_doo-assets/照片.png', '00-Inbox/_doo-assets/照片 (2).png'],
     ['two.md', '00-Inbox/two (2).md'],
   ]);
   const source =
-    '![照片](assets/照片.png)\n[second](two.md#part)\n![ref][picture]\n\n[picture]: assets/照片.png "title"';
+    '![照片](_doo-assets/照片.png)\n[second](two.md#part)\n![ref][picture]\n\n[picture]: _doo-assets/照片.png "title"';
   const content = rewriteImportReferences(source, 'one.md', '00-Inbox/one (2).md', mapping);
-  expect(content).toContain('assets/%E7%85%A7%E7%89%87%20(2).png');
+  expect(content).toContain('_doo-assets/%E7%85%A7%E7%89%87%20(2).png');
   expect(content).toContain('two%20(2).md#part');
-  expect(content).toContain('[picture]: assets/%E7%85%A7%E7%89%87%20(2).png "title"');
+  expect(content).toContain('[picture]: _doo-assets/%E7%85%A7%E7%89%87%20(2).png "title"');
 });
 
 it('restores independently uploaded encrypted backups without retaining uploaded keys', async () => {
@@ -427,16 +427,16 @@ it('enforces actual application owner, CSRF and origin checks on transfer and ke
 
 it('changes actual Markdown destinations while preserving fenced, indented and inline code examples byte for byte', () => {
   const source =
-    '# Guide\n\n![real](assets/x.png)\n\n```md\n![example](assets/x.png)\n[picture]: assets/x.png\n```\n\n`[literal](assets/x.png)`\n\n    ![indented](assets/x.png)\n\nEscaped \\[example](assets/x.png)\n\n![reference][picture]\n\n[picture]: assets/x.png "caption"\n';
+    '# Guide\n\n![real](_doo-assets/x.png)\n\n```md\n![example](_doo-assets/x.png)\n[picture]: _doo-assets/x.png\n```\n\n`[literal](_doo-assets/x.png)`\n\n    ![indented](_doo-assets/x.png)\n\nEscaped \\[example](_doo-assets/x.png)\n\n![reference][picture]\n\n[picture]: _doo-assets/x.png "caption"\n';
   const rewritten = rewriteImportReferences(
     source,
     'note.md',
     '00-Inbox/note.md',
-    new Map([['assets/x.png', '00-Inbox/assets/x (2).png']]),
+    new Map([['_doo-assets/x.png', '00-Inbox/_doo-assets/x (2).png']]),
   );
   const expected = source
-    .replace('![real](assets/x.png)', '![real](assets/x%20(2).png)')
-    .replace('[picture]: assets/x.png "caption"', '[picture]: assets/x%20(2).png "caption"');
+    .replace('![real](_doo-assets/x.png)', '![real](_doo-assets/x%20(2).png)')
+    .replace('[picture]: _doo-assets/x.png "caption"', '[picture]: _doo-assets/x%20(2).png "caption"');
   expect(rewritten).toBe(expected);
 });
 
@@ -493,36 +493,36 @@ it('clears an uploaded recovery key before publishing preparation failures', asy
 
 it('rewrites nested-parenthesis, Unicode, multiline and quoted/list/table destinations with source formatting intact', () => {
   const source = [
-    '> - ![real](assets/x(1).png "literal [example](assets/x(1).png)")',
+    '> - ![real](_doo-assets/x(1).png "literal [example](_doo-assets/x(1).png)")',
     '>   ' +
       String.fromCharCode(96, 96) +
-      '[literal](assets/x(1).png)' +
+      '[literal](_doo-assets/x(1).png)' +
       String.fromCharCode(96, 96),
     '',
     '| A | B |',
     '| --- | --- |',
-    '| a\\|b ![one](assets/x(1).png) | ![two](assets/x(1).png) |',
+    '| a\\|b ![one](_doo-assets/x(1).png) | ![two](_doo-assets/x(1).png) |',
     '',
     '![line](',
-    '  <assets/照片.png>',
+    '  <_doo-assets/照片.png>',
     '  "caption")',
     '',
     '> ![ref][photo]',
     '>',
     '> [photo]:',
-    '>   <assets/照片.png> "caption"',
+    '>   <_doo-assets/照片.png> "caption"',
     '',
   ].join('\r\n');
   const mapping = new Map([
-    ['assets/x(1).png', '00-Inbox/assets/x(1) (2).png'],
-    ['assets/照片.png', '00-Inbox/assets/照片 (2).png'],
+    ['_doo-assets/x(1).png', '00-Inbox/_doo-assets/x(1) (2).png'],
+    ['_doo-assets/照片.png', '00-Inbox/_doo-assets/照片 (2).png'],
   ]);
   const rewritten = rewriteImportReferences(source, 'note.md', '00-Inbox/note.md', mapping);
   const expected = source
-    .replace('![real](assets/x(1).png', '![real](assets/x(1)%20(2).png')
-    .replace('![one](assets/x(1).png)', '![one](assets/x(1)%20(2).png)')
-    .replace('![two](assets/x(1).png)', '![two](assets/x(1)%20(2).png)')
-    .replaceAll('<assets/照片.png>', '<assets/%E7%85%A7%E7%89%87%20(2).png>');
+    .replace('![real](_doo-assets/x(1).png', '![real](_doo-assets/x(1)%20(2).png')
+    .replace('![one](_doo-assets/x(1).png)', '![one](_doo-assets/x(1)%20(2).png)')
+    .replace('![two](_doo-assets/x(1).png)', '![two](_doo-assets/x(1)%20(2).png)')
+    .replaceAll('<_doo-assets/照片.png>', '<_doo-assets/%E7%85%A7%E7%89%87%20(2).png>');
   expect(rewritten).toBe(expected);
 });
 
@@ -530,20 +530,20 @@ it('imports a collision-renamed attachment without changing code examples in the
   const f = await fixture();
   try {
     const png = {
-      path: 'assets/x.png',
+      path: '_doo-assets/x.png',
       encoding: 'base64',
       content: Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]).toString('base64'),
     };
     const tick = String.fromCharCode(96),
       fence = tick.repeat(3);
     const source =
-      '![real](assets/x.png)\n\n' +
+      '![real](_doo-assets/x.png)\n\n' +
       fence +
-      'md\n![example](assets/x.png)\n' +
+      'md\n![example](_doo-assets/x.png)\n' +
       fence +
       '\n\n' +
       tick +
-      '[literal](assets/x.png)' +
+      '[literal](_doo-assets/x.png)' +
       tick +
       '\n';
     await f.settle((await f.post('/api/manage/import', body([note('first.md'), png]))).json().id);
@@ -552,7 +552,7 @@ it('imports a collision-renamed attachment without changing code examples in the
     );
     expect(task.state).toBe('succeeded');
     expect(await readFile(join(f.config.knowledgeRoot, '00-Inbox/guide.md'), 'utf8')).toBe(
-      source.replace('![real](assets/x.png)', '![real](assets/x%20(2).png)'),
+      source.replace('![real](_doo-assets/x.png)', '![real](_doo-assets/x%20(2).png)'),
     );
   } finally {
     await f.close();
@@ -560,14 +560,14 @@ it('imports a collision-renamed attachment without changing code examples in the
 });
 
 it('retains escaped table filename semantics when replacing its physical destination span', () => {
-  const source = '| A |\n| --- |\n| ![one](assets/x\\|1.png) |';
+  const source = '| A |\n| --- |\n| ![one](_doo-assets/x\\|1.png) |';
   const content = rewriteImportReferences(
     source,
     'note.md',
     '00-Inbox/note.md',
-    new Map([['assets/x|1.png', '00-Inbox/assets/x|1 (2).png']]),
+    new Map([['_doo-assets/x|1.png', '00-Inbox/_doo-assets/x|1 (2).png']]),
   );
-  expect(content).toBe('| A |\n| --- |\n| ![one](assets/x%7C1%20(2).png) |');
+  expect(content).toBe('| A |\n| --- |\n| ![one](_doo-assets/x%7C1%20(2).png) |');
 });
 
 it('releases successful import payloads while keeping receipts and request fingerprints', async () => {
@@ -655,24 +655,24 @@ it('gradually clears legacy successful payloads without changing receipts or fai
   }finally{await second?.close();await f.close();}
 });
 
-it('keeps minimal original whiteboard identities for failed note retries after discarding completed scenes',async()=>{
-  const {emptyWhiteboard}=await import('../shared/whiteboard.js');
+it('retains completed Markdown identities and resolves path references on retry after discarding completed payloads',async()=>{
   const f=await fixture();
   try{
-    const originalId=randomUUID();
     const request=body([
-      note('board.excalidraw',JSON.stringify({...emptyWhiteboard(),dooknow:{id:originalId}})),
-      note('ref.md','```excalidraw\n'+originalId+'\n```\n'),
+      note('board.md','# Imported document'),
+      note('ref.md','```excalidraw\nboard.md\n```\n'),
     ]);
     const posted=await f.post('/api/manage/import',request);
     await writeFile(join(f.config.knowledgeRoot,'00-Inbox/ref.md'),'competing write');
     let task=await f.settle(posted.json().id);expect(task.items.map((i:any)=>i.state)).toEqual(['succeeded','failed']);
     const stored=JSON.parse((f.db.prepare('SELECT payload FROM managed_transfer_jobs WHERE id=?').get(task.id) as any).payload);
-    expect(JSON.parse(stored.entries[0].content)).toEqual({dooknow:{id:originalId}});
-    const boardId=task.items[0].noteId;expect(boardId).not.toBe(originalId);
+    expect(stored.entries[0].content).toBe('');
+    const boardId=task.items[0].noteId;expect(boardId).toBeTruthy();
     await rm(join(f.config.knowledgeRoot,'00-Inbox/ref.md'));
     f.platform.get().notes.scan();
     await f.post('/api/manage/tasks/'+task.id+'/retry',{});task=await f.settle(task.id);expect(task.state).toBe('succeeded');
     expect(await readFile(join(f.config.knowledgeRoot,'00-Inbox/ref.md'),'utf8')).toBe('```excalidraw\n'+boardId+'\n```\n');
+    expect(task.items[0].noteId).toBe(boardId);
+    expect(f.db.prepare('SELECT id FROM notes WHERE path=? AND active=1').get('00-Inbox/board.md')).toEqual({id:boardId});
   }finally{await f.close();}
 });

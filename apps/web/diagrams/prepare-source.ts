@@ -1,3 +1,4 @@
+import type { DiagramResource } from '../../../shared/diagram-resource';
 import { api } from '../api';
 import { parseWhiteboard, whiteboardId, whiteboardReference } from '../../../shared/whiteboard';
 import { validateSvgSource } from '../../../shared/svg-policy';
@@ -19,16 +20,17 @@ export async function readWhiteboardSource({
   const reference = whiteboardReference(code);
   if (!reference) throw Error('白板引用格式不正确');
   let url: string;
-  if (whiteboardId(reference)) url = '/api/notes/' + encodeURIComponent(reference);
+  if (whiteboardId(reference)) url = '/api/notes/' + encodeURIComponent(reference) + '/diagram';
   else if (noteId)
     url = `/api/notes/${encodeURIComponent(noteId)}/whiteboards/resolve?source=${encodeURIComponent(reference)}`;
   else throw Error('请从原笔记打开此白板引用');
-  const board = await api<{ content?: unknown }>(url);
-  if (typeof board.content !== 'string') throw Error('白板响应缺少有效源码');
-  const scene = parseWhiteboard(board.content);
+  const board = await api<DiagramResource>(url);
+  if (!board.capabilities?.canDownloadSource || board.source?.format !== 'excalidraw' || typeof board.source.content !== 'string')
+    throw Error('白板响应缺少有效源码');
+  const scene = parseWhiteboard(board.source.content);
   if (scene.elements.some((element) => ['iframe', 'embeddable'].includes(element.type)))
     throw Error('白板包含不支持的嵌入资源，源码已保留');
-  return board.content;
+  return board.source.content;
 }
 
 /** Prepares a bounded immutable source/PNG pair. Publication belongs to the caller. */

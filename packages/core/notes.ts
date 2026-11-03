@@ -1,48 +1,16 @@
 import { DOO_ASSETS_DIRECTORY } from '../../shared/storage-paths.js';
-import { migrationPathProtected,migrationNoteProtected } from './knowledge/migration-scan-policy.js';
-import { migrationAliasState } from './knowledge/migration-alias-state.js';
 import { documentMetadataReader } from './knowledge/document-metadata.js';
-import {
-  publishedNoteSource,
-  readPublishedMarkdown,
-  readableSourceVersion,
-} from './knowledge/published-note-source.js';
-import {
-  documentTitle,
-  documentType,
-  isWhiteboard,
-  parseWhiteboard,
-  MAX_WHITEBOARD_BYTES,
-  withWhiteboardId,
-  whiteboardId,
-} from '../../shared/whiteboard.js';
+import { publishedNoteSource, readPublishedMarkdown, readableSourceVersion } from './knowledge/published-note-source.js';
+import { documentTitle, documentType, MAX_WHITEBOARD_BYTES } from '../../shared/whiteboard.js';
 import { hasActiveShare } from './share-policy.js';
 import { assertOrganizationReadable, workspaceWriteSync } from './workspace/gate.js';
 import { randomUUID } from 'node:crypto';
-import {
-  mkdirSync,
-  writeFileSync,
-  renameSync,
-  unlinkSync,
-  statSync,
-  openSync,
-  closeSync,
-  fsyncSync,
-  lstatSync,
-} from 'node:fs';
+import { mkdirSync, statSync, lstatSync } from 'node:fs';
 import { join, dirname, basename } from 'node:path';
 import type { AppConfig, NoteDocument, TreeEntry } from '../../shared/contracts.js';
 import type { AppDatabase } from './db.js';
 import { HttpError, text } from './errors.js';
-import {
-  readDocument,
-  readDocumentForMigration,
-  safePath,
-  scanFiles,
-  validName,
-  isMissingSource,
-  sourceErrorCode,
-} from './files.js';
+import { readDocument, safePath, scanFiles, validName, isMissingSource, sourceErrorCode } from './files.js';
 import { mutationCore, webPrincipal } from './knowledge/core.js';
 import { KnowledgeError } from './knowledge/errors.js';
 import { assertRoot } from './indexing/reconcile.js';
@@ -62,7 +30,7 @@ export function noteService(config: AppConfig, db: AppDatabase) {
     assertOrganizationReadable(db);
     assertRoot(config, db);
     library.refresh();
-    migrationAliasState(config, db).refresh();
+
     recoverFolders(config, db);
     if (
       db.prepare("SELECT 1 FROM sync_runs WHERE status IN ('running','needs_reconciliation')").get()
@@ -75,7 +43,6 @@ export function noteService(config: AppConfig, db: AppDatabase) {
       for (const row of db.prepare('SELECT * FROM notes WHERE active=1').all() as NoteRow[])
         if (
           !live.has(row.path) &&
-          !migrationNoteProtected(db,row.id) &&
           !db
             .prepare(
               "SELECT 1 FROM write_intents WHERE note_id=? AND status IN ('prepared','conflicted') AND (kind='move' OR EXISTS(SELECT 1 FROM diagram_pending_publications p WHERE p.operation_id=write_intents.id))",
@@ -87,7 +54,6 @@ export function noteService(config: AppConfig, db: AppDatabase) {
         }
       for (const path of files.notes)
         if (
-          !migrationPathProtected(db,path) &&
           !db
             .prepare(
               "SELECT 1 FROM write_intents WHERE path=? AND kind IN ('restore','move','create') AND status IN ('prepared','conflicted')",
@@ -95,14 +61,9 @@ export function noteService(config: AppConfig, db: AppDatabase) {
             .get(path) &&
           !db.prepare('SELECT id FROM notes WHERE path=? AND active=1').get(path)
         ) {
-          let identity: string | undefined;
-          if (isWhiteboard(path))
-            try {
-              identity = whiteboardId(
-                parseWhiteboard(readDocument(config.knowledgeRoot, path).content).dooknow?.id || '',
-              );
-            } catch {}
-          identity = library.identity(path, identity);
+
+
+          const identity = library.identity(path);
           if (db.prepare('SELECT 1 FROM notes WHERE id=?').get(identity)) {
             db.prepare('UPDATE notes SET path=?,active=1 WHERE id=?').run(path, identity);
             db.prepare('UPDATE document_state SET active=0 WHERE note_id=?').run(identity);
@@ -122,28 +83,13 @@ export function noteService(config: AppConfig, db: AppDatabase) {
     return note;
   }
   function getNoteSnapshot(id: string): { note: NoteDocument; file: string; signature: string } {
-    return noteSnapshot(id, false);
-  }
-  /** Internal migration snapshot; public note reads continue to require the paged editor. */
-  function getNoteSnapshotForMigration(id: string) {
-    return noteSnapshot(id, true);
-  }
-  function noteSnapshot(id: string, forMigration: boolean): { note: NoteDocument; file: string; signature: string } {
     const n = row(id);
     try {
       const readable = publishedNoteSource(config, db, id, n.path);
       const doc = readable.publication
         ? readPublishedMarkdown(readable)
-        : forMigration
-          ? readDocumentForMigration(config.knowledgeRoot, n.path)
-          : readDocument(config.knowledgeRoot, n.path, { allowDiagramLarge: true });
-      if (isWhiteboard(n.path)) {
-        try {
-          parseWhiteboard(doc.content);
-        } catch (e) {
-          throw new HttpError(422, (e as Error).message);
-        }
-      }
+        : readDocument(config.knowledgeRoot, n.path, { allowDiagramLarge: true });
+
       const { signature, ...document } = doc;
       return {
         file: readable.file,
@@ -298,7 +244,7 @@ export function noteService(config: AppConfig, db: AppDatabase) {
   ) {
     const shared = hasActiveShare(db, id);
     const receipt = mutations.update(webPrincipal, id, content, expectedModifiedAt, requestId);
-    if (isWhiteboard(receipt.relativePath)) content = withWhiteboardId(content, id);
+
     try {
       const current = getNote(id);
       // A later save may already exist when an old request is replayed. Its
@@ -393,7 +339,6 @@ export function noteService(config: AppConfig, db: AppDatabase) {
     row,
     getNote,
     getNoteSnapshot,
-    getNoteSnapshotForMigration,
     tree,
     createNote,
     saveNote,

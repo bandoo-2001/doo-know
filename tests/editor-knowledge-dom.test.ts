@@ -67,7 +67,7 @@ it('prints generated reading HTML with embedded images and no frontend requests'
   const result = await page.evaluate(async () => {
     const f = (window as any).knowledgeFixture;
     const png = new Blob([Uint8Array.from(atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9WP5l2kAAAAASUVORK5CYII='), x => x.charCodeAt(0))], { type: 'image/png' });
-    const html = await f.buildReadingHtml({ title: '打印笔记', markdown: '![图](assets/a.png)\n\n公式 $x^2$\n', resolveImage: async () => png });
+    const html = await f.buildReadingHtml({ title: '打印笔记', markdown: '![图](_doo-assets/a.png)\n\n公式 $x^2$\n', resolveImage: async () => png });
     const frame = document.body.appendChild(document.createElement('iframe'));
     const target = frame.contentWindow!;
     let printed = false;

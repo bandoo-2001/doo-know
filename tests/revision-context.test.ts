@@ -5,7 +5,6 @@ import { join } from 'node:path';
 import { randomUUID, createHash } from 'node:crypto';
 import { openDatabase } from '../packages/core/db';
 import * as history from '../packages/core/knowledge/revision-context';
-import { emptyWhiteboard } from '../shared/whiteboard';
 import { beginOperation } from '../packages/core/knowledge/operations';
 import { rebaseRevisionMarkdown } from '../packages/core/knowledge/revision-relocation';
 
@@ -27,8 +26,8 @@ function fixture() {
   const db = openDatabase(dataRoot);
   const config = { dataRoot, knowledgeRoot } as any;
   const id = randomUUID();
-  db.prepare('INSERT INTO notes(id,path) VALUES(?,?)').run(id, '00-Inbox/旧白板.excalidraw');
-  function intent(content: string, kind = 'whiteboard-migrate') {
+  db.prepare('INSERT INTO notes(id,path) VALUES(?,?)').run(id, '00-Inbox/original.md');
+  function intent(content: string, kind = 'update') {
     const revision_id = randomUUID(),
       history_file = revision_id + '.md';
     writeFileSync(join(dataRoot, 'history', history_file), content);
@@ -55,18 +54,18 @@ function fixture() {
   };
 }
 
-it('records the old logical format before an identity-preserving JSON to Markdown switch', () => {
+it('records the original Markdown context before an identity-preserving path switch', () => {
   const f = fixture();
   try {
-    const source = JSON.stringify(emptyWhiteboard()),
+    const source = '# Original Markdown',
       intent = f.intent(source);
     history.recordRevisionContext(f.config, f.db, intent);
     f.db.prepare('UPDATE notes SET path=? WHERE id=?').run(intent.path, f.id);
     const context = history.revisionContext(f.config, f.db, f.id, intent.revision_id);
     expect(context).toMatchObject({
-      documentType: 'whiteboard',
-      payloadFormat: 'excalidraw',
-      logicalPath: '00-Inbox/旧白板.excalidraw',
+      documentType: 'markdown',
+      payloadFormat: 'markdown',
+      logicalPath: '00-Inbox/original.md',
       contentHash: hash(source),
       resources: [],
     });
@@ -87,7 +86,7 @@ it('uses the historical path and fixed resource manifest, not the current direct
     const original = '# Ordinary JSON example\n```json\n{"type":"excalidraw"}\n```';
     f.db.prepare('UPDATE notes SET path=? WHERE id=?').run('00-Inbox/原笔记.md', f.id);
     const intent = f.intent(original, 'move');
-    const resources = [{ role: 'preview', path: '00-Inbox/assets/old.png', hash: hash('png') }];
+    const resources = [{ role: 'preview', path: '00-Inbox/_doo-assets/old.png', hash: hash('png') }];
     f.db
       .prepare('INSERT INTO diagram_document_versions VALUES(?,?,?,?,?,?,?,?,?)')
       .run(
@@ -120,7 +119,7 @@ it('uses the historical path and fixed resource manifest, not the current direct
 it('backfills an untyped revision from its write intent without inventing a current-path context', () => {
   const f = fixture();
   try {
-    const source = JSON.stringify(emptyWhiteboard()),
+    const source = '# Original Markdown',
       intent = f.intent(source, 'update');
     f.db
       .prepare('INSERT INTO revisions(id,note_id,file,created_at,modified_at) VALUES(?,?,?,?,?)')
@@ -139,7 +138,7 @@ it('backfills an untyped revision from its write intent without inventing a curr
       .run(
         op.operation.id,
         f.id,
-        '00-Inbox/旧白板.excalidraw',
+        '00-Inbox/original.md',
         'update',
         hash(source),
         '1234',
@@ -149,8 +148,8 @@ it('backfills an untyped revision from its write intent without inventing a curr
       );
     f.db.prepare('UPDATE notes SET path=? WHERE id=?').run('10-Projects/new.md', f.id);
     expect(history.revisionContext(f.config, f.db, f.id, intent.revision_id)).toMatchObject({
-      payloadFormat: 'excalidraw',
-      logicalPath: '00-Inbox/旧白板.excalidraw',
+      payloadFormat: 'markdown',
+      logicalPath: '00-Inbox/original.md',
     });
     const orphan = f.intent('# no retained original path');
     f.db
@@ -166,17 +165,12 @@ it('backfills an untyped revision from its write intent without inventing a curr
   }
 });
 
-it('refuses raw legacy JSON on a Markdown target and rebases ordinary historical destinations only', () => {
+it('rebases ordinary historical destinations while preserving source spelling and code', () => {
   const f = fixture();
   try {
-    const legacy = f.intent(JSON.stringify(emptyWhiteboard()));
-    history.recordRevisionContext(f.config, f.db, legacy);
-    expect(() =>
-      history.revisionRestoreSource(f.config, f.db, f.id, legacy.revision_id, '10-Projects/new.md'),
-    ).toThrowError(expect.objectContaining({ code: 'DIAGRAM_PREVIEW_REQUIRED' }));
     f.db.prepare('UPDATE notes SET path=? WHERE id=?').run('00-Inbox/original.md', f.id);
     const content =
-      '正文不变\r\n![图](assets/a.png)\r\n<img src="assets/b.png">\r\n`assets/a.png`\r\n';
+      '正文不变\r\n![图](_doo-assets/a.png)\r\n<img src="_doo-assets/b.png">\r\n`_doo-assets/a.png`\r\n';
     const ordinary = f.intent(content, 'update');
     history.recordRevisionContext(f.config, f.db, ordinary);
     expect(
@@ -188,7 +182,7 @@ it('refuses raw legacy JSON on a Markdown target and rebases ordinary historical
         '10-Projects/current.md',
       ).content,
     ).toBe(
-      '正文不变\r\n![图](../00-Inbox/assets/a.png)\r\n<img src="../00-Inbox/assets/b.png">\r\n`assets/a.png`\r\n',
+      '正文不变\r\n![图](../00-Inbox/_doo-assets/a.png)\r\n<img src="../00-Inbox/_doo-assets/b.png">\r\n`_doo-assets/a.png`\r\n',
     );
   } finally {
     f.close();

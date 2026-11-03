@@ -21,7 +21,7 @@ it('retains embedded raster files and extracts only live text nodes', () => {
   const content = JSON.stringify(scene);
   expect(parseWhiteboard(content).files).toEqual(scene.files);
   expect(whiteboardText(content)).toBe('架构文字');
-  expect(documentTitle('00-Inbox/架构.excalidraw', content)).toBe('架构');
+  expect(documentTitle('00-Inbox/架构.md', content)).toBe('架构');
 });
 it('rejects invalid scene structures and active content', () => {
   for (const value of [
@@ -75,22 +75,17 @@ it('validates persistent canvas settings and vector-valued element fields', () =
       parseWhiteboard(JSON.stringify({ ...emptyWhiteboard(), elements: [element] })),
     ).toThrow();
 });
-it('imports whiteboards as UTF-8 documents and keeps the native extension when renaming collisions', async () => {
+it('refuses standalone whiteboard scenes as managed note imports', async () => {
   const root = await mkdtemp(join(tmpdir(), 'whiteboard-import-'));
   try {
     await mkdir(join(root, '00-Inbox'));
-    const request = parseImport({
+    expect(() => parseImport({
       folderPath: '00-Inbox',
       collision: 'rename',
       entries: [
         { path: '设计.excalidraw', encoding: 'utf8', content: JSON.stringify(emptyWhiteboard()) },
       ],
-    });
-    const preview = importPreview(root, request);
-    expect(preview.items[0]).toMatchObject({
-      kind: 'note',
-      targetPath: '00-Inbox/设计.excalidraw',
-    });
+    })).toThrow();
   } finally {
     await rm(root, { recursive: true, force: true });
   }

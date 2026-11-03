@@ -2,10 +2,8 @@ import { parseDiagramDocument } from './diagram-document.js';
 import type { DocumentType } from './diagram-resource.js';
 export const MAX_WHITEBOARD_BYTES = 8 * 1024 * 1024;
 export const MAX_WHITEBOARD_ELEMENTS = 10_000;
-export const isWhiteboard = (path: string) => /\.excalidraw$/i.test(path);
-export const isDocument = (path: string) => /\.(?:md|excalidraw)$/i.test(path);
+export const isDocument = (path: string) => /\.md$/i.test(path);
 export function documentType(path: string, content?: string): DocumentType {
-  if (isWhiteboard(path)) return 'whiteboard';
   if (content !== undefined) {
     const parsed = parseDiagramDocument(content);
     if (parsed.status === 'diagram') return parsed.type;
@@ -13,16 +11,16 @@ export function documentType(path: string, content?: string): DocumentType {
   return 'markdown';
 }
 export function documentTitle(path: string, content = '') {
-  if (!isWhiteboard(path) && content) {
+  if (content) {
     const parsed = parseDiagramDocument(content);
     if (parsed.status === 'diagram') return parsed.title;
   }
   return (
-    (isWhiteboard(path) ? '' : content.match(/^#\s+(.+)$/m)?.[1]) ||
+    content.match(/^#\s+(.+)$/m)?.[1] ||
     path
       .split('/')
       .at(-1)!
-      .replace(/\.(?:md|excalidraw)$/i, '')
+      .replace(/\.md$/i, '')
   );
 }
 export type WhiteboardScene = {
@@ -290,12 +288,6 @@ export function whiteboardId(code: string) {
   const id = code.trim();
   return /^[a-f\d]{8}(?:-[a-f\d]{4}){3}-[a-f\d]{12}$/i.test(id) ? id : undefined;
 }
-export function withWhiteboardId(content: string, id: string) {
-  if (!whiteboardId(id)) throw Error('白板标识无效');
-  const { dooknow: _, ...scene } = JSON.parse(content);
-  const result = JSON.stringify({ dooknow: { id }, ...scene }, null, 2);
-  return result;
-}
 export function whiteboardReference(code: string) {
   const value = code.trim();
   return (
@@ -303,7 +295,7 @@ export function whiteboardReference(code: string) {
     (value.length <= 1000 &&
     !/[\r\n\\:\u0000-\u001f]/.test(value) &&
     !value.startsWith('/') &&
-    /\.(?:excalidraw|md)$/i.test(value)
+    /\.md$/i.test(value)
       ? value
       : undefined)
   );

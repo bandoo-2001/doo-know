@@ -16,8 +16,8 @@ it('proves the complete render tuple and exact resource context, not only a PNG 
       renderHash: h('b'),
       previewHash: h('c'),
       resources: [
-        { role: 'source', path: '00-Inbox/assets/source.excalidraw', hash: h('a') },
-        { role: 'preview', path: '00-Inbox/assets/view.png', hash: h('c') },
+        { role: 'source', path: '00-Inbox/_doo-assets/source.excalidraw', hash: h('a') },
+        { role: 'preview', path: '00-Inbox/_doo-assets/view.png', hash: h('c') },
       ],
     };
     db.prepare('INSERT INTO diagram_document_versions VALUES(?,?,?,?,?,?,?,?,?)').run(
@@ -37,8 +37,8 @@ it('proves the complete render tuple and exact resource context, not only a PNG 
       sourceHash: h('a'),
       renderHash: h('b'),
       previewHash: h('c'),
-      sourcePath: '00-Inbox/assets/source.excalidraw',
-      previewPath: '00-Inbox/assets/view.png',
+      sourcePath: '00-Inbox/_doo-assets/source.excalidraw',
+      previewPath: '00-Inbox/_doo-assets/view.png',
     };
     expect(check(db, 'note', input)).toBe(true);
     for (const bad of [
@@ -67,7 +67,7 @@ it('accepts only live same-note preparations with a matching tuple and inline au
       sourceHash: h('a'),
       renderHash: h('b'),
       previewHash: h('c'),
-      preview: { relativePath: '00-Inbox/assets/view.png' },
+      preview: { relativePath: '00-Inbox/_doo-assets/view.png' },
     };
     db.prepare(
       'INSERT INTO operations(id,principal,client_id,request_id,kind,params_hash,status,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?)',
@@ -102,7 +102,7 @@ it('accepts only live same-note preparations with a matching tuple and inline au
       sourceHash: h('a'),
       renderHash: h('b'),
       previewHash: h('c'),
-      previewPath: '00-Inbox/assets/view.png',
+      previewPath: '00-Inbox/_doo-assets/view.png',
     };
     expect(check(db, 'note', input)).toBe(true);
     expect(check(db, 'note', { ...input, sourcePath: 'forged.excalidraw' })).toBe(false);

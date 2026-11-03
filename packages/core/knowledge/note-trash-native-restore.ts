@@ -1,20 +1,4 @@
-import {
-  copyFileSync,
-  constants,
-  existsSync,
-  mkdirSync,
-  readFileSync,
-  lstatSync,
-  openSync,
-  closeSync,
-  fsyncSync,
-  fstatSync,
-  readSync,
-  writeSync,
-  writeFileSync,
-  linkSync,
-  unlinkSync,
-} from 'node:fs';
+import { copyFileSync, constants, existsSync, mkdirSync, readFileSync, lstatSync, openSync, closeSync, fsyncSync, fstatSync, readSync, writeSync, writeFileSync, linkSync, unlinkSync } from 'node:fs';
 import { join, dirname, basename } from 'node:path';
 import { createHash } from 'node:crypto';
 import type { AppConfig } from '../../../shared/contracts.js';
@@ -23,22 +7,11 @@ import type { Principal } from '../../../shared/knowledge-contracts.js';
 import type { PreparedDiagramAsset } from '../../../shared/diagram-primary.js';
 import { fsyncDirectory } from './core.js';
 import { fileVersionStamp } from './file-reader.js';
-import {
-  revisionContext,
-  recordRevisionContext,
-  type RevisionContext,
-} from './revision-context.js';
+import { revisionContext, recordRevisionContext, type RevisionContext } from './revision-context.js';
 import { revisionFileDigest, revisionIdentityMapping } from './revision-identities.js';
-import {
-  archivedNoteDiagramFile,
-  authorizeArchivedNoteOperation,
-  type ArchivedNoteDiagramContext,
-} from './archived-note-diagram-context.js';
+import { archivedNoteDiagramFile, authorizeArchivedNoteOperation, type ArchivedNoteDiagramContext } from './archived-note-diagram-context.js';
 import { collectNativeLinkChanges } from './native-link-plans.js';
-import {
-  diagramOperationPreviewRegistry,
-  diagramOperationWorkspace,
-} from './diagram-operation-previews.js';
+import { diagramOperationPreviewRegistry, diagramOperationWorkspace } from './diagram-operation-previews.js';
 import { planDiagramRelocation, type DiagramRelocation } from './diagram-relocation.js';
 import { readBoundDiagramAsset } from './diagram-resource-files.js';
 import { safePath, validateRelative } from '../files.js';
@@ -69,7 +42,7 @@ export type NoteTrashRestorePlan = {
   references: { path: string; hash: string }[];
   targets: { noteId: string; path: string }[];
   diagram?: DiagramRelocation;
-  legacy?: unknown;
+
   committing: boolean;
 };
 function schema(db: AppDatabase) {
@@ -392,7 +365,7 @@ export function prepareNoteTrashRestore(
       readAsset,
       rewrite?.primary,
     );
-    plan.legacy = rewrite?.legacy;
+
     plan.afterFile = writeAfter(config, input.operationId, after);
   }
   plan.afterHash = revisionFileDigest(plan.afterFile);
@@ -746,11 +719,6 @@ export function publishNoteTrashRestoreAssets(
       'INSERT INTO diagram_pending_publications(operation_id,note_id,path,document_hash,manifest) VALUES(?,?,?,?,?) ON CONFLICT(operation_id) DO UPDATE SET manifest=excluded.manifest',
     ).run(plan.operationId, plan.noteId, plan.path, plan.afterHash, JSON.stringify(d.manifest));
   }
-  if (plan.legacy) {
-    const m = plan.legacy as any;
-    db.prepare(
-      'INSERT OR REPLACE INTO legacy_diagram_previews(note_id,document_hash,render_hash,manifest,created_at) VALUES(?,?,?,?,?)',
-    ).run(plan.noteId, m.documentHash, m.renderHash, JSON.stringify(m), Date.now());
-  }
+
   verifyNoteTrashRestore(config, db, plan);
 }

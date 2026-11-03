@@ -59,29 +59,29 @@ describe('preparing a source and PNG without publishing', () => {
 
   it('resolves a canonical whiteboard by its stable ID using a read request and preserves its exact source', async () => {
     const source = JSON.stringify({ ...emptyWhiteboard(), dooknow: { id } }, null, 2);
-    vi.mocked(api).mockResolvedValue({ id, content: source });
+    vi.mocked(api).mockResolvedValue({ noteId:id, source:{format:'excalidraw',content:source}, capabilities:{canDownloadSource:true} });
     expect(await prepareDiagramSource({ kind: 'excalidraw', code: id + '\n', noteId: 'parent' })).toEqual({ source, png });
-    expect(vi.mocked(api).mock.calls).toEqual([['/api/notes/' + id]]);
+    expect(vi.mocked(api).mock.calls).toEqual([['/api/notes/' + id + '/diagram']]);
   });
 
   it('resolves a relative whiteboard reference in its parent note context', async () => {
     const source = JSON.stringify(emptyWhiteboard());
-    vi.mocked(api).mockResolvedValue({ id, content: source });
-    expect(await prepareDiagramSource({ kind: 'excalidraw', code: '../设计.excalidraw', noteId: 'parent' })).toEqual({ source, png });
-    expect(vi.mocked(api).mock.calls).toEqual([['/api/notes/parent/whiteboards/resolve?source=..%2F%E8%AE%BE%E8%AE%A1.excalidraw']]);
+    vi.mocked(api).mockResolvedValue({ noteId:id, source:{format:'excalidraw',content:source}, capabilities:{canDownloadSource:true} });
+    expect(await prepareDiagramSource({ kind: 'excalidraw', code: '../设计.md', noteId: 'parent' })).toEqual({ source, png });
+    expect(vi.mocked(api).mock.calls).toEqual([['/api/notes/parent/whiteboards/resolve?source=..%2F%E8%AE%BE%E8%AE%A1.md']]);
   });
 
   it('rejects missing context, remote references and invalid scenes without publishing', async () => {
-    await expect(prepareDiagramSource({ kind: 'excalidraw', code: 'board.excalidraw' })).rejects.toThrow(/原笔记|上下文/);
+    await expect(prepareDiagramSource({ kind: 'excalidraw', code: 'board.md' })).rejects.toThrow(/原笔记|上下文/);
     await expect(prepareDiagramSource({ kind: 'excalidraw', code: 'https://outside.invalid/x.excalidraw', noteId: 'parent' })).rejects.toThrow(/引用/);
     expect(vi.mocked(api).mock.calls).toEqual([]);
-    vi.mocked(api).mockResolvedValue({ id, content: '{}' });
+    vi.mocked(api).mockResolvedValue({ noteId:id,source:{format:'excalidraw',content:'{}'},capabilities:{canDownloadSource:true} });
     await expect(prepareDiagramSource({ kind: 'excalidraw', code: id })).rejects.toThrow(/白板/);
     expect(vi.mocked(artifacts.preparePreview).mock.calls).toEqual([]);
   });
 
   it('rejects embedded remote surfaces before the whiteboard exporter is called', async () => {
-    vi.mocked(api).mockResolvedValue({ id, content: JSON.stringify({ ...emptyWhiteboard(), elements: [{ id: 'embed', type: 'embeddable', link: 'https://outside.invalid' }] }) });
+    vi.mocked(api).mockResolvedValue({ noteId:id,source:{format:'excalidraw',content:JSON.stringify({ ...emptyWhiteboard(), elements: [{ id: 'embed', type: 'embeddable', link: 'https://outside.invalid' }] })},capabilities:{canDownloadSource:true} });
     await expect(prepareDiagramSource({ kind: 'excalidraw', code: id })).rejects.toThrow(/资源|嵌入/);
     expect(vi.mocked(artifacts.preparePreview).mock.calls).toEqual([]);
   });

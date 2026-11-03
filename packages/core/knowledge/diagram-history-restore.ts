@@ -1,14 +1,10 @@
-import { DOO_ASSETS_DIRECTORY, isCompatibleAssetPath, isDooAssetPath } from '../../../shared/storage-paths.js';
+import { DOO_ASSETS_DIRECTORY } from '../../../shared/storage-paths.js';
 import { readFileSync } from 'node:fs';
 import { posix } from 'node:path';
 import type { AppConfig } from '../../../shared/contracts.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
 import { parseDiagramDocument } from '../../../shared/diagram-document.js';
-import {
-  applyPreparedDiagramDocument,
-  diagramRendererVersions,
-  primaryRenderDescriptor,
-} from '../../../shared/diagram-primary.js';
+import { applyPreparedDiagramDocument, diagramRendererVersions, primaryRenderDescriptor } from '../../../shared/diagram-primary.js';
 import { parseWhiteboard } from '../../../shared/whiteboard.js';
 import type { AppDatabase } from '../db.js';
 import type { NoteService } from '../notes.js';
@@ -140,23 +136,14 @@ export function diagramHistoryRestoreService(
       const historical = readFileSync(revisionFile(config, revision.file), 'utf8');
       if (sha256(historical) !== context.contentHash) fail(409, 'REVISION_CONTENT_CONFLICT');
       const parsed = parseDiagramDocument(historical);
-      const legacy = context.payloadFormat === 'excalidraw';
-      if (!legacy && parsed.status !== 'diagram') fail(409, 'DIAGRAM_DOCUMENT_CONVERSION_REQUIRED');
-      const type = legacy
-        ? 'whiteboard'
-        : parsed.status === 'diagram'
-          ? parsed.type
-          : current.parsed.type;
+      if (parsed.status !== 'diagram') fail(409, 'DIAGRAM_DOCUMENT_CONVERSION_REQUIRED');
+      const type = parsed.type;
       if (type !== current.parsed.type) fail(409, 'DIAGRAM_DOCUMENT_CONVERSION_REQUIRED');
       let source: string, oldSourcePath: string | undefined;
       let baseMarkdown = current.note.content,
         title = current.parsed.title,
         render = primaryRenderDescriptor(current.parsed);
-      if (legacy) {
-        parseWhiteboard(historical);
-        source = historical;
-        oldSourcePath = context.logicalPath ?? undefined;
-      } else if (parsed.status === 'diagram') {
+      {
         if (!context.logicalPath)
           fail(409, 'REVISION_PATH_UNKNOWN', '历史版本缺少原始逻辑路径，无法安全重定位资源');
         const scanned = scanRevisionDestinations(revisionFile(config, revision.file));
@@ -242,10 +229,10 @@ export function diagramHistoryRestoreService(
                     .map(([from, to]) => ({ from, to })),
                 ).content
               : parsed.primary.source.content;
-      } else return fail(409, 'REVISION_CONTEXT_INVALID');
+      }
       if (type === 'whiteboard') {
         if (!oldSourcePath)
-          fail(409, 'REVISION_PATH_UNKNOWN', '旧白板历史缺少路径，需要先核对原始位置');
+          fail(409, 'REVISION_PATH_UNKNOWN', '白板历史缺少路径，需要先核对原始位置');
         const targetSource = posix.join(
           posix.dirname(current.note.relativePath),
           DOO_ASSETS_DIRECTORY,

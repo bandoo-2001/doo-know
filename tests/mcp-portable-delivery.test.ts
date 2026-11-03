@@ -240,8 +240,8 @@ it('streams a real archive over the old 20 MiB/200-file boundary and pages a tho
   header.writeUInt16LE(16, 34);
   header.write('data', 36);
   header.writeUInt32LE(dataBytes, 40);
-  await mkdir(join(f.config.knowledgeRoot, '00-Inbox/assets'), { recursive: true });
-  const media = await open(join(f.config.knowledgeRoot, '00-Inbox/assets/large.wav'), 'wx');
+  await mkdir(join(f.config.knowledgeRoot, '00-Inbox/_doo-assets'), { recursive: true });
+  const media = await open(join(f.config.knowledgeRoot, '00-Inbox/_doo-assets/large.wav'), 'wx');
   try {
     await media.write(header);
     for (let offset = 0; offset < dataBytes; offset += 65536)
@@ -252,7 +252,7 @@ it('streams a real archive over the old 20 MiB/200-file boundary and pages a tho
   for (let i = 0; i < 1000; i++)
     await writeFile(
       join(f.config.knowledgeRoot, '00-Inbox/n' + i + '.md'),
-      '# Small ' + i + (i === 0 ? '\n[Audio](assets/large.wav)\n' : ''),
+      '# Small ' + i + (i === 0 ? '\n[Audio](_doo-assets/large.wav)\n' : ''),
     );
   f.runtime.notes.scan();
   expect(f.db.prepare('SELECT count(*) n FROM notes WHERE active=1').get()).toMatchObject({

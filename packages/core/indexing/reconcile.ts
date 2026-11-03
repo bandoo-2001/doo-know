@@ -1,9 +1,7 @@
-import { migrationPathProtected,migrationNoteProtected } from '../knowledge/migration-scan-policy.js';
-import { migrationAliasState } from '../knowledge/migration-alias-state.js';
 import { diagramDependencyChecker } from './diagram-dependencies.js';
 import { observeSource } from './state.js';
 import { lstatSync, realpathSync, readdirSync } from 'node:fs';
-import { randomUUID } from 'node:crypto';
+
 import type { AppConfig } from '../../../shared/contracts.js';
 import type { AppDatabase } from '../db.js';
 import { scanFiles, safePath, isMissingSource } from '../files.js';
@@ -18,12 +16,7 @@ import { pathFilter } from './text.js';
 import { recoverFolders } from '../folders.js';
 import { workspaceWrite } from '../workspace/gate.js';
 import { portableLibrary } from '../portable-library.js';
-import {
-  beginOperation,
-  completeOperation,
-  existingResult,
-  sha256,
-} from '../knowledge/operations.js';
+import { beginOperation, completeOperation, existingResult, sha256 } from '../knowledge/operations.js';
 export function assertRoot(config: Pick<AppConfig, 'knowledgeRoot'>, db: AppDatabase) {
   try {
     const s = lstatSync(config.knowledgeRoot, { bigint: true });
@@ -71,7 +64,7 @@ export function reconcileService(config: AppConfig, db: AppDatabase) {
   async function perform(scopes?: string[], fullHash = true, signal?: AbortSignal) {
     assertRoot(config, db);
     library.refresh();
-    migrationAliasState(config,db).refresh();
+
     recoverFolders(config, db);
     let files: ReturnType<typeof scanFiles>;
     try {
@@ -102,7 +95,7 @@ export function reconcileService(config: AppConfig, db: AppDatabase) {
         fail(503, 'SOURCE_UNAVAILABLE', '原文读取不可用', true);
       }
     }
-    const protectedPath = (path: string) => migrationPathProtected(db,path) || !!db
+    const protectedPath = (path: string) => !!db
           .prepare(
             "SELECT 1 FROM write_intents WHERE path=? AND status IN ('prepared','conflicted') AND (kind IN ('restore','move') OR (kind='create' AND status='conflicted') OR EXISTS(SELECT 1 FROM diagram_pending_publications p WHERE p.operation_id=write_intents.id))",
           )
@@ -217,7 +210,6 @@ export function reconcileService(config: AppConfig, db: AppDatabase) {
         path: string;
       }[]) {
         if (
-          !migrationNoteProtected(db,row.id) &&
           !db
             .prepare(
               "SELECT 1 FROM write_intents WHERE note_id=? AND status IN ('prepared','conflicted') AND (kind='move' OR EXISTS(SELECT 1 FROM diagram_pending_publications p WHERE p.operation_id=write_intents.id))",

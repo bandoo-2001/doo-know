@@ -20,11 +20,11 @@ it('exports a standalone reading document with escaped title, static math and no
 
 it('embeds resolved images and retains diagram source and its standard fallback', async () => {
   const png = new Blob([new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10])], { type: 'image/png' });
-  const html = await buildReadingHtml({ title: '图形', markdown: '![图形](assets/view.png)\n\n```mermaid\nflowchart LR\n A --> B\n```\n', resolveImage: async url => url === 'assets/view.png' ? png : undefined });
+  const html = await buildReadingHtml({ title: '图形', markdown: '![图形](_doo-assets/view.png)\n\n```mermaid\nflowchart LR\n A --> B\n```\n', resolveImage: async url => url === '_doo-assets/view.png' ? png : undefined });
   expect(html).toContain('src="data:image/png;base64,iVBORw0KGgo="');
   expect(html).toContain('language-mermaid');
   expect(html).toContain('A --&gt; B');
-  expect(html).not.toContain('src="assets/');
+  expect(html).not.toContain('src="_doo-assets/');
   expect(html).not.toContain('data-diagram');
 });
 

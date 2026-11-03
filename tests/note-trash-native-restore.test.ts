@@ -1,6 +1,6 @@
 import { afterEach, expect, it } from 'vitest';
 import { randomUUID } from 'node:crypto';
-import { existsSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, statSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { organizationFixture } from './support/organization-fixture';
 import { organizationService } from '../packages/core/organization/service';
@@ -208,63 +208,20 @@ it('rejects a missing preparation receipt rather than trusting surviving source 
   expect(() => f.core.restore(f.p, f.note.id, undefined, requestId)).toThrowError();
   expect(existsSync(f.file)).toBe(false);
 });
-it('rewrites raw legacy JSON in its existing format and refuses a .md filename', async () => {
-  const f = organizationFixture(),
-    org = organizationService(f.config, f.db, f.notes);
-  cleanup.push(async () => {
-    await org.close();
-    f.close();
-  });
-  const target = f.create('Topic/target.md', '# Target'),
-    source = JSON.stringify({
-      ...emptyWhiteboard(),
-      elements: [{ id: 'a', type: 'rectangle', link: '../Topic/target.md' }],
-    }),
-    note = f.create('00-Inbox/legacy.excalidraw', source),
-    core = mutationCore(f.config, f.db);
-  core.archive(f.p, note.noteId, note.expectedModifiedAt, randomUUID());
-  const context = org.context(f.p),
-    job = await org.submit(f.p, {
-      ...context,
-      requestId: randomUUID(),
-      expectedStructureRevision: context.structureRevision,
-      actions: [
-        {
-          type: 'move_note',
-          ...target,
-          toDirectoryId: f.directory('Topic').id,
-          fileName: 'renamed.md',
-        },
-      ],
-    });
-  await org.drain();
-  expect(org.operation(f.p, { operationId: job.operation.operationId }).status).toBe('succeeded');
-  expect(() => core.restore(f.p, note.noteId, 'legacy.md', randomUUID())).toThrowError();
-  const requestId = randomUUID();
-  let need: any;
-  try {
-    core.restore(f.p, note.noteId, 'renamed.excalidraw', requestId);
-  } catch (e: any) {
-    need = e.details.documents[0];
-  }
-  const registry = diagramOperationPreviewRegistry(
-      f.config,
-      f.db,
-      f.p,
-      assetService(f.config, f.db, f.notes),
-    ),
-    snapshot = registry.get(need.snapshotId);
-  expect(JSON.parse(snapshot.source).elements[0].link).toBe('../Topic/renamed.md');
-  registry.prepare(snapshot.id, {
-    sourceHash: snapshot.sourceHash,
-    pngBase64: png,
-    requestId: randomUUID(),
-  });
-  core.restore(f.p, note.noteId, 'renamed.excalidraw', requestId);
-  const restored = JSON.parse(
-    readFileSync(join(f.config.knowledgeRoot, '00-Inbox/renamed.excalidraw'), 'utf8'),
-  );
-  expect(restored.elements[0].link).toBe('../Topic/renamed.md');
+it('refuses restoring a retained legacy standalone whiteboard and preserves its bytes and identity', () => {
+  const f = organizationFixture();
+  cleanup.push(async () => f.close());
+  const id = randomUUID(), source = JSON.stringify(emptyWhiteboard());
+  const directory = join(f.config.knowledgeRoot, '90-Archive', '.trash', id);
+  mkdirSync(directory, { recursive: true });
+  const file = join(directory, 'legacy.excalidraw');
+  writeFileSync(file, source);
+  f.db.prepare('INSERT INTO notes(id,path,active,trash_path) VALUES(?,?,0,?)').run(id,'00-Inbox/legacy.excalidraw','legacy.excalidraw');
+  const core = mutationCore(f.config,f.db);
+  expect(() => core.restore(f.p,id,undefined,randomUUID())).toThrowError(expect.objectContaining({code:'INVALID_KNOWLEDGE_DATA'}));
+  expect(readFileSync(file,'utf8')).toBe(source);
+  expect(f.db.prepare('SELECT id,active FROM notes WHERE id=?').get(id)).toEqual({id,active:0});
+  expect(existsSync(join(f.config.knowledgeRoot,'00-Inbox/legacy.excalidraw'))).toBe(false);
 });
 for (const stage of [
   'asset_copy',

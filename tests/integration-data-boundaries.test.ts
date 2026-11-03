@@ -48,7 +48,7 @@ it('excludes root application data from knowledge scans and directory catalogs w
 });
 
 for (const source of ['SQLite only', 'portable file', 'portable file with stale SQLite'] as const)
-  it(`upgrades legacy root application-data identities from ${source} without touching their files`, () => {
+  it(`refuses legacy root application-data identities from ${source} and preserves their records and files`, () => {
     const root = mkdtempSync(join(tmpdir(), 'dooknow-legacy-data-'));
     const config = {
       knowledgeRoot: join(root, 'knowledge'), dataRoot: join(root, 'data'),
@@ -79,20 +79,16 @@ for (const source of ['SQLite only', 'portable file', 'portable file with stale 
           favorites: [{ username: 'owner', noteId: 'legacy-private' }, { username: 'owner', noteId: 'ordinary' }],
         },
       }));
-    const notes = noteService(config, db);
-    expect(db.prepare('SELECT id,path FROM notes WHERE active=1').all()).toEqual([{ id: 'ordinary', path: '00-Inbox/ordinary.md' }]);
-    expect(db.prepare('SELECT note_id FROM note_favorites').all()).toEqual([{ note_id: 'ordinary' }]);
-    if (source !== 'portable file') {
-      expect(db.prepare('SELECT enabled FROM shares WHERE note_id=?').get('legacy-private')).toEqual({ enabled: 0 });
-      expect(db.prepare('SELECT active FROM document_state WHERE note_id=?').get('legacy-private')).toEqual({ active: 0 });
-    }
-    notes.scan();
-    notes.createNote('00-Inbox', 'new.md', '# Subsequent ordinary write');
-    expect(notes.getNote('ordinary').content).toBe('# Ordinary');
-    expect(readFileSync(join(config.knowledgeRoot, '_doo-data/private.md'), 'utf8')).toBe('# Application-owned record');
-    const saved = JSON.parse(readKnowledgeDataFile(config.knowledgeRoot, 'library/state.json')!.toString()).data;
-    expect(saved.notes.map((note: { path: string }) => note.path).sort()).toEqual(['00-Inbox/new.md', '00-Inbox/ordinary.md']);
-    expect(saved.favorites).toEqual([{ username: 'owner', noteId: 'ordinary' }]);
+    const tables = ['notes','note_favorites','shares','document_state'];
+    const before = tables.map(table => JSON.stringify(db.prepare('SELECT * FROM '+table).all()));
+    const registryPath = join(config.knowledgeRoot,'_doo-data/library/state.json');
+    const registry = source === 'SQLite only' ? undefined : readFileSync(registryPath);
+    expect(() => noteService(config,db)).toThrowError(source === 'SQLite only' ? /知识库笔记路径不正确/ : /应用数据格式不支持/);
+    expect(tables.map(table => JSON.stringify(db.prepare('SELECT * FROM '+table).all()))).toEqual(before);
+    expect(readFileSync(join(config.knowledgeRoot,'_doo-data/private.md'),'utf8')).toBe('# Application-owned record');
+    expect(readFileSync(join(config.knowledgeRoot,'00-Inbox/ordinary.md'),'utf8')).toBe('# Ordinary');
+    if(registry) expect(readFileSync(registryPath)).toEqual(registry);
+
   });
 
 for (const archive of ['note', 'folder'] as const)
@@ -226,10 +222,10 @@ for (const change of ['id', 'path', 'deleted'] as const)
   it(`refuses directory undo before file publication after a managed attachment ${change} changes`, async () => {
     const f = fixture(), s = organizationService(f.config, f.db, f.notes);
     closes.push(() => s.close());
-    f.create('00-Inbox/a.md', '![attachment](assets/image.png)');
-    mkdirSync(join(f.config.knowledgeRoot, '00-Inbox/assets'));
-    writeFileSync(join(f.config.knowledgeRoot, '00-Inbox/assets/image.png'), 'original image');
-    f.db.prepare('INSERT INTO assets(id,path) VALUES(?,?)').run('original-asset', '00-Inbox/assets/image.png');
+    f.create('00-Inbox/a.md', '![attachment](_doo-assets/image.png)');
+    mkdirSync(join(f.config.knowledgeRoot, '00-Inbox/_doo-assets'));
+    writeFileSync(join(f.config.knowledgeRoot, '00-Inbox/_doo-assets/image.png'), 'original image');
+    f.db.prepare('INSERT INTO assets(id,path) VALUES(?,?)').run('original-asset', '00-Inbox/_doo-assets/image.png');
     const c = s.context(f.p), d = f.directory('00-Inbox');
     const moved = await s.submit(f.p, {
       requestId: 'move-tree', libraryId: c.libraryId, expectedStructureRevision: c.structureRevision,
@@ -244,7 +240,7 @@ for (const change of ['id', 'path', 'deleted'] as const)
     await s.drain();
     expect(s.operation(f.p, { operationId: undo.operation.operationId })).toMatchObject({ status: 'failed', error: { code: 'UNDO_CONFLICT' } });
     expect(existsSync(join(f.config.knowledgeRoot, '00-Inbox'))).toBe(false);
-    expect(readFileSync(join(f.config.knowledgeRoot, 'Topic/Moved/assets/image.png'), 'utf8')).toBe('original image');
+    expect(readFileSync(join(f.config.knowledgeRoot, 'Topic/Moved/_doo-assets/image.png'), 'utf8')).toBe('original image');
     expect(() => f.notes.scan()).not.toThrow();
   });
 
@@ -255,9 +251,9 @@ for (const phase of [2, 3])
       closes.push(() => s.close());
       const n = f.create('00-Inbox/a.md', '# Original');
       if (kind === 'asset') {
-        mkdirSync(join(f.config.knowledgeRoot, '00-Inbox/assets'));
-        writeFileSync(join(f.config.knowledgeRoot, '00-Inbox/assets/a.png'), 'original asset');
-        f.db.prepare('INSERT INTO assets(id,path) VALUES(?,?)').run('original-asset', '00-Inbox/assets/a.png');
+        mkdirSync(join(f.config.knowledgeRoot, '00-Inbox/_doo-assets'));
+        writeFileSync(join(f.config.knowledgeRoot, '00-Inbox/_doo-assets/a.png'), 'original asset');
+        f.db.prepare('INSERT INTO assets(id,path) VALUES(?,?)').run('original-asset', '00-Inbox/_doo-assets/a.png');
       }
       const c = s.context(f.p), directory = f.directory('00-Inbox');
       const moved = await s.submit(f.p, {
@@ -273,7 +269,7 @@ for (const phase of [2, 3])
       const undo = await s.undo(f.p, { operationId: moved.operation.operationId, requestId: 'undo' }, () => {
         if (++calls === phase) {
           if (kind === 'asset')
-            f.db.prepare('INSERT INTO assets(id,path) VALUES(?,?)').run('other-asset', '00-Inbox/assets/a.png');
+            f.db.prepare('INSERT INTO assets(id,path) VALUES(?,?)').run('other-asset', '00-Inbox/_doo-assets/a.png');
           else if (kind === 'directory')
             f.db.prepare('INSERT INTO organization_directories(id,library_id,path,active,dev,ino,birthtime_ns) VALUES(?,?,?,1,?,?,?)')
               .run('other-directory', c.libraryId, '00-Inbox', '0', '0', '0');

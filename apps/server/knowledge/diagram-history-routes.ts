@@ -5,7 +5,6 @@ import type { AppDatabase } from '../../../packages/core/db.js';
 import type { NoteService } from '../../../packages/core/notes.js';
 import type { assetService } from '../../../packages/core/assets.js';
 import { diagramHistoryRestoreService } from '../../../packages/core/knowledge/diagram-history-restore.js';
-import {legacyDraftConversionService} from '../../../packages/core/knowledge/legacy-draft-conversion.js';
 import { webPrincipal } from '../../../packages/core/knowledge/core.js';
 import { fail } from '../../../packages/core/knowledge/errors.js';
 const requestId = z
@@ -32,11 +31,6 @@ export async function registerDiagramHistoryRoutes(
     const r = runtime();
     return diagramHistoryRestoreService(r.config, db, r.notes, r.assets, webPrincipal);
   };
-  app.post<{Params:{id:string}}>('/api/notes/:id/diagram/legacy-draft-conversion',{bodyLimit:20*1024*1024},async req=>{
-    const body=z.object({draft:z.string().max(8*1024*1024),baseRevision:z.string().max(512),expectedDocumentHash:z.string().regex(/^[a-f0-9]{64}$/),expectedSourceHash:z.string().regex(/^[a-f0-9]{64}$/)}).strict().safeParse(req.body);
-    if(!body.success)fail(400,'INVALID_INPUT');
-    const r=runtime();return legacyDraftConversionService(r.config,db,r.notes,r.assets,webPrincipal)(req.params.id,body.data);
-  });
   app.post<{ Params: { id: string; revisionId: string } }>(
     '/api/notes/:id/revisions/:revisionId/diagram-restore',
     async (req) => {

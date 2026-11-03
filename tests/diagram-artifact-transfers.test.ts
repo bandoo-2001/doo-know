@@ -90,12 +90,12 @@ describe('portable diagram artifact transfers', () => {
   });
 
   it.each([
-    ['assets/bad.svg', '<svg xmlns="http://www.w3.org/2000/svg"><script/></svg>'],
-    ['assets/remote.svg', '<svg xmlns="http://www.w3.org/2000/svg"><image href="https://invalid.test/x.png"/></svg>'],
-    ['assets/bad.excalidraw', '{}'],
-    ['assets/bad.mmd', '\u0000not textual'],
-    ['assets/remote.mmd', 'flowchart TD\nA@{img: "https://invalid.test/x.png"}'],
-    ['assets/../escape.excalidraw', JSON.stringify(emptyWhiteboard())],
+    ['_doo-assets/bad.svg', '<svg xmlns="http://www.w3.org/2000/svg"><script/></svg>'],
+    ['_doo-assets/remote.svg', '<svg xmlns="http://www.w3.org/2000/svg"><image href="https://invalid.test/x.png"/></svg>'],
+    ['_doo-assets/bad.excalidraw', '{}'],
+    ['_doo-assets/bad.mmd', '\u0000not textual'],
+    ['_doo-assets/remote.mmd', 'flowchart TD\nA@{img: "https://invalid.test/x.png"}'],
+    ['_doo-assets/../escape.excalidraw', JSON.stringify(emptyWhiteboard())],
   ])('rejects unsafe or incorrectly typed imported source %s before queueing', async (path, content) => {
     const response = await post('/api/manage/import', {
       folderPath: '00-Inbox', collision: 'rename', requestId: randomUUID(),
@@ -109,15 +109,15 @@ describe('portable diagram artifact transfers', () => {
     await mkdir(join(f.knowledgeRoot, folderPath));
     const response = await post('/api/manage/import', {
       folderPath, collision: 'rename', requestId: randomUUID(),
-      entries: [{ path: 'assets/source.svg', encoding: 'utf8', content: svg }],
+      entries: [{ path: '_doo-assets/source.svg', encoding: 'utf8', content: svg }],
     });
     expect(response.statusCode, response.body).toBe(202);
     // Reproduce a crash after the immutable file write but before task progress persisted.
-    mkdirSync(join(f.knowledgeRoot, folderPath, 'assets'), { recursive: true });
-    writeFileSync(join(f.knowledgeRoot, folderPath, 'assets/source.svg'), svg, { flag: 'wx' });
+    mkdirSync(join(f.knowledgeRoot, folderPath, '_doo-assets'), { recursive: true });
+    writeFileSync(join(f.knowledgeRoot, folderPath, '_doo-assets/source.svg'), svg, { flag: 'wx' });
     const completed = await settle(response.json().id);
     expect(completed.state, JSON.stringify(completed)).toBe('succeeded');
     expect(completed.result).toMatchObject({ notes: 0, assets: 1 });
-    expect(await readFile(join(f.knowledgeRoot, folderPath, 'assets/source.svg'), 'utf8')).toBe(svg);
+    expect(await readFile(join(f.knowledgeRoot, folderPath, '_doo-assets/source.svg'), 'utf8')).toBe(svg);
   });
 });

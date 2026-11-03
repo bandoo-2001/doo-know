@@ -167,10 +167,10 @@ test('ordinary note cover uploads retain multipart transport', async () => {
   const calls: { url: string; method?: string; body: any }[] = [];
   const model = createBlogWorkbench(async (url, method, body) => {
     calls.push({ url, method, body });
-    return { markdownPath: 'assets/cover.webp' };
+    return { markdownPath: '_doo-assets/cover.webp' };
   });
   const file = new File(['image'], 'cover.webp', { type: 'image/webp' });
-  expect((await model.uploadCover('note/a', file)).markdownPath).toBe('assets/cover.webp');
+  expect((await model.uploadCover('note/a', file)).markdownPath).toBe('_doo-assets/cover.webp');
   expect(calls.map((call) => call.url)).toEqual(['/api/notes/note%2Fa/assets']);
   expect(calls[0]!.method).toBe('POST');
   expect(calls[0]!.body).toBeInstanceOf(FormData);
@@ -232,11 +232,11 @@ test('nested article cover paths are independent of a previous note-picker searc
   const picker = blogNotePicker(tree, 'Alpha');
   expect(picker.notes.map((note) => note.id)).toEqual(['a']);
   expect(picker.sourcePath('b')).toBe('00-Inbox/Beta.md');
-  expect(blogAttachmentPath(picker.sourcePath('b')!, '00-Inbox/assets/cover.png')).toBe(
-    'assets/cover.png',
+  expect(blogAttachmentPath(picker.sourcePath('b')!, '00-Inbox/_doo-assets/cover.png')).toBe(
+    '_doo-assets/cover.png',
   );
-  expect(blogAttachmentPath('00-Inbox/Beta.md', 'Other/assets/cover.png')).toBe(
-    '../Other/assets/cover.png',
+  expect(blogAttachmentPath('00-Inbox/Beta.md', 'Other/_doo-assets/cover.png')).toBe(
+    '../Other/_doo-assets/cover.png',
   );
 });
 
@@ -252,15 +252,15 @@ test('a cover upload completing after selection changes only updates its owning 
     pinned: false,
     cover: null,
   };
-  model.state.forms.b = { ...model.state.forms.a, slug: 'b', title: 'B', cover: 'assets/b.png' };
+  model.state.forms.b = { ...model.state.forms.a, slug: 'b', title: 'B', cover: '_doo-assets/b.png' };
   model.state.selectedId = 'a';
   const upload = model
     .uploadCover('note-a', new File(['image'], 'a.png', { type: 'image/png' }))
     .then((result) => model.setCover('a', result.markdownPath));
   model.state.selectedId = 'b';
-  pending.resolve({ markdownPath: 'assets/a.png' });
+  pending.resolve({ markdownPath: '_doo-assets/a.png' });
   await upload;
-  expect(model.state.forms.a.cover).toBe('assets/a.png');
-  expect(model.state.forms.b.cover).toBe('assets/b.png');
+  expect(model.state.forms.a.cover).toBe('_doo-assets/a.png');
+  expect(model.state.forms.b.cover).toBe('_doo-assets/b.png');
   expect(model.state.selectedId).toBe('b');
 });

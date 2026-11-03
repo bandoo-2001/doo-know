@@ -15,7 +15,7 @@ it.each(['- ', '1. ', '> - '])(
       codeHash: await hashDiagramCode('graph LR\nA-->B'),
       sourceHash: 'c'.repeat(64),
     });
-    const old = `![MERMAID 预览](assets/diagram-${'a'.repeat(64)}.png)\n\n[图形源文件](assets/diagram-${'b'.repeat(64)}.mmd)\n\n${marker}\n\n\`\`\`mermaid\ngraph LR\nA-->B\n\`\`\`\n`;
+    const old = `![MERMAID 预览](_doo-assets/diagram-${'a'.repeat(64)}.png)\n\n[图形源文件](_doo-assets/diagram-${'b'.repeat(64)}.mmd)\n\n${marker}\n\n\`\`\`mermaid\ngraph LR\nA-->B\n\`\`\`\n`;
     const indentation = container.startsWith('>') ? '>   ' : ' '.repeat(container.length);
     const nested = old
       .split('\n')

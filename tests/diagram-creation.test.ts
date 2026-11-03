@@ -122,7 +122,7 @@ it('refuses existing files, unsupported types and unsafe or non-Markdown destina
     '../outside.md',
     '/tmp/outside.md',
     '00-Inbox/a.excalidraw',
-    '00-Inbox/assets/a.md',
+    '00-Inbox/_doo-assets/a.md',
   ])
     expect(() => service.reserve(input(path))).toThrow();
   expect(() =>

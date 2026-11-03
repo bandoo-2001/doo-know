@@ -1,4 +1,3 @@
-import { resolveStorageAssetAlias } from '../storage-asset-aliases.js';
 import { readFileSync, lstatSync } from 'node:fs';
 import { join } from 'node:path';
 import type { AppConfig } from '../../../shared/contracts.js';
@@ -35,7 +34,7 @@ export function planRetainedFolderResources(
     byId = new Map(assets.map((a) => [a.id, a])),
     wanted = new Map<string, string | undefined>();
   const keep = (path: string, hash?: string, id?: string) => {
-    const asset = id ? byId.get(id) : byPath.get(resolveStorageAssetAlias(config.knowledgeRoot,path));
+    const asset = id ? byId.get(id) : byPath.get(path);
     if (!asset || !roots.some((r) => inside(r, asset.path))) return;
     if (hash && wanted.has(asset.path) && wanted.get(asset.path) && wanted.get(asset.path) !== hash)
       fail(409, 'DIAGRAM_ARTIFACT_CONFLICT');

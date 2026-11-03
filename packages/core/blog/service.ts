@@ -1,19 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type { AppConfig } from '../../../shared/contracts.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
-import type {
-  BlogCreateInput,
-  BlogDashboard,
-  BlogMetadata,
-  BlogNoteStatus,
-  BlogPost,
-  BlogPostDetail,
-  BlogPublishInput,
-  BlogSettings,
-  BlogUnpublishInput,
-  BlogUpdateInput,
-} from '../../../shared/blog-contracts.js';
-import { isWhiteboard } from '../../../shared/whiteboard.js';
+import type { BlogCreateInput, BlogDashboard, BlogMetadata, BlogNoteStatus, BlogPost, BlogPostDetail, BlogPublishInput, BlogSettings, BlogUnpublishInput, BlogUpdateInput } from '../../../shared/blog-contracts.js';
 import type { AppDatabase } from '../db.js';
 import type { NoteService } from '../notes.js';
 import { requireScope } from '../agent/auth.js';
@@ -32,12 +20,7 @@ import { portableBlogStudio } from './studio-portable.js';
 import { portableLibrary } from '../portable-library.js';
 import { studioService, authorizeStudio } from './studio.js';
 import { reviewBlogPublication } from './review.js';
-import type {
-  BlogPublicQuery,
-  BlogPublicPage,
-  BlogPublicPostSummary,
-  BlogPublicTaxonomy,
-} from '../../../shared/blog-design.js';
+import type { BlogPublicQuery, BlogPublicPage, BlogPublicPostSummary, BlogPublicTaxonomy } from '../../../shared/blog-design.js';
 
 type PostRow = {
   id: string;
@@ -193,7 +176,7 @@ export function blogService(config: AppConfig, db: AppDatabase, notes: NoteServi
     try {
       const nr = notes.row(id);
       authorizeBlogPath(p, nr.path);
-      if (isWhiteboard(nr.path)) throw new BlogError(400, '请选择 Markdown 笔记作为博客文章');
+
       const n = notes.getNote(id);
       return { n, hash: blogHash(n.content) };
     } catch (error) {

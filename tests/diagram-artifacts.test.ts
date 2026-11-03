@@ -1,3 +1,4 @@
+import { createPrimaryWhiteboard } from './support/primary-whiteboard';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createHash, randomUUID } from 'node:crypto';
 import { cp, mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
@@ -36,10 +37,11 @@ describe('immutable diagram source and PNG groups', () => {
   async function note(whiteboard = false) {
     const folderPath = `00-Inbox/group-${++serial}`;
     await mkdir(join(f.knowledgeRoot, folderPath));
+    if (whiteboard) return createPrimaryWhiteboard({...f, app},headers,`group-${serial}/working.md`,JSON.stringify(emptyWhiteboard()));
     const response = await app.inject({
       method: 'POST', url: '/api/notes', headers,
-      payload: { folderPath, fileName: whiteboard ? 'working.excalidraw' : 'parent.md',
-        content: whiteboard ? JSON.stringify(emptyWhiteboard()) : '# 未提交的父笔记不应被修改\r\n' },
+      payload: { folderPath, fileName: 'parent.md',
+        content: '# 未提交的父笔记不应被修改\r\n' },
     });
     expect(response.statusCode, response.body).toBe(201);
     return response.json();

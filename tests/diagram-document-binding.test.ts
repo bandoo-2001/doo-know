@@ -43,7 +43,7 @@ it('binds every rendering input, with canonical object ordering and no derived o
   expect(
     await diagramRenderFingerprint({
       ...input,
-      previewPath: 'assets/new.png',
+      previewPath: '_doo-assets/new.png',
       previewHash: 'f'.repeat(64),
     } as typeof input),
   ).toBe(hash);

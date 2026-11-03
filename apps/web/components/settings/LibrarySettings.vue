@@ -8,7 +8,6 @@ import StorageSettings from '../StorageSettings.vue';
 import GitRemotePanel from '../GitRemotePanel.vue';
 import ShareManagement from './ShareManagement.vue';
 import TransferPanel from './TransferPanel.vue';
-import WhiteboardMigrations from './WhiteboardMigrations.vue';
 import OrganizationOperations from './OrganizationOperations.vue';
 const emit = defineEmits<{ 'open-note': [id: string]; changed: [] }>();
 const state = ref<ManagementOverview>(),
@@ -62,7 +61,6 @@ onMounted(() => void load());
       >
     </section>
     <TransferPanel @open-note="emit('open-note', $event)" @changed="emit('changed')" />
-    <WhiteboardMigrations @open-note="emit('open-note', $event)" @changed="emit('changed')" />
     <OrganizationOperations @changed="emit('changed')" />
     <section class="settings-card"><StorageSettings /></section>
     <section class="settings-card"><GitRemotePanel @changed="emit('changed')" /></section>

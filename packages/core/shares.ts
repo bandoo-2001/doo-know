@@ -3,14 +3,12 @@ import type { AppDatabase } from './db.js';
 import type { NoteService } from './notes.js';
 import { HttpError } from './errors.js';
 import { KnowledgeError } from './knowledge/errors.js';
-import { isWhiteboard } from '../../shared/whiteboard.js';
 import type { PublicShareAccess, ShareOptions, ShareStatus } from '../../shared/share-contracts.js';
 import { shareIdentity, shareState, type ShareRow } from './share-policy.js';
 import { parseDiagramDocument } from '../../shared/diagram-document.js';
 export function shareService(db: AppDatabase, notes: NoteService) {
   function editSupport(id: string) {
-    if (isWhiteboard(notes.row(id).path))
-      return { editSupported: false, editUnavailableReason: '白板分享暂不支持公开编辑' };
+
     try {
       const note = notes.getNote(id);
       if (

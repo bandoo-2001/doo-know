@@ -1,14 +1,10 @@
-import { rebindRestoredWhiteboardMigrations } from '../../../packages/core/knowledge/migration-restore-state.js';
 import { rebindKnowledgeDataRoot } from '../../../packages/core/knowledge-data.js';
 import { randomUUID } from 'node:crypto';
 import { realpathSync, lstatSync } from 'node:fs';
 import type { AppDatabase } from '../../../packages/core/db.js';
 import { rebindRestoredFolders } from '../../../packages/core/folders.js';
 import { platformSettings } from './settings.js';
-import {
-  invalidateRemoteAuth,
-  remoteAuthGeneration,
-} from '../../../packages/core/auth/remote-auth.js';
+import { invalidateRemoteAuth, remoteAuthGeneration } from '../../../packages/core/auth/remote-auth.js';
 import type { AppConfig } from '../../../shared/contracts.js';
 import { portableBlog } from '../../../packages/core/blog/portable.js';
 import { resetToDooLocalConnections } from '../to-doo/installation.js';
@@ -169,5 +165,4 @@ export function resetRestoredState(
     (db.pragma('foreign_key_check') as any[]).length
   )
     throw Error('恢复数据库一致性校验失败');
-  rebindRestoredWhiteboardMigrations(config, db);
 }

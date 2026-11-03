@@ -1,37 +1,23 @@
-import {
-  constants,
-  openSync,
-  closeSync,
-  fstatSync,
-  readSync,
-  readFileSync,
-  statSync,
-} from 'node:fs';
+import { constants, openSync, closeSync, fstatSync, readSync, readFileSync, statSync } from 'node:fs';
 import { join, posix } from 'node:path';
 import { createHash } from 'node:crypto';
 import type { AppConfig } from '../../../shared/contracts.js';
 import type { AppDatabase } from '../db.js';
 import type { DocumentType } from '../../../shared/diagram-resource.js';
-import { documentType, isWhiteboard, parseWhiteboard } from '../../../shared/whiteboard.js';
+import { documentType } from '../../../shared/whiteboard.js';
 import { fileVersionStamp } from './file-reader.js';
 import { limits } from './limits.js';
 import { fail } from './errors.js';
 import { hasDiagramDeclarationSync } from './diagram-declaration.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
 import { scanRevisionDestinations, revisionDestinationUrl } from './revision-relocation.js';
-import {
-  captureRevisionReferences,
-  retainRevisionResourceIds,
-  revisionIdentityMapping,
-  type RevisionResource,
-  type RevisionReferences,
-} from './revision-identities.js';
+import { captureRevisionReferences, retainRevisionResourceIds, revisionIdentityMapping, type RevisionResource, type RevisionReferences } from './revision-identities.js';
 import { revisionNativeEdits } from './revision-native-restore.js';
 import { webPrincipal } from './core.js';
 
 export type RevisionContext = {
   documentType: DocumentType;
-  payloadFormat: 'markdown' | 'excalidraw';
+  payloadFormat: 'markdown';
   logicalPath: string | null;
   contentHash: string;
   resources: RevisionResource[];
@@ -60,19 +46,7 @@ type Row = {
   created_at: string;
 };
 
-export function migrateRevisionContext(db: AppDatabase) {
-  const columns = new Set(
-    (db.prepare('PRAGMA table_info(revisions)').all() as { name: string }[]).map((c) => c.name),
-  );
-  for (const name of [
-    'document_type',
-    'payload_format',
-    'logical_path',
-    'content_hash',
-    'resources_manifest',
-    'references_manifest',
-  ])
-    if (!columns.has(name)) db.exec(`ALTER TABLE revisions ADD COLUMN ${name} TEXT`);
+export function initializeRevisionContext(db: AppDatabase) {
   db.exec(`CREATE TABLE IF NOT EXISTS diagram_history_restores(
     id TEXT PRIMARY KEY REFERENCES operations(id),note_id TEXT NOT NULL REFERENCES notes(id),
     revision_id TEXT NOT NULL REFERENCES revisions(id),principal TEXT NOT NULL,client_id TEXT NOT NULL,
@@ -99,7 +73,7 @@ function inspect(config: AppConfig, file: string, logicalPath: string | null) {
     let content: string | undefined;
     if (
       before.size <= BigInt(limits.file) &&
-      (!logicalPath || isWhiteboard(logicalPath) || hasDiagramDeclarationSync(path))
+      (!logicalPath || hasDiagramDeclarationSync(path))
     ) {
       const value = Buffer.alloc(Number(before.size));
       let offset = 0;
@@ -112,25 +86,11 @@ function inspect(config: AppConfig, file: string, logicalPath: string | null) {
     }
     if (fileVersionStamp(before) !== fileVersionStamp(fstatSync(fd, { bigint: true })))
       fail(409, 'REVISION_CONTENT_CONFLICT');
-    let payloadFormat: RevisionContext['payloadFormat'] =
-      logicalPath && isWhiteboard(logicalPath) ? 'excalidraw' : 'markdown';
-    if (!logicalPath && content?.trimStart().startsWith('{')) {
-      // Old installations may have neither intent nor original path. Valid legacy scene bytes
-      // must still go through graph restoration rather than becoming raw JSON in a Markdown note.
-      try {
-        parseWhiteboard(content);
-        payloadFormat = 'excalidraw';
-      } catch {
-        /* ordinary JSON */
-      }
-    }
+    const payloadFormat = 'markdown' as const;
     return {
       contentHash: digest.digest('hex'),
       payloadFormat,
-      documentType:
-        payloadFormat === 'excalidraw'
-          ? ('whiteboard' as const)
-          : documentType(logicalPath ?? 'unknown.md', content),
+      documentType: documentType(logicalPath ?? 'unknown.md', content),
     };
   } finally {
     closeSync(fd);
@@ -253,27 +213,16 @@ export function revisionContext(
         'SELECT id,path,kind FROM write_intents WHERE revision_id=? AND note_id=? ORDER BY rowid LIMIT 1',
       )
       .get(revisionId, noteId) as { id: string; path: string; kind: string } | undefined;
-    // Move/migration intents record their destination. Without a saved context it is not evidence
+    // Move intents record their destination. Without a saved context it is not evidence
     // of the original path. Ordinary update/patch intents do retain the original logical path.
     path =
       path ??
       (intent &&
-      !['move', 'restore', 'whiteboard-migrate', 'whiteboard-rollback'].includes(intent.kind)
+      !['move', 'restore'].includes(intent.kind)
         ? intent.path
         : null);
     if (!path && intent) {
-      if (['whiteboard-migrate', 'whiteboard-rollback'].includes(intent.kind)) {
-        const migration = db
-          .prepare(
-            'SELECT old_path,new_path FROM whiteboard_migrations WHERE commit_operation_id=? OR rollback_operation_id=?',
-          )
-          .get(intent.id, intent.id) as { old_path: string; new_path: string } | undefined;
-        path = migration
-          ? intent.kind === 'whiteboard-migrate'
-            ? migration.old_path
-            : migration.new_path
-          : null;
-      } else if (intent.kind === 'move') {
+      if (intent.kind === 'move') {
         const operation = db
           .prepare("SELECT result FROM operations WHERE id=? AND status='succeeded'")
           .get(intent.id) as { result: string } | undefined;
@@ -401,14 +350,6 @@ export function revisionRestoreSource(
     .prepare('SELECT file FROM revisions WHERE id=? AND note_id=?')
     .get(revisionId, noteId) as { file: string };
   const file = revisionFile(config, row.file);
-  if (context.payloadFormat === 'excalidraw' && !isWhiteboard(targetPath))
-    fail(409, 'DIAGRAM_PREVIEW_REQUIRED', '旧白板历史需要重新准备完整 Markdown 图形版本', false, {
-      noteId,
-      revisionId,
-      payloadFormat: context.payloadFormat,
-    });
-  if (context.payloadFormat === 'markdown' && isWhiteboard(targetPath))
-    fail(409, 'DIAGRAM_DOCUMENT_CONVERSION_REQUIRED');
   const mapping = revisionIdentityMapping(config, db, context.references, principal);
   if (!context.logicalPath) {
     const scanned = scanRevisionDestinations(file);

@@ -1,11 +1,10 @@
-import { assertStorageMigrationComplete } from '../../packages/core/storage-migration-state.js';
 import { portableResourceLimits } from '../../shared/portable-resource-limits.js';
 import { mediaMime } from '../../shared/media.js';
 import type { AssetDescriptor } from '../../packages/core/assets.js';
-import {registerDiagramDocumentRoutes} from './knowledge/diagram-routes.js';
-import {registerDiagramHistoryRoutes} from './knowledge/diagram-history-routes.js';
+import { registerDiagramDocumentRoutes } from './knowledge/diagram-routes.js';
+import { registerDiagramHistoryRoutes } from './knowledge/diagram-history-routes.js';
 import { registerPortableDeliveryRoutes } from './knowledge/portable-delivery-routes.js';
-import {isWhiteboard,MAX_WHITEBOARD_BYTES} from '../../shared/whiteboard.js';
+import { MAX_WHITEBOARD_BYTES } from '../../shared/whiteboard.js';
 import Fastify from 'fastify';
 import { statSync } from 'node:fs';
 import { basename, join, relative, sep } from 'node:path';
@@ -39,12 +38,12 @@ import { registerOAuthRoutes, forwardAuthResponse } from './platform/oauth-route
 import { serializeOAuth, revokeOAuthClient } from './platform/oauth.js';
 import { openDatabase } from '../../packages/core/db.js';
 import { createAuth } from './auth.js';
-import { noteService, saveInput } from '../../packages/core/notes.js';
+import { saveInput } from '../../packages/core/notes.js';
 import { HttpError, text } from '../../packages/core/errors.js';
-import { shareService } from '../../packages/core/shares.js';
+
 import { renderMarkdown, localReference } from '../../packages/core/render.js';
-import { recoveryService } from '../../packages/core/recovery.js';
-import { assetService } from '../../packages/core/assets.js';
+
+
 import { diagramArtifactService, DIAGRAM_SOURCE_MIMES } from '../../packages/core/knowledge/diagram-artifacts.js';
 import { backlinkService } from '../../packages/core/knowledge/backlinks.js';
 import { registerGraphRoutes } from './graph/routes.js';
@@ -71,7 +70,6 @@ import { createOutcomeNoteService } from './to-doo/outcome-note.js';
 import { createToDooAssets } from '../../packages/core/to-doo/assets.js';
 import { registerToDooAssetRoutes } from './to-doo/asset-routes.js';
 export async function createApp(config: HostConfig, dependencies: { gitExec?: (db: ReturnType<typeof openDatabase>) => GitExec } = {}) {
-  assertStorageMigrationComplete(config.dataRoot);
   const app = Fastify({ logger: false, bodyLimit: 2 * 1024 * 1024 });
   const db = openDatabase(config.dataRoot, 'server');
   const auth = await createAuth(config, db);

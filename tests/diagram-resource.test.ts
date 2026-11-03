@@ -4,7 +4,6 @@ import { documentType } from '../shared/whiteboard';
 import { readFileSync } from 'node:fs';
 
 it('keeps extension compatibility while deriving explicit types from complete Markdown', () => {
-  expect(documentType('旧白板.excalidraw')).toBe('whiteboard');
   expect(documentType('普通.md', '# 笔记\n```mermaid\nA-->B\n```')).toBe('markdown');
   for (const type of ['whiteboard', 'mindmap', 'flowchart']) {
     const source = readFileSync(
@@ -27,7 +26,7 @@ it('represents an inline authoritative source and preview without requiring a so
     documentHash: 'a'.repeat(64),
     source: { format: 'markdown-outline', hash: 'b'.repeat(64), content: '- 子节点\n' },
     preview: {
-      path: 'assets/preview.png',
+      path: '_doo-assets/preview.png',
       hash: 'c'.repeat(64),
       renderHash: 'd'.repeat(64),
       state: 'ready',
@@ -79,7 +78,7 @@ it('supports public preview metadata without exposing a source path, content or 
     documentHash: 'a'.repeat(64),
     source: { format: 'excalidraw', hash: 'b'.repeat(64) },
     preview: {
-      path: 'assets/preview.png',
+      path: '_doo-assets/preview.png',
       hash: 'c'.repeat(64),
       renderHash: 'd'.repeat(64),
       state: 'ready',
@@ -90,7 +89,7 @@ it('supports public preview metadata without exposing a source path, content or 
   expect(
     diagramResourceSchema.safeParse({
       ...resource,
-      source: { ...resource.source, path: 'assets/private.excalidraw' },
+      source: { ...resource.source, path: '_doo-assets/private.excalidraw' },
     }).success,
   ).toBe(false);
 });

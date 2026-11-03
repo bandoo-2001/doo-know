@@ -1,4 +1,4 @@
-import { DOO_ASSETS_DIRECTORY, isCompatibleAssetPath, isDooAssetPath } from '../../../shared/storage-paths.js';
+
 import { posix } from 'node:path';
 import type { AppConfig } from '../../../shared/contracts.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
@@ -9,15 +9,9 @@ import { authorizePath } from '../agent/auth.js';
 import { validName } from '../files.js';
 import { readBody } from '../organization/plan.js';
 import { rewriteLibraryReferences } from '../organization/references.js';
-import { isDocument, isWhiteboard } from '../../../shared/whiteboard.js';
+import { isDocument } from '../../../shared/whiteboard.js';
 import { parseDiagramDocument } from '../../../shared/diagram-document.js';
-import {
-  primaryRenderDescriptor,
-  applyPreparedDiagramDocument,
-  diagramRendererVersions,
-  renderPreparedDiagramDocument,
-  type PreparedDiagramPrimary,
-} from '../../../shared/diagram-primary.js';
+import { primaryRenderDescriptor, applyPreparedDiagramDocument, type PreparedDiagramPrimary } from '../../../shared/diagram-primary.js';
 import { boundDiagramSources, normalizeDiagramCode } from '../../../shared/diagram-portability.js';
 import { serializeDiagramBinding } from '../../../shared/diagram-binding.js';
 import { renderPortableFigure } from '../../../shared/portable-figure.js';
@@ -60,7 +54,7 @@ export function documentCopyService(
         target = input.folderPath ? input.folderPath + '/' + input.fileName : input.fileName;
       authorizePath(p, row.path, 'knowledge:read');
       authorizePath(p, target, 'knowledge:write');
-      if (isWhiteboard(target)) fail(400, 'INVALID_INPUT', '副本请使用 Markdown 文件名');
+
       const { operation } = beginOperation(db, p, 'document.copy', input.requestId, {
         id,
         ...input,
@@ -73,99 +67,10 @@ export function documentCopyService(
       )
         fail(409, 'VERSION_CONFLICT');
       const parsed = parseDiagramDocument(body.content);
-      let content = isWhiteboard(row.path)
-        ? body.content
-        : rewriteLibraryReferences(body.content, row.path, target, []).content;
+      let content = rewriteLibraryReferences(body.content, row.path, target, []).content;
       const core = mutationCore(config, db);
       let result: any;
-      if (isWhiteboard(row.path)) {
-        const intent = diagramCreationService(config, db, p).reserve({
-          path: target,
-          type: 'whiteboard',
-          requestId: 'copy-intent-' + operation.id,
-        });
-        const finalSource = rewriteLibraryReferences(
-          body.content,
-          row.path,
-          posix.join(posix.dirname(row.path), DOO_ASSETS_DIRECTORY + '/operation.excalidraw'),
-          [],
-          true,
-        ).content;
-        const legacy = db
-          .prepare(
-            'SELECT manifest FROM legacy_diagram_previews WHERE note_id=? ORDER BY created_at DESC,rowid DESC LIMIT 1',
-          )
-          .get(id) as { manifest: string } | undefined;
-        const render = legacy
-          ? JSON.parse(legacy.manifest)
-          : { renderer: diagramRendererVersions.whiteboard, config: {} };
-        const title = notes.getNote(id).title;
-        const registry = diagramOperationPreviewRegistry(config, db, p, assets),
-          snapshot = registry.fix({
-            noteId: id,
-            role: 'primary',
-            kind: 'excalidraw',
-            documentPath: row.path,
-            documentHash: body.hash,
-            documentModifiedAt: body.evidence.mtime,
-            sourceHash: body.hash,
-            finalSource,
-            type: 'whiteboard',
-            title,
-            renderer: render.renderer,
-            config: render.config,
-            moves: [],
-            permissions: [target],
-            context: { copyOperationId: operation.id, creationIntentId: intent.id },
-          });
-        const fixed = registry.prepared(snapshot.id);
-        if (!fixed)
-          fail(409, 'DIAGRAM_PREVIEW_REQUIRED', '请为白板副本准备完整 Markdown 主图', false, {
-            planId: snapshot.id,
-            documents: [
-              {
-                noteId: id,
-                role: 'primary',
-                documentHash: body.hash,
-                sourceHash: snapshot.sourceHash,
-                renderHash: snapshot.renderHash,
-                snapshotId: snapshot.id,
-              },
-            ],
-          });
-        const rebase = (asset: PreparedDiagramPrimary['preview']) => ({
-          ...asset,
-          markdownPath: posix.relative(posix.dirname(target), asset.relativePath),
-        });
-        const prepared: PreparedDiagramPrimary = {
-          ...fixed,
-          id: operation.id,
-          noteId: intent.noteId,
-          creationIntentId: intent.id,
-          documentHash: null,
-          baselineSourceHash: null,
-          preview: rebase(fixed.preview),
-          source: rebase(fixed.source!),
-          expiresAt: intent.expiresAt,
-        };
-        db.prepare(
-          'INSERT OR IGNORE INTO diagram_prepared_primaries(id,note_id,creation_intent_id,principal,client_id,document_hash,baseline_source_hash,source_hash,render_hash,preview_hash,result,created_at,expires_at) VALUES(?,?,?,?,?,NULL,NULL,?,?,?,?,?,?)',
-        ).run(
-          prepared.id,
-          prepared.noteId,
-          intent.id,
-          p.id,
-          p.clientId,
-          prepared.sourceHash,
-          prepared.renderHash,
-          prepared.previewHash,
-          JSON.stringify(prepared),
-          Date.now(),
-          prepared.expiresAt,
-        );
-        content = renderPreparedDiagramDocument({ prepared, title, source: finalSource });
-        result = core.createDiagram(p, intent.id, content, 'copy-publish-' + operation.id);
-      } else if (parsed.status === 'diagram') {
+      if (parsed.status === 'diagram') {
         const binding = parsed.primary.binding,
           previewPath = localReference(row.path, parsed.primary.previewPath),
           sourcePath =

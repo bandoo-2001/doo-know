@@ -1,14 +1,9 @@
+import { DOO_DATA_DIRECTORY } from '../../../shared/storage-paths.js';
 import { dirname } from 'node:path';
 import { setImmediate as yieldTurn } from 'node:timers/promises';
 import type { AppConfig } from '../../../shared/contracts.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
-import type {
-  GraphEvidence,
-  GraphExploreQuery,
-  GraphKnowledgeEdge,
-  GraphKnowledgeNode,
-  GraphSimilarityStatus,
-} from '../../../shared/graph-semantic-contracts.js';
+import type { GraphEvidence, GraphExploreQuery, GraphKnowledgeEdge, GraphKnowledgeNode, GraphSimilarityStatus } from '../../../shared/graph-semantic-contracts.js';
 import type { AppDatabase } from '../db.js';
 import { sourceAccess, hash, type SourceVersion } from './analysis-source.js';
 import { desiredSpace } from '../indexing/space.js';
@@ -188,7 +183,7 @@ export function createGraphVectorSimilarity(config: AppConfig, db: AppDatabase) 
     return db
       .prepare(
         `SELECT ${metadata} FROM notes n LEFT JOIN document_state d ON d.note_id=n.id
-      WHERE n.active=1 AND lower(substr(n.path,-3))='.md' AND n.path<>'_data' AND instr(n.path,'_data/')<>1 AND instr(n.path,'_doo-data/')<>1
+      WHERE n.active=1 AND lower(substr(n.path,-3))='.md' AND instr(n.path,'${DOO_DATA_DIRECTORY}/')<>1
       AND (${filter.sql}) ${id === undefined ? '' : 'AND n.id=?'} ORDER BY n.id LIMIT ?`,
       )
       .all(

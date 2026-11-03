@@ -1,4 +1,4 @@
-import { isKnowledgeDataPath } from '../../shared/storage-paths.js';
+import { DOO_DATA_DIRECTORY } from '../../shared/storage-paths.js';
 import { randomUUID } from 'node:crypto';
 import type { AppDatabase } from './db.js';
 import { validateRelative } from './files.js';
@@ -13,23 +13,19 @@ type NoteIdentity = { id: string; path: string; active: number; trash_path: stri
 const libraries = new WeakMap<AppDatabase, { root: string; library: ReturnType<typeof createLibrary> }>();
 const label = (value: unknown): value is string =>
   typeof value === 'string' && value.length > 0 && value.length <= 256 && !/[\x00-\x1f]/.test(value);
-const reservedDataNote = (path: string) => isKnowledgeDataPath(path);
 
 function validateState(value: unknown): LibraryState {
   const state = value as LibraryState;
   if (!state || state.version !== 1 || !Array.isArray(state.notes) || !Array.isArray(state.favorites))
     fail(409, 'INVALID_KNOWLEDGE_DATA', '知识库身份数据格式不正确');
-  const ids = new Set<string>(), paths = new Set<string>(), favorites = new Set<string>(), retired = new Set<string>();
+  const ids = new Set<string>(), paths = new Set<string>(), favorites = new Set<string>();
   for (const note of state.notes) {
     if (!note || !label(note.id) || typeof note.path !== 'string' || typeof note.active !== 'boolean' || ids.has(note.id))
       fail(409, 'INVALID_KNOWLEDGE_DATA', '知识库笔记身份重复或无效');
     if ((note.archived !== undefined && typeof note.archived !== 'boolean') || (note.active && note.archived))
       fail(409, 'INVALID_KNOWLEDGE_DATA', '知识库笔记归档状态无效');
-    // Previous scanners could register application-owned Markdown as notes.
-    // Accept only otherwise-valid legacy paths so migration cannot hide corrupt paths.
-    try { validateRelative(reservedDataNote(note.path) ? 'legacy/' + note.path : note.path, 'note'); }
+    try { validateRelative(note.path, 'note'); }
     catch { fail(409, 'INVALID_KNOWLEDGE_DATA', '知识库笔记路径不正确'); }
-    if (reservedDataNote(note.path)) retired.add(note.id);
     if (note.active && paths.has(note.path)) fail(409, 'INVALID_KNOWLEDGE_DATA', '知识库笔记路径重复');
     ids.add(note.id);
     if (note.active) paths.add(note.path);
@@ -44,9 +40,9 @@ function validateState(value: unknown): LibraryState {
   // Select portable fields explicitly; imported objects cannot carry local paths or auth state.
   return {
     version: 1,
-    notes: state.notes.filter((note) => !retired.has(note.id))
+    notes: state.notes
       .map(({ id, path, active, archived }) => ({ id, path, active, ...(archived ? { archived: true } : {}) })),
-    favorites: state.favorites.filter((favorite) => !retired.has(favorite.noteId))
+    favorites: state.favorites
       .map(({ username, noteId }) => ({ username, noteId })),
   };
 }
@@ -70,23 +66,6 @@ function createLibrary(config: { knowledgeRoot: string }, db: AppDatabase) {
       db.prepare('INSERT OR IGNORE INTO note_favorites(owner_id,note_id) VALUES(?,?)').run(owner, row.note_id);
       db.prepare('DELETE FROM portable_library_pending_favorites WHERE username=? AND note_id=?').run(row.username, row.note_id);
     }
-  }
-  function retireReservedNotes() {
-    const reserved = db.prepare("SELECT id,path FROM notes WHERE substr(path,1,6)='_data/' OR substr(path,1,10)='_doo-data/'").all() as { id: string; path: string }[];
-    if (!reserved.length) return;
-    db.transaction(() => {
-      for (const note of reserved) {
-        validateRelative('legacy/' + note.path, 'note');
-        db.prepare('UPDATE notes SET active=0 WHERE id=? AND active<>0').run(note.id);
-        db.prepare('INSERT OR IGNORE INTO portable_library_omitted_notes VALUES(?)').run(note.id);
-        db.prepare('DELETE FROM note_favorites WHERE note_id=?').run(note.id);
-        db.prepare('DELETE FROM portable_library_pending_favorites WHERE note_id=?').run(note.id);
-        db.prepare('UPDATE shares SET enabled=0 WHERE note_id=? AND enabled<>0').run(note.id);
-        db.prepare('UPDATE document_state SET active=0 WHERE note_id=? AND active<>0').run(note.id);
-        db.prepare('UPDATE chunks SET active=0 WHERE note_id=? AND active<>0').run(note.id);
-        db.prepare("UPDATE index_jobs SET status='superseded' WHERE note_id=? AND status NOT IN ('done','superseded')").run(note.id);
-      }
-    }).immediate();
   }
   const domain = createKnowledgeDataDomain<LibraryState>(config, db, 'library/state.json', {
     tables: ['notes', 'note_favorites', 'portable_library_pending_favorites', 'portable_library_omitted_notes', 'portable_library_archived_notes'],
@@ -128,7 +107,7 @@ function createLibrary(config: { knowledgeRoot: string }, db: AppDatabase) {
         } else if (current.path !== next.path) {
           // Release unique active paths inside the import transaction without
           // withdrawing a published source merely because its path moved.
-          db.prepare('UPDATE notes SET path=? WHERE id=?').run('_doo-data/import/' + current.id, current.id);
+          db.prepare('UPDATE notes SET path=? WHERE id=?').run(DOO_DATA_DIRECTORY + '/import/' + current.id, current.id);
         }
       }
       for (const note of state.notes) {
@@ -151,7 +130,6 @@ function createLibrary(config: { knowledgeRoot: string }, db: AppDatabase) {
   return {
     refresh() {
       domain.refresh();
-      retireReservedNotes();
       db.transaction(resolveFavorites).immediate();
       domain.flush();
     },

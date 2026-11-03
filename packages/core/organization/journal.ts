@@ -1,23 +1,6 @@
 import { verifyRetainedFolderResources } from '../knowledge/diagram-retained-folders.js';
 import { recordOperationRevision } from '../knowledge/operation-revisions.js';
-import {
-  mkdirSync,
-  openSync,
-  closeSync,
-  fsyncSync,
-  constants,
-  writeFileSync,
-  fstatSync,
-  readSync,
-  writeSync,
-  lstatSync,
-  existsSync,
-  linkSync,
-  unlinkSync,
-  rmdirSync,
-  readdirSync,
-  statfsSync,
-} from 'node:fs';
+import { mkdirSync, openSync, closeSync, fsyncSync, constants, writeFileSync, fstatSync, readSync, writeSync, lstatSync, existsSync, linkSync, unlinkSync, rmdirSync, readdirSync, statfsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { scanFiles } from '../files.js';
@@ -29,19 +12,8 @@ import { sha256 } from '../knowledge/operations.js';
 import { restoreHash, fsyncDirectory, enqueueSource } from '../knowledge/core.js';
 import { syncDirectoryCatalog } from './catalog.js';
 import { readOrganizationSettings } from './settings.js';
-import {
-  recordDiagramRelocations,
-  verifyDiagramRelocations,
-} from '../knowledge/diagram-relocation.js';
-import {
-  evidence,
-  sameIdentity,
-  sameEvidence,
-  readBody,
-  type OrganizationManifest,
-  type Change,
-  type Evidence,
-} from './plan.js';
+import { recordDiagramRelocations, verifyDiagramRelocations } from '../knowledge/diagram-relocation.js';
+import { evidence, sameIdentity, sameEvidence, readBody, type OrganizationManifest, type Evidence } from './plan.js';
 export function journalDirectory(config: AppConfig, id: string) {
   if (!/^[0-9a-f-]{36}$/.test(id)) fail(400, 'INVALID_OPERATION_ID');
   return join(config.dataRoot, 'organization', id);
@@ -373,12 +345,7 @@ export function commitOrganization(
           } else db.prepare('UPDATE assets SET path=? WHERE id=?').run(o.to, o.id);
         }
       recordDiagramRelocations(db, m.diagrams || []);
-      for (const entry of m.legacyPreviews || []) {
-        const v = entry.manifest as any;
-        db.prepare(
-          'INSERT OR REPLACE INTO legacy_diagram_previews(note_id,document_hash,render_hash,manifest,created_at) VALUES(?,?,?,?,?)',
-        ).run(entry.noteId, v.documentHash, v.renderHash, JSON.stringify(v), Date.now());
-      }
+
       const state = syncDirectoryCatalog(config, db, { recovering: true });
       m.retainedDirectories = m.objects
         .filter((o) => o.kind === 'directory' && o.retainedSource && o.from)

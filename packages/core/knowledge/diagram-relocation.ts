@@ -1,5 +1,4 @@
-import { resolveStorageAssetAlias } from '../storage-asset-aliases.js';
-import { DOO_ASSETS_DIRECTORY, isCompatibleAssetPath, isDooAssetPath } from '../../../shared/storage-paths.js';
+import { isDooAssetPath } from '../../../shared/storage-paths.js';
 import { primaryRenderDescriptor } from '../../../shared/diagram-primary.js';
 import { lstatSync, readFileSync } from 'node:fs';
 import { join, posix } from 'node:path';
@@ -308,7 +307,7 @@ export function assertNativeDiagramReferencesUnchanged(
       | undefined;
     if (!asset) continue;
     try {
-      assertLegacyNativeLinks(config, asset.path, p.sourceHash, moves);
+      assertPreparedNativeLinks(config, asset.path, p.sourceHash, moves);
     } catch (error) {
       if ((error as { code?: string }).code === 'DIAGRAM_PREVIEW_REQUIRED') {
         const owner = db
@@ -357,7 +356,7 @@ export function assertNativeDiagramReferencesUnchanged(
   }
 }
 
-function assertLegacyNativeLinks(
+function assertPreparedNativeLinks(
   config: AppConfig,
   path: string,
   sourceHash: string,
@@ -403,7 +402,7 @@ export function assertFolderDiagramResourcesUnshared(
       !own.has(row.note_id) &&
       (JSON.parse(row.manifest) as DiagramVersionManifest).resources.some(
         (r) =>
-          inside(path, resolveStorageAssetAlias(config.knowledgeRoot, r.path)) && !preserved.some((p) => p.path === resolveStorageAssetAlias(config.knowledgeRoot, r.path) && p.hash === r.hash),
+          inside(path, r.path) && !preserved.some((p) => p.path === r.path && p.hash === r.hash),
       )
     )
       retained();
@@ -411,7 +410,7 @@ export function assertFolderDiagramResourcesUnshared(
     .prepare('SELECT result FROM diagram_prepared_primaries WHERE expires_at>?')
     .all(Date.now()) as { result: string }[]) {
     const p = JSON.parse(row.result) as PreparedDiagramPrimary;
-    if (![p.preview, p.source].some((r) => r && inside(path, resolveStorageAssetAlias(config.knowledgeRoot, r.relativePath)))) continue;
+    if (![p.preview, p.source].some((r) => r && inside(path, r.relativePath))) continue;
     if (
       own.has(p.noteId) &&
       moves.length &&
@@ -453,14 +452,14 @@ export function assertFolderDiagramResourcesUnshared(
     )
       retained();
   }
-  assertLegacyArtifactPreparations(config, db, path, moves);
+  assertEmbeddedArtifactPreparations(config, db, path, moves);
   const assets = (db.prepare('SELECT path FROM assets').all() as { path: string }[]).filter((a) =>
     inside(path, a.path),
   );
   if (!assets.length || !checkActive) return;
   const referencesResource = (notePath: string, url: string) => {
     const target = localReference(notePath, url);
-    return target && inside(path, target) && isCompatibleAssetPath(target);
+    return target && inside(path, target) && isDooAssetPath(target);
   };
   const assetNames = new Set(assets.map((a) => a.path.split('/').at(-1)));
   const ambiguousHistoricalResource = (url: string) => {
@@ -470,7 +469,7 @@ export function assertFolderDiagramResourcesUnshared(
         !raw.startsWith('/') &&
         !raw.includes('\\') &&
         !/^[a-z][a-z\d+.-]*:/i.test(raw) &&
-        isCompatibleAssetPath(raw) &&
+        isDooAssetPath(raw) &&
         assetNames.has(raw.split('/').at(-1))
       );
     } catch {
@@ -544,7 +543,7 @@ export function assertFolderDiagramResourcesUnshared(
 
 /** Old receipts have no expiry/cancel protocol. Saved resource pairs consume the
  * preparation; a historical consumed receipt must not prohibit every future move. */
-function assertLegacyArtifactPreparations(
+function assertEmbeddedArtifactPreparations(
   config: AppConfig,
   db: AppDatabase,
   root: string,
@@ -681,7 +680,7 @@ export function planFolderDiagramRestore(
         )
       : readBoundDiagramAsset(cfg, path, role);
   if (from !== to)
-    assertLegacyArtifactPreparations(
+    assertEmbeddedArtifactPreparations(
       config,
       db,
       from,

@@ -6,8 +6,8 @@ import * as reader from '../../packages/core/knowledge/file-reader.js';
 import { hasSavedAssetReference } from '../../packages/core/knowledge/asset-references.js';
 
 const notePath = '00-Inbox/current.md',
-  image = '00-Inbox/assets/photo.png',
-  pdf = '00-Inbox/assets/book.pdf';
+  image = '00-Inbox/_doo-assets/photo.png',
+  pdf = '00-Inbox/_doo-assets/book.pdf';
 async function fixture() {
   const root = await mkdtemp(join(tmpdir(), 'dooknow-asset-proof-'));
   return {
@@ -44,7 +44,7 @@ it('proves current inline image/PDF in an actual multi-paragraph 2MiB file with 
     }
   });
   try {
-    await large(f.file, '', '![photo](assets/photo.png)\n[PDF](assets/book.pdf "book")');
+    await large(f.file, '', '![photo](_doo-assets/photo.png)\n[PDF](_doo-assets/book.pdf "book")');
     expect(await hasSavedAssetReference(f.file, notePath, image)).toBe(true);
     expect(await hasSavedAssetReference(f.file, notePath, pdf)).toBe(true);
     expect(biggest).toBeLessThanOrEqual(65536);
@@ -55,11 +55,11 @@ it('proves current inline image/PDF in an actual multi-paragraph 2MiB file with 
 });
 
 it.each([
-  '```markdown\n\n![fake](assets/photo.png)\n\n```\n',
-  '~~~\n\n![fake](assets/photo.png)\n\n~~~\n',
-  '    ![fake](assets/photo.png)\n    [PDF](assets/book.pdf)\n',
-  '`![fake](assets/photo.png)`\n',
-  '[unused]: assets/photo.png\n',
+  '```markdown\n\n![fake](_doo-assets/photo.png)\n\n```\n',
+  '~~~\n\n![fake](_doo-assets/photo.png)\n\n~~~\n',
+  '    ![fake](_doo-assets/photo.png)\n    [PDF](_doo-assets/book.pdf)\n',
+  '`![fake](_doo-assets/photo.png)`\n',
+  '[unused]: _doo-assets/photo.png\n',
 ])('denies code or unused definition references: %s', async (content) => {
   const f = await fixture();
   try {
@@ -74,7 +74,7 @@ it.each([
 it('keeps fenced code state across an actual 2MiB body and blank paragraphs', async () => {
   const f = await fixture();
   try {
-    await large(f.file, '```\n', '![fake](assets/photo.png)\n```');
+    await large(f.file, '```\n', '![fake](_doo-assets/photo.png)\n```');
     expect(await hasSavedAssetReference(f.file, notePath, image)).toBe(false);
   } finally {
     await f.close();
@@ -82,10 +82,10 @@ it('keeps fenced code state across an actual 2MiB body and blank paragraphs', as
 });
 
 it.each([
-  '![photo][IMG]\n\n[img]: assets/photo.png "title"\n',
-  '[img]: assets/photo.png\n\n![photo][img]\n',
-  '![image label][]\n\n[image label]: assets/photo.png\n',
-  '![image label]\n\n[image label]: assets/photo.png\n',
+  '![photo][IMG]\n\n[img]: _doo-assets/photo.png "title"\n',
+  '[img]: _doo-assets/photo.png\n\n![photo][img]\n',
+  '![image label][]\n\n[image label]: _doo-assets/photo.png\n',
+  '![image label]\n\n[image label]: _doo-assets/photo.png\n',
 ])('proves reference styles across paragraph boundaries: %s', async (content) => {
   const f = await fixture();
   try {
@@ -99,14 +99,14 @@ it.each([
 it('resolves a PDF definition across 2MiB and honors the first definition', async () => {
   const f = await fixture();
   try {
-    await large(f.file, '[Read me][book]\n\n', '[book]: assets/book.pdf');
+    await large(f.file, '[Read me][book]\n\n', '[book]: _doo-assets/book.pdf');
     expect(await hasSavedAssetReference(f.file, notePath, pdf)).toBe(true);
     await writeFile(
       f.file,
-      '[same]: assets/other.png\n\n![photo][same]\n\n[same]: assets/photo.png\n',
+      '[same]: _doo-assets/other.png\n\n![photo][same]\n\n[same]: _doo-assets/photo.png\n',
     );
     expect(await hasSavedAssetReference(f.file, notePath, image)).toBe(false);
-    await writeFile(f.file, '```\n[label]: assets/photo.png\n```\n\n![fake][label]\n');
+    await writeFile(f.file, '```\n[label]: _doo-assets/photo.png\n```\n\n![fake][label]\n');
     expect(await hasSavedAssetReference(f.file, notePath, image)).toBe(false);
   } finally {
     await f.close();
@@ -116,10 +116,10 @@ it('resolves a PDF definition across 2MiB and honors the first definition', asyn
 it('does not authorize an asset only referenced in another file or after the current reference is removed', async () => {
   const f = await fixture();
   try {
-    await writeFile(join(f.root, 'other.md'), '![private](assets/photo.png)');
+    await writeFile(join(f.root, 'other.md'), '![private](_doo-assets/photo.png)');
     await writeFile(f.file, 'No saved reference');
     expect(await hasSavedAssetReference(f.file, notePath, image)).toBe(false);
-    await writeFile(f.file, '![photo](assets/photo.png)');
+    await writeFile(f.file, '![photo](_doo-assets/photo.png)');
     expect(await hasSavedAssetReference(f.file, notePath, image)).toBe(true);
     await writeFile(f.file, 'Reference removed');
     expect(await hasSavedAssetReference(f.file, notePath, image)).toBe(false);
@@ -131,11 +131,11 @@ it('does not authorize an asset only referenced in another file or after the cur
 it('rejects an undecidable long single paragraph, but accepts a closed early proof followed by a long body', async () => {
   const f = await fixture();
   try {
-    await writeFile(f.file, 'x'.repeat(2 * 1024 * 1024) + '![photo](assets/photo.png)');
+    await writeFile(f.file, 'x'.repeat(2 * 1024 * 1024) + '![photo](_doo-assets/photo.png)');
     await expect(hasSavedAssetReference(f.file, notePath, image)).rejects.toMatchObject({
       code: 'ASSET_REFERENCE_TOO_COMPLEX',
     });
-    await writeFile(f.file, '![photo](assets/photo.png)\n\n' + 'x'.repeat(2 * 1024 * 1024));
+    await writeFile(f.file, '![photo](_doo-assets/photo.png)\n\n' + 'x'.repeat(2 * 1024 * 1024));
     expect(await hasSavedAssetReference(f.file, notePath, image)).toBe(true);
   } finally {
     await f.close();
@@ -147,7 +147,7 @@ it('validates the entire UTF-8 source after an early hit, and rejects oversize f
   try {
     await writeFile(
       f.file,
-      Buffer.concat([Buffer.from('![photo](assets/photo.png)\n\n'), Buffer.from([0xff])]),
+      Buffer.concat([Buffer.from('![photo](_doo-assets/photo.png)\n\n'), Buffer.from([0xff])]),
     );
     await expect(hasSavedAssetReference(f.file, notePath, image)).rejects.toMatchObject({
       code: 'INVALID_UTF8',
@@ -168,7 +168,7 @@ it('rejects a real external change during the stream instead of returning the pr
     real = reader.readBlocks;
   let changed = false;
   try {
-    await large(f.file, '![photo](assets/photo.png)\n\n');
+    await large(f.file, '![photo](_doo-assets/photo.png)\n\n');
     vi.spyOn(reader, 'readBlocks').mockImplementation(async function* (...args) {
       for await (const bytes of real(...args)) {
         if (!changed) {
@@ -194,7 +194,7 @@ it('detects a same-size same-mtime external edit by comparing both complete stre
     real = reader.readBlocks;
   let changed = false;
   try {
-    const prefix = '![photo](assets/photo.png)\n\n';
+    const prefix = '![photo](_doo-assets/photo.png)\n\n';
     await large(f.file, prefix);
     await utimes(f.file, 1700000000, 1700000000);
     const before = await stat(f.file, { bigint: true });
@@ -231,15 +231,15 @@ it('refuses nested/container fences and ignores a non-closing indented fence mar
   const f = await fixture();
   try {
     for (const content of [
-      '> ```\n> ![fake](assets/photo.png)\n> ```',
-      '- ```\n\n  ![fake](assets/photo.png)\n  ```',
+      '> ```\n> ![fake](_doo-assets/photo.png)\n> ```',
+      '- ```\n\n  ![fake](_doo-assets/photo.png)\n  ```',
     ]) {
       await writeFile(f.file, content);
       await expect(hasSavedAssetReference(f.file, notePath, image)).rejects.toMatchObject({
         code: 'ASSET_REFERENCE_TOO_COMPLEX',
       });
     }
-    await writeFile(f.file, '```\n    ```\n![fake](assets/photo.png)\n```');
+    await writeFile(f.file, '```\n    ```\n![fake](_doo-assets/photo.png)\n```');
     expect(await hasSavedAssetReference(f.file, notePath, image)).toBe(false);
   } finally {
     await f.close();
@@ -249,9 +249,9 @@ it('refuses nested/container fences and ignores a non-closing indented fence mar
 it('keeps display math opaque across a streamed 2MiB body and resumes at its closing line', async () => {
   const f = await fixture();
   try {
-    await large(f.file, '$$\n', '![hidden](assets/photo.png)\n\n$$');
+    await large(f.file, '$$\n', '![hidden](_doo-assets/photo.png)\n\n$$');
     expect(await hasSavedAssetReference(f.file, notePath, image)).toBe(false);
-    await large(f.file, '$$\n', '![hidden](assets/photo.png)\n\n$$\n\n![visible](assets/photo.png)');
+    await large(f.file, '$$\n', '![hidden](_doo-assets/photo.png)\n\n$$\n\n![visible](_doo-assets/photo.png)');
     expect(await hasSavedAssetReference(f.file, notePath, image)).toBe(true);
   } finally {
     await f.close();
@@ -261,9 +261,9 @@ it('keeps display math opaque across a streamed 2MiB body and resumes at its clo
 it('resolves a footnote across 2MiB and follows only rendered definitions', async () => {
   const f = await fixture();
   try {
-    await large(f.file, 'reference[^a]\n\n', '[^a]: first paragraph\n\n    ![photo](assets/photo.png)');
+    await large(f.file, 'reference[^a]\n\n', '[^a]: first paragraph\n\n    ![photo](_doo-assets/photo.png)');
     expect(await hasSavedAssetReference(f.file, notePath, image)).toBe(true);
-    await writeFile(f.file, 'reference[^a]\n\n[^a]: see[^b]\n\n[^b]: ![photo](assets/photo.png)\n');
+    await writeFile(f.file, 'reference[^a]\n\n[^a]: see[^b]\n\n[^b]: ![photo](_doo-assets/photo.png)\n');
     expect(await hasSavedAssetReference(f.file, notePath, image)).toBe(true);
     await writeFile(f.file, 'reference[^a]\n\n[^a]: see[^b]\n\n[^b]: back[^a]\n');
     expect(await hasSavedAssetReference(f.file, notePath, image)).toBe(false);
@@ -287,7 +287,7 @@ it('keeps complete footnote units within the existing parser budget', async () =
 it('retains a closed direct proof before a footnote and a later complex container', async () => {
   const f = await fixture();
   try {
-    await writeFile(f.file, '![photo](assets/photo.png)\n[^a]: explanation\n\n> ```\n> hidden\n> ```\n');
+    await writeFile(f.file, '![photo](_doo-assets/photo.png)\n[^a]: explanation\n\n> ```\n> hidden\n> ```\n');
     expect(await hasSavedAssetReference(f.file, notePath, image)).toBe(true);
   } finally {
     await f.close();

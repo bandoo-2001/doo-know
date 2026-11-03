@@ -4,7 +4,7 @@ import { references } from '../packages/core/render';
 
 const mapping = new Map([
   ['target.md', '00-Inbox/copy/target (2).md'],
-  ['assets/a.png', '00-Inbox/copy/assets/a (2).png'],
+  ['_doo-assets/a.png', '00-Inbox/copy/_doo-assets/a (2).png'],
 ]);
 const rewrite = (source: string, paths = mapping) =>
   rewriteImportReferences(source, 'source.md', '00-Inbox/copy/source.md', paths);
@@ -18,8 +18,8 @@ describe('knowledge-aware import reference destinations', () => {
   });
 
   it('rewrites an image inside a referenced footnote definition', () => {
-    const source = 'ref[^a]\n\n[^a]: ![image](assets/a.png)\n';
-    expect(rewrite(source)).toBe('ref[^a]\n\n[^a]: ![image](assets/a%20(2).png)\n');
+    const source = 'ref[^a]\n\n[^a]: ![image](_doo-assets/a.png)\n';
+    expect(rewrite(source)).toBe('ref[^a]\n\n[^a]: ![image](_doo-assets/a%20(2).png)\n');
   });
 
   it('retains implicit wiki labels, Unicode fragments and CRLF after relocating the destination', () => {
@@ -47,35 +47,35 @@ describe('knowledge-aware import reference destinations', () => {
     const source = [
       'ref[^a]', '',
       '[^a]: first [[target|图稿]]', '',
-      '    More ![image](assets/a.png)', '',
+      '    More ![image](_doo-assets/a.png)', '',
       '    ```md',
-      '    [[target|literal]] ![image](assets/a.png)',
+      '    [[target|literal]] ![image](_doo-assets/a.png)',
       '    ```', '',
     ].join('\r\n');
     const expected = source
       .replace('first [[target|图稿]]', 'first [[target (2).md|图稿]]')
-      .replace('More ![image](assets/a.png)', 'More ![image](assets/a%20(2).png)');
+      .replace('More ![image](_doo-assets/a.png)', 'More ![image](_doo-assets/a%20(2).png)');
     expect(rewrite(source)).toBe(expected);
   });
 
   it('maps links inside inline footnotes to their original source positions', () => {
-    const source = 'Inline ^[See [[target|design]] and ![image](assets/a.png).]\r\n';
-    expect(rewrite(source)).toBe('Inline ^[See [[target (2).md|design]] and ![image](assets/a%20(2).png).]\r\n');
+    const source = 'Inline ^[See [[target|design]] and ![image](_doo-assets/a.png).]\r\n';
+    expect(rewrite(source)).toBe('Inline ^[See [[target (2).md|design]] and ![image](_doo-assets/a%20(2).png).]\r\n');
   });
 
   it('leaves wiki and image-looking code, escaped syntax and math byte for byte intact', () => {
     const source = [
       '[[target|Live]]', '',
-      '`[[target|Code]] ![image](assets/a.png)`', '',
+      '`[[target|Code]] ![image](_doo-assets/a.png)`', '',
       '\\[[target|Escaped]]', '',
-      '```md', '[[target|Fence]]', '![image](assets/a.png)', '```', '',
-      '$x + \\text{![image](assets/a.png)}$', '',
-      '$$', '![image](assets/a.png)', '$$', '',
-      'ref[^a]', '', '[^a]: ![live](assets/a.png)', '',
+      '```md', '[[target|Fence]]', '![image](_doo-assets/a.png)', '```', '',
+      '$x + \\text{![image](_doo-assets/a.png)}$', '',
+      '$$', '![image](_doo-assets/a.png)', '$$', '',
+      'ref[^a]', '', '[^a]: ![live](_doo-assets/a.png)', '',
     ].join('\r\n');
     const expected = source
       .replace('[[target|Live]]', '[[target (2).md|Live]]')
-      .replace('[^a]: ![live](assets/a.png)', '[^a]: ![live](assets/a%20(2).png)');
+      .replace('[^a]: ![live](_doo-assets/a.png)', '[^a]: ![live](_doo-assets/a%20(2).png)');
     expect(rewrite(source)).toBe(expected);
   });
 });

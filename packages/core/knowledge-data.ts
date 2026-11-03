@@ -1,20 +1,6 @@
+import { DOO_DATA_DIRECTORY } from '../../shared/storage-paths.js';
 import { knowledgeDataDirectory } from './knowledge-data-path.js';
-import {
-  closeSync,
-  constants,
-  existsSync,
-  fstatSync,
-  fsyncSync,
-  lstatSync,
-  mkdirSync,
-  openSync,
-  readFileSync,
-  readdirSync,
-  realpathSync,
-  renameSync,
-  unlinkSync,
-  writeFileSync,
-} from 'node:fs';
+import { closeSync, constants, existsSync, fstatSync, fsyncSync, lstatSync, mkdirSync, openSync, readFileSync, readdirSync, realpathSync, renameSync, unlinkSync, writeFileSync } from 'node:fs';
 import { createHash, randomUUID } from 'node:crypto';
 import { dirname, join } from 'node:path';
 import type { AppDatabase } from './db.js';
@@ -141,7 +127,7 @@ export function writeKnowledgeDataFile(
     if (expectedDigest !== undefined) {
       const previous = readKnowledgeDataFile(root, relative);
       if ((previous ? hash(previous) : null) !== expectedDigest)
-        unavailable('应用数据存在同步冲突，请核对 _doo-data 文件后重试', 'KNOWLEDGE_DATA_CONFLICT');
+        unavailable(`应用数据存在同步冲突，请核对 ${DOO_DATA_DIRECTORY} 文件后重试`, 'KNOWLEDGE_DATA_CONFLICT');
     }
     renameSync(temporary, path);
     syncDirectory(dirname(path));
@@ -249,7 +235,7 @@ export function createKnowledgeDataDomain<T>(
     }
   };
   const conflict = (): never =>
-    unavailable('应用数据存在同步冲突，请核对 _doo-data 文件后重试', 'KNOWLEDGE_DATA_CONFLICT');
+    unavailable(`应用数据存在同步冲突，请核对 ${DOO_DATA_DIRECTORY} 文件后重试`, 'KNOWLEDGE_DATA_CONFLICT');
   const applyImport = (value: T, digest: string | null, expected: State) =>
     db
       .transaction(() => {
@@ -447,7 +433,7 @@ export function rebindKnowledgeDataRoot(
         ).run(previous, item.path);
       }
     }
-    for (const table of ['knowledge_data_state', 'portable_plugin_state', 'portable_plugin_data', 'storage_asset_aliases', ...(options.preservePending ? ['todo_instance_state'] : [])]) {
+    for (const table of ['knowledge_data_state', 'portable_plugin_state', 'portable_plugin_data', ...(options.preservePending ? ['todo_instance_state'] : [])]) {
       if (tables.has(table))
         db.prepare(`UPDATE "${table}" SET root=? WHERE root=?`).run(root, previous);
     }

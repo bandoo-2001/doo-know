@@ -127,7 +127,7 @@ it('未支持的维基链接、提示块和标题属性保留原文', () => {
   }
 });
 it('解析器对可见内容有不同解释时不冒险编辑，例如格式化的图片替代文字', () => {
-  const p = createRichProjection('![*替代文字*](assets/image.png)\n');
+  const p = createRichProjection('![*替代文字*](_doo-assets/image.png)\n');
   expect(p.json.content![0].type).toBe('opaqueSource');
 });
 it('段首和空段的软换行不会被保全检查误拒绝或在重建时消失', () => {
@@ -147,7 +147,7 @@ it('段首和空段的软换行不会被保全检查误拒绝或在重建时消�
 it('初始投影必须符合编辑器内容模型，不能依靠加载修复而丢弃内嵌节点', async () => {
   const { getSchema } = await import('@tiptap/core');
   const { richExtensions } = await import('../apps/web/editor/rich-adapter');
-  const md = '正文 ![内嵌图片](assets/x.png) 后文';
+  const md = '正文 ![内嵌图片](_doo-assets/x.png) 后文';
   const p = createRichProjection(md);
   expect(() => getSchema(richExtensions()).nodeFromJSON(p.json).check()).not.toThrow();
   expect(p.serialize(p.json)).toMatchObject({ ok: true, markdown: md });

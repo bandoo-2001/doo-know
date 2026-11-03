@@ -135,7 +135,7 @@ it('validates source hash, canonical inline bytes, PNG and renderer before creat
     { renderer: 'unrecognized-renderer' },
   ])
     expect(() => s.primary.prepare({ ...request, ...changed })).toThrow();
-  expect(existsSync(join(config.knowledgeRoot, '00-Inbox/assets'))).toBe(false);
+  expect(existsSync(join(config.knowledgeRoot, '00-Inbox/_doo-assets'))).toBe(false);
   s.creations.cancel(intent.id);
   const flow = reserve('flowchart'),
     bad = input(flow.id, 'flowchart', 'flowchart TD\n A-->B');
@@ -253,7 +253,7 @@ it.each(['\n- 子节点\n', '\n', ' \n- 子节点\n'])(
   (source) => {
     const intent = reserve('mindmap');
     expect(() => services().primary.prepare(input(intent.id, 'mindmap', source))).toThrow();
-    expect(existsSync(join(config.knowledgeRoot, '00-Inbox/assets'))).toBe(false);
+    expect(existsSync(join(config.knowledgeRoot, '00-Inbox/_doo-assets'))).toBe(false);
   },
 );
 

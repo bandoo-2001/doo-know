@@ -117,16 +117,13 @@ describe('real browser preview preparation and diagram lifecycle', () => {
             return `
               import {createApp, reactive, h} from 'vue';
               import DiagramPreview from '/apps/web/components/DiagramPreview.vue';
-              import WhiteboardWorkspace from '/apps/web/components/WhiteboardWorkspace.vue';
               import * as artifacts from '/apps/web/diagrams/preview-artifact.ts';
               const props=reactive({kind:'svg',code:${JSON.stringify(svg)},noteId:'fixture-note',readOnly:false,editable:true,shareToken:undefined});
               const events=[];
               window.addEventListener('dooknow-portable-diagram',e=>events.push(e.detail));
               window.addEventListener('dooknow-edit-diagram-source',e=>events.push(e.detail));
-              window.addEventListener('dooknow-portable-whiteboard',e=>events.push(e.detail));
               const app=createApp({render:()=>h(DiagramPreview,props)});app.mount('#app');
-              window.fixture={props,artifacts,events,dispose:()=>app.unmount(),
-                mountBoard(id){app.unmount();createApp(WhiteboardWorkspace,{boardId:id}).mount('#app');}};
+              window.fixture={props,artifacts,events,dispose:()=>app.unmount()};
             `;
           },
           configureServer(vite) {
@@ -295,56 +292,6 @@ describe('real browser preview preparation and diagram lifecycle', () => {
       sourceContent: content,
       type: 'image/png',
     });
-  }, 60_000);
-
-  it('prepares a standalone whiteboard snapshot without saving or closing its workspace', async () => {
-    const boardId = '10000000-0000-4000-8000-000000000001';
-    const source = JSON.stringify({
-      type: 'excalidraw',
-      version: 2,
-      elements: [],
-      appState: {},
-      files: {},
-    });
-    const writes: string[] = [];
-    await page.route('**/api/notes/**', async (route) => {
-      if (route.request().method() !== 'GET') {
-        writes.push(route.request().method());
-        return route.abort();
-      }
-      return route.fulfill({
-        json: {
-          id: boardId,
-          title: '设计',
-          relativePath: '设计.excalidraw',
-          content: source,
-          modifiedAt: '2026-10-23T00:00:00.000Z',
-          updatedAt: '2026-10-23T00:00:00.000Z',
-          documentType: 'whiteboard',
-        },
-      });
-    });
-    await page.evaluate((id) => (window as any).fixture.mountBoard(id), boardId);
-    const workspace = page.getByTestId('whiteboard-workspace');
-    await browserExpect(workspace.locator('.whiteboard-status')).toHaveText('已保存', {
-      timeout: 30_000,
-    });
-    await workspace.getByRole('button', { name: '生成 Markdown 预览笔记', exact: true }).click();
-    await expect
-      .poll(async () => page.evaluate(() => (window as any).fixture.events.length))
-      .toBe(1);
-    const result = await page.evaluate(() => {
-      const event = (window as any).fixture.events[0];
-      return { boardId: event.boardId, type: event.png.type, scene: JSON.parse(event.content) };
-    });
-    expect(result).toMatchObject({
-      boardId,
-      type: 'image/png',
-      scene: { type: 'excalidraw', elements: [] },
-    });
-    await browserExpect(workspace).toBeVisible();
-    await browserExpect(workspace.locator('.whiteboard-status')).toHaveText('已保存');
-    expect(writes).toEqual([]);
   }, 60_000);
 
   it('keeps source view separate and exposes explicit editing and preview events', async () => {

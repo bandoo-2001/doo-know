@@ -1,20 +1,10 @@
-import { resolveStorageAssetAlias } from './storage-asset-aliases.js';
 import { isKnowledgeDataPath, DOO_ASSETS_DIRECTORY } from '../../shared/storage-paths.js';
 import { hasDiagramDeclarationSync } from './knowledge/diagram-declaration.js';
 import { parseDiagramDocument } from '../../shared/diagram-document.js';
 import { fileVersionStamp } from './knowledge/file-reader.js';
-import { isDocument, isWhiteboard, MAX_WHITEBOARD_BYTES } from '../../shared/whiteboard.js';
-import {
-  lstatSync,
-  realpathSync,
-  readdirSync,
-  openSync,
-  readFileSync,
-  closeSync,
-  fstatSync,
-  constants,
-} from 'node:fs';
-import { resolve, join, sep } from 'node:path';
+import { isDocument } from '../../shared/whiteboard.js';
+import { lstatSync, realpathSync, readdirSync, openSync, readFileSync, closeSync, fstatSync, constants } from 'node:fs';
+import { join, sep } from 'node:path';
 import { HttpError } from './errors.js';
 import { KnowledgeError } from './knowledge/errors.js';
 export const categories = [
@@ -51,8 +41,8 @@ export function validateRelative(path: string, kind: 'note' | 'folder' | 'asset'
   const parts = path.split('/');
   if (isKnowledgeDataPath(path) || parts.some((p) => !validName(p)))
     throw new HttpError(400, '路径不允许');
-  if (kind === 'note' && (!isDocument(path) || parts.includes(DOO_ASSETS_DIRECTORY) || (isWhiteboard(path) && parts.includes('assets'))))
-    throw new HttpError(400, '仅允许 Markdown 或 Excalidraw 白板文件');
+  if (kind === 'note' && (!isDocument(path) || parts.includes(DOO_ASSETS_DIRECTORY)))
+    throw new HttpError(400, '仅允许 Markdown 文档');
 }
 export function safePath(
   root: string,
@@ -61,7 +51,6 @@ export function safePath(
   missingLeaf = false,
 ) {
   validateRelative(path, kind);
-  if (kind === 'asset') { path = resolveStorageAssetAlias(root, path); validateRelative(path, kind); }
   const base = realpathSync(root),
     parts = path.split('/');
   let current = base;
@@ -104,30 +93,14 @@ export function readDocument(
   path: string,
   options: { allowDiagramLarge?: boolean } = {},
 ) {
-  return readFullDocument(root, path, { allowDiagramLarge: options.allowDiagramLarge });
-}
-/** Internal migration reads retain the file bound and consistency checks without editor paging limits. */
-export function readDocumentForMigration(root: string, path: string) {
-  return readFullDocument(root, path, { allowDiagramLarge: true, allowOrdinaryLarge: true });
-}
-function readFullDocument(
-  root: string,
-  path: string,
-  options: { allowDiagramLarge?: boolean; allowOrdinaryLarge?: boolean },
-) {
   const file = safePath(root, path, 'note');
   const fd = openSync(file, constants.O_RDONLY | constants.O_NOFOLLOW);
   try {
     const before = fstatSync(fd, { bigint: true });
     if (!before.isFile()) throw new HttpError(400, '不是普通文件');
-    const board = isWhiteboard(path);
-    if (board && before.size > BigInt(MAX_WHITEBOARD_BYTES))
-      throw new KnowledgeError(413, 'FILE_TOO_LARGE', '白板不能超过 8 MiB');
     if (before.size > 20n * 1024n * 1024n)
       throw new KnowledgeError(413, 'FILE_TOO_LARGE', '笔记超过大小上限');
     if (
-      !board &&
-      !options.allowOrdinaryLarge &&
       before.size > 1024n * 1024n &&
       (!options.allowDiagramLarge || !hasDiagramDeclarationSync(file))
     )
@@ -148,10 +121,10 @@ function readFullDocument(
         currentModifiedAt: after.mtimeNs.toString(),
       });
     const primary =
-      !!options.allowDiagramLarge && !board && parseDiagramDocument(content).status === 'diagram';
-    if (!board && !options.allowOrdinaryLarge && before.size > 1024n * 1024n && !primary)
+      !!options.allowDiagramLarge && parseDiagramDocument(content).status === 'diagram';
+    if (before.size > 1024n * 1024n && !primary)
       throw new KnowledgeError(409, 'LARGE_FILE_MODE_REQUIRED', '请使用大文件模式读取');
-    if (!board && !options.allowOrdinaryLarge && !primary && content.split('\n').some((line) => Buffer.byteLength(line) > 32768))
+    if (!primary && content.split('\n').some((line) => Buffer.byteLength(line) > 32768))
       throw new KnowledgeError(409, 'LARGE_FILE_MODE_REQUIRED', '请使用大文件模式读取');
     return {
       content,

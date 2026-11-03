@@ -1,4 +1,4 @@
-import { DOO_ASSETS_DIRECTORY, isCompatibleAssetPath, isDooAssetPath } from '../../../shared/storage-paths.js';
+import { DOO_ASSETS_DIRECTORY } from '../../../shared/storage-paths.js';
 import { hasDiagramBindingProof } from '../../../packages/core/knowledge/diagram-publications.js';
 import { parseDiagramDocument } from '../../../shared/diagram-document.js';
 import { resolvePrimaryDiagram } from '../../../packages/core/knowledge/diagram-resource-resolver.js';
@@ -12,32 +12,14 @@ import type { Principal } from '../../../shared/knowledge-contracts.js';
 import type { ImportRequest, TransferItem } from '../../../shared/transfer-contracts.js';
 import type { McpTransferBinding } from '../../../shared/mcp-domain-tools.js';
 import { fail } from '../../../packages/core/knowledge/errors.js';
-import {
-  beginOperation,
-  completeOperation,
-  sha256,
-  existingResult,
-} from '../../../packages/core/knowledge/operations.js';
+import { beginOperation, completeOperation, sha256, existingResult } from '../../../packages/core/knowledge/operations.js';
 import { workspaceWriteSync, workspaceExclusive } from '../../../packages/core/workspace/gate.js';
-import {
-  references,
-  localReference,
-  rewriteWhiteboardReferences,
-  renderMarkdownReferences,
-} from '../../../packages/core/render.js';
+import { references, localReference, rewriteWhiteboardReferences, renderMarkdownReferences } from '../../../packages/core/render.js';
 import { readBlocks } from '../../../packages/core/knowledge/file-reader.js';
 import { acquireRead } from '../../../packages/core/agent/budgets.js';
 import { safePath, validateRelative } from '../../../packages/core/files.js';
-import { isWhiteboard, whiteboardId } from '../../../shared/whiteboard.js';
-import {
-  parseImport,
-  importPreview,
-  entryBytes,
-  rewriteImportReferences,
-  isImportDocument,
-  targetPath,
-  relativeInput,
-} from '../platform/transfer-import.js';
+import { whiteboardId } from '../../../shared/whiteboard.js';
+import { parseImport, importPreview, entryBytes, rewriteImportReferences, isImportDocument, targetPath, relativeInput } from '../platform/transfer-import.js';
 
 const active = new WeakMap<McpDomainContext['db'], Set<string>>();
 type Item = TransferItem & { attempt?: number };
@@ -209,13 +191,13 @@ export function createKnowledgeBundlePort(
       const absolute = targetPath(
         config.knowledgeRoot,
         next,
-        (part === DOO_ASSETS_DIRECTORY || part === 'assets') ? 'asset' : 'folder',
+        part === DOO_ASSETS_DIRECTORY ? 'asset' : 'folder',
       );
       if (!existsSync(absolute)) {
-        if ((part === DOO_ASSETS_DIRECTORY || part === 'assets')) mkdirSync(absolute, { mode: 0o700 });
+        if (part === DOO_ASSETS_DIRECTORY) mkdirSync(absolute, { mode: 0o700 });
         else runtime.notes.createFolder(cursor, part);
       }
-      targetPath(config.knowledgeRoot, next, (part === DOO_ASSETS_DIRECTORY || part === 'assets') ? 'asset' : 'folder');
+      targetPath(config.knowledgeRoot, next, part === DOO_ASSETS_DIRECTORY ? 'asset' : 'folder');
       cursor = next;
     }
   }
@@ -224,17 +206,13 @@ export function createKnowledgeBundlePort(
       rows = items(j),
       mapping = new Map(rows.map((i) => [i.path, i.targetPath]));
     const sceneIds = new Map<string, string[]>();
-    for (const entry of b.entries.filter((e) => isWhiteboard(e.path) && isImportDocument(e.path))) {
-      const id = JSON.parse(entryBytes(entry).toString('utf8')).dooknow?.id;
-      if (typeof id === 'string' && whiteboardId(id))
-        sceneIds.set(id, [...(sceneIds.get(id) || []), entry.path]);
-    }
+
     const ordered = rows
       .map((item, index) => ({ item, index }))
       .sort(
         (a, b) =>
-          (a.item.kind === 'asset' ? 0 : isWhiteboard(a.item.path) ? 1 : 2) -
-          (b.item.kind === 'asset' ? 0 : isWhiteboard(b.item.path) ? 1 : 2),
+          (a.item.kind === 'asset' ? 0 : 2) -
+          (b.item.kind === 'asset' ? 0 : 2),
       );
     for (const { item, index } of ordered) {
       if (['succeeded', 'skipped'].includes(item.state)) continue;
@@ -272,16 +250,13 @@ export function createKnowledgeBundlePort(
               })
             )
               fail(409, 'IMPORT_DEPENDENCY_FAILED');
-            let content = isWhiteboard(item.path)
-              ? bytes.toString('utf8')
-              : rewriteImportReferences(
+            let content = rewriteImportReferences(
                   bytes.toString('utf8'),
                   item.path,
                   item.targetPath,
                   mapping,
                 );
-            if (!isWhiteboard(item.path))
-              content = rewriteWhiteboardReferences(content, (ref) => {
+            content = rewriteWhiteboardReferences(content, (ref) => {
                 let target: string | undefined;
                 if (whiteboardId(ref)) {
                   const paths = sceneIds.get(ref);
@@ -422,7 +397,7 @@ export function createKnowledgeBundlePort(
             content = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
           // Primary documents carry their source/PNG binding outside old fences.
           // Preserve the legacy archive format while sharing the semantic integrity gate.
-          if (!isWhiteboard(item.path) && parseDiagramDocument(content).status !== 'ordinary') {
+          if (parseDiagramDocument(content).status !== 'ordinary') {
             const parsed = parseDiagramDocument(content);
             if (parsed.status === 'diagram') {
               const resource = resolvePrimaryDiagram(
@@ -447,7 +422,7 @@ export function createKnowledgeBundlePort(
                 fail(409, 'DIAGRAM_PREVIEW_REQUIRED');
             } else if (parsed?.status !== 'ordinary') fail(409, 'DIAGRAM_PREVIEW_REQUIRED');
           }
-          if (!isWhiteboard(item.path)) {
+          {
             const all = db.prepare('SELECT id,path FROM notes WHERE active=1').all() as {
               id: string;
               path: string;
@@ -456,7 +431,7 @@ export function createKnowledgeBundlePort(
               const path = whiteboardId(ref)
                   ? all.find((n) => n.id === ref)?.path
                   : localReference(item.path, ref),
-                board = all.find((n) => n.path === path && isWhiteboard(n.path));
+                board = all.find((n) => n.path === path);
               if (board && !rows.some((n) => n.noteId === board.id)) {
                 if (rows.length >= 5000) fail(413, 'EXPORT_TOO_LARGE');
                 rows.push({

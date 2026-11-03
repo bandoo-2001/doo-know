@@ -1,10 +1,10 @@
-import { DOO_ASSETS_DIRECTORY, isCompatibleAssetPath, isDooAssetPath } from '../../../shared/storage-paths.js';
-import {isDocument,isWhiteboard,MAX_WHITEBOARD_BYTES,parseWhiteboard} from '../../../shared/whiteboard.js';
+import { DOO_ASSETS_DIRECTORY, isDooAssetPath } from '../../../shared/storage-paths.js';
+import { isDocument } from '../../../shared/whiteboard.js';
 import { existsSync, lstatSync, realpathSync } from 'node:fs';
 import { join, posix, extname } from 'node:path';
 import { createHash } from 'node:crypto';
 import type { ImportRequest, ImportPreview } from '../../../shared/transfer-contracts.js';
-import { safePath, validName, validateRelative } from '../../../packages/core/files.js';
+import { validName, validateRelative } from '../../../packages/core/files.js';
 import { HttpError } from '../../../packages/core/errors.js';
 import { localReference, references } from '../../../packages/core/render.js';
 import { markdownDestinationSpans } from '../../../shared/markdown-destinations.js';
@@ -24,7 +24,7 @@ const mimeTypes: Record<string, string> = {
   ...DIAGRAM_SOURCE_MIMES,
 };
 /** Editable design snapshots beneath assets are attachments, never standalone whiteboard notes. */
-export const isImportDocument = (path: string) => isDocument(path) && !isDooAssetPath(path) && !(isWhiteboard(path) && path.split('/').includes('assets'));
+export const isImportDocument = (path: string) => isDocument(path) && !isDooAssetPath(path);
 export const digest = (bytes: string | Buffer) => createHash('sha256').update(bytes).digest('hex');
 export function relativeInput(value: unknown): string {
   if (
@@ -47,8 +47,8 @@ export function assetMime(path: string, bytes: Buffer) {
     return type;
   }
   if (type === DIAGRAM_SOURCE_MIMES['.excalidraw'] || type === DIAGRAM_SOURCE_MIMES['.mmd']) {
-    if (type === DIAGRAM_SOURCE_MIMES['.excalidraw'] && !isCompatibleAssetPath(path))
-      throw new HttpError(400, '白板源快照必须位于 assets 目录');
+    if (type === DIAGRAM_SOURCE_MIMES['.excalidraw'] && !isDooAssetPath(path))
+      throw new HttpError(400, `白板源快照必须位于 ${DOO_ASSETS_DIRECTORY} 目录`);
     validateDiagramSource(type === DIAGRAM_SOURCE_MIMES['.mmd'] ? 'mermaid' : 'excalidraw', bytes);
     return type;
   }
@@ -116,7 +116,7 @@ export function parseImport(input: unknown): ImportRequest {
     seen.add(path);
     const bytes = entryBytes(entry);
     const note = isImportDocument(path);
-    if (bytes.length > (note ? (isWhiteboard(path) ? MAX_WHITEBOARD_BYTES : 1024 ** 2) : 10 * 1024 ** 2))
+    if (bytes.length > (note ? (1024 ** 2) : 10 * 1024 ** 2))
       throw new HttpError(413, '单个文件超过导入上限');
     if (note) {
       try {
@@ -124,7 +124,7 @@ export function parseImport(input: unknown): ImportRequest {
       } catch {
         throw new HttpError(400, 'Markdown 必须是 UTF-8');
       }
-    if (isWhiteboard(path)) { try { parseWhiteboard(bytes.toString('utf8')); } catch(e) { throw new HttpError(400, (e as Error).message); } }
+
     } else assetMime(path, bytes);
     total += bytes.length;
     if (total > 20 * 1024 ** 2) throw new HttpError(413, '导入总量不能超过 20 MiB');

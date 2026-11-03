@@ -10,8 +10,8 @@ import {
 } from '../shared/diagram-portability';
 
 const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="20"><path d="M0 0H40V20Z"/></svg>';
-const png = 'assets/diagram-' + 'a'.repeat(64) + '.png';
-const source = 'assets/diagram-' + 'b'.repeat(64) + '.svg';
+const png = '_doo-assets/diagram-' + 'a'.repeat(64) + '.png';
+const source = '_doo-assets/diagram-' + 'b'.repeat(64) + '.svg';
 const sourceHash = 'c'.repeat(64);
 const fence = (code = svg, kind = 'svg', newline = '\n') => ['```' + kind, code, '```', ''].join(newline);
 async function bound(code = svg, boundCode = code, newline = '\n') {
@@ -100,7 +100,7 @@ describe('explicit diagram save planning', () => {
 
   it('strips only an explicitly selected recognized bound group, preserving CRLF, the exact fence and user neighbors', async () => {
     const changed = svg.replace('40V20', '20V20');
-    const prefix = '# Keep\r\n\r\n![my figure](assets/user.png)\r\n\r\n';
+    const prefix = '# Keep\r\n\r\n![my figure](_doo-assets/user.png)\r\n\r\n';
     const current = prefix + await bound(changed, svg, '\r\n') + '\r\nTail\r\n';
     const needs = await collectDiagramSaveNeeds(current, await bound());
     expect(stripDiagramPreviews(current, needs)).toBe(prefix + fence(changed, 'svg', '\r\n') + '\r\nTail\r\n');

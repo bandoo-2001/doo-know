@@ -1,6 +1,5 @@
 import { registerDocumentOperationRoutes } from './document-operation-routes.js';
 import { registerDiagramOperationPreviewRoutes } from './diagram-operation-preview-routes.js';
-import { registerWhiteboardMigrationRoutes } from './whiteboard-migration-routes.js';
 import type { FastifyInstance } from 'fastify';
 import type { AppConfig } from '../../../shared/contracts.js';
 import type { AppDatabase } from '../../../packages/core/db.js';
@@ -12,7 +11,6 @@ import { webPrincipal } from '../../../packages/core/knowledge/core.js';
 import { diagramCommitSchema } from '../../../shared/diagram-document-contracts.js';
 import { fail } from '../../../packages/core/knowledge/errors.js';
 import { posix } from 'node:path';
-import { legacyDiagramPreviewService } from '../../../packages/core/knowledge/legacy-diagram-previews.js';
 
 /** The application's normal owner-session, origin and CSRF hooks protect every route here. */
 export async function registerDiagramDocumentRoutes(
@@ -20,7 +18,6 @@ export async function registerDiagramDocumentRoutes(
   db: AppDatabase,
   runtime: () => { config: AppConfig; notes: NoteService; assets: ReturnType<typeof assetService> },
 ) {
-  await registerWhiteboardMigrationRoutes(app,db,runtime);
   await registerDiagramOperationPreviewRoutes(app,db,runtime);
   await registerDocumentOperationRoutes(app,db,runtime);
   const services = () => {
@@ -29,7 +26,6 @@ export async function registerDiagramDocumentRoutes(
       notes,
       creations: diagramCreationService(config, db, webPrincipal),
       primary: primaryDiagramService(config, db, notes, assets, webPrincipal),
-      legacy: legacyDiagramPreviewService(config, db, notes, assets, webPrincipal),
     };
   };
   app.post('/api/diagram-documents/intents', async (req, reply) =>
@@ -53,11 +49,6 @@ export async function registerDiagramDocumentRoutes(
   });
   app.get<{ Params: { id: string } }>('/api/notes/:id/diagram', async (req) =>
     services().primary.resolve(req.params.id),
-  );
-  app.post<{ Params: { id: string } }>(
-    '/api/notes/:id/diagram/legacy-preview',
-    { bodyLimit: 16 * 1024 * 1024 },
-    async (req) => services().legacy.prepare(req.params.id, req.body),
   );
   app.get<{ Params: { id: string }; Querystring: { documentHash?: string; sourceHash?: string } }>(
     '/api/notes/:id/diagram/source',

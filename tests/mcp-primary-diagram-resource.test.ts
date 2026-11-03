@@ -139,19 +139,8 @@ it('acquires a new ready source snapshot after its previous handle was cancelled
   expect(again.source.readHandle).toBe(next.source.readHandle);
 });
 
-it('consumes a selected legacy scene through real multi-chunk source transfers and rechecks its grant/version', async () => {
-  const f = await fixture(),
-    created = f.runtime.knowledge.core.create(
-      f.principal,
-      '00-Inbox',
-      'legacy-large.excalidraw',
-      JSON.stringify({
-        ...emptyWhiteboard(),
-        elements: [{ id: 'label', type: 'text', text: 'legacy-private-'.repeat(1600) }],
-      }),
-      randomUUID(),
-    ),
-    note = f.runtime.notes.getNote(created.id);
+it('consumes a selected current primary scene through real multi-chunk source transfers and rechecks its grant/version', async () => {
+  const f = await fixture(), note = f.runtime.notes.getNote(f.intent.noteId);
   f.principal.allowedPrefixes = [note.relativePath];
   const resource: any = await f.port.call('get_note_diagram', { noteId: note.id });
   expect(resource.source).not.toHaveProperty('content');
@@ -170,13 +159,13 @@ it('consumes a selected legacy scene through real multi-chunk source transfers a
     offset = chunk.nextOffset;
   }
   expect(chunks.length).toBeGreaterThan(1);
-  expect(Buffer.concat(chunks).toString('utf8')).toBe(note.content);
-  expect(info.binding.metadata?.sourcePath).toBe(note.relativePath);
-  expect(info.name).toBe('legacy-large.excalidraw');
+  expect(Buffer.concat(chunks).toString('utf8')).toBe(f.source);
+  expect(info.binding.metadata?.sourcePath).toBe(f.prepared.source!.relativePath);
+  expect(info.name).toBe('source.excalidraw');
   expect(f.principal.allowedPrefixes).toEqual([note.relativePath]);
   expect(() =>
     f.port.authorizeTransfer(
-      { ...info.binding, metadata: { ...info.binding.metadata, sourcePath: '00-Inbox/source.md' } },
+      { ...info.binding, metadata: { ...info.binding.metadata, sourcePath: 'Outside/unbound.excalidraw' } },
       false,
     ),
   ).toThrowError(expect.objectContaining({ statusCode: 403 }));
@@ -187,7 +176,7 @@ it('consumes a selected legacy scene through real multi-chunk source transfers a
   f.principal.allowedPrefixes = [note.relativePath];
   await writeFile(
     join(f.config.knowledgeRoot, note.relativePath),
-    note.content.replace('legacy-private-', 'legacy-changed-'),
+    note.content + '\nchanged\n',
   );
   expect(() => f.port.authorizeTransfer(info.binding, false)).toThrowError(
     expect.objectContaining({ code: 'STALE_CURSOR' }),

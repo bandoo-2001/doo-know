@@ -19,8 +19,8 @@ function prepared(s: string, title = '流程') {
     previewHash: hash('png' + s),
     preview: {
       id: 'asset',
-      relativePath: 'assets/p.png',
-      markdownPath: 'assets/p.png',
+      relativePath: '_doo-assets/p.png',
+      markdownPath: '_doo-assets/p.png',
       mime: 'image/png',
     },
     expiresAt: Date.now() + 10000,
@@ -283,8 +283,8 @@ it('keeps an unresolvable raw whiteboard source link for recovery instead of rep
     renderer: diagramRendererVersions.whiteboard,
     source: {
       id: 'source',
-      relativePath: 'assets/source.excalidraw',
-      markdownPath: 'assets/source.excalidraw',
+      relativePath: '_doo-assets/source.excalidraw',
+      markdownPath: '_doo-assets/source.excalidraw',
       mime: 'application/json',
     },
   };
@@ -311,7 +311,7 @@ it('keeps an unresolvable raw whiteboard source link for recovery instead of rep
       persist: async () => {},
     },
   );
-  const raw = markdown.replace('assets/source.excalidraw', 'assets/unknown.excalidraw');
+  const raw = markdown.replace('_doo-assets/source.excalidraw', '_doo-assets/unknown.excalidraw');
   session.editMarkdown(raw);
   await expect(session.save()).rejects.toThrow('原件链接');
   expect(session.state.markdown).toBe(raw);
@@ -425,8 +425,8 @@ it('replays an older whiteboard receipt and obtains its original native baseline
     renderer: diagramRendererVersions.whiteboard,
     source: {
       id: 'source',
-      relativePath: 'assets/source.excalidraw',
-      markdownPath: 'assets/source.excalidraw',
+      relativePath: '_doo-assets/source.excalidraw',
+      markdownPath: '_doo-assets/source.excalidraw',
       mime: 'application/json',
     },
   };

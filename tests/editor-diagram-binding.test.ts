@@ -9,7 +9,7 @@ const svg =
 const codeHash = createHash('sha256').update(svg).digest('hex');
 const sourceHash = 'a'.repeat(64);
 const marker = serializeDiagramBinding({ kind: 'svg', codeHash, sourceHash });
-const raw = `![SVG 预览](assets/diagram-${'b'.repeat(64)}.png)\n\n[图形源文件](assets/diagram-${'c'.repeat(64)}.svg)\n\n${marker}\n\n\`\`\`svg\n${svg}\n\`\`\`\n\nBody\n`;
+const raw = `![SVG 预览](_doo-assets/diagram-${'b'.repeat(64)}.png)\n\n[图形源文件](_doo-assets/diagram-${'c'.repeat(64)}.svg)\n\n${marker}\n\n\`\`\`svg\n${svg}\n\`\`\`\n\nBody\n`;
 
 it('keeps binding metadata hidden from document controls while preserving exact source', () => {
   const projection = createRichProjection(raw);

@@ -1,20 +1,7 @@
-import { DOO_ASSETS_DIRECTORY, isCompatibleAssetPath, isDooAssetPath } from '../../../shared/storage-paths.js';
-import {isWhiteboard,whiteboardId} from '../../../shared/whiteboard.js';
+import { DOO_ASSETS_DIRECTORY } from '../../../shared/storage-paths.js';
+import { isDocument, whiteboardId } from '../../../shared/whiteboard.js';
 import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import {
-  createReadStream,
-  constants,
-  existsSync,
-  mkdirSync,
-  lstatSync,
-  readFileSync,
-  writeFileSync,
-  unlinkSync,
-  openSync,
-  closeSync,
-  fstatSync,
-  realpathSync,
-} from 'node:fs';
+import { createReadStream, constants, existsSync, mkdirSync, lstatSync, readFileSync, writeFileSync, unlinkSync, openSync, closeSync, fstatSync, realpathSync } from 'node:fs';
 import { mkdir, rm, readFile, lstat, open, writeFile } from 'node:fs/promises';
 import { join, dirname, resolve, posix } from 'node:path';
 import { randomUUID, createPrivateKey, createPublicKey, createHash } from 'node:crypto';
@@ -22,36 +9,19 @@ import { pipeline } from 'node:stream/promises';
 import { create as createTar } from 'tar';
 import { verifyPassword } from 'better-auth/crypto';
 import type { HostConfig } from '../../../shared/platform-contracts.js';
-import type {
-  TransferTask,
-  TransferItem,
-  TransferKind,
-  ManagedBackup,
-  ImportRequest,
-  RestoreVerification,
-} from '../../../shared/transfer-contracts.js';
+import type { TransferTask, TransferItem, TransferKind, ManagedBackup, ImportRequest, RestoreVerification } from '../../../shared/transfer-contracts.js';
 import type { AppDatabase } from '../../../packages/core/db.js';
 import { openDatabase } from '../../../packages/core/db.js';
 import { HttpError } from '../../../packages/core/errors.js';
-import { safePath, scanFiles, validateRelative } from '../../../packages/core/files.js';
-import { references, localReference,renderMarkdownReferences,rewriteWhiteboardReferences } from '../../../packages/core/render.js';
+import { safePath, scanFiles } from '../../../packages/core/files.js';
+import { references, localReference, rewriteWhiteboardReferences } from '../../../packages/core/render.js';
 import { workspaceWriteSync, workspaceExclusive } from '../../../packages/core/workspace/gate.js';
 import { webPrincipal, mutationCore } from '../../../packages/core/knowledge/core.js';
 import type { platformRuntime } from './runtime.js';
 import { createPlatformBackup, restorePlatformBackup } from './backups.js';
 import { independent } from '../backup.js';
 import { validateArchive } from './archive.js';
-import {
-  IMPORT_BODY_LIMIT,
-  digest,
-  relativeInput,
-  targetPath,
-  parseImport,
-  importPreview,
-  entryBytes,
-  rewriteImportReferences,
-  isImportDocument,
-} from './transfer-import.js';
+import { IMPORT_BODY_LIMIT, digest, relativeInput, targetPath, parseImport, importPreview, entryBytes, rewriteImportReferences, isImportDocument } from './transfer-import.js';
 
 type Job = {
   id: string;
@@ -258,11 +228,7 @@ export function registerTransferRoutes(
         payload.entries = payload.entries.map((entry, index) => {
           if (!['succeeded', 'skipped'].includes(items[index]?.state)) return entry;
           let content = '';
-          if (isWhiteboard(entry.path)) {
-            // A failed note can still reference the original scene ID after a board was imported.
-            const id = JSON.parse(entryBytes(entry).toString('utf8')).dooknow?.id;
-            content = JSON.stringify({ dooknow: { id } });
-          }
+
           return { ...entry, encoding: 'utf8', content };
         });
         fields.payload = JSON.stringify(payload);
@@ -406,13 +372,10 @@ export function registerTransferRoutes(
       items = JSON.parse(j.items) as ImportItem[];
     const mapping = new Map(items.map((i) => [i.path, i.targetPath]));
     const sceneIds=new Map<string,string[]>();
-    for(const entry of b.entries.filter(entry=>isWhiteboard(entry.path)&&isImportDocument(entry.path))){
-      const id=JSON.parse(entryBytes(entry).toString('utf8')).dooknow?.id;
-      if(typeof id==='string'&&whiteboardId(id))sceneIds.set(id,[...(sceneIds.get(id)||[]),entry.path]);
-    }
+
     const ordered = items
       .map((item, index) => ({ item, index }))
-      .sort((a, b) => (a.item.kind === 'asset' ? 0 : isWhiteboard(a.item.path)?1:2) - (b.item.kind === 'asset' ? 0 : isWhiteboard(b.item.path)?1:2));
+      .sort((a, b) => (a.item.kind === 'asset' ? 0 : 2) - (b.item.kind === 'asset' ? 0 : 2));
     for (const { item, index } of ordered) {
       if (item.state === 'succeeded' || item.state === 'skipped') continue;
       if (interrupted(j)) {
@@ -427,11 +390,11 @@ export function registerTransferRoutes(
           for (const part of parent === '.' ? [] : parent.split('/')) {
             const next = cursor ? cursor + '/' + part : part;
             if (!existsSync(join(runtime.config.knowledgeRoot, next))) {
-              if ((part === DOO_ASSETS_DIRECTORY || part === 'assets'))
+              if (part === DOO_ASSETS_DIRECTORY)
                 mkdirSync(targetPath(runtime.config.knowledgeRoot, next, 'asset'), { mode: 0o700 });
               else runtime.notes.createFolder(cursor, part);
             }
-            targetPath(runtime.config.knowledgeRoot, next, (part === DOO_ASSETS_DIRECTORY || part === 'assets') ? 'asset' : 'folder');
+            targetPath(runtime.config.knowledgeRoot, next, part === DOO_ASSETS_DIRECTORY ? 'asset' : 'folder');
             cursor = next;
           }
           const entry = b.entries[index],
@@ -464,13 +427,13 @@ export function registerTransferRoutes(
                   items.some((i) => i.path === p && i.kind === 'asset' && i.state === 'failed'),
               );
             if (dependencies.length) throw new HttpError(409, '引用附件导入失败，请修复后重试');
-            let content = isWhiteboard(item.path) ? bytes.toString('utf8') : rewriteImportReferences(
+            let content = rewriteImportReferences(
               bytes.toString('utf8'),
               item.path,
               item.targetPath,
               mapping,
             );
-            if(!isWhiteboard(item.path))content=rewriteWhiteboardReferences(content,ref=>{
+            content=rewriteWhiteboardReferences(content,ref=>{
               if(whiteboardId(ref)){
                 const sources=sceneIds.get(ref);if(!sources)return;
                 if(sources.length!==1)throw new HttpError(409,'引用白板标识重复，请分开导入并核对引用');
@@ -566,12 +529,12 @@ export function registerTransferRoutes(
             closeSync(fd);
           }
           let content = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
-          if(!isWhiteboard(path)){
+          {
             content=rewriteWhiteboardReferences(content,ref=>{
               const boardPath=whiteboardId(ref)
                 ? (db.prepare('SELECT path FROM notes WHERE id=? AND active=1').get(ref) as {path:string}|undefined)?.path
                 : localReference(path,ref);
-              if(!boardPath||!isWhiteboard(boardPath)||!all.includes(boardPath)){
+              if(!boardPath||!isDocument(boardPath)||!all.includes(boardPath)){
                 warnings.push(`${path}: 引用白板不可用 ${ref}`);return;
               }
               if(!selected.includes(boardPath)){
@@ -582,7 +545,7 @@ export function registerTransferRoutes(
             });
             bytes=Buffer.from(content,'utf8');
           }
-          for (const url of isWhiteboard(path) ? [] : references(content)) {
+          for (const url of references(content)) {
             const p = localReference(path, url);
             if (!p) continue;
             if (isImportDocument(p)) {

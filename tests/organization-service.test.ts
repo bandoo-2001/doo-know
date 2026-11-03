@@ -50,31 +50,31 @@ it('creates an empty directory and replays requestId without repeating the mutat
 });
 it('moves a note preserving ID and updates incoming/outgoing/shared asset references', async () => {
   const f = fixture(),
-    n = f.create('00-Inbox/a.md', '[b](b.md) ![asset](assets/shared.png)'),
+    n = f.create('00-Inbox/a.md', '[b](b.md) ![asset](_doo-assets/shared.png)'),
     b = f.create('00-Inbox/b.md', '[a](a.md)');
-  mkdirSync(join(f.config.knowledgeRoot, '00-Inbox/assets'));
-  writeFileSync(join(f.config.knowledgeRoot, '00-Inbox/assets/shared.png'), 'asset');
+  mkdirSync(join(f.config.knowledgeRoot, '00-Inbox/_doo-assets'));
+  writeFileSync(join(f.config.knowledgeRoot, '00-Inbox/_doo-assets/shared.png'), 'asset');
   const op = await execute(f, [
     { type: 'move_note', ...n, toDirectoryId: f.directory('Topic').id, fileName: 'renamed.md' },
   ]);
   expect(op.status).toBe('succeeded');
   expect(f.notes.row(n.noteId).path).toBe('Topic/renamed.md');
   expect(readFileSync(join(f.config.knowledgeRoot, 'Topic/renamed.md'), 'utf8')).toBe(
-    '[b](../00-Inbox/b.md) ![asset](../00-Inbox/assets/shared.png)',
+    '[b](../00-Inbox/b.md) ![asset](../00-Inbox/_doo-assets/shared.png)',
   );
   expect(readFileSync(join(f.config.knowledgeRoot, '00-Inbox/b.md'), 'utf8')).toBe(
     '[a](../Topic/renamed.md)',
   );
-  expect(existsSync(join(f.config.knowledgeRoot, '00-Inbox/assets/shared.png'))).toBe(true);
+  expect(existsSync(join(f.config.knowledgeRoot, '00-Inbox/_doo-assets/shared.png'))).toBe(true);
   expect(f.notes.row(b.noteId).id).toBe(b.noteId);
 });
 it('moves a directory with empty descendants and managed attachments keeping identities', async () => {
   const f = fixture(),
-    n = f.create('00-Inbox/a.md', '![asset](assets/a.png)');
+    n = f.create('00-Inbox/a.md', '![asset](_doo-assets/a.png)');
   mkdirSync(join(f.config.knowledgeRoot, '00-Inbox/Empty'));
-  mkdirSync(join(f.config.knowledgeRoot, '00-Inbox/assets'));
-  writeFileSync(join(f.config.knowledgeRoot, '00-Inbox/assets/a.png'), 'asset');
-  f.db.prepare('INSERT INTO assets(id,path) VALUES(?,?)').run('asset-one', '00-Inbox/assets/a.png');
+  mkdirSync(join(f.config.knowledgeRoot, '00-Inbox/_doo-assets'));
+  writeFileSync(join(f.config.knowledgeRoot, '00-Inbox/_doo-assets/a.png'), 'asset');
+  f.db.prepare('INSERT INTO assets(id,path) VALUES(?,?)').run('asset-one', '00-Inbox/_doo-assets/a.png');
   syncDirectoryCatalog(f.config, f.db);
   const d = f.directory('00-Inbox'),
     op = await execute(f, [
@@ -90,7 +90,7 @@ it('moves a directory with empty descendants and managed attachments keeping ide
   expect(f.directory('Topic/Moved').id).toBe(d.id);
   expect(f.notes.row(n.noteId).path).toBe('Topic/Moved/a.md');
   expect(f.db.prepare('SELECT path FROM assets WHERE id=?').get('asset-one')).toEqual({
-    path: 'Topic/Moved/assets/a.png',
+    path: 'Topic/Moved/_doo-assets/a.png',
   });
   expect(existsSync(join(f.config.knowledgeRoot, 'Topic/Moved/Empty'))).toBe(true);
   expect(existsSync(join(f.config.knowledgeRoot, '00-Inbox'))).toBe(false);

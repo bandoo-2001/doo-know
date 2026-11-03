@@ -14,7 +14,7 @@ const binding =
   'c'.repeat(64) +
   '"} -->';
 const body =
-  '```mermaid\nflowchart TD\n  A[中文] --> B[结束]\n```\n\n![预览](assets/diagram.png)\n\n' +
+  '```mermaid\nflowchart TD\n  A[中文] --> B[结束]\n```\n\n![预览](_doo-assets/diagram.png)\n\n' +
   binding +
   '\n';
 const document =
@@ -35,7 +35,7 @@ describe('diagram document format v1', () => {
       format: 'mermaid',
       content: 'flowchart TD\n  A[中文] --> B[结束]\n',
     });
-    expect(result.primary.previewPath).toBe('assets/diagram.png');
+    expect(result.primary.previewPath).toBe('_doo-assets/diagram.png');
     expect(document.slice(result.primary.contentRange.from, result.primary.contentRange.to)).toBe(
       '\n' + body + '\n',
     );
@@ -82,8 +82,8 @@ describe('diagram document format v1', () => {
       '<!-- dooknow:primary:start -->\n\n<!-- dooknow:primary:end -->',
     ),
     document.replace('```mermaid', '```svg'),
-    document.replace('assets/diagram.png', 'https://private.example/image.png'),
-    document.replace('assets/diagram.png', '/srv/private.png'),
+    document.replace('_doo-assets/diagram.png', 'https://private.example/image.png'),
+    document.replace('_doo-assets/diagram.png', '/srv/private.png'),
     document.replace(binding, ''),
     document.replace(binding, binding + '\n\n' + binding),
   ])('falls back without changing malformed or unsupported dedicated bytes', (input) => {

@@ -2,7 +2,7 @@ import { folderRestorePending } from '../../packages/core/knowledge/folder-resto
 import { noteTrashRestorePending } from '../../packages/core/knowledge/note-trash-native-restore.js';
 import { mkdir, readdir, lstat, cp, writeFile, readFile } from 'node:fs/promises';
 import { resolve, join, relative } from 'node:path';
-import { createHash } from 'node:crypto';
+
 import { resetRestoredState } from './platform/restore-state.js';
 import Database from 'better-sqlite3';
 import type { AppConfig } from '../../shared/contracts.js';
@@ -75,7 +75,7 @@ export async function backup(config: AppConfig, destination: string) {
         .get()
     )
       throw new Error('知识库整理尚未恢复一致，请完成恢复后备份');
-    const retainedDirectories = ['history','reconciliation','organization','whiteboard-migrations','folder-restores','diagram-operation-previews','note-restores','directory-migrations'];
+    const retainedDirectories = ['history','reconciliation','organization','folder-restores','diagram-operation-previews','note-restores'];
     const retainedBefore = await Promise.all(
       retainedDirectories.map((name) => optionalInventory(join(config.dataRoot, name))),
     );

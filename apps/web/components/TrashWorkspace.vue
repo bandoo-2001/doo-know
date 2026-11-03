@@ -1,16 +1,10 @@
 <script setup lang="ts">
-import {withOperationPreviews} from '../diagrams/operation-previews';
+import { DOO_ASSETS_DIRECTORY } from '../../../shared/storage-paths';
+import { withOperationPreviews } from '../diagrams/operation-previews';
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { Modal as AModal } from 'ant-design-vue';
 import { api, ApiError } from '../api';
-import type {
-  ManagementBatchResult,
-  ManagementItemResult,
-  ManagementTrashItem,
-  ManagementTrashPage,
-  ManagementTrashPurgeInput,
-  ManagementTrashRestoreInput,
-} from '../../../shared/management-contracts';
+import type { ManagementBatchResult, ManagementItemResult, ManagementTrashItem, ManagementTrashPage, ManagementTrashPurgeInput, ManagementTrashRestoreInput } from '../../../shared/management-contracts';
 
 const emit = defineEmits<{ 'open-note': [id: string]; changed: []; back: [] }>();
 type PendingRequest =
@@ -330,7 +324,7 @@ async function restore(ids: string[], openId?: string) {
       name.startsWith('.') ||
       name.endsWith(' ') ||
       (!isFolder && !name.toLowerCase().endsWith('.md')) ||
-      (isFolder && name === '_doo-assets') ||
+      (isFolder && name === DOO_ASSETS_DIRECTORY) ||
       name.toLowerCase() === 'agents.md'
     )
       fieldErrors.value[id] = isFolder

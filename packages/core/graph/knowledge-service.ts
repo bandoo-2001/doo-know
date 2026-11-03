@@ -1,18 +1,7 @@
+import { DOO_DATA_DIRECTORY } from '../../../shared/storage-paths.js';
 import type { AppConfig } from '../../../shared/contracts.js';
 import type { Principal } from '../../../shared/knowledge-contracts.js';
-import type {
-  GraphModelPort,
-  GraphExploreQuery,
-  GraphKnowledgeNode,
-  GraphKnowledgeEdge,
-  GraphKnowledgeResponse,
-  GraphAnalysisStatus,
-  GraphReviewItem,
-  GraphReviewQuery,
-  GraphUserCommand,
-  GraphQuestionInput,
-  GraphEvidence,
-} from '../../../shared/graph-semantic-contracts.js';
+import type { GraphModelPort, GraphExploreQuery, GraphKnowledgeNode, GraphKnowledgeEdge, GraphKnowledgeResponse, GraphAnalysisStatus, GraphReviewItem, GraphReviewQuery, GraphUserCommand, GraphQuestionInput, GraphEvidence } from '../../../shared/graph-semantic-contracts.js';
 import type { AppDatabase } from '../db.js';
 import type { NoteService } from '../notes.js';
 import { workspaceReadSync, workspaceWriteSync, workspaceRead } from '../workspace/gate.js';
@@ -23,10 +12,7 @@ import { sourceAccess, hash, type SourceVersion } from './analysis-source.js';
 import { analysisWorker } from './analysis-worker.js';
 import { knowledgeState, canonical, validateQuery, type Portable } from './knowledge-state.js';
 import { terms, type Analysis } from './analysis-content.js';
-import {
-  createGraphVectorSimilarity,
-  type GraphVectorSimilarityPlan,
-} from './vector-similarity.js';
+import { createGraphVectorSimilarity, type GraphVectorSimilarityPlan } from './vector-similarity.js';
 type SnapshotMetadata = SourceVersion & {
   note_id: string;
   fingerprint: string;
@@ -575,7 +561,7 @@ export function createKnowledgeGraph(
         `SELECT ${SOURCE_METADATA} FROM graph_analysis_sources s JOIN notes n ON n.id=s.note_id WHERE n.active=1 AND (${filter.sql}) ORDER BY n.rowid LIMIT ?`,
       )
       .all(...filter.args, MAX_SOURCES) as SnapshotMetadata[];
-    const where = `n.active=1 AND lower(n.path) LIKE '%.md' AND instr(n.path,'_data/')<>1 AND instr(n.path,'_doo-data/')<>1 AND (${filter.sql})`;
+    const where = `n.active=1 AND lower(n.path) LIKE '%.md' AND instr(n.path,'${DOO_DATA_DIRECTORY}/')<>1 AND (${filter.sql})`;
     const counts = db
       .prepare(
         `SELECT count(*) AS total,coalesce(sum(j.state='done'),0) AS completed,coalesce(sum(j.state='failed'),0) AS failed,coalesce(sum(j.state='running'),0) AS running FROM notes n LEFT JOIN graph_analysis_jobs j ON j.note_id=n.id WHERE ${where}`,

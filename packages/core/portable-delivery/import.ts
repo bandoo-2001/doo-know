@@ -1,15 +1,11 @@
-import { DOO_ASSETS_DIRECTORY, isCompatibleAssetPath, isDooAssetPath } from '../../../shared/storage-paths.js';
-import {
-  portableInputSnapshot,
-  extractPortableStream,
-  type PortableInputSnapshot,
-} from './input-snapshot.js';
+import { isDooAssetPath } from '../../../shared/storage-paths.js';
+import { portableInputSnapshot, extractPortableStream, type PortableInputSnapshot } from './input-snapshot.js';
 import { createWriteStream, linkSync, unlinkSync } from 'node:fs';
 import { setImmediate as yieldToRequests } from 'node:timers/promises';
 import { pipeline } from 'node:stream/promises';
 import { hashAssetSync, assetStamp, openAsset } from '../asset-stream.js';
 import { createReadStream } from 'node:fs';
-import { mkdir, readFile, rm, stat } from 'node:fs/promises';
+import { readFile, stat } from 'node:fs/promises';
 import { existsSync, mkdirSync, readFileSync, lstatSync } from 'node:fs';
 import { join, posix } from 'node:path';
 import { randomUUID } from 'node:crypto';
@@ -19,7 +15,7 @@ import type { PortableImportResult } from '../../../shared/portable-delivery-con
 import { portableResourceLimits as limits } from '../../../shared/portable-resource-limits.js';
 import { boundDiagramSources, normalizeDiagramCode } from '../../../shared/diagram-portability.js';
 import { parseDiagramDocument } from '../../../shared/diagram-document.js';
-import { isDocument, isWhiteboard } from '../../../shared/whiteboard.js';
+import { isDocument } from '../../../shared/whiteboard.js';
 import { primaryRenderDescriptor } from '../../../shared/diagram-primary.js';
 import { serializeDiagramRenderInput } from '../../../shared/diagram-document-binding.js';
 import type { AppDatabase } from '../db.js';
@@ -31,30 +27,12 @@ import { localReference } from '../render.js';
 import { mutationCore } from '../knowledge/core.js';
 import { primaryDiagramService } from '../knowledge/primary-diagrams.js';
 import { diagramCreationService } from '../knowledge/diagram-creation.js';
-import {
-  diagramArtifactService,
-  validateDiagramSource,
-  validatePng,
-} from '../knowledge/diagram-artifacts.js';
+import { diagramArtifactService, validateDiagramSource, validatePng } from '../knowledge/diagram-artifacts.js';
 import { sha256 } from '../knowledge/operations.js';
 import { fail } from '../knowledge/errors.js';
 import { workspaceWriteSync } from '../workspace/gate.js';
-import {
-  manifestName,
-  validateManifest,
-  directoryFiles,
-  portablePath,
-  hashFile,
-} from './manifest.js';
-import {
-  checkNativeLinks,
-  nativeLinks,
-  destinations,
-  externalNavigation,
-  rewriteDestinations,
-  internalNoteNavigation,
-  unresolvedInternalNavigation,
-} from './paths.js';
+import { manifestName, validateManifest, directoryFiles, portablePath, hashFile } from './manifest.js';
+import { checkNativeLinks, nativeLinks, destinations, externalNavigation, rewriteDestinations, internalNoteNavigation, unresolvedInternalNavigation } from './paths.js';
 import { portableStaging } from './staging.js';
 
 export type PortableImportOptions = { check?: () => Principal; snapshot?: PortableInputSnapshot };
@@ -209,7 +187,6 @@ export async function importPortableDirectory(
     }
     if (
       !isDocument(file.path) ||
-      isWhiteboard(file.path) ||
       isDooAssetPath(file.path)
     )
       fail(400, 'INVALID_PORTABLE_DOCUMENT');

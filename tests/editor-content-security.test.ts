@@ -28,7 +28,7 @@ it('编辑器地址拒绝危险协议、控制符和协议相对地址', () => {
   ])
     expect(safeEditorUrl(url), url).toBe(false);
   for (const url of [
-    'assets/photo.png',
+    '_doo-assets/photo.png',
     '../notes/read.md',
     'https://example.invalid',
     'mailto:user@example.invalid',
