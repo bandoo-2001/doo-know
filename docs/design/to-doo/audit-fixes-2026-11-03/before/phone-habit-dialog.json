@@ -3,12 +3,13 @@
   "head": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
   "captures": [
     {
-      "id": "phone",
+      "id": "habit-dialog",
       "file": "phone-habit-dialog.png",
       "overflow": 0,
       "width": 390,
       "height": 844,
-      "theme": "dark"
+      "theme": "dark",
+      "device": "phone"
     }
   ]
 }

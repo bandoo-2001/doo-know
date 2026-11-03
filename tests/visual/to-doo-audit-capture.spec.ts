@@ -117,7 +117,15 @@ for (const device of devices) {
         animations: 'disabled',
         fullPage: false,
       });
-      captures.push({ id, file, overflow, ...device });
+      captures.push({
+        id,
+        file,
+        overflow,
+        device: device.id,
+        width: device.width,
+        height: device.height,
+        theme: device.theme,
+      });
       await writeFile(
         resolve(output, `${device.id}-${id}.json`),
         JSON.stringify(

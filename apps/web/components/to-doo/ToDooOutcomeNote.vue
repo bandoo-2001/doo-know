@@ -9,6 +9,7 @@ import {
 import ToDooSelect from './ToDooSelect.vue';
 import ToDooDisclosure from './ToDooDisclosure.vue';
 import ToDooFormLayout from './ToDooFormLayout.vue';
+import ToDooMarkdownPreview from './ToDooMarkdownPreview.vue';
 import { computed, reactive, ref } from 'vue';
 import type { TreeEntry } from '../../../../shared/contracts';
 import type {
@@ -53,6 +54,7 @@ const folders = computed(() => {
   return walk(props.tree).map((folder) => ({ label: folder.path, value: folder.path }));
 });
 const dirty = computed(() => JSON.stringify(form) !== baseline || !!submitted.value);
+const previewing = ref(false);
 async function save() {
   if (busy.value) return;
   busy.value = true;
@@ -165,13 +167,26 @@ defineExpose({ hasUnsavedChanges: () => dirty.value || busy.value });
     <ToDooFormLayout :busy="busy" @submit="save">
       <fieldset class="todo-create-fields" :disabled="busy || !!submitted">
         <label>笔记标题<AInput v-model:value="form.title" required :maxlength="256" /></label>
-        <label
-          >成果正文（Markdown）<ATextarea
+        <div class="todo-between">
+          <span>成果正文（Markdown）</span>
+          <AButton
+            html-type="button"
+            type="link"
+            :aria-label="previewing ? '继续编辑成果正文' : '预览成果正文'"
+            :aria-pressed="previewing"
+            :disabled="!form.content.trim() && !previewing"
+            @click="previewing = !previewing"
+            >{{ previewing ? '继续编辑' : '预览' }}</AButton
+          >
+        </div>
+        <label v-show="!previewing"
+          ><ATextarea
+            aria-label="成果正文（Markdown）"
             v-model:value="form.content"
             :rows="10"
             required
           ></ATextarea></label
-        ><ACheckbox
+        ><ToDooMarkdownPreview v-if="previewing" :content="form.content" /><ACheckbox
           class="todo-checkbox"
           v-model:checked="form.complete"
           :disabled="busy || !!submitted"
