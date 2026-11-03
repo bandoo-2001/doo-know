@@ -5,6 +5,8 @@ import * as Vue from 'vue';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import * as workbench from '../apps/web/to-doo-workbench';
 import * as presentation from '../apps/web/to-doo-presentation';
+import * as calendarLayout from '../apps/web/to-doo-calendar-layout';
+import * as time from '../apps/web/to-doo-time';
 import * as groups from '../apps/web/to-doo-task-groups';
 import * as anniversaries from '../shared/to-doo-anniversaries';
 import * as controls from '../apps/web/to-doo-controls';
@@ -44,6 +46,8 @@ function component(name: string): Vue.Component {
   const output = { exports: {} as any };
   new Function('require', 'module', 'exports', source)(
     (id: string) => {
+      if (id.endsWith('/to-doo-calendar-layout')) return calendarLayout;
+      if (id.endsWith('/to-doo-time')) return time;
       if (id === 'vue') return { ...Vue, vModelText: {}, vModelSelect: {}, vModelCheckbox: {} };
       if (id.endsWith('/to-doo-workbench')) return workbench;
       if (id.endsWith('/to-doo-presentation')) return presentation;
@@ -53,6 +57,15 @@ function component(name: string): Vue.Component {
       if (id === 'ant-design-vue') return toDooAntStubs;
       const boundary = toDooBoundaryStub(id);
       if (boundary) return { default: boundary };
+      if (id.endsWith('ToDooFormLayout.vue'))
+        return {
+          default: Vue.defineComponent({
+            setup:
+              (_, { slots }) =>
+              () =>
+                Vue.h('form', slots.default?.()),
+          }),
+        };
       if (id.endsWith('ToDooTaskRow.vue')) return { default: component('ToDooTaskRow') };
       if (id.endsWith('ToDooDisclosure.vue')) return { default: component('ToDooDisclosure') };
       if (id.endsWith('.vue')) return { default: Vue.defineComponent({ render: () => null }) };
@@ -393,3 +406,86 @@ test.each([false, true])(
     expect(viewport.scrollTop).toBe(manual ? 150 : 19 * 46);
   },
 );
+
+test('timeline clips a multi-day all-day block that begins before the window and respects its exclusive end', () => {
+  const value = model();
+  const occurrence = value.state.snapshot!.occurrences[0]!;
+  value.state.snapshot!.timeBlocks = [
+    toDooEntitySchemas.timeBlock.parse({
+      ...value.state.snapshot!.timeBlocks[0],
+      occurrenceId: occurrence.id,
+      allDay: true,
+      start: { date: '2026-10-30', time: null, timeZone: 'UTC' },
+      durationMinutes: 30,
+      dateEndExclusive: '2026-11-05',
+    }),
+  ];
+  const calendar = mount('ToDooCalendar', { model: value, date: '2026-11-02', timeline: true });
+  expect(calendar.byClass('todo-timeline-bar')).toHaveLength(1);
+  expect(calendar.byClass('todo-timeline-bar')[0]!.props.style.gridColumn).toBe('1 / span 3');
+});
+test('timeline and calendar show a timed deadline on the same display date with its exact time', () => {
+  const value = model();
+  value.state.snapshot!.settings.timeZone = 'Asia/Shanghai';
+  value.state.snapshot!.occurrences[0]!.due = {
+    date: '2026-11-02',
+    time: '18:30',
+    timeZone: 'UTC',
+  };
+  const calendar = mount('ToDooCalendar', { model: value, date: '2026-11-02', timeline: true });
+  const deadline = calendar.byClass('todo-deadline')[0]!;
+  expect(deadline.props.style.gridColumn).toBe(2);
+  expect(deadline.props['aria-label']).toContain('2026-11-03 02:30');
+  expect(calendar.text(deadline)).toContain('02:30');
+});
+test('new time arrangements inherit the configured default duration', () => {
+  const value = model();
+  value.state.snapshot!.settings.defaultDurationMinutes = 45;
+  const editor = mount('ToDooEntityEditor', { model: value, kind: 'timeBlock', tree: [] });
+  expect(editor.all().some((n) => n.tag === 'input' && n.props.value === 45)).toBe(true);
+});
+
+test('timeline distinguishes known outside plans from dates whose blocks have not been loaded', () => {
+  const value = model();
+  const occurrence = value.state.snapshot!.occurrences[0]!;
+  value.state.snapshot!.timeBlocks[0]!.occurrenceId = occurrence.id;
+  value.state.snapshot!.timeBlocks[0]!.start.date = '2026-12-03';
+  const calendar = mount('ToDooCalendar', { model: value, date: '2026-11-02', timeline: true });
+  expect(calendar.byClass('todo-unscheduled').map(calendar.text).join('')).toContain(
+    '计划在当前区间外',
+  );
+  value.state.snapshot!.timeBlocks = [];
+  return tick().then(() => {
+    expect(calendar.byClass('todo-unscheduled').map(calendar.text).join('')).toContain('其他日期');
+    expect(calendar.byClass('todo-unscheduled').map(calendar.text).join('')).not.toContain(
+      '未安排',
+    );
+  });
+});
+test('mobile presentation can switch to grid without changing date ranges or losing agenda actions', async () => {
+  const calendar = mount('ToDooCalendar', { model: model(), date: '2026-11-04', view: 'month' });
+  const dates = calendar.byClass('todo-agenda-day').map((n) => n.props['data-date']);
+  calendar.button('网格')!.props.onClick();
+  await tick();
+  expect(calendar.byClass('todo-calendar-grid-scroll')[0]!.props.class).toContain('is-mobile-grid');
+  expect(calendar.byClass('todo-mobile-agenda')[0]!.props.class).toContain('is-mobile-grid');
+  expect(calendar.byClass('todo-agenda-day').map((n) => n.props['data-date'])).toEqual(dates);
+});
+test('calendar today refreshes across local midnight while it remains mounted', async () => {
+  vi.setSystemTime(new Date('2026-11-30T23:59:45Z'));
+  const calendar = mount('ToDooCalendar', { model: model(), view: 'month' });
+  expect(calendar.text(calendar.root)).toContain('2026 年 11 月');
+  await vi.advanceTimersByTimeAsync(60000);
+  await tick();
+  expect(calendar.text(calendar.root)).toContain('2026 年 12 月');
+});
+
+test('timeline labels each date so intermediate scroll positions retain date context', () => {
+  const calendar = mount('ToDooCalendar', { model: model(), date: '2026-11-02', timeline: true });
+  const dates = calendar
+    .byClass('todo-timeline-track')[0]!
+    .children.filter((node) => node.tag === 'span')
+    .map(calendar.text);
+  expect(dates).toHaveLength(28);
+  expect(dates).toContain('11-03');
+});

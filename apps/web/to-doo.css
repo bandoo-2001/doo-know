@@ -1153,6 +1153,49 @@
 .todo-month-day.outside {
   background: var(--todo-bg);
 }
+.todo-month-day.outside .todo-day-number {
+  width: auto;
+  min-width: 38px;
+  padding: 0 4px;
+  border-radius: 4px;
+  background: var(--todo-soft);
+}
+.todo-mobile-calendar-choice { display: none; }
+.todo-calendar-grid-scroll,
+.todo-timeline-scroll {
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+.todo-calendar-grid-scroll:focus-visible,
+.todo-timeline-scroll:focus-visible {
+  outline: 2px solid var(--todo-accent);
+  outline-offset: -2px;
+}
+.todo-calendar-event-detail {
+  padding: 10px 12px;
+  border: 1px solid var(--todo-line);
+  border-radius: 6px;
+  background: var(--todo-paper);
+  overflow-wrap: anywhere;
+  font-size: 12px;
+}
+.todo-timeline { min-width: 1392px; overflow: visible; }
+.todo-timeline-row > .todo-task-body,
+.todo-timeline-header > span {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--todo-paper);
+}
+.todo-timeline-group-heading {
+  position: sticky;
+  left: 0;
+  width: max-content;
+  max-width: 100%;
+}
+
 .todo-day-number {
   display: flex;
   align-items: center;
@@ -1291,7 +1334,7 @@
 }
 .todo-timeline-row {
   display: grid;
-  grid-template-columns: 160px minmax(0, 1fr);
+  grid-template-columns: 160px minmax(1232px, 1fr);
   border-bottom: 1px solid var(--todo-line);
   min-height: 60px;
 }
@@ -1305,7 +1348,7 @@
 }
 .todo-timeline-track {
   display: grid;
-  grid-template-columns: repeat(28, minmax(0, 1fr));
+  grid-template-columns: repeat(28, minmax(44px, 1fr));
   align-content: center;
   gap: 3px 0;
   background-image:
@@ -1350,8 +1393,12 @@
   background: none;
   color: var(--todo-warning);
   padding: 0;
-  font-size: 14px !important;
+  font-size: 10px !important;
+  overflow-wrap: anywhere;
+  text-align: center;
+  line-height: 1.4;
 }
+.todo-deadline small { display: block; }
 .todo-unscheduled {
   grid-column: 2/28;
   color: var(--todo-muted);
@@ -2050,17 +2097,19 @@
     height: 29px;
     width: 29px;
   }
-  .todo-month,
-  .todo-week {
-    display: none;
-  }
-  .todo-mobile-agenda {
+  .todo-mobile-calendar-choice { display: block; margin-bottom: 12px; }
+  .todo-calendar-grid-scroll { display: none; }
+  .todo-calendar-grid-scroll.is-mobile-grid { display: block; }
+  .todo-calendar-grid-scroll .todo-month { min-width: 840px; }
+  .todo-calendar-grid-scroll .todo-week { min-width: 980px; }
+  .todo-mobile-agenda.is-mobile-grid { display: none; }
+  .todo-mobile-agenda:not(.is-mobile-grid) {
     display: flex;
     flex-direction: column;
     gap: 10px;
   }
   .todo-timeline-row {
-    grid-template-columns: 120px minmax(0, 1fr);
+    grid-template-columns: 160px minmax(1232px, 1fr);
   }
   .todo-stats {
     gap: 8px;
@@ -2215,7 +2264,7 @@
     max-width: 135px;
   }
   .todo-timeline-row {
-    grid-template-columns: 100px minmax(0, 1fr);
+    grid-template-columns: 160px minmax(1232px, 1fr);
   }
   .todo-timeline-header {
     font-size: 10px;

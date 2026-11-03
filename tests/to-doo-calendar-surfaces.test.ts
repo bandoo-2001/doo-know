@@ -5,6 +5,8 @@ import * as Vue from 'vue';
 import { afterEach, expect, test } from 'vitest';
 import * as workbench from '../apps/web/to-doo-workbench';
 import * as presentation from '../apps/web/to-doo-presentation';
+import * as calendarLayout from '../apps/web/to-doo-calendar-layout';
+import * as time from '../apps/web/to-doo-time';
 import * as groups from '../apps/web/to-doo-task-groups';
 import * as anniversaries from '../shared/to-doo-anniversaries';
 import { toDooEntitySchemas, type ToDooEntityMap } from '../shared/to-doo-contracts';
@@ -12,7 +14,11 @@ import { toDooEntitySchemas, type ToDooEntityMap } from '../shared/to-doo-contra
 const cleanup: (() => void)[] = [];
 afterEach(() => cleanup.splice(0).forEach((fn) => fn()));
 
-function calendar(event: ToDooEntityMap['calendarEvent'], timeZone = 'UTC') {
+function calendar(
+  event: ToDooEntityMap['calendarEvent'] | null,
+  timeZone = 'UTC',
+  blocks: ToDooEntityMap['timeBlock'][] = [],
+) {
   const { descriptor } = parse(
     readFileSync(
       new URL('../apps/web/components/to-doo/ToDooCalendar.vue', import.meta.url),
@@ -26,6 +32,8 @@ function calendar(event: ToDooEntityMap['calendarEvent'], timeZone = 'UTC') {
   const output = { exports: {} as any };
   new Function('require', 'module', 'exports', compiled)(
     (id: string) => {
+      if (id.endsWith('/to-doo-calendar-layout')) return calendarLayout;
+      if (id.endsWith('/to-doo-time')) return time;
       if (id === 'vue') return Vue;
       if (id.endsWith('/to-doo-workbench')) return workbench;
       if (id.endsWith('/to-doo-presentation')) return presentation;
@@ -53,7 +61,11 @@ function calendar(event: ToDooEntityMap['calendarEvent'], timeZone = 'UTC') {
   const app = renderer.createApp(subject, {
     model: {
       state: Vue.reactive({
-        snapshot: { settings: { timeZone }, calendarEvents: [event], timeBlocks: [] },
+        snapshot: {
+          settings: { timeZone },
+          calendarEvents: event ? [event] : [],
+          timeBlocks: blocks,
+        },
       }),
       items: () => [],
     },
@@ -168,4 +180,57 @@ test('a spring-forward event displays its actual elapsed duration', () => {
     'America/New_York',
   );
   expect(view.weekEvents('2027-03-14')[0]).toMatchObject({ time: '01:45', duration: 45 });
+});
+
+function block(id: string, time: string | null, durationMinutes: number, extra = {}) {
+  return toDooEntitySchemas.timeBlock.parse({
+    id,
+    revision: 'r1',
+    createdAt: '2026-11-02T08:00:00Z',
+    updatedAt: '2026-11-02T08:00:00Z',
+    title: id,
+    start: { date: '2026-11-02', time, timeZone: 'UTC' },
+    durationMinutes,
+    ...extra,
+  });
+}
+test('ordinary overnight blocks are clipped on both days and retain the original entity for editing', () => {
+  const original = block('overnight', '23:30', 90);
+  const view = calendar(null, 'UTC', [original]);
+  expect(view.weekEvents('2026-11-02')).toEqual([
+    expect.objectContaining({ time: '23:30', duration: 30, block: original }),
+  ]);
+  expect(view.weekEvents('2026-11-03')).toEqual([
+    expect.objectContaining({ time: '00:00', duration: 60, block: original }),
+  ]);
+  expect(view.blocks('2026-11-03')).toEqual([original]);
+  expect(view.weekEvents('2026-11-04')).toEqual([]);
+});
+test('independent afternoon blocks get full width after an overlapping morning component', () => {
+  const view = calendar(null, 'UTC', [
+    block('first', '09:00', 60),
+    block('second', '09:30', 60),
+    block('later', '15:00', 30),
+  ]);
+  expect(view.weekEvents('2026-11-02').map((entry: any) => [entry.id, entry.lanes])).toEqual([
+    ['first', 2],
+    ['second', 2],
+    ['later', 1],
+  ]);
+});
+test('ordinary segments follow real spring and fall midnight boundaries', () => {
+  const fall = block('fall', '03:30', 165, {
+    start: { date: '2026-11-01', time: '03:30', timeZone: 'UTC' },
+  });
+  expect(calendar(null, 'America/New_York', [fall]).weekEvents('2026-11-01')[0]).toMatchObject({
+    time: '00:00',
+    duration: 135,
+  });
+  const spring = block('spring', '04:30', 180, {
+    start: { date: '2027-03-14', time: '04:30', timeZone: 'UTC' },
+  });
+  expect(calendar(null, 'America/New_York', [spring]).weekEvents('2027-03-14')[0]).toMatchObject({
+    time: '00:00',
+    duration: 150,
+  });
 });

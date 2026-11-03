@@ -92,7 +92,7 @@ const defaults: Record<string, any> = {
       time: '09:00',
       timeZone: props.model.state.snapshot?.settings.timeZone || 'UTC',
     },
-    durationMinutes: 30,
+    durationMinutes: props.model.state.snapshot?.settings.defaultDurationMinutes || 30,
     allDay: false,
     occurrenceId: null,
   },
