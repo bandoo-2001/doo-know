@@ -25,7 +25,7 @@ test('saving reveals and focuses an invalid timezone inside folded preferences',
 }) => {
   await page.goto('/?view=apps&app=to-doo&appSection=settings');
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
-  const field = app.getByRole('textbox', { name: '显示时区', exact: true });
+  const field = app.getByLabel('显示时区', { exact: true });
   await expect(field).not.toBeVisible();
   await expandToDooGroup(app, '日期与提醒');
   const original = await field.inputValue();

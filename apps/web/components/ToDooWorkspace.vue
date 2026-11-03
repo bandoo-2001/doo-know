@@ -1038,7 +1038,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
             #actions
           >
             <AButton
-              v-if="section === 'settings'"
+              v-if="section === 'settings' && settingsRef?.activeTab === 'preferences'"
               type="primary"
               class="todo-button todo-primary"
               :disabled="state.loading || state.busy || !settingsRef?.dirty"

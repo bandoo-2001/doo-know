@@ -127,12 +127,16 @@ function mount(name: string, model: any, section?: string) {
   });
   const root = node('root');
   const app = renderer.createApp(component(name), { model, ...(section ? { section } : {}) });
-  app.mount(root);
+  const instance = app.mount(root);
   cleanup.push(() => app.unmount());
   const all = (parent = root): Node[] => [parent, ...parent.children.flatMap(all)];
   const text = (parent: Node = root): string => parent.text + parent.children.map(text).join('');
   const button = (name: string) =>
-    all().find((child) => child.tag === 'button' && text(child).trim() === name)!;
+    all().find(
+      (child) =>
+        child.tag === 'button' &&
+        (child.props['aria-label'] === name || text(child).trim() === name),
+    )!;
   const disclosure = (name: string) =>
     all().find(
       (child) =>
@@ -141,10 +145,10 @@ function mount(name: string, model: any, section?: string) {
     )!;
   const visible = (child: Node): boolean =>
     child.style.display !== 'none' && (!child.parent || visible(child.parent));
-  return { all, text, button, disclosure, visible };
+  return { all, text, button, disclosure, visible, instance };
 }
 function model() {
-  vi.stubGlobal('localStorage', { getItem: () => null });
+  vi.stubGlobal('localStorage', { getItem: () => null, setItem() {}, removeItem() {} });
   const now = new Date().toISOString();
   const stamp = { id: 'settings', revision: 'r1', createdAt: now, updatedAt: now };
   const state = Vue.reactive<any>({
@@ -172,10 +176,11 @@ function model() {
     load,
     saveEntity: vi.fn(),
     loadPendingOperations: vi.fn(),
-    request: vi.fn(async (url: string) =>
-      url === '/api/to-doo/push'
-        ? { enabled: false, ready: false, reason: 'host_inactive', devices: [] }
-        : [],
+    request: vi.fn(
+      async (url: string, _method?: string, _body?: unknown): Promise<any> =>
+        url === '/api/to-doo/push'
+          ? { enabled: false, ready: false, reason: 'host_inactive', devices: [] }
+          : [],
     ),
   };
 }
@@ -303,4 +308,445 @@ test('recovery errors reveal the section and never claim the pending records are
   expect(view.button('查看进度')).toBeDefined();
   expect(view.text()).toContain('成果进度读取失败');
   expect(view.text()).not.toContain('当前已读取的记录没有待继续项');
+});
+
+// These assertions catch stale confirmation, hidden import records, wrong request
+// identity, lost drafts and timezone drift through the real Settings component.
+const settleSettings = async () => {
+  for (let turn = 0; turn < 8; turn++) await Vue.nextTick();
+};
+function settingField(view: ReturnType<typeof mount>, label: string, tag = 'input') {
+  return view
+    .all()
+    .find(
+      (row) =>
+        row.tag === tag &&
+        (row.props['aria-label'] === label ||
+          (row.parent?.tag === 'label' && view.text(row.parent).startsWith(label))),
+    )!;
+}
+function importFixture(count = 1) {
+  return {
+    id: 'preview-a',
+    duplicates: 0,
+    batchCount: 1,
+    batchSize: 200,
+    warnings: [],
+    items: Array.from({ length: count }, (_, i) => ({
+      kind: 'task',
+      entity: {
+        id: 'task-' + i,
+        title: '核对任务 ' + (i + 1),
+        listId: 'review-list',
+        due: { date: '2026-11-05', time: '09:00', timeZone: 'Asia/Shanghai' },
+      },
+    })),
+  };
+}
+async function settingsImport(count = 1) {
+  const value = model();
+  value.state.snapshot.lists = [{ id: 'review-list', name: '核对清单' }];
+  const original = value.request.getMockImplementation()!;
+  value.request.mockImplementation(async (url: string, ...args: any[]) =>
+    url === '/api/to-doo/import/preview' ? importFixture(count) : original(url),
+  );
+  const view = mount('ToDooSettings', value);
+  await settleSettings();
+  view
+    .all()
+    .find((row) => row.tag === 'textarea')!
+    .props.onInput({ target: { value: '正文 A' } });
+  await settleSettings();
+  await view.button('预览导入').props.onClick();
+  await settleSettings();
+  return { value, view };
+}
+
+test.each([
+  [
+    '正文',
+    (view: ReturnType<typeof mount>) =>
+      view
+        .all()
+        .find((row) => row.tag === 'textarea')!
+        .props.onInput({ target: { value: '正文 B' } }),
+  ],
+  [
+    '目标清单',
+    (view: ReturnType<typeof mount>) =>
+      settingField(view, '目标清单', 'select').props.onChange({ target: { value: 'review-list' } }),
+  ],
+  [
+    '格式',
+    (view: ReturnType<typeof mount>) =>
+      settingField(view, '格式', 'select').props.onChange({ target: { value: 'csv' } }),
+  ],
+  [
+    '重复处理',
+    (view: ReturnType<typeof mount>) =>
+      settingField(view, '重复处理', 'select').props.onChange({ target: { value: 'copy' } }),
+  ],
+  [
+    '时区',
+    (view: ReturnType<typeof mount>) =>
+      settingField(view, '导入时区').props.onInput({ target: { value: 'Asia/Tokyo' } }),
+  ],
+  [
+    '内容用途',
+    (view: ReturnType<typeof mount>) =>
+      settingField(view, '内容用途', 'select').props.onChange({ target: { value: 'calendar' } }),
+  ],
+  [
+    '编码',
+    (view: ReturnType<typeof mount>) =>
+      settingField(view, '文件编码', 'select').props.onChange({ target: { value: 'gb18030' } }),
+  ],
+])('changing import %s revokes old confirmation', async (_name, edit) => {
+  const { view } = await settingsImport();
+  expect(!!view.button('确认导入 1 项')).toBe(true);
+  edit(view);
+  await settleSettings();
+  expect(!!view.button('确认导入 1 项')).toBe(false);
+});
+
+test('an outstanding preview response cannot reauthorize changed input', async () => {
+  const { view, value } = await settingsImport();
+  let finish!: (value: any) => void;
+  value.request.mockImplementationOnce(() => new Promise((resolve) => (finish = resolve)));
+  const pending = view.button('预览导入').props.onClick();
+  await Vue.nextTick();
+  view
+    .all()
+    .find((row) => row.tag === 'textarea')!
+    .props.onInput({ target: { value: 'new content' } });
+  finish(importFixture());
+  await pending;
+  await settleSettings();
+  expect(!!view.button('确认导入 1 项')).toBe(false);
+});
+
+test('all 23 import items can be reviewed with date, kind and destination', async () => {
+  const { view } = await settingsImport(23);
+  const preview = view
+    .all()
+    .find((row) => String(row.props.class).includes('todo-import-preview'))!;
+  let reviewed = '';
+  for (let page = 0; page < 3; page++) {
+    reviewed += view.text(preview);
+    const next = view.button('下一页预览');
+    if (!next || next.props.disabled) break;
+    await next.props.onClick();
+    await settleSettings();
+  }
+  for (let i = 1; i <= 23; i++) expect(reviewed).toContain('核对任务 ' + i);
+  expect(view.text(preview)).toContain('2026-11-05');
+  expect(view.text(preview)).toContain('09:00');
+  expect(view.text(preview)).toContain('Asia/Shanghai');
+  expect(view.text(preview)).toContain('任务');
+  expect(view.text(preview)).toContain('核对清单');
+});
+
+test('apply retries reuse the confirmed preview identity after a lost response', async () => {
+  const { view, value } = await settingsImport();
+  const applied: any[] = [];
+  value.request.mockImplementation(async (url: string, _method?: string, body?: any) => {
+    if (url === '/api/to-doo/import/apply') {
+      applied.push(body);
+      if (applied.length === 1) throw Error('response lost');
+      return { jobId: 'preview-a', status: 'running', completed: 200, total: 401 };
+    }
+    if (url.endsWith('/status')) return { status: 'running', completed: 200, total: 401 };
+    return [];
+  });
+  await view.button('确认导入 1 项').props.onClick();
+  await settleSettings();
+  expect(value.state.error).toBe('response lost');
+  await view.button('确认导入 1 项').props.onClick();
+  await settleSettings();
+  expect(applied).toHaveLength(2);
+  expect(applied[0].requestId).toBeTruthy();
+  expect(applied[1]).toEqual(applied[0]);
+  expect(view.text()).toContain('200 / 401');
+  expect(view.button('停止后续批次')).toBeDefined();
+});
+
+test.each(['Asia/Shanghai', 'Europe/London'])(
+  'display timezone changes keep quiet hours explicit (initial %s)',
+  async (quietZone) => {
+    const value = model();
+    value.state.snapshot.settings.timeZone = 'Asia/Shanghai';
+    value.state.snapshot.settings.quietHours = {
+      enabled: true,
+      start: '22:00',
+      end: '08:00',
+      timeZone: quietZone,
+    };
+    const view = mount('ToDooSettings', value);
+    await settleSettings();
+    settingField(view, '显示时区').props.onInput({ target: { value: 'Asia/Tokyo' } });
+    await settleSettings();
+    await view
+      .all()
+      .find((row) => row.tag === 'form')!
+      .props.onSubmit();
+    expect(value.saveEntity).toHaveBeenCalledWith(
+      'settings',
+      expect.objectContaining({
+        timeZone: 'Asia/Tokyo',
+        quietHours: expect.objectContaining({
+          timeZone: quietZone === 'Asia/Shanghai' ? 'Asia/Tokyo' : 'Europe/London',
+        }),
+      }),
+      'r1',
+      '偏好已保存',
+    );
+    expect(view.text(view.disclosure('日期与提醒'))).toContain(
+      quietZone === 'Asia/Shanghai' ? 'Asia/Tokyo' : 'Europe/London',
+    );
+  },
+);
+
+test.each(['来源名称', '订阅名称', '包含的清单（不选表示全部）', '包含任务说明'])(
+  'settings guard protects draft %s without requiring an address',
+  async (label) => {
+    const value = model(),
+      view = mount('ToDooSettings', value);
+    await settleSettings();
+    if (label === '包含的清单（不选表示全部）')
+      settingField(view, label, 'select').props.onChange(['list-a']);
+    else if (label === '包含任务说明') {
+      const checkbox = view
+        .all()
+        .find(
+          (row) =>
+            row.tag === 'input' &&
+            row.props.type === 'checkbox' &&
+            view.text(row.parent).includes(label),
+        )!;
+      checkbox.props.onChange({ target: { checked: true } });
+    } else settingField(view, label).props.onInput({ target: { value: '未提交草稿' } });
+    await settleSettings();
+    expect(value.state.externalDirty.settings).toBe(true);
+    expect((view.instance as any).hasUnsavedChanges()).toBe(true);
+  },
+);
+
+test('editing CSV mapping revokes the preview even when the text is unchanged', async () => {
+  const { view } = await settingsImport();
+  settingField(view, '格式', 'select').props.onChange({ target: { value: 'csv' } });
+  await settleSettings();
+  await view.button('预览导入').props.onClick();
+  await settleSettings();
+  expect(!!view.button('确认导入 1 项')).toBe(true);
+  settingField(view, '任务标题列').props.onInput({ target: { value: '自定义标题' } });
+  await settleSettings();
+  expect(!!view.button('确认导入 1 项')).toBe(false);
+});
+
+test('successful calendar and feed submission consume their drafts without retaining phantom edits', async () => {
+  const value = model(),
+    view = mount('ToDooSettings', value);
+  await settleSettings();
+  settingField(view, '来源名称').props.onInput({ target: { value: '工作日历' } });
+  settingField(view, 'HTTPS 日历地址').props.onInput({
+    target: { value: 'https://example.test/readonly.ics' },
+  });
+  await settleSettings();
+  await view
+    .all()
+    .find((row) => row.tag === 'form' && view.text(row).includes('连接日历'))!
+    .props.onSubmit({ preventDefault() {} });
+  await settleSettings();
+  expect(settingField(view, '来源名称').props.value).toBe('');
+  settingField(view, '订阅名称').props.onInput({ target: { value: '订阅草稿' } });
+  settingField(view, '包含的清单（不选表示全部）', 'select').props.onChange(['list-a']);
+  value.request.mockImplementationOnce(async () => ({ url: '/calendar/feed-token' }));
+  vi.stubGlobal('location', { origin: 'http://localhost' });
+  await view
+    .all()
+    .find((row) => row.tag === 'form' && view.text(row).includes('创建订阅链接'))!
+    .props.onSubmit({ preventDefault() {} });
+  await settleSettings();
+  expect(settingField(view, '包含的清单（不选表示全部）', 'select').props.value).toEqual([]);
+  expect((view.instance as any).hasUnsavedChanges()).toBe(false);
+});
+
+test('application generated import warnings identify row and action in Chinese', async () => {
+  const { view, value } = await settingsImport();
+  value.request.mockImplementationOnce(async () => ({
+    ...importFixture(),
+    warnings: [
+      'Row 2: unrecognized date retained for review',
+      'Row 3: empty title skipped',
+      'UID a: nested alarms/components are preserved but not activated',
+    ],
+  }));
+  await view.button('预览导入').props.onClick();
+  await settleSettings();
+  const preview = view
+    .all()
+    .find((row) => String(row.props.class).includes('todo-import-preview'))!;
+  expect(view.text(preview)).toContain('第 2 行');
+  expect(view.text(preview)).toContain('日期无法识别');
+  expect(view.text(preview)).toContain('第 3 行');
+  expect(view.text(preview)).toContain('跳过');
+  expect(view.text(preview)).not.toContain('unrecognized date');
+  expect(view.text(preview)).not.toContain('nested alarms');
+});
+
+test('import option drafts are protected before a file or body is supplied', async () => {
+  const value = model(),
+    view = mount('ToDooSettings', value);
+  await settleSettings();
+  expect((view.instance as any).hasUnsavedChanges()).toBe(false);
+  settingField(view, '重复处理', 'select').props.onChange({ target: { value: 'update' } });
+  await settleSettings();
+  expect(value.state.externalDirty.settings).toBe(true);
+  expect((view.instance as any).hasUnsavedChanges()).toBe(true);
+});
+
+test('selecting an oversized replacement file revokes the earlier confirmation', async () => {
+  const { view } = await settingsImport();
+  await view
+    .all()
+    .find((row) => row.tag === 'input' && row.props.type === 'file')!
+    .props.onChange({
+      target: { files: [{ name: 'too-large.csv', size: 65 * 1024 * 1024 }] },
+    });
+  await settleSettings();
+  expect(!!view.button('确认导入 1 项')).toBe(false);
+});
+
+test('a slow file decode cannot overwrite the file selected after it', async () => {
+  const { view, value } = await settingsImport();
+  const chooser = view.all().find((row) => row.tag === 'input' && row.props.type === 'file')!;
+  let finish!: (bytes: ArrayBuffer) => void;
+  const earlier = chooser.props.onChange({
+    target: {
+      files: [
+        {
+          name: 'earlier.csv',
+          size: 12,
+          lastModified: 1,
+          arrayBuffer: () => new Promise<ArrayBuffer>((resolve) => (finish = resolve)),
+        },
+      ],
+    },
+  });
+  await chooser.props.onChange({
+    target: {
+      files: [
+        {
+          name: 'later.csv',
+          size: 12,
+          lastModified: 2,
+          arrayBuffer: async () => new TextEncoder().encode('later content').buffer,
+        },
+      ],
+    },
+  });
+  finish(new TextEncoder().encode('earlier content').buffer);
+  await earlier;
+  await settleSettings();
+  await view.button('预览导入').props.onClick();
+  const previews = value.request.mock.calls.filter(([url]) => url === '/api/to-doo/import/preview');
+  expect((previews.at(-1) as any)[2]).toMatchObject({
+    content: 'later content',
+    name: 'later.csv',
+  });
+});
+
+test('an accepted import does not discard edits entered while its response was pending', async () => {
+  const { view, value } = await settingsImport();
+  let finish!: (result: any) => void;
+  value.request.mockImplementationOnce(() => new Promise((resolve) => (finish = resolve)));
+  const applying = view.button('确认导入 1 项').props.onClick();
+  await Vue.nextTick();
+  view
+    .all()
+    .find((row) => row.tag === 'textarea')!
+    .props.onInput({ target: { value: '下次导入正文' } });
+  finish({ transactionId: 'accepted' });
+  await applying;
+  await settleSettings();
+  expect(view.all().find((row) => row.tag === 'textarea')!.props.value).toBe('下次导入正文');
+  expect((view.instance as any).hasUnsavedChanges()).toBe(true);
+});
+
+test('calendar connection completion consumes only the submitted draft', async () => {
+  const value = model(),
+    view = mount('ToDooSettings', value);
+  await settleSettings();
+  settingField(view, '来源名称').props.onInput({ target: { value: '已提交名称' } });
+  settingField(view, 'HTTPS 日历地址').props.onInput({
+    target: { value: 'https://example.test/a.ics' },
+  });
+  let finish!: (result: any) => void;
+  value.request.mockImplementationOnce(() => new Promise((resolve) => (finish = resolve)));
+  const pending = view
+    .all()
+    .find((row) => row.tag === 'form' && view.text(row).includes('连接日历'))!
+    .props.onSubmit({ preventDefault() {} });
+  await Vue.nextTick();
+  settingField(view, '来源名称').props.onInput({ target: { value: '后续草稿名称' } });
+  finish({});
+  await pending;
+  await settleSettings();
+  expect(settingField(view, '来源名称').props.value).toBe('后续草稿名称');
+  expect(value.state.externalDirty.settings).toBe(true);
+});
+
+test('subscription completion preserves fields edited while its request was pending', async () => {
+  const value = model(),
+    view = mount('ToDooSettings', value);
+  await settleSettings();
+  settingField(view, '订阅名称').props.onInput({ target: { value: '已提交订阅' } });
+  let finish!: (result: any) => void;
+  value.request.mockImplementationOnce(() => new Promise((resolve) => (finish = resolve)));
+  vi.stubGlobal('location', { origin: 'http://localhost' });
+  const pending = view
+    .all()
+    .find((row) => row.tag === 'form' && view.text(row).includes('创建订阅链接'))!
+    .props.onSubmit({ preventDefault() {} });
+  await Vue.nextTick();
+  settingField(view, '订阅名称').props.onInput({ target: { value: '后续订阅草稿' } });
+  settingField(view, '包含的清单（不选表示全部）', 'select').props.onChange(['new-list']);
+  finish({ url: '/calendar/feed-token' });
+  await pending;
+  await settleSettings();
+  expect(settingField(view, '订阅名称').props.value).toBe('后续订阅草稿');
+  expect(settingField(view, '包含的清单（不选表示全部）', 'select').props.value).toEqual([
+    'new-list',
+  ]);
+  expect(value.state.externalDirty.settings).toBe(true);
+});
+
+test('task and occurrence import rows resolve their shared title, list and schedule', async () => {
+  const { view, value } = await settingsImport();
+  value.request.mockImplementationOnce(async () => ({
+    ...importFixture(),
+    items: [
+      { kind: 'list', entity: { id: 'new-list', name: '来源清单' } },
+      { kind: 'task', entity: { id: 'new-task', title: '从来源导入', listId: 'new-list' } },
+      {
+        kind: 'occurrence',
+        entity: {
+          id: 'new-occurrence',
+          taskId: 'new-task',
+          due: { date: '2026-11-07', time: '15:00', timeZone: 'Asia/Tokyo' },
+        },
+      },
+    ],
+  }));
+  await view.button('预览导入').props.onClick();
+  await settleSettings();
+  const rows = view
+    .all()
+    .filter((row) => row.tag === 'li' && view.text(row).includes('从来源导入'));
+  expect(rows).toHaveLength(2);
+  for (const row of rows) {
+    expect(view.text(row)).toContain('来源清单');
+    expect(view.text(row)).toContain('2026-11-07');
+    expect(view.text(row)).toContain('Asia/Tokyo');
+  }
 });

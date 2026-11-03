@@ -38,6 +38,18 @@ const emit = defineEmits<{
 }>();
 const confirmAction = useToDooConfirm();
 const activeTab = ref('preferences');
+const importFileInput = ref<HTMLInputElement>();
+const fileDecoding = ref(false);
+const timeZoneSuggestions = [
+  ...new Set([
+    'UTC',
+    'Asia/Shanghai',
+    'Asia/Tokyo',
+    'Europe/London',
+    'America/New_York',
+    ...Intl.supportedValuesOf('timeZone'),
+  ]),
+];
 const preferencesForm = ref<InstanceType<typeof ToDooFormLayout>>();
 const dateRules = ref<InstanceType<typeof ToDooDisclosure>>();
 const taskRules = ref<InstanceType<typeof ToDooDisclosure>>();
@@ -110,6 +122,53 @@ const state = props.model.state,
   mapping = reactive<Record<string, string>>({}),
   sourceName = ref(''),
   exportMode = ref('events');
+// A confirmation belongs to every input used to parse this exact draft.
+const importInputSnapshot = computed(() =>
+  JSON.stringify({
+    content: content.value,
+    format: format.value,
+    mergeMode: mergeMode.value,
+    target: target.value,
+    timeZone: importZone.value,
+    listId: importList.value,
+    mapping,
+    encoding: encoding.value,
+    name: sourceName.value,
+    file: file.value && {
+      name: file.value.name,
+      size: file.value.size,
+      lastModified: file.value.lastModified,
+    },
+  }),
+);
+const importBaseline = ref(importInputSnapshot.value);
+const confirmedImport = ref<{ snapshot: string; requestId: string }>();
+const previewPage = ref(1);
+const previewPageSize = 20;
+const previewPageCount = computed(() =>
+  Math.max(1, Math.ceil((preview.value?.items.length || 0) / previewPageSize)),
+);
+const previewItems = computed(
+  () =>
+    preview.value?.items.slice(
+      (previewPage.value - 1) * previewPageSize,
+      previewPage.value * previewPageSize,
+    ) || [],
+);
+let importGeneration = 0;
+function cancelPreview() {
+  preview.value = null;
+  confirmedImport.value = undefined;
+  previewPage.value = 1;
+}
+watch(
+  importInputSnapshot,
+  () => {
+    importGeneration++;
+    cancelPreview();
+  },
+  { flush: 'sync' },
+);
 const fieldLabels: Record<string, string> = {
   title: '标题',
   name: '名称',
@@ -130,6 +189,147 @@ const fieldLabels: Record<string, string> = {
   date: '日期',
   time: '时间',
 };
+const importKindLabels: Record<string, string> = {
+  settings: '应用偏好',
+  list: '目标与清单',
+  section: '清单分组',
+  tag: '标签',
+  task: '任务',
+  occurrence: '重复任务实例',
+  exception: '重复例外',
+  timeBlock: '时间安排',
+  outcome: '成果',
+  record: '执行记录',
+  activity: '活动记录',
+  focusTopic: '专注主题',
+  focusSession: '专注记录',
+  habit: '习惯',
+  habitEntry: '习惯打卡',
+  anniversary: '纪念日',
+  view: '保存的视图',
+  template: '任务模板',
+  review: '复盘',
+  plan: '规划',
+  reminderEvent: '提醒记录',
+  calendarSource: '日历来源',
+  calendarEvent: '日历事件',
+  calendarFeed: '日历订阅',
+  operation: '成果笔记操作',
+  import: '导入记录',
+};
+function importRelatedTask(item: any): any {
+  return item.kind === 'task'
+    ? item.entity
+    : item.entity.taskId
+      ? preview.value?.items.find(
+          (row: any) => row.kind === 'task' && row.entity.id === item.entity.taskId,
+        )?.entity || state.snapshot?.tasks.find((row) => row.id === item.entity.taskId)
+      : undefined;
+}
+function importItemTitle(item: any): string {
+  return (
+    item.entity.title ||
+    item.entity.name ||
+    item.entity.summary ||
+    importRelatedTask(item)?.title ||
+    importKindLabels[item.kind] ||
+    '记录'
+  );
+}
+function importItemDate(item: any): string {
+  const entity =
+    item.kind === 'task'
+      ? preview.value?.items.find(
+          (row: any) => row.kind === 'occurrence' && row.entity.taskId === item.entity.id,
+        )?.entity || item.entity
+      : item.entity;
+  const dates = [
+    entity.scheduledDate && '计划 ' + diffValue(entity.scheduledDate),
+    entity.due && '截止 ' + diffValue(entity.due),
+    entity.start && '开始 ' + diffValue(entity.start),
+    entity.end && '结束 ' + diffValue(entity.end),
+    entity.date && diffValue(entity.date),
+    entity.scheduledAt && diffValue(entity.scheduledAt),
+  ].filter(Boolean);
+  return dates.join('；') || '无日期';
+}
+function importItemDestination(item: any): string {
+  const entity = importRelatedTask(item) || item.entity;
+  if (entity.listId) {
+    const list =
+      preview.value?.items.find(
+        (row: any) => row.kind === 'list' && row.entity.id === entity.listId,
+      )?.entity || state.snapshot?.lists.find((row) => row.id === entity.listId);
+    return '清单：' + (list?.name || entity.listId);
+  }
+  if (item.kind === 'task') return '收集箱';
+  if (entity.sourceId) {
+    const source =
+      preview.value?.items.find(
+        (row: any) => row.kind === 'calendarSource' && row.entity.id === entity.sourceId,
+      )?.entity || state.snapshot?.calendarSources.find((row) => row.id === entity.sourceId);
+    return '日历来源：' + (source?.name || entity.sourceId);
+  }
+  return 'To Doo / ' + (importKindLabels[item.kind] || '记录');
+}
+const warningMessages: Record<string, string> = {
+  'unrecognized date retained for review':
+    '日期无法识别，原值已保留在来源信息中，请核对后再安排日期。',
+  'empty title skipped': '标题为空，此行已跳过。',
+  'repeat expression is retained in source metadata and checked before task mapping':
+    '重复表达式已保留在来源信息中，并在生成任务前检查。',
+  'unrecognized priority retained; mapped to none':
+    '优先级无法识别，原值已保留，导入后暂不设优先级。',
+  'unrecognized status retained; mapped to todo': '状态无法识别，原值已保留，导入后暂记为待办。',
+  'missing stable external identity; existing content was not matched by title':
+    '缺少稳定的外部身份，未按标题匹配已有内容。',
+  'existing entity differs; default merge preserves it':
+    '已有记录与导入内容不同，本次保留已有内容。',
+  'unsupported recurrence retained as a read-only calendar layer; no one-off task was substituted':
+    '此重复规则暂不支持转为任务，已保留为只读日历内容。',
+  'orphan recurrence exception retained as an independent calendar event':
+    '找不到对应的重复系列，此例外已保留为独立日历事件。',
+  'missing parent retained in import source; task will be a root':
+    '找不到父任务，原关联已保留在来源信息中，将作为顶级任务导入。',
+  'unsupported repetition remains in source metadata; review the rule before enabling repetition':
+    '此重复规则暂不支持，已保留原值，请核对后再启用重复。',
+  'no stable external ID; similar titles are not used to infer an update':
+    '缺少稳定的外部 ID，未按相似标题推断更新对象。',
+  'fine-grained recurrence remains a read-only source rule; task mapping requires bounded expansion':
+    '高频重复规则已保留为只读来源，转为任务前需要限定展开范围。',
+  'nested alarms/components are preserved but not activated':
+    '内嵌提醒与组件已保留，导入后不会自动启用。',
+  'Copies receive independent identities; original request receipts and active cross-content operations are not copied':
+    '副本使用独立身份；原请求回执及进行中的跨内容操作不会复制。',
+  'The empty destination will adopt the imported application settings':
+    '目标工作空间为空，将采用导入文件中的应用偏好。',
+  'Import comes from another dataset; identities are preserved and existing entities are not overwritten':
+    '来源属于另一数据集；保留原始身份，已有记录不会被覆盖。',
+};
+function importWarning(raw: string): { subject: string; message: string } {
+  if (warningMessages[raw]) return { subject: '', message: warningMessages[raw] };
+  const row = raw.match(/^Row (\d+): (.*)$/);
+  const uid = raw.match(/^UID (.*?): (.*)$/);
+  const separator = raw.indexOf(': ');
+  const subject = row
+    ? '第 ' + row[1] + ' 行'
+    : uid
+      ? '日历条目 ' + uid[1]
+      : separator >= 0
+        ? raw.slice(0, separator)
+        : '';
+  const message = row ? row[2] : uid ? uid[2] : separator >= 0 ? raw.slice(separator + 2) : raw;
+  const property = message.match(
+    /^([A-Z0-9-]+) is preserved in source content; remote resources are not fetched$/,
+  );
+  return {
+    subject,
+    message:
+      warningMessages[message] ||
+      (property ? property[1] + ' 字段已保留在来源内容中，不会抓取外部资源。' : message),
+  };
+}
+const previewWarnings = computed(() => (preview.value?.warnings || []).map(importWarning));
 function diffValue(value: unknown): string {
   if (value === null || value === undefined || value === '') return '未设置';
   if (typeof value === 'boolean') return value ? '是' : '否';
@@ -150,9 +350,13 @@ watch(
       (!settings.value ||
         (!invalidPreferences.value && JSON.stringify(settings.value) === settingsBaseline.value))
     ) {
+      const pristineImport = importInputSnapshot.value === importBaseline.value;
       settings.value = JSON.parse(JSON.stringify(value));
       settingsBaseline.value = JSON.stringify(value);
-      importZone.value = value.timeZone;
+      if (pristineImport) {
+        importZone.value = value.timeZone;
+        importBaseline.value = importInputSnapshot.value;
+      }
     }
   },
   { immediate: true },
@@ -222,8 +426,18 @@ const dirty = computed(
     invalidPreferences.value ||
     (!!settings.value && JSON.stringify(settings.value) !== settingsBaseline.value),
 );
+const hasDraft = computed(
+  () =>
+    dirty.value ||
+    importInputSnapshot.value !== importBaseline.value ||
+    !!connection.name ||
+    !!connection.url ||
+    !!feedName.value ||
+    !!feedLists.value.length ||
+    feedDescription.value,
+);
 watch(
-  () => dirty.value || !!content.value || !!connection.url,
+  hasDraft,
   (value) => {
     state.externalDirty.settings = value;
   },
@@ -334,13 +548,19 @@ type NumericSetting =
 function setSettingNumber(key: NumericSetting, value: number | string | null) {
   if (settings.value) settings.value[key] = (value ?? '') as number;
 }
+function setDisplayTimeZone(value: string) {
+  if (!settings.value) return;
+  const previous = settings.value.timeZone;
+  settings.value.timeZone = value;
+  if (settings.value.quietHours?.timeZone === previous) settings.value.quietHours.timeZone = value;
+}
 function quiet(enabled: boolean) {
   if (!settings.value) return;
   settings.value.quietHours = {
     enabled,
     start: settings.value.quietHours?.start || '22:00',
     end: settings.value.quietHours?.end || '08:00',
-    timeZone: settings.value.timeZone,
+    timeZone: settings.value.quietHours?.timeZone || settings.value.timeZone,
   };
 }
 async function exportFile(kind: 'json' | 'ics') {
@@ -358,22 +578,35 @@ async function exportFile(kind: 'json' | 'ics') {
     state.notice = '导出文件已生成';
   });
 }
+let decodeGeneration = 0;
 async function decodeFile() {
-  if (!file.value) return;
-  preview.value = null;
+  const selected = file.value;
+  if (!selected) return;
+  const generation = ++decodeGeneration;
+  const selectedEncoding = encoding.value;
+  cancelPreview();
+  content.value = '';
+  fileDecoding.value = true;
   try {
-    content.value = new TextDecoder(encoding.value, { fatal: true }).decode(
-      await file.value.arrayBuffer(),
+    const decoded = new TextDecoder(selectedEncoding, { fatal: true }).decode(
+      await selected.arrayBuffer(),
     );
+    if (generation !== decodeGeneration) return;
+    content.value = decoded;
     state.error = '';
   } catch {
-    content.value = '';
+    if (generation !== decodeGeneration) return;
     state.error = '文件解码失败，请选择正确的文件编码后重试';
+  } finally {
+    if (generation === decodeGeneration) fileDecoding.value = false;
   }
 }
 async function chooseFile(event: Event) {
   const selected = (event.target as HTMLInputElement).files?.[0];
   if (!selected) return;
+  cancelPreview();
+  decodeGeneration++;
+  fileDecoding.value = false;
   if (selected.size > 64 * 1024 * 1024) {
     state.error = '导入文件不能超过 64 MB';
     return;
@@ -386,34 +619,49 @@ async function chooseFile(event: Event) {
       ? 'csv'
       : 'json';
   await decodeFile();
-  preview.value = null;
 }
 async function previewImport() {
+  if (fileDecoding.value) return;
+  const snapshot = importInputSnapshot.value;
+  const generation = importGeneration;
+  const input = {
+    format: format.value,
+    mergeMode: mergeMode.value,
+    content: content.value,
+    name: sourceName.value || file.value?.name || '手动导入',
+    timeZone: importZone.value,
+    target: target.value,
+    listId: importList.value,
+    ...(format.value === 'csv'
+      ? { mapping: Object.fromEntries(Object.entries(mapping).filter(([, v]) => v)) }
+      : {}),
+  };
+  cancelPreview();
   await work(async () => {
-    preview.value = await props.model.request('/api/to-doo/import/preview', 'POST', {
-      format: format.value,
-      mergeMode: mergeMode.value,
-      content: content.value,
-      name: sourceName.value || file.value?.name || '手动导入',
-      timeZone: importZone.value,
-      target: target.value,
-      listId: importList.value,
-      ...(format.value === 'csv'
-        ? { mapping: Object.fromEntries(Object.entries(mapping).filter(([, v]) => v)) }
-        : {}),
-    });
+    const result = await props.model.request('/api/to-doo/import/preview', 'POST', input);
+    if (generation !== importGeneration || snapshot !== importInputSnapshot.value) return;
+    preview.value = result;
+    confirmedImport.value = { snapshot, requestId: crypto.randomUUID() };
   });
 }
 async function applyImport() {
-  if (!preview.value) return;
+  const confirmed = confirmedImport.value;
+  if (!preview.value || !confirmed || confirmed.snapshot !== importInputSnapshot.value) return;
+  const previewId = preview.value.id;
   await work(async () => {
     const result = await props.model.request('/api/to-doo/import/apply', 'POST', {
-      previewId: preview.value.id,
-      requestId: crypto.randomUUID(),
+      previewId,
+      requestId: confirmed.requestId,
     });
-    preview.value = null;
-    content.value = '';
-    file.value = undefined;
+    // Only consume the submitted draft; later edits belong to the next import.
+    if (confirmed.snapshot === importInputSnapshot.value) {
+      cancelPreview();
+      content.value = '';
+      file.value = undefined;
+      sourceName.value = '';
+      if (importFileInput.value) importFileInput.value.value = '';
+      importBaseline.value = importInputSnapshot.value;
+    }
     if (result.jobId) {
       trackJob(result);
       state.notice = '导入作业已开始，可在下方查看批次进度';
@@ -457,13 +705,16 @@ async function revokeDevice(id: string) {
 }
 async function createFeed() {
   await work(async () => {
-    const result = await props.model.request('/api/to-doo/calendars/feeds', 'POST', {
+    const submitted = {
       name: feedName.value,
-      listIds: feedLists.value,
+      listIds: [...feedLists.value],
       includeDescription: feedDescription.value,
-    });
+    };
+    const result = await props.model.request('/api/to-doo/calendars/feeds', 'POST', submitted);
     feed.value = new URL(result.url, location.origin).href;
-    feedName.value = '';
+    if (feedName.value === submitted.name) feedName.value = '';
+    if (JSON.stringify(feedLists.value) === JSON.stringify(submitted.listIds)) feedLists.value = [];
+    if (feedDescription.value === submitted.includeDescription) feedDescription.value = false;
     await refreshConnections();
     state.notice = '只读订阅链接已创建';
   });
@@ -478,8 +729,10 @@ async function revokeFeed(id: string) {
 }
 async function connect() {
   await work(async () => {
-    await props.model.request('/api/to-doo/calendars/connect', 'POST', { ...connection });
-    connection.url = '';
+    const submitted = { ...connection };
+    await props.model.request('/api/to-doo/calendars/connect', 'POST', submitted);
+    if (connection.name === submitted.name) connection.name = '';
+    if (connection.url === submitted.url) connection.url = '';
     await refreshConnections();
     await props.model.load();
     state.notice = '外部日历已连接';
@@ -507,13 +760,17 @@ async function disconnect(id: string) {
   });
 }
 defineExpose({
-  hasUnsavedChanges: () => dirty.value || !!content.value || !!connection.url,
+  hasUnsavedChanges: () => hasDraft.value,
+  activeTab,
   submitPreferences,
   dirty,
 });
 </script>
 <template>
   <div class="todo-settings">
+    <datalist id="to-doo-timezones">
+      <option v-for="zone in timeZoneSuggestions" :key="zone" :value="zone" />
+    </datalist>
     <ATabs v-model:active-key="activeTab" class="todo-settings-tabs" aria-label="设置分类">
       <ATabPane key="preferences" tab="偏好" />
       <ATabPane key="connections" tab="提醒与连接" />
@@ -686,13 +943,16 @@ defineExpose({
           <template #header>
             <span>日期与提醒</span>
             <span v-if="settings.quietHours?.enabled" class="todo-muted todo-small">
-              · 免打扰 {{ settings.quietHours.start }} — {{ settings.quietHours.end }}
+              · 免打扰 {{ settings.quietHours.start }} — {{ settings.quietHours.end }} ·
+              {{ settings.quietHours.timeZone }}
             </span>
           </template>
           <div class="todo-form-grid">
             <label
               >显示时区<AInput
-                v-model:value="settings.timeZone"
+                :value="settings.timeZone"
+                @update:value="setDisplayTimeZone"
+                list="to-doo-timezones"
                 aria-label="显示时区"
                 required
                 placeholder="Asia/Shanghai" /></label
@@ -722,6 +982,9 @@ defineExpose({
             class="todo-checkbox"
             >开启免打扰时段</ACheckbox
           >
+          <p v-if="settings.quietHours?.enabled" class="todo-form-help">
+            免打扰实际时区：{{ settings.quietHours.timeZone }}
+          </p>
           <div v-if="settings.quietHours?.enabled" class="todo-form-grid">
             <label
               >开始<ToDooDateField
@@ -854,7 +1117,19 @@ defineExpose({
       <div class="todo-pad todo-form">
         <h3>从文件导入</h3>
         <p class="todo-form-help">选择文件或粘贴内容，预览核对后再确认导入。</p>
+        <div class="todo-actions">
+          <AButton
+            html-type="button"
+            :disabled="busy || fileDecoding"
+            @click="importFileInput?.click()"
+            >选择导入文件</AButton
+          >
+          <span>{{ file?.name || '尚未选择文件' }}</span>
+          <span v-if="fileDecoding" role="status">正在读取文件…</span>
+        </div>
         <input
+          ref="importFileInput"
+          hidden
           type="file"
           accept=".json,.ics,.csv"
           aria-label="选择导入文件"
@@ -950,7 +1225,7 @@ defineExpose({
         <AButton
           html-type="button"
           class="todo-button"
-          :disabled="busy || !content"
+          :disabled="busy || fileDecoding || !content"
           :loading="busy"
           @click="previewImport"
           type="default"
@@ -963,7 +1238,11 @@ defineExpose({
             将分 {{ preview.batchCount }} 批处理，每批最多
             {{ preview.batchSize }} 项；停止后会保留已完成批次。
           </p>
-          <p v-for="w in preview.warnings" :key="w" class="todo-warning">{{ w }}</p>
+          <ul v-if="preview.warnings.length" aria-label="导入核对提示">
+            <li v-for="(warning, i) in previewWarnings" :key="i" class="todo-warning">
+              <strong v-if="warning.subject">{{ warning.subject }}：</strong>{{ warning.message }}
+            </li>
+          </ul>
           <ToDooDisclosure v-if="preview.changes?.length">
             <template #header
               ><span>核对 {{ preview.changes.length }} 项更新差异</span></template
@@ -982,14 +1261,30 @@ defineExpose({
               </div>
             </article>
           </ToDooDisclosure>
-          <ul>
-            <li v-for="(item, i) in preview.items.slice(0, 20)" :key="i">
-              {{ item.entity.title || item.entity.name || item.entity.summary || item.kind }}
+          <ul aria-label="待导入条目">
+            <li v-for="(item, i) in previewItems" :key="item.kind + ':' + (item.entity.id || i)">
+              <strong>{{ importItemTitle(item) }}</strong>
+              <p class="todo-muted todo-small">
+                {{ importKindLabels[item.kind] || '记录' }} · {{ importItemDate(item) }} ·
+                {{ importItemDestination(item) }}
+              </p>
             </li>
           </ul>
-          <p v-if="preview.items.length > 20" class="todo-muted">
-            还有 {{ preview.items.length - 20 }} 项
-          </p>
+          <div v-if="previewPageCount > 1" class="todo-actions" aria-label="导入预览分页">
+            <AButton aria-label="上一页预览" :disabled="previewPage === 1" @click="previewPage--"
+              >上一页</AButton
+            >
+            <span
+              >第 {{ previewPage }} / {{ previewPageCount }} 页 · 共
+              {{ preview.items.length }} 项</span
+            >
+            <AButton
+              aria-label="下一页预览"
+              :disabled="previewPage === previewPageCount"
+              @click="previewPage++"
+              >下一页</AButton
+            >
+          </div>
           <AButton
             html-type="button"
             class="todo-button todo-primary"
@@ -999,7 +1294,7 @@ defineExpose({
             type="primary"
           >
             确认导入 {{ preview.items.length }} 项</AButton
-          ><AButton html-type="button" class="todo-button" @click="preview = null" type="default"
+          ><AButton html-type="button" class="todo-button" @click="cancelPreview" type="default"
             >取消预览</AButton
           >
         </div>
