@@ -611,15 +611,26 @@ export function createToDooNotifications(
           "SELECT * FROM to_doo_push_outbox WHERE ((state='pending' AND next_at<=?) OR (state='sending' AND lease_until<=?)) ORDER BY next_at LIMIT 100",
         )
         .all(atMs, atMs) as QueueRow[];
-      for (const row of rows)
+      for (const row of rows) {
         db.prepare("UPDATE to_doo_push_outbox SET state='sending',lease_until=? WHERE id=?").run(
           atMs + 60000,
           row.id,
         );
+        row.lease_until = atMs + 60000;
+      }
       return rows;
     })();
+    const ownedClaim = " WHERE id=? AND state='sending' AND lease_until=? AND generation=?";
     for (const row of claimed) {
       if (closed) break;
+      const claim = [row.id, row.lease_until, row.generation];
+      // A previous send may have yielded while these cached claims were cancelled or reclaimed.
+      if (
+        !db
+          .prepare('SELECT 1 FROM to_doo_push_outbox' + ownedClaim + ' AND lease_until>?')
+          .get(...claim, now().getTime())
+      )
+        continue;
       const event = port.events().find((e) => e.id === row.event_id),
         device = db
           .prepare("SELECT * FROM to_doo_push_devices WHERE id=? AND status='active'")
@@ -633,16 +644,16 @@ export function createToDooNotifications(
         !port.valid(event) ||
         (!row.payload && event.deliveryGeneration !== row.generation)
       ) {
-        db.prepare("UPDATE to_doo_push_outbox SET state='cancelled',lease_until=0 WHERE id=?").run(
-          row.id,
-        );
+        db.prepare(
+          "UPDATE to_doo_push_outbox SET state='cancelled',lease_until=0" + ownedClaim,
+        ).run(...claim);
         continue;
       }
       const quiet = quietHoursEnd(now(), port.quietHours());
       if (quiet) {
         db.prepare(
-          "UPDATE to_doo_push_outbox SET state='pending',next_at=?,lease_until=0 WHERE id=?",
-        ).run(quiet.getTime(), row.id);
+          "UPDATE to_doo_push_outbox SET state='pending',next_at=?,lease_until=0" + ownedClaim,
+        ).run(quiet.getTime(), ...claim);
         continue;
       }
       try {
@@ -660,26 +671,32 @@ export function createToDooNotifications(
             };
         const code = await deliver(device, payload);
         if (code >= 200 && code < 300) {
-          db.prepare(
-            "UPDATE to_doo_push_outbox SET state='sent',lease_until=0,attempts=attempts+1 WHERE id=?",
-          ).run(row.id);
-          lastError = null;
+          const settled = db
+            .prepare(
+              "UPDATE to_doo_push_outbox SET state='sent',lease_until=0,attempts=attempts+1" +
+                ownedClaim,
+            )
+            .run(...claim);
+          if (settled.changes) lastError = null;
         } else if (code === 404 || code === 410)
           db.prepare(
-            "UPDATE to_doo_push_outbox SET state='expired',lease_until=0,attempts=attempts+1 WHERE id=?",
-          ).run(row.id);
+            "UPDATE to_doo_push_outbox SET state='expired',lease_until=0,attempts=attempts+1" +
+              ownedClaim,
+          ).run(...claim);
         else throw new Error('delivery failed');
       } catch {
         const attempts = row.attempts + 1;
-        db.prepare(
-          'UPDATE to_doo_push_outbox SET state=?,attempts=?,next_at=?,lease_until=0 WHERE id=?',
-        ).run(
-          attempts >= 5 ? 'failed' : 'pending',
-          attempts,
-          now().getTime() + Math.min(300000, 30000 * 2 ** (attempts - 1)),
-          row.id,
-        );
-        lastError = 'Push delivery failed; retry status is available';
+        const settled = db
+          .prepare(
+            'UPDATE to_doo_push_outbox SET state=?,attempts=?,next_at=?,lease_until=0' + ownedClaim,
+          )
+          .run(
+            attempts >= 5 ? 'failed' : 'pending',
+            attempts,
+            now().getTime() + Math.min(300000, 30000 * 2 ** (attempts - 1)),
+            ...claim,
+          );
+        if (settled.changes) lastError = 'Push delivery failed; retry status is available';
       }
     }
   }

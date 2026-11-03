@@ -24,7 +24,7 @@ afterEach(async () => {
   for (const close of resources.splice(0)) await close();
   for (const db of databases.splice(0)) db.close();
 });
-function fixture() {
+function fixture(send?: (call: number) => Promise<number>) {
   const db = new Database(':memory:');
   databases.push(db);
   let clock = new Date('2026-10-29T09:00:00.000Z');
@@ -61,7 +61,7 @@ function fixture() {
     resolve: async () => [{ address: '8.8.8.8', family: 4 }],
     send: async () => {
       sent++;
-      return { status: response, headers: {}, body: Buffer.alloc(0) };
+      return { status: send ? await send(sent) : response, headers: {}, body: Buffer.alloc(0) };
     },
   });
   const options = {
@@ -101,6 +101,24 @@ function fixture() {
       active = false;
     },
   };
+}
+// Pause one actual runtime send while queue actions or another worker run against the same DB.
+function pausedDeliveryFixture() {
+  let started!: () => void, release!: (status: number) => void;
+  const sending = new Promise<void>((resolve) => {
+    started = resolve;
+  });
+  const result = new Promise<number>((resolve) => {
+    release = resolve;
+  });
+  const f = fixture(async (call) => {
+    if (call === 1) {
+      started();
+      return result;
+    }
+    return 201;
+  });
+  return { f, sending, release };
 }
 async function habitDomain() {
   const root = await mkdtemp(join(tmpdir(), 'to-doo-habit-rules-')),
@@ -276,6 +294,154 @@ describe('persistent notification outbox', () => {
     expect(f.sent).toBe(2);
     await f.runtime.close();
   });
+  it('does not dispatch later claimed devices after unread restoration during the first device send', async () => {
+    const { f, sending, release } = pausedDeliveryFixture();
+    await f.runtime.configure({ enabled: true });
+    await f.runtime.subscribe({ subscription: f.subscription, deviceName: 'First' });
+    await f.runtime.subscribe({
+      subscription: { ...f.subscription, endpoint: 'https://push.example/second' },
+      deviceName: 'Second',
+    });
+    const processing = f.runtime.process();
+    await sending;
+    const event = Object.values(f.events)[0];
+    const dismissed = f.runtime.action(event.id, {
+      action: 'dismiss',
+      requestId: 'during-dismiss',
+      expectedRevision: event.revision,
+    });
+    f.runtime.action(event.id, {
+      action: 'unread',
+      requestId: 'during-restore',
+      expectedRevision: dismissed.revision,
+    });
+    release(201);
+    await processing;
+    expect(f.sent).toBe(1);
+    expect(f.options.db.prepare('SELECT state FROM to_doo_push_outbox').all()).toEqual([
+      { state: 'cancelled' },
+      { state: 'cancelled' },
+    ]);
+    f.advance(1);
+    await f.runtime.process();
+    expect(f.sent).toBe(1);
+    await f.runtime.close();
+  });
+
+  it('does not resurrect a cancelled in-flight failure into a retry after restoring unread', async () => {
+    const { f, sending, release } = pausedDeliveryFixture();
+    await f.runtime.configure({ enabled: true });
+    await f.runtime.subscribe({ subscription: f.subscription, deviceName: 'First' });
+    const processing = f.runtime.process();
+    await sending;
+    const event = Object.values(f.events)[0];
+    f.runtime.action(event.id, {
+      action: 'unread',
+      requestId: 'cancel-inflight',
+      expectedRevision: event.revision,
+    });
+    release(503);
+    await processing;
+    expect(f.options.db.prepare('SELECT state FROM to_doo_push_outbox').get()).toEqual({
+      state: 'cancelled',
+    });
+    f.advance(1);
+    await f.runtime.process();
+    expect(f.sent).toBe(1);
+    await f.runtime.close();
+  });
+
+  it('does not overwrite a newer worker settlement after an expired in-flight lease fails', async () => {
+    const { f, sending, release } = pausedDeliveryFixture();
+    await f.runtime.configure({ enabled: true });
+    await f.runtime.subscribe({ subscription: f.subscription, deviceName: 'Device' });
+    const original = f.runtime.process();
+    await sending;
+    f.advance(2);
+    const worker = createToDooNotifications(f.port, f.options);
+    await worker.process();
+    expect(f.sent).toBe(2);
+    release(503);
+    await original;
+    expect(
+      f.options.db.prepare('SELECT state,attempts,lease_until FROM to_doo_push_outbox').get(),
+    ).toEqual({ state: 'sent', attempts: 1, lease_until: 0 });
+    f.advance(1);
+    await f.runtime.process();
+    expect(f.sent).toBe(2);
+    await worker.close();
+    await f.runtime.close();
+  });
+
+  it('reclaims expired later-device leases on the next batch instead of dispatching an old cached claim', async () => {
+    const { f, sending, release } = pausedDeliveryFixture();
+    await f.runtime.configure({ enabled: true });
+    await f.runtime.subscribe({ subscription: f.subscription, deviceName: 'First' });
+    await f.runtime.subscribe({
+      subscription: { ...f.subscription, endpoint: 'https://push.example/second' },
+      deviceName: 'Second',
+    });
+    const processing = f.runtime.process();
+    await sending;
+    f.advance(2);
+    release(201);
+    await processing;
+    expect(f.sent).toBe(1);
+    await f.runtime.process();
+    expect(f.sent).toBe(2);
+    await f.runtime.close();
+  });
+
+  it('preserves quiet-hour deferral for a later claimed device after the first send finishes', async () => {
+    const { f, sending, release } = pausedDeliveryFixture();
+    await f.runtime.configure({ enabled: true });
+    await f.runtime.subscribe({ subscription: f.subscription, deviceName: 'First' });
+    await f.runtime.subscribe({
+      subscription: { ...f.subscription, endpoint: 'https://push.example/second' },
+      deviceName: 'Second',
+    });
+    const processing = f.runtime.process();
+    await sending;
+    f.port.quietHours = () => ({ enabled: true, start: '09:00', end: '10:00', timeZone: 'UTC' });
+    release(201);
+    await processing;
+    expect(f.sent).toBe(1);
+    expect(
+      f.options.db.prepare("SELECT next_at FROM to_doo_push_outbox WHERE state='pending'").get(),
+    ).toEqual({ next_at: Date.parse('2026-10-29T10:00:00Z') });
+    f.advance(61);
+    await f.runtime.process();
+    expect(f.sent).toBe(2);
+    await f.runtime.close();
+  });
+
+  it.each(['acknowledge', 'dismiss'] as const)(
+    'still blocks later devices after %s during an in-flight send',
+    async (action) => {
+      const { f, sending, release } = pausedDeliveryFixture();
+      await f.runtime.configure({ enabled: true });
+      await f.runtime.subscribe({ subscription: f.subscription, deviceName: 'First' });
+      await f.runtime.subscribe({
+        subscription: { ...f.subscription, endpoint: 'https://push.example/second' },
+        deviceName: 'Second',
+      });
+      const processing = f.runtime.process();
+      await sending;
+      const event = Object.values(f.events)[0];
+      f.runtime.action(event.id, {
+        action,
+        requestId: 'handle-inflight',
+        expectedRevision: event.revision,
+      });
+      release(503);
+      await processing;
+      f.advance(1);
+      await f.runtime.process();
+      expect(f.sent).toBe(1);
+      await f.runtime.close();
+    },
+  );
+
   it('rejects snoozing when the source is already invalid rather than promising an undeliverable reminder', async () => {
     const f = fixture();
     await f.runtime.configure({ enabled: true });
