@@ -5,6 +5,7 @@ import ts from 'typescript';
 import * as Vue from 'vue';
 import * as vueuse from '@vueuse/core';
 import * as clock from '../apps/web/to-doo-time';
+import * as focusSync from '../apps/web/to-doo-focus-history-sync';
 import * as workbench from '../apps/web/to-doo-workbench';
 import * as reminders from '../apps/web/to-doo-reminders';
 import * as habits from '../shared/to-doo-habits';
@@ -66,6 +67,7 @@ function component(name: string): Vue.Component {
       if (id === 'vue') return { ...Vue, vModelText: {}, vModelSelect: {} };
       if (id === '@vueuse/core') return vueuse;
       if (id === '../../to-doo-time') return clock;
+      if (id === '../../to-doo-focus-history-sync') return focusSync;
       if (id === '../../to-doo-workbench') return workbench;
       if (id === '../../to-doo-reminders') return reminders;
       if (id === '../../../../shared/to-doo-habits') return habits;

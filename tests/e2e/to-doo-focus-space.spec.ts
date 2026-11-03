@@ -110,8 +110,9 @@ test('compact focus overview leaves the first history record above the timer', a
   const root = resolve(
     dirname(fileURLToPath(import.meta.url)),
     '../..',
-    'docs/design/to-doo/focus-space-2026-11-01',
+    'docs/design/to-doo/audit-fixes-2026-11-03',
     phase,
+    'focus-space',
   );
   await mkdir(root, { recursive: true });
   await page.screenshot({

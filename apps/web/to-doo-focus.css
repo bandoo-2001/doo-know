@@ -18,7 +18,7 @@
 .todo-focus-project-head,
 .todo-focus-topic {
   display: grid;
-  grid-template-columns: minmax(130px, 1fr) 76px 100px 64px;
+  grid-template-columns: minmax(130px, 1fr) 64px 100px 64px;
   gap: var(--todo-space);
   align-items: center;
 }
@@ -123,7 +123,7 @@
   font-size: 11px;
 }
 .todo-focus-records .todo-section-header {
-  padding: 0 0 8px;
+  padding: 0 0 4px;
   gap: 8px;
   border-bottom: 0;
 }
@@ -372,12 +372,19 @@
     grid-template-columns: minmax(0, 1fr) 64px 64px;
     gap: 6px;
   }
-  .todo-focus-project-head > span:nth-child(3),
-  .todo-focus-topic > .todo-focus-topic-duration:nth-child(3) {
+  .todo-focus-project-head,
+  .todo-focus-topic {
+    grid-template-columns: minmax(0, 1fr) 44px 68px 52px;
+    gap: 2px;
+    padding-inline: 0;
+  }
+  .todo-focus-project-head {
+    font-size: 10px;
+  }
+  .todo-focus-topic-icon {
     display: none;
   }
-  .todo-focus-project-head > span:first-child::after {
-    content: ' · 点项目查看累计';
+  .todo-focus-topic-duration {
     font-size: 10px;
   }
   .todo-focus-timer {
@@ -452,4 +459,31 @@
 }
 .todo-focus-settings-toggle {
   justify-self: end;
+}
+
+.todo-focus-scope {
+  color: var(--todo-muted);
+  font-size: 10px;
+  line-height: 1.2;
+  margin: 0 0 4px;
+}
+.to-doo-workspace .todo-focus-topic-total.ant-btn {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0;
+  height: auto;
+  padding: 4px;
+  font-size: 11px;
+  white-space: normal;
+}
+.todo-focus-topic-total small {
+  display: block;
+  color: var(--todo-muted);
+  font-size: 10px;
+}
+.todo-focus-history-copy .todo-focus-corrected {
+  display: inline;
+  margin-left: 4px;
+  color: var(--todo-accent);
 }

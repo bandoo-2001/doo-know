@@ -35,6 +35,7 @@ import {
   toDooLocalDate,
   type ToDooWorkbench,
 } from '../../to-doo-workbench';
+import { reconcileFocusHistory, type FocusHistoryScan } from '../../to-doo-focus-history-sync';
 import { useToDooConfirm } from '../../to-doo-controls';
 import ToDooSelect from './ToDooSelect.vue';
 import ToDooDateField from './ToDooDateField.vue';
@@ -91,6 +92,13 @@ const tick = ref(Date.now()),
 const noteBaselines: Record<string, string> = Object.create(null);
 const noteConflict = ref<{ session: Session; submitted: string; finish?: boolean }>();
 let epoch = 0;
+let loadedScope = '',
+  loadedQuery = '';
+const syncing = ref(false),
+  pendingScan = ref<FocusHistoryScan>();
+function recordScope() {
+  return JSON.stringify({ topic: topicFilter.value, from: from.value, to: to.value });
+}
 const visible = ref(false);
 const clock = useIntervalFn(() => (tick.value = Date.now()), 1000, { immediate: false });
 const polling = useIntervalFn(
@@ -300,13 +308,24 @@ async function loadTopics(append = false) {
 }
 async function load(append = false, activityOnly = false) {
   if (append && (loading.value || loadingMore.value || !history.value?.page.nextCursor)) return;
-  if (activityOnly && (loading.value || loadingMore.value || focusBusy.value || state.busy)) return;
+  if (
+    activityOnly &&
+    (loading.value || loadingMore.value || syncing.value || focusBusy.value || state.busy)
+  )
+    return;
   if (from.value && to.value && from.value > to.value) {
     error.value = '结束日期不能早于开始日期';
     return;
   }
   const token = activityOnly ? epoch : ++epoch,
-    selection = JSON.stringify(query());
+    selection = JSON.stringify(query()),
+    scope = recordScope(),
+    dataset = state.snapshot?.datasetId;
+  if (activityOnly) syncing.value = true;
+  const current = () =>
+    token === epoch &&
+    selection === JSON.stringify(query()) &&
+    dataset === state.snapshot?.datasetId;
   if (append) {
     loadingMore.value = true;
     pageError.value = '';
@@ -323,24 +342,43 @@ async function load(append = false, activityOnly = false) {
     const response = (await props.model.request(
       '/api/to-doo/focus/history?' + params,
     )) as ToDooFocusHistory;
-    if (token !== epoch || selection !== JSON.stringify(query())) return;
-    const old = history.value;
+    if (!current() || (dataset && response.datasetId !== dataset)) return;
+    const old = history.value,
+      scopeChanged = loadedScope !== scope;
     if (narrowTimer.value && old?.active && !response.active) mobilePane.value = 'history';
     if (activityOnly && old && Date.parse(response.now) < Date.parse(old.now)) return;
     clockOffset.value = Date.parse(response.now) - Date.now();
     tick.value = Date.now();
-    if (activityOnly && old && old.datasetId === response.datasetId) {
-      const latest = new Map(response.items.map((row) => [row.id, row]));
+    if (!append && old && loadedScope === scope && old.datasetId === response.datasetId) {
+      // Timer controls use the fresh head immediately; slower pages reconcile history separately.
+      syncing.value = true;
       history.value = {
         ...old,
         active: response.active,
         overview: response.overview,
         trend: response.trend,
         now: response.now,
-        revision: response.revision,
-        items: old.items.map((row) => latest.get(row.id) ?? row),
-        page: { ...old.page, total: response.page.total },
       };
+      const result = await reconcileFocusHistory(
+        old,
+        response,
+        async (cursor) => {
+          if (!current()) throw new Error('专注范围已切换');
+          const next = new URLSearchParams(params);
+          next.set('cursor', cursor);
+          const page = (await props.model.request(
+            '/api/to-doo/focus/history?' + next,
+          )) as ToDooFocusHistory;
+          if (!current()) throw new Error('专注范围已切换');
+          return page;
+        },
+        pendingScan.value,
+        20,
+        loadedQuery !== selection,
+      );
+      if (!current()) return;
+      history.value = result.history;
+      pendingScan.value = result.pending;
     } else {
       history.value = {
         ...response,
@@ -349,19 +387,23 @@ async function load(append = false, activityOnly = false) {
             ? [...new Map([...old.items, ...response.items].map((row) => [row.id, row])).values()]
             : response.items,
       };
+      pendingScan.value = undefined;
     }
+    loadedScope = scope;
+    loadedQuery = selection;
     error.value = '';
-    if (!append && !activityOnly) {
+    if (!append && !activityOnly && scopeChanged) {
       await nextTick();
       if (token === epoch && historyScroller.value) historyScroller.value.scrollTop = 0;
     }
   } catch (cause) {
-    if (token === epoch) {
+    if (current()) {
       const message = cause instanceof Error ? cause.message : String(cause);
       if (append) pageError.value = message;
       else error.value = message;
     }
   } finally {
+    if (token === epoch) syncing.value = false;
     if (!activityOnly && token === epoch) {
       if (append) loadingMore.value = false;
       else loading.value = false;
@@ -379,6 +421,7 @@ function loadNearHistoryEnd() {
     loadingMore.value ||
     pageError.value ||
     error.value ||
+    !!pendingScan.value ||
     !history.value?.page.hasMore
   )
     return;
@@ -444,10 +487,13 @@ watch(allTopics, (values, old) => {
 });
 function chooseTopic(topic: Topic) {
   if (!active.value) selectedTopic.value = topic.id;
+}
+function viewTopicHistory(topic: Topic) {
   topicFilter.value = topic.id;
+  mobilePane.value = 'history';
 }
 function openTrend(topic: Topic) {
-  chooseTopic(topic);
+  viewTopicHistory(topic);
   showTrend.value = true;
   mobilePane.value = 'history';
 }
@@ -712,14 +758,18 @@ async function resolveNoteConflict(merge: boolean) {
           "
           >查看全部记录</AButton
         >
+        <AButton :disabled="!!active" :aria-pressed="!selectedTopic" @click="selectedTopic = ''"
+          >自由专注</AButton
+        >
       </ToDooPageToolbar>
+      <p class="todo-focus-scope">选择项目用于计时；查看累计用于筛选记录。</p>
       <AAlert v-if="topicError" type="error" :message="topicError"
         ><template #action
           ><AButton type="link" @click="loadTopics()">重试</AButton></template
         ></AAlert
       >
       <div class="todo-focus-project-head" aria-hidden="true">
-        <span>专注项目</span><span>今日</span><span>累计</span><span></span>
+        <span>计时项目</span><span>今日</span><span>累计 / 记录</span><span></span>
       </div>
       <article
         v-for="topic in topics"
@@ -739,9 +789,15 @@ async function resolveNoteConflict(merge: boolean) {
         <span class="todo-focus-topic-duration">{{
           duration(totals?.byTopic[topic.id]?.today.minutes)
         }}</span>
-        <span class="todo-focus-topic-duration">{{
-          duration(totals?.byTopic[topic.id]?.lifetime.minutes)
-        }}</span>
+        <AButton
+          type="text"
+          class="todo-focus-topic-total"
+          :aria-label="'查看累计 ' + topic.name"
+          @click="viewTopicHistory(topic)"
+        >
+          <span>{{ duration(totals?.byTopic[topic.id]?.lifetime.minutes) }}</span
+          ><small>查看累计</small>
+        </AButton>
         <div class="todo-focus-topic-actions">
           <AButton
             v-if="!topic.archivedAt"
@@ -797,12 +853,14 @@ async function resolveNoteConflict(merge: boolean) {
           >{{ showTrend ? '收起趋势' : '时长趋势' }}</AButton
         ><ToDooSelect v-model="topicFilter" aria-label="专注记录项目" :options="topicOptions"
       /></ToDooSectionHeader>
+      <p class="todo-focus-scope">历史/趋势项目独立于计时；概览统计该项目今日与累计。</p>
       <ToDooFocusTrendChart
         v-if="showTrend"
         :trend="history?.trend"
         :period="trendPeriod"
         :date="trendDate"
         :time-zone="history?.timeZone"
+        :now="history?.now"
         :loading="loading"
         :error="error"
         @change="changeTrend"
@@ -885,7 +943,12 @@ async function resolveNoteConflict(merge: boolean) {
             <div class="todo-focus-history-copy">
               <div class="todo-between">
                 <strong>{{ sessionName(session) }}</strong
-                ><span>{{ duration(focusElapsed(session, now) / 60) }}</span>
+                ><span
+                  >{{ duration(focusElapsed(session, now) / 60)
+                  }}<small v-if="session.correctedMinutes !== null" class="todo-focus-corrected"
+                    >已修正</small
+                  ></span
+                >
               </div>
               <small
                 >{{ timeRange(session) }} ·
@@ -952,7 +1015,15 @@ async function resolveNoteConflict(merge: boolean) {
       <p v-if="pageError" class="todo-focus-page-error" role="alert">{{ pageError }}</p>
       <div class="todo-focus-history-footer">
         <AButton
-          v-if="history?.page.hasMore"
+          v-if="pendingScan"
+          size="small"
+          type="text"
+          :loading="loading || syncing"
+          @click="load()"
+          >继续同步记录</AButton
+        >
+        <AButton
+          v-if="history?.page.hasMore && !pendingScan"
           size="small"
           type="text"
           :loading="loadingMore"
@@ -962,12 +1033,19 @@ async function resolveNoteConflict(merge: boolean) {
         >
         <p v-if="history?.page.total" class="todo-focus-count todo-muted" aria-live="polite">
           {{ history.page.total }} 条记录 ·
-          {{ history.page.hasMore ? `已载入 ${items.length} 条` : '已全部载入' }}
+          {{
+            pendingScan || syncing
+              ? `已载入 ${items.length} 条 · 同步未完成`
+              : history.page.hasMore
+                ? `已载入 ${items.length} 条`
+                : '已全部载入'
+          }}
         </p>
       </div>
       <details class="todo-focus-policy">
         <summary>统计口径</summary>
         <p class="todo-focus-count todo-muted">
+          概览统计当前筛选项目的今日与累计，不受记录日期影响；趋势按所选周期，记录按所选日期范围。计时项目独立选择。
           完成次数按开始日计算；时长按每日片段计入，修正时长计入开始日。休息与取消不计入专注统计。
         </p>
       </details>
@@ -986,7 +1064,11 @@ async function resolveNoteConflict(merge: boolean) {
           <small
             v-if="linkedAction && linkedAction !== (active ? sessionName(active) : selected?.name)"
             class="todo-focus-linked-action"
-            >关联行动：{{ linkedAction }}</small
+            >关联行动：{{ linkedAction
+            }}<template v-if="!active">（切换项目仍保留）</template></small
+          >
+          <AButton v-if="!active && chosen" size="small" type="text" @click="chosen = ''"
+            >清空关联行动</AButton
           >
           <small
             v-if="active && (Object.hasOwn(notes, active.id) || active.note)"
@@ -1025,7 +1107,7 @@ async function resolveNoteConflict(merge: boolean) {
           :disabled="
             state.busy ||
             focusBusy ||
-            loading ||
+            (loading && !syncing) ||
             (!!selected?.archivedAt && !(mode === 'break' && target === 0))
           "
           @click="start()"

@@ -423,9 +423,13 @@ test('an interrupted session resumes from history and active note conflicts pres
     expect(response.ok()).toBe(true);
     return response.json();
   }
+  const topicId = 'interrupted-' + crypto.randomUUID();
+  const topicName = '恢复中断记录项目';
+  await command('save_entity', { kind: 'focusTopic', entity: { id: topicId, name: topicName } });
   const interrupted = await command('save_entity', {
     kind: 'focusSession',
     entity: {
+      topicId,
       mode: 'pomodoro',
       status: 'interrupted',
       topicName: '恢复中断记录',
@@ -436,6 +440,7 @@ test('an interrupted session resumes from history and active note conflicts pres
   await page.goto('/?view=apps&app=to-doo&appSection=focus');
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
   await openToDooFocusHistory(page);
+  await selectToDooOption(app, '专注记录项目', topicName);
   const row = app.locator('.todo-focus-history-item').filter({ hasText: '恢复中断记录' });
   await expect(row).toBeVisible();
   await row.getByRole('button', { name: '继续计时', exact: true }).click();

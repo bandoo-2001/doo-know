@@ -8,6 +8,7 @@ const props = defineProps<{
   period: ToDooFocusTrend['period'];
   date: string;
   timeZone?: string;
+  now?: string;
   loading: boolean;
   error: string;
 }>();
@@ -38,14 +39,33 @@ const max = computed(() =>
   Math.max(60, Math.ceil(Math.max(0, ...points.value.map((point) => point.minutes)) / 60) * 60),
 );
 const ticks = computed(() => [0, max.value / 2, max.value]);
-const geometry = computed(() =>
-  points.value.map((point, index) => ({
-    ...point,
-    x: 42 + (index * 358) / Math.max(1, points.value.length - 1),
-    y: 84 - (point.minutes / max.value) * 60,
-  })),
+const localToday = computed(() =>
+  new Intl.DateTimeFormat('en-CA', {
+    timeZone: props.timeZone || 'UTC',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date(props.now || Date.now())),
 );
-const path = computed(() => geometry.value.map((point) => `${point.x},${point.y}`).join(' '));
+const elapsedBucket = (date: string) =>
+  props.period === 'year'
+    ? date.slice(0, 7) <= localToday.value.slice(0, 7)
+    : date <= localToday.value;
+const geometry = computed(() =>
+  points.value
+    .map((point, index) => ({
+      ...point,
+      x: 42 + (index * 358) / Math.max(1, points.value.length - 1),
+      y: 84 - (point.minutes / max.value) * 60,
+    }))
+    .filter((point) => elapsedBucket(point.date) || point.minutes > 0),
+);
+const path = computed(() =>
+  geometry.value
+    .filter((point) => elapsedBucket(point.date))
+    .map((point) => `${point.x},${point.y}`)
+    .join(' '),
+);
 const selected = computed(() => geometry.value.findIndex((point) => point.date === picked.value));
 const activeIndex = computed(() =>
   selected.value >= 0
@@ -111,6 +131,7 @@ function pointKey(event: KeyboardEvent, index: number) {
         ><strong data-testid="focus-trend-total">{{ duration(trend.totalMinutes) }}</strong>
       </div>
     </div>
+    <p class="todo-muted todo-focus-trend-scope">趋势范围：当前项目 · 所选周期（独立于记录日期）</p>
     <div class="todo-focus-trend-navigation">
       <AButton
         size="small"
@@ -144,6 +165,7 @@ function pointKey(event: KeyboardEvent, index: number) {
         aria-label="专注时长折线图"
         class="todo-focus-trend-chart"
       >
+        <desc>未来日期尚未发生，折线仅连接已发生的日期；未来正值仍单独显示。</desc>
         <g aria-hidden="true">
           <text x="4" y="12">分钟</text>
           <g v-for="tick in ticks" :key="tick">
@@ -239,6 +261,11 @@ function pointKey(event: KeyboardEvent, index: number) {
   padding: 8px;
   border: 1px solid var(--todo-line);
   border-radius: var(--todo-radius);
+}
+.todo-focus-trend-scope {
+  font-size: 10px;
+  line-height: 1.2;
+  margin-block: 0;
 }
 .todo-focus-trend-heading {
   display: flex;

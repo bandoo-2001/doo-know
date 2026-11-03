@@ -88,7 +88,8 @@ async function seed(page: import('@playwright/test').Page) {
 test('project duration curves support week, month and year without changing the history range', async ({
   page,
 }, info) => {
-  const { app, nameA, today, otherDate, previousMonthDate, weekLabel, totalWithin } = await seed(page);
+  const { app, nameA, today, otherDate, previousMonthDate, weekLabel, totalWithin } =
+    await seed(page);
   await expect(app.getByRole('region', { name: '专注时长趋势', exact: true })).not.toBeVisible();
   await app.getByRole('button', { name: '专注项目操作 ' + nameA, exact: true }).click();
   await page.getByRole('menuitem', { name: '时长趋势', exact: true }).click();
@@ -116,9 +117,13 @@ test('project duration curves support week, month and year without changing the 
   await expect(chart).toContainText(
     previousMonthDate.slice(0, 4) + '年' + Number(previousMonthDate.slice(5, 7)) + '月',
   );
-  await expect(chart.getByTestId('focus-trend-total')).toHaveText(totalWithin(previousMonthDate.slice(0, 7)));
+  await expect(chart.getByTestId('focus-trend-total')).toHaveText(
+    totalWithin(previousMonthDate.slice(0, 7)),
+  );
   await chart.getByText('年', { exact: true }).click();
-  await expect(chart.getByTestId('focus-trend-total')).toHaveText(totalWithin(previousMonthDate.slice(0, 4)));
+  await expect(chart.getByTestId('focus-trend-total')).toHaveText(
+    totalWithin(previousMonthDate.slice(0, 4)),
+  );
   await chart.getByRole('button', { name: '上一年', exact: true }).click();
   await expect(chart).toContainText(String(Number(previousMonthDate.slice(0, 4)) - 1) + '年');
   await expect(chart.getByTestId('focus-trend-total')).toHaveText('0 分钟');
@@ -128,7 +133,7 @@ test('project duration curves support week, month and year without changing the 
   await expect(chart.getByTestId('focus-trend-total')).toHaveText(totalWithin(today.slice(0, 4)));
   await expect(app.locator('.todo-focus-history-item')).toHaveCount(1);
   const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
-  const directory = resolve(root, 'docs/design/to-doo/focus-trend-2026-11-01');
+  const directory = resolve(root, 'docs/design/to-doo/audit-fixes-2026-11-03/after/focus-trend');
   await mkdir(directory, { recursive: true });
   if (info.project.name === 'mobile') {
     await page.emulateMedia({ colorScheme: 'dark' });
@@ -158,7 +163,7 @@ test('a slow previous project or period response cannot replace the current curv
   page,
 }) => {
   const { app, ids, nameA, nameB, today } = await seed(page);
-  await app.getByRole('button', { name: '选择专注项目 ' + nameA, exact: true }).click();
+  await app.getByRole('button', { name: '查看累计 ' + nameA, exact: true }).click();
   const history = await openToDooFocusHistory(page);
   await history.getByRole('button', { name: '时长趋势', exact: true }).click();
   const chart = app.getByRole('region', { name: '专注时长趋势', exact: true });
