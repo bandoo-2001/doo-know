@@ -133,7 +133,7 @@ test('project duration curves support week, month and year without changing the 
   await expect(chart.getByTestId('focus-trend-total')).toHaveText(totalWithin(today.slice(0, 4)));
   await expect(app.locator('.todo-focus-history-item')).toHaveCount(1);
   const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
-  const directory = resolve(root, 'docs/design/to-doo/audit-fixes-2026-11-03/after/focus-trend');
+  const directory = resolve(root, 'docs/design/to-doo/two-level-implementation-2026-11-04/regression-screenshots/after/focus-trend');
   await mkdir(directory, { recursive: true });
   if (info.project.name === 'mobile') {
     await page.emulateMedia({ colorScheme: 'dark' });

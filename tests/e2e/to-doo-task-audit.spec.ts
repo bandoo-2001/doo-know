@@ -143,10 +143,10 @@ test('mobile task tools and dates stay readable with board and quadrant overview
   await expect(dates).toBeVisible();
   await expect(dates).toContainText('计划');
   await expect(dates).toContainText('截止');
-  await mkdir('docs/design/to-doo/audit-fixes-2026-11-03/tasks', { recursive: true });
+  await mkdir('docs/design/to-doo/two-level-implementation-2026-11-04/regression-screenshots/tasks', { recursive: true });
   await page.screenshot({
     path:
-      'docs/design/to-doo/audit-fixes-2026-11-03/tasks/mobile-board-' + info.project.name + '.png',
+      'docs/design/to-doo/two-level-implementation-2026-11-04/regression-screenshots/tasks/mobile-board-' + info.project.name + '.png',
     fullPage: true,
     animations: 'disabled',
   });
@@ -158,7 +158,7 @@ test('mobile task tools and dates stay readable with board and quadrant overview
     .click();
   await page.screenshot({
     path:
-      'docs/design/to-doo/audit-fixes-2026-11-03/tasks/mobile-matrix-' + info.project.name + '.png',
+      'docs/design/to-doo/two-level-implementation-2026-11-04/regression-screenshots/tasks/mobile-matrix-' + info.project.name + '.png',
     fullPage: true,
     animations: 'disabled',
   });

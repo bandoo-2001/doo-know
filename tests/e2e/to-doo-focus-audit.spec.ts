@@ -76,7 +76,7 @@ test('cumulative action opens phone history independently of the timer and free 
     expect(
       (await cumulative.getByText('15 分钟', { exact: true }).boundingBox())!.height,
     ).toBeLessThanOrEqual(20);
-    const directory = resolve('docs/design/to-doo/audit-fixes-2026-11-03/after');
+    const directory = resolve('docs/design/to-doo/two-level-implementation-2026-11-04/regression-screenshots/after');
     await mkdir(directory, { recursive: true });
     await page.screenshot({ path: resolve(directory, 'phone-focus-projects.png'), scale: 'css' });
   }
@@ -87,7 +87,7 @@ test('cumulative action opens phone history independently of the timer and free 
   await expect(records).toContainText('已修正');
   await expect(timer).toContainText(otherName);
   if (info.project.name === 'mobile') {
-    const directory = resolve('docs/design/to-doo/audit-fixes-2026-11-03/after');
+    const directory = resolve('docs/design/to-doo/two-level-implementation-2026-11-04/regression-screenshots/after');
     await mkdir(directory, { recursive: true });
     await page.screenshot({ path: resolve(directory, 'phone-focus-history.png'), scale: 'css' });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(

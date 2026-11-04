@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { compileScript, parse } from '@vue/compiler-sfc';
+import { compileScript, compileTemplate, parse } from '@vue/compiler-sfc';
 import { describe, expect, it, vi } from 'vitest';
 import ts from 'typescript';
 import * as Vue from 'vue';
@@ -7,10 +7,30 @@ import * as workbench from '../apps/web/to-doo-workbench';
 import * as controls from '../apps/web/to-doo-controls';
 import * as groups from '../apps/web/to-doo-task-groups';
 import lunar from 'lunar-javascript';
+import { toDooAntStubs, toDooBoundaryStub } from './support/to-doo-ant-stubs';
+
+type Node = {
+  tag: string;
+  text: string;
+  props: Record<string, any>;
+  children: Node[];
+  parent?: Node;
+};
+const SlotBoundary = Vue.defineComponent({
+  setup:
+    (_, { attrs, slots }) =>
+    () =>
+      Vue.h('div', attrs, [slots.default?.(), slots.actions?.()]),
+});
 
 function editor(
   listId: string | null,
-  options?: { kind: string; seed?: Record<string, any>; entity?: Record<string, any> },
+  options?: {
+    kind: string;
+    seed?: Record<string, any>;
+    entity?: Record<string, any>;
+    render?: boolean;
+  },
 ) {
   const { descriptor } = parse(
     readFileSync(
@@ -30,25 +50,62 @@ function editor(
       if (id === '../../to-doo-workbench') return workbench;
       if (id === '../../to-doo-controls') return controls;
       if (id === '../../to-doo-task-groups') return groups;
-      if (id === 'ant-design-vue' || id.endsWith('.vue')) return {};
+      if (id === 'ant-design-vue') return options?.render ? toDooAntStubs : {};
+      if (id.endsWith('.vue'))
+        return options?.render ? { default: toDooBoundaryStub(id) || SlotBoundary } : {};
       throw Error(`Unexpected entity dependency: ${id}`);
     },
     output,
     output.exports,
   );
   const component = output.exports.default;
-  component.render = () => null;
-  const renderer = Vue.createRenderer<any, any>({
-    createComment: () => ({}),
-    createElement: () => ({}),
-    createText: () => ({}),
-    insert() {},
-    remove() {},
-    setText() {},
-    setElementText() {},
-    patchProp() {},
-    parentNode: () => null,
-    nextSibling: () => null,
+  if (options?.render) {
+    const template = compileTemplate({
+      source: descriptor.template!.content,
+      filename: 'ToDooEntityEditor.vue',
+      id: 'entity-editor',
+      compilerOptions: { bindingMetadata: script.bindings },
+    });
+    const rendered = ts.transpileModule(template.code, {
+      compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+    }).outputText;
+    new Function('require', 'module', 'exports', rendered)(() => Vue, output, output.exports);
+    component.render = output.exports.render;
+  } else component.render = () => null;
+  const node = (tag: string, text = ''): Node => ({ tag, text, props: {}, children: [] });
+  const renderer = Vue.createRenderer<Node, Node>({
+    createComment: () => node('#comment'),
+    createElement: (tag) => node(tag),
+    createText: (text) => node('#text', text),
+    insertStaticContent(text, parent) {
+      const child = node('#static', text);
+      child.parent = parent;
+      parent.children.push(child);
+      return [child, child];
+    },
+    insert(child, parent, anchor) {
+      if (child.parent) child.parent.children.splice(child.parent.children.indexOf(child), 1);
+      child.parent = parent;
+      const index = anchor ? parent.children.indexOf(anchor) : -1;
+      if (index < 0) parent.children.push(child);
+      else parent.children.splice(index, 0, child);
+    },
+    remove(child) {
+      if (child.parent) child.parent.children.splice(child.parent.children.indexOf(child), 1);
+    },
+    setText(child, text) {
+      child.text = text;
+    },
+    setElementText(child, text) {
+      child.text = text;
+      child.children = [];
+    },
+    patchProp(child, key, _old, value) {
+      child.props[key] = value;
+    },
+    parentNode: (child) => child.parent || null,
+    nextSibling: (child) =>
+      child.parent?.children[child.parent.children.indexOf(child) + 1] || null,
   });
   const saveEntity = vi.fn(
     async (_kind: string, _entity: Record<string, any>, _revision?: string) => true,
@@ -74,11 +131,16 @@ function editor(
     tree: [],
     onClose: closed,
   });
-  const mounted = app.mount({});
+  const root = node('root');
+  const mounted = app.mount(root);
   const state = (
     mounted.$ as unknown as { setupState: { save: () => Promise<void>; form: Record<string, any> } }
   ).setupState;
+  const all = (parent = root): Node[] => [parent, ...parent.children.flatMap(all)];
+  const text = (parent: Node = root): string => parent.text + parent.children.map(text).join('');
   return {
+    all,
+    text,
     model,
     closed,
     close: () => (state as any).close(),
@@ -146,6 +208,119 @@ it('submits the review interval for core metric capture after its dates have cha
     value.unmount();
   }
 });
+
+it('shows the actual review snapshot, including zero, without inventing unsupported statistics', () => {
+  const value = editor(null, {
+    kind: 'review',
+    render: true,
+    seed: {
+      from: '2026-11-02',
+      to: '2026-11-08',
+      capturedAt: '2026-11-04T08:15:00.000Z',
+      metrics: { completed: 8, focusMinutes: 125, outcomes: 0, pending: 42 },
+    },
+  });
+  try {
+    const statistics = value.all().find((node) => node.props['aria-label'] === '统计快照');
+    expect(statistics).toBeDefined();
+    expect(value.text(statistics)).toContain('已完成8');
+    expect(value.text(statistics)).toContain('专注125分钟');
+    expect(value.text(statistics)).toContain('成果0');
+    expect(value.text(statistics)).not.toContain('42');
+    expect(value.text(statistics)).not.toContain('待办');
+    expect(value.text(statistics)).toMatch(/保存时.*所选日期.*重新统计/);
+    expect(value.text(statistics)).toMatch(/与本次复盘.*保存/);
+  } finally {
+    value.unmount();
+  }
+});
+
+it('shows an existing review snapshot date and leaves absent metric values absent', async () => {
+  const value = editor(null, {
+    kind: 'review',
+    render: true,
+    entity: {
+      name: '上周复盘',
+      revision: 'review-r1',
+      from: '2026-10-26',
+      to: '2026-11-01',
+      capturedAt: '2026-11-02T08:15:00.000Z',
+      metrics: { completed: 3 },
+    },
+  });
+  try {
+    const statistics = value.all().find((node) => node.props['aria-label'] === '统计快照');
+    expect(statistics).toBeDefined();
+    expect(value.text(statistics)).toContain('已完成3');
+    expect(value.text(statistics)).not.toContain('专注');
+    expect(value.text(statistics)).not.toContain('成果');
+    const timestamp = value.all().find((node) => node.tag === 'time');
+    expect(timestamp?.props.datetime).toBe('2026-11-02T08:15:00.000Z');
+    expect(value.text(timestamp)).toContain('2026');
+    await value.save();
+    expect(value.model.execute).toHaveBeenCalledWith(
+      expect.objectContaining({
+        payload: expect.objectContaining({
+          captureMetrics: true,
+          expectedRevision: 'review-r1',
+          entity: expect.objectContaining({ metrics: { completed: 3 } }),
+        }),
+      }),
+      '已保存',
+    );
+  } finally {
+    value.unmount();
+  }
+});
+
+it.each([
+  ['list', '#647be8'],
+  ['tag', '#647be8'],
+  ['focusTopic', '#4566c6'],
+])('chooses and saves the %s color through its accessible field', async (kind, initialColor) => {
+  const value = editor(null, { kind, seed: { name: '深度工作' }, render: true });
+  try {
+    const input = value.all().find((node) => node.tag === 'input' && node.props.type === 'color');
+    expect(input).toBeDefined();
+    expect(input?.props['aria-label']).toBe('颜色');
+    expect(input?.props.value).toBe(initialColor);
+    input!.props.onInput({ target: { value: '#81c784' } });
+    await Vue.nextTick();
+    expect(input?.props.value).toBe('#81c784');
+    await value.save();
+    expect(value.model.saveEntity).toHaveBeenCalledWith(
+      kind,
+      expect.objectContaining({ name: '深度工作', color: '#81c784' }),
+      undefined,
+    );
+  } finally {
+    value.unmount();
+  }
+});
+
+it.each(['list', 'tag', 'focusTopic'])(
+  'preserves an existing %s color when saving other edits',
+  async (kind) => {
+    const value = editor(null, {
+      kind,
+      entity: { name: '原名称', color: '#a855f7', revision: 'entity-r1' },
+      render: true,
+    });
+    try {
+      const input = value.all().find((node) => node.tag === 'input' && node.props.type === 'color');
+      expect(input?.props.value).toBe('#a855f7');
+      value.form.name = '修改名称';
+      await value.save();
+      expect(value.model.saveEntity).toHaveBeenCalledWith(
+        kind,
+        expect.objectContaining({ name: '修改名称', color: '#a855f7' }),
+        'entity-r1',
+      );
+    } finally {
+      value.unmount();
+    }
+  },
+);
 
 it.each(['timeBlock', 'calendarEvent'])(
   'an all-day %s saves empty clock values without erasing its timed draft',

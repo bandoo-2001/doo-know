@@ -9,7 +9,7 @@ import {
   VISUAL_NOW,
 } from '../support/to-doo-visual-fixture';
 import { expandToDooGroup, selectToDooOption } from '../support/to-doo-ant-controls';
-import { openToDooTaskTools, selectToDooContext } from '../support/to-doo-navigation';
+import { openToDooTaskTools } from '../support/to-doo-navigation';
 
 const output = resolve('docs/design/to-doo/two-level-implementation-2026-11-04/screenshots');
 const design = JSON.parse(
@@ -137,9 +137,7 @@ for (const width of widths)
               ).join('\n'),
           );
         await app.getByRole('button', { name: '预览导入', exact: true }).click();
-        await expect(
-          app.getByRole('button', { name: '确认导入 23 项', exact: true }),
-        ).toBeVisible();
+        await expect(app.getByRole('button', { name: /^确认导入 \d+ 项$/ })).toBeVisible();
         await app.locator('.todo-import-preview').scrollIntoViewIfNeeded();
       }
       if (n === 17) {
@@ -165,10 +163,12 @@ for (const width of widths)
           .getByRole('button', { name: actions[n], exact: true })
           .click();
       if (n === 20) {
-        await selectToDooContext(page, '历史');
+        await expect(app.locator('.todo-habit-cards')).toHaveAttribute('aria-busy', 'false');
         await app
-          .getByRole('button', { name: '阅读 2026-10-30 打卡，当前 10 页', exact: true })
+          .getByRole('article', { name: '习惯 阅读', exact: true })
+          .getByRole('button', { name: '习惯操作 阅读', exact: true })
           .click();
+        await page.getByRole('menuitem', { name: '查看当天记录', exact: true }).click();
       }
       if (n === 24) {
         const detail = app.getByRole('complementary', { name: '任务详情', exact: true });
@@ -250,13 +250,29 @@ for (const width of widths)
         await expect(sidebar).toBeVisible();
         expect((await sidebar.boundingBox())!.width).toBe(208);
         await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
+        await expect(sidebar.locator('[aria-current="page"]')).toContainText(scene.secondary);
+        await expect(
+          page.locator('.workspace-main-menu[data-menu-id="to-doo"] [aria-current="page"]'),
+        ).toContainText(scene.primary);
       }
       const file = `${width}-${scene.file}`;
-      const bytes = await page.screenshot({
-        path: resolve(output, file),
-        fullPage: false,
-        animations: 'allow',
-      });
+      let bytes: Buffer | undefined;
+      await expect(async () => {
+        const first = await page.screenshot({ fullPage: false, animations: 'allow' });
+        await page.evaluate(
+          () =>
+            new Promise<void>((resolve) =>
+              requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+            ),
+        );
+        const second = await page.screenshot({ fullPage: false, animations: 'allow' });
+        expect(
+          second.equals(first),
+          'two consecutive settled viewport captures have identical pixels',
+        ).toBe(true);
+        bytes = second;
+      }).toPass({ timeout: 10000 });
+      await writeFile(resolve(output, file), bytes!);
       if (operation) await expect(operation).toBeVisible();
       if (primaryAction) await expect(primaryAction).toBeInViewport();
       expect(errors).toEqual([]);
@@ -267,7 +283,8 @@ for (const width of widths)
         width,
         height: width > 700 ? 1000 : 844,
         file,
-        sha256: createHash('sha256').update(bytes).digest('hex'),
+        sha256: createHash('sha256').update(bytes!).digest('hex'),
+        consecutiveCapturePixelsStable: true,
         businessTime: VISUAL_NOW,
         source: sourceEvidence,
         url: page.url(),

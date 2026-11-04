@@ -31,6 +31,14 @@
 .todo-settings .todo-actions {
   flex-wrap: wrap;
 }
+.todo-settings .ant-btn-primary:not(:disabled),
+.todo-review .ant-btn-primary:not(:disabled) {
+  color: #fff;
+}
+[data-theme='dark'] .todo-settings .ant-btn-primary:not(:disabled),
+[data-theme='dark'] .todo-review .ant-btn-primary:not(:disabled) {
+  color: var(--todo-bg);
+}
 .todo-settings-preferences-form .todo-form-fields {
   display: grid;
   grid-template-columns: minmax(0, 1fr);

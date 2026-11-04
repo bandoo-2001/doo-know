@@ -2,7 +2,7 @@ import { mkdir, readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { test, expect } from '../support/browser-test';
 
-const evidence = resolve('docs/design/to-doo/card-polish-2026-11-04');
+const evidence = resolve('docs/design/to-doo/two-level-implementation-2026-11-04/regression-screenshots/card-polish');
 test.beforeEach(async ({ page, context }, info) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   await page.setViewportSize({ width: info.project.name === 'mobile' ? 390 : 1440, height: 900 });

@@ -5,7 +5,7 @@ import { test, expect } from '../support/browser-test';
 import { selectToDooContext } from '../support/to-doo-navigation';
 import { selectToDooOption } from '../support/to-doo-ant-controls';
 
-const evidence = resolve('docs/design/to-doo/audit-fixes-2026-11-03/life');
+const evidence = resolve('docs/design/to-doo/two-level-implementation-2026-11-04/regression-screenshots/life');
 test.beforeEach(async ({ page, context }, info) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
   await page.clock.install({ time: new Date('2026-11-03T12:00:00Z') });

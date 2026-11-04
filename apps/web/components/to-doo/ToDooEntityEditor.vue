@@ -36,9 +36,17 @@ const emit = defineEmits<{ close: []; 'open-note': [id: string] }>();
 const confirm = useToDooConfirm();
 const today = toDooLocalDate(new Date(), props.model.state.snapshot?.settings.timeZone);
 const defaults: Record<string, any> = {
-  list: { name: '', kind: 'goal', description: '', goalDate: null, criteria: '', noteRefs: [] },
+  list: {
+    name: '',
+    kind: 'goal',
+    description: '',
+    goalDate: null,
+    criteria: '',
+    noteRefs: [],
+    color: '#647be8',
+  },
   focusTopic: { name: '', description: '', color: '#4566c6', listId: null, archivedAt: null },
-  tag: { name: '' },
+  tag: { name: '', color: '#647be8' },
   section: { name: '', listId: '' },
   habit: {
     name: '',
@@ -179,6 +187,25 @@ const label: Record<string, string> = {
 };
 const hasName = computed(
   () => !['record', 'outcome', 'timeBlock', 'calendarEvent'].includes(props.kind),
+);
+const reviewMetrics = computed(() =>
+  [
+    { key: 'completed', label: '已完成', unit: '项' },
+    { key: 'focusMinutes', label: '专注', unit: '分钟' },
+    { key: 'outcomes', label: '成果', unit: '项' },
+  ]
+    .filter(
+      ({ key }) => typeof form.metrics?.[key] === 'number' && Number.isFinite(form.metrics[key]),
+    )
+    .map((metric) => ({ ...metric, value: form.metrics[metric.key] })),
+);
+const reviewCapturedTime = computed(() =>
+  form.capturedAt
+    ? new Date(form.capturedAt).toLocaleString('zh-CN', {
+        timeZone: props.model.state.snapshot?.settings.timeZone || 'UTC',
+        hour12: false,
+      })
+    : '',
 );
 const habitRuleChanged = computed(
   () =>
@@ -380,6 +407,18 @@ defineExpose({
           >目标日期<ToDooDateField v-model="form.goalDate" type="date"
         /></label>
       </div>
+      <label v-if="['list', 'tag', 'focusTopic'].includes(kind)"
+        >颜色
+        <span class="todo-entity-color-control">
+          <input
+            type="color"
+            aria-label="颜色"
+            :value="form.color || defaults[kind].color"
+            @input="form.color = ($event.target as HTMLInputElement).value"
+          />
+          <span class="todo-muted">{{ form.color || defaults[kind].color }}</span>
+        </span>
+      </label>
       <label v-if="kind === 'section'"
         >关联目标或清单<ToDooSelect v-model="form.listId" aria-required="true"
           ><option :value="null">请选择目标或清单</option>
@@ -474,6 +513,25 @@ defineExpose({
           <label>开始日期<ToDooDateField v-model="form.from" type="date" required /></label
           ><label>结束日期<ToDooDateField v-model="form.to" type="date" required /></label>
         </div>
+        <section class="todo-review-snapshot" role="region" aria-label="统计快照">
+          <h3>统计快照</h3>
+          <dl v-if="reviewMetrics.length" class="todo-review-snapshot-metrics">
+            <div v-for="metric in reviewMetrics" :key="metric.key">
+              <dt>{{ metric.label }}</dt>
+              <dd>
+                {{ metric.value }}<span>{{ metric.unit }}</span>
+              </dd>
+            </div>
+          </dl>
+          <p v-if="form.capturedAt" class="todo-form-help">
+            快照时间：<time :datetime="form.capturedAt">{{ reviewCapturedTime }}</time> （{{
+              model.state.snapshot?.settings.timeZone || 'UTC'
+            }}）
+          </p>
+          <p class="todo-form-help">
+            保存时将按所选日期在服务端重新统计，并与本次复盘一并保存。之后的归档操作不会改写已保存的统计快照。
+          </p>
+        </section>
         <label
           >复盘内容<ATextarea
             v-model:value="form.content"
@@ -801,6 +859,58 @@ defineExpose({
 </template>
 
 <style scoped>
+.todo-entity-color-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.todo-entity-color-control > input[type='color'] {
+  flex: 0 0 44px;
+  width: 44px;
+  height: 36px;
+  padding: 3px;
+  border: 1px solid var(--todo-line);
+  border-radius: 8px;
+  background: var(--todo-paper);
+  cursor: pointer;
+}
+.todo-review-snapshot {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--todo-line);
+  border-radius: 10px;
+  background: var(--todo-paper);
+}
+.todo-review-snapshot h3 {
+  margin: 0;
+  font-size: 13px;
+}
+.todo-review-snapshot-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+.todo-review-snapshot-metrics dt {
+  color: var(--todo-muted);
+  font-size: 12px;
+}
+.todo-review-snapshot-metrics dd {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px;
+  margin: 4px 0 0;
+  font-size: 22px;
+  font-weight: 600;
+}
+.todo-review-snapshot-metrics dd span {
+  font-size: 12px;
+  font-weight: 400;
+}
 .todo-lunar-fields {
   grid-column: 1 / -1;
   display: grid;
