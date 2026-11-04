@@ -1,4 +1,3 @@
-
  RUN  v5.0.4 /home/bandoo/.codex/worktrees/5a33/doo-know
 
 
@@ -9,4 +8,3 @@
 
     Isolate  52 workers spawned · ~155ms startup each (spawn + environment, per file)
              at least ~7.91s faster with isolate: false — reuses workers across files instead of one per file
-

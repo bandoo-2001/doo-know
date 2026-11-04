@@ -17,7 +17,7 @@ Running 2 tests using 1 worker
   ✘  2 [desktop] › tests/e2e/to-doo-two-level-windows.spec.ts:96:34 › long import preview keeps navigation and confirmation reachable at 320px (7.5s)
 
 
-  1) [desktop] › tests/e2e/to-doo-two-level-windows.spec.ts:96:34 › long import preview keeps navigation and confirmation reachable at 1440px 
+  1) [desktop] › tests/e2e/to-doo-two-level-windows.spec.ts:96:34 › long import preview keeps navigation and confirmation reachable at 1440px
 
     Error: expect(locator).toBeInViewport() failed
 
@@ -52,7 +52,7 @@ Running 2 tests using 1 worker
 
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
-  2) [desktop] › tests/e2e/to-doo-two-level-windows.spec.ts:96:34 › long import preview keeps navigation and confirmation reachable at 320px 
+  2) [desktop] › tests/e2e/to-doo-two-level-windows.spec.ts:96:34 › long import preview keeps navigation and confirmation reachable at 320px
 
     Error: expect(locator).toBeInViewport() failed
 
@@ -88,5 +88,5 @@ Running 2 tests using 1 worker
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
   2 failed
-    [desktop] › tests/e2e/to-doo-two-level-windows.spec.ts:96:34 › long import preview keeps navigation and confirmation reachable at 1440px 
-    [desktop] › tests/e2e/to-doo-two-level-windows.spec.ts:96:34 › long import preview keeps navigation and confirmation reachable at 320px 
+    [desktop] › tests/e2e/to-doo-two-level-windows.spec.ts:96:34 › long import preview keeps navigation and confirmation reachable at 1440px
+    [desktop] › tests/e2e/to-doo-two-level-windows.spec.ts:96:34 › long import preview keeps navigation and confirmation reachable at 320px

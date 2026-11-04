@@ -22,7 +22,7 @@ Running 7 tests using 1 worker
   ✓  7 [desktop] › tests/e2e/to-doo-two-level-windows.spec.ts:98:3 › long import preview keeps navigation and confirmation reachable at 320px (3.4s)
 
 
-  1) [desktop] › tests/e2e/to-doo-focus-bottom-bar.spec.ts:26:1 › focus timer rests on the content bottom when the project list is short 
+  1) [desktop] › tests/e2e/to-doo-focus-bottom-bar.spec.ts:26:1 › focus timer rests on the content bottom when the project list is short
 
     Error: expect(received).toBeLessThanOrEqual(expected)
 
@@ -53,5 +53,5 @@ Running 7 tests using 1 worker
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
   1 failed
-    [desktop] › tests/e2e/to-doo-focus-bottom-bar.spec.ts:26:1 › focus timer rests on the content bottom when the project list is short 
+    [desktop] › tests/e2e/to-doo-focus-bottom-bar.spec.ts:26:1 › focus timer rests on the content bottom when the project list is short
   6 passed (28.4s)

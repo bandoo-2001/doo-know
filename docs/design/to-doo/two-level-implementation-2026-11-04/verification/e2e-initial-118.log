@@ -115,7 +115,7 @@ Running 118 tests using 1 worker
 Testing stopped early after 10 maximum allowed failures.
 
 
-  1) [desktop] › tests/e2e/to-doo-calendar-audit.spec.ts:15:1 › overnight segments, short-event details, original editing and mobile grid remain reachable 
+  1) [desktop] › tests/e2e/to-doo-calendar-audit.spec.ts:15:1 › overnight segments, short-event details, original editing and mobile grid remain reachable
 
     Test timeout of 45000ms exceeded.
 
@@ -143,7 +143,7 @@ Testing stopped early after 10 maximum allowed failures.
 
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
-  2) [desktop] › tests/e2e/to-doo-forms.spec.ts:240:1 › changing list type does not erase its hidden goal fields 
+  2) [desktop] › tests/e2e/to-doo-forms.spec.ts:240:1 › changing list type does not erase its hidden goal fields
 
     Test timeout of 45000ms exceeded.
 
@@ -171,7 +171,7 @@ Testing stopped early after 10 maximum allowed failures.
 
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
-  3) [desktop] › tests/e2e/to-doo-life-audit.spec.ts:42:1 › quantity history retains 45/20 and correction removes only one of three saved entries 
+  3) [desktop] › tests/e2e/to-doo-life-audit.spec.ts:42:1 › quantity history retains 45/20 and correction removes only one of three saved entries
 
     Test timeout of 45000ms exceeded.
 
@@ -199,7 +199,7 @@ Testing stopped early after 10 maximum allowed failures.
 
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
-  4) [desktop] › tests/e2e/to-doo-management-cohesion.spec.ts:43:1 › optional calendar forms retain drafts across sections and idle recovery stays folded 
+  4) [desktop] › tests/e2e/to-doo-management-cohesion.spec.ts:43:1 › optional calendar forms retain drafts across sections and idle recovery stays folded
 
     Error: expect(locator).not.toBeVisible() failed
 
@@ -234,7 +234,7 @@ Testing stopped early after 10 maximum allowed failures.
 
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
-  5) [desktop] › tests/e2e/to-doo-task-audit.spec.ts:105:1 › mobile task tools and dates stay readable with board and quadrant overview jumps 
+  5) [desktop] › tests/e2e/to-doo-task-audit.spec.ts:105:1 › mobile task tools and dates stay readable with board and quadrant overview jumps
 
     Test timeout of 45000ms exceeded.
 
@@ -262,7 +262,7 @@ Testing stopped early after 10 maximum allowed failures.
 
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
-  6) [desktop] › tests/e2e/to-doo-unified-shell.spec.ts:56:1 › desktop pages share the global header and contextual layout boundaries 
+  6) [desktop] › tests/e2e/to-doo-unified-shell.spec.ts:56:1 › desktop pages share the global header and contextual layout boundaries
 
     Error: stats: title baseline
 
@@ -314,7 +314,7 @@ Testing stopped early after 10 maximum allowed failures.
 
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
-  7) [mobile] › tests/e2e/to-doo-calendar-audit.spec.ts:15:1 › overnight segments, short-event details, original editing and mobile grid remain reachable 
+  7) [mobile] › tests/e2e/to-doo-calendar-audit.spec.ts:15:1 › overnight segments, short-event details, original editing and mobile grid remain reachable
 
     Error: expect(locator).toHaveCount(expected) failed
 
@@ -351,7 +351,7 @@ Testing stopped early after 10 maximum allowed failures.
 
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
-  8) [mobile] › tests/e2e/to-doo-calendar-audit.spec.ts:177:1 › phone timeline keeps day width and sticky task titles while scrolling 
+  8) [mobile] › tests/e2e/to-doo-calendar-audit.spec.ts:177:1 › phone timeline keeps day width and sticky task titles while scrolling
 
     Error: expect(locator).toHaveCount(expected) failed
 
@@ -386,7 +386,7 @@ Testing stopped early after 10 maximum allowed failures.
 
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
-  9) [mobile] › tests/e2e/to-doo-calendar-audit.spec.ts:299:1 › adjacent short events keep readable title and time targets without painting over one another 
+  9) [mobile] › tests/e2e/to-doo-calendar-audit.spec.ts:299:1 › adjacent short events keep readable title and time targets without painting over one another
 
     Error: expect(locator).toHaveCount(expected) failed
 
@@ -423,7 +423,7 @@ Testing stopped early after 10 maximum allowed failures.
 
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
-  10) [mobile] › tests/e2e/to-doo-forms.spec.ts:240:1 › changing list type does not erase its hidden goal fields 
+  10) [mobile] › tests/e2e/to-doo-forms.spec.ts:240:1 › changing list type does not erase its hidden goal fields
 
     Test timeout of 45000ms exceeded.
 
@@ -452,16 +452,16 @@ Testing stopped early after 10 maximum allowed failures.
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
   10 failed
-    [desktop] › tests/e2e/to-doo-calendar-audit.spec.ts:15:1 › overnight segments, short-event details, original editing and mobile grid remain reachable 
-    [desktop] › tests/e2e/to-doo-forms.spec.ts:240:1 › changing list type does not erase its hidden goal fields 
-    [desktop] › tests/e2e/to-doo-life-audit.spec.ts:42:1 › quantity history retains 45/20 and correction removes only one of three saved entries 
-    [desktop] › tests/e2e/to-doo-management-cohesion.spec.ts:43:1 › optional calendar forms retain drafts across sections and idle recovery stays folded 
-    [desktop] › tests/e2e/to-doo-task-audit.spec.ts:105:1 › mobile task tools and dates stay readable with board and quadrant overview jumps 
-    [desktop] › tests/e2e/to-doo-unified-shell.spec.ts:56:1 › desktop pages share the global header and contextual layout boundaries 
-    [mobile] › tests/e2e/to-doo-calendar-audit.spec.ts:15:1 › overnight segments, short-event details, original editing and mobile grid remain reachable 
-    [mobile] › tests/e2e/to-doo-calendar-audit.spec.ts:177:1 › phone timeline keeps day width and sticky task titles while scrolling 
-    [mobile] › tests/e2e/to-doo-calendar-audit.spec.ts:299:1 › adjacent short events keep readable title and time targets without painting over one another 
-    [mobile] › tests/e2e/to-doo-forms.spec.ts:240:1 › changing list type does not erase its hidden goal fields 
+    [desktop] › tests/e2e/to-doo-calendar-audit.spec.ts:15:1 › overnight segments, short-event details, original editing and mobile grid remain reachable
+    [desktop] › tests/e2e/to-doo-forms.spec.ts:240:1 › changing list type does not erase its hidden goal fields
+    [desktop] › tests/e2e/to-doo-life-audit.spec.ts:42:1 › quantity history retains 45/20 and correction removes only one of three saved entries
+    [desktop] › tests/e2e/to-doo-management-cohesion.spec.ts:43:1 › optional calendar forms retain drafts across sections and idle recovery stays folded
+    [desktop] › tests/e2e/to-doo-task-audit.spec.ts:105:1 › mobile task tools and dates stay readable with board and quadrant overview jumps
+    [desktop] › tests/e2e/to-doo-unified-shell.spec.ts:56:1 › desktop pages share the global header and contextual layout boundaries
+    [mobile] › tests/e2e/to-doo-calendar-audit.spec.ts:15:1 › overnight segments, short-event details, original editing and mobile grid remain reachable
+    [mobile] › tests/e2e/to-doo-calendar-audit.spec.ts:177:1 › phone timeline keeps day width and sticky task titles while scrolling
+    [mobile] › tests/e2e/to-doo-calendar-audit.spec.ts:299:1 › adjacent short events keep readable title and time targets without painting over one another
+    [mobile] › tests/e2e/to-doo-forms.spec.ts:240:1 › changing list type does not erase its hidden goal fields
   37 did not run
   71 passed (8.5m)
   1 error was not a part of any test, see above for details
