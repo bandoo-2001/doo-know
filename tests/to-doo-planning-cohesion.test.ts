@@ -70,6 +70,7 @@ function component(name: string): Vue.Component {
         };
       if (id.endsWith('ToDooTaskRow.vue')) return { default: component('ToDooTaskRow') };
       if (id.endsWith('ToDooDisclosure.vue')) return { default: component('ToDooDisclosure') };
+      if (id.endsWith('ToDooHint.vue')) return { default: component('ToDooHint') };
       if (id.endsWith('.vue')) return { default: Vue.defineComponent({ render: () => null }) };
       throw Error('Unexpected planning dependency: ' + id);
     },
@@ -578,4 +579,33 @@ test('an explicitly selected historical calendar date stays pinned across midnig
   expect(request).not.toHaveBeenCalled();
   expect(calendar.text(calendar.root)).toContain('10/26');
   expect(value.state.query.from).toBe('2026-10-26');
+});
+
+test('contextual calendars delegate view navigation while keeping period and scheduling controls', () => {
+  const navigate = vi.fn(),
+    edit = vi.fn();
+  const calendar = mount('ToDooCalendar', {
+    model: model(),
+    date: '2026-11-02',
+    view: 'week',
+    contextualNavigation: true,
+    onNavigate: navigate,
+    onEdit: edit,
+  });
+  expect(calendar.all().some((node) => node.props['aria-label'] === '日历视图')).toBe(false);
+  calendar.button('下一周期')!.props.onClick();
+  expect(navigate).toHaveBeenCalledWith({ date: '2026-11-09', calendarView: 'week' });
+  calendar.button('＋ 时间安排')!.props.onClick();
+  expect(edit).toHaveBeenCalledWith('timeBlock', undefined, {
+    start: { date: '2026-11-02', time: '09:00', timeZone: 'UTC' },
+  });
+  const timeline = mount('ToDooCalendar', {
+    model: model(),
+    date: '2026-11-02',
+    timeline: true,
+    contextualNavigation: true,
+  });
+  expect(timeline.all().some((node) => node.props['aria-label'] === '任务展示方式')).toBe(false);
+  const standalone = mount('ToDooCalendar', { model: model(), date: '2026-11-02', view: 'week' });
+  expect(standalone.all().some((node) => node.props['aria-label'] === '日历视图')).toBe(true);
 });

@@ -310,11 +310,11 @@ test('deleting a list immediately removes it from the sidebar catalog', async ({
   await entry.click();
   await app.getByRole('button', { name: '编辑当前清单', exact: true }).click();
   await page
-    .getByRole('dialog', { name: '编辑目标与清单', exact: true })
+    .getByRole('dialog', { name: /^编辑(目标|清单)$/ })
     .getByRole('button', { name: '移入回收站', exact: true })
     .click();
   await confirmToDooAction(page);
-  await expect(page.getByRole('dialog', { name: '编辑目标与清单', exact: true })).not.toBeVisible();
+  await expect(page.getByRole('dialog', { name: /^编辑(目标|清单)$/ })).not.toBeVisible();
   await expect(entry).not.toBeVisible();
 });
 
@@ -336,7 +336,7 @@ test('retrying a deleted list refreshes the sidebar after its editor was closed'
     (route) => route.fulfill({ status: 503, json: { error: '删除暂时不可用' } }),
     { times: 1 },
   );
-  const editor = page.getByRole('dialog', { name: '编辑目标与清单', exact: true });
+  const editor = page.getByRole('dialog', { name: /^编辑(目标|清单)$/ });
   await editor.getByRole('button', { name: '移入回收站', exact: true }).click();
   await confirmToDooAction(page);
   await expect(editor.getByRole('alert')).toContainText('删除暂时不可用');
@@ -357,7 +357,9 @@ test.describe('quick view time zones', () => {
     await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
     const before = (await (await page.request.get('/api/to-doo/state')).json()).settings;
     await command(page, 'save_entity', {
-      kind: 'settings', entity: { ...before, timeZone: 'Asia/Shanghai' }, expectedRevision: before.revision,
+      kind: 'settings',
+      entity: { ...before, timeZone: 'Asia/Shanghai' },
+      expectedRevision: before.revision,
     });
     try {
       const title = '上海次日行动 ' + info.project.name + '-' + Date.now();
@@ -378,9 +380,11 @@ test.describe('quick view time zones', () => {
         await page.goto('/?view=apps&app=to-doo&appSection=tasks&taskFilter=today');
         const app = page.getByRole('region', { name: 'To Doo 行动工作空间' });
         await expect(app.getByRole('heading', { name: '今天', exact: true })).toBeVisible();
-        await expect.poll(() => requestedDates.at(-1), {
-          message: 'Today must load October 30 in the workspace time zone at 23:30 UTC',
-        }).toBe('2026-10-30');
+        await expect
+          .poll(() => requestedDates.at(-1), {
+            message: 'Today must load October 30 in the workspace time zone at 23:30 UTC',
+          })
+          .toBe('2026-10-30');
         await expect(app.getByRole('button', { name: title, exact: true })).toBeVisible();
       } finally {
         page.off('request', observe);
@@ -388,7 +392,9 @@ test.describe('quick view time zones', () => {
     } finally {
       const latest = (await (await page.request.get('/api/to-doo/state')).json()).settings;
       await command(page, 'save_entity', {
-        kind: 'settings', entity: { ...latest, timeZone: before.timeZone }, expectedRevision: latest.revision,
+        kind: 'settings',
+        entity: { ...latest, timeZone: before.timeZone },
+        expectedRevision: latest.revision,
       });
     }
   });

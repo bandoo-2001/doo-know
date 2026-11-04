@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { toDooFilterSummary } from '../../to-doo-presentation';
+import { toDooFilterSummary, toDooQuickFilter } from '../../to-doo-presentation';
 import ToDooDisclosure from './ToDooDisclosure.vue';
+import ToDooHint from './ToDooHint.vue';
 import { useToDooConfirm } from '../../to-doo-controls';
 import ToDooDateField from './ToDooDateField.vue';
 import ToDooSelect from './ToDooSelect.vue';
@@ -19,7 +20,7 @@ import {
 import type { TreeEntry } from '../../../../shared/contracts';
 import ToDooFilterGroup from './ToDooFilterGroup.vue';
 import type { ToDooAppSection } from '../../navigation';
-import type { ToDooEntityKind } from '../../../../shared/to-doo-contracts';
+import type { ToDooEntityKind, ToDooFilter } from '../../../../shared/to-doo-contracts';
 import {
   toDooLocalDate,
   toDooDisplayTime,
@@ -47,6 +48,8 @@ const props = withDefaults(
     tree: TreeEntry[];
     quickView?: ToDooQuickFilter;
     creating?: boolean;
+    contextualNavigation?: boolean;
+    contextListId?: string;
   }>(),
   { quickView: 'all' },
 );
@@ -59,12 +62,16 @@ const emit = defineEmits<{
   bulk: [];
   'quick-filter': [value: ToDooQuickFilter];
 }>();
-const viewOptions = [
+const viewOptions = computed(() => [
   { value: 'tasks', label: '列表' },
   { value: 'board', label: '看板' },
-  { value: 'matrix', label: '四象限' },
-  { value: 'timeline', label: '时间线' },
-];
+  ...(!props.contextualNavigation
+    ? [
+        { value: 'matrix', label: '四象限' },
+        { value: 'timeline', label: '时间线' },
+      ]
+    : []),
+]);
 function chooseView(value: string | number) {
   if (value === 'tasks' || value === 'board' || value === 'matrix' || value === 'timeline')
     emit('navigate', value);
@@ -133,7 +140,55 @@ const outlineItems = computed(() =>
       !!state.filter.query,
   ),
 );
-const filterCount = computed(() => toDooFilterSummary(state.filter).length);
+// The current scope belongs to navigation. Clearing an extra condition must not
+// silently switch from a date range or a selected list to the entire library.
+const contextFilter = computed<ToDooFilter>(() => ({
+  ...toDooQuickFilter({}, builtin.value, today.value),
+  ...(props.contextListId ? { listIds: [props.contextListId] } : {}),
+}));
+const extraFilterChips = computed(() =>
+  (Object.keys(state.filter) as (keyof ToDooFilter)[]).flatMap((key) => {
+    const value = state.filter[key],
+      baseline = contextFilter.value[key];
+    const normalized = (item: unknown) =>
+      JSON.stringify(Array.isArray(item) ? [...item].sort() : item);
+    if (normalized(value) === normalized(baseline)) return [];
+    const labels = toDooFilterSummary(
+      { [key]: value },
+      {
+        lists: state.snapshot?.lists,
+        tags: state.snapshot?.tags,
+      },
+    );
+    return labels.map((label) => ({ key, label }));
+  }),
+);
+const filterCount = computed(() => extraFilterChips.value.length);
+const emptyKind = computed(() =>
+  filterCount.value
+    ? 'filtered'
+    : builtin.value !== 'all' || props.contextListId
+      ? 'range'
+      : 'global',
+);
+async function clearExtraFilters() {
+  state.filter = { ...contextFilter.value };
+  advancedFilters.value = false;
+  await filterChanged();
+}
+async function removeExtraFilter(key: keyof ToDooFilter) {
+  const baseline = contextFilter.value[key];
+  const next = { ...state.filter };
+  delete next[key];
+  state.filter = { ...next, ...(baseline !== undefined ? { [key]: baseline } : {}) };
+  if (key === 'group') advancedFilters.value = false;
+  await filterChanged();
+}
+function showAllTasks() {
+  state.filter = {};
+  advancedFilters.value = false;
+  emit('quick-filter', 'all');
+}
 const lists = computed(
   () => state.snapshot?.lists.filter((l) => !l.deletedAt && !l.archivedAt) || [],
 );
@@ -748,16 +803,12 @@ function saveView() {
     </div>
   </template>
   <template v-else>
-    <ToDooQuickAdd
-      v-if="!creating"
-      :model="model"
-      :list-id="state.filter.listIds?.[0]"
-      :default-date="builtin === 'today' || builtin === 'upcoming' ? today : undefined"
-      :seed="createContext"
-      @expand="emit('create')"
-    />
-    <div class="todo-task-toolbar">
+    <div
+      class="todo-task-toolbar"
+      :class="{ 'todo-contextual-task-toolbar': contextualNavigation }"
+    >
       <ASegmented
+        v-if="!contextualNavigation || section === 'tasks' || section === 'board'"
         class="todo-view-switch todo-view-segmented"
         aria-label="任务展示方式"
         :value="section"
@@ -838,7 +889,7 @@ function saveView() {
       </ADropdown>
     </div>
     <form v-if="filterOpen" class="todo-filters todo-filter-panel" @submit.prevent="filterChanged">
-      <label
+      <label v-if="!contextualNavigation"
         >任务范围<ToDooSelect v-model="builtin" aria-label="内建筛选">
           <option value="all">全部任务</option>
           <option value="inbox">收集箱</option>
@@ -902,16 +953,7 @@ function saveView() {
       >
         条件组
       </AButton>
-      <AButton
-        html-type="button"
-        class="todo-link"
-        @click="
-          state.filter = {};
-          advancedFilters = false;
-          emit('quick-filter', 'all');
-        "
-        type="link"
-      >
+      <AButton html-type="button" class="todo-link" @click="clearExtraFilters" type="link">
         清除筛选
       </AButton>
     </form>
@@ -939,6 +981,37 @@ function saveView() {
         </AButton>
       </div>
     </div>
+    <div v-if="extraFilterChips.length" class="todo-task-filter-summary" aria-label="附加筛选">
+      <div class="todo-task-filter-chips">
+        <span v-for="chip in extraFilterChips" :key="chip.key" class="todo-task-filter-chip">
+          <span>{{ chip.label }}</span>
+          <AButton
+            type="text"
+            html-type="button"
+            :aria-label="'移除筛选 ' + chip.label"
+            :disabled="state.loading"
+            @click="removeExtraFilter(chip.key)"
+            >×</AButton
+          >
+        </span>
+      </div>
+      <AButton
+        html-type="button"
+        type="link"
+        class="todo-link"
+        :disabled="state.loading"
+        @click="clearExtraFilters"
+        >清除筛选</AButton
+      >
+    </div>
+    <ToDooQuickAdd
+      v-if="!creating"
+      :model="model"
+      :list-id="state.filter.listIds?.[0]"
+      :default-date="builtin === 'today' || builtin === 'upcoming' ? today : undefined"
+      :seed="createContext"
+      @expand="emit('create')"
+    />
     <div v-if="state.snapshot?.views.some((v) => !v.deletedAt)" class="todo-saved-views">
       <span>保存的视图</span>
       <div
@@ -1226,34 +1299,59 @@ function saveView() {
         <span>{{ showCompleted ? '⌄' : '›' }}</span
         >已完成 <small>{{ completedItems.length }}</small>
       </AButton>
-      <div v-if="!items.length" class="todo-empty">
+      <div
+        v-if="!items.length && !state.loading"
+        class="todo-empty todo-task-empty"
+        :data-empty-kind="emptyKind"
+      >
         <span class="todo-empty-check" aria-hidden="true"
-          ><ToDooIcon name="check" :size="28"
+          ><ToDooIcon :name="emptyKind === 'filtered' ? 'search' : 'check'" :size="28"
         /></span>
         <h2>
           {{
-            state.filter.query
-              ? '没有找到匹配的任务'
-              : builtin === 'today'
-                ? '今天，留一点空间给自己'
+            emptyKind === 'filtered'
+              ? '没有符合当前筛选的任务'
+              : emptyKind === 'range'
+                ? '当前范围没有任务'
                 : '从一件小事开始'
           }}
         </h2>
         <p>
           {{
-            state.filter.query
-              ? '试试其他关键词，或清除筛选。'
-              : '在上方输入待办，按 Enter 就能记下来。'
+            emptyKind === 'filtered'
+              ? '试试清除附加筛选，或查看其他任务范围。'
+              : emptyKind === 'range'
+                ? '这个范围暂时没有任务，可以安排下一步，或查看所有任务。'
+                : '在上方输入待办，按 Enter 就能记下来。'
           }}
         </p>
-        <AButton
-          class="todo-button todo-primary"
-          html-type="button"
-          @click="emit('create')"
-          type="primary"
-        >
-          新建任务
-        </AButton>
+        <div class="todo-actions">
+          <AButton
+            v-if="emptyKind === 'filtered'"
+            class="todo-button todo-primary"
+            html-type="button"
+            aria-label="清除附加筛选"
+            type="primary"
+            @click="clearExtraFilters"
+            >清除筛选</AButton
+          >
+          <AButton
+            v-else
+            class="todo-button todo-primary"
+            html-type="button"
+            type="primary"
+            @click="emit('create', undefined, undefined, createContext)"
+            >新建任务</AButton
+          >
+          <AButton
+            v-if="emptyKind !== 'global'"
+            class="todo-button"
+            html-type="button"
+            type="default"
+            @click="showAllTasks"
+            >查看所有任务</AButton
+          >
+        </div>
       </div>
       <div v-if="state.snapshot?.templates.some((t) => !t.deletedAt)" class="todo-panel-footer">
         <span>从模板创建</span>
@@ -1448,9 +1546,9 @@ function saveView() {
           <small>{{ items.filter((item) => item.status === 'done').length }}</small>
         </AButton>
       </div>
-      <p class="todo-muted todo-small">
+      <ToDooHint :model="model" hint-id="matrix-placement">
         象限按重要程度与截止时间判断紧急性，和优先级分别设置；拖动或选择象限会手动覆盖紧急判断。
-      </p>
+      </ToDooHint>
       <nav class="todo-task-jumps" aria-label="象限概览">
         <AButton
           v-for="(zone, index) in quadrants"
@@ -1551,22 +1649,27 @@ function saveView() {
     </template>
   </template>
 </template>
+<style src="../../to-doo-planning-layout.css"></style>
 <style scoped>
 .todo-overview-cohesion {
   margin-top: 0;
-  grid-template-columns: minmax(0, 1.6fr) minmax(260px, 1fr);
+  grid-template-columns: minmax(0, 1fr);
 }
 .todo-overview-context {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
   gap: 16px;
   min-width: 0;
+}
+.todo-overview-goals {
+  grid-column: 1 / -1;
 }
 .todo-overview-goals .todo-section-title {
   margin: 0 0 10px;
 }
 .todo-overview-goals .todo-goals {
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
 }
 .todo-overview-goals .todo-goal {
   display: flex;
@@ -1624,7 +1727,8 @@ function saveView() {
   color: var(--todo-muted);
 }
 @container (max-width: 650px) {
-  .todo-overview-cohesion {
+  .todo-overview-cohesion,
+  .todo-overview-context {
     grid-template-columns: 1fr;
   }
 }

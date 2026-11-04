@@ -229,3 +229,44 @@ it('resolves a handled task reminder to its original cycle without turning it in
     occurrenceId: occurrence.id,
   });
 });
+
+it('combines notification text, status and inclusive local-date bounds before pagination', () => {
+  const settings = service.snapshot().settings;
+  command('save_entity', {
+    kind: 'settings',
+    entity: { ...settings, timeZone: 'Asia/Tokyo' },
+    expectedRevision: settings.revision,
+  });
+  command('create_task', { id: 'search-source', title: '通知来源' });
+  for (const [id, at, title, userState] of [
+    ['before-local-day', '2026-10-29T14:59:59Z', '项目报告', 'unread'],
+    ['local-start', '2026-10-29T15:00:00Z', '项目报告开始', 'unread'],
+    ['local-end', '2026-10-30T14:59:59Z', '项目报告结束', 'unread'],
+    ['after-local-day', '2026-10-30T15:00:00Z', '项目报告', 'unread'],
+    ['other-search', '2026-10-30T01:00:00Z', '其他事项', 'unread'],
+    ['other-status', '2026-10-30T02:00:00Z', '项目报告', 'acknowledged'],
+  ])
+    command('save_entity', {
+      kind: 'reminderEvent',
+      entity: event(id, 'search-source', at, { title, userState }),
+    });
+  const query = {
+    kind: 'reminderEvent' as const,
+    sort: 'recent' as const,
+    from: '2026-10-30',
+    to: '2026-10-30',
+    reminderStates: ['unread'] as const,
+    filter: { query: '项目报告' },
+    limit: 1,
+  };
+  const first = service.snapshot({ ...query, reminderStates: ['unread'] });
+  expect(first.reminderEvents.map((row) => row.id)).toEqual(['local-end']);
+  expect(first.page.total).toBe(2);
+  const second = service.snapshot({
+    ...query,
+    reminderStates: ['unread'],
+    cursor: first.page.nextCursor!,
+  });
+  expect(second.reminderEvents.map((row) => row.id)).toEqual(['local-start']);
+  expect(second.page.nextCursor).toBeNull();
+});

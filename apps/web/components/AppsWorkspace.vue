@@ -16,7 +16,7 @@ const ToDooWorkspace = defineAsyncComponent({
   delay: 150,
 });
 const GraphWorkspace = defineAsyncComponent(() => import('./GraphWorkspace.vue'));
-type Selection = Pick<WorkspaceRoute, 'task' | 'occurrence' | 'list' | 'date' | 'calendarView' | 'taskFilter'>;
+type Selection = Pick<WorkspaceRoute, 'task' | 'occurrence' | 'list' | 'date' | 'calendarView' | 'taskFilter' | 'appPage'>;
 const toDooRef = ref<{
   hasUnsavedChanges(): boolean;
   requestLeave(): Promise<boolean>;

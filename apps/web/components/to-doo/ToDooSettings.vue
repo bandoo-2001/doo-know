@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ToDooDisclosure from './ToDooDisclosure.vue';
+import ToDooHint from './ToDooHint.vue';
 import ToDooFormLayout from './ToDooFormLayout.vue';
 import {
   Alert as AAlert,
@@ -30,14 +31,35 @@ import type {
   ToDooSettings,
 } from '../../../../shared/to-doo-contracts';
 import type { ToDooWorkbench } from '../../to-doo-workbench';
-const props = defineProps<{ model: ToDooWorkbench }>();
+const props = defineProps<{
+  model: ToDooWorkbench;
+  context?: string;
+  contextualNavigation?: boolean;
+}>();
 const emit = defineEmits<{
+  'context-change': [value: string];
+  'task-scope': [value: 'archived' | 'trash'];
   'resume-outcome': [operation: ToDooEntityMap['operation']];
   'open-note': [id: string];
   edit: [kind: ToDooEntityKind, entity?: Record<string, any>, seed?: Record<string, any>];
 }>();
 const confirmAction = useToDooConfirm();
-const activeTab = ref('preferences');
+const settingsContexts = ['preferences', 'connections', 'data', 'lists'];
+const localTab = ref('preferences');
+const activeTab = computed<string>({
+  get: () =>
+    props.contextualNavigation
+      ? settingsContexts.includes(props.context || '')
+        ? props.context!
+        : 'preferences'
+      : localTab.value,
+  set: (value: string) => {
+    if (!settingsContexts.includes(value)) return;
+    if (props.contextualNavigation) {
+      if (value !== activeTab.value) emit('context-change', value);
+    } else localTab.value = value;
+  },
+});
 const importFileInput = ref<HTMLInputElement>();
 const fileDecoding = ref(false);
 const timeZoneSuggestions = [
@@ -773,11 +795,16 @@ defineExpose({
 });
 </script>
 <template>
-  <div class="todo-settings">
+  <div class="todo-settings" :class="{ 'todo-settings-contextual': contextualNavigation }">
     <datalist id="to-doo-timezones">
       <option v-for="zone in timeZoneSuggestions" :key="zone" :value="zone" />
     </datalist>
-    <ATabs v-model:active-key="activeTab" class="todo-settings-tabs" aria-label="设置分类">
+    <ATabs
+      v-if="!contextualNavigation"
+      v-model:active-key="activeTab"
+      class="todo-settings-tabs"
+      aria-label="设置分类"
+    >
       <ATabPane key="preferences" tab="偏好" />
       <ATabPane key="connections" tab="提醒与连接" />
       <ATabPane key="data" tab="数据与恢复" />
@@ -827,9 +854,9 @@ defineExpose({
             >刷新</AButton
           >
         </div>
-        <p class="todo-pad todo-muted todo-small">
+        <ToDooHint :model="model" hint-id="outcome-recovery" class="todo-pad">
           已经保存的正文与操作进度会保留，可核对当前任务版本后继续关联。
-        </p>
+        </ToDooHint>
         <div
           v-for="operation in state.pendingOperations"
           :key="operation.id"
@@ -897,7 +924,11 @@ defineExpose({
         </div>
       </ToDooDisclosure>
     </section>
-    <section v-if="settings" v-show="activeTab === 'preferences'" class="todo-panel">
+    <section
+      v-if="settings"
+      v-show="activeTab === 'preferences'"
+      class="todo-panel todo-settings-preferences"
+    >
       <div class="todo-panel-header">
         <h2>日常偏好</h2>
         <span v-if="dirty" class="todo-warning todo-small">有未保存的更改</span>
@@ -905,13 +936,13 @@ defineExpose({
       <ToDooFormLayout
         ref="preferencesForm"
         @validity-change="invalidPreferences = $event"
-        class="todo-pad"
+        class="todo-pad todo-settings-preferences-form"
         @submit="save"
         @invalid="revealInvalid"
         @input="validationError = ''"
       >
         <AAlert v-if="validationError" type="error" :message="validationError" show-icon />
-        <section class="todo-form-section">
+        <section class="todo-form-section todo-preference-card todo-preference-daily">
           <h3>日常使用</h3>
           <div class="todo-form-grid">
             <label
@@ -945,7 +976,11 @@ defineExpose({
             /></label>
           </div>
         </section>
-        <ToDooDisclosure ref="dateRules">
+        <ToDooDisclosure
+          ref="dateRules"
+          :open="contextualNavigation"
+          class="todo-preference-card todo-preference-date"
+        >
           <template #header>
             <span>日期与提醒</span>
             <span v-if="settings.quietHours?.enabled" class="todo-muted todo-small">
@@ -1005,35 +1040,11 @@ defineExpose({
             /></label>
           </div>
         </ToDooDisclosure>
-        <ToDooDisclosure ref="taskRules">
-          <template #header>
-            <span>任务规则</span>
-            <span
-              v-if="settings.urgentHours !== 48 || settings.maxDepth !== 8"
-              class="todo-muted todo-small"
-            >
-              · 紧急 {{ settings.urgentHours }} 小时 · 最多 {{ settings.maxDepth }} 层
-            </span>
-          </template>
-          <p class="todo-form-help">调整紧急任务的判定范围与子任务层级。</p>
-          <div class="todo-form-grid">
-            <label
-              >紧急阈值（小时）<AInputNumber
-                aria-label="紧急阈值（小时）"
-                :value="settings.urgentHours"
-                @update:value="setSettingNumber('urgentHours', $event)"
-                :min="1" /></label
-            ><label
-              >任务层级上限<AInputNumber
-                aria-label="任务层级上限"
-                :value="settings.maxDepth"
-                @update:value="setSettingNumber('maxDepth', $event)"
-                :min="1"
-                :max="32"
-            /></label>
-          </div>
-        </ToDooDisclosure>
-        <ToDooDisclosure ref="focusRules">
+        <ToDooDisclosure
+          ref="focusRules"
+          :open="contextualNavigation"
+          class="todo-preference-card todo-preference-focus"
+        >
           <template #header>
             <span>专注节奏</span>
             <span
@@ -1081,6 +1092,34 @@ defineExpose({
             /></label>
           </div>
         </ToDooDisclosure>
+        <ToDooDisclosure ref="taskRules" class="todo-preference-card todo-preference-task">
+          <template #header>
+            <span>任务规则</span>
+            <span
+              v-if="settings.urgentHours !== 48 || settings.maxDepth !== 8"
+              class="todo-muted todo-small"
+            >
+              · 紧急 {{ settings.urgentHours }} 小时 · 最多 {{ settings.maxDepth }} 层
+            </span>
+          </template>
+          <p class="todo-form-help">调整紧急任务的判定范围与子任务层级。</p>
+          <div class="todo-form-grid">
+            <label
+              >紧急阈值（小时）<AInputNumber
+                aria-label="紧急阈值（小时）"
+                :value="settings.urgentHours"
+                @update:value="setSettingNumber('urgentHours', $event)"
+                :min="1" /></label
+            ><label
+              >任务层级上限<AInputNumber
+                aria-label="任务层级上限"
+                :value="settings.maxDepth"
+                @update:value="setSettingNumber('maxDepth', $event)"
+                :min="1"
+                :max="32"
+            /></label>
+          </div>
+        </ToDooDisclosure>
       </ToDooFormLayout>
     </section>
     <section v-show="activeTab === 'data'" class="todo-panel">
@@ -1122,7 +1161,9 @@ defineExpose({
       </div>
       <div class="todo-pad todo-form">
         <h3>从文件导入</h3>
-        <p class="todo-form-help">选择文件或粘贴内容，预览核对后再确认导入。</p>
+        <ToDooHint :model="model" hint-id="data-import-preview">
+          选择文件或粘贴内容，预览核对后再确认导入。
+        </ToDooHint>
         <div class="todo-actions">
           <AButton
             html-type="button"
@@ -1271,8 +1312,9 @@ defineExpose({
             <li v-for="(item, i) in previewItems" :key="item.kind + ':' + (item.entity.id || i)">
               <strong>{{ importItemTitle(item) }}</strong>
               <p class="todo-muted todo-small">
-                {{ importKindLabels[item.kind] || '记录' }} · {{ importItemDate(item) }} ·
-                {{ importItemDestination(item) }}
+                <span>{{ importKindLabels[item.kind] || '记录' }}</span>
+                <span>{{ importItemDate(item) }}</span>
+                <span>{{ importItemDestination(item) }}</span>
               </p>
             </li>
           </ul>
@@ -1382,14 +1424,14 @@ defineExpose({
         </div>
         <ToDooDisclosure :open="!!push?.lastError">
           <template #header><span>主机与设备管理</span></template>
-          <p class="todo-form-help">
+          <ToDooHint :model="model" hint-id="push-background-delivery">
             启用后，关闭网页仍可收到桌面提醒；网页打开时也会显示可操作的提醒卡片。
-          </p>
+          </ToDooHint>
           <p>当前浏览器通知权限：{{ pushPermission }}</p>
           <p class="todo-muted todo-small">{{ pushReason }}</p>
-          <p class="todo-muted todo-small">
+          <ToDooHint :model="model" hint-id="push-browser-requirements">
             需要允许本站通知和浏览器后台运行。浏览器被系统彻底终止、系统通知关闭或设备关机时，提醒可能延迟或无法送达。通知外观由操作系统决定。
-          </p>
+          </ToDooHint>
           <AButton
             html-type="button"
             class="todo-button"
@@ -1444,7 +1486,7 @@ defineExpose({
     </section>
     <section v-show="activeTab === 'connections'" class="todo-panel">
       <div class="todo-panel-header"><h2>日历连接与订阅</h2></div>
-      <ToDooDisclosure class="todo-connection-disclosure">
+      <ToDooDisclosure class="todo-connection-disclosure" :open="contextualNavigation">
         <template #header><span>连接外部只读日历</span></template>
         <form class="todo-form todo-pad" @submit.prevent="connect">
           <label>来源名称<AInput v-model:value="connection.name" required :maxlength="256" /></label
@@ -1503,7 +1545,7 @@ defineExpose({
           </AButton>
         </div>
       </div>
-      <ToDooDisclosure class="todo-connection-disclosure" :open="!!feed">
+      <ToDooDisclosure class="todo-connection-disclosure" :open="!!feed || contextualNavigation">
         <template #header><span>创建 To Doo 只读订阅链接</span></template>
         <form class="todo-form todo-pad" @submit.prevent="createFeed">
           <label>订阅名称<AInput v-model:value="feedName" required /></label
@@ -1547,68 +1589,120 @@ defineExpose({
         </AButton>
       </div>
     </section>
-    <section v-show="activeTab === 'lists'" class="todo-panel">
-      <div class="todo-panel-header"><h2>清单、标签与模板</h2></div>
-      <div class="todo-setting-row">
-        <span>新建与管理</span>
-        <div class="todo-actions">
-          <AButton
-            class="todo-button"
-            html-type="button"
-            @click="emit('edit', 'list')"
-            type="default"
-            >目标与清单</AButton
-          ><AButton
-            class="todo-button"
-            html-type="button"
-            @click="emit('edit', 'tag')"
-            type="default"
-            >标签</AButton
-          ><AButton
-            class="todo-button"
-            html-type="button"
-            @click="emit('edit', 'template')"
-            type="default"
-          >
-            任务模板
-          </AButton>
+    <section v-show="activeTab === 'lists'" class="todo-settings-structures">
+      <section class="todo-panel todo-settings-lists">
+        <div class="todo-panel-header">
+          <h2>清单与目标</h2>
+          <div class="todo-actions">
+            <AButton html-type="button" @click="emit('edit', 'list', undefined, { kind: 'goal' })"
+              >新建目标</AButton
+            >
+            <AButton
+              type="primary"
+              html-type="button"
+              @click="emit('edit', 'list', undefined, { kind: 'list' })"
+              >新建清单</AButton
+            >
+          </div>
         </div>
-      </div>
-      <div
-        v-for="l in state.snapshot?.lists.filter((l) => !l.deletedAt)"
-        :key="l.id"
-        class="todo-setting-row"
-      >
-        <span>{{ l.name }}</span
-        ><AButton class="todo-link" html-type="button" @click="emit('edit', 'list', l)" type="link"
-          >编辑清单</AButton
+        <div class="todo-managed-list-header" aria-hidden="true">
+          <span>名称</span><span>类型</span><span>状态</span><span>操作</span>
+        </div>
+        <div
+          v-for="l in state.snapshot?.lists.filter((l) => !l.deletedAt)"
+          :key="l.id"
+          class="todo-setting-row todo-managed-list"
         >
-      </div>
-      <div
-        v-for="t in state.snapshot?.tags.filter((t) => !t.deletedAt)"
-        :key="t.id"
-        class="todo-setting-row"
-      >
-        <span># {{ t.name }}</span
-        ><AButton class="todo-link" html-type="button" @click="emit('edit', 'tag', t)" type="link"
-          >编辑标签</AButton
+          <div class="todo-managed-list-name">
+            <strong>{{ l.name }}</strong>
+            <p v-if="l.description">{{ l.description }}</p>
+          </div>
+          <span class="todo-muted">{{ l.kind === 'goal' ? '目标' : '任务清单' }}</span>
+          <span class="todo-badge" :class="{ accent: !l.archivedAt }">{{
+            l.archivedAt ? '已归档' : '使用中'
+          }}</span>
+          <AButton
+            class="todo-link"
+            html-type="button"
+            :aria-label="'编辑清单：' + l.name"
+            @click="emit('edit', 'list', l)"
+            type="link"
+            >编辑清单</AButton
+          >
+        </div>
+        <AEmpty
+          v-if="!state.snapshot?.lists.some((l) => !l.deletedAt)"
+          class="todo-empty"
+          description="创建清单来组织任务，或用目标记录进展。"
+        />
+      </section>
+      <section class="todo-panel">
+        <div class="todo-panel-header">
+          <div>
+            <h2>标签</h2>
+            <p class="todo-form-help">为任务添加主题标记，便于筛选与聚合。</p>
+          </div>
+          <AButton html-type="button" @click="emit('edit', 'tag')">新建标签</AButton>
+        </div>
+        <div class="todo-managed-tags todo-pad">
+          <AButton
+            v-for="t in state.snapshot?.tags.filter((t) => !t.deletedAt)"
+            :key="t.id"
+            html-type="button"
+            class="todo-managed-tag"
+            :aria-label="'编辑标签：' + t.name"
+            @click="emit('edit', 'tag', t)"
+          >
+            <span
+              class="todo-tag-dot"
+              :style="{ backgroundColor: t.color }"
+              aria-hidden="true"
+            ></span
+            >{{ t.name }}
+          </AButton>
+          <p v-if="!state.snapshot?.tags.some((t) => !t.deletedAt)" class="todo-muted">
+            尚未创建标签。
+          </p>
+        </div>
+      </section>
+      <section class="todo-panel">
+        <div class="todo-panel-header">
+          <h2>分组与模板</h2>
+          <AButton html-type="button" @click="emit('edit', 'template')">任务模板</AButton>
+        </div>
+        <div
+          v-for="s in state.snapshot?.sections.filter((s) => !s.deletedAt)"
+          :key="s.id"
+          class="todo-setting-row"
         >
-      </div>
-      <div
-        v-for="s in state.snapshot?.sections.filter((s) => !s.deletedAt)"
-        :key="s.id"
-        class="todo-setting-row"
-      >
-        <span>{{ s.name }}</span
-        ><AButton
-          class="todo-link"
+          <span>{{ s.name }}</span
+          ><AButton
+            class="todo-link"
+            html-type="button"
+            @click="emit('edit', 'section', s)"
+            type="link"
+            >编辑分组</AButton
+          >
+        </div>
+      </section>
+      <section class="todo-panel todo-settings-history-links" aria-label="任务历史与回收">
+        <AButton
+          type="text"
           html-type="button"
-          @click="emit('edit', 'section', s)"
-          type="link"
+          aria-label="查看已归档任务"
+          @click="emit('task-scope', 'archived')"
+          ><span>已归档任务</span><span aria-hidden="true">›</span></AButton
         >
-          编辑分组
-        </AButton>
-      </div>
+        <AButton
+          type="text"
+          html-type="button"
+          aria-label="查看任务回收站"
+          @click="emit('task-scope', 'trash')"
+          ><span>任务回收站</span><span aria-hidden="true">›</span></AButton
+        >
+      </section>
     </section>
   </div>
 </template>
+
+<style src="../../to-doo-management-layout.css"></style>

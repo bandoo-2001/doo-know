@@ -2,6 +2,11 @@ import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
 import {
+  selectToDooContext,
+  openToDooDirectory,
+  closeToDooDirectory,
+} from '../support/to-doo-navigation';
+import {
   expandToDooGroup,
   fillToDooDate,
   selectToDooOption,
@@ -247,7 +252,7 @@ test('changing list type does not erase its hidden goal fields', async ({ page }
   const id = created.ids[0];
   await page.goto('/?view=apps&app=to-doo&appSection=tasks&list=' + id);
   await page.getByRole('button', { name: '编辑当前清单', exact: true }).click();
-  const editor = page.getByRole('dialog', { name: '编辑目标与清单', exact: true });
+  const editor = page.getByRole('dialog', { name: /^编辑(目标|清单)$/ });
   await expect(editor.getByLabel('说明', { exact: true })).not.toBeVisible();
   await expect(editor.getByLabel('目标日期', { exact: true })).not.toBeVisible();
   await editor.getByText('目标', { exact: true }).click();
@@ -318,27 +323,29 @@ test('preference groups preserve folded values while saving a common setting', a
   });
 });
 
-test('settings tabs preserve drafts and keep unrelated forms out of preferences', async ({
+test('settings sections preserve drafts and keep unrelated forms out of preferences', async ({
   page,
 }) => {
   await page.goto('/?view=apps&app=to-doo&appSection=settings');
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间' });
-  await expect(app.getByRole('tab', { name: '偏好', exact: true })).toHaveAttribute(
-    'aria-selected',
-    'true',
+  const directory = await openToDooDirectory(page, '设置目录');
+  await expect(directory.getByRole('button', { name: '偏好', exact: true })).toHaveAttribute(
+    'aria-current',
+    'page',
   );
+  await closeToDooDirectory(page);
   await expect(app.getByRole('heading', { name: '数据与备份', exact: true })).not.toBeVisible();
   const duration = app.getByRole('spinbutton', { name: '默认安排分钟', exact: true });
   await duration.fill('47');
-  await app.getByRole('tab', { name: '数据与恢复', exact: true }).click();
+  await selectToDooContext(page, '数据与恢复');
   await expect(duration).not.toBeVisible();
   const importContent = app.getByLabel('或粘贴文件内容', { exact: true });
   await importContent.fill('尚未预览的导入草稿');
-  await app.getByRole('tab', { name: '提醒与连接', exact: true }).click();
+  await selectToDooContext(page, '提醒与连接');
   await expect(app.getByRole('heading', { name: '桌面提醒', exact: true })).toBeVisible();
-  await app.getByRole('tab', { name: '偏好', exact: true }).click();
+  await selectToDooContext(page, '偏好');
   await expect(duration).toHaveValue('47');
-  await app.getByRole('tab', { name: '数据与恢复', exact: true }).click();
+  await selectToDooContext(page, '数据与恢复');
   await expect(importContent).toHaveValue('尚未预览的导入草稿');
   await expect(app.getByRole('dialog')).toHaveCount(0);
 });

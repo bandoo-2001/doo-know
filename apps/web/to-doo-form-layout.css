@@ -1,0 +1,87 @@
+/* The modal body owns scrolling; its actions stay in the same form and viewport. */
+.todo-ant-modal .ant-modal {
+  top: 40px;
+  max-width: calc(100vw - 32px);
+  padding-bottom: 0;
+}
+.todo-ant-modal .ant-modal-content {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100dvh - 80px);
+  padding: 24px;
+  overflow: hidden;
+}
+.todo-ant-modal .ant-modal-content .ant-modal-header,
+.todo-ant-modal .ant-modal-content .ant-modal-footer {
+  flex-shrink: 0;
+}
+.todo-ant-modal .ant-modal-content .ant-modal-body {
+  flex: 1;
+  min-height: 0;
+  max-height: none;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scroll-padding-block: 12px 100px;
+}
+.todo-ant-modal .todo-form-layout {
+  padding-top: 12px;
+}
+.todo-ant-modal .todo-form-layout > .todo-form-fields {
+  min-width: 0;
+}
+.todo-ant-modal .todo-form-layout > .todo-form-footer {
+  flex-shrink: 0;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 4px;
+  padding: 14px 0 2px;
+  bottom: 0;
+  box-shadow: 0 -8px 12px var(--todo-paper);
+}
+.todo-ant-modal .todo-form-layout .ant-input,
+.todo-ant-modal .todo-form-layout .ant-input-number,
+.todo-ant-modal .todo-form-layout .ant-select,
+.todo-ant-modal .todo-form-layout .ant-picker {
+  max-width: 100%;
+}
+.todo-outcome-modal .todo-create-fields > label:has(textarea) {
+  min-height: 220px;
+}
+.todo-outcome-modal .todo-markdown-preview {
+  min-height: 220px;
+  max-height: none;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 600px) {
+  .todo-ant-modal .ant-modal {
+    top: 12px;
+    max-width: calc(100vw - 24px);
+    margin-inline: auto;
+  }
+  .todo-ant-modal .ant-modal-content {
+    max-height: calc(100dvh - 24px);
+    padding: 18px 16px 14px;
+  }
+  .todo-ant-modal .ant-modal-content .ant-modal-title {
+    padding-right: 28px;
+  }
+  .todo-ant-modal .todo-form-layout > .todo-form-footer {
+    justify-content: stretch;
+  }
+  .todo-ant-modal .todo-form-footer > .ant-btn {
+    flex: 1 1 auto;
+    height: auto;
+    min-height: 36px;
+    white-space: normal;
+  }
+  .todo-ant-modal .todo-form-grid,
+  .todo-ant-modal .todo-lunar-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .todo-ant-modal .todo-form-layout label,
+  .todo-ant-modal .todo-form-layout .todo-form-help {
+    overflow-wrap: anywhere;
+  }
+}

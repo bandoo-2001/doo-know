@@ -1,12 +1,13 @@
 import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
+import { selectToDooContext } from '../support/to-doo-navigation';
 import { expandToDooGroup, selectToDooOption } from '../support/to-doo-ant-controls';
 
 const app = (page: Page) => page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
 async function dataTab(page: Page) {
   await page.goto('/?view=apps&app=to-doo&appSection=settings');
-  await app(page).getByRole('tab', { name: '数据与恢复', exact: true }).click();
+  await selectToDooContext(page, '数据与恢复');
   await expandToDooGroup(app(page), '导入选项');
   await selectToDooOption(app(page), '格式', '滴答 CSV');
 }
@@ -104,7 +105,7 @@ test('a lost import response retries the same request identity without duplicate
   expect(saved.tasks.filter((task: any) => task.title === title + ' 1')).toHaveLength(1);
 });
 
-test('save preferences is confined to its tab and quiet hours follow display timezone', async ({
+test('save preferences is confined to its section and quiet hours follow display timezone', async ({
   page,
 }) => {
   await page.goto('/?view=apps&app=to-doo&appSection=settings');
@@ -112,10 +113,10 @@ test('save preferences is confined to its tab and quiet hours follow display tim
     save = workspace.getByRole('button', { name: '保存偏好', exact: true });
   await expect(save).toBeVisible();
   for (const name of ['提醒与连接', '数据与恢复', '清单管理']) {
-    await workspace.getByRole('tab', { name, exact: true }).click();
+    await selectToDooContext(page, name);
     await expect(save).not.toBeVisible();
   }
-  await workspace.getByRole('tab', { name: '偏好', exact: true }).click();
+  await selectToDooContext(page, '偏好');
   await expandToDooGroup(workspace, '日期与提醒');
   const zone = workspace.getByLabel('显示时区', { exact: true });
   const current = await zone.inputValue();
@@ -139,7 +140,7 @@ test('name-only calendar and subscription drafts request confirmation before lea
 }) => {
   await page.goto('/?view=apps&app=to-doo&appSection=settings');
   const workspace = app(page);
-  await workspace.getByRole('tab', { name: '提醒与连接', exact: true }).click();
+  await selectToDooContext(page, '提醒与连接');
   await expandToDooGroup(workspace, '连接外部只读日历');
   const name = workspace.getByRole('textbox', { name: '来源名称', exact: true });
   await name.fill('仅名称草稿');

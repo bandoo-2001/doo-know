@@ -1,0 +1,368 @@
+/* Management surfaces share the shell tokens and use their available main width. */
+.todo-settings.todo-settings,
+.todo-review {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  container-type: inline-size;
+}
+.todo-settings .todo-panel,
+.todo-settings-structures,
+.todo-review .todo-panel {
+  min-width: 0;
+}
+.todo-settings-structures {
+  display: grid;
+  gap: calc(var(--todo-space) * 3);
+}
+.todo-settings .todo-panel-header,
+.todo-settings .todo-setting-row {
+  gap: calc(var(--todo-space) * 2);
+}
+.todo-settings .todo-panel-header {
+  flex-wrap: wrap;
+}
+.todo-settings .todo-actions,
+.todo-settings .ant-select,
+.todo-settings .ant-input-number {
+  max-width: 100%;
+  min-width: 0;
+}
+.todo-settings .todo-actions {
+  flex-wrap: wrap;
+}
+.todo-settings-preferences-form .todo-form-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: calc(var(--todo-space) * 2);
+}
+.todo-settings-preferences-form .todo-form-fields > .ant-alert {
+  grid-column: 1 / -1;
+}
+.todo-settings-contextual .todo-settings-preferences {
+  border: 0;
+  background: transparent;
+}
+.todo-settings-contextual .todo-settings-preferences > .todo-panel-header {
+  padding: 0 0 calc(var(--todo-space) * 2);
+}
+.todo-settings-contextual .todo-settings-preferences-form {
+  padding: 0;
+}
+.todo-settings-contextual .todo-preference-card {
+  min-width: 0;
+  border: 1px solid var(--todo-line);
+  border-radius: var(--todo-radius);
+  background: var(--todo-paper);
+}
+.todo-settings-contextual .todo-preference-daily {
+  padding: calc(var(--todo-space) * 2.5);
+}
+.todo-settings-contextual .todo-preference-card > h3 {
+  font-size: 15px;
+  color: var(--todo-ink);
+}
+.todo-settings-contextual .todo-preference-card .ant-collapse-header {
+  padding: calc(var(--todo-space) * 2) calc(var(--todo-space) * 2.5);
+  font-size: 15px;
+  font-weight: 600;
+}
+.todo-settings-contextual .todo-preference-card .ant-collapse-content-box {
+  padding: 0 calc(var(--todo-space) * 2.5) calc(var(--todo-space) * 2.5);
+}
+.todo-settings-contextual .todo-preference-card .todo-form-grid {
+  margin-block: var(--todo-space);
+}
+.todo-settings-contextual .todo-preference-task {
+  order: 4;
+}
+.todo-settings .todo-import-preview > ul[aria-label='待导入条目'] {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  border: 1px solid var(--todo-line);
+  border-radius: var(--todo-radius);
+}
+.todo-settings .todo-import-preview > ul[aria-label='待导入条目'] > li {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--todo-line);
+}
+.todo-settings .todo-import-preview > ul[aria-label='待导入条目'] > li:last-child {
+  border-bottom: 0;
+}
+.todo-settings .todo-import-preview li > strong {
+  overflow-wrap: anywhere;
+}
+.todo-settings .todo-import-preview li > p {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 6px 0 0;
+}
+.todo-settings .todo-import-preview li > p > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.todo-managed-list-header,
+.todo-settings .todo-managed-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(80px, 0.35fr) minmax(70px, 0.3fr) auto;
+  align-items: center;
+  gap: 16px;
+}
+.todo-managed-list-header {
+  padding: 12px 17px;
+  background: var(--todo-soft);
+  color: var(--todo-muted);
+  font-size: 12px;
+}
+.todo-managed-list-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.todo-managed-list-name strong {
+  font-weight: 550;
+}
+.todo-managed-list .todo-badge {
+  justify-self: start;
+}
+.todo-managed-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--todo-space);
+}
+.todo-managed-tag.ant-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--todo-space);
+  max-width: 100%;
+  height: auto;
+  min-height: 36px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.todo-tag-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex: 0 0 10px;
+}
+.todo-review .todo-review-anchor {
+  scroll-margin-block-start: calc(var(--todo-global-header-height) + 100px);
+}
+.todo-review .todo-review-statistics {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: calc(var(--todo-space) * 2);
+  padding: 0;
+  border: 0;
+}
+.todo-review .todo-review-statistics .ant-statistic {
+  padding: calc(var(--todo-space) * 2.5);
+  border: 1px solid var(--todo-line);
+  border-radius: var(--todo-radius);
+  background: var(--todo-paper);
+}
+.todo-review .todo-review-statistics .ant-statistic-title {
+  font-size: 13px;
+}
+.todo-review .todo-review-grid {
+  grid-template-columns: minmax(0, 1.5fr) minmax(240px, 1fr);
+  grid-template-areas: 'trend goals' 'records records';
+  gap: calc(var(--todo-space) * 3);
+}
+.todo-review .todo-progress-row {
+  font-size: 13px;
+  padding: calc(var(--todo-space) * 2.5);
+}
+.todo-review .todo-progress-row .todo-between > span:first-child,
+.todo-review .todo-saved-row {
+  overflow-wrap: anywhere;
+}
+.todo-review .todo-saved-row {
+  white-space: normal;
+  height: auto;
+}
+.todo-review .todo-notifications-panel {
+  border: 0;
+  background: transparent;
+  overflow: visible;
+}
+.todo-review .todo-notification-group > .todo-section-header {
+  padding-inline: 0;
+  border: 0;
+  background: transparent;
+}
+.todo-review .todo-notification-group > .todo-notification {
+  margin-bottom: calc(var(--todo-space) * 2);
+  padding: calc(var(--todo-space) * 2.5);
+  border: 1px solid var(--todo-line);
+  border-radius: var(--todo-radius);
+  background: var(--todo-paper);
+}
+.todo-review .todo-notification-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--todo-radius);
+}
+.todo-review .todo-notification-heading h2 {
+  font-size: 15px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.todo-review .todo-notification-heading .todo-badge {
+  flex-shrink: 0;
+}
+.todo-review .todo-notification-actions {
+  flex-wrap: wrap;
+  gap: var(--todo-space);
+}
+@container (min-width: 680px) {
+  .todo-settings-contextual .todo-settings-preferences-form .todo-form-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas: 'daily date' 'focus date' 'rules rules';
+    align-items: start;
+  }
+  .todo-settings-contextual .todo-settings-preferences-form .todo-form-fields:has(> .ant-alert) {
+    grid-template-areas: 'error error' 'daily date' 'focus date' 'rules rules';
+  }
+  .todo-settings-contextual .todo-settings-preferences-form .todo-form-fields > .ant-alert {
+    grid-area: error;
+  }
+  .todo-settings-contextual .todo-preference-daily {
+    grid-area: daily;
+  }
+  .todo-settings-contextual .todo-preference-date {
+    grid-area: date;
+  }
+  .todo-settings-contextual .todo-preference-focus {
+    grid-area: focus;
+  }
+  .todo-settings-contextual .todo-preference-task {
+    grid-area: rules;
+  }
+}
+@container (min-width: 900px) {
+  .todo-review .todo-notification-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: calc(var(--todo-space) * 3);
+    align-items: start;
+  }
+  .todo-review .todo-notification-body > :not(.todo-notification-actions) {
+    grid-column: 1;
+  }
+  .todo-review .todo-notification-actions {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    align-self: center;
+    margin-top: 0;
+  }
+}
+@container (max-width: 679px) {
+  .todo-settings .todo-form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .todo-review .todo-review-grid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'trend' 'goals' 'records';
+  }
+  .todo-review .todo-review-statistics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .todo-managed-list-header {
+    display: none;
+  }
+  .todo-settings .todo-managed-list {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--todo-space) 16px;
+  }
+  .todo-managed-list-name {
+    grid-column: 1 / -1;
+  }
+  .todo-managed-list > .ant-btn {
+    grid-column: 2;
+    grid-row: 2 / span 2;
+  }
+  .todo-review .todo-notification-group > .todo-notification {
+    padding: calc(var(--todo-space) * 2);
+    gap: var(--todo-space);
+  }
+  .todo-review .todo-notification-heading {
+    flex-wrap: wrap;
+    gap: var(--todo-space);
+  }
+  .todo-review .todo-notification-icon {
+    width: 32px;
+    height: 32px;
+  }
+}
+@container (max-width: 359px) {
+  .todo-review .todo-review-statistics .ant-statistic,
+  .todo-settings-contextual .todo-preference-daily {
+    padding: 12px;
+  }
+  .todo-settings-contextual .todo-preference-card .ant-collapse-header {
+    padding: 12px;
+  }
+  .todo-settings-contextual .todo-preference-card .ant-collapse-content-box {
+    padding: 0 12px 12px;
+  }
+  .todo-review .todo-notification-group > .todo-notification {
+    display: block;
+  }
+  .todo-review .todo-notification-icon {
+    margin-bottom: var(--todo-space);
+  }
+}
+.todo-review .todo-notification-toolbar {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--todo-space);
+}
+.todo-notification-query-controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--todo-space) calc(var(--todo-space) * 1.5);
+  min-width: 0;
+}
+.todo-notification-query-controls .todo-notification-search {
+  width: 220px;
+  max-width: 100%;
+  min-width: 0;
+}
+.todo-notification-query-controls .todo-inline-label {
+  min-width: 0;
+}
+.todo-settings-history-links > .ant-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--todo-space);
+  width: 100%;
+  height: auto;
+  min-height: 48px;
+  padding: 12px 20px;
+  white-space: normal;
+  border-bottom: 1px solid var(--todo-line);
+  border-radius: 0;
+}
+.todo-settings-history-links > .ant-btn:last-child {
+  border-bottom: 0;
+}
+@container (max-width: 679px) {
+  .todo-notification-query-controls {
+    justify-content: flex-start;
+  }
+  .todo-notification-query-controls .todo-notification-search {
+    width: 100%;
+  }
+}
+@container (max-width: 359px) {
+  .todo-notification-query-controls .todo-inline-label {
+    display: grid;
+    grid-template-columns: 16px minmax(0, 1fr);
+    width: 100%;
+  }
+}

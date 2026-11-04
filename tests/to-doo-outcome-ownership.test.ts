@@ -1,3 +1,4 @@
+import * as contextNavigation from '../apps/web/to-doo-context-navigation';
 import { readFileSync } from 'node:fs';
 import { compileScript, parse } from '@vue/compiler-sfc';
 import ts from 'typescript';
@@ -89,6 +90,7 @@ function component(path: string, request: (...args: any[]) => Promise<any>) {
       if (id.endsWith('/to-doo-workbench')) return workbench;
       if (id.endsWith('/to-doo-presentation')) return presentation;
       if (id.endsWith('/to-doo-controls')) return controls;
+      if (id.endsWith('/to-doo-context-navigation')) return contextNavigation;
       if (id === '../api') return { api: request };
       if (id === 'ant-design-vue' || id.endsWith('.vue') || id.endsWith('.css')) return {};
       throw Error('Unexpected component dependency: ' + id);

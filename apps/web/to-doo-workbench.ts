@@ -19,6 +19,7 @@ import {
 } from '../../shared/to-doo-contracts';
 export type ToDooRequest = (url: string, method?: string, body?: unknown) => Promise<any>;
 export type ToDooSelection = {
+  appPage?: string;
   task?: string;
   occurrence?: string;
   list?: string;

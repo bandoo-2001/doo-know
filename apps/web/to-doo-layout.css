@@ -1,0 +1,148 @@
+/* Shared geometry for the approved module rail + contextual directory layout. */
+.to-doo-workspace.todo-hosted-navigation {
+  font-size: 14px;
+  --todo-page-padding: 28px;
+}
+.todo-hosted-navigation .todo-sidebar {
+  background: var(--todo-soft);
+  padding: 22px 12px 16px;
+}
+.todo-hosted-navigation .todo-directory-title {
+  padding: 0 12px 20px;
+  font-size: 19px;
+  font-weight: 600;
+}
+.todo-hosted-navigation .todo-navigation-content nav .ant-btn {
+  min-height: 38px;
+  height: auto;
+  padding: 8px 12px;
+  font-size: 13px;
+}
+.todo-hosted-navigation .todo-navigation-group {
+  margin-bottom: 22px;
+}
+.todo-hosted-navigation .todo-nav-label {
+  font-size: 11px;
+}
+.todo-hosted-navigation .todo-main,
+.todo-hosted-navigation .todo-page,
+.todo-hosted-navigation .todo-content {
+  min-width: 0;
+  width: 100%;
+}
+.todo-hosted-navigation .todo-readable-list-content {
+  max-width: none;
+}
+.todo-hosted-navigation .todo-page-heading {
+  margin-bottom: 22px;
+  align-items: center;
+}
+.todo-hosted-navigation .todo-page-heading h1 {
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+.todo-hosted-navigation .todo-page-heading p {
+  font-size: 13px;
+}
+.todo-hosted-navigation .todo-page-heading .todo-actions .ant-btn {
+  min-height: 36px;
+  height: auto;
+  padding-inline: 16px;
+}
+.todo-hosted-navigation .todo-topbar {
+  padding-inline: 22px;
+  gap: 14px;
+}
+.todo-hosted-navigation .todo-desktop-crumb {
+  padding-left: 18px;
+  border-left: 1px solid var(--todo-line);
+  font-size: 12px;
+}
+.todo-hosted-navigation .todo-task-scope {
+  justify-content: flex-start;
+  gap: 12px;
+  margin: -6px 0 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--todo-line);
+}
+.todo-hosted-navigation .todo-scope-filters {
+  margin-left: auto;
+  max-width: 100%;
+}
+.todo-hosted-navigation .todo-scope-filters[open] {
+  flex-basis: 100%;
+}
+.todo-hosted-navigation .todo-scope-filters ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  padding-inline-start: 18px;
+  margin-block: 8px;
+}
+.todo-hosted-navigation .todo-empty {
+  padding-block: 56px;
+}
+.workspace-main-menu[data-menu-id='to-doo'] .rail-notes-navigation button {
+  font-size: 11px;
+}
+@media (min-width: 1280px) {
+  .todo-hosted-navigation.todo-has-detail {
+    --todo-detail-width: clamp(360px, 29vw, 440px);
+  }
+}
+@media (max-width: 1000px) {
+  .to-doo-workspace.todo-hosted-navigation {
+    --todo-page-padding: 20px;
+  }
+}
+@media (max-width: 720px) {
+  .to-doo-workspace.todo-hosted-navigation {
+    --todo-page-padding: 16px;
+    font-size: 13px;
+  }
+  .todo-hosted-navigation .todo-topbar {
+    padding-inline: 12px;
+    gap: 4px;
+  }
+  .todo-hosted-navigation .todo-topbar-brand {
+    font-size: 14px;
+  }
+  .todo-hosted-navigation .todo-page-heading {
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .todo-hosted-navigation .todo-page-heading h1 {
+    font-size: 23px;
+  }
+  .todo-hosted-navigation .todo-page-heading p {
+    font-size: 12px;
+  }
+  .todo-hosted-navigation .todo-page-heading .todo-actions {
+    gap: 6px;
+  }
+  .todo-hosted-navigation .todo-page-heading .todo-actions .ant-btn {
+    padding-inline: 10px;
+  }
+  .todo-hosted-navigation .todo-task-scope {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .todo-hosted-navigation .todo-scope-filters {
+    margin-left: 0;
+  }
+  .todo-hosted-navigation .todo-empty {
+    padding: 32px 12px;
+  }
+  .todo-hosted-navigation .todo-drawer-sidebar {
+    padding: 12px;
+  }
+}
+@media (max-width: 359px) {
+  .to-doo-workspace.todo-hosted-navigation {
+    --todo-page-padding: 12px;
+  }
+  .todo-hosted-navigation .todo-topbar-brand .todo-app-mark {
+    display: none;
+  }
+}

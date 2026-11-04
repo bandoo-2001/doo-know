@@ -210,8 +210,8 @@ const noteInfo = ref<NoteInfo>(),
 const blogModel = createBlogWorkbench(api, prepareBlogDiagrams);
 const appsApp = ref<WorkspaceRoute['app']>(readWorkspaceRoute().app);
 const appsSection = ref<BlogSection | ToDooAppSection>(readWorkspaceRoute().appSection || (appsApp.value === 'to-doo' ? 'tasks' : 'overview'));
-type ToDooSelection = Pick<WorkspaceRoute, 'task' | 'occurrence' | 'list' | 'date' | 'calendarView' | 'taskFilter'>;
-const toDooSelection = ref<ToDooSelection>({ task: readWorkspaceRoute().task, occurrence: readWorkspaceRoute().occurrence, list: readWorkspaceRoute().list, date: readWorkspaceRoute().date, calendarView: readWorkspaceRoute().calendarView, taskFilter: readWorkspaceRoute().taskFilter });
+type ToDooSelection = Pick<WorkspaceRoute, 'task' | 'occurrence' | 'list' | 'date' | 'calendarView' | 'taskFilter' | 'appPage'>;
+const toDooSelection = ref<ToDooSelection>({ task: readWorkspaceRoute().task, occurrence: readWorkspaceRoute().occurrence, list: readWorkspaceRoute().list, date: readWorkspaceRoute().date, calendarView: readWorkspaceRoute().calendarView, taskFilter: readWorkspaceRoute().taskFilter, appPage: readWorkspaceRoute().appPage });
 const appsRef = ref<InstanceType<typeof AppsWorkspace>>();
 const workspaceMenuHost = provideWorkspaceMainMenu();
 const activeAppMenu = computed(() => panel.value === 'apps' ? workspaceMenuHost.current.value : undefined);
@@ -295,7 +295,7 @@ async function navigateApp(app: WorkspaceRoute['app'], section?: BlogSection | T
     const remembered = appNavigationMemory.recall(app);
     if (remembered) {
       section = remembered.appSection || section;
-      selection = { task: remembered.task, occurrence: remembered.occurrence, list: remembered.list, date: remembered.date, calendarView: remembered.calendarView, taskFilter: remembered.taskFilter };
+      selection = { task: remembered.task, occurrence: remembered.occurrence, list: remembered.list, date: remembered.date, calendarView: remembered.calendarView, taskFilter: remembered.taskFilter, appPage: remembered.appPage };
     }
   }
   const nextSection = await resolveAppSection(app, section, selection);
@@ -752,7 +752,7 @@ async function applyRoute(route: WorkspaceRoute, intent = ++navigationIntent) {
   if (route.view === 'apps') {
     appNavigationMemory.remember(route);
     appsApp.value = route.app; appsSection.value = nextAppSection;
-    toDooSelection.value = { task: route.task, occurrence: route.occurrence, list: route.list, date: route.date, calendarView: route.calendarView, taskFilter: route.taskFilter };
+    toDooSelection.value = { task: route.task, occurrence: route.occurrence, list: route.list, date: route.date, calendarView: route.calendarView, taskFilter: route.taskFilter, appPage: route.appPage };
     return openApps(false, intent);
   }
   if (route.view === 'trash') return openTrash(false, intent);

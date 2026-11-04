@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ToDooDisclosure from './ToDooDisclosure.vue';
+import ToDooHint from './ToDooHint.vue';
 import { useToDooConfirm } from '../../to-doo-controls';
 import ToDooDateField from './ToDooDateField.vue';
 import ToDooSelect from './ToDooSelect.vue';
@@ -59,6 +60,7 @@ const state = props.model.state,
 void props.model.ensureListCatalog();
 const detailElement = ref<HTMLElement>();
 const deadlineSummaryId = 'todo-deadline-summary-' + useId();
+const createFormId = 'todo-task-create-' + useId();
 const deadlineFields = ref<HTMLElement>();
 const editingDue = ref(false);
 const attributesOpen = ref(false),
@@ -547,14 +549,23 @@ defineExpose({
     <p v-if="creating && creationNotice" class="todo-detail-save-help todo-warning" role="status">
       {{ creationNotice }}
     </p>
-    <p class="todo-detail-save-help todo-muted todo-small">
+    <ToDooHint
+      :model="model"
+      :hint-id="creating ? 'task-create-save' : 'task-edit-save'"
+      class="todo-detail-save-help"
+    >
       {{
         creating
           ? '点击“创建任务”后生效。关闭会保留新建草稿，保存范围为当前浏览器。'
           : '标题、日期、优先级、重复和提醒需点击“保存任务”；完成、执行状态和菜单操作立即生效。关闭保留当前页面输入，刷新前请保存。'
       }}
-    </p>
-    <form v-if="creating" class="todo-form todo-detail-body" @submit.prevent="create">
+    </ToDooHint>
+    <form
+      v-if="creating"
+      :id="createFormId"
+      class="todo-form todo-detail-body"
+      @submit.prevent="create"
+    >
       <fieldset class="todo-create-fields" :disabled="state.busy">
         <label
           >任务标题<AInput
@@ -676,28 +687,11 @@ defineExpose({
             </div>
             <ToDooReminders v-model="local.reminders" :date-based="false" />
             <label>完成标准<ATextarea v-model:value="local.criteria" :rows="3"></ATextarea></label>
-            <p class="todo-muted todo-small">
+            <ToDooHint :model="model" hint-id="task-create-resources">
               创建任务后，可以在详情中上传附件、关联资料和记录成果。
-            </p>
+            </ToDooHint>
           </div>
         </ToDooDisclosure>
-        <AButton
-          class="todo-button todo-primary"
-          html-type="submit"
-          :disabled="state.busy"
-          type="primary"
-        >
-          {{ state.busy ? '创建中…' : '创建任务' }}</AButton
-        ><AButton
-          html-type="button"
-          class="todo-link todo-danger"
-          :disabled="state.busy"
-          @click="discardNew"
-          type="link"
-          danger
-        >
-          放弃这份新建草稿
-        </AButton>
       </fieldset>
     </form>
     <div v-else-if="form" class="todo-detail-body todo-form">
@@ -1551,8 +1545,30 @@ defineExpose({
       </fieldset>
     </div>
     <p v-else class="todo-empty">任务暂不可用，可能尚未载入或已被移除。</p>
+    <footer v-if="creating" class="todo-detail-footer todo-create-footer">
+      <AButton
+        class="todo-button todo-primary"
+        html-type="submit"
+        :form="createFormId"
+        :disabled="state.busy"
+        type="primary"
+        >{{ state.busy ? '创建中…' : '创建任务' }}</AButton
+      >
+      <AButton class="todo-button" html-type="button" :disabled="state.busy" @click="close">
+        收起并保留草稿</AButton
+      >
+      <AButton
+        class="todo-link todo-danger"
+        html-type="button"
+        type="link"
+        danger
+        :disabled="state.busy"
+        @click="discardNew"
+        >放弃这份新建草稿</AButton
+      >
+    </footer>
     <footer
-      v-if="!creating && form"
+      v-else-if="form"
       class="todo-detail-footer"
       :class="{ 'has-unsaved': model.dirty() || savingTask }"
     >

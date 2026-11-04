@@ -1,12 +1,13 @@
 /* The task reader keeps its controls discoverable without a full form outline. */
 .to-doo-workspace .todo-readable-list-content {
   width: 100%;
-  max-width: 960px;
+  max-width: none;
 }
 .to-doo-workspace .todo-detail {
-  width: var(--todo-detail-width);
+  width: min(var(--todo-detail-width), 100%);
 }
 .to-doo-workspace .todo-detail > header {
+  flex-shrink: 0;
   min-height: 54px;
   padding: 10px 22px;
   border-bottom-color: transparent;
@@ -22,6 +23,8 @@
   flex-shrink: 0;
 }
 .to-doo-workspace .todo-detail-body {
+  scroll-padding-block: 16px;
+  overflow-x: hidden;
   padding: 12px 24px 26px;
 }
 .to-doo-workspace .todo-detail .todo-document-fields {
@@ -224,8 +227,11 @@
   border-radius: 0;
 }
 .to-doo-workspace .todo-detail-footer {
+  flex-shrink: 0;
+  background: var(--todo-paper);
   min-height: 64px;
   padding: 12px 22px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
   gap: 10px;
 }
 .to-doo-workspace .todo-detail-focus.ant-btn {
@@ -336,5 +342,24 @@
   .to-doo-workspace .todo-document-meta > label {
     flex: 1;
     max-width: 100%;
+  }
+}
+
+.to-doo-workspace .todo-create-footer > .ant-btn-primary,
+.to-doo-workspace .todo-create-footer > .todo-button:not(.todo-link) {
+  flex: 1 1 140px;
+  white-space: normal;
+  height: auto;
+  min-height: 36px;
+}
+.to-doo-workspace .todo-create-footer > .todo-danger {
+  flex-basis: 100%;
+  height: auto;
+  min-height: 28px;
+  padding: 0;
+}
+@media (max-width: 600px) {
+  .to-doo-workspace .todo-detail .todo-form-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

@@ -105,7 +105,7 @@ test('closing mobile new-list creation keeps the current list selected', async (
   await expect(app.getByRole('heading', { name, exact: true })).toBeVisible();
   const directory = await openToDooDirectory(page);
   await directory.getByRole('button', { name: '新建清单', exact: true }).click();
-  const editor = page.getByRole('dialog', { name: '新建目标与清单', exact: true });
+  const editor = page.getByRole('dialog', { name: '新建清单', exact: true });
   await expect(editor.getByLabel('名称', { exact: true })).toBeVisible();
   await editor.getByRole('button', { name: '取消', exact: true }).click();
   await expect(editor).not.toBeVisible();

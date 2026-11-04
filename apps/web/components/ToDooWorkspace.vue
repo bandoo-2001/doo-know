@@ -63,6 +63,8 @@ import '../to-doo.css';
 import '../to-doo-tokens.css';
 import '../to-doo-priority.css';
 import '../to-doo-task-detail.css';
+import '../to-doo-layout.css';
+import { resolveToDooContext, toDooContextEntries } from '../to-doo-context-navigation';
 const props = withDefaults(
   defineProps<{
     section: ToDooAppSection;
@@ -131,11 +133,14 @@ const confirmation = provideToDooConfirm();
 const confirmRequest = confirmation.current;
 const navigationOpen = ref(false);
 const settingsVersion = ref(0);
-const hasSecondaryNavigation = computed(
-  () =>
-    !props.hostedNavigation ||
-    ['tasks', 'board', 'overview', 'calendar', 'timeline'].includes(props.section),
+const hasSecondaryNavigation = computed(() => true);
+const context = computed(() =>
+  props.hostedNavigation ? resolveToDooContext(props.section, props.selection.appPage) : undefined,
 );
+function changeContext(value: string) {
+  if (!toDooContextEntries(props.section).some((entry) => entry.id === value)) return;
+  navigate(props.section, { ...props.selection, appPage: value });
+}
 const calendarToday = computed(() => toDooLocalDate(new Date(), state.snapshot?.settings.timeZone));
 const calendarDate = computed(() => props.selection.date || calendarToday.value);
 watch(hasSecondaryNavigation, (visible) => {
@@ -395,7 +400,14 @@ const title = computed(() =>
       ? lists.value.find((l) => l.id === props.selection.list)?.name ||
         toDooQuickViews.find((v) => v.id === quickView.value)?.name ||
         '所有任务'
-      : nav.find((n) => n[0] === props.section)?.[1] || '目标总览',
+      : props.section === 'settings'
+        ? (context.value || settingsRef.value?.activeTab || 'preferences') === 'preferences'
+          ? '偏好设置'
+          : toDooContextEntries('settings').find(
+              (entry) =>
+                entry.id === (context.value || settingsRef.value?.activeTab || 'preferences'),
+            )?.label || '设置'
+        : nav.find((n) => n[0] === props.section)?.[1] || '目标总览',
 );
 const mobileTools = nav.filter(([section]) =>
   ['calendar', 'matrix', 'focus', 'habits'].includes(section),
@@ -602,6 +614,14 @@ function navigate(section: ToDooAppSection, selection: ToDooSelection = {}) {
       if (allowed) emit('navigate', section, selection);
     });
   } else emit('navigate', section, selection);
+}
+function navigateDirectory(section: ToDooAppSection, selection: ToDooSelection = {}) {
+  if (
+    ['calendar', 'timeline'].includes(section) &&
+    ['calendar', 'timeline'].includes(props.section)
+  )
+    navigate(section, { ...props.selection, ...selection });
+  else navigate(section, selection);
 }
 function create(parent?: string, sectionId?: string | null, seed?: ToDooCreateSeed) {
   const context: ToDooCreateSeed = {
@@ -886,7 +906,16 @@ watch(
       view: props.section,
       listIds: quickView.value === 'inbox' ? ['inbox'] : undefined,
       ...initialRange,
-      ...(props.section === 'notifications' ? { sort: 'recent' as const, raisedOnly: true } : {}),
+      ...(props.section === 'notifications'
+        ? {
+            sort: 'recent' as const,
+            raisedOnly: true,
+            reminderStates:
+              context.value && context.value !== 'all'
+                ? [context.value as ToDooEntityMap['reminderEvent']['userState']]
+                : undefined,
+          }
+        : {}),
       limit: 200,
       filter: [...taskSections, 'calendar', 'timeline'].includes(props.section)
         ? state.filter
@@ -1029,6 +1058,8 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
     <aside v-if="hasSecondaryNavigation" class="todo-sidebar">
       <ToDooNavigation
         :hosted-navigation="hostedNavigation"
+        :context="context"
+        @context="changeContext"
         :date="calendarDate"
         :today="calendarToday"
         :calendar-view="selection.calendarView"
@@ -1040,7 +1071,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
         :list-loading="listLoading"
         :list-error="listError"
         :has-more-lists="!!listCursor"
-        @navigate="navigate"
+        @navigate="navigateDirectory"
         @quick="chooseQuickView"
         @list="chooseList"
         @new-list="
@@ -1082,6 +1113,8 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
         </div>
         <ToDooNavigation
           :hosted-navigation="hostedNavigation"
+          :context="context"
+          @context="changeContext"
           :date="calendarDate"
           :today="calendarToday"
           :calendar-view="selection.calendarView"
@@ -1093,7 +1126,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
           :list-loading="listLoading"
           :list-error="listError"
           :has-more-lists="!!listCursor"
-          @navigate="navigate"
+          @navigate="navigateDirectory"
           @quick="chooseQuickView"
           @list="chooseList"
           @new-list="
@@ -1230,9 +1263,18 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
             >
           </template>
         </ToDooPageHeader>
-        <div v-if="showTaskScope" class="todo-task-scope" aria-label="当前任务范围">
+        <div
+          v-if="showTaskScope && section !== 'tasks'"
+          class="todo-task-scope"
+          aria-label="当前任务范围"
+        >
           <span class="todo-scope-summary">任务范围：{{ scopeSummary }}</span>
-          <ToDooSelect :value="scopeSelection" aria-label="切换任务范围" @change="changeScope">
+          <ToDooSelect
+            v-if="section === 'timeline'"
+            :value="scopeSelection"
+            aria-label="切换任务范围"
+            @change="changeScope"
+          >
             <option v-for="view in toDooQuickViews" :key="view.id" :value="'quick:' + view.id">
               {{ view.name }}
             </option>
@@ -1246,7 +1288,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
               {{ list.name }}
             </option>
           </ToDooSelect>
-          <details v-if="scopeFilters.length" class="todo-scope-filters">
+          <details v-if="section === 'timeline' && scopeFilters.length" class="todo-scope-filters">
             <summary>筛选 {{ scopeFilters.length }} 项</summary>
             <ul>
               <li v-for="part in scopeFilters" :key="part">{{ part }}</li>
@@ -1326,6 +1368,8 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
               :tree="tree"
               :section="section"
               :quick-view="quickView"
+              :context-list-id="selection.list"
+              :contextual-navigation="hostedNavigation"
               :creating="creating"
               @quick-filter="chooseQuickView"
               @bulk="bulkOpen = true"
@@ -1340,6 +1384,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
               :date="selection.date"
               :view="selection.calendarView || 'month'"
               :timeline="section === 'timeline'"
+              :contextual-navigation="hostedNavigation"
               @open="open"
               @navigate="navigate(section, { ...selection, ...$event })"
               @task-view="changeTaskView"
@@ -1349,11 +1394,17 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
               :model="model"
               :section="section"
               :occurrence-id="focusOccurrence"
+              :context="context"
+              :contextual-navigation="hostedNavigation"
+              @context-change="changeContext"
               @edit="edit"
               @task="selectTask" /><ToDooReview
               v-else-if="section === 'stats' || section === 'notifications'"
               :key="'review:' + pageAttempts.review"
               ref="reviewRef"
+              :context="context"
+              :contextual-navigation="hostedNavigation"
+              @context-change="changeContext"
               :model="model"
               :section="section"
               @edit="edit"
@@ -1362,7 +1413,11 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
               v-else-if="section === 'settings'"
               :key="'settings-' + settingsVersion + ':' + pageAttempts.settings"
               ref="settingsRef"
+              :context="context"
+              :contextual-navigation="hostedNavigation"
+              @context-change="changeContext"
               :model="model"
+              @task-scope="chooseQuickView"
               @resume-outcome="resumeOutcome"
               @open-note="emit('open-note', $event)"
               @edit="edit"

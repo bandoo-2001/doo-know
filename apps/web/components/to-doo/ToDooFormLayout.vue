@@ -30,7 +30,7 @@ defineExpose({ element, hasInvalidInput, requestSubmit: () => element.value?.req
 <template>
   <AForm
     ref="form"
-    class="todo-form"
+    class="todo-form todo-form-layout"
     :disabled="busy"
     :aria-busy="busy || undefined"
     @submit="submit"
@@ -42,3 +42,4 @@ defineExpose({ element, hasInvalidInput, requestSubmit: () => element.value?.req
     </footer>
   </AForm>
 </template>
+<style src="../../to-doo-form-layout.css"></style>

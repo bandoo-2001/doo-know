@@ -48,3 +48,28 @@ it.each([
 ] as const)('preserves the Gregorian %s leap-day policy', (leapPolicy, date) => {
   expectDate({ date: '2024-02-29', leapPolicy }, '2026-01-01', date);
 });
+
+it('preserves a saved card appearance while accepting older anniversaries', () => {
+  expect(anniversary({ date: '2026-11-04' }).name).toBe('纪念日');
+  const styled = toDooEntitySchemas.anniversary.parse({
+    ...anniversary({ date: '2026-11-04' }),
+    appearance: { style: 'landscape', palette: 'sage' },
+  });
+  expect(styled).toMatchObject({ appearance: { style: 'landscape', palette: 'sage' } });
+});
+
+it('rejects unknown card styles and arbitrary CSS as palette data', () => {
+  const entity = anniversary({ date: '2026-11-04' });
+  expect(
+    toDooEntitySchemas.anniversary.safeParse({
+      ...entity,
+      appearance: { style: 'unknown', palette: 'rose' },
+    }).success,
+  ).toBe(false);
+  expect(
+    toDooEntitySchemas.anniversary.safeParse({
+      ...entity,
+      appearance: { style: 'bloom', palette: 'url(https://example.invalid)' },
+    }).success,
+  ).toBe(false);
+});

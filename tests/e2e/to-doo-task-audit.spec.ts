@@ -1,5 +1,6 @@
 import { readFile, mkdir } from 'node:fs/promises';
 import { test, expect } from '../support/browser-test';
+import { goToToDooSection, selectToDooContext } from '../support/to-doo-navigation';
 import {
   selectToDooOption,
   expandToDooGroup,
@@ -30,7 +31,7 @@ test('board scope remains visible and column creation saves initial status and c
   });
   await page.goto('/?view=apps&app=to-doo&appSection=board&list=' + list.ids[0]);
   await expect(app(page).getByLabel('当前任务范围')).toContainText('审查任务清单');
-  await selectToDooOption(app(page), '切换任务范围', '今天');
+  await selectToDooContext(page, '今天', '任务目录');
   await expect.poll(() => new URL(page.url()).searchParams.get('appSection')).toBe('board');
   await expect(app(page).getByLabel('当前任务范围')).toContainText('今天');
   const doing = app(page)
@@ -149,7 +150,7 @@ test('mobile task tools and dates stay readable with board and quadrant overview
     fullPage: true,
     animations: 'disabled',
   });
-  await app(page).locator('.todo-view-switch').getByText('四象限', { exact: true }).click();
+  await goToToDooSection(page, 'matrix');
   await expect(app(page).getByRole('navigation', { name: '象限概览', exact: true })).toBeVisible();
   await app(page)
     .getByRole('navigation', { name: '象限概览', exact: true })

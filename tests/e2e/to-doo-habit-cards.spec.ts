@@ -1,3 +1,4 @@
+import { selectToDooContext } from '../support/to-doo-navigation';
 import { readFile } from 'node:fs/promises';
 import { test, expect } from '../support/browser-test';
 
@@ -161,7 +162,7 @@ test('habit cards distinguish today from weekly achievement and include all page
   });
   await expect(statistics).toContainText('已读取 451 条记录');
   await statistics.getByRole('button', { name: 'Close', exact: true }).click();
-  await app.getByText('历史', { exact: true }).click();
+  await selectToDooContext(page, '历史', '习惯目录');
   await expect(app.getByRole('button', { name: '上一周', exact: true })).toBeVisible();
   await app.getByText('今天', { exact: true }).click();
   await page.setViewportSize({ width: 320, height: 844 });

@@ -1,16 +1,40 @@
+.todo-main:has(.todo-focus-workspace),
+.todo-page:has(.todo-focus-workspace),
+.todo-content:has(.todo-focus-workspace) {
+  display: flex;
+  flex-direction: column;
+}
+.todo-page:has(.todo-focus-workspace) {
+  flex: 1;
+  width: 100%;
+  padding-bottom: 0;
+}
+.todo-content:has(.todo-focus-workspace) {
+  flex: 1;
+}
 .todo-focus-workspace {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
   gap: calc(var(--todo-space) * 3);
-  align-items: start;
   min-width: 0;
 }
-.todo-focus-mobile-panes {
-  grid-column: 1 / -1;
+.todo-focus-panels {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: calc(var(--todo-space) * 3);
+  align-items: start;
+  flex: 1;
+  min-width: 0;
 }
 .todo-focus-projects,
 .todo-focus-records {
   min-width: 0;
+  scroll-margin-block: 16px;
+}
+.todo-focus-projects > .todo-page-toolbar {
+  flex-wrap: wrap;
+  gap: 8px;
 }
 .todo-focus-projects > .todo-page-toolbar {
   margin-bottom: calc(var(--todo-space) * 3);
@@ -115,7 +139,7 @@
 .todo-focus-history-footer .todo-focus-count {
   margin: 0 !important;
   margin-left: auto !important;
-  font-size: 10px;
+  font-size: 12px;
 }
 .todo-focus-page-error {
   padding-top: 4px;
@@ -222,7 +246,6 @@
   gap: 4px;
 }
 .todo-focus-timer {
-  grid-column: 1 / -1;
   display: grid;
   grid-template-columns: minmax(180px, 1fr) auto auto auto;
   align-items: center;
@@ -233,6 +256,7 @@
   padding: 16px 0 8px;
   border-top: 1px solid var(--todo-line);
   background: var(--todo-paper);
+  flex-shrink: 0;
 }
 .todo-focus-timer-context {
   display: flex;
@@ -339,8 +363,8 @@
   display: grid;
   gap: 8px;
 }
-@container (max-width: 1050px) {
-  .todo-focus-workspace {
+@container (max-width: 880px) {
+  .todo-focus-panels {
     grid-template-columns: minmax(0, 1fr);
   }
   .todo-focus-records {
@@ -366,11 +390,6 @@
   }
   .todo-focus-empty .ant-empty-image {
     height: 48px;
-  }
-  .todo-focus-project-head,
-  .todo-focus-topic {
-    grid-template-columns: minmax(0, 1fr) 64px 64px;
-    gap: 6px;
   }
   .todo-focus-project-head,
   .todo-focus-topic {
@@ -461,12 +480,6 @@
   justify-self: end;
 }
 
-.todo-focus-scope {
-  color: var(--todo-muted);
-  font-size: 10px;
-  line-height: 1.2;
-  margin: 0 0 4px;
-}
 .to-doo-workspace .todo-focus-topic-total.ant-btn {
   display: flex;
   flex-direction: column;
@@ -486,4 +499,24 @@
   display: inline;
   margin-left: 4px;
   color: var(--todo-accent);
+}
+
+@container (max-width: 360px) {
+  .todo-focus-statistics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .todo-focus-records .todo-section-header {
+    flex-wrap: wrap;
+  }
+  .todo-focus-records .todo-section-header .todo-ant-select {
+    max-width: 100%;
+  }
+  .todo-focus-timer-actions .ant-btn {
+    min-width: 0;
+    padding-inline: 10px;
+  }
+  .todo-focus-history-secondary {
+    flex-wrap: wrap;
+    gap: 8px 12px;
+  }
 }

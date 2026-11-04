@@ -1,3 +1,4 @@
+import { selectToDooContext } from '../support/to-doo-navigation';
 import { readFile } from 'node:fs/promises';
 import { test, expect } from '../support/browser-test';
 import { selectToDooOption } from '../support/to-doo-ant-controls';
@@ -182,7 +183,7 @@ test('a focus project saves records, survives refresh and archives without chang
   if (
     !(await app.getByRole('button', { name: '专注项目操作 ' + topicName, exact: true }).isVisible())
   )
-    await app.locator('.todo-focus-mobile-panes').getByText('项目', { exact: true }).click();
+    await selectToDooContext(page, '项目', '专注目录');
   await app.getByRole('button', { name: '专注项目操作 ' + topicName, exact: true }).click();
   await page.getByRole('menuitem', { name: '归档项目', exact: true }).click();
   await app.getByText('已归档', { exact: true }).click();
@@ -193,11 +194,7 @@ test('a focus project saves records, survives refresh and archives without chang
   expect(saved.occurrences.find((row: any) => row.taskId === taskId).status).toBe('todo');
   await page.reload();
   await expect(app.getByRole('region', { name: '专注计时器', exact: true })).toBeVisible();
-  const historyPane = app.locator('.todo-focus-mobile-panes');
-  if (await historyPane.isVisible()) {
-    await historyPane.getByText('历史', { exact: true }).click();
-    await expect(app.getByRole('radio', { name: '历史', exact: true })).toBeChecked();
-  }
+  await selectToDooContext(page, '历史', '专注目录');
   await expect(app.locator('.todo-focus-history-item').filter({ hasText: note })).toBeVisible();
   await page.screenshot({ path: info.outputPath('focus-project-history.png'), fullPage: true });
 });
@@ -246,11 +243,7 @@ test('1205 older records do not hide the current timer and history filters use r
   await page.goto('/?view=apps&app=to-doo&appSection=focus');
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
   await expect(app.getByRole('button', { name: '暂停', exact: true })).toBeVisible();
-  const historyPane = app.locator('.todo-focus-mobile-panes');
-  if (await historyPane.isVisible()) {
-    await historyPane.getByText('历史', { exact: true }).click();
-    await expect(app.getByRole('radio', { name: '历史', exact: true })).toBeChecked();
-  }
+  await selectToDooContext(page, '历史', '专注目录');
   await selectToDooOption(app, '专注记录项目', name);
   const rows = app.locator('.todo-focus-history-item');
   await expect(rows).toHaveCount(50);

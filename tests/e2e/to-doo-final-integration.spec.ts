@@ -60,8 +60,11 @@ test('saved direct conditions stay inspectable in board, matrix and timeline, th
     await page.goto('/?view=apps&app=to-doo&appSection=tasks&taskFilter=all');
     await page.getByRole('button', { name, exact: true }).click();
     await expect.poll(() => new URL(page.url()).searchParams.get('appSection')).toBe(mode);
-    const scope = page.locator('.todo-task-scope');
-    await scope.locator('summary').click();
+    const scope =
+      mode === 'timeline'
+        ? page.getByLabel('当前任务范围', { exact: true })
+        : page.getByLabel('附加筛选', { exact: true });
+    if (mode === 'timeline') await scope.locator('summary').click();
     await expect(scope).toContainText('优先级：高');
     await expect(scope).toContainText('重要程度：重要');
     await expect(scope).toContainText('仅叶子任务');

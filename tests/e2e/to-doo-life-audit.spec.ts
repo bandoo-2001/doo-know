@@ -2,6 +2,7 @@ import { mkdir, readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import type { Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
+import { selectToDooContext } from '../support/to-doo-navigation';
 import { selectToDooOption } from '../support/to-doo-ant-controls';
 
 const evidence = resolve('docs/design/to-doo/audit-fixes-2026-11-03/life');
@@ -92,7 +93,7 @@ test('quantity history retains 45/20 and correction removes only one of three sa
   await capture(page, 'habits-light');
   await setTheme(page, 'dark');
   await capture(page, 'habits-dark');
-  await page.getByText('历史', { exact: true }).click();
+  await selectToDooContext(page, '历史', '习惯目录');
   const day = page.getByRole('button', {
     name: name + ' 2026-11-03 打卡，当前 45 页',
     exact: true,
@@ -127,7 +128,7 @@ test('quantity history retains 45/20 and correction removes only one of three sa
       .map((e: any) => e.amount)
       .sort(),
   ).toEqual([15, 20]);
-  await dialog.getByRole('button', { name: '取消', exact: true }).click();
+  await dialog.getByRole('button', { name: '关闭', exact: true }).click();
   await expect(
     page.getByRole('button', { name: name + ' 2026-11-03 打卡，当前 35 页', exact: true }),
   ).toContainText('35');

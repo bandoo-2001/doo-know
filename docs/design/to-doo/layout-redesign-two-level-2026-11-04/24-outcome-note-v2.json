@@ -1,0 +1,18 @@
+{
+  "id": "24-outcome-note-v2",
+  "title": "成果笔记（背景筛选一致性修订）",
+  "file": "24-outcome-note-v2.png",
+  "originalReference": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-two-level-2026-11-04/24-outcome-note.png",
+  "navigationReference": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-two-level-2026-11-04/24-outcome-note.png",
+  "primary": "任务",
+  "secondary": "近七天",
+  "prompt": "Use case: ui-mockup, one precise correction to this ALREADY correct two-level To Doo screen. Remove ONLY the obsolete grey background result-group strip at the bottom saying 已完成2 and its chevron, because the background task-list filter is 未完成. Leave normal blank space there. Do NOT change the whole narrow module rail,task context sidebar,blueTask/近七天 selections,top app bar,background SIX pending tasks,or ANY part of the foreground成果笔记 modal. Preserve all its title,task link,笔记标题,保存到,Markdown preview heading/bullets,unchecked同时完成关联任务,retention helper,and收起并保留输入/创建并关联成果笔记 footer exactly. Do not add replacement content or another completed section. Same crisp Chinese,style,frame.",
+  "directory": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-two-level-2026-11-04",
+  "source": "/home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-956e1af5-3861-4281-a038-a3f39cdfcef4.png",
+  "tool": "image_gen.imagegen",
+  "kind": "two-level-navigation-concept",
+  "dimensions": [
+    1552,
+    1013
+  ]
+}

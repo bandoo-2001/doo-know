@@ -10,6 +10,8 @@ import {
 } from 'ant-design-vue';
 import ToDooFocus from './ToDooFocus.vue';
 import ToDooHabitCard from './ToDooHabitCard.vue';
+import ToDooHint from './ToDooHint.vue';
+import '../../to-doo-anniversary.css';
 import { formatHabitSchedule } from '../../to-doo-habit-presentation';
 import ToDooPageToolbar from './ToDooPageToolbar.vue';
 import ToDooSectionHeader from './ToDooSectionHeader.vue';
@@ -29,10 +31,13 @@ const props = defineProps<{
   model: ToDooWorkbench;
   section: 'focus' | 'habits' | 'anniversaries';
   occurrenceId?: string;
+  context?: string;
+  contextualNavigation?: boolean;
 }>();
 const emit = defineEmits<{
   edit: [kind: ToDooEntityKind, entity?: Record<string, any>, seed?: Record<string, any>];
   task: [id: string, occurrenceId?: string];
+  'context-change': [value: string];
 }>();
 const confirmAction = useToDooConfirm();
 const { now: tick, active: clockActive } = useToDooClock();
@@ -42,7 +47,32 @@ const today = computed(() =>
   toDooLocalDate(new Date(tick.value), state.snapshot?.settings.timeZone),
 );
 const habits = computed(() => state.snapshot?.habits.filter((h) => !h.deletedAt) || []);
-const habitPane = ref('today');
+const localHabitPane = ref('today');
+const habitPane = computed({
+  get: () =>
+    props.context === undefined
+      ? localHabitPane.value
+      : props.context === 'history'
+        ? 'history'
+        : 'today',
+  set: (value: string) => {
+    localHabitPane.value = value;
+    emit('context-change', value);
+  },
+});
+const localAnniversaryFilter = ref('all');
+const anniversaryFilter = computed({
+  get: () =>
+    props.context === undefined
+      ? localAnniversaryFilter.value
+      : ['upcoming', 'today', 'past'].includes(props.context)
+        ? props.context
+        : 'all',
+  set: (value: string) => {
+    localAnniversaryFilter.value = value;
+    emit('context-change', value);
+  },
+});
 const habitEntries = ref<ToDooEntityMap['habitEntry'][]>([]);
 const habitLoading = ref(false),
   habitError = ref(''),
@@ -200,7 +230,18 @@ const anniversaries = computed(
       .map((a) => ({ entity: a, next: nextToDooAnniversary(a, today.value) }))
       .sort((a, b) => (a.next || '9999').localeCompare(b.next || '9999')) || [],
 );
+const filteredAnniversaries = computed(() =>
+  anniversaries.value.filter(({ next }) => {
+    if (anniversaryFilter.value === 'all') return true;
+    if (!next) return false;
+    if (anniversaryFilter.value === 'today') return next === today.value;
+    if (anniversaryFilter.value === 'past') return next < today.value;
+    return next > today.value && next <= shiftToDooDate(today.value, 30);
+  }),
+);
 const anniversaryGroups = computed(() => {
+  if (props.contextualNavigation)
+    return [{ id: anniversaryFilter.value, label: '', items: filteredAnniversaries.value }];
   const bucket = (next: string | null) =>
     !next
       ? 'invalid'
@@ -217,7 +258,7 @@ const anniversaryGroups = computed(() => {
   ]
     .map((group) => ({
       ...group,
-      items: anniversaries.value.filter((row) => bucket(row.next) === group.id),
+      items: filteredAnniversaries.value.filter((row) => bucket(row.next) === group.id),
     }))
     .filter((group) => group.items.length);
 });
@@ -450,12 +491,16 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
       v-if="section === 'focus'"
       :model="model"
       :occurrence-id="occurrenceId"
+      :context="context"
+      :contextual-navigation="contextualNavigation"
+      @context-change="emit('context-change', $event)"
       @edit="(kind, entity, seed) => emit('edit', kind, entity, seed)"
       @task="(id, occurrence) => emit('task', id, occurrence)"
   /></KeepAlive>
   <template v-if="section === 'habits'"
-    ><ToDooPageToolbar class="todo-calendar-toolbar">
+    ><ToDooPageToolbar class="todo-calendar-toolbar todo-life-toolbar">
       <ASegmented
+        v-if="!contextualNavigation"
         v-model:value="habitPane"
         aria-label="习惯视图"
         :options="[
@@ -464,6 +509,9 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
         ]"
       />
       <span v-if="habitPane === 'today'" class="todo-muted">{{ today }}</span>
+      <span v-if="habitPane === 'today'" class="todo-muted">{{
+        state.snapshot?.settings.timeZone
+      }}</span>
       <div v-else class="todo-actions">
         <AButton type="text" class="todo-icon-button" aria-label="上一周" @click="weekOffset--">
           ‹
@@ -512,13 +560,10 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
       <AEmpty v-if="!habits.length" description="从一件小事开始，记录每一次积累。" />
     </div>
     <template v-else>
-      <AAlert
-        class="todo-top-gap"
-        type="info"
-        show-icon
-        message="点击日期补记或调整记录。周／月累计请在“今天”查看。"
-      />
-      <section class="todo-panel todo-habit-table">
+      <ToDooHint :model="model" hint-id="habit-calendar-edit" class="todo-top-gap"
+        >点击日期补记或调整记录。周／月累计请在“今天”查看。</ToDooHint
+      >
+      <section class="todo-panel todo-habit-table" aria-label="习惯历史日历">
         <div class="todo-habit-row head">
           <span>习惯</span
           ><span v-for="d in days" :key="d"
@@ -609,10 +654,29 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
     ></template
   >
   <template v-else-if="section === 'anniversaries'">
+    <ToDooPageToolbar v-if="!contextualNavigation" class="todo-life-toolbar">
+      <ASegmented
+        v-model:value="anniversaryFilter"
+        aria-label="纪念日范围"
+        :options="[
+          { label: '全部', value: 'all' },
+          { label: '即将到来', value: 'upcoming' },
+          { label: '今天', value: 'today' },
+          { label: '已过去', value: 'past' },
+        ]"
+      />
+    </ToDooPageToolbar>
     <section v-for="group in anniversaryGroups" :key="group.id" class="todo-anniversary-group">
-      <ToDooSectionHeader :title="group.label" />
+      <ToDooSectionHeader v-if="group.label" :title="group.label" />
       <div class="todo-anniversaries">
-        <article v-for="a in group.items" :key="a.entity.id" class="todo-anniversary todo-panel">
+        <article
+          v-for="a in group.items"
+          :key="a.entity.id"
+          class="todo-anniversary todo-panel"
+          :data-card-style="a.entity.appearance?.style || 'bloom'"
+          :data-card-palette="a.entity.appearance?.palette || 'rose'"
+          :aria-label="'纪念日 ' + a.entity.name"
+        >
           <div class="todo-between todo-anniversary-heading">
             <span v-if="a.entity.category" class="todo-badge">{{ a.entity.category }}</span
             ><AButton
@@ -684,6 +748,13 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
       <AButton type="default" class="todo-button" @click="emit('edit', 'anniversary')">
         新建纪念日
       </AButton>
+    </AEmpty>
+    <AEmpty
+      v-else-if="!filteredAnniversaries.length"
+      class="todo-empty todo-panel"
+      description="这个范围内还没有纪念日"
+    >
+      <AButton @click="anniversaryFilter = 'all'">查看全部纪念日</AButton>
     </AEmpty></template
   >
   <AModal
@@ -701,9 +772,9 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
         当前连续 {{ habitStatistics.streak.current }} 期 · 最长连续
         {{ habitStatistics.streak.longest }} 期
       </p>
-      <p class="todo-muted todo-small">
-        按记录当天的规则和日／周／月周期计算；暂停与跳过使用当期规则。
-      </p>
+      <ToDooHint :model="model" hint-id="habit-statistics-rules"
+        >按记录当天的规则和日／周／月周期计算；暂停与跳过使用当期规则。</ToDooHint
+      >
       <AAlert
         v-if="habitStatistics.streak.estimated"
         type="info"
@@ -751,11 +822,13 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
         当期累计 {{ dialogSummary?.amount }} / {{ dialogRule.target }}
         {{ ordinaryDialog ? '天' : dialogRule.unit }}
       </p>
-      <p class="todo-muted todo-small">
-        {{
-          ordinaryDialog ? '点击打卡后保存本次记录' : '点击保存后记录本次新增'
-        }}；关闭会放弃本次输入，已保存记录保留。
-      </p>
+      <ToDooHint
+        :model="model"
+        :hint-id="ordinaryDialog ? 'habit-checkin-save' : 'habit-quantity-save'"
+        >{{
+          ordinaryDialog ? '点击打卡后保存本次记录' : '点击记录后保存本次新增'
+        }}；关闭会放弃本次输入，已保存记录保留。</ToDooHint
+      >
       <ul
         v-if="numericDialog && dialogEntries.length"
         class="todo-habit-entries"
@@ -794,18 +867,26 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
       </p>
       <label v-else
         >本次新增
-        <AInputNumber
-          :value="numericValue"
-          :min="0"
-          :disabled="state.busy || !!dialogExempt"
-          aria-label="习惯数量"
-          autofocus
-          @update:value="numericValue = $event === null || $event === '' ? '' : Number($event)"
-        />
+        <span class="todo-habit-entry-input"
+          ><AInputNumber
+            :value="numericValue"
+            :min="0"
+            :disabled="state.busy || !!dialogExempt"
+            aria-label="习惯数量"
+            autofocus
+            @update:value="numericValue = $event === null || $event === '' ? '' : Number($event)"
+          /><AButton
+            type="primary"
+            html-type="submit"
+            :loading="state.busy"
+            :disabled="!!dialogExempt"
+            >记录</AButton
+          ></span
+        >
       </label>
       <div v-if="numericDialog" class="todo-actions">
         <AButton
-          v-if="entries(numericDialog.habit.id, numericDialog.date).length"
+          v-if="ordinaryDialog && entries(numericDialog.habit.id, numericDialog.date).length"
           type="link"
           :disabled="state.busy"
           @click="adjustHistory('undo')"
@@ -835,10 +916,42 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
       >
       <AAlert v-if="numericError" type="error" show-icon :message="numericError" />
     </form>
+    <template v-if="!ordinaryDialog" #footer>
+      <AButton
+        v-if="numericDialog && dialogEntries.length"
+        type="link"
+        danger
+        :disabled="state.busy"
+        @click="adjustHistory('undo')"
+        >撤销当天记录</AButton
+      >
+      <AButton :disabled="state.busy" @click="closeNumeric">关闭</AButton>
+    </template>
   </AModal>
 </template>
 
 <style scoped>
+.todo-habit-entry-input {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.todo-habit-entry-input > .ant-input-number {
+  flex: 1;
+  min-width: 0;
+}
+.todo-life-toolbar {
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.todo-life-toolbar h2 {
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+.todo-life-toolbar .todo-actions {
+  min-width: 0;
+  flex-wrap: wrap;
+}
 .todo-anniversary-heading > .ant-btn {
   margin-left: auto;
 }
@@ -865,7 +978,7 @@ function distance(date: string, a: ToDooEntityMap['anniversary']) {
   color: var(--todo-ink);
 }
 .todo-anniversaries {
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 340px));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
 }
 .todo-anniversary {
   min-width: 0;

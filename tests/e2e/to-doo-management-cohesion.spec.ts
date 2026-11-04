@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { test, expect } from '../support/browser-test';
+import { selectToDooContext } from '../support/to-doo-navigation';
 import { expandToDooGroup, toDooDisclosureHeader } from '../support/to-doo-ant-controls';
 
 test.beforeEach(async ({ context }) => {
@@ -26,7 +27,7 @@ test('saving reveals and focuses an invalid timezone inside folded preferences',
   await page.goto('/?view=apps&app=to-doo&appSection=settings');
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
   const field = app.getByLabel('显示时区', { exact: true });
-  await expect(field).not.toBeVisible();
+  await expect(field).toBeVisible();
   await expandToDooGroup(app, '日期与提醒');
   const original = await field.inputValue();
   await field.fill('Invalid/Zone');
@@ -39,23 +40,23 @@ test('saving reveals and focuses an invalid timezone inside folded preferences',
   await expect(app.getByText('有未保存的更改', { exact: true })).not.toBeVisible();
 });
 
-test('optional calendar forms retain drafts across tabs and idle recovery stays folded', async ({
+test('optional calendar forms retain drafts across sections and idle recovery stays folded', async ({
   page,
 }) => {
   await page.goto('/?view=apps&app=to-doo&appSection=settings');
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
-  await app.getByRole('tab', { name: '提醒与连接', exact: true }).click();
+  await selectToDooContext(page, '提醒与连接');
   const address = app.getByRole('textbox', { name: 'HTTPS 日历地址', exact: true });
-  await expect(address).not.toBeVisible();
+  await expect(address).toBeVisible();
   await expandToDooGroup(app, '连接外部只读日历');
   await address.fill('https://example.test/draft.ics');
   await toDooDisclosureHeader(app, '连接外部只读日历').click();
-  await app.getByRole('tab', { name: '偏好', exact: true }).click();
-  await app.getByRole('tab', { name: '提醒与连接', exact: true }).click();
+  await selectToDooContext(page, '偏好');
+  await selectToDooContext(page, '提醒与连接');
   await expandToDooGroup(app, '连接外部只读日历');
   await expect(address).toHaveValue('https://example.test/draft.ics');
   await address.fill('');
-  await app.getByRole('tab', { name: '数据与恢复', exact: true }).click();
+  await selectToDooContext(page, '数据与恢复');
   await expect(toDooDisclosureHeader(app, '成果笔记恢复')).toHaveAttribute(
     'aria-expanded',
     'false',

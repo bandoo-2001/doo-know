@@ -34,7 +34,7 @@ const control = (tag: string) =>
     setup:
       (_, { attrs, slots }) =>
       () =>
-        Vue.h(tag, attrs, slots.default?.()),
+        Vue.h(tag, attrs, tag === 'Alert' ? slots.message?.() || slots.default?.() : slots.default?.()),
   });
 const controls = Object.fromEntries(
   [
@@ -86,7 +86,7 @@ function component(name: string): Vue.Component {
       if (id.endsWith('ToDooDateField.vue')) return { default: control('DateField') };
       if (id.endsWith('ToDooSelect.vue')) return { default: control('Select') };
       if (
-        /ToDoo(PageToolbar|SectionHeader|Focus|FocusTrend|FocusTimerFields|HabitCard|Icon)\.vue$/.test(
+        /ToDoo(Hint|PageToolbar|SectionHeader|Focus|FocusTrend|FocusTimerFields|HabitCard|Icon)\.vue$/.test(
           id,
         )
       )

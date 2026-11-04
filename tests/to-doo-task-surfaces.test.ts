@@ -47,6 +47,7 @@ function component(name: string): Vue.Component {
       if (id === 'ant-design-vue') return toDooAntStubs;
       if (id.endsWith('/to-doo-controls')) return controls;
       if (id.endsWith('ToDooDisclosure.vue')) return { default: component('ToDooDisclosure') };
+      if (id.endsWith('ToDooHint.vue')) return { default: component('ToDooHint') };
       const boundary = toDooBoundaryStub(id);
       if (boundary) return { default: boundary };
       if (id.endsWith('ToDooTaskRow.vue')) return { default: component('ToDooTaskRow') };
@@ -240,6 +241,159 @@ function confirmationModel() {
 }
 
 describe('task surface controls', () => {
+  test('new-task creation keeps a submit associated with its form and a draft-retaining close in the footer', async () => {
+    const value = model();
+    const draft = value.newTaskDraft();
+    draft.title = '待续任务';
+    const closed = vi.fn();
+    const detail = mount('ToDooTaskDetail', {
+      model: value,
+      tree: [],
+      creating: true,
+      onClose: closed,
+    });
+    const footer = detail.byClass('todo-detail-footer')[0]!;
+    expect(footer).toBeDefined();
+    const submit = detail
+      .all(footer)
+      .find((node) => node.tag === 'button' && detail.text(node).trim() === '创建任务')!;
+    const form = detail.all().find((node) => node.tag === 'form')!;
+    expect(submit.props.type).toBe('submit');
+    expect(submit.props.form).toBeTruthy();
+    expect(submit.props.form).toBe(form.props.id);
+    detail
+      .all(footer)
+      .find((node) => node.tag === 'button' && detail.text(node).trim() === '收起并保留草稿')!
+      .props.onClick();
+    await Vue.nextTick();
+    expect(closed).toHaveBeenCalledOnce();
+    expect(value.retainedNewTaskDraft()?.draft.title).toBe('待续任务');
+  });
+
+  test('contextual task views keep list and board choices while matrix relies on module navigation', () => {
+    const value = model();
+    const navigate = vi.fn();
+    const contextual = mount('ToDooTaskViews', {
+      model: value,
+      section: 'tasks',
+      tree: [],
+      contextualNavigation: true,
+      onNavigate: navigate,
+    });
+    const switcher = contextual.byClass('todo-view-switch')[0]!;
+    const options = contextual.all(switcher).filter((node) => node.tag === 'button');
+    expect(options.map((node) => contextual.text(node))).toEqual(['列表', '看板']);
+    options[1]!.props.onClick();
+    expect(navigate).toHaveBeenCalledWith('board');
+    const matrix = mount('ToDooTaskViews', {
+      model: value,
+      section: 'matrix',
+      tree: [],
+      contextualNavigation: true,
+    });
+    expect(matrix.byClass('todo-view-switch')).toHaveLength(0);
+    const standalone = mount('ToDooTaskViews', { model: value, section: 'tasks', tree: [] });
+    expect(
+      standalone
+        .all(standalone.byClass('todo-view-switch')[0]!)
+        .filter((node) => node.tag === 'button'),
+    ).toHaveLength(4);
+  });
+
+  test('clearing an extra filter keeps the upcoming range and restarts its query without a cursor', async () => {
+    const value = model();
+    const today = workbench.toDooLocalDate(new Date(), value.state.snapshot!.settings.timeZone);
+    value.state.filter = {
+      ...presentation.toDooQuickFilter({}, 'upcoming', today),
+      query: '没有匹配',
+      priorities: ['high'],
+    };
+    value.state.query = { view: 'tasks', cursor: 'later-page', filter: { ...value.state.filter } };
+    const chooseScope = vi.fn();
+    const mounted = mount('ToDooTaskViews', {
+      model: value,
+      section: 'tasks',
+      tree: [],
+      quickView: 'upcoming',
+      contextualNavigation: true,
+      onQuickFilter: chooseScope,
+    });
+    expect(mounted.text(mounted.root)).toContain('没有符合当前筛选的任务');
+    const clear = mounted
+      .all()
+      .find((node) => node.tag === 'button' && node.props['aria-label'] === '清除附加筛选')!;
+    expect(clear).toBeDefined();
+    await clear.props.onClick();
+    await Vue.nextTick();
+    expect(value.state.filter).toEqual({
+      from: today,
+      to: workbench.shiftToDooDate(today, 6),
+      statuses: ['todo', 'doing', 'blocked'],
+    });
+    expect(value.state.query.cursor).toBeUndefined();
+    expect(value.state.query.filter).toEqual(value.state.filter);
+    expect(chooseScope).not.toHaveBeenCalled();
+  });
+
+  test('removing a filter chip preserves the selected list and unrelated extra filters', async () => {
+    const value = model();
+    value.state.filter = { listIds: ['work'], query: '查找', priorities: ['high'] };
+    const mounted = mount('ToDooTaskViews', {
+      model: value,
+      section: 'tasks',
+      tree: [],
+      contextualNavigation: true,
+      contextListId: 'work',
+    });
+    const removeSearch = mounted
+      .all()
+      .find((node) => node.tag === 'button' && node.props['aria-label'] === '移除筛选 搜索：查找')!;
+    expect(removeSearch).toBeDefined();
+    await removeSearch.props.onClick();
+    expect(value.state.filter).toEqual({ listIds: ['work'], priorities: ['high'] });
+    expect(value.state.query.filter).toEqual(value.state.filter);
+  });
+
+  test('range emptiness offers all tasks while library emptiness offers its first task', async () => {
+    const value = model();
+    value.state.snapshot!.tasks = [];
+    value.state.snapshot!.occurrences = [];
+    const chooseScope = vi.fn();
+    const ranged = mount('ToDooTaskViews', {
+      model: value,
+      section: 'tasks',
+      tree: [],
+      quickView: 'upcoming',
+      onQuickFilter: chooseScope,
+    });
+    expect(ranged.text(ranged.root)).toContain('当前范围没有任务');
+    const allTasks = ranged
+      .all()
+      .find((node) => node.tag === 'button' && ranged.text(node).trim() === '查看所有任务')!;
+    expect(allTasks).toBeDefined();
+    await allTasks.props.onClick();
+    expect(chooseScope).toHaveBeenCalledWith('all');
+    expect(value.state.filter).toEqual({});
+    const create = vi.fn();
+    const global = mount('ToDooTaskViews', {
+      model: value,
+      section: 'tasks',
+      tree: [],
+      onCreate: create,
+    });
+    expect(global.text(global.root)).toContain('从一件小事开始');
+    expect(
+      global
+        .all()
+        .some((node) => node.tag === 'button' && global.text(node).trim() === '查看所有任务'),
+    ).toBe(false);
+    global
+      .all()
+      .find((node) => node.tag === 'button' && global.text(node).trim() === '新建任务')!
+      .props.onClick();
+    expect(create).toHaveBeenCalledOnce();
+  });
+
   test('empty optional settings are absent from the main detail while their editors remain reachable', () => {
     const value = model();
     value.draft()!.task.priority = 'none';

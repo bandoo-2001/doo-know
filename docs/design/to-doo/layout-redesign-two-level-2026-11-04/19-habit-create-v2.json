@@ -1,0 +1,18 @@
+{
+  "id": "19-habit-create-v2",
+  "title": "新建习惯（纯习惯上下文栏）",
+  "file": "19-habit-create-v2.png",
+  "originalReference": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-two-level-2026-11-04/19-habit-create.png",
+  "navigationReference": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-two-level-2026-11-04/09-habits.png",
+  "primary": "习惯",
+  "secondary": "今天",
+  "prompt": "Use case: ui-mockup, precise navigation correction. Image1 is the new-habit MODAL screen to fix. Image2 is the correct SAME-MODULE navigation reference. Change ONLY Image1's contextual sidebar between the narrow rail and the main content: match Image2's simple 习惯 sidebar, with heading习惯, group查看, 今天 selected and历史 unselected, quiet date2026年11月4日. DELETE the obsolete old workspace selector,目标总览,收集箱,近七天,所有任务,清单 rows and repeated日历/专注/习惯/纪念日/统计模块 links from THAT contextual panel. Global modules remain ONLY in the far-left narrow rail, with习惯 selected. Preserve the global top bar and the ENTIRE modal exactly:名称阅读,计量,20分钟,每日,startNov4,Asia/Shanghai,20:00 reminder,补充信息,help,取消/保存. Keep the habit page/background and all modal geometry/text intact. No third sidebar and no replacement of modal content with Image2's main content.",
+  "directory": "/home/bandoo/workspace/projects/doo-know/docs/design/to-doo/layout-redesign-two-level-2026-11-04",
+  "source": "/home/bandoo/.codex/generated_images/01a1a0ec-fd63-7821-808e-52b1e22967c2/exec-2fa28b67-3b77-4a4a-8947-e42893c64052.png",
+  "tool": "image_gen.imagegen",
+  "kind": "two-level-navigation-concept",
+  "dimensions": [
+    1552,
+    1013
+  ]
+}

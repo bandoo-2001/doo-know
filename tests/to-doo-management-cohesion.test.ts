@@ -131,12 +131,18 @@ function mount(
       child.parent?.children[child.parent.children.indexOf(child) + 1] || null,
   });
   const root = node('root');
-  const app = renderer.createApp(component(name), {
+  const componentProps = Vue.reactive({
     model,
     ...(section ? { section } : {}),
     ...listeners,
   });
-  const instance = app.mount(root);
+  const subject = component(name);
+  const subjectRef = Vue.ref();
+  const app = renderer.createApp({
+    render: () => Vue.h(subject, { ...componentProps, ref: subjectRef }),
+  });
+  app.mount(root);
+  const instance = subjectRef.value;
   cleanup.push(() => app.unmount());
   const all = (parent = root): Node[] => [parent, ...parent.children.flatMap(all)];
   const text = (parent: Node = root): string => parent.text + parent.children.map(text).join('');
@@ -154,7 +160,15 @@ function mount(
     )!;
   const visible = (child: Node): boolean =>
     child.style.display !== 'none' && (!child.parent || visible(child.parent));
-  return { all, text, button, disclosure, visible, instance };
+  return {
+    all,
+    text,
+    button,
+    disclosure,
+    visible,
+    instance,
+    setProps: (next: Record<string, unknown>) => Object.assign(componentProps, next),
+  };
 }
 function model() {
   vi.stubGlobal('localStorage', { getItem: () => null, setItem() {}, removeItem() {} });
@@ -900,4 +914,313 @@ test('inbox occurrence preview rows show the same destination as their related t
     const summary = row.children.find((child) => child.tag === 'p')!;
     expect(view.text(summary)).toContain('收集箱');
   }
+});
+
+test('controlled settings follows route contexts while retaining preference and connection drafts', async () => {
+  const value = model();
+  const view = mount('ToDooSettings', value, undefined, {
+    context: 'preferences',
+    contextualNavigation: true,
+  });
+  await settleSettings();
+  expect(view.all().some((row) => row.props['aria-label'] === '设置分类')).toBe(false);
+  settingField(view, '显示时区').props.onInput({ target: { value: 'Asia/Tokyo' } });
+  view.setProps({ context: 'connections' });
+  await settleSettings();
+  expect(view.instance.activeTab).toBe('connections');
+  expect(view.visible(view.button('启用当前设备桌面提醒'))).toBe(true);
+  settingField(view, '来源名称').props.onInput({ target: { value: '未保存日历' } });
+  view.setProps({ context: 'preferences' });
+  await settleSettings();
+  expect(settingField(view, '显示时区').props.value).toBe('Asia/Tokyo');
+  expect(view.instance.hasUnsavedChanges()).toBe(true);
+  view.setProps({ context: 'connections' });
+  await settleSettings();
+  expect(settingField(view, '来源名称').props.value).toBe('未保存日历');
+});
+
+test('settings recovery navigation emits a route request and keeps its controlled context', async () => {
+  const value = model();
+  value.state.operationError = '恢复需要处理';
+  const navigate = vi.fn();
+  const view = mount('ToDooSettings', value, undefined, {
+    context: 'lists',
+    contextualNavigation: true,
+    'onContext-change': navigate,
+  });
+  await settleSettings();
+  await view.button('查看进度').props.onClick();
+  await Vue.nextTick();
+  expect(navigate).toHaveBeenCalledWith('data');
+  expect(view.instance.activeTab).toBe('lists');
+  view.setProps({ context: 'data' });
+  await settleSettings();
+  expect(view.visible(view.disclosure('成果笔记恢复'))).toBe(true);
+});
+
+test('standalone settings retains local category navigation', async () => {
+  const view = mount('ToDooSettings', model());
+  await settleSettings();
+  expect(view.all().some((row) => row.props['aria-label'] === '设置分类')).toBe(true);
+  view.instance.activeTab = 'connections';
+  await Vue.nextTick();
+  expect(view.visible(view.button('启用当前设备桌面提醒'))).toBe(true);
+});
+
+test('notification route contexts apply actual status queries and restore them on back navigation', async () => {
+  const value = model();
+  value.state.query = {
+    view: 'notifications',
+    reminderStates: ['unread'],
+    search: '报告',
+    cursor: 'later-page',
+  };
+  value.state.snapshot.reminderEvents = ['unread', 'acknowledged'].map((userState) => ({
+    id: userState,
+    sourceType: 'task',
+    scheduledAt: value.state.snapshot.now,
+    userState,
+    title: userState === 'unread' ? '未读报告' : '已确认报告',
+  }));
+  const view = mount('ToDooReview', value, 'notifications', {
+    context: 'unread',
+    contextualNavigation: true,
+  });
+  await settleSettings();
+  expect(value.load).not.toHaveBeenCalled();
+  expect(view.all().some((row) => String(row.props.class).includes('todo-notification-tabs'))).toBe(
+    false,
+  );
+  expect(view.text()).toContain('未读报告');
+  expect(view.text()).not.toContain('已确认报告');
+  view.setProps({ context: 'acknowledged' });
+  await settleSettings();
+  expect(value.load).toHaveBeenLastCalledWith({
+    view: 'notifications',
+    reminderStates: ['acknowledged'],
+    search: '报告',
+    cursor: undefined,
+  });
+  expect(view.text()).toContain('已确认报告');
+  expect(view.text()).not.toContain('未读报告');
+  view.setProps({ context: 'unread' });
+  await settleSettings();
+  expect(value.load).toHaveBeenLastCalledWith({
+    view: 'notifications',
+    reminderStates: ['unread'],
+    search: '报告',
+    cursor: undefined,
+  });
+  expect(view.text()).toContain('未读报告');
+});
+
+test('statistics contexts scroll to existing goal and review sections without reloading metrics', async () => {
+  const value = model();
+  const view = mount('ToDooReview', value, 'stats', {
+    context: 'overview',
+    contextualNavigation: true,
+  });
+  await settleSettings();
+  const goals = view.all().find((row) => row.props.id === 'to-doo-stats-goals');
+  const reviews = view.all().find((row) => row.props.id === 'to-doo-stats-reviews');
+  expect(goals).toBeDefined();
+  expect(reviews).toBeDefined();
+  const goalsScroll = vi.fn(),
+    reviewsScroll = vi.fn();
+  Object.assign(goals!, { scrollIntoView: goalsScroll });
+  Object.assign(reviews!, { scrollIntoView: reviewsScroll });
+  view.setProps({ context: 'goals' });
+  await settleSettings();
+  expect(goalsScroll).toHaveBeenCalledWith({ block: 'start', behavior: 'auto' });
+  view.setProps({ context: 'reviews' });
+  await settleSettings();
+  expect(reviewsScroll).toHaveBeenCalledWith({ block: 'start', behavior: 'auto' });
+  expect(value.load).not.toHaveBeenCalled();
+});
+
+test('list management creates a list or goal with the selected type and preserves existing edit identity', async () => {
+  const value = model();
+  value.state.snapshot.lists = [
+    { id: 'list-work', name: '工作清单', kind: 'list', archivedAt: null },
+    { id: 'goal-read', name: '阅读目标', kind: 'goal', archivedAt: '2026-11-01T00:00:00Z' },
+  ];
+  const edit = vi.fn();
+  const view = mount('ToDooSettings', value, undefined, {
+    context: 'lists',
+    contextualNavigation: true,
+    onEdit: edit,
+  });
+  await settleSettings();
+  expect(view.button('新建清单')).toBeDefined();
+  expect(view.button('新建目标')).toBeDefined();
+  await view.button('新建清单').props.onClick();
+  expect(edit).toHaveBeenLastCalledWith('list', undefined, { kind: 'list' });
+  await view.button('新建目标').props.onClick();
+  expect(edit).toHaveBeenLastCalledWith('list', undefined, { kind: 'goal' });
+  await view.button('编辑清单：工作清单').props.onClick();
+  expect(edit).toHaveBeenLastCalledWith('list', value.state.snapshot.lists[0]);
+  expect(view.text()).toContain('已归档');
+});
+
+test('notification context reconciliation does not repeat a query already applied by the workspace', async () => {
+  const value = model();
+  value.state.query = { view: 'notifications', reminderStates: ['unread'] };
+  const view = mount('ToDooReview', value, 'notifications', {
+    context: 'unread',
+    contextualNavigation: true,
+  });
+  await settleSettings();
+  value.state.query = { view: 'notifications', reminderStates: ['read'] };
+  view.setProps({ context: 'read' });
+  await settleSettings();
+  expect(value.load).not.toHaveBeenCalled();
+});
+
+test('notification search and date filters apply the real query and remain active after status navigation', async () => {
+  const value = model();
+  value.state.query = {
+    view: 'notifications',
+    kind: 'reminderEvent',
+    sort: 'recent',
+    reminderStates: ['unread'],
+    cursor: 'page-two',
+  };
+  const view = mount('ToDooReview', value, 'notifications', {
+    context: 'unread',
+    contextualNavigation: true,
+  });
+  await settleSettings();
+  const field = (label: string) =>
+    view.all().find((row) => row.tag === 'input' && row.props['aria-label'] === label)!;
+  expect(field('搜索通知')).toBeDefined();
+  field('搜索通知').props.onInput({ target: { value: '  项目报告  ' } });
+  field('通知开始日期').props.onInput({ target: { value: '2026-10-01' } });
+  field('通知结束日期').props.onInput({ target: { value: '2026-10-30' } });
+  await view
+    .all()
+    .find((row) => row.tag === 'form' && row.props['aria-label'] === '通知筛选')!
+    .props.onSubmit({ preventDefault() {} });
+  await settleSettings();
+  expect(value.load).toHaveBeenLastCalledWith({
+    view: 'notifications',
+    kind: 'reminderEvent',
+    sort: 'recent',
+    reminderStates: ['unread'],
+    cursor: undefined,
+    from: '2026-10-01',
+    to: '2026-10-30',
+    filter: { query: '项目报告' },
+  });
+  view.setProps({ context: 'acknowledged' });
+  await settleSettings();
+  expect(value.state.query).toMatchObject({
+    reminderStates: ['acknowledged'],
+    from: '2026-10-01',
+    to: '2026-10-30',
+    filter: { query: '项目报告' },
+  });
+  await view.button('清除通知筛选').props.onClick();
+  await settleSettings();
+  expect(value.state.query).toMatchObject({
+    reminderStates: ['acknowledged'],
+    from: undefined,
+    to: undefined,
+    filter: { query: undefined },
+    cursor: undefined,
+  });
+});
+
+test('notification filtering rejects an inverted date range before issuing a request', async () => {
+  const value = model();
+  const view = mount('ToDooReview', value, 'notifications', {
+    context: 'all',
+    contextualNavigation: true,
+  });
+  await settleSettings();
+  const field = (label: string) =>
+    view.all().find((row) => row.tag === 'input' && row.props['aria-label'] === label)!;
+  expect(field('通知开始日期')).toBeDefined();
+  field('通知开始日期').props.onInput({ target: { value: '2026-11-07' } });
+  field('通知结束日期').props.onInput({ target: { value: '2026-11-01' } });
+  await view
+    .all()
+    .find((row) => row.tag === 'form' && row.props['aria-label'] === '通知筛选')!
+    .props.onSubmit({ preventDefault() {} });
+  expect(value.state.error).toContain('结束日期不能早于开始日期');
+  expect(value.load).not.toHaveBeenCalled();
+});
+
+test('list archive and recycle links request the actual task scopes', async () => {
+  const navigate = vi.fn();
+  const view = mount('ToDooSettings', model(), undefined, {
+    context: 'lists',
+    contextualNavigation: true,
+    'onTask-scope': navigate,
+  });
+  await settleSettings();
+  expect(view.button('查看已归档任务')).toBeDefined();
+  expect(view.button('查看任务回收站')).toBeDefined();
+  await view.button('查看已归档任务').props.onClick();
+  expect(navigate).toHaveBeenLastCalledWith('archived');
+  await view.button('查看任务回收站').props.onClick();
+  expect(navigate).toHaveBeenLastCalledWith('trash');
+});
+
+test('mark all read retains global unread semantics while notification search and dates are active', async () => {
+  const value = model();
+  value.state.snapshot.datasetId = 'notification-dataset';
+  value.state.query = {
+    view: 'notifications',
+    reminderStates: ['unread'],
+    filter: { query: 'visible' },
+    from: '2026-10-29',
+    to: '2026-10-30',
+  };
+  const originalRequest = value.request.getMockImplementation()!;
+  value.request.mockImplementation(async (url: string, method?: string, body?: unknown) =>
+    url.startsWith('/api/to-doo/state?')
+      ? {
+          datasetId: 'notification-dataset',
+          reminderEvents: [{ id: 'visible' }, { id: 'outside-filter' }],
+          page: { nextCursor: null },
+        }
+      : originalRequest(url, method, body),
+  );
+  const execute = vi.fn(async () => ({
+    changed: [
+      { kind: 'reminderEvent', id: 'visible' },
+      { kind: 'reminderEvent', id: 'outside-filter' },
+    ],
+  }));
+  Object.assign(value, { execute });
+  const view = mount('ToDooReview', value, 'notifications', {
+    context: 'unread',
+    contextualNavigation: true,
+  });
+  await settleSettings();
+  await view.instance.markAll();
+  expect(execute).toHaveBeenCalledWith({
+    action: 'read_reminders',
+    payload: { datasetId: 'notification-dataset', ids: ['visible', 'outside-filter'] },
+  });
+  const request = value.request.mock.calls.find(([url]) =>
+    url.startsWith('/api/to-doo/state?'),
+  )![0];
+  const params = new URL(request, 'https://example.test').searchParams;
+  expect(params.get('reminderStates')).toBe('unread');
+  expect(params.has('filter')).toBe(false);
+  expect(params.has('from')).toBe(false);
+  expect(params.has('to')).toBe(false);
+});
+
+test('notification mount reconciles a context changed while its lazy page was loading', async () => {
+  const value = model();
+  value.state.query = { view: 'notifications', reminderStates: undefined };
+  mount('ToDooReview', value, 'notifications', { context: 'unread', contextualNavigation: true });
+  await settleSettings();
+  expect(value.load).toHaveBeenCalledWith({
+    view: 'notifications',
+    reminderStates: ['unread'],
+    cursor: undefined,
+  });
 });

@@ -2,6 +2,7 @@ import { readFile, mkdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import type { Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
+import { selectToDooContext } from '../support/to-doo-navigation';
 import { selectToDooOption } from '../support/to-doo-ant-controls';
 
 test.beforeEach(async ({ context }) => {
@@ -57,8 +58,7 @@ async function fixture(page: Page, count: number) {
   await page.goto('/?view=apps&app=to-doo&appSection=focus');
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
   const showProjects = async () => {
-    const panes = app.locator('.todo-focus-mobile-panes');
-    if (await panes.isVisible()) await panes.getByText('项目', { exact: true }).click();
+    await selectToDooContext(page, '项目', '专注目录');
   };
   return { app, id, name, otherName, command, entity, showProjects };
 }

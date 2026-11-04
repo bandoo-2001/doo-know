@@ -1,0 +1,110 @@
+/* Planning surfaces share the available main column, including when a reader opens. */
+.to-doo-workspace .todo-contextual-task-toolbar {
+  min-width: 0;
+  gap: 10px;
+  padding: 0 0 12px;
+  border-bottom: 1px solid var(--todo-line);
+}
+.to-doo-workspace .todo-contextual-task-toolbar .todo-view-switch {
+  flex-shrink: 0;
+  margin-right: auto;
+}
+.to-doo-workspace .todo-contextual-task-toolbar .todo-toolbar-search {
+  margin-left: auto;
+  flex: 0 1 240px;
+}
+.to-doo-workspace .todo-contextual-task-toolbar .todo-board-group-picker {
+  width: 130px;
+  min-width: 110px;
+}
+.todo-task-filter-summary,
+.todo-task-filter-chips {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+.todo-task-filter-summary {
+  padding: 0 0 12px;
+}
+.todo-task-filter-chips {
+  flex: 1;
+}
+.todo-task-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  padding: 3px 5px 3px 9px;
+  border-radius: 6px;
+  background: var(--todo-tint);
+  color: var(--todo-accent);
+  font-size: 12px;
+}
+.todo-task-filter-chip > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.to-doo-workspace .todo-task-filter-chip .ant-btn {
+  flex-shrink: 0;
+  height: 24px;
+  width: 24px;
+  padding: 0;
+  color: inherit;
+}
+.to-doo-workspace .todo-task-empty {
+  min-height: min(380px, 50dvh);
+  justify-content: center;
+  padding: 32px 20px;
+}
+.to-doo-workspace .todo-task-empty > .todo-actions {
+  justify-content: center;
+}
+.to-doo-workspace .todo-calendar-toolbar {
+  gap: 12px 20px;
+  align-items: center;
+}
+.to-doo-workspace .todo-calendar-toolbar > .todo-actions {
+  min-width: 0;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.to-doo-workspace .todo-calendar-toolbar h2 {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.to-doo-workspace .todo-board {
+  align-items: stretch;
+}
+.to-doo-workspace .todo-board-column {
+  display: flex;
+  flex-direction: column;
+  min-height: min(620px, 65dvh);
+}
+.to-doo-workspace .todo-board-column > .todo-link:last-child {
+  margin-top: auto;
+  justify-content: flex-start;
+}
+@media (max-width: 700px) {
+  .to-doo-workspace .todo-contextual-task-toolbar {
+    gap: 7px;
+  }
+  .to-doo-workspace .todo-contextual-task-toolbar .todo-toolbar-search {
+    flex: 1 1 100%;
+    margin-left: 0;
+  }
+  .todo-task-filter-summary {
+    align-items: flex-start;
+  }
+  .todo-task-filter-chips {
+    flex-basis: 100%;
+  }
+  .to-doo-workspace .todo-task-empty {
+    min-height: 280px;
+    padding: 28px 14px;
+  }
+  .to-doo-workspace .todo-board-column {
+    min-height: 220px;
+  }
+}

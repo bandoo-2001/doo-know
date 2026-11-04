@@ -44,16 +44,23 @@ import ToDooPageToolbar from './ToDooPageToolbar.vue';
 import ToDooSectionHeader from './ToDooSectionHeader.vue';
 import ToDooFocusTimerFields from './ToDooFocusTimerFields.vue';
 import ToDooFocusTrendChart from './ToDooFocusTrend.vue';
+import ToDooHint from './ToDooHint.vue';
 import '../../to-doo-focus.css';
 
 type Session = ToDooEntityMap['focusSession'];
 type Topic = ToDooEntityMap['focusTopic'];
 const ATextarea = Input.TextArea,
   AMenuItem = AMenu.Item;
-const props = defineProps<{ model: ToDooWorkbench; occurrenceId?: string }>();
+const props = defineProps<{
+  model: ToDooWorkbench;
+  occurrenceId?: string;
+  context?: string;
+  contextualNavigation?: boolean;
+}>();
 const emit = defineEmits<{
   edit: [kind: ToDooEntityKind, entity?: Record<string, any>, seed?: Record<string, any>];
   task: [id: string, occurrenceId?: string];
+  'context-change': [value: string];
 }>();
 const state = props.model.state,
   confirm = useToDooConfirm();
@@ -62,7 +69,42 @@ function timerContainer() {
   return focusRoot.value!.closest<HTMLElement>('.to-doo-workspace') || focusRoot.value!;
 }
 const focusBusy = ref(false),
-  mobilePane = ref<'projects' | 'history'>('projects');
+  localPane = ref<'projects' | 'history'>('projects');
+const projectsSection = ref<HTMLElement>(),
+  recordsSection = ref<HTMLElement>();
+const mobilePane = computed({
+  get: () =>
+    props.context === undefined
+      ? localPane.value
+      : props.context === 'history'
+        ? 'history'
+        : 'projects',
+  set: (value: 'projects' | 'history') => {
+    localPane.value = value;
+    emit('context-change', value);
+  },
+});
+async function revealContext() {
+  await nextTick();
+  if (!props.contextualNavigation || narrowTimer.value) return;
+  const target = mobilePane.value === 'history' ? recordsSection.value : projectsSection.value;
+  target?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+}
+watch(
+  () => props.context,
+  async (_context, previous) => {
+    const leaving = previous === 'history' ? recordsSection.value : projectsSection.value;
+    const moveFocus = narrowTimer.value && leaving?.contains?.(document.activeElement);
+    await nextTick();
+    if (moveFocus) {
+      const target = mobilePane.value === 'history' ? recordsSection.value : projectsSection.value;
+      target?.setAttribute?.('tabindex', '-1');
+      target?.focus?.({ preventScroll: true });
+    }
+    await revealContext();
+  },
+);
+onActivated(revealContext);
 const history = ref<ToDooFocusHistory>(),
   loading = ref(false),
   error = ref('');
@@ -726,7 +768,7 @@ async function resolveNoteConflict(merge: boolean) {
 <template>
   <div ref="focusRoot" class="todo-focus-workspace">
     <ASegmented
-      v-if="narrowTimer"
+      v-if="narrowTimer && !contextualNavigation"
       v-model:value="mobilePane"
       class="todo-focus-mobile-panes"
       aria-label="专注页面"
@@ -735,321 +777,348 @@ async function resolveNoteConflict(merge: boolean) {
         { label: '历史', value: 'history' },
       ]"
     />
-    <section
-      v-show="!narrowTimer || mobilePane === 'projects'"
-      class="todo-focus-projects"
-      aria-label="专注项目"
-    >
-      <ToDooPageToolbar>
-        <ASegmented
-          v-model:value="archived"
-          aria-label="专注项目状态"
-          :options="[
-            { label: '进行中', value: 'active' },
-            { label: '已归档', value: 'archived' },
-          ]"
-        />
-        <AButton
-          type="text"
-          :class="{ active: !topicFilter }"
-          @click="
-            topicFilter = '';
-            mobilePane = 'history';
-          "
-          >查看全部记录</AButton
-        >
-        <AButton :disabled="!!active" :aria-pressed="!selectedTopic" @click="selectedTopic = ''"
-          >自由专注</AButton
-        >
-      </ToDooPageToolbar>
-      <p class="todo-focus-scope">选择项目用于计时；查看累计用于筛选记录。</p>
-      <AAlert v-if="topicError" type="error" :message="topicError"
-        ><template #action
-          ><AButton type="link" @click="loadTopics()">重试</AButton></template
-        ></AAlert
+    <div class="todo-focus-panels">
+      <section
+        ref="projectsSection"
+        id="todo-focus-projects"
+        tabindex="-1"
+        v-show="!narrowTimer || mobilePane === 'projects'"
+        class="todo-focus-projects"
+        aria-label="专注项目"
       >
-      <div class="todo-focus-project-head" aria-hidden="true">
-        <span>计时项目</span><span>今日</span><span>累计 / 记录</span><span></span>
-      </div>
-      <article
-        v-for="topic in topics"
-        :key="topic.id"
-        class="todo-focus-topic"
-        :class="{ selected: selectedTopic === topic.id }"
-      >
-        <AButton
-          type="text"
-          class="todo-focus-topic-select"
-          :aria-label="'选择专注项目 ' + topic.name"
-          @click="chooseTopic(topic)"
-          ><span class="todo-focus-topic-icon" :style="{ color: topic.color }"
-            ><ToDooIcon name="focus" :size="22" /></span
-          ><span>{{ topic.name }}</span></AButton
-        >
-        <span class="todo-focus-topic-duration">{{
-          duration(totals?.byTopic[topic.id]?.today.minutes)
-        }}</span>
-        <AButton
-          type="text"
-          class="todo-focus-topic-total"
-          :aria-label="'查看累计 ' + topic.name"
-          @click="viewTopicHistory(topic)"
-        >
-          <span>{{ duration(totals?.byTopic[topic.id]?.lifetime.minutes) }}</span
-          ><small>查看累计</small>
-        </AButton>
-        <div class="todo-focus-topic-actions">
+        <ToDooPageToolbar>
+          <ASegmented
+            v-model:value="archived"
+            aria-label="专注项目状态"
+            :options="[
+              { label: '进行中', value: 'active' },
+              { label: '已归档', value: 'archived' },
+            ]"
+          />
           <AButton
-            v-if="!topic.archivedAt"
             type="text"
-            shape="circle"
-            :aria-label="'开始专注 ' + topic.name"
-            :disabled="!!active || state.busy"
-            @click="start(topic)"
-            ><ToDooIcon name="play" :size="16"
-          /></AButton>
-          <ADropdown :trigger="['click']"
-            ><AButton type="text" :aria-label="'专注项目操作 ' + topic.name"
-              ><ToDooIcon name="more" :size="17" /></AButton
-            ><template #overlay
-              ><AMenu
-                ><AMenuItem @click="openTrend(topic)">时长趋势</AMenuItem
-                ><AMenuItem @click="emit('edit', 'focusTopic', topic)">编辑项目</AMenuItem
-                ><AMenuItem @click="archiveTopic(topic)">{{
-                  topic.archivedAt ? '恢复项目' : '归档项目'
-                }}</AMenuItem></AMenu
-              ></template
-            ></ADropdown
+            :class="{ active: !topicFilter }"
+            @click="
+              topicFilter = '';
+              mobilePane = 'history';
+            "
+            >查看全部记录</AButton
           >
+          <AButton :disabled="!!active" :aria-pressed="!selectedTopic" @click="selectedTopic = ''"
+            >自由专注</AButton
+          >
+        </ToDooPageToolbar>
+        <ToDooHint :model="model" hint-id="focus-project-selection">
+          选择项目用于计时；查看累计用于筛选记录。
+        </ToDooHint>
+        <AAlert v-if="topicError" type="error" :message="topicError"
+          ><template #action
+            ><AButton type="link" @click="loadTopics()">重试</AButton></template
+          ></AAlert
+        >
+        <div class="todo-focus-project-head" aria-hidden="true">
+          <span>计时项目</span><span>今日</span><span>累计 / 记录</span><span></span>
         </div>
-      </article>
-      <AEmpty
-        v-if="!topics.length"
-        :description="
-          archived === 'archived'
-            ? '归档的项目和记录会一直保留在这里'
-            : '为阅读、学习或工作建立一个专注项目'
-        "
-        class="todo-focus-empty"
-        ><AButton v-if="archived !== 'archived'" type="default" @click="emit('edit', 'focusTopic')"
-          >创建专注项目</AButton
-        ></AEmpty
-      >
-      <AButton v-if="topicCursor" block :loading="topicLoading" @click="loadTopics(true)"
-        >加载更多专注项目</AButton
-      >
-    </section>
-    <aside
-      v-show="!narrowTimer || mobilePane === 'history'"
-      class="todo-focus-records"
-      aria-label="专注概览和历史"
-    >
-      <ToDooSectionHeader title="专注概览"
-        ><AButton
-          type="text"
-          size="small"
-          :aria-expanded="showTrend"
-          @click="showTrend = !showTrend"
-          >{{ showTrend ? '收起趋势' : '时长趋势' }}</AButton
-        ><ToDooSelect v-model="topicFilter" aria-label="专注记录项目" :options="topicOptions"
-      /></ToDooSectionHeader>
-      <p class="todo-focus-scope">历史/趋势项目独立于计时；概览统计该项目今日与累计。</p>
-      <ToDooFocusTrendChart
-        v-if="showTrend"
-        :trend="history?.trend"
-        :period="trendPeriod"
-        :date="trendDate"
-        :time-zone="history?.timeZone"
-        :now="history?.now"
-        :loading="loading"
-        :error="error"
-        @change="changeTrend"
-        @retry="load()"
-      />
-      <div class="todo-focus-statistics">
-        <AStatistic
-          title="今日次数"
-          aria-label="今日专注次数"
-          :value="totals?.today.completed || 0"
-          suffix="次"
-        />
-        <AStatistic
-          title="今日时长"
-          aria-label="今日专注时长"
-          :value="Math.round(totals?.today.minutes || 0)"
-          suffix="分钟"
-        />
-        <AStatistic
-          title="累计次数"
-          aria-label="累计专注次数"
-          :value="totals?.lifetime.completed || 0"
-          suffix="次"
-        />
-        <AStatistic
-          title="累计时长"
-          aria-label="累计专注时长"
-          :value="Math.round(totals?.lifetime.minutes || 0)"
-          suffix="分钟"
-        />
-      </div>
-      <ToDooSectionHeader title="专注记录"
-        ><ToDooSelect
-          :value="period"
-          aria-label="专注记录日期范围"
-          :options="[
-            { value: 'all', label: '全部时间' },
-            { value: 'today', label: '今天' },
-            { value: 'week', label: '近 7 天' },
-            { value: 'custom', label: '自定义' },
-          ]"
-          @change="periodChanged" /><AButton
-          type="text"
-          aria-label="刷新专注记录"
-          :loading="loading"
-          @click="load()"
-          ><ToDooIcon name="refresh" :size="16" /></AButton
-      ></ToDooSectionHeader>
-      <form v-if="period === 'custom'" class="todo-focus-date-range" @submit.prevent="load()">
-        <label
-          >从<ToDooDateField v-model="from" type="date" required aria-label="专注开始日期" /></label
-        ><label
-          >到<ToDooDateField v-model="to" type="date" required aria-label="专注结束日期" /></label
-        ><AButton html-type="submit">查看</AButton>
-      </form>
-      <AAlert v-if="error && !showTrend" type="error" :message="error" show-icon
-        ><template #action><AButton type="link" @click="load()">重试</AButton></template></AAlert
-      >
-      <p v-if="loading && !history" role="status" class="todo-muted">正在载入专注记录…</p>
-      <div
-        ref="historyScroller"
-        class="todo-focus-history"
-        role="region"
-        aria-label="专注记录列表"
-        tabindex="0"
-        :aria-busy="loading || loadingMore"
-        @scroll.passive="loadNearHistoryEnd"
-      >
-        <section v-for="group in groups" :key="group.date">
-          <h3 class="todo-focus-day">
-            {{ group.date === today ? '今天 · ' : '' }}{{ group.date }}
-          </h3>
-          <article
-            v-for="session in group.sessions"
-            :key="session.id"
-            class="todo-focus-history-item"
-            :data-session-id="session.id"
+        <article
+          v-for="topic in topics"
+          :key="topic.id"
+          class="todo-focus-topic"
+          :class="{ selected: selectedTopic === topic.id }"
+        >
+          <AButton
+            type="text"
+            class="todo-focus-topic-select"
+            :aria-label="'选择专注项目 ' + topic.name"
+            @click="chooseTopic(topic)"
+            ><span class="todo-focus-topic-icon" :style="{ color: topic.color }"
+              ><ToDooIcon name="focus" :size="22" /></span
+            ><span>{{ topic.name }}</span></AButton
           >
-            <ToDooIcon name="focus" :size="17" />
-            <div class="todo-focus-history-copy">
-              <div class="todo-between">
-                <strong>{{ sessionName(session) }}</strong
-                ><span
-                  >{{ duration(focusElapsed(session, now) / 60)
-                  }}<small v-if="session.correctedMinutes !== null" class="todo-focus-corrected"
-                    >已修正</small
-                  ></span
-                >
-              </div>
-              <small
-                >{{ timeRange(session) }} ·
-                {{ session.mode === 'break' ? '休息' : statusLabel(session.status) }}</small
-              >
-              <p v-if="session.taskTitle && session.topicName" class="todo-muted">
-                {{ session.taskTitle }}
-              </p>
-              <p v-if="session.note">{{ session.note }}</p>
-              <div class="todo-focus-history-actions">
-                <AButton
-                  v-if="session.status === 'interrupted'"
-                  type="link"
-                  size="small"
-                  :disabled="state.busy || focusBusy || active?.status === 'running'"
-                  @click="control('resume', session)"
-                  >继续计时</AButton
-                ><AButton
-                  v-if="session.status === 'paused' && session.id !== active?.id"
-                  type="link"
-                  size="small"
-                  :disabled="state.busy || focusBusy || active?.status === 'running'"
-                  @click="control('resume', session)"
-                  >继续这次专注</AButton
-                >
-                <details
-                  class="todo-focus-history-more"
-                  @keydown.esc.prevent.stop="closeHistoryActions($event)"
-                >
-                  <summary :aria-label="sessionName(session) + ' · 更多记录操作'">更多</summary>
-                  <div class="todo-focus-history-secondary">
-                    <AButton
-                      v-if="!['running', 'paused'].includes(session.status)"
-                      type="link"
-                      size="small"
-                      @click="
-                        closeHistoryActions($event);
-                        correct(session);
-                      "
-                      >修正</AButton
-                    >
-                    <AButton
-                      type="link"
-                      size="small"
-                      @click="
-                        closeHistoryActions($event);
-                        emit('edit', 'record', undefined, {
-                          content: session.note,
-                          sourceSessionId: session.id,
-                          occurrenceId: session.occurrenceId,
-                          minutes: Math.round(focusElapsed(session, now) / 60),
-                        });
-                      "
-                      >记录</AButton
-                    >
-                  </div>
-                </details>
-              </div>
-            </div>
-          </article>
-        </section>
-        <AEmpty v-if="history && !items.length" description="这个范围内还没有专注记录" />
-      </div>
-      <p v-if="pageError" class="todo-focus-page-error" role="alert">{{ pageError }}</p>
-      <div class="todo-focus-history-footer">
-        <AButton
-          v-if="pendingScan"
-          size="small"
-          type="text"
-          :loading="loading || syncing"
-          @click="load()"
-          >继续同步记录</AButton
+          <span class="todo-focus-topic-duration">{{
+            duration(totals?.byTopic[topic.id]?.today.minutes)
+          }}</span>
+          <AButton
+            type="text"
+            class="todo-focus-topic-total"
+            :aria-label="'查看累计 ' + topic.name"
+            @click="viewTopicHistory(topic)"
+          >
+            <span>{{ duration(totals?.byTopic[topic.id]?.lifetime.minutes) }}</span
+            ><small>查看累计</small>
+          </AButton>
+          <div class="todo-focus-topic-actions">
+            <AButton
+              v-if="!topic.archivedAt"
+              type="text"
+              shape="circle"
+              :aria-label="'开始专注 ' + topic.name"
+              :disabled="!!active || state.busy"
+              @click="start(topic)"
+              ><ToDooIcon name="play" :size="16"
+            /></AButton>
+            <ADropdown :trigger="['click']"
+              ><AButton type="text" :aria-label="'专注项目操作 ' + topic.name"
+                ><ToDooIcon name="more" :size="17" /></AButton
+              ><template #overlay
+                ><AMenu
+                  ><AMenuItem @click="openTrend(topic)">时长趋势</AMenuItem
+                  ><AMenuItem @click="emit('edit', 'focusTopic', topic)">编辑项目</AMenuItem
+                  ><AMenuItem @click="archiveTopic(topic)">{{
+                    topic.archivedAt ? '恢复项目' : '归档项目'
+                  }}</AMenuItem></AMenu
+                ></template
+              ></ADropdown
+            >
+          </div>
+        </article>
+        <AEmpty
+          v-if="!topics.length"
+          :description="
+            archived === 'archived'
+              ? '归档的项目和记录会一直保留在这里'
+              : '为阅读、学习或工作建立一个专注项目'
+          "
+          class="todo-focus-empty"
+          ><AButton
+            v-if="archived !== 'archived'"
+            type="default"
+            @click="emit('edit', 'focusTopic')"
+            >创建专注项目</AButton
+          ></AEmpty
         >
-        <AButton
-          v-if="history?.page.hasMore && !pendingScan"
-          size="small"
-          type="text"
-          :loading="loadingMore"
-          :disabled="loading"
-          @click="load(true)"
-          >{{ pageError ? '重试加载' : '加载更早记录' }}</AButton
+        <AButton v-if="topicCursor" block :loading="topicLoading" @click="loadTopics(true)"
+          >加载更多专注项目</AButton
         >
-        <p v-if="history?.page.total" class="todo-focus-count todo-muted" aria-live="polite">
-          {{ history.page.total }} 条记录 ·
-          {{
-            pendingScan || syncing
-              ? `已载入 ${items.length} 条 · 同步未完成`
-              : history.page.hasMore
-                ? `已载入 ${items.length} 条`
-                : '已全部载入'
-          }}
-        </p>
-      </div>
-      <details class="todo-focus-policy">
-        <summary>统计口径</summary>
-        <p class="todo-focus-count todo-muted">
-          概览统计当前筛选项目的今日与累计，不受记录日期影响；趋势按所选周期，记录按所选日期范围。计时项目独立选择。
-          完成次数按开始日计算；时长按每日片段计入，修正时长计入开始日。休息与取消不计入专注统计。
-        </p>
-      </details>
-    </aside>
+      </section>
+      <aside
+        ref="recordsSection"
+        id="todo-focus-history"
+        tabindex="-1"
+        v-show="!narrowTimer || mobilePane === 'history'"
+        class="todo-focus-records"
+        aria-label="专注概览和历史"
+      >
+        <ToDooSectionHeader title="专注概览"
+          ><AButton
+            type="text"
+            size="small"
+            :aria-expanded="showTrend"
+            @click="showTrend = !showTrend"
+            >{{ showTrend ? '收起趋势' : '时长趋势' }}</AButton
+          ><ToDooSelect v-model="topicFilter" aria-label="专注记录项目" :options="topicOptions"
+        /></ToDooSectionHeader>
+        <ToDooFocusTrendChart
+          v-if="showTrend"
+          :trend="history?.trend"
+          :period="trendPeriod"
+          :date="trendDate"
+          :time-zone="history?.timeZone"
+          :now="history?.now"
+          :loading="loading"
+          :error="error"
+          @change="changeTrend"
+          @retry="load()"
+        />
+        <div class="todo-focus-statistics">
+          <AStatistic
+            title="今日次数"
+            aria-label="今日专注次数"
+            :value="totals?.today.completed || 0"
+            suffix="次"
+          />
+          <AStatistic
+            title="今日时长"
+            aria-label="今日专注时长"
+            :value="Math.round(totals?.today.minutes || 0)"
+            suffix="分钟"
+          />
+          <AStatistic
+            title="累计次数"
+            aria-label="累计专注次数"
+            :value="totals?.lifetime.completed || 0"
+            suffix="次"
+          />
+          <AStatistic
+            title="累计时长"
+            aria-label="累计专注时长"
+            :value="Math.round(totals?.lifetime.minutes || 0)"
+            suffix="分钟"
+          />
+        </div>
+        <ToDooSectionHeader title="专注记录"
+          ><ToDooSelect
+            :value="period"
+            aria-label="专注记录日期范围"
+            :options="[
+              { value: 'all', label: '全部时间' },
+              { value: 'today', label: '今天' },
+              { value: 'week', label: '近 7 天' },
+              { value: 'custom', label: '自定义' },
+            ]"
+            @change="periodChanged" /><AButton
+            type="text"
+            aria-label="刷新专注记录"
+            :loading="loading"
+            @click="load()"
+            ><ToDooIcon name="refresh" :size="16" /></AButton
+        ></ToDooSectionHeader>
+        <form v-if="period === 'custom'" class="todo-focus-date-range" @submit.prevent="load()">
+          <label
+            >从<ToDooDateField
+              v-model="from"
+              type="date"
+              required
+              aria-label="专注开始日期" /></label
+          ><label
+            >到<ToDooDateField v-model="to" type="date" required aria-label="专注结束日期" /></label
+          ><AButton html-type="submit">查看</AButton>
+        </form>
+        <AAlert v-if="error && !showTrend" type="error" :message="error" show-icon
+          ><template #action><AButton type="link" @click="load()">重试</AButton></template></AAlert
+        >
+        <p v-if="loading && !history" role="status" class="todo-muted">正在载入专注记录…</p>
+        <div
+          ref="historyScroller"
+          class="todo-focus-history"
+          role="region"
+          aria-label="专注记录列表"
+          tabindex="0"
+          :aria-busy="loading || loadingMore"
+          @scroll.passive="loadNearHistoryEnd"
+        >
+          <section v-for="group in groups" :key="group.date">
+            <h3 class="todo-focus-day">
+              {{ group.date === today ? '今天 · ' : '' }}{{ group.date }}
+            </h3>
+            <article
+              v-for="session in group.sessions"
+              :key="session.id"
+              class="todo-focus-history-item"
+              :data-session-id="session.id"
+            >
+              <ToDooIcon name="focus" :size="17" />
+              <div class="todo-focus-history-copy">
+                <div class="todo-between">
+                  <strong>{{ sessionName(session) }}</strong
+                  ><span
+                    >{{ duration(focusElapsed(session, now) / 60)
+                    }}<small v-if="session.correctedMinutes !== null" class="todo-focus-corrected"
+                      >已修正</small
+                    ></span
+                  >
+                </div>
+                <small
+                  >{{ timeRange(session) }} ·
+                  {{ session.mode === 'break' ? '休息' : statusLabel(session.status) }}</small
+                >
+                <p v-if="session.taskTitle && session.topicName" class="todo-muted">
+                  {{ session.taskTitle }}
+                </p>
+                <p v-if="session.note">{{ session.note }}</p>
+                <div class="todo-focus-history-actions">
+                  <AButton
+                    v-if="session.status === 'interrupted'"
+                    type="link"
+                    size="small"
+                    :disabled="state.busy || focusBusy || active?.status === 'running'"
+                    @click="control('resume', session)"
+                    >继续计时</AButton
+                  ><AButton
+                    v-if="session.status === 'paused' && session.id !== active?.id"
+                    type="link"
+                    size="small"
+                    :disabled="state.busy || focusBusy || active?.status === 'running'"
+                    @click="control('resume', session)"
+                    >继续这次专注</AButton
+                  >
+                  <details
+                    class="todo-focus-history-more"
+                    @keydown.esc.prevent.stop="closeHistoryActions($event)"
+                  >
+                    <summary :aria-label="sessionName(session) + ' · 更多记录操作'">更多</summary>
+                    <div class="todo-focus-history-secondary">
+                      <AButton
+                        v-if="!['running', 'paused'].includes(session.status)"
+                        type="link"
+                        size="small"
+                        @click="
+                          closeHistoryActions($event);
+                          correct(session);
+                        "
+                        >修正</AButton
+                      >
+                      <AButton
+                        type="link"
+                        size="small"
+                        @click="
+                          closeHistoryActions($event);
+                          emit('edit', 'record', undefined, {
+                            content: session.note,
+                            sourceSessionId: session.id,
+                            occurrenceId: session.occurrenceId,
+                            minutes: Math.round(focusElapsed(session, now) / 60),
+                          });
+                        "
+                        >记录</AButton
+                      >
+                    </div>
+                  </details>
+                </div>
+              </div>
+            </article>
+          </section>
+          <AEmpty v-if="history && !items.length" description="这个范围内还没有专注记录" />
+        </div>
+        <p v-if="pageError" class="todo-focus-page-error" role="alert">{{ pageError }}</p>
+        <div class="todo-focus-history-footer">
+          <AButton
+            v-if="pendingScan"
+            size="small"
+            type="text"
+            :loading="loading || syncing"
+            @click="load()"
+            >继续同步记录</AButton
+          >
+          <AButton
+            v-if="history?.page.hasMore && !pendingScan"
+            size="small"
+            type="text"
+            :loading="loadingMore"
+            :disabled="loading"
+            @click="load(true)"
+            >{{ pageError ? '重试加载' : '加载更早记录' }}</AButton
+          >
+          <p v-if="history?.page.total" class="todo-focus-count todo-muted" aria-live="polite">
+            {{ history.page.total }} 条记录 ·
+            {{
+              pendingScan || syncing
+                ? `已载入 ${items.length} 条 · 同步未完成`
+                : history.page.hasMore
+                  ? `已载入 ${items.length} 条`
+                  : '已全部载入'
+            }}
+          </p>
+        </div>
+        <ToDooHint :model="model" hint-id="focus-history-scope">
+          历史/趋势项目独立于计时；概览统计该项目今日与累计。
+        </ToDooHint>
+        <details class="todo-focus-policy">
+          <summary>统计口径</summary>
+          <p class="todo-focus-count todo-muted">
+            概览统计当前筛选项目的今日与累计，不受记录日期影响；趋势按所选周期，记录按所选日期范围。计时项目独立选择。
+            完成次数按开始日计算；时长按每日片段计入，修正时长计入开始日。休息与取消不计入专注统计。
+          </p>
+        </details>
+      </aside>
+    </div>
+    <section
+      v-for="id in Object.keys(notes).filter((id) => id !== active?.id)"
+      :key="id"
+      class="todo-focus-retained-note"
+    >
+      <label>尚未保存的专注记录<ATextarea v-model:value="notes[id]" /></label
+      ><AButton :disabled="state.busy || focusBusy" @click="saveRetainedNote(id)">保存记录</AButton>
+    </section>
     <section class="todo-focus-timer" aria-label="专注计时器">
       <div class="todo-focus-timer-context">
         <ToDooIcon name="focus" :size="24" />
@@ -1148,14 +1217,6 @@ async function resolveNoteConflict(merge: boolean) {
         >收起计时设置</AButton
       >
     </ADrawer>
-    <section
-      v-for="id in Object.keys(notes).filter((id) => id !== active?.id)"
-      :key="id"
-      class="todo-focus-retained-note"
-    >
-      <label>尚未保存的专注记录<ATextarea v-model:value="notes[id]" /></label
-      ><AButton :disabled="state.busy || focusBusy" @click="saveRetainedNote(id)">保存记录</AButton>
-    </section>
     <AModal
       :open="!!noteConflict"
       title="专注记录已在其他窗口更新"

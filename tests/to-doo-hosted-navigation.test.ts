@@ -6,6 +6,7 @@ import * as Vue from 'vue';
 import * as vueuse from '@vueuse/core';
 import * as workbench from '../apps/web/to-doo-workbench';
 import * as presentation from '../apps/web/to-doo-presentation';
+import * as contextNavigation from '../apps/web/to-doo-context-navigation';
 import * as controls from '../apps/web/to-doo-controls';
 import * as push from '../apps/web/to-doo-push';
 import { toDooAntStubs, toDooBoundaryStub } from './support/to-doo-ant-stubs';
@@ -86,6 +87,7 @@ function component(path: string): Vue.Component {
       if (boundary) return { default: boundary };
       if (id.endsWith('/to-doo-workbench')) return workbench;
       if (id.endsWith('/to-doo-presentation')) return presentation;
+      if (id.endsWith('/to-doo-context-navigation')) return contextNavigation;
       if (id.endsWith('/to-doo-contracts')) return { toDooEntitySchemas };
       if (id === '../api')
         return {
@@ -102,7 +104,7 @@ function component(path: string): Vue.Component {
             throw Error('Unexpected request: ' + url);
           },
         };
-      if (/ToDoo(Navigation|Settings|Icon|PageHeader|FormLayout)\.vue$/.test(id))
+      if (/ToDoo(Hint|Navigation|Settings|Icon|PageHeader|FormLayout)\.vue$/.test(id))
         return {
           __esModule: true,
           default: component('to-doo/' + id.split('/').at(-1)!.replace('.vue', '')),
@@ -244,12 +246,12 @@ describe('To Doo hosted secondary navigation', () => {
     'notifications',
     'settings',
   ] as const)(
-    '%s fills the workspace without a duplicate directory or mobile function strip',
+    '%s keeps its module-specific directory without a duplicate mobile function strip',
     async (section) => {
       const view = mount(section, true);
       await settled();
-      expect(view.byClass('todo-sidebar')).toHaveLength(0);
-      expect(view.byClass('todo-navigation-trigger')).toHaveLength(0);
+      expect(view.byClass('todo-sidebar')).toHaveLength(1);
+      expect(view.byClass('todo-navigation-trigger')).toHaveLength(1);
       expect(view.byClass('todo-mobile-nav')).toHaveLength(0);
       expect(view.byClass('todo-mobile-tools')).toHaveLength(0);
       expect(view.text(view.byClass('todo-topbar')[0])).toContain('To Doo');
@@ -380,16 +382,25 @@ it('phone overflow navigation keeps a stable More label when an overflow functio
   expect(view.text(more)).toBe('更多');
 });
 
-it('compact matrix offers its retained task scope without restoring the duplicate directory', async () => {
+it('matrix changes its scope through its contextual directory', async () => {
   const view = mount('matrix', true);
   await settled();
   const scope = view.all().find((n) => n.props['aria-label'] === '当前任务范围');
   expect(scope).toBeDefined();
   expect(view.text(scope!)).toContain('所有任务');
-  expect(view.byClass('todo-sidebar')).toHaveLength(0);
-  const range = view
-    .all()
-    .find((n) => n.tag === 'select' && n.props['aria-label'] === '切换任务范围')!;
-  range.props.onChange({ target: { value: 'quick:today' } });
+  expect(view.byClass('todo-sidebar')).toHaveLength(1);
+  view.button('今天').props.onClick();
   expect(view.events.at(-1)).toEqual(['matrix', { taskFilter: 'today' }]);
+});
+
+it('calendar context changes retain the selected list and task filter', async () => {
+  const view = mount('timeline', true, Workspace, {
+    selection: { list: 'work', taskFilter: 'all', date: '2026-10-29', calendarView: 'week' },
+  });
+  await settled();
+  view.button('月视图').props.onClick();
+  expect(view.events.at(-1)).toEqual([
+    'calendar',
+    { list: 'work', taskFilter: 'all', date: '2026-10-29', calendarView: 'month' },
+  ]);
 });

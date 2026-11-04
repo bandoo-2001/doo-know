@@ -1,7 +1,7 @@
 import { readFile, mkdir } from 'node:fs/promises';
 import type { Locator } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
-import { goToToDooSection } from '../support/to-doo-navigation';
+import { goToToDooSection, selectToDooContext } from '../support/to-doo-navigation';
 import {
   confirmToDooAction,
   expandToDooGroup,
@@ -13,9 +13,7 @@ import {
 async function expectToDooPageReady(app: Locator) {
   const main = app.locator('.todo-main');
   await expect(main).toHaveAttribute('aria-busy', 'false');
-  await expect(
-    main.getByRole('status', { name: '正在载入 To Doo…', exact: true }),
-  ).toHaveCount(0);
+  await expect(main.getByRole('status', { name: '正在载入 To Doo…', exact: true })).toHaveCount(0);
 }
 
 async function showCompletedTasks(app: Locator) {
@@ -207,13 +205,13 @@ test('focus, habit check-ins, anniversary and real CSV import/export use durable
   await page.getByRole('dialog').getByRole('button', { name: '保存', exact: true }).click();
   await expect(app.getByRole('button', { name, exact: true })).toBeVisible();
   const today = new Date().toISOString().slice(0, 10);
-  await app.getByText('历史', { exact: true }).click();
+  await selectToDooContext(page, '历史', '习惯目录');
   await app
     .getByRole('button', { name: name + ' ' + today + ' 打卡，当前 0 页', exact: true })
     .click();
   const habitCount = page.getByRole('dialog', { name: '记录习惯数量', exact: true });
   await habitCount.getByRole('spinbutton', { name: '习惯数量', exact: true }).fill('2');
-  await habitCount.getByRole('button', { name: '保存', exact: true }).click();
+  await habitCount.getByRole('button', { name: '记录', exact: true }).click();
   await expect(habitCount).not.toBeVisible();
   await expect(
     app.getByRole('button', { name: name + ' ' + today + ' 打卡，当前 2 页', exact: true }),
@@ -245,7 +243,7 @@ test('focus, habit check-ins, anniversary and real CSV import/export use durable
   await page.getByRole('dialog').getByRole('button', { name: '保存', exact: true }).click();
   await expect(app.getByRole('heading', { name: '重要日子 ' + name, exact: true })).toBeVisible();
   await go('settings', '设置');
-  await app.getByRole('tab', { name: '数据与恢复', exact: true }).click();
+  await selectToDooContext(page, '数据与恢复');
   const download = page.waitForEvent('download');
   await app.getByRole('button', { name: '导出 JSON', exact: true }).click();
   expect((await download).suggestedFilename()).toBe('to-doo.json');

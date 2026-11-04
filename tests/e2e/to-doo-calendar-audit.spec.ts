@@ -1,3 +1,4 @@
+import { selectToDooContext } from '../support/to-doo-navigation';
 import { readFile, mkdir } from 'node:fs/promises';
 import { test, expect } from '../support/browser-test';
 
@@ -163,7 +164,7 @@ test('overnight segments, short-event details, original editing and mobile grid 
   await expect(create.getByLabel('时长（分钟）', { exact: true })).toHaveValue('45');
   await create.getByRole('button', { name: '取消', exact: true }).click();
   await page.getByText('网格', { exact: true }).click();
-  await page.getByText('月', { exact: true }).click();
+  await selectToDooContext(page, '月视图', '日历目录');
   await expect(page.locator('.todo-month')).toBeVisible();
   await page.screenshot({
     path: `${shots}/${info.project.name}-phone-month-grid.png`,

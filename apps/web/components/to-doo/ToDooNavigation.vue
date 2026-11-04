@@ -6,6 +6,7 @@ import type { ToDooEntityMap } from '../../../../shared/to-doo-contracts';
 import { toDooQuickViews, type ToDooQuickFilter } from '../../to-doo-presentation';
 import ToDooIcon from './ToDooIcon.vue';
 import ToDooDateField from './ToDooDateField.vue';
+import { toDooContextEntries } from '../../to-doo-context-navigation';
 
 const props = defineProps<{
   section: ToDooAppSection;
@@ -20,6 +21,7 @@ const props = defineProps<{
   date?: string;
   today?: string;
   calendarView?: 'week' | 'month';
+  context?: string;
 }>();
 const emit = defineEmits<{
   navigate: [
@@ -31,15 +33,44 @@ const emit = defineEmits<{
   'new-list': [];
   'load-lists': [];
   back: [];
+  context: [value: string];
 }>();
 const calendarNavigation = computed(
-  () => props.hostedNavigation && ['calendar', 'timeline'].includes(props.section) && !props.listId,
+  () => props.hostedNavigation && ['calendar', 'timeline'].includes(props.section),
+);
+const contextEntries = computed(() => toDooContextEntries(props.section));
+const additionalScope = computed(() =>
+  toDooQuickViews.some((view) => view.id === props.quickView)
+    ? undefined
+    : (
+        {
+          overdue: '逾期',
+          unscheduled: '未安排',
+          done: '已完成',
+          blocked: '受阻',
+          archived: '已归档',
+          trash: '回收站',
+        } as Record<string, string>
+      )[props.quickView],
+);
+const directoryTitle = computed(
+  () =>
+    (
+      ({
+        calendar: '日历',
+        timeline: '日历',
+        matrix: '四象限',
+        focus: '专注',
+        habits: '习惯',
+        anniversaries: '纪念日',
+        stats: '统计与复盘',
+        notifications: '通知中心',
+        settings: '设置',
+      }) as Record<string, string>
+    )[props.section] || '任务',
 );
 const taskNavigation = computed(
-  () =>
-    !props.hostedNavigation ||
-    ['tasks', 'board', 'overview'].includes(props.section) ||
-    (!!props.listId && ['matrix', 'timeline', 'calendar'].includes(props.section)),
+  () => !props.hostedNavigation || ['tasks', 'board', 'overview', 'matrix'].includes(props.section),
 );
 const groups = computed(() =>
   (props.hostedNavigation
@@ -51,7 +82,9 @@ const groups = computed(() =>
       ]
   ).map((group) => ({
     ...group,
-    items: props.items.filter(([section]) => group.sections.includes(section)),
+    items: props.items.filter(
+      ([section]) => group.sections.includes(section) && props.section !== 'matrix',
+    ),
   })),
 );
 function calendarNavigate(section: 'calendar' | 'timeline', view = props.calendarView || 'month') {
@@ -65,17 +98,40 @@ function calendarDateChanged(date: string) {
 <template>
   <div class="todo-navigation-content">
     <h2 v-if="hostedNavigation" class="todo-directory-title">
-      {{ calendarNavigation ? '日历' : '任务' }}
+      {{ directoryTitle }}
     </h2>
     <div v-else class="todo-app-title">
       <span class="todo-app-mark"><ToDooIcon name="check" :size="18" /></span>
       <span>To Doo<small>把想法变成行动</small></span>
     </div>
-    <nav
-      :aria-label="
-        hostedNavigation ? (calendarNavigation ? '日历目录' : '任务目录') : 'To Doo 导航'
-      "
-    >
+    <nav :aria-label="hostedNavigation ? directoryTitle + '目录' : 'To Doo 导航'">
+      <section
+        v-if="hostedNavigation && contextEntries.length"
+        class="todo-navigation-group"
+        :aria-label="directoryTitle + '入口'"
+      >
+        <div class="todo-nav-label">
+          {{
+            section === 'stats'
+              ? '本页内容'
+              : section === 'notifications'
+                ? '通知状态'
+                : section === 'focus'
+                  ? '工作区'
+                  : '查看'
+          }}
+        </div>
+        <AButton
+          v-for="entry in contextEntries"
+          :key="entry.id"
+          type="text"
+          block
+          :class="{ active: context === entry.id }"
+          :aria-current="context === entry.id ? 'page' : undefined"
+          @click="emit('context', entry.id)"
+          ><ToDooIcon :name="entry.icon" :size="16" /><span>{{ entry.label }}</span></AButton
+        >
+      </section>
       <section
         v-if="calendarNavigation"
         class="todo-navigation-group todo-calendar-directory"
@@ -145,8 +201,18 @@ function calendarDateChanged(date: string) {
             ><ToDooIcon :name="view.icon" :size="16" /><span>{{ view.name }}</span></AButton
           >
         </section>
+        <AButton
+          v-if="additionalScope && !listId && section !== 'overview'"
+          type="text"
+          block
+          class="active"
+          aria-current="page"
+          @click="emit('quick', quickView)"
+        >
+          <ToDooIcon name="tasks" :size="16" /><span>{{ additionalScope }}</span>
+        </AButton>
         <section
-          v-for="group in groups"
+          v-for="group in groups.filter((item) => item.items.length)"
           :key="group.label"
           class="todo-navigation-group"
           :aria-label="group.label"
@@ -192,6 +258,9 @@ function calendarDateChanged(date: string) {
               class="todo-nav-empty"
               @click="emit('new-list')"
               ><ToDooIcon name="plus" :size="15" />创建第一张清单</AButton
+            >
+            <AButton v-else type="text" block class="todo-nav-empty" @click="emit('new-list')"
+              ><ToDooIcon name="plus" :size="15" />新建清单</AButton
             >
             <AButton
               v-if="hasMoreLists || listError"

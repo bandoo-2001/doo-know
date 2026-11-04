@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { test, expect } from '../support/browser-test';
+import { selectToDooContext } from '../support/to-doo-navigation';
 import { notificationPlans, reminderEventId } from '../../packages/core/to-doo/notifications';
 
 test.beforeEach(async ({ context }) => {
@@ -87,14 +88,14 @@ test('recent notifications and mark-all include unread records beyond the first 
   await expect(latest.getByRole('button', { name: '更多提醒操作', exact: true })).toBeVisible();
   await latest.getByRole('button', { name: '更多提醒操作', exact: true }).click();
   await page.getByRole('menuitem', { name: '忽略提醒', exact: true }).click();
-  await app.getByRole('tab', { name: '忽略', exact: true }).click();
+  await selectToDooContext(page, '忽略');
   await expect(app.locator('.todo-notification')).toHaveCount(1);
   await expect(app.locator('.todo-notification')).toContainText(prefix + '-latest');
   const ignored = await (
     await page.request.get('/api/to-doo/state?kind=reminderEvent&ids=' + prefix + '-latest')
   ).json();
   expect(ignored.reminderEvents[0].userState).toBe('dismissed');
-  await app.getByRole('tab', { name: '未读', exact: true }).click();
+  await selectToDooContext(page, '未读');
   await expect(app.locator('.todo-notification')).toHaveCount(0);
 });
 

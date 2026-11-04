@@ -1,3 +1,4 @@
+import { selectToDooContext } from '../support/to-doo-navigation';
 import { readFile } from 'node:fs/promises';
 import { test, expect } from '../support/browser-test';
 import { fillToDooDate, selectToDooOption } from '../support/to-doo-ant-controls';
@@ -47,7 +48,7 @@ test('ordinary habits create without quantities and complete with one click', as
   await expect(card).toContainText('已打卡');
   await page.reload();
   await expect(card).toContainText('已打卡');
-  await page.getByText('历史', { exact: true }).click();
+  await selectToDooContext(page, '历史', '习惯目录');
   await page
     .getByRole('button', { name: name + ' 2026-11-01 打卡，当前 1 次', exact: true })
     .click();

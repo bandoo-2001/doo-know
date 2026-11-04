@@ -58,7 +58,7 @@ function component(name: string): Vue.Component {
       const boundary = toDooBoundaryStub(id);
       if (boundary) return { default: boundary };
       if (
-        /ToDoo(PageToolbar|SectionHeader|Focus|FocusTrend|FocusTimerFields|HabitCard|Icon)\.vue$/.test(
+        /ToDoo(Hint|PageToolbar|SectionHeader|Focus|FocusTrend|FocusTimerFields|HabitCard|Icon)\.vue$/.test(
           id,
         )
       )

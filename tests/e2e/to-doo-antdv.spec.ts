@@ -1,3 +1,4 @@
+import { selectToDooContext } from '../support/to-doo-navigation';
 import { readFile } from 'node:fs/promises';
 import type { Locator, Page, Request } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
@@ -293,8 +294,8 @@ test('focus and habit quantity modals cancel without writes and persist explicit
     ),
   ).toMatchObject({ correctedMinutes: 0 });
   await goToToDooSection(page, 'habits');
-  await app.locator('[aria-label="习惯视图"]').getByText('历史', { exact: true }).click();
-  await expect(app.getByRole('radio', { name: '历史', exact: true })).toBeChecked();
+  await selectToDooContext(page, '历史', '习惯目录');
+  expect(new URL(page.url()).searchParams.get('appPage')).toBe('history');
   const cell = app.getByRole('button', {
     name: name + ' ' + today + ' 打卡，当前 0 页',
     exact: true,
@@ -302,7 +303,7 @@ test('focus and habit quantity modals cancel without writes and persist explicit
   await cell.click();
   const checkin = page.getByRole('dialog', { name: '记录习惯数量', exact: true });
   await checkin.getByRole('spinbutton', { name: '习惯数量', exact: true }).fill('2.5');
-  await checkin.getByRole('button', { name: '取消', exact: true }).click();
+  await checkin.getByRole('button', { name: '关闭', exact: true }).click();
   await expect(checkin).not.toBeVisible();
   expect(
     writes.filter(
@@ -311,7 +312,7 @@ test('focus and habit quantity modals cancel without writes and persist explicit
   ).toHaveLength(0);
   await cell.click();
   await checkin.getByRole('spinbutton', { name: '习惯数量', exact: true }).fill('');
-  await checkin.getByRole('button', { name: '保存', exact: true }).click();
+  await checkin.getByRole('button', { name: '记录', exact: true }).click();
   await expect(checkin.getByRole('alert')).toContainText('请输入大于 0 的数量');
   expect(writes.filter((body) => body.action === 'checkin_habit')).toHaveLength(0);
   await checkin.getByRole('spinbutton', { name: '习惯数量', exact: true }).fill('2.5');
@@ -322,12 +323,12 @@ test('focus and habit quantity modals cancel without writes and persist explicit
       body.payload.habitId === habit.ids[0] &&
       body.payload.amount === 2.5,
   );
-  await checkin.getByRole('button', { name: '保存', exact: true }).click();
+  await checkin.getByRole('button', { name: '记录', exact: true }).click();
   expect((await checked).ok()).toBe(true);
   await expect(checkin).not.toBeVisible();
   await page.reload();
-  await app.locator('[aria-label="习惯视图"]').getByText('历史', { exact: true }).click();
-  await expect(app.getByRole('radio', { name: '历史', exact: true })).toBeChecked();
+  await selectToDooContext(page, '历史', '习惯目录');
+  expect(new URL(page.url()).searchParams.get('appPage')).toBe('history');
   await expect(
     app.getByRole('button', { name: name + ' ' + today + ' 打卡，当前 2.5 页', exact: true }),
   ).toHaveText('✓');

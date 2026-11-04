@@ -2,7 +2,7 @@ import type { Page } from '@playwright/test';
 import { expect } from '@playwright/test';
 import { showMainMenu, closeSidebar } from './settings-navigation';
 
-export async function openToDooDirectory(page: Page, name: '任务目录' | '日历目录' = '任务目录') {
+export async function openToDooDirectory(page: Page, name = '任务目录') {
   await expect(
     page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true }),
   ).toBeVisible();
@@ -16,6 +16,27 @@ export async function openToDooDirectory(page: Page, name: '任务目录' | '日
   const directory = page.getByRole('navigation', { name, exact: true });
   await expect(directory).toBeVisible();
   return directory;
+}
+
+export async function selectToDooContext(page: Page, label: string, directoryName?: string) {
+  const section = new URL(page.url()).searchParams.get('appSection');
+  const heading: Record<string, string> = {
+    settings: '设置',
+    notifications: '通知中心',
+    stats: '统计与复盘',
+    habits: '习惯',
+    anniversaries: '纪念日',
+    focus: '专注',
+    calendar: '日历',
+    timeline: '日历',
+    matrix: '四象限',
+  };
+  const directory = await openToDooDirectory(
+    page,
+    directoryName || (heading[section || ''] || '任务') + '目录',
+  );
+  await directory.getByRole('button', { name: label, exact: true }).click();
+  await closeToDooDirectory(page);
 }
 
 export async function closeToDooDirectory(page: Page) {
@@ -34,11 +55,7 @@ export async function closeToDooDirectory(page: Page) {
 export async function openToDooFocusHistory(page: Page) {
   const app = page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
   await expect(app.getByRole('region', { name: '专注计时器', exact: true })).toBeVisible();
-  const tabs = app.locator('.todo-focus-mobile-panes');
-  if (await tabs.isVisible()) {
-    await tabs.getByText('历史', { exact: true }).click();
-    await expect(app.getByRole('radio', { name: '历史', exact: true })).toBeChecked();
-  }
+  await selectToDooContext(page, '历史', '专注目录');
   const history = app.getByRole('complementary', { name: '专注概览和历史', exact: true });
   await expect(history).toBeVisible();
   return history;
