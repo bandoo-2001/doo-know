@@ -10,9 +10,11 @@ export class ApiError extends Error {
       String(
         data.code === 'PASSWORD_TOO_SHORT'
           ? PASSWORD_POLICY_MESSAGE
-          : typeof data.error === 'object' && data.error
-            ? (data.error as any).message || (data.error as any).code
-            : data.error || '请求失败',
+          : data.code === 'INVALID_USERNAME_OR_PASSWORD'
+            ? '用户名或密码不正确，请核对后重试'
+            : typeof data.error === 'object' && data.error
+              ? (data.error as any).message || (data.error as any).code
+              : data.error || (typeof data.message === 'string' && data.message) || '请求失败',
       ),
     );
   }
@@ -44,7 +46,11 @@ export async function api<T = any>(
     method,
     headers,
     cache: 'no-store',
-    signal: AbortSignal.timeout(Number.isFinite(options.timeoutMs) && options.timeoutMs! > 0 ? Math.min(options.timeoutMs!, 180000) : 15000),
+    signal: AbortSignal.timeout(
+      Number.isFinite(options.timeoutMs) && options.timeoutMs! > 0
+        ? Math.min(options.timeoutMs!, 180000)
+        : 15000,
+    ),
     ...(body !== undefined ? { body: body instanceof FormData ? body : JSON.stringify(body) } : {}),
   });
   const data = await r.json().catch(() => {
