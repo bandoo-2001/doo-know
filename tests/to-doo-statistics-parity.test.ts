@@ -6,6 +6,8 @@ import { join } from 'node:path';
 import { openDatabase } from '../packages/core/db';
 import { noteService } from '../packages/core/notes';
 import { createToDooService } from '../packages/core/to-doo/service';
+import { toDooQuickFilter } from '../apps/web/to-doo-presentation';
+import { deriveToDooItems } from '../apps/web/to-doo-workbench';
 import { createToDooAgentPort } from '../apps/server/to-doo/agent-port';
 
 let root: string;
@@ -406,4 +408,73 @@ it('preserves archived historical leaf completions while current pending and lis
   ).toEqual(savedMetrics);
   access.resourceListIds = [];
   expect((await port().query({ kind: 'statistics', ...range })).items[0].entity.completed).toBe(0);
+});
+
+it('overdue quick scope filters exact instants before server pagination and keeps totals true across display zones', () => {
+  const settings = service.snapshot().settings;
+  command('save_entity', {
+    kind: 'settings',
+    entity: { ...settings, timeZone: 'Asia/Shanghai' },
+    expectedRevision: settings.revision,
+  });
+  const due = [
+    ['past', '2026-10-30', '11:00', 'UTC'],
+    ['future', '2026-10-30', '13:00', 'UTC'],
+    ['all-day-today', '2026-10-30', null, 'UTC'],
+    ['all-day-past', '2026-10-29', null, 'UTC'],
+    ['zoned-upcoming', '2026-10-31', '04:00', 'Asia/Tokyo'],
+    ['done', '2026-10-30', '08:00', 'UTC'],
+    ['cancelled', '2026-10-30', '08:00', 'UTC'],
+    ['skipped', '2026-10-30', '08:00', 'UTC'],
+  ];
+  // 04:00 Tokyo is still in the future at 12:00 UTC; include one past source date rollover.
+  due.push(['rollover-past', '2026-10-31', '01:00', 'Pacific/Kiritimati']);
+  for (const [id, date, time, timeZone] of due) {
+    command('create_task', { id, title: id, due: { date, time, timeZone } });
+  }
+  for (const status of ['done', 'cancelled', 'skipped']) {
+    const occurrence = service
+      .snapshot({ all: true })
+      .occurrences.find((row) => row.taskId === status)!;
+    command('set_occurrence_status', {
+      id: occurrence.id,
+      status,
+      expectedRevision: occurrence.revision,
+    });
+  }
+  const filter = toDooQuickFilter({}, 'overdue', '2026-10-30');
+  const first = service.snapshot({ view: 'tasks', filter, limit: 1 });
+  expect(first.page.total).toBe(3);
+  expect(first.tasks).toHaveLength(1);
+  expect(first.page.nextCursor).not.toBeNull();
+  const ids = first.tasks.map((row) => row.id);
+  let cursor = first.page.nextCursor;
+  while (cursor) {
+    const page = service.snapshot({ view: 'tasks', filter, limit: 1, cursor });
+    expect(page.page.total).toBe(3);
+    ids.push(...page.tasks.map((row) => row.id));
+    cursor = page.page.nextCursor;
+  }
+  expect(ids.sort()).toEqual(['all-day-past', 'past', 'rollover-past']);
+  expect(
+    deriveToDooItems(service.snapshot({ all: true }), filter)
+      .map((row) => row.task.id)
+      .sort(),
+  ).toEqual(ids.sort());
+});
+
+it('direct hasEvidence false means no evidence references on server and client, including pagination totals', () => {
+  command('create_task', { id: 'no-evidence', title: '仅有文字成果' });
+  const occurrence = service.snapshot({ all: true }).occurrences[0]!;
+  command('save_outcome', {
+    occurrenceId: occurrence.id,
+    expectedRevision: occurrence.revision,
+    outcome: { summary: '文字不等于证据', evidenceRefs: [] },
+  });
+  for (const hasEvidence of [false, true]) {
+    const expected = hasEvidence ? [] : ['no-evidence'];
+    const result = service.snapshot({ view: 'tasks', filter: { hasEvidence }, limit: 1 });
+    expect(result.page.total).toBe(expected.length);
+    expect(deriveToDooItems(result, { hasEvidence }).map((row) => row.task.id)).toEqual(expected);
+  }
 });

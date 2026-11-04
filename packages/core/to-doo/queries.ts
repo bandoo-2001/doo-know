@@ -27,6 +27,15 @@ function installQueryFunctions(db: Store['db']) {
     const instant = Date.parse(value);
     return Number.isFinite(instant) ? instant : null;
   });
+  db.function('to_doo_deadline_overdue', { deterministic: true }, (json, status, today, now) => {
+    if (typeof json !== 'string' || !['todo', 'doing', 'blocked'].includes(String(status)))
+      return 0;
+    const due = JSON.parse(json) as ToDooDateTime | null;
+    if (!due) return 0;
+    return (!due.time ? due.date < String(today) : dateTimeInstant(due).getTime() < Number(now))
+      ? 1
+      : 0;
+  });
   db.function('to_doo_display_date', { deterministic: true }, (json, timeZone) => {
     if (typeof json !== 'string' || typeof timeZone !== 'string') return null;
     const value = JSON.parse(json) as ToDooDateTime;
@@ -519,7 +528,26 @@ function where(
     clauses.push("json_extract(e.data,'$.archivedAt') IS NULL");
   if (kind === 'reminderEvent' && q.reminderStates)
     inside("json_extract(e.data,'$.userState')", q.reminderStates);
+  if (f.overdue && (kind === 'task' || kind === 'occurrence')) {
+    const alias = kind === 'task' ? 'o' : 'e';
+    const predicate = `to_doo_deadline_overdue(json_extract(${alias}.data,'$.due'),json_extract(${alias}.data,'$.status'),?,?)=1`;
+    clauses.push(
+      kind === 'task'
+        ? "EXISTS(SELECT 1 FROM todo_entities o WHERE o.kind='occurrence' AND json_extract(o.data,'$.taskId')=e.id AND json_extract(o.data,'$.deletedAt') IS NULL AND " +
+            predicate +
+            ')'
+        : predicate,
+    );
+    params.push(localDate(new Date(), timeZone), Date.now());
+  }
   if (kind === 'task') {
+    if (f.hasEvidence !== undefined) {
+      clauses.push(
+        "EXISTS(SELECT 1 FROM todo_entities o WHERE o.kind='occurrence' AND json_extract(o.data,'$.taskId')=e.id AND json_extract(o.data,'$.deletedAt') IS NULL AND " +
+          (f.hasEvidence ? '' : 'NOT ') +
+          "EXISTS(SELECT 1 FROM todo_entities a WHERE a.kind='outcome' AND json_extract(a.data,'$.occurrenceId')=o.id AND json_extract(a.data,'$.deletedAt') IS NULL AND json_array_length(json_extract(a.data,'$.evidenceRefs'))>0))",
+      );
+    }
     if (f.priorities) inside("json_extract(e.data,'$.priority')", f.priorities);
     if (f.importance) {
       clauses.push("json_extract(e.data,'$.importance')=?");
@@ -565,7 +593,7 @@ function where(
     if (f.hasEvidence !== undefined)
       clauses.push(
         (f.hasEvidence ? '' : 'NOT ') +
-          "EXISTS(SELECT 1 FROM todo_entities a WHERE a.kind='outcome' AND json_extract(a.data,'$.occurrenceId')=e.id AND json_extract(a.data,'$.deletedAt') IS NULL)",
+          "EXISTS(SELECT 1 FROM todo_entities a WHERE a.kind='outcome' AND json_extract(a.data,'$.occurrenceId')=e.id AND json_extract(a.data,'$.deletedAt') IS NULL AND json_array_length(json_extract(a.data,'$.evidenceRefs'))>0)",
       );
   }
   if (!q.all && !q.ids && !q.taskIds && (kind === 'timeBlock' || kind === 'calendarEvent')) {

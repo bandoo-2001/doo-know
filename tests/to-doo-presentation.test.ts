@@ -172,3 +172,45 @@ test('a pristine composer placeholder accepts the explicit context when opened f
   });
   expect(model.hasNewTaskDraft()).toBe(false);
 });
+
+test('every supported effective direct filter is visible in a readable summary', () => {
+  const summary = (presentation as any).toDooFilterSummary({
+    query: '报告',
+    listIds: ['work'],
+    tagIds: ['tag'],
+    statuses: ['blocked'],
+    priorities: ['high'],
+    importance: 'important',
+    from: '2026-11-01',
+    to: '2026-11-03',
+    dueBefore: '2026-10-30',
+    unscheduled: true,
+    hasEvidence: false,
+    includeDeleted: true,
+    includeArchived: true,
+    leafOnly: true,
+    group: { operator: 'and', conditions: [{ field: 'priority', operator: 'is', value: 'high' }] },
+  });
+  expect(summary.join(' · ')).toMatch(
+    /报告.*work.*tag.*受阻.*高.*重要.*2026-11-01.*2026-11-03.*2026-10-30.*未安排.*无成果.*回收.*归档.*叶.*优先级/,
+  );
+});
+
+test('empty saved-view arrays follow the workbench request normalization and do not claim active conditions', async () => {
+  const requests: string[] = [];
+  const model = createToDooWorkbench(async (url) => {
+    requests.push(url);
+    return undefined;
+  });
+  const saved = { listIds: [], tagIds: [], statuses: [], priorities: [] };
+  model.state.filter = saved;
+  await model.load({ filter: saved });
+  expect(JSON.parse(new URL(requests[0]!, 'http://local').searchParams.get('filter')!)).toEqual({});
+  expect(presentation.toDooFilterSummary(saved)).toEqual([]);
+  expect(
+    presentation.toDooFilterSummary(
+      { listIds: ['work'], tagIds: ['red'] },
+      { lists: [{ id: 'work', name: '工作' }], tags: [{ id: 'red', name: '紧急' }] },
+    ),
+  ).toEqual(['清单：工作', '标签：紧急']);
+});

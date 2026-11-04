@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { compileScript, parse } from '@vue/compiler-sfc';
 import ts from 'typescript';
+import lunar from 'lunar-javascript';
 import * as Vue from 'vue';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import * as workbench from '../apps/web/to-doo-workbench';
@@ -48,6 +49,7 @@ function component(name: string): Vue.Component {
     (id: string) => {
       if (id.endsWith('/to-doo-calendar-layout')) return calendarLayout;
       if (id.endsWith('/to-doo-time')) return time;
+      if (id === 'lunar-javascript') return { default: lunar };
       if (id === 'vue') return { ...Vue, vModelText: {}, vModelSelect: {}, vModelCheckbox: {} };
       if (id.endsWith('/to-doo-workbench')) return workbench;
       if (id.endsWith('/to-doo-presentation')) return presentation;
@@ -515,3 +517,65 @@ test.each(['date', 'view', 'delete', 'edit', 'snapshot'] as const)(
     ).not.toContain('上午安排');
   },
 );
+
+test.each([
+  ['week', '2026-11-01T23:59:30Z', '2026-11-02', '2026-11-08'],
+  ['month', '2026-11-30T23:59:30Z', '2026-11-30', '2027-01-10'],
+  ['timeline', '2026-11-01T23:59:30Z', '2026-11-02', '2026-11-29'],
+] as const)(
+  'mounted %s reloads the new data range across midnight',
+  async (mode, clock, from, to) => {
+    vi.setSystemTime(new Date(clock));
+    const calls: any[] = [];
+    const value = model(async (url) => {
+      const query = new URL(String(url), 'http://local').searchParams;
+      calls.push(Object.fromEntries(query));
+      const next = JSON.parse(JSON.stringify(value.state.snapshot!));
+      next.timeBlocks[0].start.date = from;
+      next.timeBlocks[0].title = '新边界安排';
+      return next;
+    });
+    const old = presentation.toDooCalendarRange(clock.slice(0, 10), mode, 1);
+    value.state.query = {
+      view: mode === 'timeline' ? 'timeline' : 'calendar',
+      ...old,
+      limit: 7,
+      listIds: ['work'],
+    };
+    const calendar = mount('ToDooCalendar', {
+      model: value,
+      view: mode === 'timeline' ? undefined : mode,
+      timeline: mode === 'timeline',
+    });
+    await vi.advanceTimersByTimeAsync(60000);
+    await tick();
+    expect(calls).toHaveLength(1);
+    expect(calls[0]).toMatchObject({ from, to, limit: '7', listIds: 'work' });
+    expect(value.state.query).toMatchObject({ from, to });
+    if (mode !== 'timeline') expect(calendar.text(calendar.root)).toContain('新边界安排');
+  },
+);
+
+test('date-only arrangement retains saved duration and says the time is unspecified in agenda', () => {
+  const value = model();
+  value.state.snapshot!.timeBlocks[0]!.start.time = null;
+  value.state.snapshot!.timeBlocks[0]!.durationMinutes = 45;
+  const calendar = mount('ToDooCalendar', { model: value, date: '2026-11-03', view: 'month' });
+  const agenda = calendar.byClass('todo-mobile-agenda')[0]!;
+  expect(calendar.text(agenda)).toContain('未指定时刻');
+  expect(calendar.text(agenda)).toContain('45 分钟');
+  expect(calendar.text(agenda)).not.toContain('1440 分钟');
+});
+
+test('an explicitly selected historical calendar date stays pinned across midnight', async () => {
+  vi.setSystemTime(new Date('2026-11-01T23:59:30Z'));
+  const request = vi.fn(async () => value.state.snapshot!);
+  const value = model(request);
+  value.state.query = { view: 'calendar', from: '2026-10-26', to: '2026-11-01' };
+  const calendar = mount('ToDooCalendar', { model: value, date: '2026-11-01', view: 'week' });
+  await vi.advanceTimersByTimeAsync(60000);
+  await tick();
+  expect(request).not.toHaveBeenCalled();
+  expect(calendar.text(calendar.root)).toContain('10/26');
+  expect(value.state.query.from).toBe('2026-10-26');
+});

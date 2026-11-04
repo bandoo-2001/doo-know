@@ -16,6 +16,7 @@ import {
   toDooBlockSegment,
   toDooConflictLanes,
   toDooInstantTime,
+  toDooTimeInstant,
 } from '../../to-doo-calendar-layout';
 import { toDooCalendarRange } from '../../to-doo-presentation';
 import { toDooAnniversaryDate } from '../../../../shared/to-doo-anniversaries';
@@ -61,6 +62,25 @@ const anchor = computed(() => props.date || today.value),
 const start = computed(
   () => toDooCalendarRange(anchor.value, 'month', state.snapshot?.settings.weekStartsOn ?? 1).from,
 );
+// The route can remain unchanged while an unpinned calendar crosses midnight.
+// Reload the effective interval through the workbench so pagination and late responses stay guarded.
+watch(today, async () => {
+  if (props.date) return;
+  const view = props.timeline ? 'timeline' : 'calendar';
+  if (state.query.view !== view) return;
+  const range = toDooCalendarRange(
+    anchor.value,
+    props.timeline ? 'timeline' : props.view || 'month',
+    state.snapshot?.settings.weekStartsOn ?? 1,
+  );
+  if (range.from === state.query.from && range.to === state.query.to) return;
+  await props.model.load({
+    ...state.query,
+    ...range,
+    filter: { ...state.filter },
+    cursor: undefined,
+  });
+});
 const days = computed(() =>
   Array.from({ length: props.view === 'week' ? 7 : 42 }, (_, i) =>
     shiftToDooDate(props.view === 'week' ? weekStart.value : start.value, i),
@@ -140,13 +160,39 @@ function timelineBlocks(item: ToDooItem) {
       {
         block,
         column: occupied[0]! + 1 + ' / span ' + (occupied[occupied.length - 1]! - occupied[0]! + 1),
-        label:
-          block.allDay || !block.start.time
-            ? block.start.date + ' 全天'
-            : (() => {
-                const display = toDooDisplayTime(block.start, state.snapshot!.settings.timeZone);
-                return display.date + ' ' + display.time + ' · ' + block.durationMinutes + ' 分钟';
-              })(),
+        shortLabel: block.allDay
+          ? '全天'
+          : !block.start.time
+            ? '未定时\n' + block.durationMinutes + '分'
+            : toDooDisplayTime(block.start, state.snapshot!.settings.timeZone).time +
+              '\n' +
+              block.durationMinutes +
+              '分',
+        label: (() => {
+          if (block.allDay)
+            return (
+              block.start.date +
+              ' 全天' +
+              (block.dateEndExclusive ? ' 至 ' + block.dateEndExclusive + '（结束日期不含）' : '')
+            );
+          if (!block.start.time)
+            return block.start.date + ' 未指定时刻 · ' + block.durationMinutes + ' 分钟';
+          const zone = state.snapshot!.settings.timeZone;
+          const display = toDooDisplayTime(block.start, zone);
+          const end = new Date(toDooTimeInstant(block.start) + block.durationMinutes * 60000);
+          return (
+            display.date +
+            ' ' +
+            display.time +
+            '—' +
+            toDooLocalDate(end, zone) +
+            ' ' +
+            toDooInstantTime(end.getTime(), zone) +
+            ' · ' +
+            block.durationMinutes +
+            ' 分钟'
+          );
+        })(),
       },
     ];
   });
@@ -706,7 +752,7 @@ watch(
                   :title="entry.label + ' · ' + item.title"
                   @click="emit('edit', 'timeBlock', entry.block)"
                 >
-                  {{ entry.label }}</button
+                  {{ entry.shortLabel }}</button
                 ><button
                   v-if="
                     deadline(item) &&
@@ -801,7 +847,7 @@ watch(
             @dragstart="drag($event, b.id)"
             @click="emit('edit', 'timeBlock', b)"
           >
-            {{ blockSegment(b, day)?.time || '全天' }}
+            {{ blockSegment(b, day)?.time || (b.allDay ? '全天' : '未指定时刻') }}
             {{ itemFor(b.occurrenceId)?.title || b.title || '时间安排' }}</button
           ><button
             v-for="item in due(day)"
@@ -948,14 +994,35 @@ watch(
                     : event.event && inspectExternal(event.event)
                 "
               >
-                <span class="todo-week-event-title">{{ event.title }}</span
-                ><small>{{ event.time }}—{{ event.endTime }} · {{ event.duration }} 分钟</small>
+                <span
+                  class="todo-week-event-occupied"
+                  aria-hidden="true"
+                  :style="{
+                    height:
+                      (Math.min(
+                        event.duration,
+                        1440 - (Number(event.time.slice(0, 2)) * 60 + Number(event.time.slice(3))),
+                      ) /
+                        60) *
+                        46 +
+                      'px',
+                  }"
+                ></span>
+                <span class="todo-week-event-label"
+                  ><span class="todo-week-event-title">{{ event.title }}</span
+                  ><small
+                    >{{ event.time }}—{{ event.endTime }} · {{ event.duration }} 分钟</small
+                  ></span
+                >
               </button>
             </div>
           </div>
         </div>
       </div>
     </div>
+    <p v-if="view === 'week'" class="todo-week-geometry-help todo-muted todo-small">
+      色线表示实际占用；旁侧为事件说明
+    </p>
     <p v-if="readableEvent" class="todo-calendar-event-detail" role="status">
       {{ readableEvent.title }} · {{ readableEvent.time }}—{{ readableEvent.endTime }} ·
       {{ readableEvent.duration }} 分钟
@@ -986,10 +1053,12 @@ watch(
           @click="emit('edit', 'timeBlock', b)"
           type="text"
         >
-          <span>{{ blockSegment(b, day)?.time || '全天' }}</span
+          <span>{{ blockSegment(b, day)?.time || (b.allDay ? '全天' : '未指定时刻') }}</span
           ><span
             >{{ itemFor(b.occurrenceId)?.title || b.title || '时间安排'
-            }}<small>{{ blockSegment(b, day)?.duration }} 分钟</small></span
+            }}<small>{{
+              b.allDay ? '全天安排' : blockSegment(b, day)?.duration + ' 分钟'
+            }}</small></span
           ></AButton
         ><AButton
           v-for="item in due(day)"

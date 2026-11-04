@@ -87,7 +87,7 @@ test('overnight segments, short-event details, original editing and mobile grid 
       },
     ],
   });
-  const shots = 'docs/design/to-doo/audit-fixes-2026-11-03/calendar';
+  const shots = info.outputPath('calendar');
   await mkdir(shots, { recursive: true });
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/?view=apps&app=to-doo&appSection=calendar&calendarView=week&date=2032-05-03');
@@ -108,7 +108,19 @@ test('overnight segments, short-event details, original editing and mobile grid 
         element.parentElement!.getBoundingClientRect().width,
     ),
   ).toBeGreaterThan(0.9);
-  await page.screenshot({ path: `${shots}/${info.project.name}-desktop-week.png`, fullPage: true });
+  for (const [event, minutes] of [
+    [afternoon, 30],
+    [night.nth(1), 60],
+    [page.locator('.todo-week-event').filter({ hasText: '外部会议有起止和时长' }), 45],
+  ] as const) {
+    const ratio = await event.evaluate((element) => {
+      const strip = element.querySelector('.todo-week-event-occupied')!;
+      const hour = element.parentElement!.querySelector('.todo-week-slot')!;
+      return strip.getBoundingClientRect().height / hour.getBoundingClientRect().height;
+    });
+    expect(ratio).toBeCloseTo(minutes / 60, 1);
+  }
+  await page.screenshot({ path: info.outputPath('exact-week-occupancy.png'), fullPage: true });
   await night.nth(1).click();
   const dialog = page.getByRole('dialog', { name: '编辑时间安排', exact: true });
   await expect(dialog.getByLabel('时长（分钟）', { exact: true })).toHaveValue('90');
@@ -208,6 +220,17 @@ test('phone timeline keeps day width and sticky task titles while scrolling', as
             kind: 'timeBlock',
             entity: {
               ...stamp,
+              id: id + '-timed',
+              occurrenceId: id + '-occ',
+              title: '紧凑的四十五分钟',
+              start: { date: '2032-05-03', time: '01:00', timeZone: 'UTC' },
+              durationMinutes: 45,
+            },
+          },
+          {
+            kind: 'timeBlock',
+            entity: {
+              ...stamp,
               id: id + '-block',
               occurrenceId: id + '-occ',
               allDay: true,
@@ -226,7 +249,10 @@ test('phone timeline keeps day width and sticky task titles while scrolling', as
   await page.goto('/?view=apps&app=to-doo&appSection=timeline&date=2032-05-03');
   const region = page.getByRole('region', { name: '任务时间线，可横向滚动', exact: true });
   await expect(region).toBeVisible();
-  const bar = page.locator('.todo-timeline-bar').filter({ hasText: '2032-04-30' });
+  const bar = page.getByRole('button', {
+    name: '2032-04-30 全天 至 2032-05-06（结束日期不含） 跨窗口全天安排与跨时区截止',
+    exact: true,
+  });
   await expect(bar).toHaveCount(1);
   expect(await bar.evaluate((element) => (element as HTMLElement).style.gridColumn)).toBe(
     '1 / span 3',
@@ -237,11 +263,21 @@ test('phone timeline keeps day width and sticky task titles while scrolling', as
       exact: true,
     }),
   ).toBeVisible();
+  const timed = page.getByRole('button', {
+    name: '2032-05-03 09:00—2032-05-03 09:45 · 45 分钟 跨窗口全天安排与跨时区截止',
+    exact: true,
+  });
+  await expect(timed).toHaveText('09:00\n45分');
+  await expect(timed).not.toContainText('2032-05-03');
+  await timed.click();
+  const editor = page.getByRole('dialog', { name: '编辑时间安排', exact: true });
+  await expect(editor.getByLabel('时长（分钟）', { exact: true })).toHaveValue('45');
+  await editor.getByRole('button', { name: '取消', exact: true }).click();
   const title = page
     .locator('.todo-timeline-row > .todo-task-body')
     .filter({ hasText: '跨窗口全天安排与跨时区截止' });
   await page.screenshot({
-    path: `docs/design/to-doo/audit-fixes-2026-11-03/calendar/${info.project.name}-phone-timeline-initial.png`,
+    path: info.outputPath(`phone-timeline-initial.png`),
     fullPage: true,
   });
   const before = await title.boundingBox();
@@ -252,7 +288,7 @@ test('phone timeline keeps day width and sticky task titles while scrolling', as
   expect(Math.abs(after!.x - before!.x)).toBeLessThanOrEqual(1);
   expect(await region.evaluate((element) => element.scrollWidth > element.clientWidth)).toBe(true);
   await page.screenshot({
-    path: `docs/design/to-doo/audit-fixes-2026-11-03/calendar/${info.project.name}-phone-timeline.png`,
+    path: info.outputPath(`phone-timeline.png`),
     fullPage: true,
   });
   expect(
@@ -322,13 +358,23 @@ test('adjacent short events keep readable title and time targets without paintin
     );
     expect(targets, `title/time targets for adjacent event ${index + 1}`).toEqual([true, true]);
     await expect(button).toContainText('5 分钟');
+    const ratio = await button.evaluate(
+      (element) =>
+        element.querySelector('.todo-week-event-occupied')!.getBoundingClientRect().height /
+        element.parentElement!.querySelector('.todo-week-slot')!.getBoundingClientRect().height,
+    );
+    expect(ratio).toBeCloseTo(5 / 60, 2);
+    await button.focus();
+    await expect(page.locator('.todo-calendar-event-detail')).toContainText(
+      '相邻短事件 ' + (index + 1),
+    );
   }
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
   ).toBeLessThanOrEqual(1);
   await events.nth(0).scrollIntoViewIfNeeded();
   await page.screenshot({
-    path: `docs/design/to-doo/audit-fixes-2026-11-03/calendar/${info.project.name}-adjacent-short-events.png`,
+    path: info.outputPath(`adjacent-short-events.png`),
     fullPage: true,
   });
 });

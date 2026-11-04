@@ -84,7 +84,15 @@ export async function goToToDooSection(page: Page, section: string) {
 
 /** Expand the task search/management row when the compact phone toolbar is used. */
 export async function openToDooTaskTools(page: Page) {
-  const toggle = page.getByRole('button', { name: '搜索与管理', exact: true });
-  if ((await toggle.isVisible()) && (await toggle.getAttribute('aria-expanded')) !== 'true')
-    await toggle.click();
+  // isVisible() is a snapshot: after goto/reload the toolbar may not have mounted yet.
+  // Wait for its real owner before deciding whether the phone-only disclosure is needed.
+  const toolbar = page.locator('.todo-task-toolbar');
+  await expect(toolbar).toBeVisible();
+  const toggle = toolbar.getByRole('button', { name: '搜索与管理', exact: true });
+  if (await toggle.isVisible()) {
+    if ((await toggle.getAttribute('aria-expanded')) !== 'true') await toggle.click();
+    await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+  }
+  await expect(toolbar.getByRole('textbox', { name: '搜索任务', exact: true })).toBeVisible();
+  await expect(toolbar.getByRole('button', { name: '任务管理', exact: true })).toBeVisible();
 }

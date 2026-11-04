@@ -55,6 +55,7 @@ import ToDooPageLoadError from './to-doo/ToDooPageLoadError.vue';
 import {
   toDooQuickFilter,
   toDooQuickViews,
+  toDooFilterSummary,
   toDooCalendarRange,
   type ToDooQuickFilter,
 } from '../to-doo-presentation';
@@ -517,18 +518,32 @@ const scopeSummary = computed(() => {
         } as Record<string, string>
       )[quickView.value] ||
       '所有任务';
-  return [
-    label,
-    state.filter.from || state.filter.to
-      ? [state.filter.from, state.filter.to].filter(Boolean).join(' 至 ')
-      : '',
-    state.filter.tagIds?.length ? state.filter.tagIds.length + ' 个标签' : '',
-    state.filter.query ? '搜索：' + state.filter.query : '',
-    state.filter.group?.conditions.length ? '自定义筛选' : '',
-  ]
-    .filter(Boolean)
-    .join(' · ');
+  return label;
 });
+const scopeFilters = computed(() => {
+  const filter = { ...state.filter };
+  // The selected list is already named by the scope picker.
+  if (
+    props.selection.list &&
+    filter.listIds?.length === 1 &&
+    filter.listIds[0] === props.selection.list
+  )
+    delete filter.listIds;
+  return toDooFilterSummary(filter, { lists: lists.value, tags: state.snapshot?.tags });
+});
+async function clearScopeFilters() {
+  state.filter = props.selection.list ? { listIds: [props.selection.list] } : {};
+  if (props.selection.taskFilter && props.selection.taskFilter !== 'all') {
+    await chooseQuickView('all');
+    return;
+  }
+  await model.load({
+    ...state.query,
+    listIds: undefined,
+    filter: { ...state.filter },
+    cursor: undefined,
+  });
+}
 function changeScope(value: string) {
   if (value.startsWith('list:')) chooseList(value.slice(5));
   else void chooseQuickView(value.slice(6) as ToDooQuickFilter);
@@ -865,7 +880,8 @@ watch(
         quickView.value,
         toDooLocalDate(new Date(), state.snapshot?.settings.timeZone),
       );
-    state.filter.listIds = props.selection.list ? [props.selection.list] : [];
+    if (!previous || previous[2] !== props.selection.list)
+      state.filter.listIds = props.selection.list ? [props.selection.list] : [];
     await model.load({
       view: props.section,
       listIds: quickView.value === 'inbox' ? ['inbox'] : undefined,
@@ -1230,6 +1246,13 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
               {{ list.name }}
             </option>
           </ToDooSelect>
+          <details v-if="scopeFilters.length" class="todo-scope-filters">
+            <summary>筛选 {{ scopeFilters.length }} 项</summary>
+            <ul>
+              <li v-for="part in scopeFilters" :key="part">{{ part }}</li>
+            </ul>
+            <AButton type="link" @click="clearScopeFilters">清除筛选</AButton>
+          </details>
           <AButton
             v-if="['matrix', 'timeline'].includes(section)"
             type="link"
@@ -1237,18 +1260,7 @@ defineExpose({ hasUnsavedChanges, requestLeave, requestSectionLeave });
             >返回任务列表</AButton
           >
         </div>
-        <nav v-if="section === 'tasks'" class="todo-mobile-quick-nav" aria-label="常用任务入口">
-          <AButton
-            v-for="view in toDooQuickViews"
-            :key="view.id"
-            html-type="button"
-            :class="{ active: section === 'tasks' && !selection.list && quickView === view.id }"
-            @click="chooseQuickView(view.id)"
-            type="text"
-          >
-            {{ view.name }}
-          </AButton>
-        </nav>
+
         <div v-if="state.error" class="todo-error todo-alert" role="alert">
           {{ state.error
           }}<AButton html-type="button" class="todo-link" @click="state.error = ''" type="link"

@@ -421,10 +421,19 @@ export function deriveToDooItems(
       )
         return false;
       if (
-        filter.hasEvidence &&
-        !data.outcomes.some(
-          (x) => !x.deletedAt && x.occurrenceId === o?.id && x.evidenceRefs.length,
+        filter.overdue &&
+        !toDooDeadlineOverdue(
+          o?.due,
+          row.status,
+          toDooLocalDate(new Date(), data.settings.timeZone),
         )
+      )
+        return false;
+      if (
+        filter.hasEvidence !== undefined &&
+        data.outcomes.some(
+          (x) => !x.deletedAt && x.occurrenceId === o?.id && x.evidenceRefs.length > 0,
+        ) !== filter.hasEvidence
       )
         return false;
       function match(condition: ToDooFilterGroup | ToDooFilterCondition): boolean {

@@ -316,6 +316,7 @@ const baseFilterSchema = z
     from: toDooDate.optional(),
     to: toDooDate.optional(),
     dueBefore: toDooDate.optional(),
+    overdue: z.boolean().optional(),
     unscheduled: z.boolean().optional(),
     hasEvidence: z.boolean().optional(),
     includeDeleted: z.boolean().optional(),

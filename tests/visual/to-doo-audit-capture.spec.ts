@@ -13,7 +13,9 @@ import { openToDooFocusHistory } from '../support/to-doo-navigation';
 
 const phase = process.env.DOOKNOW_AUDIT_PHASE || 'after';
 if (!['before', 'after'].includes(phase)) throw Error('Expected audit phase before or after');
-const output = resolve('docs/design/to-doo/audit-fixes-2026-11-03', phase);
+const output = process.env.DOOKNOW_AUDIT_OUTPUT
+  ? resolve(process.env.DOOKNOW_AUDIT_OUTPUT)
+  : resolve('docs/design/to-doo/audit-fixes-2026-11-03', phase);
 const scenes = [
   ['overview', 'overview'],
   ['tasks', 'tasks'],
@@ -94,6 +96,14 @@ for (const device of devices) {
         preferences.setEditorPreferences({ theme });
         await document.fonts.ready;
       }, device.theme);
+      // Theme propagation updates the Ant provider on Vue's next render.
+      await expect(page.locator('html')).toHaveAttribute('data-theme', device.theme);
+      await page.evaluate(
+        () =>
+          new Promise<void>((resolve) =>
+            requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+          ),
+      );
       if (id === 'focus') await openToDooFocusHistory(page);
       if (id === 'settings') await expandToDooGroup(app, '日期与提醒');
       if (id === 'settings-connections')
@@ -114,18 +124,88 @@ for (const device of devices) {
         await expandToDooGroup(detail, '完成标准与成果');
         await detail.getByRole('button', { name: '创建成果笔记并关联', exact: true }).click();
       }
-      if (id.endsWith('-dialog') && id !== 'task-dialog')
-        await expect(page.getByRole('dialog').last()).toBeVisible();
+      const operationNames: Record<string, string> = {
+        'habit-dialog': '新建习惯',
+        'schedule-dialog': '新建时间安排',
+        'anniversary-dialog': '新建纪念日',
+        'review-dialog': '新建复盘',
+        'outcome-dialog': '创建成果笔记',
+      };
+      const operation = operationNames[id]
+        ? page.getByRole('dialog', { name: operationNames[id], exact: true })
+        : id === 'task-dialog' || id === 'task-detail'
+          ? app.getByRole('complementary', { name: '任务详情', exact: true })
+          : undefined;
+      async function assertOperation() {
+        if (!operation) return;
+        await expect(operation).toBeVisible();
+        if (id === 'task-dialog' || id === 'task-detail') {
+          await expect(operation.getByLabel('任务标题', { exact: true })).toBeVisible();
+          if (id === 'task-dialog')
+            await expect(
+              operation.getByRole('button', { name: '创建任务', exact: true }),
+            ).toBeVisible();
+          else
+            await expect(operation.getByLabel('任务标题', { exact: true })).toHaveValue(
+              '整理项目的下一步',
+            );
+        } else if (id === 'outcome-dialog') {
+          await expect(
+            operation.getByRole('textbox', { name: '成果正文（Markdown）', exact: true }),
+          ).toBeVisible();
+          await expect(
+            operation.getByRole('button', { name: '创建并关联成果笔记', exact: true }),
+          ).toBeVisible();
+        } else {
+          const uniqueLabel = id === 'schedule-dialog' ? '安排标题' : '名称';
+          await expect(operation.getByLabel(uniqueLabel, { exact: true })).toBeVisible();
+          await expect(operation.getByRole('button', { name: '保存', exact: true })).toBeVisible();
+          if (id === 'habit-dialog')
+            await expect(operation.getByLabel('开始日期', { exact: true })).toBeVisible();
+          if (id === 'anniversary-dialog')
+            await expect(operation.getByLabel('日期', { exact: true })).toBeVisible();
+          if (id === 'review-dialog')
+            await expect(operation.getByLabel('结束日期', { exact: true })).toBeVisible();
+        }
+      }
+      await assertOperation();
+      // Visibility alone can succeed during Ant's entrance transform. Finish finite motions
+      // before capture and keep animations enabled so screenshot cannot fast-forward callbacks.
+      await page.evaluate(async () => {
+        await Promise.all(
+          document
+            .getAnimations()
+            .filter((animation) => animation.effect?.getComputedTiming().iterations !== Infinity)
+            .map((animation) => animation.finished.catch(() => {})),
+        );
+        await new Promise<void>((resolve) =>
+          requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+        );
+      });
+      await assertOperation();
+      if (device.width <= 700 && !operation)
+        await expect(page.locator('.workspace-tabbar')).toBeInViewport();
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
       expect(overflow, id + ' outer page overflow').toBeLessThanOrEqual(1);
       await page.mouse.move(1, 1);
       const file = `${device.id}-${id}.png`;
       await page.screenshot({
         path: resolve(output, file),
-        animations: 'disabled',
+        animations: 'allow',
         fullPage: false,
       });
+      await assertOperation();
+      if (device.width <= 700 && !operation)
+        await expect(page.locator('.workspace-tabbar')).toBeInViewport();
       captures.push({
+        operation: operation
+          ? {
+              role: operationNames[id] ? 'dialog' : 'complementary',
+              name: operationNames[id] || '任务详情',
+              visibleAfterCapture: await operation.isVisible(),
+              bounds: await operation.boundingBox(),
+            }
+          : null,
         id,
         file,
         overflow,

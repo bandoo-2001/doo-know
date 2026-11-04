@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { toDooFilterSummary } from '../../to-doo-presentation';
 import ToDooDisclosure from './ToDooDisclosure.vue';
 import { useToDooConfirm } from '../../to-doo-controls';
 import ToDooDateField from './ToDooDateField.vue';
@@ -132,12 +133,7 @@ const outlineItems = computed(() =>
       !!state.filter.query,
   ),
 );
-const filterCount = computed(
-  () =>
-    Number(!!state.filter.tagIds?.length) +
-    Number(!!state.filter.group?.conditions.length) +
-    Number(!['all', 'inbox', 'today', 'upcoming'].includes(builtin.value)),
-);
+const filterCount = computed(() => toDooFilterSummary(state.filter).length);
 const lists = computed(
   () => state.snapshot?.lists.filter((l) => !l.deletedAt && !l.archivedAt) || [],
 );
@@ -790,6 +786,19 @@ function saveView() {
             <ToDooIcon name="search" :size="16" /></AButton
         ></label>
       </form>
+      <ToDooSelect
+        v-if="section === 'board'"
+        v-model="boardBy"
+        class="todo-board-group-picker todo-task-secondary-tools"
+        :class="{ 'is-open': toolsOpen }"
+        aria-label="看板分组"
+      >
+        <option value="status">按状态</option>
+        <option value="list">按清单</option>
+        <option value="priority">按优先级</option>
+        <option value="section">按分组</option>
+        <option value="tag">按标签</option>
+      </ToDooSelect>
       <AButton
         html-type="button"
         class="todo-button todo-filter-toggle"
@@ -1093,7 +1102,7 @@ function saveView() {
       <div class="todo-panel-header todo-task-list-heading">
         <h2>
           {{ state.filter.query ? '搜索结果' : '待办任务' }}
-          <small>{{ items.filter((i) => toDooPending(i.status)).length }} 项待办</small>
+          <small>{{ items.filter((i) => toDooPending(i.status)).length }} 项</small>
         </h2>
         <AButton
           v-if="state.filter.listIds?.[0]"
@@ -1282,17 +1291,7 @@ function saveView() {
         </div>
       </div>
     </div>
-    <template v-else-if="section === 'board'"
-      ><div class="todo-section-title">
-        <span class="todo-muted todo-small">拖动卡片改变分组；点击卡片可编辑全部信息</span
-        ><ToDooSelect v-model="boardBy" aria-label="看板分组">
-          <option value="status">按状态</option>
-          <option value="list">按清单</option>
-          <option value="priority">按优先级</option>
-          <option value="section">按分组</option>
-          <option value="tag">按标签</option>
-        </ToDooSelect>
-      </div>
+    <template v-else-if="section === 'board'">
       <nav class="todo-task-jumps" aria-label="看板列概览">
         <AButton
           v-for="column in columns"

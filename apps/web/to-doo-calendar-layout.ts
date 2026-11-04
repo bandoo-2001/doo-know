@@ -20,7 +20,13 @@ export function toDooBlockSegment(block: ToDooEntityMap['timeBlock'], date: stri
       block.dateEndExclusive ||
       shiftToDooDate(block.start.date, Math.max(1, Math.ceil(block.durationMinutes / 1440)));
     return block.start.date <= date && date < end
-      ? { time: null, endTime: null, duration: 1440, from: 0, to: 0 }
+      ? {
+          time: null,
+          endTime: null,
+          duration: block.allDay ? 1440 : block.durationMinutes,
+          from: 0,
+          to: 0,
+        }
       : null;
   }
   const start = toDooTimeInstant(block.start);
