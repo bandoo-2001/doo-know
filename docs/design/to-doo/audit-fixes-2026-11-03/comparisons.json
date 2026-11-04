@@ -1,0 +1,1378 @@
+{
+  "pairs": [
+    {
+      "id": "desktop-anniversaries",
+      "label": "桌面 · 纪念日",
+      "before": {
+        "id": "anniversaries",
+        "file": "desktop-anniversaries.png",
+        "overflow": 0,
+        "width": 1440,
+        "height": 1000,
+        "theme": "light",
+        "device": "desktop"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": null,
+        "id": "anniversaries",
+        "file": "desktop-anniversaries.png",
+        "overflow": 0,
+        "device": "desktop",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "desktop-anniversary-dialog",
+      "label": "桌面 · 新建纪念日",
+      "before": {
+        "id": "anniversary-dialog",
+        "file": "desktop-anniversary-dialog.png",
+        "overflow": 0,
+        "width": 1440,
+        "height": 1000,
+        "theme": "light",
+        "device": "desktop"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": {
+          "role": "dialog",
+          "name": "新建纪念日",
+          "visibleAfterCapture": true,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1440,
+            "height": 1000
+          }
+        },
+        "id": "anniversary-dialog",
+        "file": "desktop-anniversary-dialog.png",
+        "overflow": 0,
+        "device": "desktop",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "desktop-board",
+      "label": "桌面 · 看板",
+      "before": {
+        "id": "board",
+        "file": "desktop-board.png",
+        "overflow": 0,
+        "width": 1440,
+        "height": 1000,
+        "theme": "light",
+        "device": "desktop"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": null,
+        "id": "board",
+        "file": "desktop-board.png",
+        "overflow": 0,
+        "device": "desktop",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "desktop-calendar-month",
+      "label": "桌面 · 月日历",
+      "before": {
+        "id": "calendar-month",
+        "file": "desktop-calendar-month.png",
+        "overflow": 0,
+        "width": 1440,
+        "height": 1000,
+        "theme": "light",
+        "device": "desktop"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": null,
+        "id": "calendar-month",
+        "file": "desktop-calendar-month.png",
+        "overflow": 0,
+        "device": "desktop",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "desktop-calendar-week",
+      "label": "桌面 · 周日历",
+      "before": {
+        "id": "calendar-week",
+        "file": "desktop-calendar-week.png",
+        "overflow": 0,
+        "width": 1440,
+        "height": 1000,
+        "theme": "light",
+        "device": "desktop"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": null,
+        "id": "calendar-week",
+        "file": "desktop-calendar-week.png",
+        "overflow": 0,
+        "device": "desktop",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "desktop-focus",
+      "label": "桌面 · 专注",
+      "before": {
+        "id": "focus",
+        "file": "desktop-focus.png",
+        "overflow": 0,
+        "width": 1440,
+        "height": 1000,
+        "theme": "light",
+        "device": "desktop"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": null,
+        "id": "focus",
+        "file": "desktop-focus.png",
+        "overflow": 0,
+        "device": "desktop",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "desktop-habit-dialog",
+      "label": "桌面 · 新建习惯",
+      "before": {
+        "id": "habit-dialog",
+        "file": "desktop-habit-dialog.png",
+        "overflow": 0,
+        "width": 1440,
+        "height": 1000,
+        "theme": "light",
+        "device": "desktop"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": {
+          "role": "dialog",
+          "name": "新建习惯",
+          "visibleAfterCapture": true,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1440,
+            "height": 1000
+          }
+        },
+        "id": "habit-dialog",
+        "file": "desktop-habit-dialog.png",
+        "overflow": 0,
+        "device": "desktop",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "desktop-habits",
+      "label": "桌面 · 习惯",
+      "before": {
+        "id": "habits",
+        "file": "desktop-habits.png",
+        "overflow": 0,
+        "width": 1440,
+        "height": 1000,
+        "theme": "light",
+        "device": "desktop"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": null,
+        "id": "habits",
+        "file": "desktop-habits.png",
+        "overflow": 0,
+        "device": "desktop",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "desktop-matrix",
+      "label": "桌面 · 四象限",
+      "before": {
+        "id": "matrix",
+        "file": "desktop-matrix.png",
+        "overflow": 0,
+        "width": 1440,
+        "height": 1000,
+        "theme": "light",
+        "device": "desktop"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": null,
+        "id": "matrix",
+        "file": "desktop-matrix.png",
+        "overflow": 0,
+        "device": "desktop",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "desktop-notifications",
+      "label": "桌面 · 通知中心",
+      "before": {
+        "id": "notifications",
+        "file": "desktop-notifications.png",
+        "overflow": 0,
+        "width": 1440,
+        "height": 1000,
+        "theme": "light",
+        "device": "desktop"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": null,
+        "id": "notifications",
+        "file": "desktop-notifications.png",
+        "overflow": 0,
+        "device": "desktop",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "desktop-outcome-dialog",
+      "label": "桌面 · 成果笔记",
+      "before": {
+        "id": "outcome-dialog",
+        "file": "desktop-outcome-dialog.png",
+        "overflow": 0,
+        "width": 1440,
+        "height": 1000,
+        "theme": "light",
+        "device": "desktop"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": {
+          "role": "dialog",
+          "name": "创建成果笔记",
+          "visibleAfterCapture": true,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1440,
+            "height": 1000
+          }
+        },
+        "id": "outcome-dialog",
+        "file": "desktop-outcome-dialog.png",
+        "overflow": 0,
+        "device": "desktop",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "desktop-overview",
+      "label": "桌面 · 目标总览",
+      "before": {
+        "id": "overview",
+        "file": "desktop-overview.png",
+        "overflow": 0,
+        "width": 1440,
+        "height": 1000,
+        "theme": "light",
+        "device": "desktop"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": null,
+        "id": "overview",
+        "file": "desktop-overview.png",
+        "overflow": 0,
+        "device": "desktop",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "desktop-review-dialog",
+      "label": "桌面 · 写复盘",
+      "before": {
+        "id": "review-dialog",
+        "file": "desktop-review-dialog.png",
+        "overflow": 0,
+        "width": 1440,
+        "height": 1000,
+        "theme": "light",
+        "device": "desktop"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": {
+          "role": "dialog",
+          "name": "新建复盘",
+          "visibleAfterCapture": true,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1440,
+            "height": 1000
+          }
+        },
+        "id": "review-dialog",
+        "file": "desktop-review-dialog.png",
+        "overflow": 0,
+        "device": "desktop",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "desktop-schedule-dialog",
+      "label": "桌面 · 时间安排",
+      "before": {
+        "id": "schedule-dialog",
+        "file": "desktop-schedule-dialog.png",
+        "overflow": 0,
+        "width": 1440,
+        "height": 1000,
+        "theme": "light",
+        "device": "desktop"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": {
+          "role": "dialog",
+          "name": "新建时间安排",
+          "visibleAfterCapture": true,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1440,
+            "height": 1000
+          }
+        },
+        "id": "schedule-dialog",
+        "file": "desktop-schedule-dialog.png",
+        "overflow": 0,
+        "device": "desktop",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "desktop-settings-connections",
+      "label": "桌面 · 提醒与连接",
+      "before": {
+        "id": "settings-connections",
+        "file": "desktop-settings-connections.png",
+        "overflow": 0,
+        "width": 1440,
+        "height": 1000,
+        "theme": "light",
+        "device": "desktop"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": null,
+        "id": "settings-connections",
+        "file": "desktop-settings-connections.png",
+        "overflow": 0,
+        "device": "desktop",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "desktop-settings-data",
+      "label": "桌面 · 数据与恢复",
+      "before": {
+        "id": "settings-data",
+        "file": "desktop-settings-data.png",
+        "overflow": 0,
+        "width": 1440,
+        "height": 1000,
+        "theme": "light",
+        "device": "desktop"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": null,
+        "id": "settings-data",
+        "file": "desktop-settings-data.png",
+        "overflow": 0,
+        "device": "desktop",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "desktop-settings",
+      "label": "桌面 · 偏好设置",
+      "before": {
+        "id": "settings",
+        "file": "desktop-settings.png",
+        "overflow": 0,
+        "width": 1440,
+        "height": 1000,
+        "theme": "light",
+        "device": "desktop"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": null,
+        "id": "settings",
+        "file": "desktop-settings.png",
+        "overflow": 0,
+        "device": "desktop",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "desktop-stats",
+      "label": "桌面 · 统计与复盘",
+      "before": {
+        "id": "stats",
+        "file": "desktop-stats.png",
+        "overflow": 0,
+        "width": 1440,
+        "height": 1000,
+        "theme": "light",
+        "device": "desktop"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": null,
+        "id": "stats",
+        "file": "desktop-stats.png",
+        "overflow": 0,
+        "device": "desktop",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "desktop-task-detail",
+      "label": "桌面 · 任务详情",
+      "before": {
+        "id": "task-detail",
+        "file": "desktop-task-detail.png",
+        "overflow": 0,
+        "width": 1440,
+        "height": 1000,
+        "theme": "light",
+        "device": "desktop"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": {
+          "role": "complementary",
+          "name": "任务详情",
+          "visibleAfterCapture": true,
+          "bounds": {
+            "x": 1010,
+            "y": 56,
+            "width": 420,
+            "height": 944
+          }
+        },
+        "id": "task-detail",
+        "file": "desktop-task-detail.png",
+        "overflow": 0,
+        "device": "desktop",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "desktop-task-dialog",
+      "label": "桌面 · 新建任务",
+      "before": {
+        "id": "task-dialog",
+        "file": "desktop-task-dialog.png",
+        "overflow": 0,
+        "width": 1440,
+        "height": 1000,
+        "theme": "light",
+        "device": "desktop"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": {
+          "role": "complementary",
+          "name": "任务详情",
+          "visibleAfterCapture": true,
+          "bounds": {
+            "x": 1010,
+            "y": 56,
+            "width": 420,
+            "height": 944
+          }
+        },
+        "id": "task-dialog",
+        "file": "desktop-task-dialog.png",
+        "overflow": 0,
+        "device": "desktop",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "desktop-tasks",
+      "label": "桌面 · 任务列表",
+      "before": {
+        "id": "tasks",
+        "file": "desktop-tasks.png",
+        "overflow": 0,
+        "width": 1440,
+        "height": 1000,
+        "theme": "light",
+        "device": "desktop"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": null,
+        "id": "tasks",
+        "file": "desktop-tasks.png",
+        "overflow": 0,
+        "device": "desktop",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "desktop-timeline",
+      "label": "桌面 · 时间线",
+      "before": {
+        "id": "timeline",
+        "file": "desktop-timeline.png",
+        "overflow": 0,
+        "width": 1440,
+        "height": 1000,
+        "theme": "light",
+        "device": "desktop"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": null,
+        "id": "timeline",
+        "file": "desktop-timeline.png",
+        "overflow": 0,
+        "device": "desktop",
+        "width": 1440,
+        "height": 1000,
+        "theme": "light"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "phone-anniversaries",
+      "label": "手机 · 纪念日",
+      "before": {
+        "id": "anniversaries",
+        "file": "phone-anniversaries.png",
+        "overflow": 0,
+        "width": 390,
+        "height": 844,
+        "theme": "dark",
+        "device": "phone"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": null,
+        "id": "anniversaries",
+        "file": "phone-anniversaries.png",
+        "overflow": 0,
+        "device": "phone",
+        "width": 390,
+        "height": 844,
+        "theme": "dark"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "phone-anniversary-dialog",
+      "label": "手机 · 新建纪念日",
+      "before": {
+        "id": "anniversary-dialog",
+        "file": "phone-anniversary-dialog.png",
+        "overflow": 0,
+        "width": 390,
+        "height": 844,
+        "theme": "dark",
+        "device": "phone"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": {
+          "role": "dialog",
+          "name": "新建纪念日",
+          "visibleAfterCapture": true,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844
+          }
+        },
+        "id": "anniversary-dialog",
+        "file": "phone-anniversary-dialog.png",
+        "overflow": 0,
+        "device": "phone",
+        "width": 390,
+        "height": 844,
+        "theme": "dark"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "phone-board",
+      "label": "手机 · 看板",
+      "before": {
+        "id": "board",
+        "file": "phone-board.png",
+        "overflow": 0,
+        "width": 390,
+        "height": 844,
+        "theme": "dark",
+        "device": "phone"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": null,
+        "id": "board",
+        "file": "phone-board.png",
+        "overflow": 0,
+        "device": "phone",
+        "width": 390,
+        "height": 844,
+        "theme": "dark"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "phone-calendar-month",
+      "label": "手机 · 月日历",
+      "before": {
+        "id": "calendar-month",
+        "file": "phone-calendar-month.png",
+        "overflow": 0,
+        "width": 390,
+        "height": 844,
+        "theme": "dark",
+        "device": "phone"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": null,
+        "id": "calendar-month",
+        "file": "phone-calendar-month.png",
+        "overflow": 0,
+        "device": "phone",
+        "width": 390,
+        "height": 844,
+        "theme": "dark"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "phone-calendar-week",
+      "label": "手机 · 周日历",
+      "before": {
+        "id": "calendar-week",
+        "file": "phone-calendar-week.png",
+        "overflow": 0,
+        "width": 390,
+        "height": 844,
+        "theme": "dark",
+        "device": "phone"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": null,
+        "id": "calendar-week",
+        "file": "phone-calendar-week.png",
+        "overflow": 0,
+        "device": "phone",
+        "width": 390,
+        "height": 844,
+        "theme": "dark"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "phone-focus",
+      "label": "手机 · 专注",
+      "before": {
+        "id": "focus",
+        "file": "phone-focus.png",
+        "overflow": 0,
+        "width": 390,
+        "height": 844,
+        "theme": "dark",
+        "device": "phone"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": null,
+        "id": "focus",
+        "file": "phone-focus.png",
+        "overflow": 0,
+        "device": "phone",
+        "width": 390,
+        "height": 844,
+        "theme": "dark"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "phone-habit-dialog",
+      "label": "手机 · 新建习惯",
+      "before": {
+        "id": "habit-dialog",
+        "file": "phone-habit-dialog.png",
+        "overflow": 0,
+        "width": 390,
+        "height": 844,
+        "theme": "dark",
+        "device": "phone"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": {
+          "role": "dialog",
+          "name": "新建习惯",
+          "visibleAfterCapture": true,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844
+          }
+        },
+        "id": "habit-dialog",
+        "file": "phone-habit-dialog.png",
+        "overflow": 0,
+        "device": "phone",
+        "width": 390,
+        "height": 844,
+        "theme": "dark"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "phone-habits",
+      "label": "手机 · 习惯",
+      "before": {
+        "id": "habits",
+        "file": "phone-habits.png",
+        "overflow": 0,
+        "width": 390,
+        "height": 844,
+        "theme": "dark",
+        "device": "phone"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": null,
+        "id": "habits",
+        "file": "phone-habits.png",
+        "overflow": 0,
+        "device": "phone",
+        "width": 390,
+        "height": 844,
+        "theme": "dark"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "phone-matrix",
+      "label": "手机 · 四象限",
+      "before": {
+        "id": "matrix",
+        "file": "phone-matrix.png",
+        "overflow": 0,
+        "width": 390,
+        "height": 844,
+        "theme": "dark",
+        "device": "phone"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": null,
+        "id": "matrix",
+        "file": "phone-matrix.png",
+        "overflow": 0,
+        "device": "phone",
+        "width": 390,
+        "height": 844,
+        "theme": "dark"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "phone-notifications",
+      "label": "手机 · 通知中心",
+      "before": {
+        "id": "notifications",
+        "file": "phone-notifications.png",
+        "overflow": 0,
+        "width": 390,
+        "height": 844,
+        "theme": "dark",
+        "device": "phone"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": null,
+        "id": "notifications",
+        "file": "phone-notifications.png",
+        "overflow": 0,
+        "device": "phone",
+        "width": 390,
+        "height": 844,
+        "theme": "dark"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "phone-outcome-dialog",
+      "label": "手机 · 成果笔记",
+      "before": {
+        "id": "outcome-dialog",
+        "file": "phone-outcome-dialog.png",
+        "overflow": 0,
+        "width": 390,
+        "height": 844,
+        "theme": "dark",
+        "device": "phone"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": {
+          "role": "dialog",
+          "name": "创建成果笔记",
+          "visibleAfterCapture": true,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844
+          }
+        },
+        "id": "outcome-dialog",
+        "file": "phone-outcome-dialog.png",
+        "overflow": 0,
+        "device": "phone",
+        "width": 390,
+        "height": 844,
+        "theme": "dark"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "phone-overview",
+      "label": "手机 · 目标总览",
+      "before": {
+        "id": "overview",
+        "file": "phone-overview.png",
+        "overflow": 0,
+        "width": 390,
+        "height": 844,
+        "theme": "dark",
+        "device": "phone"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": null,
+        "id": "overview",
+        "file": "phone-overview.png",
+        "overflow": 0,
+        "device": "phone",
+        "width": 390,
+        "height": 844,
+        "theme": "dark"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "phone-review-dialog",
+      "label": "手机 · 写复盘",
+      "before": {
+        "id": "review-dialog",
+        "file": "phone-review-dialog.png",
+        "overflow": 0,
+        "width": 390,
+        "height": 844,
+        "theme": "dark",
+        "device": "phone"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": {
+          "role": "dialog",
+          "name": "新建复盘",
+          "visibleAfterCapture": true,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844
+          }
+        },
+        "id": "review-dialog",
+        "file": "phone-review-dialog.png",
+        "overflow": 0,
+        "device": "phone",
+        "width": 390,
+        "height": 844,
+        "theme": "dark"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "phone-schedule-dialog",
+      "label": "手机 · 时间安排",
+      "before": {
+        "id": "schedule-dialog",
+        "file": "phone-schedule-dialog.png",
+        "overflow": 0,
+        "width": 390,
+        "height": 844,
+        "theme": "dark",
+        "device": "phone"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": {
+          "role": "dialog",
+          "name": "新建时间安排",
+          "visibleAfterCapture": true,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 844
+          }
+        },
+        "id": "schedule-dialog",
+        "file": "phone-schedule-dialog.png",
+        "overflow": 0,
+        "device": "phone",
+        "width": 390,
+        "height": 844,
+        "theme": "dark"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "phone-settings-connections",
+      "label": "手机 · 提醒与连接",
+      "before": {
+        "id": "settings-connections",
+        "file": "phone-settings-connections.png",
+        "overflow": 0,
+        "width": 390,
+        "height": 844,
+        "theme": "dark",
+        "device": "phone"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": null,
+        "id": "settings-connections",
+        "file": "phone-settings-connections.png",
+        "overflow": 0,
+        "device": "phone",
+        "width": 390,
+        "height": 844,
+        "theme": "dark"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "phone-settings-data",
+      "label": "手机 · 数据与恢复",
+      "before": {
+        "id": "settings-data",
+        "file": "phone-settings-data.png",
+        "overflow": 0,
+        "width": 390,
+        "height": 844,
+        "theme": "dark",
+        "device": "phone"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": null,
+        "id": "settings-data",
+        "file": "phone-settings-data.png",
+        "overflow": 0,
+        "device": "phone",
+        "width": 390,
+        "height": 844,
+        "theme": "dark"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "phone-settings",
+      "label": "手机 · 偏好设置",
+      "before": {
+        "id": "settings",
+        "file": "phone-settings.png",
+        "overflow": 0,
+        "width": 390,
+        "height": 844,
+        "theme": "dark",
+        "device": "phone"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": null,
+        "id": "settings",
+        "file": "phone-settings.png",
+        "overflow": 0,
+        "device": "phone",
+        "width": 390,
+        "height": 844,
+        "theme": "dark"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "phone-stats",
+      "label": "手机 · 统计与复盘",
+      "before": {
+        "id": "stats",
+        "file": "phone-stats.png",
+        "overflow": 0,
+        "width": 390,
+        "height": 844,
+        "theme": "dark",
+        "device": "phone"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": null,
+        "id": "stats",
+        "file": "phone-stats.png",
+        "overflow": 0,
+        "device": "phone",
+        "width": 390,
+        "height": 844,
+        "theme": "dark"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "phone-task-detail",
+      "label": "手机 · 任务详情",
+      "before": {
+        "id": "task-detail",
+        "file": "phone-task-detail.png",
+        "overflow": 0,
+        "width": 390,
+        "height": 844,
+        "theme": "dark",
+        "device": "phone"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": {
+          "role": "complementary",
+          "name": "任务详情",
+          "visibleAfterCapture": true,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 776
+          }
+        },
+        "id": "task-detail",
+        "file": "phone-task-detail.png",
+        "overflow": 0,
+        "device": "phone",
+        "width": 390,
+        "height": 844,
+        "theme": "dark"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "phone-task-dialog",
+      "label": "手机 · 新建任务",
+      "before": {
+        "id": "task-dialog",
+        "file": "phone-task-dialog.png",
+        "overflow": 0,
+        "width": 390,
+        "height": 844,
+        "theme": "dark",
+        "device": "phone"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": {
+          "role": "complementary",
+          "name": "任务详情",
+          "visibleAfterCapture": true,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 776
+          }
+        },
+        "id": "task-dialog",
+        "file": "phone-task-dialog.png",
+        "overflow": 0,
+        "device": "phone",
+        "width": 390,
+        "height": 844,
+        "theme": "dark"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "phone-tasks",
+      "label": "手机 · 任务列表",
+      "before": {
+        "id": "tasks",
+        "file": "phone-tasks.png",
+        "overflow": 0,
+        "width": 390,
+        "height": 844,
+        "theme": "dark",
+        "device": "phone"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": null,
+        "id": "tasks",
+        "file": "phone-tasks.png",
+        "overflow": 0,
+        "device": "phone",
+        "width": 390,
+        "height": 844,
+        "theme": "dark"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    },
+    {
+      "id": "phone-timeline",
+      "label": "手机 · 时间线",
+      "before": {
+        "id": "timeline",
+        "file": "phone-timeline.png",
+        "overflow": 0,
+        "width": 390,
+        "height": 844,
+        "theme": "dark",
+        "device": "phone"
+      },
+      "after": {
+        "consecutiveCapturePixelsStable": true,
+        "operation": null,
+        "id": "timeline",
+        "file": "phone-timeline.png",
+        "overflow": 0,
+        "device": "phone",
+        "width": 390,
+        "height": 844,
+        "theme": "dark"
+      },
+      "beforeHead": "8f5c5781db850da46f9ec3c53de019ac7e26b025",
+      "afterHead": "09ed83c17082bf376b873955f5a6581346231d75",
+      "fixedTime": "2026-10-30T09:00:00.000Z"
+    }
+  ],
+  "extras": [
+    "desktop-dark-anniversaries.png",
+    "desktop-dark-anniversary-dialog.png",
+    "desktop-dark-board.png",
+    "desktop-dark-calendar-month.png",
+    "desktop-dark-calendar-week.png",
+    "desktop-dark-focus.png",
+    "desktop-dark-habit-dialog.png",
+    "desktop-dark-habits.png",
+    "desktop-dark-matrix.png",
+    "desktop-dark-notifications.png",
+    "desktop-dark-outcome-dialog.png",
+    "desktop-dark-overview.png",
+    "desktop-dark-review-dialog.png",
+    "desktop-dark-schedule-dialog.png",
+    "desktop-dark-settings-connections.png",
+    "desktop-dark-settings-data.png",
+    "desktop-dark-settings.png",
+    "desktop-dark-stats.png",
+    "desktop-dark-task-detail.png",
+    "desktop-dark-task-dialog.png",
+    "desktop-dark-tasks.png",
+    "desktop-dark-timeline.png",
+    "phone-light-anniversaries.png",
+    "phone-light-anniversary-dialog.png",
+    "phone-light-board.png",
+    "phone-light-calendar-month.png",
+    "phone-light-calendar-week.png",
+    "phone-light-focus.png",
+    "phone-light-habit-dialog.png",
+    "phone-light-habits.png",
+    "phone-light-matrix.png",
+    "phone-light-notifications.png",
+    "phone-light-outcome-dialog.png",
+    "phone-light-overview.png",
+    "phone-light-review-dialog.png",
+    "phone-light-schedule-dialog.png",
+    "phone-light-settings-connections.png",
+    "phone-light-settings-data.png",
+    "phone-light-settings.png",
+    "phone-light-stats.png",
+    "phone-light-task-detail.png",
+    "phone-light-task-dialog.png",
+    "phone-light-tasks.png",
+    "phone-light-timeline.png"
+  ]
+}

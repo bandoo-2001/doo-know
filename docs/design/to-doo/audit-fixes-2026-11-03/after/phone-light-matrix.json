@@ -1,0 +1,17 @@
+{
+  "fixedTime": "2026-10-30T09:00:00.000Z",
+  "head": "09ed83c17082bf376b873955f5a6581346231d75",
+  "captures": [
+    {
+      "consecutiveCapturePixelsStable": true,
+      "operation": null,
+      "id": "matrix",
+      "file": "phone-light-matrix.png",
+      "overflow": 0,
+      "device": "phone-light",
+      "width": 390,
+      "height": 844,
+      "theme": "light"
+    }
+  ]
+}

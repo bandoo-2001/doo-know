@@ -1,0 +1,27 @@
+{
+  "fixedTime": "2026-10-30T09:00:00.000Z",
+  "head": "09ed83c17082bf376b873955f5a6581346231d75",
+  "captures": [
+    {
+      "consecutiveCapturePixelsStable": true,
+      "operation": {
+        "role": "dialog",
+        "name": "新建纪念日",
+        "visibleAfterCapture": true,
+        "bounds": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        }
+      },
+      "id": "anniversary-dialog",
+      "file": "phone-anniversary-dialog.png",
+      "overflow": 0,
+      "device": "phone",
+      "width": 390,
+      "height": 844,
+      "theme": "dark"
+    }
+  ]
+}

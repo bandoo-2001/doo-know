@@ -1,0 +1,27 @@
+{
+  "fixedTime": "2026-10-30T09:00:00.000Z",
+  "head": "09ed83c17082bf376b873955f5a6581346231d75",
+  "captures": [
+    {
+      "consecutiveCapturePixelsStable": true,
+      "operation": {
+        "role": "complementary",
+        "name": "任务详情",
+        "visibleAfterCapture": true,
+        "bounds": {
+          "x": 1010,
+          "y": 56,
+          "width": 420,
+          "height": 944
+        }
+      },
+      "id": "task-dialog",
+      "file": "desktop-dark-task-dialog.png",
+      "overflow": 0,
+      "device": "desktop-dark",
+      "width": 1440,
+      "height": 1000,
+      "theme": "dark"
+    }
+  ]
+}
