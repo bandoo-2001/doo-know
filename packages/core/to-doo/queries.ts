@@ -416,6 +416,52 @@ function taskSearch(
   }
   return { sql, params };
 }
+/** Shared execution predicates keep task pages and their matching occurrences aligned. */
+function occurrenceFilter(q: ToDooQuery, from: string, to: string, timeZone: string) {
+  const f = q.filter ?? {},
+    clauses: string[] = [],
+    params: unknown[] = [];
+  if (!f.includeDeleted && !q.all) clauses.push("json_extract(e.data,'$.deletedAt') IS NULL");
+  if (f.statuses) {
+    clauses.push(
+      f.statuses.length
+        ? "json_extract(e.data,'$.status') IN (" + f.statuses.map(() => '?').join(',') + ')'
+        : '0',
+    );
+    params.push(...f.statuses);
+  }
+  if (!q.all && !q.ids && !q.taskIds) {
+    clauses.push(
+      "(json_extract(e.data,'$.scheduledDate') IS NULL OR json_extract(e.data,'$.scheduledDate') BETWEEN ? AND ? OR json_extract(e.data,'$.status') IN ('todo','doing','blocked'))",
+    );
+    params.push(f.from ?? q.from ?? from, f.to ?? q.to ?? to);
+  }
+  if (f.overdue) {
+    clauses.push(
+      "to_doo_deadline_overdue(json_extract(e.data,'$.due'),json_extract(e.data,'$.status'),?,?)=1",
+    );
+    params.push(localDate(new Date(), timeZone), Date.now());
+  }
+  if (f.dueBefore) {
+    clauses.push("to_doo_display_date(json_extract(e.data,'$.due'),?)<=?");
+    params.push(timeZone, f.dueBefore);
+  }
+  if (f.unscheduled)
+    clauses.push(
+      "NOT EXISTS(SELECT 1 FROM todo_entities b WHERE b.kind='timeBlock' AND json_extract(b.data,'$.occurrenceId')=e.id AND json_extract(b.data,'$.deletedAt') IS NULL)",
+    );
+  if (f.hasEvidence !== undefined)
+    clauses.push(
+      (f.hasEvidence ? '' : 'NOT ') +
+        "EXISTS(SELECT 1 FROM todo_entities a WHERE a.kind='outcome' AND json_extract(a.data,'$.occurrenceId')=e.id AND json_extract(a.data,'$.deletedAt') IS NULL AND json_array_length(json_extract(a.data,'$.evidenceRefs'))>0)",
+    );
+  if (f.group) {
+    const group = compileFilterGroup('occurrence', f.group);
+    clauses.push(group.sql);
+    params.push(...group.params);
+  }
+  return { sql: clauses.length ? clauses.join(' AND ') : '1', params };
+}
 function where(
   kind: ToDooEntityKind,
   q: ToDooQuery,
@@ -528,25 +574,16 @@ function where(
     clauses.push("json_extract(e.data,'$.archivedAt') IS NULL");
   if (kind === 'reminderEvent' && q.reminderStates)
     inside("json_extract(e.data,'$.userState')", q.reminderStates);
-  if (f.overdue && (kind === 'task' || kind === 'occurrence')) {
-    const alias = kind === 'task' ? 'o' : 'e';
-    const predicate = `to_doo_deadline_overdue(json_extract(${alias}.data,'$.due'),json_extract(${alias}.data,'$.status'),?,?)=1`;
-    clauses.push(
-      kind === 'task'
-        ? "EXISTS(SELECT 1 FROM todo_entities o WHERE o.kind='occurrence' AND json_extract(o.data,'$.taskId')=e.id AND json_extract(o.data,'$.deletedAt') IS NULL AND " +
-            predicate +
-            ')'
-        : predicate,
-    );
-    params.push(localDate(new Date(), timeZone), Date.now());
-  }
   if (kind === 'task') {
-    if (f.hasEvidence !== undefined) {
+    if (f.overdue || f.hasEvidence !== undefined) {
+      const instance = occurrenceFilter(q, from, to, timeZone);
+      // One execution must satisfy the whole combination before COUNT and LIMIT.
       clauses.push(
-        "EXISTS(SELECT 1 FROM todo_entities o WHERE o.kind='occurrence' AND json_extract(o.data,'$.taskId')=e.id AND json_extract(o.data,'$.deletedAt') IS NULL AND " +
-          (f.hasEvidence ? '' : 'NOT ') +
-          "EXISTS(SELECT 1 FROM todo_entities a WHERE a.kind='outcome' AND json_extract(a.data,'$.occurrenceId')=o.id AND json_extract(a.data,'$.deletedAt') IS NULL AND json_array_length(json_extract(a.data,'$.evidenceRefs'))>0))",
+        "EXISTS(SELECT 1 FROM todo_entities combined_o WHERE combined_o.kind='occurrence' AND json_extract(combined_o.data,'$.taskId')=e.id AND " +
+          instance.sql.replaceAll('e.', 'combined_o.') +
+          ')',
       );
+      params.push(...instance.params);
     }
     if (f.priorities) inside("json_extract(e.data,'$.priority')", f.priorities);
     if (f.importance) {
@@ -565,7 +602,7 @@ function where(
       clauses.push(
         "NOT EXISTS(SELECT 1 FROM todo_entities c WHERE c.kind='task' AND json_extract(c.data,'$.parentTaskId')=e.id AND json_extract(c.data,'$.deletedAt') IS NULL)",
       );
-    if (f.statuses) {
+    if (f.statuses && !f.overdue && f.hasEvidence === undefined) {
       clauses.push(
         "EXISTS(SELECT 1 FROM todo_entities o WHERE o.kind='occurrence' AND json_extract(o.data,'$.taskId')=e.id AND json_extract(o.data,'$.status') IN (" +
           f.statuses.map(() => '?').join(',') +
@@ -575,26 +612,9 @@ function where(
     }
   }
   if (kind === 'occurrence') {
-    if (f.statuses) inside("json_extract(e.data,'$.status')", f.statuses);
-    if (!q.all && !q.ids && !q.taskIds) {
-      clauses.push(
-        "(json_extract(e.data,'$.scheduledDate') IS NULL OR json_extract(e.data,'$.scheduledDate') BETWEEN ? AND ? OR json_extract(e.data,'$.status') IN ('todo','doing','blocked'))",
-      );
-      params.push(f.from ?? q.from ?? from, f.to ?? q.to ?? to);
-    }
-    if (f.dueBefore) {
-      clauses.push("to_doo_display_date(json_extract(e.data,'$.due'),?)<=?");
-      params.push(timeZone, f.dueBefore);
-    }
-    if (f.unscheduled)
-      clauses.push(
-        "NOT EXISTS(SELECT 1 FROM todo_entities b WHERE b.kind='timeBlock' AND json_extract(b.data,'$.occurrenceId')=e.id AND json_extract(b.data,'$.deletedAt') IS NULL)",
-      );
-    if (f.hasEvidence !== undefined)
-      clauses.push(
-        (f.hasEvidence ? '' : 'NOT ') +
-          "EXISTS(SELECT 1 FROM todo_entities a WHERE a.kind='outcome' AND json_extract(a.data,'$.occurrenceId')=e.id AND json_extract(a.data,'$.deletedAt') IS NULL AND json_array_length(json_extract(a.data,'$.evidenceRefs'))>0)",
-      );
+    const instance = occurrenceFilter(q, from, to, timeZone);
+    clauses.push(instance.sql);
+    params.push(...instance.params);
   }
   if (!q.all && !q.ids && !q.taskIds && (kind === 'timeBlock' || kind === 'calendarEvent')) {
     clauses.push('to_doo_interval_overlap(e.data,?,?,?,?)=1');

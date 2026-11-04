@@ -478,3 +478,87 @@ it('direct hasEvidence false means no evidence references on server and client, 
     expect(deriveToDooItems(result, { hasEvidence }).map((row) => row.task.id)).toEqual(expected);
   }
 });
+
+it.each([true, false])(
+  'requires one recurring instance to satisfy overdue, status and hasEvidence=%s before paging',
+  (hasEvidence) => {
+    for (const id of ['allowed-combined', 'private-combined'])
+      command('save_entity', { kind: 'list', entity: { id, name: id } });
+    function repeating(id: string, listId = 'allowed-combined') {
+      command('create_task', {
+        id,
+        title: id,
+        listId,
+        recurrence: { id: id + '-rule', frequency: 'daily', anchorDate: '2026-10-29', count: 2 },
+      });
+      const rows = service
+        .snapshot({ all: true })
+        .occurrences.filter((row) => row.taskId === id)
+        .sort((a, b) => String(a.scheduledDate).localeCompare(String(b.scheduledDate)));
+      expect(rows).toHaveLength(2);
+      return rows;
+    }
+    function configure(
+      row: ReturnType<typeof repeating>[number],
+      past: boolean,
+      evidence: boolean,
+      extra = {},
+    ) {
+      command('save_entity', {
+        kind: 'occurrence',
+        entity: {
+          ...row,
+          due: { date: past ? '2026-10-29' : '2026-11-05', time: '08:00', timeZone: 'UTC' },
+          ...extra,
+        },
+        expectedRevision: row.revision,
+      });
+      if (evidence)
+        command('import_entities', {
+          entities: [
+            {
+              kind: 'outcome',
+              entity: {
+                id: row.id + '-evidence',
+                occurrenceId: row.id,
+                summary: '核验凭据',
+                evidenceRefs: [{ noteId: 'fixture-evidence', role: 'output' }],
+              },
+            },
+          ],
+        });
+    }
+    const split = repeating('split-combined');
+    configure(split[0]!, true, !hasEvidence);
+    configure(split[1]!, false, hasEvidence);
+    const statusSplit = repeating('status-combined');
+    configure(statusSplit[0]!, true, hasEvidence, { status: 'doing' });
+    configure(statusSplit[1]!, false, hasEvidence);
+    const deleted = repeating('deleted-combined');
+    configure(deleted[0]!, true, hasEvidence, { deletedAt: '2026-10-30T10:00:00Z' });
+    configure(deleted[1]!, false, hasEvidence);
+    for (const id of ['matching-a', 'matching-b', 'private-matching']) {
+      const rows = repeating(
+        id,
+        id === 'private-matching' ? 'private-combined' : 'allowed-combined',
+      );
+      configure(rows[0]!, true, hasEvidence);
+      configure(rows[1]!, false, !hasEvidence);
+    }
+    const filter = { overdue: true, hasEvidence, statuses: ['todo' as const] };
+    const query = { view: 'tasks', listIds: ['allowed-combined'], filter, limit: 1 };
+    const first = service.snapshot(query);
+    expect(first.page.total).toBe(2);
+    expect(first.tasks.map((row) => row.id)).toEqual(['matching-a']);
+    expect(first.page.nextCursor).not.toBeNull();
+    expect(first.occurrences.map((row) => row.taskId).sort()).toEqual(['matching-a', 'matching-b']);
+    const second = service.snapshot({ ...query, cursor: first.page.nextCursor! });
+    expect(second.page.total).toBe(2);
+    expect(second.tasks.map((row) => row.id)).toEqual(['matching-b']);
+    expect(second.page.nextCursor).toBeNull();
+    expect(second.occurrences.map((row) => row.taskId).sort()).toEqual([
+      'matching-a',
+      'matching-b',
+    ]);
+  },
+);

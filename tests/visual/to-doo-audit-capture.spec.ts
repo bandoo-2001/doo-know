@@ -96,7 +96,12 @@ for (const device of devices) {
         preferences.setEditorPreferences({ theme });
         await document.fonts.ready;
       }, device.theme);
-      // Theme propagation updates the Ant provider on Vue's next render.
+      // Load the persisted theme from the first frame. Live provider transitions can
+      // leave a compositor screenshot partially painted despite correct DOM bounds.
+      await page.reload();
+      await expect(app).toBeVisible();
+      await expect(app.locator('.todo-main')).toHaveAttribute('aria-busy', 'false');
+      await page.evaluate(() => document.fonts.ready);
       await expect(page.locator('html')).toHaveAttribute('data-theme', device.theme);
       await page.evaluate(
         () =>
@@ -171,17 +176,31 @@ for (const device of devices) {
       await assertOperation();
       // Visibility alone can succeed during Ant's entrance transform. Finish finite motions
       // before capture and keep animations enabled so screenshot cannot fast-forward callbacks.
-      await page.evaluate(async () => {
-        await Promise.all(
-          document
-            .getAnimations()
-            .filter((animation) => animation.effect?.getComputedTiming().iterations !== Infinity)
-            .map((animation) => animation.finished.catch(() => {})),
-        );
-        await new Promise<void>((resolve) =>
-          requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
-        );
-      });
+      // Re-query running finite motions instead of awaiting a stale/paused animation's
+      // finished promise (the focus scene can retain one indefinitely).
+      await expect
+        .poll(
+          () =>
+            page.evaluate(
+              () =>
+                document.getAnimations().filter((animation) => {
+                  const end = animation.effect?.getComputedTiming().endTime;
+                  return (
+                    animation.playState === 'running' &&
+                    typeof end === 'number' &&
+                    Number.isFinite(end)
+                  );
+                }).length,
+            ),
+          { timeout: 10000 },
+        )
+        .toBe(0);
+      await page.evaluate(
+        () =>
+          new Promise<void>((resolve) =>
+            requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+          ),
+      );
       await assertOperation();
       if (device.width <= 700 && !operation)
         await expect(page.locator('.workspace-tabbar')).toBeInViewport();
@@ -189,15 +208,28 @@ for (const device of devices) {
       expect(overflow, id + ' outer page overflow').toBeLessThanOrEqual(1);
       await page.mouse.move(1, 1);
       const file = `${device.id}-${id}.png`;
-      await page.screenshot({
-        path: resolve(output, file),
-        animations: 'allow',
-        fullPage: false,
-      });
+      let stableCapture: Buffer | undefined;
+      await expect(async () => {
+        const first = await page.screenshot({ animations: 'allow', fullPage: false });
+        await page.evaluate(
+          () =>
+            new Promise<void>((resolve) =>
+              requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+            ),
+        );
+        const second = await page.screenshot({ animations: 'allow', fullPage: false });
+        expect(
+          second.equals(first),
+          'two consecutive settled viewport captures have identical pixels',
+        ).toBe(true);
+        stableCapture = second;
+      }).toPass({ timeout: 10000 });
+      await writeFile(resolve(output, file), stableCapture!);
       await assertOperation();
       if (device.width <= 700 && !operation)
         await expect(page.locator('.workspace-tabbar')).toBeInViewport();
       captures.push({
+        consecutiveCapturePixelsStable: true,
         operation: operation
           ? {
               role: operationNames[id] ? 'dialog' : 'complementary',
