@@ -1,0 +1,46 @@
+[WebServer] (node:1767894) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1767906) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1767917) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1767917) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:1768000) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/e2e/to-doo-two-level-windows.spec.ts:17:1 › primary management action has readable contrast in light and dark themes at 320px (3.4s)
+
+
+  1) [desktop] › tests/e2e/to-doo-two-level-windows.spec.ts:17:1 › primary management action has readable contrast in light and dark themes at 320px 
+
+    Error: light normal-size action label contrast
+
+    expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 4.5
+    Received:    2.6585790547783663
+
+      35 |       return (Math.max(a,b) + .05) / (Math.min(a,b) + .05);
+      36 |     });
+    > 37 |     expect(contrast, theme + ' normal-size action label contrast').toBeGreaterThanOrEqual(4.5);
+         |                                                                    ^
+      38 |   }
+      39 | });
+      40 | test('a new tag exposes its real color field and persists the selected value', async ({ page }) => {
+        at /home/bandoo/.codex/worktrees/5a33/doo-know/tests/e2e/to-doo-two-level-windows.spec.ts:37:68
+
+    Error Context: test-results/to-doo-two-level-windows-p-8bf79-ht-and-dark-themes-at-320px-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/to-doo-two-level-windows-p-8bf79-ht-and-dark-themes-at-320px-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/to-doo-two-level-windows-p-8bf79-ht-and-dark-themes-at-320px-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [desktop] › tests/e2e/to-doo-two-level-windows.spec.ts:17:1 › primary management action has readable contrast in light and dark themes at 320px 

@@ -1,0 +1,20 @@
+{
+  "scene": "12-notifications",
+  "title": "通知中心",
+  "section": "notifications",
+  "width": 1440,
+  "height": 1000,
+  "file": "1440-12-notifications.png",
+  "sha256": "215279710271fb758ac52a2f84631ebca9814a552bed3a2af1a01a1dabf973c4",
+  "consecutiveCapturePixelsStable": true,
+  "businessTime": "2026-10-30T09:00:00.000Z",
+  "source": {
+    "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+    "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+    "files": 592
+  },
+  "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=notifications&taskFilter=all&date=2026-10-30",
+  "operation": null,
+  "operationBounds": null,
+  "primaryActionReachable": null
+}

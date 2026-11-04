@@ -1,0 +1,20 @@
+{
+  "scene": "07-timeline",
+  "title": "时间线",
+  "section": "timeline",
+  "width": 320,
+  "height": 844,
+  "file": "320-07-timeline.png",
+  "sha256": "09af0b6aa8a490cc2b65b318194407e7619a35d8d1c7809a2fc52ddfe5c0141d",
+  "consecutiveCapturePixelsStable": true,
+  "businessTime": "2026-10-30T09:00:00.000Z",
+  "source": {
+    "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+    "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+    "files": 592
+  },
+  "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=timeline&taskFilter=all&date=2026-10-30",
+  "operation": null,
+  "operationBounds": null,
+  "primaryActionReachable": null
+}

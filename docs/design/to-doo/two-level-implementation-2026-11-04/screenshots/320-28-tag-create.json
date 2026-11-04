@@ -1,0 +1,25 @@
+{
+  "scene": "28-tag-create",
+  "title": "新建标签",
+  "section": "settings",
+  "width": 320,
+  "height": 844,
+  "file": "320-28-tag-create.png",
+  "sha256": "9f7c3853a73a5e69916b0555e1db41faa449f3c7713e4f4ee079ad1b9dd18655",
+  "consecutiveCapturePixelsStable": true,
+  "businessTime": "2026-10-30T09:00:00.000Z",
+  "source": {
+    "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+    "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+    "files": 592
+  },
+  "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=settings&taskFilter=all&date=2026-10-30&appPage=lists",
+  "operation": "新建标签",
+  "operationBounds": {
+    "x": 0,
+    "y": 0,
+    "width": 320,
+    "height": 844
+  },
+  "primaryActionReachable": true
+}

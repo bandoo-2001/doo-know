@@ -1,0 +1,12 @@
+
+ RUN  v5.0.4 /home/bandoo/.codex/worktrees/5a33/doo-know
+
+
+ Test Files  52 passed (52)
+      Tests  682 passed (682)
+   Start at  10:21:48
+   Duration  88.68s (tests 83%, import 16%, transform 1%)
+
+    Isolate  52 workers spawned · ~155ms startup each (spawn + environment, per file)
+             at least ~7.91s faster with isolate: false — reuses workers across files instead of one per file
+

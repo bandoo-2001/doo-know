@@ -1,0 +1,12 @@
+{
+  "loginStatus": 200,
+  "desktopContextWidth": 208,
+  "taskContext": "近七天",
+  "settingsContext": "data",
+  "phoneDrawer": true,
+  "pageErrors": 0,
+  "serverFailures": 0,
+  "taskCommandWrites": 0,
+  "outerOverflow": 0,
+  "credentialsChanged": false
+}

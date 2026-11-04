@@ -1,0 +1,25 @@
+{
+  "scene": "22-anniversary-create",
+  "title": "新建纪念日（农历）",
+  "section": "anniversaries",
+  "width": 1440,
+  "height": 1000,
+  "file": "1440-22-anniversary-create.png",
+  "sha256": "edf847bb0461e2d5a767629355c90c3e7500ef9252437804843652e0830015b0",
+  "consecutiveCapturePixelsStable": true,
+  "businessTime": "2026-10-30T09:00:00.000Z",
+  "source": {
+    "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+    "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+    "files": 592
+  },
+  "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=anniversaries&taskFilter=all&date=2026-10-30",
+  "operation": "新建纪念日",
+  "operationBounds": {
+    "x": 0,
+    "y": 0,
+    "width": 1440,
+    "height": 1000
+  },
+  "primaryActionReachable": true
+}

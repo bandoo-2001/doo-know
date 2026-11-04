@@ -1,0 +1,24 @@
+[WebServer] (node:1768526) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1768562) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1768595) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1768595) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 9 tests using 1 worker
+
+(node:1768675) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [mobile] › tests/e2e/to-doo-anniversary-appearance.spec.ts:12:1 › card appearance previews live, saves, survives reload and can be edited independently (6.7s)
+  ✓  2 [mobile] › tests/e2e/to-doo-anniversary-appearance.spec.ts:64:1 › legacy and artistic cards fit small screens with their dates and details in both themes (2.2s)
+  ✓  3 [mobile] › tests/e2e/to-doo-focus-bottom-bar.spec.ts:26:1 › focus timer rests on the content bottom when the project list is short (2.2s)
+  ✓  4 [mobile] › tests/e2e/to-doo-focus-bottom-bar.spec.ts:34:1 › focus timer stays at the bottom while long project lists remain reachable (2.0s)
+  ✓  5 [mobile] › tests/e2e/to-doo-hints.spec.ts:25:1 › closing task creation guidance survives reopening and reload without hiding edit guidance (5.4s)
+  ✓  6 [mobile] › tests/e2e/to-doo-hints.spec.ts:59:1 › dismissing entity save guidance persists and does not dismiss a different page hint (5.2s)
+  ✓  7 [mobile] › tests/e2e/to-doo-two-level-windows.spec.ts:17:1 › primary management action has readable contrast in light and dark themes at 320px (3.8s)
+  ✓  8 [mobile] › tests/e2e/to-doo-two-level-windows.spec.ts:50:1 › a new tag exposes its real color field and persists the selected value (2.1s)
+  ✓  9 [mobile] › tests/e2e/to-doo-two-level-windows.spec.ts:67:1 › review creation displays actual metrics and saves a server-captured snapshot (2.1s)
+
+  9 passed (36.9s)

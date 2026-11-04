@@ -1,0 +1,27 @@
+[WebServer] (node:1769478) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1769491) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1769502) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1769502) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 12 tests using 1 worker
+
+(node:1769575) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 1440 15-settings-data-v2 (6.2s)
+  ✓   2 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 1440 20-habit-entry-v2 (2.6s)
+  ✓   3 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 1440 23-review-create (4.7s)
+  ✓   4 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 1440 28-tag-create (4.9s)
+  ✓   5 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 390 15-settings-data-v2 (4.8s)
+  ✓   6 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 390 20-habit-entry-v2 (2.2s)
+  ✓   7 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 390 23-review-create (4.5s)
+  ✓   8 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 390 28-tag-create (4.7s)
+  ✓   9 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 320 15-settings-data-v2 (5.3s)
+  ✓  10 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 320 20-habit-entry-v2 (2.2s)
+  ✓  11 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 320 23-review-create (4.7s)
+  ✓  12 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 320 28-tag-create (4.7s)
+
+  12 passed (57.7s)

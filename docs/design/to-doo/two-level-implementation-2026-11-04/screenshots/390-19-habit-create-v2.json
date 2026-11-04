@@ -1,0 +1,25 @@
+{
+  "scene": "19-habit-create-v2",
+  "title": "新建习惯",
+  "section": "habits",
+  "width": 390,
+  "height": 844,
+  "file": "390-19-habit-create-v2.png",
+  "sha256": "94573959c23a8dd3e6967b66238632a306c0f0796d8094ee9dd74847ad809c5a",
+  "consecutiveCapturePixelsStable": true,
+  "businessTime": "2026-10-30T09:00:00.000Z",
+  "source": {
+    "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+    "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+    "files": 592
+  },
+  "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=habits&taskFilter=all&date=2026-10-30",
+  "operation": "新建习惯",
+  "operationBounds": {
+    "x": 0,
+    "y": 0,
+    "width": 390,
+    "height": 844
+  },
+  "primaryActionReachable": true
+}

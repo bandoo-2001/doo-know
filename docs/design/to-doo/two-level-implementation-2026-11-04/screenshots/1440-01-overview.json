@@ -1,0 +1,20 @@
+{
+  "scene": "01-overview",
+  "title": "目标总览",
+  "section": "overview",
+  "width": 1440,
+  "height": 1000,
+  "file": "1440-01-overview.png",
+  "sha256": "92f53304c91d23e6a712b8f13276861ccd3a78c9b2cb6f24c6edf67493d5b5bc",
+  "consecutiveCapturePixelsStable": true,
+  "businessTime": "2026-10-30T09:00:00.000Z",
+  "source": {
+    "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+    "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+    "files": 592
+  },
+  "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=overview&taskFilter=all&date=2026-10-30",
+  "operation": null,
+  "operationBounds": null,
+  "primaryActionReachable": null
+}

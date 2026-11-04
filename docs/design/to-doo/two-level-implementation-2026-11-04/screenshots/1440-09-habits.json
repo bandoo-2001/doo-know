@@ -1,0 +1,20 @@
+{
+  "scene": "09-habits",
+  "title": "习惯",
+  "section": "habits",
+  "width": 1440,
+  "height": 1000,
+  "file": "1440-09-habits.png",
+  "sha256": "40f451e19ea193d2894d8aa36c5a72aee4818ca52bd84bd18dde9f609157918b",
+  "consecutiveCapturePixelsStable": true,
+  "businessTime": "2026-10-30T09:00:00.000Z",
+  "source": {
+    "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+    "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+    "files": 592
+  },
+  "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=habits&taskFilter=all&date=2026-10-30",
+  "operation": null,
+  "operationBounds": null,
+  "primaryActionReachable": null
+}

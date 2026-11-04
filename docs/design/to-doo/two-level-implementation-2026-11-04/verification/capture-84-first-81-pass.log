@@ -1,0 +1,209 @@
+[WebServer] (node:1763093) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1763105) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1763119) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1763119) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 84 tests using 1 worker
+
+(node:1763184) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 1440 01-overview (3.1s)
+  ✓   2 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 1440 02-tasks-list-v2 (2.0s)
+  ✓   3 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 1440 03-board (2.0s)
+  ✓   4 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 1440 04-matrix (2.0s)
+  ✓   5 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 1440 05-calendar-month (2.1s)
+  ✓   6 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 1440 06-calendar-week (1.8s)
+  ✓   7 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 1440 07-timeline (1.6s)
+  ✓   8 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 1440 08-focus (1.8s)
+  ✓   9 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 1440 09-habits (1.8s)
+  ✓  10 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 1440 10-anniversaries-v2 (2.0s)
+  ✓  11 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 1440 11-stats (2.0s)
+  ✓  12 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 1440 12-notifications (1.9s)
+  ✓  13 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 1440 13-settings-preferences (1.9s)
+  ✓  14 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 1440 14-settings-connections (2.1s)
+  ✘  15 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 1440 15-settings-data-v2 (7.3s)
+(node:1763735) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  16 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 1440 16-settings-lists (1.9s)
+  ✓  17 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 1440 17-tasks-filtered-empty (2.1s)
+  ✓  18 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 1440 18-task-create-v2 (4.8s)
+  ✓  19 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 1440 19-habit-create-v2 (4.7s)
+  ✓  20 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 1440 20-habit-entry-v2 (2.2s)
+  ✓  21 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 1440 21-schedule-create (4.9s)
+  ✓  22 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 1440 22-anniversary-create (3.8s)
+  ✓  23 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 1440 23-review-create (4.7s)
+  ✓  24 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 1440 24-outcome-note-v2 (4.3s)
+  ✓  25 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 1440 25-goal-create-v2 (4.7s)
+  ✓  26 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 1440 26-list-create (4.7s)
+  ✓  27 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 1440 27-focus-project-create (4.7s)
+  ✓  28 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 1440 28-tag-create (4.7s)
+  ✓  29 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 390 01-overview (2.0s)
+  ✓  30 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 390 02-tasks-list-v2 (2.1s)
+  ✓  31 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 390 03-board (1.9s)
+  ✓  32 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 390 04-matrix (1.9s)
+  ✓  33 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 390 05-calendar-month (1.9s)
+  ✓  34 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 390 06-calendar-week (1.8s)
+  ✓  35 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 390 07-timeline (1.7s)
+  ✓  36 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 390 08-focus (1.7s)
+  ✓  37 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 390 09-habits (1.9s)
+  ✓  38 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 390 10-anniversaries-v2 (1.7s)
+  ✓  39 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 390 11-stats (1.9s)
+  ✓  40 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 390 12-notifications (1.7s)
+  ✓  41 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 390 13-settings-preferences (2.0s)
+  ✓  42 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 390 14-settings-connections (2.0s)
+  ✘  43 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 390 15-settings-data-v2 (7.5s)
+(node:1764781) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  44 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 390 16-settings-lists (1.8s)
+  ✓  45 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 390 17-tasks-filtered-empty (2.1s)
+  ✓  46 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 390 18-task-create-v2 (4.7s)
+  ✓  47 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 390 19-habit-create-v2 (4.6s)
+  ✓  48 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 390 20-habit-entry-v2 (3.9s)
+  ✓  49 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 390 21-schedule-create (4.9s)
+  ✓  50 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 390 22-anniversary-create (4.8s)
+  ✓  51 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 390 23-review-create (4.7s)
+  ✓  52 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 390 24-outcome-note-v2 (4.5s)
+  ✓  53 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 390 25-goal-create-v2 (4.6s)
+  ✓  54 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 390 26-list-create (4.8s)
+  ✓  55 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 390 27-focus-project-create (4.6s)
+  ✓  56 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 390 28-tag-create (4.7s)
+  ✓  57 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 320 01-overview (1.9s)
+  ✓  58 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 320 02-tasks-list-v2 (2.0s)
+  ✓  59 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 320 03-board (1.8s)
+  ✓  60 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 320 04-matrix (1.9s)
+  ✓  61 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 320 05-calendar-month (2.0s)
+  ✓  62 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 320 06-calendar-week (1.8s)
+  ✓  63 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 320 07-timeline (1.6s)
+  ✓  64 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 320 08-focus (1.7s)
+  ✓  65 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 320 09-habits (1.7s)
+  ✓  66 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 320 10-anniversaries-v2 (1.7s)
+  ✓  67 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 320 11-stats (1.9s)
+  ✓  68 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 320 12-notifications (1.9s)
+  ✓  69 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 320 13-settings-preferences (1.6s)
+  ✓  70 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 320 14-settings-connections (1.9s)
+  ✘  71 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 320 15-settings-data-v2 (7.5s)
+(node:1766018) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  72 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 320 16-settings-lists (1.6s)
+  ✓  73 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 320 17-tasks-filtered-empty (2.0s)
+  ✓  74 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 320 18-task-create-v2 (4.7s)
+  ✓  75 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 320 19-habit-create-v2 (4.6s)
+  ✓  76 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 320 20-habit-entry-v2 (3.0s)
+  ✓  77 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 320 21-schedule-create (4.8s)
+  ✓  78 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 320 22-anniversary-create (3.7s)
+  ✓  79 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 320 23-review-create (4.7s)
+  ✓  80 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 320 24-outcome-note-v2 (4.6s)
+  ✓  81 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 320 25-goal-create-v2 (4.4s)
+  ✓  82 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 320 26-list-create (4.7s)
+  ✓  83 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 320 27-focus-project-create (4.7s)
+  ✓  84 [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 320 28-tag-create (4.7s)
+
+
+  1) [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 1440 15-settings-data-v2 ─────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('region', { name: 'To Doo 行动工作空间', exact: true }).getByRole('button', { name: '确认导入 23 项', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('region', { name: 'To Doo 行动工作空间', exact: true }).getByRole('button', { name: '确认导入 23 项', exact: true }) with timeout 5000ms
+      - waiting for getByRole('region', { name: 'To Doo 行动工作空间', exact: true }).getByRole('button', { name: '确认导入 23 项', exact: true })
+
+
+      140 |         await expect(
+      141 |           app.getByRole('button', { name: '确认导入 23 项', exact: true }),
+    > 142 |         ).toBeVisible();
+          |           ^
+      143 |         await app.locator('.todo-import-preview').scrollIntoViewIfNeeded();
+      144 |       }
+      145 |       if (n === 17) {
+        at /home/bandoo/.codex/worktrees/5a33/doo-know/tests/visual/to-doo-two-level-capture.spec.ts:142:11
+
+    Error Context: .local/to-doo-visual-results/to-doo-two-level-capture-1440-15-settings-data-v2-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    .local/to-doo-visual-results/to-doo-two-level-capture-1440-15-settings-data-v2-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace .local/to-doo-visual-results/to-doo-two-level-capture-1440-15-settings-data-v2-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 390 15-settings-data-v2 ──────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('region', { name: 'To Doo 行动工作空间', exact: true }).getByRole('button', { name: '确认导入 23 项', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('region', { name: 'To Doo 行动工作空间', exact: true }).getByRole('button', { name: '确认导入 23 项', exact: true }) with timeout 5000ms
+      - waiting for getByRole('region', { name: 'To Doo 行动工作空间', exact: true }).getByRole('button', { name: '确认导入 23 项', exact: true })
+
+
+      140 |         await expect(
+      141 |           app.getByRole('button', { name: /^确认导入 \d+ 项$/ }),
+    > 142 |         ).toBeVisible();
+          |           ^
+      143 |         await app.locator('.todo-import-preview').scrollIntoViewIfNeeded();
+      144 |       }
+      145 |       if (n === 17) {
+        at /home/bandoo/.codex/worktrees/5a33/doo-know/tests/visual/to-doo-two-level-capture.spec.ts:142:11
+
+    Error Context: .local/to-doo-visual-results/to-doo-two-level-capture-390-15-settings-data-v2-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    .local/to-doo-visual-results/to-doo-two-level-capture-390-15-settings-data-v2-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace .local/to-doo-visual-results/to-doo-two-level-capture-390-15-settings-data-v2-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 320 15-settings-data-v2 ──────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('region', { name: 'To Doo 行动工作空间', exact: true }).getByRole('button', { name: '确认导入 23 项', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('region', { name: 'To Doo 行动工作空间', exact: true }).getByRole('button', { name: '确认导入 23 项', exact: true }) with timeout 5000ms
+      - waiting for getByRole('region', { name: 'To Doo 行动工作空间', exact: true }).getByRole('button', { name: '确认导入 23 项', exact: true })
+
+
+      140 |         await expect(
+      141 |           app.getByRole('button', { name: /^确认导入 \d+ 项$/ }),
+    > 142 |         ).toBeVisible();
+          |           ^
+      143 |         await app.locator('.todo-import-preview').scrollIntoViewIfNeeded();
+      144 |       }
+      145 |       if (n === 17) {
+        at /home/bandoo/.codex/worktrees/5a33/doo-know/tests/visual/to-doo-two-level-capture.spec.ts:142:11
+
+    Error Context: .local/to-doo-visual-results/to-doo-two-level-capture-320-15-settings-data-v2-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    .local/to-doo-visual-results/to-doo-two-level-capture-320-15-settings-data-v2-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace .local/to-doo-visual-results/to-doo-two-level-capture-320-15-settings-data-v2-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 1440 15-settings-data-v2 ──────
+    [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 390 15-settings-data-v2 ───────
+    [desktop] › tests/visual/to-doo-two-level-capture.spec.ts:96:5 › 320 15-settings-data-v2 ───────
+  81 passed (4.5m)

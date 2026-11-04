@@ -1,0 +1,467 @@
+[WebServer] (node:1750565) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1750577) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1750588) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1750588) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 118 tests using 1 worker
+
+(node:1750661) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘    1 [desktop] › tests/e2e/to-doo-calendar-audit.spec.ts:15:1 › overnight segments, short-event details, original editing and mobile grid remain reachable (45.2s)
+(node:1751089) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓    2 [desktop] › tests/e2e/to-doo-calendar-audit.spec.ts:177:1 › phone timeline keeps day width and sticky task titles while scrolling (2.5s)
+  ✓    3 [desktop] › tests/e2e/to-doo-calendar-audit.spec.ts:299:1 › adjacent short events keep readable title and time targets without painting over one another (4.0s)
+  ✓    4 [desktop] › tests/e2e/to-doo-detail-audit.spec.ts:20:1 › moving a task to another list clears its old section and saves successfully (2.2s)
+  ✓    5 [desktop] › tests/e2e/to-doo-detail-audit.spec.ts:55:1 › invalid typed deadline prevents saving an unrelated title change (2.7s)
+  ✓    6 [desktop] › tests/e2e/to-doo-detail-audit.spec.ts:82:1 › input composition does not submit a task through the save shortcut (2.0s)
+  ✓    7 [desktop] › tests/e2e/to-doo-detail-audit.spec.ts:110:1 › optional detail fields stay folded and remain editable when requested (3.3s)
+  ✓    8 [desktop] › tests/e2e/to-doo-detail-audit.spec.ts:146:1 › 320px dark detail keeps its fields and footer inside the screen (2.1s)
+  ✓    9 [desktop] › tests/e2e/to-doo-detail-audit.spec.ts:194:1 › narrow task detail contains keyboard focus and Escape keeps its draft (1.9s)
+  ✓   10 [desktop] › tests/e2e/to-doo-draft-resume.spec.ts:21:1 › continue restores the original draft after changing destination while another list draft survives reload (5.6s)
+  ✓   11 [desktop] › tests/e2e/to-doo-final-integration.spec.ts:27:1 › saved direct conditions stay inspectable in board, matrix and timeline, then clear in place (5.3s)
+  ✓   12 [desktop] › tests/e2e/to-doo-final-integration.spec.ts:91:1 › date-only creation keeps the configured duration through persistence and the phone agenda (3.2s)
+  ✓   13 [desktop] › tests/e2e/to-doo-final-integration.spec.ts:117:1 › mounted calendar requests the new week and reveals its boundary event after midnight (2.3s)
+  ✓   14 [desktop] › tests/e2e/to-doo-final-integration.spec.ts:145:1 › task first row and board first card remain compact while tools and grouping are reachable (1.9s)
+  ✓   15 [desktop] › tests/e2e/to-doo-focus-audit.spec.ts:66:1 › cumulative action opens phone history independently of the timer and free focus submits null (3.1s)
+  ✓   16 [desktop] › tests/e2e/to-doo-focus-audit.spec.ts:114:1 › activity polling merges more than fifty new records and deletion while retaining loaded pages (3.6s)
+  ✓   17 [desktop] › tests/e2e/to-doo-forms.spec.ts:36:1 › a short habit form saves its optional settings and retains them when reopened (3.6s)
+  ✓   18 [desktop] › tests/e2e/to-doo-forms.spec.ts:84:1 › an entity form locks the submitted fields while saving and restores them after failure (2.6s)
+  ✓   19 [desktop] › tests/e2e/to-doo-forms.spec.ts:128:1 › a valid lunar day outside the Gregorian month can be saved and reopened as its original date (6.6s)
+  ✓   20 [desktop] › tests/e2e/to-doo-forms.spec.ts:170:1 › invalid Gregorian input stays visible and cannot silently save the previous date (2.5s)
+  ✓   21 [desktop] › tests/e2e/to-doo-forms.spec.ts:200:1 › all-day schedule hides irrelevant controls, restores the timed draft and persists a valid day (2.6s)
+  ✘   22 [desktop] › tests/e2e/to-doo-forms.spec.ts:240:1 › changing list type does not erase its hidden goal fields (45.1s)
+(node:1752679) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   23 [desktop] › tests/e2e/to-doo-forms.spec.ts:271:1 › invalid required settings inside a closed group are revealed on save (2.9s)
+  ✓   24 [desktop] › tests/e2e/to-doo-forms.spec.ts:287:1 › task settings shortcuts open the existing editors with one click (3.2s)
+  ✓   25 [desktop] › tests/e2e/to-doo-forms.spec.ts:304:1 › preference groups preserve folded values while saving a common setting (2.3s)
+  ✓   26 [desktop] › tests/e2e/to-doo-forms.spec.ts:326:1 › settings sections preserve drafts and keep unrelated forms out of preferences (2.2s)
+  ✓   27 [desktop] › tests/e2e/to-doo-forms.spec.ts:353:1 › header save reveals a folded invalid preference and accepts a zero break (2.0s)
+  ✓   28 [desktop] › tests/e2e/to-doo-forms.spec.ts:380:3 › preferences typed while a save is pending remain as the next draft: new value (2.0s)
+  ✓   29 [desktop] › tests/e2e/to-doo-forms.spec.ts:380:3 › preferences typed while a save is pending remain as the next draft: return to original value (2.1s)
+  ✘   30 [desktop] › tests/e2e/to-doo-life-audit.spec.ts:42:1 › quantity history retains 45/20 and correction removes only one of three saved entries (45.1s)
+(node:1753564) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   31 [desktop] › tests/e2e/to-doo-life-audit.spec.ts:137:1 › anniversaries show today and original past date, with bounded desktop card widths (1.9s)
+  ✓   32 [desktop] › tests/e2e/to-doo-life-audit.spec.ts:169:1 › lunar year month day validates actual leap months, saves the original payload and protects unsaved close (4.1s)
+  ✓   33 [desktop] › tests/e2e/to-doo-life-audit.spec.ts:218:1 › anniversary cards remain inside the 320px viewport without document overflow (1.7s)
+  ✓   34 [desktop] › tests/e2e/to-doo-management-cohesion.spec.ts:10:1 › statistics presets reveal date controls only for a custom interval (1.7s)
+  ✓   35 [desktop] › tests/e2e/to-doo-management-cohesion.spec.ts:24:1 › saving reveals and focuses an invalid timezone inside folded preferences (1.8s)
+  ✘   36 [desktop] › tests/e2e/to-doo-management-cohesion.spec.ts:43:1 › optional calendar forms retain drafts across sections and idle recovery stays folded (6.7s)
+(node:1753848) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   37 [desktop] › tests/e2e/to-doo-notification-statistics-audit.spec.ts:109:1 › confirming a notification keeps its task pending and handling or ignoring can be corrected (3.6s)
+  ✓   38 [desktop] › tests/e2e/to-doo-notification-statistics-audit.spec.ts:146:1 › notification snooze offers 5/15/30/60 minutes and stores the selected 30-minute delay (2.3s)
+  ✓   39 [desktop] › tests/e2e/to-doo-notification-statistics-audit.spec.ts:172:3 › habit notification navigates to its source section and occurrence date (1.9s)
+  ✓   40 [desktop] › tests/e2e/to-doo-notification-statistics-audit.spec.ts:172:3 › anniversary notification navigates to its source section and occurrence date (2.4s)
+  ✓   41 [desktop] › tests/e2e/to-doo-notification-statistics-audit.spec.ts:188:1 › archiving preserves the displayed historical completion and zero days have no positive column (1.9s)
+  ✓   42 [desktop] › tests/e2e/to-doo-settings-boundaries.spec.ts:24:1 › import preview reviews every item and revokes confirmation when content or destination changes (4.3s)
+  ✓   43 [desktop] › tests/e2e/to-doo-settings-boundaries.spec.ts:71:1 › a lost import response retries the same request identity without duplicate records (2.8s)
+  ✓   44 [desktop] › tests/e2e/to-doo-settings-boundaries.spec.ts:108:1 › save preferences is confined to its section and quiet hours follow display timezone (2.3s)
+  ✓   45 [desktop] › tests/e2e/to-doo-settings-boundaries.spec.ts:138:1 › name-only calendar and subscription drafts request confirmation before leaving (2.8s)
+  ✓   46 [desktop] › tests/e2e/to-doo-settings-boundaries.spec.ts:162:1 › file entry is Chinese and application warnings explain the affected row (2.6s)
+  ✓   47 [desktop] › tests/e2e/to-doo-task-audit.spec.ts:24:1 › board scope remains visible and column creation saves initial status and creation fields together (4.9s)
+  ✓   48 [desktop] › tests/e2e/to-doo-task-audit.spec.ts:69:1 › matrix direct editor identifies a manual override and restores automatic urgency (2.9s)
+  ✘   49 [desktop] › tests/e2e/to-doo-task-audit.spec.ts:105:1 › mobile task tools and dates stay readable with board and quadrant overview jumps (45.1s)
+(node:1754674) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   50 [desktop] › tests/e2e/to-doo-task-audit.spec.ts:167:1 › completing a filtered parent discovers its hidden child and supports cancel before cascading (3.5s)
+  ✓   51 [desktop] › tests/e2e/to-doo-two-level-navigation.spec.ts:8:1 › secondary settings navigation survives history and reload without duplicated tabs (3.3s)
+  ✓   52 [desktop] › tests/e2e/to-doo-two-level-navigation.spec.ts:27:1 › calendar context preserves the anchor when switching month, week and timeline (4.9s)
+  ✓   53 [desktop] › tests/e2e/to-doo-two-level-navigation.spec.ts:45:1 › notification sidebar applies the real status query and restores it on reload (2.9s)
+  ✓   54 [desktop] › tests/e2e/to-doo-two-level-navigation.spec.ts:64:1 › mobile contextual drawer restores focus and fits at 320px (2.4s)
+  ✓   55 [desktop] › tests/e2e/to-doo-unified-shell.spec.ts:6:1 › a long page title leaves the main action visible on a narrow screen (1.6s)
+  ✓   56 [desktop] › tests/e2e/to-doo-unified-shell.spec.ts:32:1 › the shared header keeps save visible while a long settings form scrolls (1.8s)
+  ✘   57 [desktop] › tests/e2e/to-doo-unified-shell.spec.ts:56:1 › desktop pages share the global header and contextual layout boundaries (18.0s)
+(node:1755173) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   58 [desktop] › tests/e2e/to-doo-unified-shell.spec.ts:122:3 › the light shell and task detail fit all supported widths and the host navigation (4.1s)
+  ✓   59 [desktop] › tests/e2e/to-doo-unified-shell.spec.ts:122:3 › the dark shell and task detail fit all supported widths and the host navigation (3.9s)
+(node:1755442) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   60 [mobile] › tests/e2e/to-doo-calendar-audit.spec.ts:15:1 › overnight segments, short-event details, original editing and mobile grid remain reachable (6.5s)
+(node:1755708) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   61 [mobile] › tests/e2e/to-doo-calendar-audit.spec.ts:177:1 › phone timeline keeps day width and sticky task titles while scrolling (7.1s)
+(node:1755832) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   62 [mobile] › tests/e2e/to-doo-calendar-audit.spec.ts:299:1 › adjacent short events keep readable title and time targets without painting over one another (6.5s)
+(node:1756009) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   63 [mobile] › tests/e2e/to-doo-detail-audit.spec.ts:20:1 › moving a task to another list clears its old section and saves successfully (3.4s)
+  ✓   64 [mobile] › tests/e2e/to-doo-detail-audit.spec.ts:55:1 › invalid typed deadline prevents saving an unrelated title change (3.3s)
+  ✓   65 [mobile] › tests/e2e/to-doo-detail-audit.spec.ts:82:1 › input composition does not submit a task through the save shortcut (2.6s)
+  ✓   66 [mobile] › tests/e2e/to-doo-detail-audit.spec.ts:110:1 › optional detail fields stay folded and remain editable when requested (4.0s)
+  ✓   67 [mobile] › tests/e2e/to-doo-detail-audit.spec.ts:146:1 › 320px dark detail keeps its fields and footer inside the screen (2.9s)
+  ✓   68 [mobile] › tests/e2e/to-doo-detail-audit.spec.ts:194:1 › narrow task detail contains keyboard focus and Escape keeps its draft (2.9s)
+  ✓   69 [mobile] › tests/e2e/to-doo-draft-resume.spec.ts:21:1 › continue restores the original draft after changing destination while another list draft survives reload (5.7s)
+  ✓   70 [mobile] › tests/e2e/to-doo-final-integration.spec.ts:27:1 › saved direct conditions stay inspectable in board, matrix and timeline, then clear in place (7.6s)
+  ✓   71 [mobile] › tests/e2e/to-doo-final-integration.spec.ts:91:1 › date-only creation keeps the configured duration through persistence and the phone agenda (4.8s)
+  ✓   72 [mobile] › tests/e2e/to-doo-final-integration.spec.ts:117:1 › mounted calendar requests the new week and reveals its boundary event after midnight (2.6s)
+  ✓   73 [mobile] › tests/e2e/to-doo-final-integration.spec.ts:145:1 › task first row and board first card remain compact while tools and grouping are reachable (2.7s)
+  ✓   74 [mobile] › tests/e2e/to-doo-focus-audit.spec.ts:66:1 › cumulative action opens phone history independently of the timer and free focus submits null (4.3s)
+  ✓   75 [mobile] › tests/e2e/to-doo-focus-audit.spec.ts:114:1 › activity polling merges more than fifty new records and deletion while retaining loaded pages (4.3s)
+  ✓   76 [mobile] › tests/e2e/to-doo-forms.spec.ts:36:1 › a short habit form saves its optional settings and retains them when reopened (3.8s)
+  ✓   77 [mobile] › tests/e2e/to-doo-forms.spec.ts:84:1 › an entity form locks the submitted fields while saving and restores them after failure (2.5s)
+  ✓   78 [mobile] › tests/e2e/to-doo-forms.spec.ts:128:1 › a valid lunar day outside the Gregorian month can be saved and reopened as its original date (7.6s)
+  ✓   79 [mobile] › tests/e2e/to-doo-forms.spec.ts:170:1 › invalid Gregorian input stays visible and cannot silently save the previous date (2.5s)
+  ✓   80 [mobile] › tests/e2e/to-doo-forms.spec.ts:200:1 › all-day schedule hides irrelevant controls, restores the timed draft and persists a valid day (3.8s)
+  ✘   81 [mobile] › tests/e2e/to-doo-forms.spec.ts:240:1 › changing list type does not erase its hidden goal fields (45.1s)
+Testing stopped early after 10 maximum allowed failures.
+
+
+  1) [desktop] › tests/e2e/to-doo-calendar-audit.spec.ts:15:1 › overnight segments, short-event details, original editing and mobile grid remain reachable 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByText('月', { exact: true })
+
+
+      164 |   await create.getByRole('button', { name: '取消', exact: true }).click();
+      165 |   await page.getByText('网格', { exact: true }).click();
+    > 166 |   await page.getByText('月', { exact: true }).click();
+          |                                              ^
+      167 |   await expect(page.locator('.todo-month')).toBeVisible();
+      168 |   await page.screenshot({
+      169 |     path: `${shots}/${info.project.name}-phone-month-grid.png`,
+        at /home/bandoo/.codex/worktrees/5a33/doo-know/tests/e2e/to-doo-calendar-audit.spec.ts:166:46
+
+    Error Context: test-results/to-doo-calendar-audit-over-7a0bf-obile-grid-remain-reachable-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/to-doo-calendar-audit-over-7a0bf-obile-grid-remain-reachable-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/to-doo-calendar-audit-over-7a0bf-obile-grid-remain-reachable-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [desktop] › tests/e2e/to-doo-forms.spec.ts:240:1 › changing list type does not erase its hidden goal fields 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog', { name: '编辑目标与清单', exact: true }).getByText('目标', { exact: true })
+
+
+      256 |   await expect(editor.getByLabel('说明', { exact: true })).not.toBeVisible();
+      257 |   await expect(editor.getByLabel('目标日期', { exact: true })).not.toBeVisible();
+    > 258 |   await editor.getByText('目标', { exact: true }).click();
+          |                                                 ^
+      259 |   await expect(editor.getByLabel('目标日期', { exact: true })).toHaveValue('2030-04-03');
+      260 |   await editor.getByText('清单', { exact: true }).click();
+      261 |   await editor.getByRole('button', { name: '保存', exact: true }).click();
+        at /home/bandoo/.codex/worktrees/5a33/doo-know/tests/e2e/to-doo-forms.spec.ts:258:49
+
+    Error Context: test-results/to-doo-forms-changing-list-5c494-rase-its-hidden-goal-fields-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/to-doo-forms-changing-list-5c494-rase-its-hidden-goal-fields-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/to-doo-forms-changing-list-5c494-rase-its-hidden-goal-fields-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [desktop] › tests/e2e/to-doo-life-audit.spec.ts:42:1 › quantity history retains 45/20 and correction removes only one of three saved entries 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog', { name: '记录习惯数量', exact: true }).getByRole('button', { name: '取消', exact: true })
+
+
+      129 |       .sort(),
+      130 |   ).toEqual([15, 20]);
+    > 131 |   await dialog.getByRole('button', { name: '取消', exact: true }).click();
+          |                                                                 ^
+      132 |   await expect(
+      133 |     page.getByRole('button', { name: name + ' 2026-11-03 打卡，当前 35 页', exact: true }),
+      134 |   ).toContainText('35');
+        at /home/bandoo/.codex/worktrees/5a33/doo-know/tests/e2e/to-doo-life-audit.spec.ts:131:65
+
+    Error Context: test-results/to-doo-life-audit-quantity-2b4fa--one-of-three-saved-entries-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/to-doo-life-audit-quantity-2b4fa--one-of-three-saved-entries-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/to-doo-life-audit-quantity-2b4fa--one-of-three-saved-entries-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [desktop] › tests/e2e/to-doo-management-cohesion.spec.ts:43:1 › optional calendar forms retain drafts across sections and idle recovery stays folded 
+
+    Error: expect(locator).not.toBeVisible() failed
+
+    Locator:  getByRole('region', { name: 'To Doo 行动工作空间', exact: true }).getByRole('textbox', { name: 'HTTPS 日历地址', exact: true })
+    Expected: not visible
+    Received: visible
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "not toBeVisible" getByRole('region', { name: 'To Doo 行动工作空间', exact: true }).getByRole('textbox', { name: 'HTTPS 日历地址', exact: true }) with timeout 5000ms
+      - waiting for getByRole('region', { name: 'To Doo 行动工作空间', exact: true }).getByRole('textbox', { name: 'HTTPS 日历地址', exact: true })
+        14 × locator resolved to <input value="" type="url" required="" autocomplete="off" class="ant-input css-xjeq" placeholder="https://…/calendar.ics"/>
+           - unexpected value "visible"
+
+
+      48 |   await selectToDooContext(page, '提醒与连接');
+      49 |   const address = app.getByRole('textbox', { name: 'HTTPS 日历地址', exact: true });
+    > 50 |   await expect(address).not.toBeVisible();
+         |                             ^
+      51 |   await expandToDooGroup(app, '连接外部只读日历');
+      52 |   await address.fill('https://example.test/draft.ics');
+      53 |   await toDooDisclosureHeader(app, '连接外部只读日历').click();
+        at /home/bandoo/.codex/worktrees/5a33/doo-know/tests/e2e/to-doo-management-cohesion.spec.ts:50:29
+
+    Error Context: test-results/to-doo-management-cohesion-afdb7--idle-recovery-stays-folded-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/to-doo-management-cohesion-afdb7--idle-recovery-stays-folded-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/to-doo-management-cohesion-afdb7--idle-recovery-stays-folded-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [desktop] › tests/e2e/to-doo-task-audit.spec.ts:105:1 › mobile task tools and dates stay readable with board and quadrant overview jumps 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('region', { name: 'To Doo 行动工作空间', exact: true }).locator('.todo-view-switch').getByText('四象限', { exact: true })
+
+
+      151 |     animations: 'disabled',
+      152 |   });
+    > 153 |   await app(page).locator('.todo-view-switch').getByText('四象限', { exact: true }).click();
+          |                                                                                  ^
+      154 |   await expect(app(page).getByRole('navigation', { name: '象限概览', exact: true })).toBeVisible();
+      155 |   await app(page)
+      156 |     .getByRole('navigation', { name: '象限概览', exact: true })
+        at /home/bandoo/.codex/worktrees/5a33/doo-know/tests/e2e/to-doo-task-audit.spec.ts:153:82
+
+    Error Context: test-results/to-doo-task-audit-mobile-t-99927-and-quadrant-overview-jumps-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/to-doo-task-audit-mobile-t-99927-and-quadrant-overview-jumps-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/to-doo-task-audit-mobile-t-99927-and-quadrant-overview-jumps-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [desktop] › tests/e2e/to-doo-unified-shell.spec.ts:56:1 › desktop pages share the global header and contextual layout boundaries 
+
+    Error: stats: title baseline
+
+    expect(received).toBeCloseTo(expected, precision)
+
+    Expected: 28
+    Received: 0
+
+    Expected precision:    0
+    Expected difference: < 0.5
+    Received difference:   28
+
+      100 |     expect
+      101 |       .soft(title!.y - (header!.y + header!.height), section + ': title baseline')
+    > 102 |       .toBeCloseTo(28, 0);
+          |        ^
+      103 |     const sidebar = app.locator(':scope > .todo-sidebar');
+      104 |     await expect(sidebar).toHaveCount(1);
+      105 |     const directory = await sidebar.boundingBox();
+        at /home/bandoo/.codex/worktrees/5a33/doo-know/tests/e2e/to-doo-unified-shell.spec.ts:102:8
+
+    Error: stats: directory below global header
+
+    expect(received).toBeCloseTo(expected, precision)
+
+    Expected: 56
+    Received: -64
+
+    Expected precision:    0
+    Expected difference: < 0.5
+    Received difference:   120
+
+      107 |     expect
+      108 |       .soft(directory!.y, section + ': directory below global header')
+    > 109 |       .toBeCloseTo(header!.y + 56, 0);
+          |        ^
+      110 |     expect.soft(title!.x, section + ': content start').toBeCloseTo(64 + 208 + 28, 0);
+      111 |     expect
+      112 |       .soft(
+        at /home/bandoo/.codex/worktrees/5a33/doo-know/tests/e2e/to-doo-unified-shell.spec.ts:109:8
+
+    Error Context: test-results/to-doo-unified-shell-deskt-e0a6f-ontextual-layout-boundaries-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/to-doo-unified-shell-deskt-e0a6f-ontextual-layout-boundaries-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/to-doo-unified-shell-deskt-e0a6f-ontextual-layout-boundaries-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [mobile] › tests/e2e/to-doo-calendar-audit.spec.ts:15:1 › overnight segments, short-event details, original editing and mobile grid remain reachable 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('.todo-week-event').filter({ hasText: '跨午夜九十分钟' })
+    Expected: 2
+    Received: 4
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('.todo-week-event').filter({ hasText: '跨午夜九十分钟' }) with timeout 5000ms
+      - waiting for locator('.todo-week-event').filter({ hasText: '跨午夜九十分钟' })
+        4 × locator resolved to 0 elements
+          - unexpected value "0"
+        8 × locator resolved to 4 elements
+          - unexpected value "4"
+
+
+      93 |   await page.setViewportSize({ width: 1440, height: 1000 });
+      94 |   await page.goto('/?view=apps&app=to-doo&appSection=calendar&calendarView=week&date=2032-05-03');
+    > 95 |   const night = page.locator('.todo-week-event').filter({ hasText: '跨午夜九十分钟' });
+         |                       ^
+      96 |   await expect(night).toHaveCount(2);
+      97 |   await expect(night.nth(0)).toHaveAccessibleName('跨午夜九十分钟 23:30 30分钟');
+      98 |   await expect(night.nth(1)).toHaveAccessibleName('跨午夜九十分钟 00:00 60分钟');
+        at /home/bandoo/.codex/worktrees/5a33/doo-know/tests/e2e/to-doo-calendar-audit.spec.ts:95:23
+
+    Error Context: test-results/to-doo-calendar-audit-over-7a0bf-obile-grid-remain-reachable-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/to-doo-calendar-audit-over-7a0bf-obile-grid-remain-reachable-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/to-doo-calendar-audit-over-7a0bf-obile-grid-remain-reachable-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [mobile] › tests/e2e/to-doo-calendar-audit.spec.ts:177:1 › phone timeline keeps day width and sticky task titles while scrolling 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('button', { name: '2032-04-30 全天 至 2032-05-06（结束日期不含） 跨窗口全天安排与跨时区截止', exact: true })
+    Expected: 1
+    Received: 2
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('button', { name: '2032-04-30 全天 至 2032-05-06（结束日期不含） 跨窗口全天安排与跨时区截止', exact: true }) with timeout 5000ms
+      - waiting for getByRole('button', { name: '2032-04-30 全天 至 2032-05-06（结束日期不含） 跨窗口全天安排与跨时区截止', exact: true })
+        14 × locator resolved to 2 elements
+           - unexpected value "2"
+
+
+      254 |     name: '2032-04-30 全天 至 2032-05-06（结束日期不含） 跨窗口全天安排与跨时区截止',
+      255 |     exact: true,
+    > 256 |   });
+          |      ^
+      257 |   await expect(bar).toHaveCount(1);
+      258 |   expect(await bar.evaluate((element) => (element as HTMLElement).style.gridColumn)).toBe(
+      259 |     '1 / span 3',
+        at /home/bandoo/.codex/worktrees/5a33/doo-know/tests/e2e/to-doo-calendar-audit.spec.ts:256:21
+
+    Error Context: test-results/to-doo-calendar-audit-phon-f72f4-task-titles-while-scrolling-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/to-doo-calendar-audit-phon-f72f4-task-titles-while-scrolling-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/to-doo-calendar-audit-phon-f72f4-task-titles-while-scrolling-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) [mobile] › tests/e2e/to-doo-calendar-audit.spec.ts:299:1 › adjacent short events keep readable title and time targets without painting over one another 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('.todo-week-event').filter({ hasText: '相邻短事件' })
+    Expected: 10
+    Received: 20
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('.todo-week-event').filter({ hasText: '相邻短事件' }) with timeout 5000ms
+      - waiting for locator('.todo-week-event').filter({ hasText: '相邻短事件' })
+        4 × locator resolved to 0 elements
+          - unexpected value "0"
+        8 × locator resolved to 20 elements
+          - unexpected value "20"
+
+
+      344 |   expect(imported.ok()).toBe(true);
+      345 |   await page.goto('/?view=apps&app=to-doo&appSection=calendar&calendarView=week&date=2032-05-10');
+    > 346 |   const events = page.locator('.todo-week-event').filter({ hasText: '相邻短事件' });
+          |                        ^
+      347 |   await expect(events).toHaveCount(10);
+      348 |   for (let index = 0; index < 10; index++) {
+      349 |     const button = events.nth(index);
+        at /home/bandoo/.codex/worktrees/5a33/doo-know/tests/e2e/to-doo-calendar-audit.spec.ts:346:24
+
+    Error Context: test-results/to-doo-calendar-audit-adja-f28a3-t-painting-over-one-another-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/to-doo-calendar-audit-adja-f28a3-t-painting-over-one-another-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/to-doo-calendar-audit-adja-f28a3-t-painting-over-one-another-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) [mobile] › tests/e2e/to-doo-forms.spec.ts:240:1 › changing list type does not erase its hidden goal fields 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog', { name: '编辑目标与清单', exact: true }).getByText('目标', { exact: true })
+
+
+      256 |   await expect(editor.getByLabel('说明', { exact: true })).not.toBeVisible();
+      257 |   await expect(editor.getByLabel('目标日期', { exact: true })).not.toBeVisible();
+    > 258 |   await editor.getByText('目标', { exact: true }).click();
+          |                                                 ^
+      259 |   await expect(editor.getByLabel('目标日期', { exact: true })).toHaveValue('2030-04-03');
+      260 |   await editor.getByText('清单', { exact: true }).click();
+      261 |   await editor.getByRole('button', { name: '保存', exact: true }).click();
+        at /home/bandoo/.codex/worktrees/5a33/doo-know/tests/e2e/to-doo-forms.spec.ts:258:49
+
+    Error Context: test-results/to-doo-forms-changing-list-5c494-rase-its-hidden-goal-fields-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/to-doo-forms-changing-list-5c494-rase-its-hidden-goal-fields-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/to-doo-forms-changing-list-5c494-rase-its-hidden-goal-fields-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10 failed
+    [desktop] › tests/e2e/to-doo-calendar-audit.spec.ts:15:1 › overnight segments, short-event details, original editing and mobile grid remain reachable 
+    [desktop] › tests/e2e/to-doo-forms.spec.ts:240:1 › changing list type does not erase its hidden goal fields 
+    [desktop] › tests/e2e/to-doo-life-audit.spec.ts:42:1 › quantity history retains 45/20 and correction removes only one of three saved entries 
+    [desktop] › tests/e2e/to-doo-management-cohesion.spec.ts:43:1 › optional calendar forms retain drafts across sections and idle recovery stays folded 
+    [desktop] › tests/e2e/to-doo-task-audit.spec.ts:105:1 › mobile task tools and dates stay readable with board and quadrant overview jumps 
+    [desktop] › tests/e2e/to-doo-unified-shell.spec.ts:56:1 › desktop pages share the global header and contextual layout boundaries 
+    [mobile] › tests/e2e/to-doo-calendar-audit.spec.ts:15:1 › overnight segments, short-event details, original editing and mobile grid remain reachable 
+    [mobile] › tests/e2e/to-doo-calendar-audit.spec.ts:177:1 › phone timeline keeps day width and sticky task titles while scrolling 
+    [mobile] › tests/e2e/to-doo-calendar-audit.spec.ts:299:1 › adjacent short events keep readable title and time targets without painting over one another 
+    [mobile] › tests/e2e/to-doo-forms.spec.ts:240:1 › changing list type does not erase its hidden goal fields 
+  37 did not run
+  71 passed (8.5m)
+  1 error was not a part of any test, see above for details

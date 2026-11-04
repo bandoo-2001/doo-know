@@ -1,0 +1,16 @@
+{
+  "sourceCommit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+  "originalCheckoutTrackedWorkPreserved": true,
+  "preview": "http://100.93.35.65:5180/",
+  "gallery": "http://100.93.35.65:5181/implemented/",
+  "screenshots": 84,
+  "desktopVisualAccepted": 28,
+  "mobile320VisualAccepted": 28,
+  "officialPID": "1564544",
+  "previewPID": "1782332",
+  "unverified": [
+    "physical mobile keyboard",
+    "system color picker hardware",
+    "real push delivery"
+  ]
+}

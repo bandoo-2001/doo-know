@@ -1,0 +1,1862 @@
+[
+  {
+    "scene": "01-overview",
+    "title": "目标总览",
+    "section": "overview",
+    "width": 320,
+    "height": 844,
+    "file": "320-01-overview.png",
+    "sha256": "aecbbde0590d1e37d439b009a0483f9cc8cf059d5d8fd40e8bf551cc61139940",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=overview&taskFilter=all&date=2026-10-30",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "02-tasks-list-v2",
+    "title": "任务列表与详情",
+    "section": "tasks",
+    "width": 320,
+    "height": 844,
+    "file": "320-02-tasks-list-v2.png",
+    "sha256": "cabe3a38d2134600b9e3ae36261a21805000b4a99890449d34e35097135494f7",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=tasks&taskFilter=upcoming&date=2026-10-30&task=visual-next-step&occurrence=37626159287c81a7475916d932137c55",
+    "operation": "任务详情",
+    "operationBounds": {
+      "x": 0,
+      "y": 0,
+      "width": 320,
+      "height": 776
+    },
+    "primaryActionReachable": true
+  },
+  {
+    "scene": "03-board",
+    "title": "看板",
+    "section": "board",
+    "width": 320,
+    "height": 844,
+    "file": "320-03-board.png",
+    "sha256": "4a9f7d794750553acad2774384398ce8f21d358136bbffd3a49c8055783e65e3",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=board&taskFilter=upcoming&date=2026-10-30",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "04-matrix",
+    "title": "四象限",
+    "section": "matrix",
+    "width": 320,
+    "height": 844,
+    "file": "320-04-matrix.png",
+    "sha256": "d51c42e3f6a1df88f68088076881a373932ed2921bdea2f132ef6071ff30a42c",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=matrix&taskFilter=upcoming&date=2026-10-30",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "05-calendar-month",
+    "title": "月日历",
+    "section": "calendar",
+    "width": 320,
+    "height": 844,
+    "file": "320-05-calendar-month.png",
+    "sha256": "503fc3dbb04c1e447bb5d923bead24b00b4babf634eff94186221cc5030fc0ff",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=calendar&taskFilter=all&date=2026-10-30&calendarView=month",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "06-calendar-week",
+    "title": "周日历",
+    "section": "calendar",
+    "width": 320,
+    "height": 844,
+    "file": "320-06-calendar-week.png",
+    "sha256": "e60686fe284f531de6b9c58b56ac7c5deb2f408996f6189698825c80554716a7",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=calendar&taskFilter=all&date=2026-10-30&calendarView=week",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "07-timeline",
+    "title": "时间线",
+    "section": "timeline",
+    "width": 320,
+    "height": 844,
+    "file": "320-07-timeline.png",
+    "sha256": "09af0b6aa8a490cc2b65b318194407e7619a35d8d1c7809a2fc52ddfe5c0141d",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=timeline&taskFilter=all&date=2026-10-30",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "08-focus",
+    "title": "专注",
+    "section": "focus",
+    "width": 320,
+    "height": 844,
+    "file": "320-08-focus.png",
+    "sha256": "eaf9be964cd32eba331ae446bf05701ad8e3d2459dbd7190c3b731827b5e9f93",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=focus&taskFilter=all&date=2026-10-30",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "09-habits",
+    "title": "习惯",
+    "section": "habits",
+    "width": 320,
+    "height": 844,
+    "file": "320-09-habits.png",
+    "sha256": "4c0d3fc14d1764fe214c1d2370041aad2f0a14334b2da345684eae41354f84ed",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=habits&taskFilter=all&date=2026-10-30",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "10-anniversaries-v2",
+    "title": "纪念日",
+    "section": "anniversaries",
+    "width": 320,
+    "height": 844,
+    "file": "320-10-anniversaries-v2.png",
+    "sha256": "7427d0fd36ce9b482913626e7085064a10e94e6456e5233c24f3ad7bec4c3d0a",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=anniversaries&taskFilter=all&date=2026-10-30",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "11-stats",
+    "title": "统计与复盘",
+    "section": "stats",
+    "width": 320,
+    "height": 844,
+    "file": "320-11-stats.png",
+    "sha256": "48b70f583b1c55efbc06003989f67710edfa7bc853c9d16e34ae0faee6de4640",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=stats&taskFilter=all&date=2026-10-30",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "12-notifications",
+    "title": "通知中心",
+    "section": "notifications",
+    "width": 320,
+    "height": 844,
+    "file": "320-12-notifications.png",
+    "sha256": "a1ce806faba96ee8b2dfed325b1bf13ebbf0530271bcc2f4a62196c7c87fad5a",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=notifications&taskFilter=all&date=2026-10-30",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "13-settings-preferences",
+    "title": "偏好设置",
+    "section": "settings",
+    "width": 320,
+    "height": 844,
+    "file": "320-13-settings-preferences.png",
+    "sha256": "1899f611a29edc3715e330a5b388c7ce0abcabb3ecbfcb2f6074fc87ab94a57b",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=settings&taskFilter=all&date=2026-10-30&appPage=preferences",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "14-settings-connections",
+    "title": "提醒与连接",
+    "section": "settings",
+    "width": 320,
+    "height": 844,
+    "file": "320-14-settings-connections.png",
+    "sha256": "6a72f7d7723b7e3e9a88b0e0e6644d215d69dc3c81ddd0b57f4a4ec1a5d38d84",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=settings&taskFilter=all&date=2026-10-30&appPage=connections",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "15-settings-data-v2",
+    "title": "数据与恢复",
+    "section": "settings",
+    "width": 320,
+    "height": 844,
+    "file": "320-15-settings-data-v2.png",
+    "sha256": "4fcb58c82b5fc562b0496a9af7bf3efd1fa9286261908d13e1d9c77b41b104bf",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=settings&taskFilter=all&date=2026-10-30&appPage=data",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "16-settings-lists",
+    "title": "清单管理",
+    "section": "settings",
+    "width": 320,
+    "height": 844,
+    "file": "320-16-settings-lists.png",
+    "sha256": "77222786a030b7b364865687837d2cb9185d5e281b213a64fb2016330c7cd58b",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=settings&taskFilter=all&date=2026-10-30&appPage=lists",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "17-tasks-filtered-empty",
+    "title": "筛选无结果",
+    "section": "tasks",
+    "width": 320,
+    "height": 844,
+    "file": "320-17-tasks-filtered-empty.png",
+    "sha256": "b24c7721daf7a3ad17690adbaa9f91c2cf122fa27fc07034d9d4c3354e83787d",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=tasks&taskFilter=upcoming&date=2026-10-30",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "18-task-create-v2",
+    "title": "新建任务",
+    "section": "tasks",
+    "width": 320,
+    "height": 844,
+    "file": "320-18-task-create-v2.png",
+    "sha256": "c7a3915a6d37156a1057a0ec7ea70906c1fba1d8665ce3ad359cc1a56fcd8136",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=tasks&taskFilter=upcoming&date=2026-10-30",
+    "operation": "任务详情",
+    "operationBounds": {
+      "x": 0,
+      "y": 0,
+      "width": 320,
+      "height": 776
+    },
+    "primaryActionReachable": true
+  },
+  {
+    "scene": "19-habit-create-v2",
+    "title": "新建习惯",
+    "section": "habits",
+    "width": 320,
+    "height": 844,
+    "file": "320-19-habit-create-v2.png",
+    "sha256": "b1f31bd01a019109103f56c0d50e5a77a3124999df72380cd36116f19d6f3360",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=habits&taskFilter=all&date=2026-10-30",
+    "operation": "新建习惯",
+    "operationBounds": {
+      "x": 0,
+      "y": 0,
+      "width": 320,
+      "height": 844
+    },
+    "primaryActionReachable": true
+  },
+  {
+    "scene": "20-habit-entry-v2",
+    "title": "习惯记录与更正",
+    "section": "habits",
+    "width": 320,
+    "height": 844,
+    "file": "320-20-habit-entry-v2.png",
+    "sha256": "baadeb049510e679d0552747fd218198b7a073c37112ff308779c993e9acfa5a",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=habits&taskFilter=all&date=2026-10-30",
+    "operation": "记录习惯数量",
+    "operationBounds": {
+      "x": 0,
+      "y": 0,
+      "width": 320,
+      "height": 844
+    },
+    "primaryActionReachable": true
+  },
+  {
+    "scene": "21-schedule-create",
+    "title": "新建时间安排",
+    "section": "calendar",
+    "width": 320,
+    "height": 844,
+    "file": "320-21-schedule-create.png",
+    "sha256": "3dc054c1b71d115e234155b8ba089abffac94dcb373b6c05485405915e3ef83e",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=calendar&taskFilter=all&date=2026-10-30&calendarView=week",
+    "operation": "新建时间安排",
+    "operationBounds": {
+      "x": 0,
+      "y": 0,
+      "width": 320,
+      "height": 844
+    },
+    "primaryActionReachable": true
+  },
+  {
+    "scene": "22-anniversary-create",
+    "title": "新建纪念日（农历）",
+    "section": "anniversaries",
+    "width": 320,
+    "height": 844,
+    "file": "320-22-anniversary-create.png",
+    "sha256": "681ef5ff67aaf9f16439f61621579c9d833e0972365b6b92f4e77bd80def7618",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=anniversaries&taskFilter=all&date=2026-10-30",
+    "operation": "新建纪念日",
+    "operationBounds": {
+      "x": 0,
+      "y": 0,
+      "width": 320,
+      "height": 844
+    },
+    "primaryActionReachable": true
+  },
+  {
+    "scene": "23-review-create",
+    "title": "新建复盘",
+    "section": "stats",
+    "width": 320,
+    "height": 844,
+    "file": "320-23-review-create.png",
+    "sha256": "b3967dd6c1c5cd5746a8672fd92c19096dc4e936aa21b28edda87f1ab861a971",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=stats&taskFilter=all&date=2026-10-30",
+    "operation": "新建复盘",
+    "operationBounds": {
+      "x": 0,
+      "y": 0,
+      "width": 320,
+      "height": 844
+    },
+    "primaryActionReachable": true
+  },
+  {
+    "scene": "24-outcome-note-v2",
+    "title": "成果笔记与预览",
+    "section": "tasks",
+    "width": 320,
+    "height": 844,
+    "file": "320-24-outcome-note-v2.png",
+    "sha256": "87065ba0a2abd683815658b7a9516a260dcee3554d35477ab5c80284c37cbacd",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=tasks&taskFilter=upcoming&date=2026-10-30&task=visual-next-step&occurrence=37626159287c81a7475916d932137c55",
+    "operation": "创建成果笔记",
+    "operationBounds": {
+      "x": 0,
+      "y": 0,
+      "width": 320,
+      "height": 844
+    },
+    "primaryActionReachable": true
+  },
+  {
+    "scene": "25-goal-create-v2",
+    "title": "新建目标",
+    "section": "overview",
+    "width": 320,
+    "height": 844,
+    "file": "320-25-goal-create-v2.png",
+    "sha256": "4a1f7ade758c288a02781e813d8290dd745cd1b59090effa01dad9f85693f154",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=overview&taskFilter=all&date=2026-10-30",
+    "operation": "新建目标",
+    "operationBounds": {
+      "x": 0,
+      "y": 0,
+      "width": 320,
+      "height": 844
+    },
+    "primaryActionReachable": true
+  },
+  {
+    "scene": "26-list-create",
+    "title": "新建清单",
+    "section": "settings",
+    "width": 320,
+    "height": 844,
+    "file": "320-26-list-create.png",
+    "sha256": "2eeac912ed07d8b4495d2c6b6258566f6b5954c23b57c71a4c6dfa4ad9303265",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=settings&taskFilter=all&date=2026-10-30&appPage=lists",
+    "operation": "新建清单",
+    "operationBounds": {
+      "x": 0,
+      "y": 0,
+      "width": 320,
+      "height": 844
+    },
+    "primaryActionReachable": true
+  },
+  {
+    "scene": "27-focus-project-create",
+    "title": "新建专注项目",
+    "section": "focus",
+    "width": 320,
+    "height": 844,
+    "file": "320-27-focus-project-create.png",
+    "sha256": "b90212155c2c62fc18d67ef61149eeff080a7f906ab517b3a560150a802a8d0e",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=focus&taskFilter=all&date=2026-10-30",
+    "operation": "新建专注项目",
+    "operationBounds": {
+      "x": 0,
+      "y": 0,
+      "width": 320,
+      "height": 844
+    },
+    "primaryActionReachable": true
+  },
+  {
+    "scene": "28-tag-create",
+    "title": "新建标签",
+    "section": "settings",
+    "width": 320,
+    "height": 844,
+    "file": "320-28-tag-create.png",
+    "sha256": "9f7c3853a73a5e69916b0555e1db41faa449f3c7713e4f4ee079ad1b9dd18655",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=settings&taskFilter=all&date=2026-10-30&appPage=lists",
+    "operation": "新建标签",
+    "operationBounds": {
+      "x": 0,
+      "y": 0,
+      "width": 320,
+      "height": 844
+    },
+    "primaryActionReachable": true
+  },
+  {
+    "scene": "01-overview",
+    "title": "目标总览",
+    "section": "overview",
+    "width": 390,
+    "height": 844,
+    "file": "390-01-overview.png",
+    "sha256": "0c4a20bd454e4c4fac1c3ecfbddb2a1163a5f74f8439de933b4ea3798fbf2d9d",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=overview&taskFilter=all&date=2026-10-30",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "02-tasks-list-v2",
+    "title": "任务列表与详情",
+    "section": "tasks",
+    "width": 390,
+    "height": 844,
+    "file": "390-02-tasks-list-v2.png",
+    "sha256": "4f55899b5b4020cfabeaad4faa8efc0399c8e5a6945378694d6d076911f1f524",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=tasks&taskFilter=upcoming&date=2026-10-30&task=visual-next-step&occurrence=37626159287c81a7475916d932137c55",
+    "operation": "任务详情",
+    "operationBounds": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 776
+    },
+    "primaryActionReachable": true
+  },
+  {
+    "scene": "03-board",
+    "title": "看板",
+    "section": "board",
+    "width": 390,
+    "height": 844,
+    "file": "390-03-board.png",
+    "sha256": "caff13320d87a1b33ebe4217f86e469c4afdcf265d9172c44ba269e95035d43c",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=board&taskFilter=upcoming&date=2026-10-30",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "04-matrix",
+    "title": "四象限",
+    "section": "matrix",
+    "width": 390,
+    "height": 844,
+    "file": "390-04-matrix.png",
+    "sha256": "a43b1ac7bf67b7473f968da25b9b330754e331223411e160e8443cd849ff2c7f",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=matrix&taskFilter=upcoming&date=2026-10-30",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "05-calendar-month",
+    "title": "月日历",
+    "section": "calendar",
+    "width": 390,
+    "height": 844,
+    "file": "390-05-calendar-month.png",
+    "sha256": "a1ddf68c0be7f6413f948bdc4bb977ca98a109d4df1bbcd9e001e9acea828f54",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=calendar&taskFilter=all&date=2026-10-30&calendarView=month",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "06-calendar-week",
+    "title": "周日历",
+    "section": "calendar",
+    "width": 390,
+    "height": 844,
+    "file": "390-06-calendar-week.png",
+    "sha256": "f3669e7bd2c94b861af88fc1fac5fbc91aef427ef2ff2487bcf76486d9439650",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=calendar&taskFilter=all&date=2026-10-30&calendarView=week",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "07-timeline",
+    "title": "时间线",
+    "section": "timeline",
+    "width": 390,
+    "height": 844,
+    "file": "390-07-timeline.png",
+    "sha256": "edd5a37e1e4fd6e89f9c19c6561ddf236c2192ab2418c09a14b4d494e628bc63",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=timeline&taskFilter=all&date=2026-10-30",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "08-focus",
+    "title": "专注",
+    "section": "focus",
+    "width": 390,
+    "height": 844,
+    "file": "390-08-focus.png",
+    "sha256": "617601fbde9f0031322af890287abb4ce1c681874647d3075b076446a160f448",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=focus&taskFilter=all&date=2026-10-30",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "09-habits",
+    "title": "习惯",
+    "section": "habits",
+    "width": 390,
+    "height": 844,
+    "file": "390-09-habits.png",
+    "sha256": "0f05764362f63609ff027d9a446405d56155312af3994e06fcfdee27ddfdb6ad",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=habits&taskFilter=all&date=2026-10-30",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "10-anniversaries-v2",
+    "title": "纪念日",
+    "section": "anniversaries",
+    "width": 390,
+    "height": 844,
+    "file": "390-10-anniversaries-v2.png",
+    "sha256": "fdfeda50ecbd31d116f00432ff0d4bd8ccaac9eddc7f2da8633a0324b5c071de",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=anniversaries&taskFilter=all&date=2026-10-30",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "11-stats",
+    "title": "统计与复盘",
+    "section": "stats",
+    "width": 390,
+    "height": 844,
+    "file": "390-11-stats.png",
+    "sha256": "aaaa3e53b828510f336e4d52c05c16ada9f244634b3bdf86b581d76d6ada0366",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=stats&taskFilter=all&date=2026-10-30",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "12-notifications",
+    "title": "通知中心",
+    "section": "notifications",
+    "width": 390,
+    "height": 844,
+    "file": "390-12-notifications.png",
+    "sha256": "52dcd7f3dea4a67b17ed33814aba6611598f1ddd1bdc4134c089534031a6a2a1",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=notifications&taskFilter=all&date=2026-10-30",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "13-settings-preferences",
+    "title": "偏好设置",
+    "section": "settings",
+    "width": 390,
+    "height": 844,
+    "file": "390-13-settings-preferences.png",
+    "sha256": "e0be31b9b3272c7ae8de32ec5799c29a477f7e03cff9685f75062175b1201575",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=settings&taskFilter=all&date=2026-10-30&appPage=preferences",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "14-settings-connections",
+    "title": "提醒与连接",
+    "section": "settings",
+    "width": 390,
+    "height": 844,
+    "file": "390-14-settings-connections.png",
+    "sha256": "44fcdcce80020614f6af1288490e79d70bfb8cea9cf6b1aa15e5a30d9e9b947f",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=settings&taskFilter=all&date=2026-10-30&appPage=connections",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "15-settings-data-v2",
+    "title": "数据与恢复",
+    "section": "settings",
+    "width": 390,
+    "height": 844,
+    "file": "390-15-settings-data-v2.png",
+    "sha256": "2d5d85f09aac3aba9170f80e842bdd4dc10bff78b636ec367ae547fe80842083",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=settings&taskFilter=all&date=2026-10-30&appPage=data",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "16-settings-lists",
+    "title": "清单管理",
+    "section": "settings",
+    "width": 390,
+    "height": 844,
+    "file": "390-16-settings-lists.png",
+    "sha256": "8ac3eaf08eefcf96bc99985a76e8d18cb95358bffd9972aff060455e51c3d190",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=settings&taskFilter=all&date=2026-10-30&appPage=lists",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "17-tasks-filtered-empty",
+    "title": "筛选无结果",
+    "section": "tasks",
+    "width": 390,
+    "height": 844,
+    "file": "390-17-tasks-filtered-empty.png",
+    "sha256": "403d0150bd962701659acbc909f576b41170e41198206a49b874cc2e4249b060",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=tasks&taskFilter=upcoming&date=2026-10-30",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "18-task-create-v2",
+    "title": "新建任务",
+    "section": "tasks",
+    "width": 390,
+    "height": 844,
+    "file": "390-18-task-create-v2.png",
+    "sha256": "95df63cdb22b7a804460338150e24cf47c5e72cc39293b6b111d3f0dba892a9b",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=tasks&taskFilter=upcoming&date=2026-10-30",
+    "operation": "任务详情",
+    "operationBounds": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 776
+    },
+    "primaryActionReachable": true
+  },
+  {
+    "scene": "19-habit-create-v2",
+    "title": "新建习惯",
+    "section": "habits",
+    "width": 390,
+    "height": 844,
+    "file": "390-19-habit-create-v2.png",
+    "sha256": "94573959c23a8dd3e6967b66238632a306c0f0796d8094ee9dd74847ad809c5a",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=habits&taskFilter=all&date=2026-10-30",
+    "operation": "新建习惯",
+    "operationBounds": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 844
+    },
+    "primaryActionReachable": true
+  },
+  {
+    "scene": "20-habit-entry-v2",
+    "title": "习惯记录与更正",
+    "section": "habits",
+    "width": 390,
+    "height": 844,
+    "file": "390-20-habit-entry-v2.png",
+    "sha256": "1800f7793fa8065934661f4260e656d62b9bb0b25d36da0920bd3840f84ebb11",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=habits&taskFilter=all&date=2026-10-30",
+    "operation": "记录习惯数量",
+    "operationBounds": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 844
+    },
+    "primaryActionReachable": true
+  },
+  {
+    "scene": "21-schedule-create",
+    "title": "新建时间安排",
+    "section": "calendar",
+    "width": 390,
+    "height": 844,
+    "file": "390-21-schedule-create.png",
+    "sha256": "b83cf29422457c26cc4df00866c3e104b2a2304e18bba120934dfd491960a6de",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=calendar&taskFilter=all&date=2026-10-30&calendarView=week",
+    "operation": "新建时间安排",
+    "operationBounds": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 844
+    },
+    "primaryActionReachable": true
+  },
+  {
+    "scene": "22-anniversary-create",
+    "title": "新建纪念日（农历）",
+    "section": "anniversaries",
+    "width": 390,
+    "height": 844,
+    "file": "390-22-anniversary-create.png",
+    "sha256": "df6e613d937455c7237a111399fb87be6350da44e37b17182fb5a9f5c79059b5",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=anniversaries&taskFilter=all&date=2026-10-30",
+    "operation": "新建纪念日",
+    "operationBounds": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 844
+    },
+    "primaryActionReachable": true
+  },
+  {
+    "scene": "23-review-create",
+    "title": "新建复盘",
+    "section": "stats",
+    "width": 390,
+    "height": 844,
+    "file": "390-23-review-create.png",
+    "sha256": "96012216a0fe8c1e02a3c42dad5cb69aad6a45333dafb658d231d8125d2cb209",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=stats&taskFilter=all&date=2026-10-30",
+    "operation": "新建复盘",
+    "operationBounds": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 844
+    },
+    "primaryActionReachable": true
+  },
+  {
+    "scene": "24-outcome-note-v2",
+    "title": "成果笔记与预览",
+    "section": "tasks",
+    "width": 390,
+    "height": 844,
+    "file": "390-24-outcome-note-v2.png",
+    "sha256": "3574b289b95fe761974e0493b9291ee0c29919768db832e5642b5a8890e2db4b",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=tasks&taskFilter=upcoming&date=2026-10-30&task=visual-next-step&occurrence=37626159287c81a7475916d932137c55",
+    "operation": "创建成果笔记",
+    "operationBounds": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 844
+    },
+    "primaryActionReachable": true
+  },
+  {
+    "scene": "25-goal-create-v2",
+    "title": "新建目标",
+    "section": "overview",
+    "width": 390,
+    "height": 844,
+    "file": "390-25-goal-create-v2.png",
+    "sha256": "a6910d292478082892eb112247012d77570232873f758aa0e35315f742728cb0",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=overview&taskFilter=all&date=2026-10-30",
+    "operation": "新建目标",
+    "operationBounds": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 844
+    },
+    "primaryActionReachable": true
+  },
+  {
+    "scene": "26-list-create",
+    "title": "新建清单",
+    "section": "settings",
+    "width": 390,
+    "height": 844,
+    "file": "390-26-list-create.png",
+    "sha256": "d45cbbe8728be37fefc24886465a51d32948812e9d919cc9c52e7b062cc7b66e",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=settings&taskFilter=all&date=2026-10-30&appPage=lists",
+    "operation": "新建清单",
+    "operationBounds": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 844
+    },
+    "primaryActionReachable": true
+  },
+  {
+    "scene": "27-focus-project-create",
+    "title": "新建专注项目",
+    "section": "focus",
+    "width": 390,
+    "height": 844,
+    "file": "390-27-focus-project-create.png",
+    "sha256": "66d6a78fdb275693077bda35f47493b06e04cb86bf0173405c747f9ea255b55b",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=focus&taskFilter=all&date=2026-10-30",
+    "operation": "新建专注项目",
+    "operationBounds": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 844
+    },
+    "primaryActionReachable": true
+  },
+  {
+    "scene": "28-tag-create",
+    "title": "新建标签",
+    "section": "settings",
+    "width": 390,
+    "height": 844,
+    "file": "390-28-tag-create.png",
+    "sha256": "2ef92a4fc0ce007f91a9da522cf54e1b45c9e80c225735bfd565b50c5b7ac850",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=settings&taskFilter=all&date=2026-10-30&appPage=lists",
+    "operation": "新建标签",
+    "operationBounds": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 844
+    },
+    "primaryActionReachable": true
+  },
+  {
+    "scene": "01-overview",
+    "title": "目标总览",
+    "section": "overview",
+    "width": 1440,
+    "height": 1000,
+    "file": "1440-01-overview.png",
+    "sha256": "92f53304c91d23e6a712b8f13276861ccd3a78c9b2cb6f24c6edf67493d5b5bc",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=overview&taskFilter=all&date=2026-10-30",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "02-tasks-list-v2",
+    "title": "任务列表与详情",
+    "section": "tasks",
+    "width": 1440,
+    "height": 1000,
+    "file": "1440-02-tasks-list-v2.png",
+    "sha256": "4de7eacafca95ed74b4d8e4c5924758d3fe39208ac810a2e5d440c194814443b",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=tasks&taskFilter=upcoming&date=2026-10-30&task=visual-next-step&occurrence=37626159287c81a7475916d932137c55",
+    "operation": "任务详情",
+    "operationBounds": {
+      "x": 1012.40625,
+      "y": 56,
+      "width": 417.59375,
+      "height": 944
+    },
+    "primaryActionReachable": true
+  },
+  {
+    "scene": "03-board",
+    "title": "看板",
+    "section": "board",
+    "width": 1440,
+    "height": 1000,
+    "file": "1440-03-board.png",
+    "sha256": "43530c2619b5144b943ce6ccf9dd7ae0d770f0df6097911d61f98ed164a2c7d3",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=board&taskFilter=upcoming&date=2026-10-30",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "04-matrix",
+    "title": "四象限",
+    "section": "matrix",
+    "width": 1440,
+    "height": 1000,
+    "file": "1440-04-matrix.png",
+    "sha256": "0c1405d141dc22c6d58d7e80a52b7719015832412d3859a42e98a711b06d542e",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=matrix&taskFilter=upcoming&date=2026-10-30",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "05-calendar-month",
+    "title": "月日历",
+    "section": "calendar",
+    "width": 1440,
+    "height": 1000,
+    "file": "1440-05-calendar-month.png",
+    "sha256": "c277a9b0ae36b9714095b9c8c042f05e771f4d9ee472957097daa3e8d16d3c27",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=calendar&taskFilter=all&date=2026-10-30&calendarView=month",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "06-calendar-week",
+    "title": "周日历",
+    "section": "calendar",
+    "width": 1440,
+    "height": 1000,
+    "file": "1440-06-calendar-week.png",
+    "sha256": "5f18b5e6aaa33b57298ff854df2dd9cc88e035081a7f7eae71f6fac11b690324",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=calendar&taskFilter=all&date=2026-10-30&calendarView=week",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "07-timeline",
+    "title": "时间线",
+    "section": "timeline",
+    "width": 1440,
+    "height": 1000,
+    "file": "1440-07-timeline.png",
+    "sha256": "845da20c8f18af71b40390626d9cb42e594eb2a7be2330c7ed4aad6d69a8f010",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=timeline&taskFilter=all&date=2026-10-30",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "08-focus",
+    "title": "专注",
+    "section": "focus",
+    "width": 1440,
+    "height": 1000,
+    "file": "1440-08-focus.png",
+    "sha256": "894355dd1df4600be0b000db6442b821d18ba696ec618a0cdb6424ab218d75a1",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=focus&taskFilter=all&date=2026-10-30",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "09-habits",
+    "title": "习惯",
+    "section": "habits",
+    "width": 1440,
+    "height": 1000,
+    "file": "1440-09-habits.png",
+    "sha256": "40f451e19ea193d2894d8aa36c5a72aee4818ca52bd84bd18dde9f609157918b",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=habits&taskFilter=all&date=2026-10-30",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "10-anniversaries-v2",
+    "title": "纪念日",
+    "section": "anniversaries",
+    "width": 1440,
+    "height": 1000,
+    "file": "1440-10-anniversaries-v2.png",
+    "sha256": "c1cc4cb07f8cd78bbc666b09a7cfb0306eefc48274c6f044780d7ca5e33ef4db",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=anniversaries&taskFilter=all&date=2026-10-30",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "11-stats",
+    "title": "统计与复盘",
+    "section": "stats",
+    "width": 1440,
+    "height": 1000,
+    "file": "1440-11-stats.png",
+    "sha256": "f1d5c1108137ceb41fd3bd479fbffd8f9e098e4f82bdfd7aef75bc865eb95766",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=stats&taskFilter=all&date=2026-10-30",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "12-notifications",
+    "title": "通知中心",
+    "section": "notifications",
+    "width": 1440,
+    "height": 1000,
+    "file": "1440-12-notifications.png",
+    "sha256": "215279710271fb758ac52a2f84631ebca9814a552bed3a2af1a01a1dabf973c4",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=notifications&taskFilter=all&date=2026-10-30",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "13-settings-preferences",
+    "title": "偏好设置",
+    "section": "settings",
+    "width": 1440,
+    "height": 1000,
+    "file": "1440-13-settings-preferences.png",
+    "sha256": "be27eb83d5eddd3148c8e4c8d07f9e6ccbc88139386d9a7ea70e6c5cadd85a57",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=settings&taskFilter=all&date=2026-10-30&appPage=preferences",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "14-settings-connections",
+    "title": "提醒与连接",
+    "section": "settings",
+    "width": 1440,
+    "height": 1000,
+    "file": "1440-14-settings-connections.png",
+    "sha256": "d5a437b992e401c9a47571b2c6a1a8384e89f6042af0afb614df762a49249b12",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=settings&taskFilter=all&date=2026-10-30&appPage=connections",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "15-settings-data-v2",
+    "title": "数据与恢复",
+    "section": "settings",
+    "width": 1440,
+    "height": 1000,
+    "file": "1440-15-settings-data-v2.png",
+    "sha256": "54600eb87b782086a9e53a1bb85b6e5da0aa4927f7b65aa22cccd01ff2b2062f",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=settings&taskFilter=all&date=2026-10-30&appPage=data",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "16-settings-lists",
+    "title": "清单管理",
+    "section": "settings",
+    "width": 1440,
+    "height": 1000,
+    "file": "1440-16-settings-lists.png",
+    "sha256": "28aa341a8e4c772a040929bfa9fb24f70feba1dbb70190edb8c7bacba31c2161",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=settings&taskFilter=all&date=2026-10-30&appPage=lists",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "17-tasks-filtered-empty",
+    "title": "筛选无结果",
+    "section": "tasks",
+    "width": 1440,
+    "height": 1000,
+    "file": "1440-17-tasks-filtered-empty.png",
+    "sha256": "394c99d0a54bd474a26e1b9368cb922d1fcafcb9c692aac960fbcfdea1a83b23",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=tasks&taskFilter=upcoming&date=2026-10-30",
+    "operation": null,
+    "operationBounds": null,
+    "primaryActionReachable": null
+  },
+  {
+    "scene": "18-task-create-v2",
+    "title": "新建任务",
+    "section": "tasks",
+    "width": 1440,
+    "height": 1000,
+    "file": "1440-18-task-create-v2.png",
+    "sha256": "aed27541085679e92a5e545d55a1ca5390fd2f2a0938a1885471b1af840fab88",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=tasks&taskFilter=upcoming&date=2026-10-30",
+    "operation": "任务详情",
+    "operationBounds": {
+      "x": 1012.40625,
+      "y": 56,
+      "width": 417.59375,
+      "height": 944
+    },
+    "primaryActionReachable": true
+  },
+  {
+    "scene": "19-habit-create-v2",
+    "title": "新建习惯",
+    "section": "habits",
+    "width": 1440,
+    "height": 1000,
+    "file": "1440-19-habit-create-v2.png",
+    "sha256": "044922e1bfacaa74c2fa86ad09487a4185d418253062bcbafec5e2a7311da3c1",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=habits&taskFilter=all&date=2026-10-30",
+    "operation": "新建习惯",
+    "operationBounds": {
+      "x": 0,
+      "y": 0,
+      "width": 1440,
+      "height": 1000
+    },
+    "primaryActionReachable": true
+  },
+  {
+    "scene": "20-habit-entry-v2",
+    "title": "习惯记录与更正",
+    "section": "habits",
+    "width": 1440,
+    "height": 1000,
+    "file": "1440-20-habit-entry-v2.png",
+    "sha256": "7a892b08c5922e8f84e3a8f2478c2e2189973a758c9c1932e461dde4fa5640f5",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=habits&taskFilter=all&date=2026-10-30",
+    "operation": "记录习惯数量",
+    "operationBounds": {
+      "x": 0,
+      "y": 0,
+      "width": 1440,
+      "height": 1000
+    },
+    "primaryActionReachable": true
+  },
+  {
+    "scene": "21-schedule-create",
+    "title": "新建时间安排",
+    "section": "calendar",
+    "width": 1440,
+    "height": 1000,
+    "file": "1440-21-schedule-create.png",
+    "sha256": "2ef022e3f7d475cf95409690402ee40f137b966e4bb4262d0d81ac2dbdbdec19",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=calendar&taskFilter=all&date=2026-10-30&calendarView=week",
+    "operation": "新建时间安排",
+    "operationBounds": {
+      "x": 0,
+      "y": 0,
+      "width": 1440,
+      "height": 1000
+    },
+    "primaryActionReachable": true
+  },
+  {
+    "scene": "22-anniversary-create",
+    "title": "新建纪念日（农历）",
+    "section": "anniversaries",
+    "width": 1440,
+    "height": 1000,
+    "file": "1440-22-anniversary-create.png",
+    "sha256": "edf847bb0461e2d5a767629355c90c3e7500ef9252437804843652e0830015b0",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=anniversaries&taskFilter=all&date=2026-10-30",
+    "operation": "新建纪念日",
+    "operationBounds": {
+      "x": 0,
+      "y": 0,
+      "width": 1440,
+      "height": 1000
+    },
+    "primaryActionReachable": true
+  },
+  {
+    "scene": "23-review-create",
+    "title": "新建复盘",
+    "section": "stats",
+    "width": 1440,
+    "height": 1000,
+    "file": "1440-23-review-create.png",
+    "sha256": "34219b0a62f2466ad1428629da9e619a7ca238e40423b2619d9a8cfee52d7ccb",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=stats&taskFilter=all&date=2026-10-30",
+    "operation": "新建复盘",
+    "operationBounds": {
+      "x": 0,
+      "y": 0,
+      "width": 1440,
+      "height": 1000
+    },
+    "primaryActionReachable": true
+  },
+  {
+    "scene": "24-outcome-note-v2",
+    "title": "成果笔记与预览",
+    "section": "tasks",
+    "width": 1440,
+    "height": 1000,
+    "file": "1440-24-outcome-note-v2.png",
+    "sha256": "e729e3301aa3df3beb0df665490825b4c0bbe21bf049601974a1feb7e474e72c",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=tasks&taskFilter=upcoming&date=2026-10-30&task=visual-next-step&occurrence=37626159287c81a7475916d932137c55",
+    "operation": "创建成果笔记",
+    "operationBounds": {
+      "x": 0,
+      "y": 0,
+      "width": 1440,
+      "height": 1000
+    },
+    "primaryActionReachable": true
+  },
+  {
+    "scene": "25-goal-create-v2",
+    "title": "新建目标",
+    "section": "overview",
+    "width": 1440,
+    "height": 1000,
+    "file": "1440-25-goal-create-v2.png",
+    "sha256": "7c7871088a71e207698479a64c2105b1e9776a0e106ddd32e4171acf2b0faf6d",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=overview&taskFilter=all&date=2026-10-30",
+    "operation": "新建目标",
+    "operationBounds": {
+      "x": 0,
+      "y": 0,
+      "width": 1440,
+      "height": 1000
+    },
+    "primaryActionReachable": true
+  },
+  {
+    "scene": "26-list-create",
+    "title": "新建清单",
+    "section": "settings",
+    "width": 1440,
+    "height": 1000,
+    "file": "1440-26-list-create.png",
+    "sha256": "b9f58ad19db34fbfcf82465738915f4231e5839de819c8633ce1dd08e96a64fd",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=settings&taskFilter=all&date=2026-10-30&appPage=lists",
+    "operation": "新建清单",
+    "operationBounds": {
+      "x": 0,
+      "y": 0,
+      "width": 1440,
+      "height": 1000
+    },
+    "primaryActionReachable": true
+  },
+  {
+    "scene": "27-focus-project-create",
+    "title": "新建专注项目",
+    "section": "focus",
+    "width": 1440,
+    "height": 1000,
+    "file": "1440-27-focus-project-create.png",
+    "sha256": "265804c1d6051805406c070c2ca70dc79b88118e23f8f943060b5b454118c9c8",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=focus&taskFilter=all&date=2026-10-30",
+    "operation": "新建专注项目",
+    "operationBounds": {
+      "x": 0,
+      "y": 0,
+      "width": 1440,
+      "height": 1000
+    },
+    "primaryActionReachable": true
+  },
+  {
+    "scene": "28-tag-create",
+    "title": "新建标签",
+    "section": "settings",
+    "width": 1440,
+    "height": 1000,
+    "file": "1440-28-tag-create.png",
+    "sha256": "4d2bd023d4c8f7c0fb6e8f7ede4ffc2ce1140148833c8cad4b6b79b1659a9388",
+    "consecutiveCapturePixelsStable": true,
+    "businessTime": "2026-10-30T09:00:00.000Z",
+    "source": {
+      "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+      "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+      "files": 592
+    },
+    "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=settings&taskFilter=all&date=2026-10-30&appPage=lists",
+    "operation": "新建标签",
+    "operationBounds": {
+      "x": 0,
+      "y": 0,
+      "width": 1440,
+      "height": 1000
+    },
+    "primaryActionReachable": true
+  }
+]

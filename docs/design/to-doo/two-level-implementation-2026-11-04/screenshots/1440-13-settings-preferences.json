@@ -1,0 +1,20 @@
+{
+  "scene": "13-settings-preferences",
+  "title": "偏好设置",
+  "section": "settings",
+  "width": 1440,
+  "height": 1000,
+  "file": "1440-13-settings-preferences.png",
+  "sha256": "be27eb83d5eddd3148c8e4c8d07f9e6ccbc88139386d9a7ea70e6c5cadd85a57",
+  "consecutiveCapturePixelsStable": true,
+  "businessTime": "2026-10-30T09:00:00.000Z",
+  "source": {
+    "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+    "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+    "files": 592
+  },
+  "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=settings&taskFilter=all&date=2026-10-30&appPage=preferences",
+  "operation": null,
+  "operationBounds": null,
+  "primaryActionReachable": null
+}

@@ -1,0 +1,91 @@
+
+ RUN  v5.0.4 /home/bandoo/.codex/worktrees/5a33/doo-know
+
+ ❯ tests/to-doo-task-surfaces.test.ts (44 tests | 1 failed) 6384ms
+   ❯ task surface controls (29)
+     × new-task creation keeps a submit associated with its form and a draft-retaining close in the footer 478ms
+ ❯ tests/to-doo-outcome-ownership.test.ts (4 tests | 4 failed) 353ms
+   × an untouched retained outcome opens for the newly requested task 181ms
+   × a retained draft keeps its original ownership when opened from task-b occ-b 77ms
+   × a retained draft keeps its original ownership when opened from task-a occ-a-next 49ms
+   × an already submitted outcome remains attached to its original occurrence 45ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/to-doo-outcome-ownership.test.ts > an untouched retained outcome opens for the newly requested task
+Error: Unexpected component dependency: ../to-doo-context-navigation
+ ❯ tests/to-doo-outcome-ownership.test.ts:94:13
+     92|       if (id === '../api') return { api: request };
+     93|       if (id === 'ant-design-vue' || id.endsWith('.vue') || id.endsWit…
+     94|       throw Error('Unexpected component dependency: ' + id);
+       |             ^
+     95|     },
+     96|     output,
+ ❯ eval tests/to-doo-outcome-ownership.test.ts:86:3
+ ❯ component tests/to-doo-outcome-ownership.test.ts:86:57
+ ❯ workspace tests/to-doo-outcome-ownership.test.ts:135:22
+ ❯ tests/to-doo-outcome-ownership.test.ts:160:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  tests/to-doo-outcome-ownership.test.ts > a retained draft keeps its original ownership when opened from task-b occ-b
+ FAIL  tests/to-doo-outcome-ownership.test.ts > a retained draft keeps its original ownership when opened from task-a occ-a-next
+Error: Unexpected component dependency: ../to-doo-context-navigation
+ ❯ tests/to-doo-outcome-ownership.test.ts:94:13
+     92|       if (id === '../api') return { api: request };
+     93|       if (id === 'ant-design-vue' || id.endsWith('.vue') || id.endsWit…
+     94|       throw Error('Unexpected component dependency: ' + id);
+       |             ^
+     95|     },
+     96|     output,
+ ❯ eval tests/to-doo-outcome-ownership.test.ts:86:3
+ ❯ component tests/to-doo-outcome-ownership.test.ts:86:57
+ ❯ workspace tests/to-doo-outcome-ownership.test.ts:135:22
+ ❯ tests/to-doo-outcome-ownership.test.ts:175:24
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  tests/to-doo-outcome-ownership.test.ts > an already submitted outcome remains attached to its original occurrence
+Error: Unexpected component dependency: ../to-doo-context-navigation
+ ❯ tests/to-doo-outcome-ownership.test.ts:94:13
+     92|       if (id === '../api') return { api: request };
+     93|       if (id === 'ant-design-vue' || id.endsWith('.vue') || id.endsWit…
+     94|       throw Error('Unexpected component dependency: ' + id);
+       |             ^
+     95|     },
+     96|     output,
+ ❯ eval tests/to-doo-outcome-ownership.test.ts:86:3
+ ❯ component tests/to-doo-outcome-ownership.test.ts:86:57
+ ❯ workspace tests/to-doo-outcome-ownership.test.ts:135:22
+ ❯ tests/to-doo-outcome-ownership.test.ts:195:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  tests/to-doo-task-surfaces.test.ts > task surface controls > new-task creation keeps a submit associated with its form and a draft-retaining close in the footer
+AssertionError: expected undefined to be '待续任务' // Object.is equality
+
+- Expected:
+"待续任务"
+
++ Received:
+undefined
+
+ ❯ tests/to-doo-task-surfaces.test.ts:270:49
+    268|     await Vue.nextTick();
+    269|     expect(closed).toHaveBeenCalledOnce();
+    270|     expect(value.retainedNewTaskDraft()?.draft.title).toBe('待续任务');
+       |                                                 ^
+    271|   });
+    272|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+
+ Test Files  2 failed | 50 passed (52)
+      Tests  5 failed | 671 passed (676)
+   Start at  10:17:27
+   Duration  83.63s (tests 83%, import 15%, transform 2%)
+
+    Isolate  52 workers spawned · ~138ms startup each (spawn + environment, per file)
+             at least ~7.03s faster with isolate: false — reuses workers across files instead of one per file
+

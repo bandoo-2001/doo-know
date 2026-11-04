@@ -1,0 +1,25 @@
+{
+  "scene": "23-review-create",
+  "title": "新建复盘",
+  "section": "stats",
+  "width": 1440,
+  "height": 1000,
+  "file": "1440-23-review-create.png",
+  "sha256": "34219b0a62f2466ad1428629da9e619a7ca238e40423b2619d9a8cfee52d7ccb",
+  "consecutiveCapturePixelsStable": true,
+  "businessTime": "2026-10-30T09:00:00.000Z",
+  "source": {
+    "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+    "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+    "files": 592
+  },
+  "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=stats&taskFilter=all&date=2026-10-30",
+  "operation": "新建复盘",
+  "operationBounds": {
+    "x": 0,
+    "y": 0,
+    "width": 1440,
+    "height": 1000
+  },
+  "primaryActionReachable": true
+}

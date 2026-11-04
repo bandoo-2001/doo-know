@@ -1,0 +1,20 @@
+{
+  "scene": "14-settings-connections",
+  "title": "提醒与连接",
+  "section": "settings",
+  "width": 320,
+  "height": 844,
+  "file": "320-14-settings-connections.png",
+  "sha256": "6a72f7d7723b7e3e9a88b0e0e6644d215d69dc3c81ddd0b57f4a4ec1a5d38d84",
+  "consecutiveCapturePixelsStable": true,
+  "businessTime": "2026-10-30T09:00:00.000Z",
+  "source": {
+    "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+    "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+    "files": 592
+  },
+  "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=settings&taskFilter=all&date=2026-10-30&appPage=connections",
+  "operation": null,
+  "operationBounds": null,
+  "primaryActionReachable": null
+}

@@ -1,0 +1,20 @@
+{
+  "scene": "04-matrix",
+  "title": "四象限",
+  "section": "matrix",
+  "width": 390,
+  "height": 844,
+  "file": "390-04-matrix.png",
+  "sha256": "a43b1ac7bf67b7473f968da25b9b330754e331223411e160e8443cd849ff2c7f",
+  "consecutiveCapturePixelsStable": true,
+  "businessTime": "2026-10-30T09:00:00.000Z",
+  "source": {
+    "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+    "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+    "files": 592
+  },
+  "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=matrix&taskFilter=upcoming&date=2026-10-30",
+  "operation": null,
+  "operationBounds": null,
+  "primaryActionReachable": null
+}

@@ -1,0 +1,9 @@
+
+ RUN  v5.0.4 /home/bandoo/.codex/worktrees/5a33/doo-know
+
+
+ Test Files  4 passed (4)
+      Tests  85 passed (85)
+   Start at  10:30:05
+   Duration  10.78s (tests 78%, import 21%, transform 1%)
+

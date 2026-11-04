@@ -1,0 +1,20 @@
+{
+  "scene": "11-stats",
+  "title": "统计与复盘",
+  "section": "stats",
+  "width": 320,
+  "height": 844,
+  "file": "320-11-stats.png",
+  "sha256": "48b70f583b1c55efbc06003989f67710edfa7bc853c9d16e34ae0faee6de4640",
+  "consecutiveCapturePixelsStable": true,
+  "businessTime": "2026-10-30T09:00:00.000Z",
+  "source": {
+    "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+    "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+    "files": 592
+  },
+  "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=stats&taskFilter=all&date=2026-10-30",
+  "operation": null,
+  "operationBounds": null,
+  "primaryActionReachable": null
+}

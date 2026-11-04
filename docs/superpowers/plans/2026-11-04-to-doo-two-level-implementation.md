@@ -37,41 +37,41 @@
 
 ### Task 1: Shared shell and route state (root)
 
-- [ ] Add behavioral unit coverage for context validation/defaults and route serialization.
-- [ ] Implement shared context descriptor, route propagation and workspace controlled context. Always display module-specific context sidebar; calendars/matrix use their own labels.
-- [ ] Remove duplicate task scope picker from ordinary task pages, retain useful scope metadata and extra filter controls in a compact aligned row. Keep range selector where timeline requires it.
-- [ ] Set sidebar width 208px and rail 64px; readable flexible main, demand detail, mobile drawer. Test actual DOM geometry.
+- [x] Add behavioral unit coverage for context validation/defaults and route serialization.
+- [x] Implement shared context descriptor, route propagation and workspace controlled context. Always display module-specific context sidebar; calendars/matrix use their own labels.
+- [x] Remove duplicate task scope picker from ordinary task pages, retain useful scope metadata and extra filter controls in a compact aligned row. Keep range selector where timeline requires it.
+- [x] Set sidebar width 208px and rail 64px; readable flexible main, demand detail, mobile drawer. Test actual DOM geometry.
 
 ### Task 2: Management/review contexts (management agent)
 
 **Files:** ToDooSettings.vue, ToDooReview.vue, optional dedicated `to-doo-management-layout.css`, focused tests.
 
-- [ ] Inspect images 11–16,23,26,28 and current behavior.
-- [ ] Adopt shared controlled context interface; hide moved settings/notification tab strips only in contextual mode. Notification query applies selected actual status. Stats entries scroll to real metric/goal/review sections.
-- [ ] Improve card/form/notification geometry using shared variables, retain import preview/actions and unsaved preference guarding.
-- [ ] Add relevant behavior tests; report changes and checks without running browser servers concurrently.
+- [x] Inspect images 11–16,23,26,28 and current behavior.
+- [x] Adopt shared controlled context interface; hide moved settings/notification tab strips only in contextual mode. Notification query applies selected actual status. Stats entries scroll to real metric/goal/review sections.
+- [x] Improve card/form/notification geometry using shared variables, retain import preview/actions and unsaved preference guarding.
+- [x] Add relevant behavior tests; report changes and checks without running browser servers concurrently.
 
 ### Task 3: Focus and life contexts (life agent)
 
 **Files:** ToDooRhythm.vue, ToDooFocus.vue, to-doo-focus.css, to-doo-anniversary.css, optional dedicated layout CSS, focused tests.
 
-- [ ] Inspect images 08–10,19,20,22,27 and current behavior, preserve copied polish.
-- [ ] Adopt controlled context interface for focus anchors/mobile panes, habit today/history and anniversary filter. Remove duplicate navigation in contextual mode; maintain independent timer/history filters.
-- [ ] Preserve recording/correction modals and reachable actions; improve module geometry for available main width and 320/390px.
-- [ ] Relevant unit checks; no concurrent browser server; report concerns.
+- [x] Inspect images 08–10,19,20,22,27 and current behavior, preserve copied polish.
+- [x] Adopt controlled context interface for focus anchors/mobile panes, habit today/history and anniversary filter. Remove duplicate navigation in contextual mode; maintain independent timer/history filters.
+- [x] Preserve recording/correction modals and reachable actions; improve module geometry for available main width and 320/390px.
+- [x] Relevant unit checks; no concurrent browser server; report concerns.
 
 ### Task 4: Task/planning surfaces and shared windows (task agent)
 
 **Files:** ToDooTaskViews.vue, ToDooCalendar.vue, ToDooTaskDetail.vue, ToDooEntityEditor.vue, ToDooOutcomeNote.vue, ToDooFormLayout.vue, to-doo-task-detail.css, optional dedicated CSS, focused tests.
 
-- [ ] Inspect images 01–07,17,18,21,24,25 and common window structure.
-- [ ] Match flexible list/board/matrix/calendar/timeline alignment; hide calendar view selector when parent owns contextual navigation (new optional `contextualNavigation` prop on Calendar, passed by root).
-- [ ] Separate global/range/extra-filter empty states and working clear/filter/all-task actions. Preserve business state and form constraints.
-- [ ] Common modal body scroll/sticky footer, task detail adaptive width; keep all eleven windows functional. Relevant unit checks and report.
+- [x] Inspect images 01–07,17,18,21,24,25 and common window structure.
+- [x] Match flexible list/board/matrix/calendar/timeline alignment; hide calendar view selector when parent owns contextual navigation (new optional `contextualNavigation` prop on Calendar, passed by root).
+- [x] Separate global/range/extra-filter empty states and working clear/filter/all-task actions. Preserve business state and form constraints.
+- [x] Common modal body scroll/sticky footer, task detail adaptive width; keep all eleven windows functional. Relevant unit checks and report.
 
 ### Task 5: Integration, real evidence and release (root + independent reviewer)
 
-- [ ] Integrate modules, update existing E2E helpers to choose actual contextual controls, run scoped unit regression, typecheck and production build.
-- [ ] New 28-scene real capture spec with identity/action assertions; desktop 1440 and mobile 320/390. Real interaction tests for context reload/history, task draft/filter, forms and data flows. Save screenshot index/mapping.
-- [ ] Independent code and visual review; fix confirmed issues and rerun affected checks. Report actual failed commands/retries.
-- [ ] Review staged prerequisites/source/design/acceptance only, scan for secrets, commit/push branch. Update immutable preview release using existing account/data/profile, validate health/login/read-only UI, leave official service unchanged.
+- [x] Integrate modules, update existing E2E helpers to choose actual contextual controls, run scoped unit regression, typecheck and production build.
+- [x] New 28-scene real capture spec with identity/action assertions; desktop 1440 and mobile 320/390. Real interaction tests for context reload/history, task draft/filter, forms and data flows. Save screenshot index/mapping.
+- [x] Independent code and visual review; fix confirmed issues and rerun affected checks. Report actual failed commands/retries.
+- [x] Review staged prerequisites/source/design/acceptance only, scan for secrets, commit/push branch. Update immutable preview release using existing account/data/profile, validate health/login/read-only UI, leave official service unchanged.

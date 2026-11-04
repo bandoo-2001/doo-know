@@ -1,0 +1,25 @@
+{
+  "scene": "20-habit-entry-v2",
+  "title": "习惯记录与更正",
+  "section": "habits",
+  "width": 1440,
+  "height": 1000,
+  "file": "1440-20-habit-entry-v2.png",
+  "sha256": "7a892b08c5922e8f84e3a8f2478c2e2189973a758c9c1932e461dde4fa5640f5",
+  "consecutiveCapturePixelsStable": true,
+  "businessTime": "2026-10-30T09:00:00.000Z",
+  "source": {
+    "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+    "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+    "files": 592
+  },
+  "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=habits&taskFilter=all&date=2026-10-30",
+  "operation": "记录习惯数量",
+  "operationBounds": {
+    "x": 0,
+    "y": 0,
+    "width": 1440,
+    "height": 1000
+  },
+  "primaryActionReachable": true
+}

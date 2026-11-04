@@ -1,0 +1,20 @@
+{
+  "scene": "15-settings-data-v2",
+  "title": "数据与恢复",
+  "section": "settings",
+  "width": 390,
+  "height": 844,
+  "file": "390-15-settings-data-v2.png",
+  "sha256": "2d5d85f09aac3aba9170f80e842bdd4dc10bff78b636ec367ae547fe80842083",
+  "consecutiveCapturePixelsStable": true,
+  "businessTime": "2026-10-30T09:00:00.000Z",
+  "source": {
+    "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+    "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+    "files": 592
+  },
+  "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=settings&taskFilter=all&date=2026-10-30&appPage=data",
+  "operation": null,
+  "operationBounds": null,
+  "primaryActionReachable": null
+}

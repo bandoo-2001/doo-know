@@ -1,0 +1,20 @@
+{
+  "scene": "10-anniversaries-v2",
+  "title": "纪念日",
+  "section": "anniversaries",
+  "width": 390,
+  "height": 844,
+  "file": "390-10-anniversaries-v2.png",
+  "sha256": "fdfeda50ecbd31d116f00432ff0d4bd8ccaac9eddc7f2da8633a0324b5c071de",
+  "consecutiveCapturePixelsStable": true,
+  "businessTime": "2026-10-30T09:00:00.000Z",
+  "source": {
+    "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+    "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+    "files": 592
+  },
+  "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=anniversaries&taskFilter=all&date=2026-10-30",
+  "operation": null,
+  "operationBounds": null,
+  "primaryActionReachable": null
+}

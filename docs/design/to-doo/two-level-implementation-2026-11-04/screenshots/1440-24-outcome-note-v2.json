@@ -1,0 +1,25 @@
+{
+  "scene": "24-outcome-note-v2",
+  "title": "成果笔记与预览",
+  "section": "tasks",
+  "width": 1440,
+  "height": 1000,
+  "file": "1440-24-outcome-note-v2.png",
+  "sha256": "e729e3301aa3df3beb0df665490825b4c0bbe21bf049601974a1feb7e474e72c",
+  "consecutiveCapturePixelsStable": true,
+  "businessTime": "2026-10-30T09:00:00.000Z",
+  "source": {
+    "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+    "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+    "files": 592
+  },
+  "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=tasks&taskFilter=upcoming&date=2026-10-30&task=visual-next-step&occurrence=37626159287c81a7475916d932137c55",
+  "operation": "创建成果笔记",
+  "operationBounds": {
+    "x": 0,
+    "y": 0,
+    "width": 1440,
+    "height": 1000
+  },
+  "primaryActionReachable": true
+}

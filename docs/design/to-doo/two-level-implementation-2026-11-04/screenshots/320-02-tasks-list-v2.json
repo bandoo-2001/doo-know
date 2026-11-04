@@ -1,0 +1,25 @@
+{
+  "scene": "02-tasks-list-v2",
+  "title": "任务列表与详情",
+  "section": "tasks",
+  "width": 320,
+  "height": 844,
+  "file": "320-02-tasks-list-v2.png",
+  "sha256": "cabe3a38d2134600b9e3ae36261a21805000b4a99890449d34e35097135494f7",
+  "consecutiveCapturePixelsStable": true,
+  "businessTime": "2026-10-30T09:00:00.000Z",
+  "source": {
+    "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+    "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+    "files": 592
+  },
+  "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=tasks&taskFilter=upcoming&date=2026-10-30&task=visual-next-step&occurrence=37626159287c81a7475916d932137c55",
+  "operation": "任务详情",
+  "operationBounds": {
+    "x": 0,
+    "y": 0,
+    "width": 320,
+    "height": 776
+  },
+  "primaryActionReachable": true
+}

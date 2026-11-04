@@ -1,0 +1,57 @@
+[WebServer] (node:1776677) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1776690) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1776702) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1776702) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 7 tests using 1 worker
+
+(node:1776780) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/e2e/to-doo-focus-bottom-bar.spec.ts:26:1 › focus timer rests on the content bottom when the project list is short (7.1s)
+(node:1776899) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [desktop] › tests/e2e/to-doo-focus-bottom-bar.spec.ts:34:1 › focus timer stays at the bottom while long project lists remain reachable (1.8s)
+  ✓  3 [desktop] › tests/e2e/to-doo-two-level-windows.spec.ts:19:1 › primary management action has readable contrast in light and dark themes at 320px (3.6s)
+  ✓  4 [desktop] › tests/e2e/to-doo-two-level-windows.spec.ts:52:1 › a new tag exposes its real color field and persists the selected value (2.1s)
+  ✓  5 [desktop] › tests/e2e/to-doo-two-level-windows.spec.ts:69:1 › review creation displays actual metrics and saves a server-captured snapshot (2.1s)
+  ✓  6 [desktop] › tests/e2e/to-doo-two-level-windows.spec.ts:98:3 › long import preview keeps navigation and confirmation reachable at 1440px (2.7s)
+  ✓  7 [desktop] › tests/e2e/to-doo-two-level-windows.spec.ts:98:3 › long import preview keeps navigation and confirmation reachable at 320px (3.4s)
+
+
+  1) [desktop] › tests/e2e/to-doo-focus-bottom-bar.spec.ts:26:1 › focus timer rests on the content bottom when the project list is short 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 1
+    Received:    351.703125
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      21 |       );
+      22 |     })
+    > 23 |     .toBeLessThanOrEqual(1);
+         |      ^
+      24 | }
+      25 |
+      26 | test('focus timer rests on the content bottom when the project list is short', async ({ page }) => {
+        at expectBottomBar (/home/bandoo/.codex/worktrees/5a33/doo-know/tests/e2e/to-doo-focus-bottom-bar.spec.ts:23:6)
+        at /home/bandoo/.codex/worktrees/5a33/doo-know/tests/e2e/to-doo-focus-bottom-bar.spec.ts:29:3
+
+    Error Context: test-results/to-doo-focus-bottom-bar-fo-4e742-n-the-project-list-is-short-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/to-doo-focus-bottom-bar-fo-4e742-n-the-project-list-is-short-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/to-doo-focus-bottom-bar-fo-4e742-n-the-project-list-is-short-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [desktop] › tests/e2e/to-doo-focus-bottom-bar.spec.ts:26:1 › focus timer rests on the content bottom when the project list is short 
+  6 passed (28.4s)

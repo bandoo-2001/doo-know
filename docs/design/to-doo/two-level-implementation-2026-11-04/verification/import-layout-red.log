@@ -1,0 +1,92 @@
+[WebServer] (node:1773609) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1773621) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1773632) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1773632) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 1 worker
+
+(node:1773717) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/e2e/to-doo-two-level-windows.spec.ts:96:34 › long import preview keeps navigation and confirmation reachable at 1440px (8.8s)
+(node:1773836) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 [desktop] › tests/e2e/to-doo-two-level-windows.spec.ts:96:34 › long import preview keeps navigation and confirmation reachable at 320px (7.5s)
+
+
+  1) [desktop] › tests/e2e/to-doo-two-level-windows.spec.ts:96:34 › long import preview keeps navigation and confirmation reachable at 1440px 
+
+    Error: expect(locator).toBeInViewport() failed
+
+    Locator:  getByRole('region', { name: 'To Doo 行动工作空间', exact: true }).locator('.todo-topbar')
+    Expected: in viewport
+    Received: viewport ratio 0
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeInViewport" getByRole('region', { name: 'To Doo 行动工作空间', exact: true }).locator('.todo-topbar') with timeout 5000ms
+      - waiting for getByRole('region', { name: 'To Doo 行动工作空间', exact: true }).locator('.todo-topbar')
+        14 × locator resolved to <div class="todo-topbar">…</div>
+           - unexpected value "viewport ratio 0"
+
+
+      104 |   const preview = app.locator('.todo-import-preview');
+      105 |   await preview.scrollIntoViewIfNeeded();
+    > 106 |   await expect(app.locator('.todo-topbar')).toBeInViewport();
+          |                                             ^
+      107 |   if (width > 1000) await expect(app.getByRole('navigation', { name: '设置目录', exact: true }).getByRole('button', { name: '数据与恢复', exact: true })).toBeInViewport();
+      108 |   await expect(preview.getByRole('button', { name: '下一页预览', exact: true })).toBeInViewport();
+      109 |   await expect(preview.getByRole('button', { name: /^确认导入/ })).toBeInViewport();
+        at /home/bandoo/.codex/worktrees/5a33/doo-know/tests/e2e/to-doo-two-level-windows.spec.ts:106:45
+
+    Error Context: test-results/to-doo-two-level-windows-l-35223-rmation-reachable-at-1440px-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/to-doo-two-level-windows-l-35223-rmation-reachable-at-1440px-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/to-doo-two-level-windows-l-35223-rmation-reachable-at-1440px-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [desktop] › tests/e2e/to-doo-two-level-windows.spec.ts:96:34 › long import preview keeps navigation and confirmation reachable at 320px 
+
+    Error: expect(locator).toBeInViewport() failed
+
+    Locator:  getByRole('region', { name: 'To Doo 行动工作空间', exact: true }).locator('.todo-topbar')
+    Expected: in viewport
+    Received: viewport ratio 0
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeInViewport" getByRole('region', { name: 'To Doo 行动工作空间', exact: true }).locator('.todo-topbar') with timeout 5000ms
+      - waiting for getByRole('region', { name: 'To Doo 行动工作空间', exact: true }).locator('.todo-topbar')
+        14 × locator resolved to <div class="todo-topbar">…</div>
+           - unexpected value "viewport ratio 0"
+
+
+      104 |   const preview = app.locator('.todo-import-preview');
+      105 |   await preview.scrollIntoViewIfNeeded();
+    > 106 |   await expect(app.locator('.todo-topbar')).toBeInViewport();
+          |                                             ^
+      107 |   if (width > 1000) await expect(app.getByRole('navigation', { name: '设置目录', exact: true }).getByRole('button', { name: '数据与恢复', exact: true })).toBeInViewport();
+      108 |   await expect(preview.getByRole('button', { name: '下一页预览', exact: true })).toBeInViewport();
+      109 |   await expect(preview.getByRole('button', { name: /^确认导入/ })).toBeInViewport();
+        at /home/bandoo/.codex/worktrees/5a33/doo-know/tests/e2e/to-doo-two-level-windows.spec.ts:106:45
+
+    Error Context: test-results/to-doo-two-level-windows-l-bf19b-irmation-reachable-at-320px-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/to-doo-two-level-windows-l-bf19b-irmation-reachable-at-320px-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/to-doo-two-level-windows-l-bf19b-irmation-reachable-at-320px-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [desktop] › tests/e2e/to-doo-two-level-windows.spec.ts:96:34 › long import preview keeps navigation and confirmation reachable at 1440px 
+    [desktop] › tests/e2e/to-doo-two-level-windows.spec.ts:96:34 › long import preview keeps navigation and confirmation reachable at 320px 

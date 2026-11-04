@@ -1,0 +1,25 @@
+{
+  "scene": "18-task-create-v2",
+  "title": "新建任务",
+  "section": "tasks",
+  "width": 1440,
+  "height": 1000,
+  "file": "1440-18-task-create-v2.png",
+  "sha256": "aed27541085679e92a5e545d55a1ca5390fd2f2a0938a1885471b1af840fab88",
+  "consecutiveCapturePixelsStable": true,
+  "businessTime": "2026-10-30T09:00:00.000Z",
+  "source": {
+    "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+    "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+    "files": 592
+  },
+  "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=tasks&taskFilter=upcoming&date=2026-10-30",
+  "operation": "任务详情",
+  "operationBounds": {
+    "x": 1012.40625,
+    "y": 56,
+    "width": 417.59375,
+    "height": 944
+  },
+  "primaryActionReachable": true
+}

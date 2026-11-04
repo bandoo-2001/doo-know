@@ -1,0 +1,23 @@
+{
+  "url": "http://100.93.35.65:5181/implemented/",
+  "images": 84,
+  "allHashesMatch": true,
+  "allImagesDecoded": true,
+  "filters": [
+    {
+      "width": 1440,
+      "visible": 28
+    },
+    {
+      "width": 390,
+      "visible": 28
+    },
+    {
+      "width": 320,
+      "visible": 28
+    }
+  ],
+  "lunarSearchCount": 1,
+  "phoneOuterOverflow": 0,
+  "pageErrors": 0
+}

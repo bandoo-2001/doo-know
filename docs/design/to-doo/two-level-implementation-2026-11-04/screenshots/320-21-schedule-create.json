@@ -1,0 +1,25 @@
+{
+  "scene": "21-schedule-create",
+  "title": "新建时间安排",
+  "section": "calendar",
+  "width": 320,
+  "height": 844,
+  "file": "320-21-schedule-create.png",
+  "sha256": "3dc054c1b71d115e234155b8ba089abffac94dcb373b6c05485405915e3ef83e",
+  "consecutiveCapturePixelsStable": true,
+  "businessTime": "2026-10-30T09:00:00.000Z",
+  "source": {
+    "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+    "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+    "files": 592
+  },
+  "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=calendar&taskFilter=all&date=2026-10-30&calendarView=week",
+  "operation": "新建时间安排",
+  "operationBounds": {
+    "x": 0,
+    "y": 0,
+    "width": 320,
+    "height": 844
+  },
+  "primaryActionReachable": true
+}

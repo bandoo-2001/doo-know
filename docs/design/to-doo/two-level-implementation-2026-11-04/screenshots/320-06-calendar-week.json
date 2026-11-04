@@ -1,0 +1,20 @@
+{
+  "scene": "06-calendar-week",
+  "title": "周日历",
+  "section": "calendar",
+  "width": 320,
+  "height": 844,
+  "file": "320-06-calendar-week.png",
+  "sha256": "e60686fe284f531de6b9c58b56ac7c5deb2f408996f6189698825c80554716a7",
+  "consecutiveCapturePixelsStable": true,
+  "businessTime": "2026-10-30T09:00:00.000Z",
+  "source": {
+    "commit": "f44d6086f3977e27dfd7c9703a38050ca29a93c0",
+    "sha256": "f9e29633e3e19ba023cebb731ce52de875db99d77c8277c8de4e74955706e954",
+    "files": 592
+  },
+  "url": "http://127.0.0.1:4279/?view=apps&app=to-doo&appSection=calendar&taskFilter=all&date=2026-10-30&calendarView=week",
+  "operation": null,
+  "operationBounds": null,
+  "primaryActionReachable": null
+}

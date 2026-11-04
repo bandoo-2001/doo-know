@@ -1,0 +1,27 @@
+[WebServer] (node:1777375) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1777387) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1777398) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1777398) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 12 tests using 1 worker
+
+(node:1777471) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/e2e/to-doo-focus-bottom-bar.spec.ts:26:1 › focus timer rests on the content bottom when the project list is short (3.1s)
+  ✓   2 [desktop] › tests/e2e/to-doo-focus-bottom-bar.spec.ts:34:1 › focus timer stays at the bottom while long project lists remain reachable (1.9s)
+  ✓   3 [desktop] › tests/e2e/to-doo-two-level-windows.spec.ts:19:1 › primary management action has readable contrast in light and dark themes at 320px (3.6s)
+  ✓   4 [desktop] › tests/e2e/to-doo-two-level-windows.spec.ts:52:1 › a new tag exposes its real color field and persists the selected value (2.1s)
+  ✓   5 [desktop] › tests/e2e/to-doo-two-level-windows.spec.ts:69:1 › review creation displays actual metrics and saves a server-captured snapshot (2.1s)
+  ✓   6 [desktop] › tests/e2e/to-doo-two-level-windows.spec.ts:98:3 › long import preview keeps navigation and confirmation reachable at 1440px (2.6s)
+  ✓   7 [desktop] › tests/e2e/to-doo-two-level-windows.spec.ts:98:3 › long import preview keeps navigation and confirmation reachable at 320px (3.5s)
+  ✓   8 [desktop] › tests/e2e/to-doo-unified-shell.spec.ts:6:1 › a long page title leaves the main action visible on a narrow screen (1.4s)
+  ✓   9 [desktop] › tests/e2e/to-doo-unified-shell.spec.ts:32:1 › the shared header keeps save visible while a long settings form scrolls (1.9s)
+  ✓  10 [desktop] › tests/e2e/to-doo-unified-shell.spec.ts:56:1 › desktop pages share the global header and contextual layout boundaries (4.4s)
+  ✓  11 [desktop] › tests/e2e/to-doo-unified-shell.spec.ts:122:3 › the light shell and task detail fit all supported widths and the host navigation (2.2s)
+  ✓  12 [desktop] › tests/e2e/to-doo-unified-shell.spec.ts:122:3 › the dark shell and task detail fit all supported widths and the host navigation (2.2s)
+
+  12 passed (35.9s)
