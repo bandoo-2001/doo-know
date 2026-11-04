@@ -85,6 +85,9 @@
   order: 4;
 }
 .todo-settings .todo-import-preview > ul[aria-label='待导入条目'] {
+  max-height: clamp(160px, 32dvh, 320px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 0;
   margin: 0;
   list-style: none;

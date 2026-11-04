@@ -1,5 +1,8 @@
 /* Shared geometry for the approved module rail + contextual directory layout. */
 .to-doo-workspace.todo-hosted-navigation {
+  flex: 0 0 auto;
+  grid-template-rows: var(--todo-global-header-height) auto;
+  align-content: stretch;
   font-size: 14px;
   --todo-page-padding: 28px;
 }

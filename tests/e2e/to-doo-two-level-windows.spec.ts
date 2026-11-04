@@ -1,6 +1,8 @@
 import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
 import { test, expect } from '../support/browser-test';
+import { expandToDooGroup, selectToDooOption } from '../support/to-doo-ant-controls';
+import { selectToDooContext } from '../support/to-doo-navigation';
 
 test.beforeEach(async ({ context }) => {
   await context.addCookies(JSON.parse(await readFile('.local/e2e-cookies.json', 'utf8')));
@@ -91,3 +93,76 @@ test('review creation displays actual metrics and saves a server-captured snapsh
   expect(saved.metrics.completed).toBe(1);
   expect(saved.capturedAt).toBeTruthy();
 });
+
+for (const width of [1440, 320])
+  test(`long import preview keeps navigation and confirmation reachable at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: width > 700 ? 1000 : 844 });
+    await page.goto('/?view=apps&app=to-doo&appSection=settings&appPage=data');
+    const app = page.getByRole('region', { name: 'To Doo 行动工作空间', exact: true });
+    await expandToDooGroup(app, '导入选项');
+    await selectToDooOption(app, '格式', '滴答 CSV');
+    await app
+      .getByLabel('或粘贴文件内容', { exact: true })
+      .fill(
+        'Title,Due Date,List Name\n' +
+          Array.from({ length: 23 }, (_, i) => `预览核对 ${i + 1},2026-11-05 09:00,工作清单`).join(
+            '\n',
+          ),
+      );
+    await app.getByRole('button', { name: '预览导入', exact: true }).click();
+    const preview = app.locator('.todo-import-preview');
+    await preview.scrollIntoViewIfNeeded();
+    await test.info().attach('import-layout-geometry', {
+      contentType: 'application/json',
+      body: JSON.stringify(
+        await page.evaluate(() =>
+          [
+            '.to-doo-workspace',
+            '.todo-main',
+            '.todo-topbar',
+            '.todo-page',
+            '.todo-import-preview',
+            '.workspace-main',
+            '.workspace-content',
+          ].map((selector) => {
+            const el = document.querySelector<HTMLElement>(selector);
+            if (!el) return { selector };
+            const s = getComputedStyle(el);
+            const r = el.getBoundingClientRect();
+            return {
+              selector,
+              y: r.y,
+              height: r.height,
+              clientHeight: el.clientHeight,
+              scrollHeight: el.scrollHeight,
+              scrollTop: el.scrollTop,
+              position: s.position,
+              rows: s.gridTemplateRows,
+              overflowY: s.overflowY,
+              alignSelf: s.alignSelf,
+              parent: el.parentElement?.className,
+            };
+          }),
+        ),
+        null,
+        2,
+      ),
+    });
+    await expect(app.locator('.todo-topbar')).toBeInViewport();
+    if (width > 1000)
+      await expect(
+        app
+          .getByRole('navigation', { name: '设置目录', exact: true })
+          .getByRole('button', { name: '数据与恢复', exact: true }),
+      ).toBeInViewport();
+    await expect(preview.getByRole('button', { name: '下一页预览', exact: true })).toBeInViewport();
+    await expect(preview.getByRole('button', { name: /^确认导入/ })).toBeInViewport();
+    await preview.getByRole('button', { name: '下一页预览', exact: true }).click();
+    await expect(preview.getByText(/第 2 \//)).toBeVisible();
+    if (width === 320) {
+      await selectToDooContext(page, '清单管理');
+      await expect(app.locator('.todo-page-heading h1')).toHaveText('清单管理');
+    }
+  });
