@@ -151,7 +151,7 @@ function apply() {
           step="any"
         />
       </div>
-      <div v-if="!readOnly && !parsed.error" class="property-add">
+      <div v-if="!readOnly && !parsed.error" class="property-add platform-dialog-actions">
         <input
           v-model="newKey"
           aria-label="新属性名称"
@@ -162,7 +162,7 @@ function apply() {
         <button type="button" class="btn" :disabled="!newKey.trim()" @click="add">添加属性</button>
       </div>
       <p v-if="message" role="alert" class="properties-message">{{ message }}</p>
-      <div class="properties-actions">
+      <div class="properties-actions platform-dialog-actions">
         <button type="button" class="btn" @click="emit('close')">
           {{ readOnly ? '关闭' : '取消' }}
         </button>
