@@ -11,6 +11,7 @@ import * as media from '../shared/media';
 import * as portableDownload from '../apps/web/diagrams/portable-download';
 import * as appShortcuts from '../apps/web/app-shortcuts';
 import * as workspaceMainMenu from '../apps/web/workspace-main-menu';
+import * as workspaceLayout from '../apps/web/workspace-layout';
 import * as navigation from '../apps/web/navigation';
 import * as markdownLinks from '../apps/web/markdown-links';
 import * as imageRequests from '../apps/web/image-requests';
@@ -132,6 +133,7 @@ async function mount(waitForNote = true) {
       if (id === '../git-sync') return { gitUnsaved: Vue.ref(false) };
       if (id === '../app-shortcuts') return appShortcuts;
       if (id === '../workspace-main-menu') return workspaceMainMenu;
+      if (id === '../workspace-layout') return workspaceLayout;
       if (id === '../plugin-drafts') return { clearPluginDrafts: vi.fn() };
       if (id === '../useNoteDraft')
         return {
@@ -212,7 +214,14 @@ beforeEach(() => {
     hash: '',
   };
   vi.stubGlobal('location', location);
-  vi.stubGlobal('window', Object.assign(new EventTarget(), { location }));
+  vi.stubGlobal('window', Object.assign(new EventTarget(), {
+    location,
+    // This controller-only renderer has no layout engine. Keep the real query
+    // module and provide the ordinary desktop MediaQueryList boundary.
+    matchMedia: (media: string) => Object.assign(new EventTarget(), {
+      media, matches: false, onchange: null,
+    }),
+  }));
   vi.stubGlobal('document', Object.assign(new EventTarget(), { hidden: false }));
   vi.stubGlobal('history', { state: {}, replaceState: vi.fn(), pushState: vi.fn() });
   vi.stubGlobal('sessionStorage', { getItem: () => null, setItem: vi.fn() });
