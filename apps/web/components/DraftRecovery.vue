@@ -51,11 +51,11 @@ async function copy() {
       </p>
       <p v-else>原文基准未变化。恢复只放入编辑区，手动保存后才会写入原文。</p>
       <div class="draft-recovery-actions">
-        <AButton :disabled="busy || (isFragment && baseChanged)" @click="emit('restore')"
+        <AButton type="primary" :disabled="busy || (isFragment && baseChanged)" @click="emit('restore')"
           >恢复本地草稿</AButton
         >
         <AButton :disabled="busy" @click="copy">复制恢复文本</AButton>
-        <AButton :disabled="busy" @click="emit('discard')">丢弃本地草稿</AButton>
+        <AButton danger :disabled="busy" @click="emit('discard')">丢弃本地草稿</AButton>
       </div>
       <div v-if="copyOpen" class="draft-recovery-copy">
         <p role="status">{{ copyStatus }}</p>

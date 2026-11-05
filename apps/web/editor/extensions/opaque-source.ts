@@ -98,6 +98,7 @@ export function opaqueSourceExtension(
           const deletion = owner.createElement('button');
           deletion.type = 'button';
           deletion.textContent = '删除此内容';
+          deletion.className = 'editor-menu-danger';
           deletion.addEventListener('click', () => remove(String(node.attrs.sourceId)));
           controls.append(deletion);
         }

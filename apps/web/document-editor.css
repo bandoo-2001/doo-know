@@ -460,10 +460,12 @@
   background: var(--blue);
   color: var(--panel);
 }
+.opaque-source-card .editor-menu-danger,
 .document-context-tools .editor-menu-danger,
 .editor-dialog .dialog-actions .editor-menu-danger {
   color: var(--ui-danger-text);
 }
+.opaque-source-card .editor-menu-danger:hover:not(:disabled),
 .document-context-tools .editor-menu-danger:hover:not(:disabled),
 .editor-dialog .dialog-actions .editor-menu-danger:hover:not(:disabled) {
   color: var(--ui-danger-text);

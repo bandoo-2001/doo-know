@@ -1,0 +1,6 @@
+/* Live-only label geometry: the read-only PNG renderer keeps its own layout. */
+.dooknow-mindmap-editor .map-container { font-family: inherit; }
+.dooknow-mindmap-editor me-tpc {
+  max-width: min(240px, calc(100vw - 128px));
+  overflow-wrap: anywhere;
+}

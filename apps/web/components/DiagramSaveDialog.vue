@@ -43,7 +43,7 @@ function close() {
         {{ error }}<br />源码和草稿已保留，可以重试生成，也可以仅保存源码。
       </p>
       <p v-if="busy" class="diagram-save-progress" role="status">正在生成预览，请稍候…</p>
-      <div class="diagram-save-actions">
+      <div class="diagram-save-actions platform-dialog-actions">
         <button type="button" class="btn" :disabled="busy" @click="close">取消</button>
         <button type="button" class="btn" :disabled="busy" @click="sourceOnly">仅保存源码</button>
         <button type="button" class="btn primary" :disabled="busy" @click="generate">

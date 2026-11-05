@@ -1626,8 +1626,69 @@ function create(kind: 'note' | 'folder' | 'whiteboard' | 'mindmap' | 'flowchart'
   newName.value = kind === 'note' && !newFolder.value ? 'README.md' : '';
   createOpen.value = true;
 }
-async function resumeCreation(){if(!draftScope.value||!unfinishedCreation.value||createBusy.value)return;createBusy.value=true;try{const n=await createPrimaryDocument(draftScope.value,unfinishedCreation.value);createOpen.value=false;unfinishedCreation.value=undefined;await refresh();await openNote(n.id);}catch(e){showError(e);}finally{createBusy.value=false;}}
-async function cancelUnfinishedCreation(){if(!draftScope.value)return;try{await cancelCreation(draftScope.value);unfinishedCreation.value=undefined;}catch(e){showError(e);}}
+function currentCreationScope(scope: NonNullable<typeof draftScope.value>) {
+  return draftScope.value?.ownerId === scope.ownerId && draftScope.value?.knowledgeId === scope.knowledgeId;
+}
+function requireCurrentCreation(scope: NonNullable<typeof draftScope.value>, target: PendingCreation) {
+  const current = pendingCreation(scope);
+  // The coordinator can clear a published intent before its final note read
+  // succeeds. Permit that frozen-target reconciliation; reject replacements.
+  if (current && (
+    (['requestId', 'path', 'type', 'title'] as const).some(key => current[key] !== target[key]) ||
+    (['intentId', 'noteId'] as const).some(key => target[key] !== undefined && current[key] !== target[key])
+  )) throw Error('未完成图形已变化，请重新打开创建窗口核对');
+  // Reserve can allocate IDs after an earlier response loss. Complete only the
+  // same frozen target; an already-known ID may never change or disappear.
+  return current ? { ...target, intentId: current.intentId, noteId: current.noteId } : target;
+}
+async function resumeCreation() {
+  const scope = draftScope.value, held = unfinishedCreation.value;
+  if (!scope || !held || createBusy.value || inboxBusy.value) return;
+  let target = { ...held };
+  const formRequestId = createRequestId, intent = navigationIntent;
+  createBusy.value = true;
+  dialogError.value = '';
+  try {
+    target = requireCurrentCreation(scope, target);
+    unfinishedCreation.value = target;
+    const n = await createPrimaryDocument(scope, target);
+    if (!currentCreationScope(scope)) return;
+    if (unfinishedCreation.value?.requestId === target.requestId) unfinishedCreation.value = undefined;
+    if (createRequestId !== formRequestId || !currentIntent(intent)) return;
+    createOpen.value = false;
+    await refresh();
+    if (currentCreationScope(scope) && currentIntent(intent)) await openNote(n.id, undefined, true, false, intent);
+  } catch (e) {
+    if (currentCreationScope(scope) && createRequestId === formRequestId && currentIntent(intent)) {
+      try { unfinishedCreation.value = requireCurrentCreation(scope, target); }
+      catch { /* A replacement must not become the next recovery target. */ }
+      showError(e);
+    }
+  } finally {
+    createBusy.value = false;
+  }
+}
+async function cancelUnfinishedCreation() {
+  const scope = draftScope.value, held = unfinishedCreation.value;
+  if (!scope || !held || createBusy.value || inboxBusy.value) return;
+  let target = { ...held };
+  createBusy.value = true;
+  dialogError.value = '';
+  try {
+    target = requireCurrentCreation(scope, target);
+    unfinishedCreation.value = target;
+    await cancelCreation(scope);
+    if (currentCreationScope(scope) && unfinishedCreation.value?.requestId === target.requestId) unfinishedCreation.value = undefined;
+  } catch (e) {
+    if (currentCreationScope(scope) && unfinishedCreation.value?.requestId === target.requestId) {
+      try { unfinishedCreation.value = requireCurrentCreation(scope, target); }
+      catch { /* Keep the held offer when current storage belongs elsewhere. */ }
+      showError(e);
+    }
+  } finally {
+    createBusy.value = false;
+  }
+}
 async function prepareInbox() {
   if (inboxBusy.value || createBusy.value || quickBusy.value) return;
   inboxBusy.value = true;
@@ -3714,7 +3775,13 @@ async function closeNotebookDrawer() {
           "
         />
         <p v-if="['whiteboard','mindmap','flowchart'].includes(createKind)" class="muted">源与 PNG 预览完整保存后创建 Markdown 图形文档，默认私有。</p>
-        <div v-if="unfinishedCreation" role="status">未完成的图形：{{unfinishedCreation.path}} <button @click="resumeCreation">恢复未完成图形</button><button @click="cancelUnfinishedCreation">取消未完成图形</button></div>
+        <div v-if="unfinishedCreation" class="unfinished-creation" role="status">
+          <p class="unfinished-creation-path">未完成的图形：<span>{{ unfinishedCreation.path }}</span></p>
+          <div class="platform-dialog-actions">
+            <button type="button" class="btn primary" :disabled="createBusy || inboxBusy" @click="resumeCreation">恢复未完成图形</button>
+            <button type="button" class="btn" :disabled="createBusy || inboxBusy" @click="cancelUnfinishedCreation">取消未完成图形</button>
+          </div>
+        </div>
         <p v-else class="muted">
           {{
             !newFolder
@@ -3839,6 +3906,19 @@ async function closeNotebookDrawer() {
   </NModal>
 </template>
 <style scoped>
+.unfinished-creation {
+  margin-block: 14px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--ui-radius, 8px);
+  background: var(--surface);
+}
+.unfinished-creation-path {
+  margin: 0 0 12px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
 .main-content {
   position: relative;
 }

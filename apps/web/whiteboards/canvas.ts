@@ -5,6 +5,7 @@ import type { ExcalidrawImperativeAPI, AppState, BinaryFiles } from '@excalidraw
 import type { ExcalidrawElement } from '@excalidraw/excalidraw/element/types';
 import { parseWhiteboard, type WhiteboardScene } from '../../../shared/whiteboard';
 import { previewDimensions } from '../diagrams/preview-artifact';
+import { installCanvasPopoverViewport } from './viewport-popovers';
 import '@excalidraw/excalidraw/index.css';
 
 declare global {
@@ -72,10 +73,12 @@ export function mountCanvas(
       }),
     );
   render();
+  const stopPopoverViewport = installCanvasPopoverViewport(container);
   const observer = new MutationObserver(render);
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   return {
     dispose() {
+      stopPopoverViewport();
       observer.disconnect();
       root?.unmount();
       root = undefined;

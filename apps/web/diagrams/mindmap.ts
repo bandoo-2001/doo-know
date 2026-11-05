@@ -1,5 +1,6 @@
 import MindElixir, { type MindElixirInstance, type NodeObj } from 'mind-elixir';
 import 'mind-elixir/style.css';
+import './mindmap-editor.css';
 import { installMindmapControls } from './mindmap-controls';
 import { snapdom } from '@zumer/snapdom';
 import { diagramRendererVersions } from '../../../shared/diagram-primary.js';
@@ -28,6 +29,7 @@ export function mountMindmap(
 ): MindElixirInstance {
   serializeMindmapOutline(root);
   el.style.fontFamily = fontFamily;
+  if (!readOnly) el.classList.add('dooknow-mindmap-editor');
   const mind = new MindElixir({
     el,
     direction: MindElixir.SIDE,
@@ -47,7 +49,50 @@ export function mountMindmap(
     throw error;
   }
   mind.container.style.fontFamily = fontFamily;
-  if (!readOnly) mind.disposable.push(installMindmapControls(mind));
+  if (!readOnly) {
+    mind.disposable.push(installMindmapControls(mind));
+    let disposed = false, interacted = false, frame = 0;
+    const touched = () => { interacted = true; };
+    for (const event of ['pointerdown', 'wheel', 'keydown']) mind.container.addEventListener(event, touched, { passive: true, capture: true });
+    // Fit only the initial overflowing view after font/layout readiness. Scale
+    // events do not rewrite the Markdown tree; later user pan/zoom is retained.
+    void document.fonts.ready.then(() => {
+      if (disposed) return;
+      frame = requestAnimationFrame(() => {
+        frame = requestAnimationFrame(() => {
+          if (disposed || interacted) return;
+          const bounds = mind.container.getBoundingClientRect();
+          const visibleTopics = () => [...mind.container.querySelectorAll('me-tpc')].map(node => node.getBoundingClientRect());
+          const topicBounds = () => {
+            const rects = visibleTopics();
+            return rects.length ? { left: Math.min(...rects.map(rect => rect.left)), top: Math.min(...rects.map(rect => rect.top)),
+              right: Math.max(...rects.map(rect => rect.right)), bottom: Math.max(...rects.map(rect => rect.bottom)) } : undefined;
+          };
+          const topics = topicBounds();
+          if (!topics || !bounds.width || !bounds.height) return;
+          const outside = topics.left < bounds.left + 16 || topics.right > bounds.right - 16 || topics.top < bounds.top + 16 || topics.bottom > bounds.bottom - 16;
+          if (!outside) return;
+          // The native nodes box contains large layout margins. Fit the real
+          // labels instead, so a tiny child is not the price of avoiding clips.
+          const fit = Math.min(1, (bounds.width - 32) / (topics.right - topics.left), (bounds.height - 32) / (topics.bottom - topics.top));
+          const proposedScale = Math.min(1, mind.scaleVal * fit);
+          const smallestFont = Math.min(...[...mind.container.querySelectorAll<HTMLElement>('me-tpc')].map(node => parseFloat(getComputedStyle(node).fontSize)));
+          // A large legal tree cannot be overviewed at readable text size on a
+          // phone. Keep the native readable root-centred camera in that case;
+          // the user can pan to distant nodes instead of starting at 3px text.
+          if (proposedScale < Math.max(mind.scaleMin, 12 / smallestFont)) return;
+          mind.scale(proposedScale);
+          const fitted = topicBounds();
+          if (fitted) mind.move((bounds.left + bounds.right - fitted.left - fitted.right) / 2,
+            (bounds.top + bounds.bottom - fitted.top - fitted.bottom) / 2);
+        });
+      });
+    });
+    mind.disposable.push(() => {
+      disposed = true; cancelAnimationFrame(frame); el.classList.remove('dooknow-mindmap-editor');
+      for (const event of ['pointerdown', 'wheel', 'keydown']) mind.container.removeEventListener(event, touched, true);
+    });
+  }
   // The library consumes its native clipboard protocol before pasteHandler. Guard in
   // capture phase so untrusted image/HTML fields never reach the rendering engine.
   const guardPaste = (event: ClipboardEvent) => {
