@@ -148,10 +148,10 @@ onMounted(() => {
         // translucent so it cannot cover the selection on that same line.
         '.cm-activeLine': { backgroundColor: 'color-mix(in srgb, var(--blue) 4%, transparent)' },
         '.cm-selectionBackground': {
-          backgroundColor: 'var(--blue-soft)',
+          backgroundColor: 'var(--editor-selection, var(--blue-soft))',
         },
         '&.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground': {
-          backgroundColor: 'var(--blue-soft)',
+          backgroundColor: 'var(--editor-selection, var(--blue-soft))',
         },
         '.cm-cursor': { borderLeftColor: 'var(--blue)', borderLeftWidth: '2px' },
         '@media (max-width: 720px)': {
