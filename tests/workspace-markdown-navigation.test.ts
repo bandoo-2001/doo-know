@@ -26,6 +26,7 @@ import * as blogDiagrams from '../apps/web/blog-diagrams';
 import * as toDooCapture from '../apps/web/to-doo-capture';
 import * as appShortcuts from '../apps/web/app-shortcuts';
 import * as workspaceMainMenu from '../apps/web/workspace-main-menu';
+import * as workspaceLayout from '../apps/web/workspace-layout';
 import { markdownStyles } from '../shared/markdown-styles';
 import { markdownTasks } from '../shared/markdown-tasks';
 import { diagramFences } from '../shared/diagram-fences';
@@ -129,6 +130,7 @@ async function mount(waitForNote = true) {
       if (id === '../navigation') return navigation;
       if (id === '../app-shortcuts') return appShortcuts;
       if (id === '../workspace-main-menu') return workspaceMainMenu;
+      if (id === '../workspace-layout') return workspaceLayout;
       if (id === '../markdown-links') return markdownLinks;
       if (id === '../image-requests') return imageRequests;
       if (id === '../preferences') return preferences;
@@ -218,7 +220,12 @@ beforeEach(() => {
     hash: '',
   };
   vi.stubGlobal('location', location);
-  vi.stubGlobal('window', Object.assign(new EventTarget(), { location }));
+  vi.stubGlobal('window', Object.assign(new EventTarget(), {
+    location,
+    matchMedia: (media: string) => Object.assign(new EventTarget(), {
+      media, matches: false, onchange: null,
+    }),
+  }));
   vi.stubGlobal('document', Object.assign(new EventTarget(), { hidden: false }));
   vi.stubGlobal('history', { state: {}, replaceState: vi.fn(), pushState: vi.fn() });
   vi.stubGlobal('sessionStorage', { getItem: () => null, setItem: vi.fn() });

@@ -7,6 +7,7 @@ import * as vueuse from '@vueuse/core';
 import * as workbench from '../apps/web/to-doo-workbench';
 import * as presentation from '../apps/web/to-doo-presentation';
 import * as contextNavigation from '../apps/web/to-doo-context-navigation';
+import * as workspaceLayout from '../apps/web/workspace-layout';
 import * as controls from '../apps/web/to-doo-controls';
 import * as push from '../apps/web/to-doo-push';
 import { toDooAntStubs, toDooBoundaryStub } from './support/to-doo-ant-stubs';
@@ -79,6 +80,7 @@ function component(path: string): Vue.Component {
   new Function('require', 'module', 'exports', source)(
     (id: string) => {
       if (id === 'vue') return { ...Vue, vModelText: {}, vModelSelect: {}, vModelCheckbox: {} };
+      if (id === '../workspace-layout') return workspaceLayout;
       if (id === 'ant-design-vue') return toDooAntStubs;
       if (id === '@vueuse/core') return vueuse;
       if (id.endsWith('/to-doo-controls')) return controls;
