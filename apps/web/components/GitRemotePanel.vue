@@ -1445,6 +1445,30 @@ pre {
   flex-wrap: wrap;
   align-items: center;
 }
+.credential-list li > span {
+  flex-basis: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.credential-list :deep(.ant-btn) {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  max-width: 100%;
+  height: auto;
+  min-height: 36px;
+  padding-block: 6px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: start;
+}
+.credential-list :deep(.ant-btn > span) {
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
 .remote-help a {
   display: block;
   margin-top: 8px;
