@@ -1,30 +1,12 @@
 /* Blog management only. Public blog pages and the other workspaces keep their own styles. */
 .blog-workspace.blog-admin {
-  --blog-ink: #243449;
-  --blog-muted: #66758a;
-  --blog-line: #dde5ef;
-  --blog-surface: #fff;
-  --blog-soft: #f5f7fb;
-  --blog-canvas: #f3f6fa;
-  --blog-accent: #356ed5;
-  --blog-accent-hover: #285bb9;
-  --blog-accent-soft: #edf3ff;
-  --blog-shadow: 0 3px 16px #20344d06;
-  --blog-warning: #826321;
-  --blog-warning-soft: #fff9ed;
-  --blog-warning-line: #eadfc3;
-  --blog-success: #286b52;
-  --blog-success-soft: #edf8f2;
-  --blog-success-line: #cce5d8;
-  --blog-error: #a44238;
-  --blog-error-soft: #fff2ef;
-  --blog-error-line: #eed3cd;
   padding: 30px max(28px, calc((100% - 1280px) / 2)) 48px;
   background: var(--blog-canvas);
   color: var(--blog-ink);
   font-size: 15px;
   line-height: 1.6;
   overflow-wrap: anywhere;
+  min-height: 100%;
 }
 
 .blog-workspace.blog-admin *,
@@ -38,12 +20,12 @@
 }
 
 .blog-workspace.blog-admin :is(button, a, input, textarea, select, summary):focus-visible {
-  outline: 3px solid var(--blog-accent);
+  outline: 2px solid var(--blog-accent);
   outline-offset: 3px;
 }
 
 .blog-workspace.blog-admin :is(button, a, input, textarea, select) {
-  scroll-margin-block: 90px;
+  scroll-margin-block: 24px;
 }
 
 .blog-workspace.blog-admin :is(small, .blog-muted) {
@@ -87,7 +69,7 @@
   min-height: 42px;
   max-width: 100%;
   padding: 9px 16px;
-  border-radius: 9px;
+  border-radius: var(--ui-radius);
   font-size: 14px !important; /* Overrides the legacy .blog-button declaration. */
   font-weight: 600 !important;
   line-height: 1.5 !important;
@@ -118,7 +100,7 @@
   height: 42px;
   min-width: 42px;
   border: 1px solid var(--blog-line);
-  border-radius: 9px;
+  border-radius: var(--ui-radius);
   background: var(--blog-surface);
   color: var(--blog-muted);
 }
@@ -140,7 +122,7 @@
   padding: 6px;
   margin-top: 24px;
   border: 1px solid var(--blog-line);
-  border-radius: 12px;
+  border-radius: var(--ui-radius);
   background: var(--blog-surface);
   box-shadow: var(--blog-shadow);
 }
@@ -150,7 +132,7 @@
   padding: 9px 16px;
   gap: 8px;
   border: 0;
-  border-radius: 7px;
+  border-radius: var(--ui-radius);
   font-size: 14px;
   line-height: 1.5;
 }
@@ -163,7 +145,7 @@
 
 .blog-workspace.blog-admin :is(.blog-site-off, .blog-alert) {
   padding: 12px 16px;
-  border-radius: 10px;
+  border-radius: var(--ui-radius);
   margin-top: 18px;
   font-size: 14px;
   line-height: 1.7;
@@ -199,7 +181,7 @@
 
 .blog-workspace.blog-admin .blog-badge {
   padding: 4px 9px;
-  border-radius: 6px;
+  border-radius: var(--ui-radius);
   font-size: 13px;
   line-height: 1.5;
   white-space: normal;
@@ -248,8 +230,8 @@
   gap: 24px;
   padding: 26px 30px;
   border: 1px solid var(--blog-line);
-  border-radius: 14px;
-  background: linear-gradient(115deg, var(--blog-surface), var(--blog-accent-soft));
+  border-radius: var(--ui-radius);
+  background: var(--blog-soft);
   box-shadow: var(--blog-shadow);
 }
 
@@ -287,7 +269,7 @@
   min-width: 0;
   padding: 19px 21px;
   border: 1px solid var(--blog-line);
-  border-radius: 12px;
+  border-radius: var(--ui-radius);
   background: var(--blog-surface);
   box-shadow: var(--blog-shadow);
   text-align: left;
@@ -330,14 +312,14 @@
 .blog-workspace.blog-admin .blog-admin-recent {
   padding: 4px 22px;
   border: 1px solid var(--blog-line);
-  border-radius: 12px;
+  border-radius: var(--ui-radius);
   background: var(--blog-surface);
   box-shadow: var(--blog-shadow);
 }
 
 .blog-workspace.blog-admin .blog-overview > .blog-empty {
   border: 1px solid var(--blog-line);
-  border-radius: 12px;
+  border-radius: var(--ui-radius);
   background: var(--blog-surface);
 }
 
@@ -395,7 +377,7 @@
 .blog-workspace.blog-admin .blog-article-layout {
   grid-template-columns: minmax(270px, 0.78fr) minmax(0, 1.55fr);
   min-height: 480px;
-  border-radius: 14px;
+  border-radius: var(--ui-radius);
   background: var(--blog-surface);
   box-shadow: var(--blog-shadow);
   overflow: visible;
@@ -404,7 +386,7 @@
 
 .blog-workspace.blog-admin .blog-article-list {
   padding: 18px;
-  border-radius: 14px 0 0 14px;
+  border-radius: var(--ui-radius) 0 0 var(--ui-radius);
 }
 
 .blog-workspace.blog-admin .blog-admin-toolbar {
@@ -447,7 +429,7 @@
 .blog-workspace.blog-admin .blog-admin-taxonomy-toolbar {
   padding: 16px 18px;
   border: 1px solid var(--blog-line);
-  border-radius: 11px;
+  border-radius: var(--ui-radius);
   background: var(--blog-surface);
 }
 
@@ -456,7 +438,7 @@
   min-height: 44px;
   padding: 9px 12px;
   gap: 9px;
-  border-radius: 9px;
+  border-radius: var(--ui-radius);
 }
 
 .blog-workspace.blog-admin .blog-search:focus-within {
@@ -479,7 +461,7 @@
   min-height: 44px;
   padding: 8px 11px;
   margin: 10px 0 16px;
-  border-radius: 9px;
+  border-radius: var(--ui-radius);
   font-size: 14px !important; /* Legacy state-filter has an important font size. */
   color: var(--blog-ink);
 }
@@ -497,14 +479,14 @@
   width: 36px;
   min-height: 36px;
   font-size: 21px;
-  border-radius: 6px;
+  border-radius: var(--ui-radius);
 }
 
 .blog-workspace.blog-admin .blog-post-option {
   padding: 15px 13px;
   gap: 10px;
   margin-bottom: 8px;
-  border-radius: 10px;
+  border-radius: var(--ui-radius);
 }
 
 .blog-workspace.blog-admin .blog-post-option.selected {
@@ -555,7 +537,7 @@
 .blog-workspace.blog-admin .blog-source {
   gap: 12px;
   padding: 12px 14px;
-  border-radius: 10px;
+  border-radius: var(--ui-radius);
 }
 
 .blog-workspace.blog-admin .blog-source small {
@@ -599,7 +581,7 @@
   :is(input:not([type='checkbox']):not([type='range']):not([type='color']), textarea, select) {
   min-height: 44px;
   padding: 10px 12px;
-  border-radius: 8px;
+  border-radius: var(--ui-radius);
   font-size: 15px;
   line-height: 1.65;
 }
@@ -646,7 +628,7 @@
   padding: 20px;
   margin: 0;
   border: 1px solid var(--blog-line);
-  border-radius: 10px;
+  border-radius: var(--ui-radius);
 }
 
 .blog-workspace.blog-admin .blog-admin-form-group legend {
@@ -656,11 +638,11 @@
 }
 
 .blog-workspace.blog-admin .blog-action-panel {
-  top: 12px;
+  top: 0;
   padding: 14px;
   margin-bottom: 22px;
-  border-radius: 11px;
-  box-shadow: 0 5px 18px #20344d0c;
+  border-radius: var(--ui-radius);
+  box-shadow: none;
 }
 
 .blog-workspace.blog-admin .blog-publish-bar {
@@ -682,7 +664,7 @@
 .blog-workspace.blog-admin .blog-preview {
   padding: 22px;
   margin: 24px 0 0;
-  border-radius: 11px;
+  border-radius: var(--ui-radius);
 }
 
 .blog-workspace.blog-admin
@@ -705,7 +687,7 @@
 .blog-workspace.blog-admin .blog-confirm {
   padding: 20px;
   border-color: var(--blog-error-line);
-  border-radius: 10px;
+  border-radius: var(--ui-radius);
 }
 
 .blog-workspace.blog-admin .blog-confirm strong {
@@ -726,7 +708,7 @@
   min-width: 0;
   min-height: 0;
   padding: 24px;
-  border-radius: 13px;
+  border-radius: var(--ui-radius);
   background: var(--blog-surface);
   box-shadow: var(--blog-shadow);
 }
@@ -741,7 +723,7 @@
 
 .blog-workspace.blog-admin .blog-panel h3 > span {
   padding: 2px 9px;
-  border-radius: 7px;
+  border-radius: var(--ui-radius);
   background: var(--blog-soft);
   font-size: 13px;
 }
@@ -784,7 +766,7 @@
 .blog-workspace.blog-admin .blog-category {
   min-height: 52px;
   padding: 13px 8px;
-  border-radius: 6px;
+  border-radius: var(--ui-radius);
   gap: 14px;
   font-size: 15px !important; /* Overrides the legacy category declaration. */
 }
@@ -806,7 +788,7 @@
   min-height: 42px;
   gap: 7px;
   padding: 8px 12px;
-  border-radius: 8px;
+  border-radius: var(--ui-radius);
   font-size: 14px;
   line-height: 1.5;
   text-align: left;
@@ -845,7 +827,7 @@
   margin: 0;
   padding: 24px;
   border: 1px solid var(--blog-line);
-  border-radius: 13px;
+  border-radius: var(--ui-radius);
   background: var(--blog-surface);
   box-shadow: var(--blog-shadow);
 }
@@ -878,7 +860,7 @@
 
 .blog-workspace.blog-admin .blog-visibility {
   padding: 22px 24px;
-  border-radius: 12px;
+  border-radius: var(--ui-radius);
   background: var(--blog-surface);
   margin-bottom: 0;
 }
@@ -926,9 +908,9 @@
   padding: 16px 20px;
   margin: 0;
   border: 1px solid var(--blog-line);
-  border-radius: 11px;
+  border-radius: var(--ui-radius);
   background: var(--blog-surface);
-  box-shadow: 0 -3px 18px #20344d0b;
+  box-shadow: none;
 }
 
 .blog-workspace.blog-admin :is(.blog-settings-footer, .blog-admin-settings-savebar) > span {
@@ -939,14 +921,14 @@
 
 .blog-workspace.blog-admin .blog-picker-backdrop {
   padding: 24px;
-  background: #10203766;
+  background: #0006;
 }
 
 .blog-workspace.blog-admin .blog-picker {
   width: 620px;
   padding: 26px;
   max-height: 86dvh;
-  border-radius: 16px;
+  border-radius: var(--ui-radius);
 }
 
 .blog-workspace.blog-admin .blog-picker h2 {
@@ -986,68 +968,10 @@
   margin-top: 4px;
 }
 
-/* The hosted rail is only 60px wide; allow the complete blog labels to wrap. */
-.workspace-footer.workspace-main-menu[data-menu-id='blog'] .rail-notes-navigation button,
-.workspace-footer.workspace-main-menu[data-menu-id='blog'] .footer-tools button {
-  min-height: 74px;
-  padding: 8px 2px;
-  gap: 5px;
-  font-size: 13px;
-  line-height: 1.35;
-}
-
-.workspace-footer.workspace-main-menu[data-menu-id='blog']
-  :is(.rail-notes-navigation, .footer-tools)
-  button
-  > span {
-  width: 100%;
-  min-width: 0;
-  white-space: normal;
-  overflow-wrap: anywhere;
-  text-align: center;
-}
-
-.workspace-footer.workspace-main-menu[data-menu-id='blog'] .workspace-menu-return {
-  min-height: 54px;
-  font-size: 13px;
-  line-height: 1.4;
-}
-
-/* Keep the keyboard ring inside the scrollable rail's clipping boundary. */
-.workspace-footer.workspace-main-menu[data-menu-id='blog'] button:focus-visible {
-  outline-offset: -3px;
-}
-
-[data-theme='dark'] .blog-workspace.blog-admin {
-  --blog-ink: #e0e8f5;
-  --blog-muted: #a2b0c5;
-  --blog-line: #35435a;
-  --blog-surface: #1c293d;
-  --blog-soft: #202f46;
-  --blog-canvas: #152033;
-  --blog-accent: #82adfa;
-  --blog-accent-hover: #6999ec;
-  --blog-accent-soft: #263c60;
-  --blog-shadow: 0 3px 16px #050c1715;
-  --blog-warning: #e2c586;
-  --blog-warning-soft: #383426;
-  --blog-warning-line: #564b30;
-  --blog-success: #9ed7b9;
-  --blog-success-soft: #213c36;
-  --blog-success-line: #34594b;
-  --blog-error: #f1b0a8;
-  --blog-error-soft: #402c31;
-  --blog-error-line: #654047;
-  color-scheme: dark;
-}
-
-[data-theme='dark'] .blog-workspace.blog-admin .blog-button.primary {
-  color: #12213b;
-}
-
 @media (max-width: 1100px) {
   .blog-workspace.blog-admin {
     padding: 26px 24px 40px;
+    min-height: 100%;
   }
 
   .blog-workspace.blog-admin .blog-article-layout {
@@ -1095,7 +1019,7 @@
   .blog-workspace.blog-admin .blog-article-list {
     border-right: 0;
     border-bottom: 1px solid var(--blog-line);
-    border-radius: 14px 14px 0 0;
+    border-radius: var(--ui-radius) var(--ui-radius) 0 0;
     max-height: 390px;
     overflow-y: auto;
   }
@@ -1116,6 +1040,7 @@
 @media (max-width: 680px) {
   .blog-workspace.blog-admin {
     padding: 22px 16px 32px;
+    min-height: 100%;
   }
 
   .blog-workspace.blog-admin .blog-header {
@@ -1312,7 +1237,7 @@
   }
 
   .blog-workspace.blog-admin .blog-action-panel {
-    top: 60px;
+    top: 0;
     padding: 12px;
   }
 
@@ -1386,17 +1311,6 @@
   .blog-workspace.blog-admin .blog-picker h2 {
     font-size: 24px;
   }
-
-  .workspace-footer.workspace-main-menu[data-menu-id='blog'] .rail-notes-navigation button,
-  .workspace-footer.workspace-main-menu[data-menu-id='blog'] .footer-tools button {
-    min-height: 60px;
-    padding: 9px 5px;
-    font-size: 13px;
-  }
-
-  .workspace-footer.workspace-main-menu[data-menu-id='blog'] .workspace-menu-return {
-    min-height: 44px;
-  }
 }
 
 @media (max-width: 720px) {
@@ -1440,4 +1354,21 @@
     animation: none;
     scroll-behavior: auto;
   }
+}
+
+.blog-workspace.blog-admin .blog-heading > .blog-app-icon {
+  color: var(--blog-accent);
+  background: var(--blog-accent-soft);
+  border-color: var(--blog-line);
+  border-radius: var(--ui-radius);
+}
+
+.blog-workspace.blog-admin .danger {
+  color: var(--blog-error) !important;
+}
+
+.blog-workspace.blog-admin .danger-button {
+  background: var(--blog-error) !important;
+  color: var(--on-accent) !important;
+  border-color: var(--blog-error) !important;
 }

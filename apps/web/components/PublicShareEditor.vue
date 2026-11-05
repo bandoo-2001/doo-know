@@ -290,6 +290,8 @@ onBeforeUnmount(() => {
   border-bottom: 1px solid var(--border);
 }
 .public-editor-modes {
+  min-width: 0;
+  flex-wrap: wrap;
   display: flex;
   gap: 6px;
 }
@@ -304,6 +306,7 @@ onBeforeUnmount(() => {
   line-height: 1.8;
 }
 .public-editor-recovery {
+  overflow-wrap: anywhere;
   margin: 12px 0;
 }
 .public-editor-loading {
@@ -312,12 +315,15 @@ onBeforeUnmount(() => {
   color: var(--muted);
 }
 .public-share-editor :deep(.note-editor-host) {
+  min-width: 0;
+  background: var(--panel);
+  color: var(--text);
   display: flex;
   flex-direction: column;
   min-height: 55dvh;
   margin-top: 18px;
   border: 1px solid var(--border);
-  border-radius: 7px;
+  border-radius: var(--ui-radius);
   overflow: hidden;
 }
 .public-share-editor :deep(.cm-editor) {

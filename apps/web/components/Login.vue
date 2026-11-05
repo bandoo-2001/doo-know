@@ -102,7 +102,7 @@ async function login() {
   align-items: center;
   gap: 24px;
   padding: 40px 20px;
-  background: var(--surface, #f5f6f8);
+  background: var(--bg);
   overflow: visible;
 }
 .login-page::before,
@@ -114,6 +114,7 @@ async function login() {
   margin: 0;
 }
 .login-story .brand {
+  color: var(--blue);
   justify-content: center;
   font-size: 24px;
   margin: 0;
@@ -125,10 +126,13 @@ async function login() {
   text-align: center;
 }
 .login-card {
+  min-width: 0;
+  background: var(--panel);
+  color: var(--text);
   width: min(400px, 100%);
   padding: 32px;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--ui-radius);
   box-shadow: none;
 }
 .login-card h2 {
@@ -147,7 +151,7 @@ async function login() {
   margin: 16px 0 8px;
   font-size: 13px;
   font-weight: 500;
-  color: var(--text, #262b36);
+  color: var(--text);
 }
 .login-card :deep(.ant-input),
 .login-card :deep(.ant-input-affix-wrapper) {
@@ -193,7 +197,7 @@ async function login() {
   margin: 10px 0;
 }
 .login-help a {
-  color: var(--accent, #4566c6);
+  color: var(--blue);
 }
 .compact {
   min-height: 0;
@@ -207,6 +211,7 @@ async function login() {
   border: 0;
 }
 .compact .brand {
+  color: var(--blue);
   margin-bottom: 20px;
   font-size: 20px;
 }

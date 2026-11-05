@@ -152,34 +152,39 @@ async function consent(accept: boolean) {
 </template>
 <style scoped>
 .oauth-consent {
+  width: 100%;
+  min-height: 100dvh;
+  overflow-wrap: anywhere;
   max-width: 640px;
   margin: 0 auto;
   padding: 42px 24px 28px;
-  color: var(--text, #262b36);
+  color: var(--text);
 }
 .oauth-brand {
   display: flex;
   align-items: center;
   gap: 9px;
   margin: 0 0 24px;
-  color: var(--blue, #4566c6);
+  color: var(--blue);
   font-size: 23px;
   letter-spacing: -0.6px;
 }
 .oauth-card {
-  border-color: var(--border, #e3e6ec);
-  border-radius: 10px;
-  background: white;
+  min-width: 0;
+  color: var(--text);
+  border-color: var(--border);
+  border-radius: var(--ui-radius);
+  background: var(--panel);
 }
 .oauth-card :deep(.ant-card-head) {
   min-height: 0;
   padding: 24px 30px 20px;
-  border-bottom-color: var(--border, #e3e6ec);
+  border-bottom-color: var(--border);
 }
 .oauth-card h1 {
   margin: 0;
   line-height: 1.4;
-  color: var(--text, #262b36);
+  color: var(--text);
   font-size: 23px;
   font-weight: 650;
 }
@@ -191,9 +196,9 @@ async function consent(accept: boolean) {
   align-items: center;
   gap: 12px;
   padding: 16px;
-  border: 1px solid var(--border, #e3e6ec);
-  border-radius: 7px;
-  background: var(--surface-soft, #fafbfc);
+  border: 1px solid var(--border);
+  border-radius: var(--ui-radius);
+  background: var(--surface-soft);
 }
 .oauth-client > div {
   min-width: 0;
@@ -204,19 +209,19 @@ async function consent(accept: boolean) {
   flex-shrink: 0;
   width: 38px;
   height: 38px;
-  border: 1px solid #e3e8f6;
-  border-radius: 7px;
-  background: #f0f3fb;
-  color: var(--blue, #4566c6);
+  border: 1px solid var(--border);
+  border-radius: var(--ui-radius);
+  background: var(--blue-soft);
+  color: var(--blue);
 }
 .eyebrow {
   margin: 0 0 3px;
-  color: var(--muted, #7a8190);
+  color: var(--muted);
   font-size: 11px;
 }
 h2 {
   margin: 0;
-  color: var(--text, #262b36);
+  color: var(--text);
   font-size: 16px;
   font-weight: 600;
   line-height: 1.6;
@@ -224,7 +229,7 @@ h2 {
 }
 .oauth-intro {
   margin: 20px 0 24px;
-  color: #6c7482;
+  color: var(--muted);
   font-size: 13px;
   line-height: 1.7;
 }
@@ -240,7 +245,7 @@ fieldset {
 legend {
   margin-bottom: 10px;
   padding: 0;
-  color: var(--text, #262b36);
+  color: var(--text);
   font-size: 13px;
   font-weight: 600;
 }
@@ -248,7 +253,7 @@ legend {
   display: flex;
   min-width: 0;
   padding: 9px 0;
-  border-bottom: 1px solid #edf0f4;
+  border-bottom: 1px solid var(--border);
 }
 .scope-row:last-child {
   border-bottom: 0;
@@ -275,14 +280,14 @@ legend {
   display: flex;
   align-items: flex-start;
   gap: 7px;
-  color: #5c6574;
+  color: var(--text);
   font-family: 'SFMono-Regular', Consolas, monospace;
   font-size: 12px;
 }
 .directory-row svg {
   flex-shrink: 0;
   margin-top: 3px;
-  color: var(--muted, #7a8190);
+  color: var(--muted);
 }
 .directory-row span {
   min-width: 0;
@@ -293,10 +298,10 @@ legend {
   gap: 8px;
   margin: 24px 0 0;
   padding: 13px 14px;
-  border: 1px solid var(--border, #e3e6ec);
-  border-radius: 6px;
-  background: var(--surface-soft, #fafbfc);
-  color: var(--muted, #7a8190);
+  border: 1px solid var(--border);
+  border-radius: var(--ui-radius);
+  background: var(--surface-soft);
+  color: var(--muted);
   font-size: 12px;
   line-height: 1.7;
 }
@@ -305,12 +310,13 @@ legend {
   margin-top: 4px;
 }
 .oauth-actions {
+  flex-wrap: wrap;
   display: flex;
   justify-content: flex-end;
   gap: 10px;
   margin-top: 24px;
   padding-top: 20px;
-  border-top: 1px solid var(--border, #e3e6ec);
+  border-top: 1px solid var(--border);
 }
 .oauth-actions .ant-btn {
   min-width: 84px;
@@ -322,7 +328,7 @@ legend {
 }
 .oauth-loading {
   padding: 34px 0;
-  color: var(--muted, #7a8190);
+  color: var(--muted);
   font-size: 13px;
   text-align: center;
 }
@@ -331,7 +337,7 @@ legend {
 }
 .oauth-note {
   margin-top: 20px;
-  color: var(--muted, #7a8190);
+  color: var(--muted);
   font-size: 11px;
   line-height: 1.7;
   text-align: center;
@@ -345,7 +351,7 @@ legend {
     font-size: 21px;
   }
   .oauth-card {
-    border-radius: 8px;
+    border-radius: var(--ui-radius);
   }
   .oauth-card :deep(.ant-card-head) {
     padding: 20px;

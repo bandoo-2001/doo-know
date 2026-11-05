@@ -227,22 +227,23 @@ onUnmounted(() => {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  background: var(--panel, #fff);
-  color: var(--text, #262b36);
+  background: var(--panel);
+  color: var(--text);
 }
 .reader-header {
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 20px;
   flex-wrap:wrap;
-  min-height: 68px;
-  padding: 16px max(32px, calc((100vw - 1160px) / 2));
-  border-bottom: 1px solid var(--border, #e3e6ec);
-  background: var(--surface-soft, #fafbfc);
+  min-height: 56px;
+  padding: 12px max(24px, calc((100vw - 1160px) / 2));
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
 }
 .reader-header .brand {
   gap: 9px;
-  color: var(--blue, #4566c6);
+  color: var(--blue);
   font-size: 22px;
   letter-spacing: -0.6px;
 }
@@ -252,8 +253,8 @@ onUnmounted(() => {
 }
 .reader-header > span {
   padding-left: 20px;
-  border-left: 1px solid var(--border, #e3e6ec);
-  color: var(--muted, #7a8190);
+  border-left: 1px solid var(--border);
+  color: var(--muted);
   font-size: 12px;
 }
 .reader-header > .read-only {
@@ -262,14 +263,14 @@ onUnmounted(() => {
   gap: 6px;
   margin-left: auto;
   padding: 4px 9px;
-  border: 1px solid var(--border, #e3e6ec);
-  border-radius: 5px;
-  background: var(--panel, #fff);
-  color: #6c7482;
+  border: 1px solid var(--border);
+  border-radius: var(--ui-radius);
+  background: var(--panel);
+  color: var(--muted);
   font-size: 11px;
   white-space: nowrap;
 }
-.reader-expiry,.reader-edit-limitation { color:var(--muted,#7a8190);font-size:12px;line-height:1.8; }
+.reader-expiry,.reader-edit-limitation { color:var(--muted);font-size:12px;line-height:1.8; }
 .reader-layout {
   display: block;
   width: 100%;
@@ -289,7 +290,7 @@ onUnmounted(() => {
 }
 .reader-title {
   margin: 0 0 14px;
-  color: var(--text, #262b36);
+  color: var(--text);
   font-size: 32px;
   font-weight: 650;
   line-height: 1.5;
@@ -299,14 +300,14 @@ onUnmounted(() => {
 .reader-meta {
   margin: 0;
   padding-bottom: 24px;
-  border-bottom: 1px solid var(--border, #e3e6ec);
-  color: var(--muted, #7a8190);
+  border-bottom: 1px solid var(--border);
+  color: var(--muted);
   font-size: 12px;
   line-height: 1.8;
 }
 .reader-layout article > .markdown {
   padding: 24px 0 0;
-  color: var(--text, #262b36);
+  color: var(--text);
   font-size: 16px;
   line-height: 1.8;
   overflow-wrap: anywhere;
@@ -315,7 +316,7 @@ onUnmounted(() => {
 .markdown :deep(h2),
 .markdown :deep(h3),
 .markdown :deep(h4) {
-  color: var(--text, #262b36);
+  color: var(--text);
   font-weight: 650;
   line-height: 1.55;
   scroll-margin-top: 24px;
@@ -335,16 +336,16 @@ onUnmounted(() => {
   margin: 14px 0;
 }
 .markdown :deep(a) {
-  color: var(--blue, #4566c6);
-  text-decoration-color: #bbc7e7;
+  color: var(--blue);
+  text-decoration-color: var(--border);
   text-underline-offset: 3px;
 }
 .markdown :deep(blockquote) {
   margin: 24px 0;
   padding: 2px 0 2px 18px;
-  border-left: 3px solid #dbe1ec;
+  border-left: 3px solid var(--border);
   background: transparent;
-  color: #727a88;
+  color: var(--muted);
 }
 .markdown :deep(blockquote p) {
   margin: 5px 0;
@@ -352,17 +353,17 @@ onUnmounted(() => {
 .markdown :deep(img) {
   max-width: 100%;
   height: auto;
-  border-radius: 6px;
+  border-radius: var(--ui-radius);
 }
 .markdown :deep(pre) {
   max-width: 100%;
   margin: 20px 0;
   padding: 16px 18px;
   overflow-x: auto;
-  border: 1px solid var(--border, #e3e6ec);
-  border-radius: 7px;
-  background: var(--surface-soft, #fafbfc);
-  color: #4c5668;
+  border: 1px solid var(--border);
+  border-radius: var(--ui-radius);
+  background: var(--surface-soft);
+  color: var(--text);
   font-size: 13px;
   line-height: 1.8;
 }
@@ -376,16 +377,16 @@ onUnmounted(() => {
 .markdown :deep(th),
 .markdown :deep(td) {
   padding: 10px 14px;
-  border: 1px solid var(--border, #e3e6ec);
+  border: 1px solid var(--border);
 }
 .markdown :deep(th) {
-  background: var(--surface-soft, #fafbfc);
+  background: var(--surface-soft);
   font-weight: 500;
 }
 .markdown :deep(hr) {
   margin: 30px 0;
   border: 0;
-  border-top: 1px solid var(--border, #e3e6ec);
+  border-top: 1px solid var(--border);
 }
 .reader-toc {
   position: sticky;
@@ -396,7 +397,7 @@ onUnmounted(() => {
   gap: 12px;
   margin-top: 8px;
   padding-left: 20px;
-  border-left: 1px solid var(--border, #e3e6ec);
+  border-left: 1px solid var(--border);
   font-size: 12px;
   line-height: 1.7;
   overflow-wrap: anywhere;
@@ -409,21 +410,21 @@ onUnmounted(() => {
 }
 .reader-toc b {
   margin-bottom: 4px;
-  color: var(--muted, #7a8190);
+  color: var(--muted);
   font-size: 11px;
   font-weight: 500;
 }
 .reader-toc a {
-  color: #6c7482;
+  color: var(--muted);
   text-decoration: none;
 }
 .reader-toc a:hover,
 .reader-mobile-toc a:hover {
-  color: var(--blue, #4566c6);
+  color: var(--blue);
 }
 .reader-fragment {
   margin: 0;
-  color: var(--muted, #7a8190);
+  color: var(--muted);
   font-size: 12px;
 }
 .reader-fragment-actions {
@@ -434,7 +435,7 @@ onUnmounted(() => {
   gap: 12px;
   margin-top: 28px;
   padding-top: 18px;
-  border-top: 1px solid var(--border, #e3e6ec);
+  border-top: 1px solid var(--border);
 }
 .reader-fragment-error {
   margin-top: 24px;
@@ -442,15 +443,15 @@ onUnmounted(() => {
 .reader-toc a:focus-visible,
 .reader-mobile-toc a:focus-visible,
 .reader-mobile-toc summary:focus-visible {
-  outline: 2px solid var(--blue, #4566c6);
+  outline: 2px solid var(--blue);
   outline-offset: 3px;
   border-radius: 2px;
 }
 .share-page footer {
   margin: auto 32px 0;
   padding: 20px;
-  border-top: 1px solid var(--border, #e3e6ec);
-  color: var(--muted, #7a8190);
+  border-top: 1px solid var(--border);
+  color: var(--muted);
   font-size: 11px;
   line-height: 1.9;
   text-align: center;
@@ -461,12 +462,12 @@ onUnmounted(() => {
   max-width: 560px;
   margin: auto;
   padding: 80px 24px;
-  color: var(--muted, #7a8190);
+  color: var(--muted);
   text-align: center;
 }
 .share-error h1 {
   margin: 24px 0 10px;
-  color: var(--text, #262b36);
+  color: var(--text);
   font-size: 23px;
   font-weight: 600;
   line-height: 1.5;
@@ -482,15 +483,15 @@ onUnmounted(() => {
   width: 52px;
   height: 52px;
   margin: 0 auto;
-  border: 1px solid var(--border, #e3e6ec);
-  border-radius: 10px;
-  background: var(--surface-soft, #fafbfc);
-  color: #7b8493;
+  border: 1px solid var(--border);
+  border-radius: var(--ui-radius);
+  background: var(--surface-soft);
+  color: var(--muted);
 }
 @media (max-width: 720px) {
   .reader-header {
-    min-height: 60px;
-    padding: 14px 20px;
+    min-height: 56px;
+    padding: 12px 16px;
     gap: 14px;
   }
   .reader-header .brand {
@@ -510,7 +511,7 @@ onUnmounted(() => {
   .reader-layout,
   .reader-layout.has-toc {
     display: block;
-    padding: 32px 22px 40px;
+    padding: 24px 16px 40px;
   }
   .reader-title {
     font-size: 26px;
@@ -521,20 +522,20 @@ onUnmounted(() => {
   .reader-mobile-toc {
     display: block;
     margin-top: 20px;
-    border: 1px solid var(--border, #e3e6ec);
-    border-radius: 6px;
-    background: var(--surface-soft, #fafbfc);
+    border: 1px solid var(--border);
+    border-radius: var(--ui-radius);
+    background: var(--surface-soft);
     font-size: 12px;
     line-height: 1.7;
   }
   .reader-mobile-toc summary {
     padding: 11px 13px;
-    color: var(--text, #262b36);
+    color: var(--text);
     cursor: pointer;
   }
   .reader-mobile-toc summary span {
     margin-left: 8px;
-    color: var(--muted, #687486);
+    color: var(--muted);
     font-size: 11px;
   }
   .reader-mobile-toc nav {
@@ -548,11 +549,11 @@ onUnmounted(() => {
     overflow-wrap: anywhere;
   }
   .reader-mobile-toc a {
-    color: var(--muted, #687486);
+    color: var(--muted);
     text-decoration: none;
   }
   .reader-layout article > .markdown {
-    font-size: 14px;
+    font-size: 16px;
     line-height: 1.8;
   }
   .markdown :deep(h2) {

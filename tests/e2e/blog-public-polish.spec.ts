@@ -83,10 +83,10 @@ test('the anonymous reader follows the system appearance and respects an explici
     await expect(reader.locator('html')).toHaveAttribute('data-theme', 'system');
     expect(
       await reader.locator('body').evaluate((element) => getComputedStyle(element).backgroundColor),
-    ).toBe('rgb(21, 29, 25)');
+    ).toBe('rgb(19, 21, 30)');
     expect(
       await reader.locator('body').evaluate((element) => getComputedStyle(element).color),
-    ).toBe('rgb(229, 236, 229)');
+    ).toBe('rgb(229, 232, 240)');
     await reader.screenshot({
       path: info.outputPath('public-reader-dark.jpg'),
       type: 'jpeg',
@@ -97,14 +97,14 @@ test('the anonymous reader follows the system appearance and respects an explici
     await reader.emulateMedia({ colorScheme: 'light' });
     expect(
       await reader.locator('body').evaluate((element) => getComputedStyle(element).backgroundColor),
-    ).toBe('rgb(251, 250, 246)');
+    ).toBe('rgb(255, 255, 255)');
     await reader.emulateMedia({ colorScheme: 'dark' });
     await appearance('light');
     await reader.reload();
     await expect(reader.locator('html')).toHaveAttribute('data-theme', 'light');
     expect(
       await reader.locator('body').evaluate((element) => getComputedStyle(element).backgroundColor),
-    ).toBe('rgb(251, 250, 246)');
+    ).toBe('rgb(255, 255, 255)');
     expect(
       await reader.locator('html').evaluate((element) => getComputedStyle(element).colorScheme),
     ).toBe('light');

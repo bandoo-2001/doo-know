@@ -129,7 +129,7 @@ async function upload() {
 .setup-import {
   min-width: 0;
   padding-top: 2px;
-  color: #6c7482;
+  color: var(--muted);
   font-size: 13px;
 }
 p {
@@ -141,15 +141,15 @@ label {
   display: block;
   margin: 16px 0 12px;
   padding: 16px;
-  border: 1px dashed #d5dbe6;
-  border-radius: 7px;
-  background: var(--surface-soft, #fafbfc);
-  color: var(--text, #262b36);
+  border: 1px dashed var(--border);
+  border-radius: var(--ui-radius);
+  background: var(--surface-soft);
+  color: var(--text);
   font-size: 13px;
   font-weight: 500;
 }
 label:focus-within {
-  outline: 2px solid var(--focus, #4566c6);
+  outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
 input {
@@ -157,16 +157,16 @@ input {
   width: 100%;
   min-width: 0;
   margin-top: 12px;
-  color: #6c7482;
+  color: var(--muted);
   font-size: 12px;
 }
 input::file-selector-button {
   margin-right: 10px;
   padding: 7px 10px;
-  border: 1px solid var(--border, #e3e6ec);
-  border-radius: 5px;
-  background: white;
-  color: var(--text, #262b36);
+  border: 1px solid var(--border);
+  border-radius: var(--ui-radius);
+  background: var(--panel);
+  color: var(--text);
   font: inherit;
   cursor: pointer;
 }
@@ -176,7 +176,7 @@ input:disabled::file-selector-button {
 }
 .hint {
   margin-bottom: 16px;
-  color: var(--muted, #7a8190);
+  color: var(--muted);
   font-size: 12px;
 }
 .ant-alert {

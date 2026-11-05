@@ -34,28 +34,31 @@ const imageTypes = new Set([
 ]);
 const maxImageBytes = 10 * 1024 * 1024;
 const readingStyles = `
-:root { color-scheme: light; }
-body { margin: 0; color: #202735; background: #fff; font: 16px/1.8 system-ui, sans-serif; }
-main { max-width: 820px; padding: 44px 24px 80px; margin: 0 auto; overflow-wrap: anywhere; }
-img { max-width: 100%; height: auto; }
-a { color: #245bb3; }
+:root { color-scheme: light; --text: #272b3a; --muted: #657084; --border: #e6e9f1; --surface: #f7f8fa; --blue: #4566c6; --ui-radius: 8px; }
+* { box-sizing: border-box; }
+body { margin: 0; color: var(--text); background: #fff; font: 16px/1.8 system-ui, sans-serif; }
+main { width: 100%; max-width: 820px; padding: 40px 24px 72px; margin: 0 auto; overflow-wrap: anywhere; }
+img { max-width: 100%; height: auto; border-radius: var(--ui-radius); }
+a { color: var(--blue); text-underline-offset: 3px; }
+a:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
 h1,h2,h3,h4,h5,h6 { line-height: 1.4; break-after: avoid; }
-pre { padding: 16px; overflow: auto; background: #f4f6f9; border-radius: 6px; white-space: pre-wrap; }
+pre { max-width: 100%; padding: 16px; overflow: auto; border: 1px solid var(--border); background: var(--surface); border-radius: var(--ui-radius); white-space: pre-wrap; }
 code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .9em; }
-blockquote,.markdown-alert { margin: 1.2em 0; padding: 4px 16px; border-left: 4px solid #a8b8ce; }
+blockquote,.markdown-alert { margin: 1.2em 0; padding: 4px 16px; border-left: 3px solid var(--border); }
 .markdown-alert-note,.markdown-alert-tip { border-color: #2e76b8; }
 .markdown-alert-important { border-color: #8250c4; }
 .markdown-alert-warning,.markdown-alert-caution { border-color: #ad6800; }
 .markdown-alert-title { font-weight: 650; }
-table { border-collapse: collapse; width: 100%; }
-th,td { border: 1px solid #d6dbe3; padding: 7px 10px; }
-th { background: #f4f6f9; }
+table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; width: 100%; }
+th,td { border: 1px solid var(--border); padding: 8px 12px; }
+th { background: var(--surface); }
 .footnotes { font-size: .88em; }
-.reading-properties { color: #596579; font-size: .85em; }
+.reading-properties { color: var(--muted); font-size: .85em; }
 .knowledge-math { overflow-x: auto; }
 .knowledge-math[data-display='block'] { text-align: center; margin: 1em 0; }
 .knowledge-math-error { font-family: ui-monospace, monospace; }
-@media print { main { max-width: none; padding: 0; } body { font-size: 11pt; } pre,blockquote,table,img { break-inside: avoid; } a { color: inherit; } }
+@media (max-width: 600px) { main { padding: 24px 16px 48px; } }
+@media print { main { max-width: none; padding: 0; } body { font-size: 11pt; } pre,blockquote,table,img { break-inside: avoid; } pre { overflow: visible; overflow-wrap: anywhere; } table { display: table; overflow: visible; } th,td { overflow-wrap: anywhere; } a { color: inherit; } }
 `;
 
 function toBase64(bytes: Uint8Array) {

@@ -187,9 +187,9 @@ onMounted(async () => {
   column-gap: 18px;
   min-width: 0;
   padding: 20px;
-  border: 1px solid var(--border, #e3e6ec);
-  border-radius: 8px;
-  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--ui-radius);
+  background: var(--panel);
 }
 .feature > .ant-btn {
   grid-column: 2;
@@ -216,47 +216,47 @@ onMounted(async () => {
   flex-shrink: 0;
   width: 34px;
   height: 34px;
-  border: 1px solid #e6eaf5;
-  border-radius: 7px;
-  background: #f3f5fc;
-  color: var(--blue, #4566c6);
+  border: 1px solid var(--border);
+  border-radius: var(--ui-radius);
+  background: var(--blue-soft);
+  color: var(--blue);
   font-size: 21px;
 }
 h2 {
   margin: 0 0 5px;
-  color: var(--text, #262b36);
+  color: var(--text);
   font-size: 15px;
   font-weight: 600;
   line-height: 1.6;
 }
 p {
   margin: 0 0 8px;
-  color: #6c7482;
+  color: var(--muted);
   font-size: 13px;
   line-height: 1.85;
 }
 .feature-state {
   display: inline-block;
-  color: var(--muted, #7a8190);
+  color: var(--muted);
   font-size: 11px;
   line-height: 1.7;
 }
 .feature-detail {
   margin: 16px 0 13px;
   padding-top: 13px;
-  border-top: 1px solid #edf0f4;
+  border-top: 1px solid var(--border);
   font-size: 12px;
 }
 .feature-config {
   min-width: 0;
   margin-top: 18px;
   padding-top: 16px;
-  border-top: 1px solid var(--border, #e3e6ec);
+  border-top: 1px solid var(--border);
   overflow-wrap: anywhere;
 }
 .technical {
   margin-top: 12px;
-  color: var(--muted, #7a8190);
+  color: var(--muted);
   font-size: 12px;
   line-height: 1.8;
 }
@@ -265,7 +265,7 @@ summary {
   cursor: pointer;
 }
 summary:focus-visible {
-  outline: 2px solid var(--focus, #4566c6);
+  outline: 2px solid var(--focus);
   outline-offset: 3px;
 }
 .technical[open] summary {
@@ -274,7 +274,7 @@ summary:focus-visible {
 .unavailable {
   display: block;
   margin-top: 8px;
-  color: var(--muted, #7a8190);
+  color: var(--muted);
   font-size: 12px;
   line-height: 1.8;
 }
