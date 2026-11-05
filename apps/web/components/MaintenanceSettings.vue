@@ -180,11 +180,11 @@ onMounted(() => void load());
 <style scoped>
 .maintenance-settings {
   padding: 24px;
-  background: #fff;
+  background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--ui-radius, 8px);
   margin: 24px 0;
-  scroll-margin-top: 60px;
+  scroll-margin-top: 16px;
 }
 header {
   display: flex;

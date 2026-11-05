@@ -46,8 +46,8 @@ const item = computed(() =>
   width: min(820px, calc(100vw - 40px));
   max-height: calc(100dvh - 48px);
   margin: 24px auto;
-  border: 1px solid var(--border, #e3e6ec);
-  border-radius: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--ui-radius, 8px);
 }
 .plugin-panel-content {
   min-width: 0;

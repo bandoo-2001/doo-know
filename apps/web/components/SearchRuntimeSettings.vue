@@ -241,10 +241,10 @@ onUnmounted(() => clearInterval(timer));
   min-width: 0;
   margin: 24px 0;
   padding: 18px;
-  border: 1px solid var(--border, #e3e6ec);
-  border-radius: 8px;
-  background: var(--panel, #fff);
-  color: var(--text, #262b36);
+  border: 1px solid var(--border);
+  border-radius: var(--ui-radius, 8px);
+  background: var(--panel);
+  color: var(--text);
 }
 .runtime-heading {
   display: flex;
@@ -259,9 +259,9 @@ onUnmounted(() => clearInterval(timer));
   place-items: center;
   width: 34px;
   height: 34px;
-  border-radius: 8px;
-  background: var(--surface, #f5f6f8);
-  color: var(--blue, #4566c6);
+  border-radius: var(--ui-radius, 8px);
+  background: var(--surface);
+  color: var(--blue);
   font-size: 26px;
   line-height: 1;
 }
@@ -291,7 +291,7 @@ onUnmounted(() => clearInterval(timer));
 }
 .runtime-description {
   margin: 0;
-  color: var(--muted, #7a8190);
+  color: var(--muted);
   font-size: 13px;
   line-height: 1.65;
 }
@@ -305,13 +305,13 @@ onUnmounted(() => clearInterval(timer));
   flex-direction: column;
   gap: 8px;
   padding: 12px 14px;
-  border: 1px solid var(--border, #e3e6ec);
-  border-radius: 6px;
-  background: var(--surface-soft, #fafbfc);
+  border: 1px solid var(--border);
+  border-radius: var(--ui-radius, 8px);
+  background: var(--surface-soft);
 }
 .component-label {
   font-size: 12px;
-  color: var(--muted, #7a8190);
+  color: var(--muted);
 }
 .component-status {
   display: flex;
@@ -327,14 +327,14 @@ onUnmounted(() => clearInterval(timer));
   height: 6px;
   flex-shrink: 0;
   border-radius: 50%;
-  background: #b8bfca;
+  background: var(--muted);
 }
 .component-status.ready i {
-  background: var(--blue, #4566c6);
+  background: var(--blue);
 }
 .runtime-note {
   margin: 12px 0;
-  color: var(--muted, #7a8190);
+  color: var(--muted);
   font-size: 12px;
   line-height: 1.65;
   overflow-wrap: anywhere;
@@ -342,15 +342,15 @@ onUnmounted(() => clearInterval(timer));
 .runtime-onboarding-status {
   margin: 12px 0;
   padding: 11px 13px;
-  border-radius: 6px;
-  background: var(--surface-soft, #fafbfc);
+  border-radius: var(--ui-radius, 8px);
+  background: var(--surface-soft);
   font-size: 13px;
 }
 .runtime-task {
   margin: 12px 0;
   padding: 12px 14px;
-  border: 1px solid var(--border, #e3e6ec);
-  border-radius: 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--ui-radius, 8px);
 }
 .runtime-task-heading {
   display: flex;
@@ -360,7 +360,7 @@ onUnmounted(() => clearInterval(timer));
   font-size: 13px;
 }
 .runtime-bytes {
-  color: var(--muted, #7a8190);
+  color: var(--muted);
   font-variant-numeric: tabular-nums;
   font-size: 12px;
 }
@@ -394,7 +394,7 @@ onUnmounted(() => clearInterval(timer));
   align-items: center;
   gap: 10px;
   padding: 12px 0;
-  color: var(--muted, #687486);
+  color: var(--muted);
   font-size: 13px;
 }
 @media (max-width: 600px) {

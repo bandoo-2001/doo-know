@@ -274,9 +274,9 @@ watch(() => [props.plugin.state, props.plugin.configVersion], load);
 .mcp-guide {
   padding: 18px;
   margin-bottom: 24px;
-  border: 1px solid var(--border, #e3e6ec);
-  border-radius: 8px;
-  background: var(--surface-soft, #fafbfc);
+  border: 1px solid var(--border);
+  border-radius: var(--ui-radius, 8px);
+  background: var(--surface-soft);
   min-width: 0;
   font-size: 13px;
   line-height: 1.75;
@@ -303,7 +303,7 @@ watch(() => [props.plugin.state, props.plugin.configVersion], load);
   overflow-wrap: anywhere;
 }
 .mcp-guide a {
-  color: var(--blue, #4566c6);
+  color: var(--blue);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
@@ -322,14 +322,14 @@ watch(() => [props.plugin.state, props.plugin.configVersion], load);
   display: flex;
   flex-direction: column;
   padding: 10px 12px;
-  border: 1px solid var(--border, #e3e6ec);
-  border-radius: 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--ui-radius, 8px);
   min-width: 0;
   overflow-wrap: anywhere;
 }
 .guide-muted,
 .guide-sources {
-  color: var(--muted, #7a8190);
+  color: var(--muted);
   font-size: 12px;
 }
 .guide-paths {
@@ -354,8 +354,8 @@ watch(() => [props.plugin.state, props.plugin.configVersion], load);
   align-items: center;
   padding: 12px;
   margin: 12px 0;
-  border: 1px solid var(--border, #e3e6ec);
-  border-radius: 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--ui-radius, 8px);
 }
 .guide-value > span {
   width: 100%;
@@ -370,14 +370,14 @@ watch(() => [props.plugin.state, props.plugin.configVersion], load);
   max-width: 100%;
   overflow-x: auto;
   padding: 12px;
-  border-radius: 6px;
-  background: var(--surface, #f5f6f8);
+  border-radius: var(--ui-radius, 8px);
+  background: var(--surface);
   font-size: 12px;
   line-height: 1.7;
 }
 .mcp-guide summary {
   cursor: pointer;
-  color: var(--blue, #4566c6);
+  color: var(--blue);
 }
 .guide-clients {
   margin-top: 20px;
@@ -385,20 +385,20 @@ watch(() => [props.plugin.state, props.plugin.configVersion], load);
 .guide-client {
   margin-top: 10px;
   padding-top: 10px;
-  border-top: 1px solid var(--border, #e3e6ec);
+  border-top: 1px solid var(--border);
   overflow-wrap: anywhere;
 }
 .guide-client > span {
   margin-left: 10px;
-  color: var(--muted, #7a8190);
+  color: var(--muted);
 }
 .guide-notice {
-  color: var(--blue, #4566c6);
+  color: var(--blue);
 }
 .guide-sources {
   padding-top: 14px;
   margin-top: 16px !important;
-  border-top: 1px solid var(--border, #e3e6ec);
+  border-top: 1px solid var(--border);
 }
 @media (max-width: 600px) {
   .mcp-guide {

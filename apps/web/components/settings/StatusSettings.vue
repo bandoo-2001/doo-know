@@ -430,7 +430,7 @@ onBeforeUnmount(() => {
 }
 .status-row {
   margin: 0;
-  border-bottom: 1px solid var(--border, #e3e6ec);
+  border-bottom: 1px solid var(--border);
 }
 .status-row:last-child {
   border-bottom: 0;
@@ -444,17 +444,17 @@ onBeforeUnmount(() => {
   gap: 12px;
   padding: 16px 0;
   list-style: none;
-  color: var(--text, #262b36);
-  border-radius: 6px;
+  color: var(--text);
+  border-radius: var(--ui-radius, 8px);
 }
 .status-row > summary::-webkit-details-marker {
   display: none;
 }
 .status-row > summary:hover {
-  background: var(--surface-soft, #fafbfc);
+  background: var(--surface-soft);
 }
 .status-row > summary:focus-visible {
-  outline: 2px solid var(--blue, #4566c6);
+  outline: 2px solid var(--blue);
   outline-offset: 3px;
 }
 .status-row-icon {
@@ -463,21 +463,21 @@ onBeforeUnmount(() => {
   flex-shrink: 0;
   width: 32px;
   height: 32px;
-  border-radius: 8px;
-  color: var(--muted, #687486);
-  background: var(--surface, #f1f3f6);
+  border-radius: var(--ui-radius, 8px);
+  color: var(--muted);
+  background: var(--surface);
 }
 .status-row-icon.ready {
-  color: #34815a;
-  background: #34815a12;
+  color: var(--todo-green);
+  background: color-mix(in srgb, var(--todo-green) 10%, var(--panel));
 }
 .status-row-icon.active {
-  color: var(--blue, #4566c6);
-  background: var(--blue-soft, #eef2ff);
+  color: var(--blue);
+  background: var(--blue-soft);
 }
 .status-row-icon.warning {
-  color: #b27c41;
-  background: #b27c4112;
+  color: var(--todo-warning);
+  background: color-mix(in srgb, var(--todo-warning) 10%, var(--panel));
 }
 .status-row-copy {
   flex: 1;
@@ -494,12 +494,12 @@ onBeforeUnmount(() => {
   font-size: 13px;
   line-height: 1.7;
   font-weight: 400;
-  color: var(--muted, #687486);
+  color: var(--muted);
 }
 .status-row-chevron {
   flex-shrink: 0;
   margin-right: 4px;
-  color: var(--muted, #687486);
+  color: var(--muted);
   transition: transform 0.15s;
 }
 .status-row[open] > summary .status-row-chevron {
@@ -534,7 +534,7 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 6px;
   padding-inline: 0;
-  color: var(--muted, #687486);
+  color: var(--muted);
   font-size: 12px;
 }
 @media (max-width: 380px) {

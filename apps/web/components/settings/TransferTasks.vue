@@ -309,8 +309,8 @@ onUnmounted(() => clearInterval(timer));
 .transfer-tasks-compact > .settings-muted {
   margin: 20px 0 4px;
   padding: 14px 12px;
-  border: 1px dashed var(--border, #e3e6ec);
-  border-radius: 8px;
+  border: 1px dashed var(--border);
+  border-radius: var(--ui-radius, 8px);
   text-align: center;
 }
 .transfer-tasks-compact > .settings-list:empty {
@@ -326,6 +326,6 @@ onUnmounted(() => clearInterval(timer));
 }
 .transfer-history-toggle {
   margin-top: 12px;
-  color: var(--muted, #687486);
+  color: var(--muted);
 }
 </style>

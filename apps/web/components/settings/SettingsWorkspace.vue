@@ -26,7 +26,7 @@ const heading = computed(
 );
 </script>
 <template>
-  <section class="settings-workspace" :aria-label="heading.label">
+  <section class="settings-workspace settings-page" :aria-label="heading.label">
     <header class="settings-page-heading">
       <p class="settings-eyebrow">设置</p>
       <div class="settings-page-title-row">

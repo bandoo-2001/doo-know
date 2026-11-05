@@ -33,37 +33,37 @@ const GitDiffView = defineAsyncComponent({
 });
 
 const styles = `
-.dooknow-git-view { min-width: 0; color: var(--text, #262b36); font-size: 13px; line-height: 1.65; }
+.dooknow-git-view { min-width: 0; color: var(--text); font-size: 13px; line-height: 1.65; }
 .dooknow-git-view * { box-sizing: border-box; }
 .dooknow-git-view h3 { margin: 0 0 10px; font-size: 15px; font-weight: 600; }
 .dooknow-git-view p { margin: 0; overflow-wrap: anywhere; }
-.dooknow-git-view .git-description { margin-bottom: 16px; color: var(--muted, #7a8190); font-size: 12px; line-height: 1.75; }
-.dooknow-git-view .git-repository { margin: 10px 0 14px; padding: 11px 13px; border: 1px solid var(--border, #e3e6ec); border-radius: 6px; background: var(--surface-soft, #fafbfc); }
-.dooknow-git-view .git-pending { margin: 12px 0; padding: 13px; border: 1px solid var(--border, #e3e6ec); border-radius: 6px; }
+.dooknow-git-view .git-description { margin-bottom: 16px; color: var(--muted); font-size: 12px; line-height: 1.75; }
+.dooknow-git-view .git-repository { margin: 10px 0 14px; padding: 11px 13px; border: 1px solid var(--border); border-radius: var(--ui-radius, 8px); background: var(--surface-soft); }
+.dooknow-git-view .git-pending { margin: 12px 0; padding: 13px; border: 1px solid var(--border); border-radius: var(--ui-radius, 8px); }
 .dooknow-git-view .git-pending .git-description { margin: 5px 0 10px; }
 .dooknow-git-view .git-form-label { display: block; margin-bottom: 7px; font-weight: 500; }
 .dooknow-git-view .git-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
-.dooknow-git-view .git-preview { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border, #e3e6ec); }
+.dooknow-git-view .git-preview { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border); }
 .dooknow-git-view .git-preview-heading { display: flex; justify-content: space-between; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin-bottom: 10px; }
 .dooknow-git-view .git-preview-heading strong { font-size: 13px; font-weight: 600; }
-.dooknow-git-view .git-expiry { color: var(--muted, #7a8190); font-size: 11px; font-variant-numeric: tabular-nums; }
-.dooknow-git-view .git-change-list { max-height: 34vh; margin-top: 10px; overflow: auto; overscroll-behavior: contain; border: 1px solid var(--border, #e3e6ec); border-radius: 6px; background: var(--surface-soft, #fafbfc); }
+.dooknow-git-view .git-expiry { color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.dooknow-git-view .git-change-list { max-height: 34vh; margin-top: 10px; overflow: auto; overscroll-behavior: contain; border: 1px solid var(--border); border-radius: var(--ui-radius, 8px); background: var(--surface-soft); }
 .dooknow-git-view .git-change { padding: 7px 11px; font: 12px/1.7 ui-monospace, SFMono-Regular, Consolas, monospace; }
-.dooknow-git-view .git-change + .git-change { border-top: 1px solid var(--border, #e3e6ec); }
+.dooknow-git-view .git-change + .git-change { border-top: 1px solid var(--border); }
 .dooknow-git-view .git-history-list { display: grid; gap: 8px; }
-.dooknow-git-view .git-history-entry { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-width: 0; padding: 12px 13px; border: 1px solid var(--border, #e3e6ec); border-radius: 6px; }
-.dooknow-git-view .git-history-entry.selected { border-color: var(--blue, #4566c6); background: var(--surface-soft, #fafbfc); }
+.dooknow-git-view .git-history-entry { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-width: 0; padding: 12px 13px; border: 1px solid var(--border); border-radius: var(--ui-radius, 8px); }
+.dooknow-git-view .git-history-entry.selected { border-color: var(--blue); background: var(--surface-soft); }
 .dooknow-git-view .git-history-entry > div { min-width: 0; }
 .dooknow-git-view .git-history-summary { font-weight: 500; }
-.dooknow-git-view .git-history-meta { display: flex; flex-wrap: wrap; gap: 3px 10px; margin-top: 4px; color: var(--muted, #7a8190); font-size: 11px; font-variant-numeric: tabular-nums; }
+.dooknow-git-view .git-history-meta { display: flex; flex-wrap: wrap; gap: 3px 10px; margin-top: 4px; color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
 .dooknow-git-view .git-history-meta code { font-size: 11px; }
 .dooknow-git-view .git-history-entry > .n-button { flex-shrink: 0; }
-.dooknow-git-view .git-diff { min-width: 0; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border, #e3e6ec); }
-.dooknow-git-view .git-diff-label { margin-bottom: 8px; color: var(--muted, #7a8190); font-size: 12px; }
-.dooknow-git-view .git-diff pre { max-height: 45vh; margin: 0 0 12px; padding: 14px; overflow: auto; overscroll-behavior: contain; border: 1px solid var(--border, #e3e6ec); border-radius: 6px; background: var(--surface-soft, #fafbfc); color: var(--text, #262b36); font: 12px/1.75 ui-monospace, SFMono-Regular, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
-.dooknow-git-view .git-restore-confirm { margin-top: 12px; padding: 13px; border: 1px solid var(--border, #e3e6ec); border-radius: 6px; background: var(--surface-soft, #fafbfc); }
+.dooknow-git-view .git-diff { min-width: 0; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border); }
+.dooknow-git-view .git-diff-label { margin-bottom: 8px; color: var(--muted); font-size: 12px; }
+.dooknow-git-view .git-diff pre { max-height: 45vh; margin: 0 0 12px; padding: 14px; overflow: auto; overscroll-behavior: contain; border: 1px solid var(--border); border-radius: var(--ui-radius, 8px); background: var(--surface-soft); color: var(--text); font: 12px/1.75 ui-monospace, SFMono-Regular, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
+.dooknow-git-view .git-restore-confirm { margin-top: 12px; padding: 13px; border: 1px solid var(--border); border-radius: var(--ui-radius, 8px); background: var(--surface-soft); }
 .dooknow-git-view .git-restore-confirm p { margin-bottom: 10px; font-size: 12px; }
-.dooknow-git-view .git-empty { padding: 24px 16px; border: 1px dashed var(--border, #e3e6ec); border-radius: 6px; color: var(--muted, #7a8190); text-align: center; font-size: 12px; }
+.dooknow-git-view .git-empty { padding: 24px 16px; border: 1px dashed var(--border); border-radius: var(--ui-radius, 8px); color: var(--muted); text-align: center; font-size: 12px; }
 .dooknow-git-view > .n-alert { margin-bottom: 14px; }
 .dooknow-git-view .git-preview + .n-alert { margin-top: 14px; }
 @media (max-width: 600px) {

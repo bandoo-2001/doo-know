@@ -9,7 +9,7 @@
   margin-right: 12px;
   padding: 0 15px;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--ui-radius, 8px);
   background: var(--surface-soft);
   color: var(--text);
   font: inherit;
@@ -25,7 +25,7 @@
 .settings-field input[type='file']:focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 3px;
-  border-radius: 6px;
+  border-radius: var(--ui-radius, 8px);
 }
 
 .settings-field input[type='file']:disabled::file-selector-button {

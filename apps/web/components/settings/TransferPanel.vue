@@ -815,14 +815,14 @@ const ImportContainer = defineComponent({
   gap: 12px;
   padding: 0 0 22px;
   margin: 0 0 24px;
-  border-bottom: 1px solid var(--border, #e3e6ec);
+  border-bottom: 1px solid var(--border);
   list-style: none;
 }
 .transfer-steps li {
   display: flex;
   gap: 8px;
   align-items: center;
-  color: var(--muted, #687486);
+  color: var(--muted);
   font-size: 12px;
 }
 .transfer-steps li span {
@@ -831,16 +831,16 @@ const ImportContainer = defineComponent({
   width: 24px;
   height: 24px;
   place-items: center;
-  border: 1px solid var(--border, #e3e6ec);
+  border: 1px solid var(--border);
   border-radius: 50%;
 }
 .transfer-steps li.active {
-  color: var(--blue, #4566c6);
+  color: var(--blue);
   font-weight: 600;
 }
 .transfer-steps li.active span {
   border-color: currentColor;
-  background: var(--surface, #f5f6f8);
+  background: var(--surface);
 }
 .transfer-form {
   max-width: none;
@@ -852,9 +852,9 @@ const ImportContainer = defineComponent({
 }
 .transfer-review {
   padding: 4px 18px;
-  border: 1px solid var(--border, #e3e6ec);
-  border-radius: 8px;
-  background: var(--surface, #f5f6f8);
+  border: 1px solid var(--border);
+  border-radius: var(--ui-radius, 8px);
+  background: var(--surface);
 }
 .transfer-review > div {
   display: grid;
@@ -864,12 +864,14 @@ const ImportContainer = defineComponent({
   font-size: 13px;
 }
 .transfer-review > div + div {
-  border-top: 1px solid var(--border, #e3e6ec);
+  border-top: 1px solid var(--border);
 }
 .transfer-review dt {
-  color: var(--muted, #687486);
+  color: var(--muted);
 }
 .transfer-review dd {
+  min-width: 0;
+  overflow-wrap: anywhere;
   margin: 0;
 }
 @media (max-width: 560px) {

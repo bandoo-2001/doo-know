@@ -282,8 +282,8 @@ function reset() {
   top: var(--settings-sticky-top, 0px);
   z-index: 2;
   padding: 10px 0;
-  border-bottom: 1px solid var(--border, #e3e6ec);
-  background: var(--panel, #fff);
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
 }
 .settings-workspace .editor-settings-toolbar .settings-actions {
   gap: 8px;
@@ -310,23 +310,23 @@ function reset() {
 }
 .editor-preview {
   --preview-bg: #fff;
-  --preview-text: #293344;
-  --preview-muted: #748091;
-  --preview-border: #e0e5ed;
-  --preview-toolbar: #f3f5f8;
+  --preview-text: #272b3a;
+  --preview-muted: #657084;
+  --preview-border: #e6e9f1;
+  --preview-toolbar: #f7f8fa;
   border: 1px solid var(--preview-border);
-  border-radius: 8px;
+  border-radius: var(--ui-radius, 8px);
   overflow: hidden;
   background: var(--preview-bg);
   color: var(--preview-text);
   margin-top: 10px;
 }
 .editor-preview[data-preview-theme='dark'] {
-  --preview-bg: #20252e;
-  --preview-text: #e1e6ef;
-  --preview-muted: #a2adbd;
-  --preview-border: #3a4352;
-  --preview-toolbar: #292f3a;
+  --preview-bg: #1b1e29;
+  --preview-text: #e5e8f0;
+  --preview-muted: #a1a9bb;
+  --preview-border: #323746;
+  --preview-toolbar: #252937;
 }
 .preview-toolbar {
   display: flex;

@@ -111,7 +111,7 @@ watch(
   margin-top: 20px;
   padding: 18px;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--ui-radius, 8px);
   min-width: 0;
 }
 .authorization-card h2 {

@@ -127,7 +127,7 @@ defineExpose({ refresh });
 </template>
 <style scoped>
 .portable-jobs article {
-  border-top: 1px solid var(--border, #e3e6ec);
+  border-top: 1px solid var(--border);
   padding: 12px 0;
   overflow-wrap: anywhere;
 }

@@ -4,33 +4,33 @@ import { permissionDomains, type PermissionPolicy } from '../../../shared/permis
 const describePolicy=(policy:PermissionPolicy)=>permissionDomains.filter(domain=>domain.implemented && policy.domains[domain.id]?.enabled).map(domain=>{const grant=policy.domains[domain.id];return domain.title+'：'+domain.actions.filter(action=>grant.actions.includes(action.id)).map(action=>action.title).join('、')+'（'+(grant.resources.mode==='all'?'全部业务资源':grant.resources.resources.length+' 个指定资源')+'）';}).join('；')||'当前不可访问';
 
 const styles = `
-.dooknow-mcp-settings { min-width: 0; color: var(--text, #262b36); font-size: 13px; line-height: 1.6; }
+.dooknow-mcp-settings { min-width: 0; color: var(--text); font-size: 13px; line-height: 1.6; }
 .dooknow-mcp-settings * { box-sizing: border-box; }
 .dooknow-mcp-settings h3 { margin: 0; font-size: 15px; font-weight: 600; }
 .dooknow-mcp-settings p { margin: 0; overflow-wrap: anywhere; }
 .dooknow-mcp-settings .mcp-section + .mcp-section { margin-top: 24px; }
 .dooknow-mcp-settings .mcp-heading { margin-bottom: 12px; }
-.dooknow-mcp-settings .mcp-description { margin-top: 5px; color: var(--muted, #7a8190); font-size: 12px; }
+.dooknow-mcp-settings .mcp-description { margin-top: 5px; color: var(--muted); font-size: 12px; }
 .dooknow-mcp-settings .mcp-connections { display: grid; gap: 8px; margin: 12px 0 18px; }
-.dooknow-mcp-settings .mcp-connection { position: relative; padding: 11px 13px 11px 28px; border: 1px solid var(--border, #e3e6ec); border-radius: 6px; background: var(--surface-soft, #fafbfc); }
-.dooknow-mcp-settings .mcp-connection::before { position: absolute; top: 19px; left: 13px; width: 6px; height: 6px; border-radius: 50%; content: ''; background: #b7bdc7; }
-.dooknow-mcp-settings .mcp-connection.ready::before { background: var(--blue, #4566c6); }
-.dooknow-mcp-settings .mcp-label { margin-bottom: 8px; font-size: 12px; font-weight: 600; color: var(--muted, #7a8190); }
+.dooknow-mcp-settings .mcp-connection { position: relative; padding: 11px 13px 11px 28px; border: 1px solid var(--border); border-radius: var(--ui-radius, 8px); background: var(--surface-soft); }
+.dooknow-mcp-settings .mcp-connection::before { position: absolute; top: 19px; left: 13px; width: 6px; height: 6px; border-radius: 50%; content: ''; background: var(--muted); }
+.dooknow-mcp-settings .mcp-connection.ready::before { background: var(--blue); }
+.dooknow-mcp-settings .mcp-label { margin-bottom: 8px; font-size: 12px; font-weight: 600; color: var(--muted); }
 .dooknow-mcp-settings .mcp-list { display: grid; gap: 8px; }
-.dooknow-mcp-settings .mcp-client { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 12px 13px; border: 1px solid var(--border, #e3e6ec); border-radius: 6px; }
+.dooknow-mcp-settings .mcp-client { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 12px 13px; border: 1px solid var(--border); border-radius: var(--ui-radius, 8px); }
 .dooknow-mcp-settings .mcp-client-info { min-width: 0; }
 .dooknow-mcp-settings .mcp-client-heading { display: flex; flex-wrap: wrap; align-items: baseline; gap: 5px 8px; overflow-wrap: anywhere; }
 .dooknow-mcp-settings .mcp-client-id { font-weight: 500; }
-.dooknow-mcp-settings .mcp-state { flex-shrink: 0; padding: 0 6px; border-radius: 4px; background: var(--surface, #f5f6f8); font-size: 11px; color: var(--muted, #7a8190); }
-.dooknow-mcp-settings .mcp-state.active { color: var(--blue, #4566c6); }
-.dooknow-mcp-settings .mcp-scopes { margin-top: 5px; color: var(--muted, #7a8190); font-size: 12px; }
+.dooknow-mcp-settings .mcp-state { flex-shrink: 0; padding: 0 6px; border-radius: 4px; background: var(--surface); font-size: 11px; color: var(--muted); }
+.dooknow-mcp-settings .mcp-state.active { color: var(--blue); }
+.dooknow-mcp-settings .mcp-scopes { margin-top: 5px; color: var(--muted); font-size: 12px; }
 .dooknow-mcp-settings .mcp-client > .n-button { flex-shrink: 0; }
-.dooknow-mcp-settings .mcp-call { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 14px; padding: 11px 13px; border: 1px solid var(--border, #e3e6ec); border-radius: 6px; }
+.dooknow-mcp-settings .mcp-call { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 14px; padding: 11px 13px; border: 1px solid var(--border); border-radius: var(--ui-radius, 8px); }
 .dooknow-mcp-settings .mcp-call-tool { min-width: 0; overflow-wrap: anywhere; font-weight: 500; }
-.dooknow-mcp-settings .mcp-call-code { align-self: start; padding: 0 6px; border-radius: 4px; background: var(--surface, #f5f6f8); color: var(--muted, #7a8190); font: 11px/1.8 ui-monospace, SFMono-Regular, Consolas, monospace; overflow-wrap: anywhere; }
-.dooknow-mcp-settings .mcp-call-meta { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 2px 12px; color: var(--muted, #7a8190); font-size: 11px; font-variant-numeric: tabular-nums; }
+.dooknow-mcp-settings .mcp-call-code { align-self: start; padding: 0 6px; border-radius: 4px; background: var(--surface); color: var(--muted); font: 11px/1.8 ui-monospace, SFMono-Regular, Consolas, monospace; overflow-wrap: anywhere; }
+.dooknow-mcp-settings .mcp-call-meta { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 2px 12px; color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
 .dooknow-mcp-settings .mcp-call-meta span { min-width: 0; overflow-wrap: anywhere; }
-.dooknow-mcp-settings .mcp-empty { padding: 18px 13px; border: 1px dashed var(--border, #e3e6ec); border-radius: 6px; background: var(--surface-soft, #fafbfc); color: var(--muted, #7a8190); font-size: 12px; }
+.dooknow-mcp-settings .mcp-empty { padding: 18px 13px; border: 1px dashed var(--border); border-radius: var(--ui-radius, 8px); background: var(--surface-soft); color: var(--muted); font-size: 12px; }
 .dooknow-mcp-settings .mcp-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
 .dooknow-mcp-settings > .n-alert { margin-bottom: 14px; }
 @media (max-width: 600px) {

@@ -490,7 +490,7 @@ onMounted(() => void load());
   line-height: 1.7;
 }
 .restore-summary dt {
-  color: var(--muted, #687486);
+  color: var(--muted);
 }
 .restore-summary dd {
   margin: 0;

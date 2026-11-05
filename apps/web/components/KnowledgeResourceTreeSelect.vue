@@ -233,7 +233,7 @@ onBeforeUnmount(() => {
   height: 16px;
   border: 1px solid var(--border);
   border-radius: 4px;
-  background: var(--surface-alt, #f0f2f5);
+  background: var(--surface);
   color: var(--muted);
 }
 </style>

@@ -122,7 +122,7 @@ header p,
 .storage-time,
 .storage-hint {
   margin: 0;
-  color: var(--muted, #687486);
+  color: var(--muted);
   font-size: 12px;
   line-height: 1.5;
 }
@@ -138,7 +138,7 @@ header p,
   padding: 6px 8px;
   text-align: right;
   vertical-align: middle;
-  border-bottom: 1px solid var(--border, #e3e6ec);
+  border-bottom: 1px solid var(--border);
   overflow-wrap: anywhere;
 }
 .storage-table th:first-child {
@@ -151,12 +151,12 @@ header p,
   padding-right: 0;
 }
 .storage-table thead th {
-  color: var(--muted, #687486);
+  color: var(--muted);
   font-size: 12px;
   font-weight: 400;
 }
 .storage-table tbody th {
-  color: var(--text, #262b36);
+  color: var(--text);
   font-weight: 500;
 }
 .storage-bytes {
@@ -164,19 +164,19 @@ header p,
   font-variant-numeric: tabular-nums;
 }
 .storage-count {
-  color: var(--muted, #687486);
+  color: var(--muted);
   font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
 .storage-partial {
   display: block;
-  color: var(--muted, #687486);
+  color: var(--muted);
   font-size: 11px;
 }
 .storage-notes,
 details {
   font-size: 12px;
-  color: var(--muted, #687486);
+  color: var(--muted);
 }
 .storage-notes {
   margin: 0;
@@ -191,7 +191,7 @@ details p {
 }
 summary {
   cursor: pointer;
-  color: var(--blue, #4566c6);
+  color: var(--blue);
 }
 @media (max-width: 360px) {
   .storage-table th,

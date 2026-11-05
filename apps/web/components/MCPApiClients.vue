@@ -523,7 +523,7 @@ onMounted(load);
 .client-form,
 .one-time-secret {
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--ui-radius, 8px);
   padding: 14px;
   min-width: 0;
 }
@@ -538,10 +538,15 @@ onMounted(load);
 .client-form input[type='datetime-local'] {
   padding: 6px 10px;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--ui-radius, 8px);
   max-width: 100%;
-  background: var(--surface);
-  color: inherit;
+  background: var(--panel);
+  color: var(--text);
+  font: inherit;
+}
+.client-form input[type='datetime-local']:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
 }
 .client-title strong {
   overflow-wrap: anywhere;

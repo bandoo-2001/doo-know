@@ -193,7 +193,7 @@ onBeforeUnmount(() => {
   flex-wrap: wrap;
   align-items: center;
   gap: 6px 10px;
-  color: var(--muted, #7a8190);
+  color: var(--muted);
   font-size: 12px;
 }
 .share-access-meta .ant-tag {

@@ -1335,7 +1335,7 @@ onMounted(() => {
   display: grid;
   gap: 16px;
   min-width: 0;
-  color: var(--text, #262b36);
+  color: var(--text);
 }
 .git-overlay-body {
   min-width: 0;
@@ -1362,12 +1362,12 @@ li {
   overflow-wrap: anywhere;
 }
 p {
-  color: var(--muted, #727b8b);
+  color: var(--muted);
 }
 .remote-section {
   min-width: 0;
   padding-top: 14px;
-  border-top: 1px solid var(--border, #e3e6ec);
+  border-top: 1px solid var(--border);
 }
 summary {
   padding: 4px 0;
@@ -1386,9 +1386,9 @@ textarea {
   width: 100%;
   min-width: 0;
   box-sizing: border-box;
-  border: 1px solid var(--border, #d9dce5);
-  border-radius: 6px;
-  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--ui-radius, 8px);
+  background: var(--panel);
   color: inherit;
   padding: 9px 11px;
   font: inherit;
@@ -1397,7 +1397,7 @@ input:focus-visible,
 select:focus-visible,
 textarea:focus-visible,
 summary:focus-visible {
-  outline: 2px solid var(--focus, #4566c6);
+  outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
 .remote-check {
@@ -1418,10 +1418,10 @@ summary:focus-visible {
 .remote-status,
 .remote-job,
 .commit-preview {
-  border: 1px solid var(--border, #e3e6ec);
-  border-radius: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--ui-radius, 8px);
   padding: 14px;
-  background: var(--surface-soft, #fafbfc);
+  background: var(--surface-soft);
 }
 .remote-code,
 pre {

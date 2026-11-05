@@ -276,9 +276,14 @@ onBeforeUnmount(() => {
 }
 .organization-notes label {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
   overflow-wrap: anywhere;
+}
+.organization-notes input[type='checkbox'] {
+  flex: 0 0 auto;
+  margin-top: 4px;
+  accent-color: var(--blue);
 }
 .organization-history {
   padding-left: 20px;

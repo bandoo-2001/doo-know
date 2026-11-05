@@ -1,14 +1,18 @@
 .settings-workspace {
   --settings-card-padding: 20px;
+  /* The shared owner header sits outside the content scroller. */
   --settings-sticky-top: 0px;
   max-width: 1000px;
   width: 100%;
   margin: 0 auto;
   padding: 28px clamp(18px, 3vw, 40px) 48px;
   box-sizing: border-box;
-  color: var(--text, #262b36);
+  color: var(--text);
   overflow-wrap: anywhere;
   min-width: 0;
+}
+.settings-workspace.settings-page {
+  min-height: 100%;
 }
 .settings-workspace .settings-page-heading {
   margin-bottom: 20px;
@@ -32,11 +36,11 @@
 .settings-workspace .settings-eyebrow {
   font-size: 12px;
   margin: 0;
-  color: var(--muted, #687486);
+  color: var(--muted);
 }
 .settings-workspace .settings-page-description {
   font-size: 13px;
-  color: var(--muted, #687486);
+  color: var(--muted);
   line-height: 1.7;
   margin: 6px 0 0;
   max-width: 68ch;
@@ -51,9 +55,9 @@
 }
 .settings-workspace .settings-card {
   min-width: 0;
-  border: 1px solid var(--border, #e3e6ec);
-  border-radius: 10px;
-  background: var(--panel, #fff);
+  border: 1px solid var(--border);
+  border-radius: var(--ui-radius, 8px);
+  background: var(--panel);
   padding: var(--settings-card-padding);
 }
 .settings-workspace h2 {
@@ -75,7 +79,7 @@
 .settings-workspace .settings-title > svg,
 .settings-section-title > svg {
   flex-shrink: 0;
-  color: var(--muted, #687486);
+  color: var(--muted);
 }
 .ant-btn > .settings-button-icon {
   flex-shrink: 0;
@@ -86,7 +90,7 @@
   line-height: 1.7;
 }
 .settings-workspace .settings-muted {
-  color: var(--muted, #687486);
+  color: var(--muted);
   font-size: 13px;
 }
 .settings-workspace .settings-actions {
@@ -102,7 +106,7 @@
   justify-content: space-between;
   gap: 18px;
   padding: 12px 0;
-  border-bottom: 1px solid var(--border, #e3e6ec);
+  border-bottom: 1px solid var(--border);
 }
 .settings-workspace .settings-row:last-child {
   border-bottom: 0;
@@ -131,16 +135,20 @@
   font-size: 13px;
   font-weight: 500;
 }
+.settings-workspace .settings-field :is(input, select, textarea) {
+  max-width: 100%;
+  min-width: 0;
+}
 .settings-workspace .settings-field .ant-select {
   width: 100%;
 }
 .settings-workspace .settings-field-error {
   margin: 0;
   font-size: 12px;
-  color: var(--danger, #b43e3e);
+  color: var(--todo-danger);
 }
 .settings-workspace .settings-success {
-  color: #34815a;
+  color: var(--todo-green);
   font-size: 13px;
 }
 .settings-workspace .settings-list {
@@ -149,7 +157,7 @@
   margin: 16px 0 0;
 }
 .settings-workspace .settings-list > li {
-  border-top: 1px solid var(--border, #e3e6ec);
+  border-top: 1px solid var(--border);
   padding: 14px 0;
 }
 .settings-workspace .settings-item-header {
@@ -164,7 +172,7 @@
 .settings-workspace .settings-item-header p {
   margin: 4px 0;
   font-size: 12px;
-  color: var(--muted, #687486);
+  color: var(--muted);
 }
 .settings-workspace .settings-item-header .ant-btn {
   flex-shrink: 0;
@@ -179,20 +187,22 @@
 }
 .settings-workspace summary {
   cursor: pointer;
-  color: var(--blue, #4566c6);
+  color: var(--blue);
 }
 .settings-workspace pre {
   max-width: 100%;
   overflow: auto;
   white-space: pre-wrap;
-  background: var(--surface, #f5f6f8);
+  background: var(--surface);
   padding: 12px;
-  border-radius: 6px;
+  border-radius: var(--ui-radius, 8px);
   font-size: 12px;
 }
 .settings-workspace .settings-table-scroll {
   max-height: 340px;
+  min-width: 0;
   overflow: auto;
+  overscroll-behavior: contain;
   margin-top: 16px;
 }
 .settings-workspace table {
@@ -204,11 +214,11 @@
 .settings-workspace th {
   text-align: left;
   padding: 8px 10px;
-  border-bottom: 1px solid var(--border, #e3e6ec);
+  border-bottom: 1px solid var(--border);
   overflow-wrap: anywhere;
 }
 .settings-workspace th {
-  color: var(--muted, #687486);
+  color: var(--muted);
   font-weight: 500;
 }
 .settings-workspace .settings-card > .ant-alert {
@@ -220,7 +230,7 @@
   margin: 0;
 }
 .settings-workspace .search-runtime-settings {
-  border-radius: 10px;
+  border-radius: var(--ui-radius, 8px);
   padding: var(--settings-card-padding);
 }
 .settings-workspace .maintenance-settings {
@@ -246,8 +256,8 @@
 }
 .settings-workspace .settings-stat {
   padding: 16px;
-  background: var(--surface, #f5f6f8);
-  border-radius: 7px;
+  background: var(--surface);
+  border-radius: var(--ui-radius, 8px);
 }
 .settings-workspace .settings-stat strong {
   display: block;
@@ -256,7 +266,65 @@
 }
 .settings-workspace .settings-stat span {
   font-size: 12px;
-  color: var(--muted, #687486);
+  color: var(--muted);
+}
+.settings-action-icon {
+  display: grid;
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  color: var(--blue);
+  background: var(--blue-soft);
+  border-radius: var(--ui-radius, 8px);
+}
+.settings-workspace .settings-action-card {
+  container-type: inline-size;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px 16px;
+  padding: var(--settings-card-padding, 20px);
+}
+.settings-workspace .settings-action-card-with-icon {
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+}
+.settings-action-copy {
+  min-width: 0;
+}
+.settings-workspace .settings-action-copy h2 {
+  margin-bottom: 5px;
+  font-size: 16px;
+}
+.settings-workspace .settings-action-copy p {
+  margin: 0;
+  font-size: 12px;
+}
+.settings-action-button.ant-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 36px;
+  border-radius: var(--ui-radius, 8px);
+  color: var(--blue);
+  border-color: var(--border);
+  background: var(--panel);
+}
+@container (max-width: 440px) {
+  .settings-action-copy {
+    grid-column: 1 / -1;
+  }
+  .settings-action-card-with-icon > .settings-action-copy {
+    grid-column: 2 / -1;
+  }
+  .settings-action-button.ant-btn {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+}
+.settings-action-button:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
 }
 @media (max-width: 743px) {
   .settings-workspace {
@@ -274,11 +342,6 @@
   }
   .settings-workspace .settings-item-header {
     flex-wrap: wrap;
-  }
-}
-@media (max-width: 720px) {
-  .settings-workspace {
-    --settings-sticky-top: 46px;
   }
 }
 @media (max-width: 600px) {
